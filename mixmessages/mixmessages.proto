@@ -5,7 +5,7 @@
 
 syntax = "proto3";
 
-package helloworld;
+package mixmessages;
 
 // The greeting service definition.
 service MixMessageService {
