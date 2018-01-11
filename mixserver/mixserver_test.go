@@ -34,12 +34,23 @@ func TestStartServer(t *testing.T) {
 	// Contact the server and print out its response.
 	name := "MixMessageService"
 
+	// Say hello, check that we get the correct response
 	ctx, cancel := context.WithTimeout(context.Background(), 300*time.Millisecond)
 	r, err := c.SayHello(ctx, &pb.HelloRequest{Name: name})
-	cancel()
 	if err != nil {
 		t.Errorf("could not greet: %v", err)
 	} else if r.Message != "Hello MixMessageService" {
 		t.Errorf("Wrong greeting: %s", r.Message)
 	}
+	defer cancel()
+
+	time.Sleep(time.Millisecond*600)
+	
+	// Send it again, this time expect a timeout error.
+	ctx2, cancel2 := context.WithTimeout(context.Background(), 300*time.Millisecond)
+	r2, err2 := c.SayHello(ctx2, &pb.HelloRequest{Name: "Ehsy"})
+	if err2 == nil {
+		t.Errorf("Somehow able to greet: %s", r2.Message)
+	}
+	defer cancel2()
 }

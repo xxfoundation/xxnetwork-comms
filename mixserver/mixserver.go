@@ -8,6 +8,7 @@ package mixserver
 import (
 	"log"
 	"net"
+	"time"
 
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -21,10 +22,15 @@ type server struct{
 	gs *grpc.Server
 }
 
+func ShutDown(s *server) {
+	time.Sleep(time.Millisecond*500)
+	s.gs.GracefulStop()
+}
+
 // SayHello implements helloworld.GreeterServer
 func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (
 	*pb.HelloReply, error) {
-	// defer s.gs.GracefulStop()
+	go ShutDown(s)
 	return &pb.HelloReply{Message: "Hello " + in.Name}, nil
 }
 
