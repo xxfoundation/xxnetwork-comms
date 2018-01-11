@@ -24,7 +24,7 @@ type server struct{
 // SayHello implements helloworld.GreeterServer
 func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (
 	*pb.HelloReply, error) {
-	defer s.gs.GracefulStop()
+	// defer s.gs.GracefulStop()
 	return &pb.HelloReply{Message: "Hello " + in.Name}, nil
 }
 

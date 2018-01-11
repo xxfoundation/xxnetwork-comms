@@ -35,10 +35,11 @@ func TestStartServer(t *testing.T) {
 	name := "MixMessageService"
 
 	ctx, cancel := context.WithTimeout(context.Background(), 300*time.Millisecond)
-	defer cancel()
 	r, err := c.SayHello(ctx, &pb.HelloRequest{Name: name})
+	cancel()
 	if err != nil {
 		t.Errorf("could not greet: %v", err)
+	} else if r.Message != "Hello MixMessageService" {
+		t.Errorf("Wrong greeting: %s", r.Message)
 	}
-	t.Errorf("Greeting: %s", r.Message)
 }
