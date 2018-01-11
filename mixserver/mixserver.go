@@ -17,11 +17,14 @@ import (
 )
 
 // server is used to implement helloworld.GreeterServer.
-type server struct{}
+type server struct{
+	gs *grpc.Server
+}
 
 // SayHello implements helloworld.GreeterServer
 func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (
 	*pb.HelloReply, error) {
+	defer s.gs.GracefulStop()
 	return &pb.HelloReply{Message: "Hello " + in.Name}, nil
 }
 
@@ -30,11 +33,11 @@ func StartServer(port string) {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	s := grpc.NewServer()
-	pb.RegisterMixMessageServiceServer(s, &server{})
+	mixmessageServer := server{gs: grpc.NewServer()}
+	pb.RegisterMixMessageServiceServer(mixmessageServer.gs, &mixmessageServer)
 	// Register reflection service on gRPC server.
-	reflection.Register(s)
-	if err := s.Serve(lis); err != nil {
+	reflection.Register(mixmessageServer.gs)
+	if err := mixmessageServer.gs.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
 }
