@@ -19,6 +19,32 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
+// Smoke test the NetworkError endpoint
+func TestNetworkError(t *testing.T) {
+	addr := "localhost:5555"
+	// Set up a connection to the server.
+	conn, err := grpc.Dial(addr, grpc.WithInsecure(),
+		grpc.WithTimeout(time.Second))
+	if err != nil {
+		t.Errorf("did not connect: %v", err)
+	}
+	defer conn.Close()
+
+	c := pb.NewMixMessageServiceClient(conn)
+
+	// Say hello, check that we get the correct response
+	ctx, cancel := context.WithTimeout(context.Background(), 300*time.Millisecond)
+	r, err := c.NetworkError(ctx, &pb.ErrorMessage{Message: "Hello, world!"})
+	if err != nil {
+		t.Errorf("Error received: %s", err)
+	}
+	if r.MsgLen != 13 {
+		t.Errorf("Expected len of %v, got %v", 13, r)
+	}
+	defer cancel()
+	
+}
+
 func TestStartServer(t *testing.T) {
 	addr := "localhost:5555"
 	// Set up a connection to the server.
