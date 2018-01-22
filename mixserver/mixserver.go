@@ -39,7 +39,7 @@ func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (
 // Handle a Broadcasted Network Error event
 func (s *server) NetworkError(ctx context.Context, err *pb.ErrorMessage) (
 	*pb.ErrorAck, error) {
-	msgLen := len(err.Message)
+	msgLen := int32(len(err.Message))
 	jww.ERROR.Println(err.Message)
 	return &pb.ErrorAck{MsgLen: msgLen}, nil
 }
