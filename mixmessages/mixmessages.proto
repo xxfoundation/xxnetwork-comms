@@ -11,7 +11,7 @@ package mixmessages;
 service MixMessageService {
   // Sends a greeting
   rpc SayHello (HelloRequest) returns (HelloReply) {}
-  rpc SendError (ErrorMessage) returns (ErrorAck) {}
+  rpc NetworkError (ErrorMessage) returns (ErrorAck) {}
 }
 
 // The request message containing the user's name.
