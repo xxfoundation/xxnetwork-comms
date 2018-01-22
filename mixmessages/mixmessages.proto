@@ -11,6 +11,7 @@ package mixmessages;
 service MixMessageService {
   // Sends a greeting
   rpc SayHello (HelloRequest) returns (HelloReply) {}
+  rpc Error (ErrorBroadcast) returns (ErrorAck) {}
 }
 
 // The request message containing the user's name.
@@ -21,4 +22,14 @@ message HelloRequest {
 // The response message containing the greetings
 message HelloReply {
   string message = 1;
+}
+
+// ErrorBroadcast encodes an error message
+message ErrorBroadcast {
+  string Message = 1;
+}
+
+// ErrorAck returns the length of the received messages
+message ErrorAck {
+  int32 MsgLen = 1;
 }
