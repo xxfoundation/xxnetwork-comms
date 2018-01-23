@@ -15,6 +15,8 @@ import (
 	"google.golang.org/grpc/reflection"
 
 	pb "gitlab.com/privategrity/comms/mixmessages"
+
+	jww "github.com/spf13/jwalterweatherman"
 )
 
 // server is used to implement helloworld.GreeterServer.
@@ -32,6 +34,14 @@ func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (
 	*pb.HelloReply, error) {
 	go ShutDown(s)
 	return &pb.HelloReply{Message: "Hello " + in.Name}, nil
+}
+
+// Handle a Broadcasted Network Error event
+func (s *server) NetworkError(ctx context.Context, err *pb.ErrorMessage) (
+	*pb.ErrorAck, error) {
+	msgLen := int32(len(err.Message))
+	jww.ERROR.Println(err.Message)
+	return &pb.ErrorAck{MsgLen: msgLen}, nil
 }
 
 func StartServer(port string) {

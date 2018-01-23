@@ -3,3 +3,4 @@ import:
 - package: github.com/grpc/grpc-go
   version: master
   repo: https://github.com/grpc/grpc-go.git
+- package: github.com/spf13/jwalterweatherman
