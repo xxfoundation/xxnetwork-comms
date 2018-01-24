@@ -10,6 +10,8 @@ It is generated from these files:
 It has these top-level messages:
 	HelloRequest
 	HelloReply
+	AskOnlineRequest
+	AskOnlineAck
 	ErrorMessage
 	ErrorAck
 */
@@ -37,7 +39,7 @@ const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
 // The request message containing the user's name.
 type HelloRequest struct {
-	Name string `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
+	Name string `protobuf:"bytes,1,opt,name=Name" json:"Name,omitempty"`
 }
 
 func (m *HelloRequest) Reset()                    { *m = HelloRequest{} }
@@ -54,7 +56,7 @@ func (m *HelloRequest) GetName() string {
 
 // The response message containing the greetings
 type HelloReply struct {
-	Message string `protobuf:"bytes,1,opt,name=message" json:"message,omitempty"`
+	Message string `protobuf:"bytes,1,opt,name=Message" json:"Message,omitempty"`
 }
 
 func (m *HelloReply) Reset()                    { *m = HelloReply{} }
@@ -69,15 +71,49 @@ func (m *HelloReply) GetMessage() string {
 	return ""
 }
 
+// The request message asking if server is online
+type AskOnlineRequest struct {
+	Message string `protobuf:"bytes,1,opt,name=Message" json:"Message,omitempty"`
+}
+
+func (m *AskOnlineRequest) Reset()                    { *m = AskOnlineRequest{} }
+func (m *AskOnlineRequest) String() string            { return proto.CompactTextString(m) }
+func (*AskOnlineRequest) ProtoMessage()               {}
+func (*AskOnlineRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{2} }
+
+func (m *AskOnlineRequest) GetMessage() string {
+	if m != nil {
+		return m.Message
+	}
+	return ""
+}
+
+// The response message containing the online confirmation
+type AskOnlineAck struct {
+	IsOnline bool `protobuf:"varint,1,opt,name=IsOnline" json:"IsOnline,omitempty"`
+}
+
+func (m *AskOnlineAck) Reset()                    { *m = AskOnlineAck{} }
+func (m *AskOnlineAck) String() string            { return proto.CompactTextString(m) }
+func (*AskOnlineAck) ProtoMessage()               {}
+func (*AskOnlineAck) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{3} }
+
+func (m *AskOnlineAck) GetIsOnline() bool {
+	if m != nil {
+		return m.IsOnline
+	}
+	return false
+}
+
 // ErrorMessage encodes an error message
 type ErrorMessage struct {
-	Message string `protobuf:"bytes,1,opt,name=Message,json=message" json:"Message,omitempty"`
+	Message string `protobuf:"bytes,1,opt,name=Message" json:"Message,omitempty"`
 }
 
 func (m *ErrorMessage) Reset()                    { *m = ErrorMessage{} }
 func (m *ErrorMessage) String() string            { return proto.CompactTextString(m) }
 func (*ErrorMessage) ProtoMessage()               {}
-func (*ErrorMessage) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{2} }
+func (*ErrorMessage) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{4} }
 
 func (m *ErrorMessage) GetMessage() string {
 	if m != nil {
@@ -88,13 +124,13 @@ func (m *ErrorMessage) GetMessage() string {
 
 // ErrorAck returns the length of the received messages
 type ErrorAck struct {
-	MsgLen int32 `protobuf:"varint,1,opt,name=MsgLen,json=msgLen" json:"MsgLen,omitempty"`
+	MsgLen int32 `protobuf:"varint,1,opt,name=MsgLen" json:"MsgLen,omitempty"`
 }
 
 func (m *ErrorAck) Reset()                    { *m = ErrorAck{} }
 func (m *ErrorAck) String() string            { return proto.CompactTextString(m) }
 func (*ErrorAck) ProtoMessage()               {}
-func (*ErrorAck) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{3} }
+func (*ErrorAck) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{5} }
 
 func (m *ErrorAck) GetMsgLen() int32 {
 	if m != nil {
@@ -106,6 +142,8 @@ func (m *ErrorAck) GetMsgLen() int32 {
 func init() {
 	proto.RegisterType((*HelloRequest)(nil), "mixmessages.HelloRequest")
 	proto.RegisterType((*HelloReply)(nil), "mixmessages.HelloReply")
+	proto.RegisterType((*AskOnlineRequest)(nil), "mixmessages.AskOnlineRequest")
+	proto.RegisterType((*AskOnlineAck)(nil), "mixmessages.AskOnlineAck")
 	proto.RegisterType((*ErrorMessage)(nil), "mixmessages.ErrorMessage")
 	proto.RegisterType((*ErrorAck)(nil), "mixmessages.ErrorAck")
 }
@@ -123,7 +161,10 @@ const _ = grpc.SupportPackageIsVersion4
 type MixMessageServiceClient interface {
 	// Sends a greeting
 	SayHello(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloReply, error)
+	// Sends an error message
 	NetworkError(ctx context.Context, in *ErrorMessage, opts ...grpc.CallOption) (*ErrorAck, error)
+	// Sends an AskOnline request
+	AskOnline(ctx context.Context, in *AskOnlineRequest, opts ...grpc.CallOption) (*AskOnlineAck, error)
 }
 
 type mixMessageServiceClient struct {
@@ -152,12 +193,24 @@ func (c *mixMessageServiceClient) NetworkError(ctx context.Context, in *ErrorMes
 	return out, nil
 }
 
+func (c *mixMessageServiceClient) AskOnline(ctx context.Context, in *AskOnlineRequest, opts ...grpc.CallOption) (*AskOnlineAck, error) {
+	out := new(AskOnlineAck)
+	err := grpc.Invoke(ctx, "/mixmessages.MixMessageService/AskOnline", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for MixMessageService service
 
 type MixMessageServiceServer interface {
 	// Sends a greeting
 	SayHello(context.Context, *HelloRequest) (*HelloReply, error)
+	// Sends an error message
 	NetworkError(context.Context, *ErrorMessage) (*ErrorAck, error)
+	// Sends an AskOnline request
+	AskOnline(context.Context, *AskOnlineRequest) (*AskOnlineAck, error)
 }
 
 func RegisterMixMessageServiceServer(s *grpc.Server, srv MixMessageServiceServer) {
@@ -200,6 +253,24 @@ func _MixMessageService_NetworkError_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MixMessageService_AskOnline_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AskOnlineRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MixMessageServiceServer).AskOnline(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/mixmessages.MixMessageService/AskOnline",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MixMessageServiceServer).AskOnline(ctx, req.(*AskOnlineRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _MixMessageService_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "mixmessages.MixMessageService",
 	HandlerType: (*MixMessageServiceServer)(nil),
@@ -212,6 +283,10 @@ var _MixMessageService_serviceDesc = grpc.ServiceDesc{
 			MethodName: "NetworkError",
 			Handler:    _MixMessageService_NetworkError_Handler,
 		},
+		{
+			MethodName: "AskOnline",
+			Handler:    _MixMessageService_AskOnline_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "mixmessages.proto",
@@ -220,19 +295,22 @@ var _MixMessageService_serviceDesc = grpc.ServiceDesc{
 func init() { proto.RegisterFile("mixmessages.proto", fileDescriptor0) }
 
 var fileDescriptor0 = []byte{
-	// 217 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x12, 0xcc, 0xcd, 0xac, 0xc8,
-	0x4d, 0x2d, 0x2e, 0x4e, 0x4c, 0x4f, 0x2d, 0xd6, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0xe2, 0x46,
-	0x12, 0x52, 0x52, 0xe2, 0xe2, 0xf1, 0x48, 0xcd, 0xc9, 0xc9, 0x0f, 0x4a, 0x2d, 0x2c, 0x4d, 0x2d,
-	0x2e, 0x11, 0x12, 0xe2, 0x62, 0xc9, 0x4b, 0xcc, 0x4d, 0x95, 0x60, 0x54, 0x60, 0xd4, 0xe0, 0x0c,
-	0x02, 0xb3, 0x95, 0xd4, 0xb8, 0xb8, 0xa0, 0x6a, 0x0a, 0x72, 0x2a, 0x85, 0x24, 0xb8, 0xd8, 0xa1,
-	0xba, 0xa1, 0x8a, 0x60, 0x5c, 0x25, 0x0d, 0x2e, 0x1e, 0xd7, 0xa2, 0xa2, 0xfc, 0x22, 0x5f, 0x08,
-	0x1f, 0xa4, 0xd2, 0x17, 0xbb, 0x4a, 0x25, 0x2e, 0x0e, 0xb0, 0x4a, 0xc7, 0xe4, 0x6c, 0x21, 0x31,
-	0x2e, 0x36, 0xdf, 0xe2, 0x74, 0x9f, 0xd4, 0x3c, 0xb0, 0x22, 0xd6, 0x20, 0xb6, 0x5c, 0x30, 0xcf,
-	0x68, 0x26, 0x23, 0x97, 0xa0, 0x6f, 0x66, 0x05, 0xd4, 0x84, 0xe0, 0xd4, 0xa2, 0xb2, 0xcc, 0xe4,
-	0x54, 0x21, 0x07, 0x2e, 0x8e, 0xe0, 0xc4, 0x4a, 0xb0, 0x73, 0x84, 0x24, 0xf5, 0x90, 0x3d, 0x87,
-	0xec, 0x0d, 0x29, 0x71, 0x6c, 0x52, 0x05, 0x39, 0x95, 0x4a, 0x0c, 0x42, 0x4e, 0x5c, 0x3c, 0x7e,
-	0xa9, 0x25, 0xe5, 0xf9, 0x45, 0xd9, 0x60, 0x27, 0xa0, 0x99, 0x82, 0xec, 0x01, 0x29, 0x51, 0x4c,
-	0x29, 0xc7, 0xe4, 0x6c, 0x25, 0x86, 0x24, 0x36, 0x70, 0x48, 0x1a, 0x03, 0x02, 0x00, 0x00, 0xff,
-	0xff, 0xc9, 0xa3, 0xb4, 0x76, 0x5e, 0x01, 0x00, 0x00,
+	// 267 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x7c, 0x91, 0xd1, 0x4a, 0xc3, 0x30,
+	0x14, 0x86, 0x57, 0xd0, 0xd9, 0x1d, 0x7b, 0xe1, 0x0e, 0xa8, 0x5b, 0x41, 0x90, 0x5c, 0xc8, 0x10,
+	0xd9, 0x85, 0xbe, 0x80, 0x15, 0x44, 0x05, 0x3b, 0xa1, 0x7b, 0x82, 0x5a, 0x0e, 0xa3, 0x34, 0x6d,
+	0x6a, 0x52, 0x75, 0x7d, 0x5d, 0x9f, 0x44, 0x3c, 0xcb, 0x4a, 0x9c, 0x73, 0x77, 0xf9, 0x73, 0xbe,
+	0xff, 0x27, 0xe7, 0x0f, 0x0c, 0xcb, 0x7c, 0x59, 0x92, 0x31, 0xe9, 0x82, 0xcc, 0xb4, 0xd6, 0xaa,
+	0x51, 0x78, 0xe8, 0x5c, 0x09, 0x01, 0xc1, 0x23, 0x49, 0xa9, 0x12, 0x7a, 0x7b, 0x27, 0xd3, 0x20,
+	0xc2, 0xde, 0x2c, 0x2d, 0x69, 0xe4, 0x9d, 0x7b, 0x93, 0x41, 0xc2, 0x67, 0x71, 0x01, 0x60, 0x99,
+	0x5a, 0xb6, 0x38, 0x82, 0x83, 0x78, 0xe5, 0xb6, 0xd0, 0x5a, 0x8a, 0x2b, 0x38, 0x8a, 0x4c, 0xf1,
+	0x52, 0xc9, 0xbc, 0xa2, 0x75, 0xde, 0xff, 0xf4, 0x25, 0x04, 0x1d, 0x1d, 0x65, 0x05, 0x86, 0xe0,
+	0x3f, 0x99, 0x95, 0x64, 0xd4, 0x4f, 0x3a, 0x2d, 0x26, 0x10, 0xdc, 0x6b, 0xad, 0xb4, 0xf5, 0xee,
+	0x48, 0x15, 0xe0, 0x33, 0xf9, 0x93, 0x78, 0x02, 0xfd, 0xd8, 0x2c, 0x9e, 0xa9, 0x62, 0x68, 0x3f,
+	0xb1, 0xea, 0xfa, 0xcb, 0x83, 0x61, 0x9c, 0x2f, 0xad, 0x65, 0x4e, 0xfa, 0x23, 0xcf, 0x08, 0x6f,
+	0xc1, 0x9f, 0xa7, 0x2d, 0x2f, 0x8a, 0xe3, 0xa9, 0x5b, 0x9b, 0x5b, 0x50, 0x78, 0xba, 0x6d, 0x54,
+	0xcb, 0x56, 0xf4, 0xf0, 0x0e, 0x82, 0x19, 0x35, 0x9f, 0x4a, 0x17, 0xfc, 0x84, 0x8d, 0x14, 0x77,
+	0x81, 0xf0, 0xf8, 0xef, 0x28, 0xca, 0x0a, 0xd1, 0xc3, 0x07, 0x18, 0x74, 0xad, 0xe0, 0xd9, 0x2f,
+	0x6a, 0xb3, 0xdb, 0x70, 0xbc, 0x7d, 0xcc, 0x41, 0xaf, 0x7d, 0xfe, 0xec, 0x9b, 0xef, 0x00, 0x00,
+	0x00, 0xff, 0xff, 0x75, 0x46, 0x5f, 0x92, 0x01, 0x02, 0x00, 0x00,
 }

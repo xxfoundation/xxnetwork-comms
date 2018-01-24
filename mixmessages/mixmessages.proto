@@ -11,17 +11,30 @@ package mixmessages;
 service MixMessageService {
   // Sends a greeting
   rpc SayHello (HelloRequest) returns (HelloReply) {}
+  // Sends an error message
   rpc NetworkError (ErrorMessage) returns (ErrorAck) {}
+  // Sends an AskOnline request
+  rpc AskOnline (AskOnlineRequest) returns (AskOnlineAck) {}
 }
 
 // The request message containing the user's name.
 message HelloRequest {
-  string name = 1;
+  string Name = 1;
 }
 
 // The response message containing the greetings
 message HelloReply {
-  string message = 1;
+  string Message = 1;
+}
+
+// The request message asking if server is online
+message AskOnlineRequest {
+  string Message = 1;
+}
+
+// The response message containing the online confirmation
+message AskOnlineAck {
+  bool IsOnline = 1;
 }
 
 // ErrorMessage encodes an error message
