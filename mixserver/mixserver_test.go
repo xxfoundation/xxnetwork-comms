@@ -32,7 +32,7 @@ func TestNetworkError(t *testing.T) {
 
 	c := pb.NewMixMessageServiceClient(conn)
 
-	// 	// Send error, check that we get an ErrorAck back
+	// Send error, check that we get an ErrorAck back
 	ctx, cancel := context.WithTimeout(context.Background(), 300*time.Millisecond)
 	r, err := c.NetworkError(ctx, &pb.ErrorMessage{Message: "Hello, world!"})
 	if err != nil {
