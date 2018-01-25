@@ -20,12 +20,12 @@ import (
 )
 
 // server is used to implement helloworld.GreeterServer.
-type server struct{
+type server struct {
 	gs *grpc.Server
 }
 
 func ShutDown(s *server) {
-	time.Sleep(time.Millisecond*500)
+	time.Sleep(time.Millisecond * 500)
 	s.gs.GracefulStop()
 }
 
@@ -42,6 +42,12 @@ func (s *server) NetworkError(ctx context.Context, err *pb.ErrorMessage) (
 	msgLen := int32(len(err.Message))
 	jww.ERROR.Println(err.Message)
 	return &pb.ErrorAck{MsgLen: msgLen}, nil
+}
+
+// Handle a Broadcasted Ask Online event
+func (s *server) AskOnline(ctx context.Context, err *pb.Ping) (
+	*pb.Pong, error) {
+	return &pb.Pong{IsOnline: true}, nil
 }
 
 func StartServer(port string) {
