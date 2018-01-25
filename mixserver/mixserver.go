@@ -45,9 +45,9 @@ func (s *server) NetworkError(ctx context.Context, err *pb.ErrorMessage) (
 }
 
 // Handle a Broadcasted Ask Online event
-func (s *server) AskOnline(ctx context.Context, err *pb.AskOnlineRequest) (
-	*pb.AskOnlineAck, error) {
-	return &pb.AskOnlineAck{IsOnline: true}, nil
+func (s *server) AskOnline(ctx context.Context, err *pb.Ping) (
+	*pb.Pong, error) {
+	return &pb.Pong{IsOnline: true}, nil
 }
 
 func StartServer(port string) {
