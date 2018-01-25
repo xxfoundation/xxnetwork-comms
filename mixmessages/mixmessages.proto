@@ -28,9 +28,7 @@ message HelloReply {
 }
 
 // The request message asking if server is online
-message AskOnlineRequest {
-  string Message = 1;
-}
+message AskOnlineRequest {}
 
 // The response message containing the online confirmation
 message AskOnlineAck {

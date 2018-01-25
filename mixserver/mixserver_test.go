@@ -60,7 +60,7 @@ func TestAskOnline(t *testing.T) {
 
 	// Send AskOnline Request and check that we get an AskOnlineAck back
 	ctx, cancel := context.WithTimeout(context.Background(), 300*time.Millisecond)
-	response, err := c.AskOnline(ctx, &pb.AskOnlineRequest{Message: "Are you online?"})
+	response, err := c.AskOnline(ctx, &pb.AskOnlineRequest{})
 	if err != nil {
 		t.Errorf("AskOnline: Error received: %s", err)
 	}
