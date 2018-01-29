@@ -43,8 +43,8 @@ func (s *server) AskOnline(ctx context.Context, err *pb.Ping) (
 	return &pb.Pong{}, nil
 }
 
-func StartServer(port string) {
-	lis, err := net.Listen("tcp", port)
+func StartServer(addr string) {
+	lis, err := net.Listen("tcp", addr)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
