@@ -29,13 +29,6 @@ func ShutDown(s *server) {
 	s.gs.GracefulStop()
 }
 
-// SayHello implements helloworld.GreeterServer
-func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (
-	*pb.HelloReply, error) {
-	go ShutDown(s)
-	return &pb.HelloReply{Message: "Hello " + in.Name}, nil
-}
-
 // Handle a Broadcasted Network Error event
 func (s *server) NetworkError(ctx context.Context, err *pb.ErrorMessage) (
 	*pb.ErrorAck, error) {
@@ -47,7 +40,7 @@ func (s *server) NetworkError(ctx context.Context, err *pb.ErrorMessage) (
 // Handle a Broadcasted Ask Online event
 func (s *server) AskOnline(ctx context.Context, err *pb.Ping) (
 	*pb.Pong, error) {
-	return &pb.Pong{IsOnline: true}, nil
+	return &pb.Pong{}, nil
 }
 
 func StartServer(port string) {

@@ -60,12 +60,9 @@ func TestAskOnline(t *testing.T) {
 
 	// Send AskOnline Request and check that we get an AskOnlineAck back
 	ctx, cancel := context.WithTimeout(context.Background(), 300*time.Millisecond)
-	response, err := c.AskOnline(ctx, &pb.Ping{})
+	_, err = c.AskOnline(ctx, &pb.Ping{})
 	if err != nil {
 		t.Errorf("AskOnline: Error received: %s", err)
-	}
-	if !response.IsOnline {
-		t.Errorf("AskOnline: Failed to get an online confirmation!")
 	}
 	defer cancel()
 
@@ -77,22 +74,17 @@ func TestStartServer(t *testing.T) {
 	conn, err := grpc.Dial(addr, grpc.WithInsecure(),
 		grpc.WithTimeout(time.Second))
 	if err != nil {
-		t.Errorf("did not connect: %v", err)
+		t.Errorf("TestStartServer: Did not connect: %v", err)
 	}
 	defer conn.Close()
 
 	c := pb.NewMixMessageServiceClient(conn)
 
-	// Contact the server and print out its response.
-	name := "MixMessageService"
-
 	// Say hello, check that we get the correct response
 	ctx, cancel := context.WithTimeout(context.Background(), 300*time.Millisecond)
-	r, err := c.SayHello(ctx, &pb.HelloRequest{Name: name})
+	_, err = c.AskOnline(ctx, &pb.Ping{})
 	if err != nil {
-		t.Errorf("could not greet: %v", err)
-	} else if r.Message != "Hello MixMessageService" {
-		t.Errorf("Wrong greeting: %s", r.Message)
+		t.Errorf("TestStartServer: Could not greet: %v", err)
 	}
 	defer cancel()
 
@@ -100,9 +92,9 @@ func TestStartServer(t *testing.T) {
 
 	// Send it again, this time expect a timeout error.
 	ctx2, cancel2 := context.WithTimeout(context.Background(), 300*time.Millisecond)
-	r2, err2 := c.SayHello(ctx2, &pb.HelloRequest{Name: "Ehsy"})
-	if err2 == nil {
-		t.Errorf("Somehow able to greet: %s", r2.Message)
+	_, err = c.AskOnline(ctx2, &pb.Ping{})
+	if err == nil {
+		t.Errorf("TestStartServer: Somehow able to greet!")
 	}
 	defer cancel2()
 }
