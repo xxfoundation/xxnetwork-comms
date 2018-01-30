@@ -23,8 +23,7 @@ func TestMain(m *testing.M) {
 func TestNetworkError(t *testing.T) {
 	addr := "localhost:5555"
 	// Set up a connection to the server.
-	conn, err := grpc.Dial(addr, grpc.WithInsecure(),
-		grpc.WithTimeout(time.Second))
+	conn, err := grpc.Dial(addr, grpc.WithInsecure())
 	if err != nil {
 		t.Errorf("NetworkError: Did not connect: %v", err)
 	}
@@ -49,8 +48,7 @@ func TestNetworkError(t *testing.T) {
 func TestAskOnline(t *testing.T) {
 	addr := "localhost:5555"
 	// Set up a connection to the server.
-	conn, err := grpc.Dial(addr, grpc.WithInsecure(),
-		grpc.WithTimeout(time.Second))
+	conn, err := grpc.Dial(addr, grpc.WithInsecure())
 	if err != nil {
 		t.Errorf("AskOnline: Did not connect: %v", err)
 	}
