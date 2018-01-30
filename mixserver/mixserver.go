@@ -43,6 +43,12 @@ func (s *server) AskOnline(ctx context.Context, err *pb.Ping) (
 	return &pb.Pong{}, nil
 }
 
+// Handle a PrecompDecrypt event
+func (s *server) PrecompDecrypt(ctx context.Context, err *pb.PrecompDecryptMessage) (
+	*pb.Ack, error) {
+	return &pb.Ack{}, nil
+}
+
 func StartServer(addr string) {
 	lis, err := net.Listen("tcp", addr)
 	if err != nil {
