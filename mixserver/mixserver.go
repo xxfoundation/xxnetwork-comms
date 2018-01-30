@@ -19,7 +19,7 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 )
 
-// server is used to implement helloworld.GreeterServer.
+// server object
 type server struct {
 	gs *grpc.Server
 }
