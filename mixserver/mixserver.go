@@ -49,8 +49,9 @@ func (s *server) PrecompDecrypt(ctx context.Context, err *pb.PrecompDecryptMessa
 	return &pb.Ack{}, nil
 }
 
-func StartServer(addr string) {
-	lis, err := net.Listen("tcp", addr)
+// Starts the local comm server
+func StartServer(localServer string, handler ServerHandler) {
+	lis, err := net.Listen("tcp", localServer)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
