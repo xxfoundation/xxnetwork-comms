@@ -2,3 +2,5 @@
 glide.lock
 vendor/
 .idea/*
+.*.swp
+.*.swo
