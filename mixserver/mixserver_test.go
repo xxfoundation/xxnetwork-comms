@@ -32,7 +32,7 @@ func TestNetworkError(t *testing.T) {
 	c := pb.NewMixMessageServiceClient(conn)
 
 	// Send error, check that we get an ErrorAck back
-	ctx, cancel := context.WithTimeout(context.Background(), 300*time.Millisecond)
+	ctx, cancel := context.WithTimeout(context.Background(), 3000*time.Millisecond)
 	r, err := c.NetworkError(ctx, &pb.ErrorMessage{Message: "Hello, world!"})
 	if err != nil {
 		t.Errorf("NetworkError: Error received: %s", err)
@@ -57,7 +57,7 @@ func TestAskOnline(t *testing.T) {
 	c := pb.NewMixMessageServiceClient(conn)
 
 	// Send AskOnline Request and check that we get an AskOnlineAck back
-	ctx, cancel := context.WithTimeout(context.Background(), 300*time.Millisecond)
+	ctx, cancel := context.WithTimeout(context.Background(), 3000*time.Millisecond)
 	_, err = c.AskOnline(ctx, &pb.Ping{})
 	if err != nil {
 		t.Errorf("AskOnline: Error received: %s", err)
