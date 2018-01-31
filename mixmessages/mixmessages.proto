@@ -28,10 +28,11 @@ message Pong {}
 
 // Message for Precomp Decrypt
 message PrecompDecryptMessage {
-  bytes EncryptedMessageKeys = 1;
-  bytes EncryptedRecipientIDKeys = 2;
-  bytes PartialMessageCypherText = 3;
-  bytes PartialRecipientIDCypherText = 4;
+  uint64 SlotID = 1;
+  bytes EncryptedMessageKeys = 2;
+  bytes EncryptedRecipientIDKeys = 3;
+  bytes PartialMessageCypherText = 4;
+  bytes PartialRecipientIDCypherText = 5;
 }
 
 // ErrorMessage encodes an error message

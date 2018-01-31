@@ -15,7 +15,7 @@ import (
 
 func TestMain(m *testing.M) {
 	addr := "localhost:5555"
-	go StartServer(addr)
+	go StartServer(addr, nil)
 	os.Exit(m.Run())
 }
 
