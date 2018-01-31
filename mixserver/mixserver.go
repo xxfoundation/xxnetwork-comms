@@ -19,6 +19,10 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 )
 
+// Passed into StartServer to serve as an interface
+// for interacting with the server repo
+var serverHandler ServerHandler
+
 // server object
 type server struct {
 	gs *grpc.Server
@@ -38,7 +42,7 @@ func (s *server) NetworkError(ctx context.Context, err *pb.ErrorMessage) (
 }
 
 // Handle a Broadcasted Ask Online event
-func (s *server) AskOnline(ctx context.Context, err *pb.Ping) (
+func (s *server) AskOnline(ctx context.Context, msg *pb.Ping) (
 	*pb.Pong, error) {
 	return &pb.Pong{}, nil
 }
@@ -69,18 +73,25 @@ func (s *server) SendAskOnline(addr string, message *pb.Ping) (*pb.Pong, error) 
 }
 
 // Handle a PrecompDecrypt event
-func (s *server) PrecompDecrypt(ctx context.Context, err *pb.PrecompDecryptMessage) (
-	*pb.Ack, error) {
+func (s *server) PrecompDecrypt(ctx context.Context, msg *pb.PrecompDecryptMessage) (*pb.Ack, error) {
+	// Call the server handler with the msg
+	serverHandler.PrecompDecrypt(msg)
 	return &pb.Ack{}, nil
 }
 
-func StartServer(addr string) {
-	lis, err := net.Listen("tcp", addr)
+// Starts the local comm server
+func StartServer(localServer string, handler ServerHandler) {
+	// Set the serverHandler
+	serverHandler = handler
+
+	// Listen on the given address
+	lis, err := net.Listen("tcp", localServer)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	mixmessageServer := server{gs: grpc.NewServer()}
 	pb.RegisterMixMessageServiceServer(mixmessageServer.gs, &mixmessageServer)
+
 	// Register reflection service on gRPC server.
 	reflection.Register(mixmessageServer.gs)
 	if err := mixmessageServer.gs.Serve(lis); err != nil {
