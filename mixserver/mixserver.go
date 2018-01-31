@@ -42,14 +42,15 @@ func (s *server) NetworkError(ctx context.Context, err *pb.ErrorMessage) (
 }
 
 // Handle a Broadcasted Ask Online event
-func (s *server) AskOnline(ctx context.Context, err *pb.Ping) (
+func (s *server) AskOnline(ctx context.Context, msg *pb.Ping) (
 	*pb.Pong, error) {
 	return &pb.Pong{}, nil
 }
 
 // Handle a PrecompDecrypt event
-func (s *server) PrecompDecrypt(ctx context.Context, err *pb.PrecompDecryptMessage) (
-	*pb.Ack, error) {
+func (s *server) PrecompDecrypt(ctx context.Context, msg *pb.PrecompDecryptMessage) (*pb.Ack, error) {
+	// Call the server handler with the msg
+	serverHandler.PrecompDecrypt(msg)
 	return &pb.Ack{}, nil
 }
 
