@@ -28,7 +28,7 @@ message Pong {}
 
 // Message for Precomp Decrypt
 message PrecompDecryptMessage {
-  uint64 SlotID = 1;
+  uint64 Slot = 1;
   bytes EncryptedMessageKeys = 2;
   bytes EncryptedRecipientIDKeys = 3;
   bytes PartialMessageCypherText = 4;
