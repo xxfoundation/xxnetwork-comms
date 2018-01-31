@@ -26,13 +26,19 @@ message Ping {}
 // The response message containing the online confirmation
 message Pong {}
 
-// Message for Precomp Decrypt
-message PrecompDecryptMessage {
+// Message for individual Precomp Decrypt Slot
+message PrecompDecryptSlot {
   uint64 Slot = 1;
   bytes EncryptedMessageKeys = 2;
   bytes EncryptedRecipientIDKeys = 3;
   bytes PartialMessageCypherText = 4;
   bytes PartialRecipientIDCypherText = 5;
+}
+
+// Message for batch of Precomp Decrypt Slots
+message PrecompDecryptMessage {
+  string RoundID = 1;
+  PrecompDecryptSlot repeated = 2;
 }
 
 // ErrorMessage encodes an error message
