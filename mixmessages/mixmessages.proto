@@ -38,7 +38,7 @@ message PrecompDecryptSlot {
 // Message for batch of Precomp Decrypt Slots
 message PrecompDecryptMessage {
   string RoundID = 1;
-  PrecompDecryptSlot repeated = 2;
+  repeated PrecompDecryptSlot Slots = 2;
 }
 
 // ErrorMessage encodes an error message
