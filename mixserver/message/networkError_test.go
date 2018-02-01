@@ -7,8 +7,7 @@ import (
 
 // Smoke test SendNetworkError
 func TestSendNetworkError(t *testing.T) {
-	addr := "localhost:5555"
-	r, err := SendNetworkError(addr, &pb.ErrorMessage{Message: "Hello, world!"})
+	r, err := SendNetworkError(SERVER_ADDRESS, &pb.ErrorMessage{Message: "Hello, world!"})
 
 	if err != nil {
 		t.Errorf("PrecompDecrypt: Error received: %s", err)

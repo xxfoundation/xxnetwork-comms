@@ -7,8 +7,7 @@ import (
 
 // Smoke test SendPrecompDecrypt
 func TestSendPrecompDecrypt(t *testing.T) {
-	addr := "localhost:5555"
-	_, err := SendPrecompDecrypt(addr, &pb.PrecompDecryptMessage{})
+	_, err := SendPrecompDecrypt(SERVER_ADDRESS, &pb.PrecompDecryptMessage{})
 	if err != nil {
 		t.Errorf("PrecompDecrypt: Error received: %s", err)
 	}

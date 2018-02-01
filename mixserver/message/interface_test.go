@@ -7,10 +7,11 @@ import (
 	"testing"
 )
 
+const SERVER_ADDRESS = "localhost:5555"
+
 // Start server for testing
 func TestMain(m *testing.M) {
-	addr := "localhost:5555"
-	go mixserver.StartServer(addr, TestInterface{})
+	go mixserver.StartServer(SERVER_ADDRESS, TestInterface{})
 	os.Exit(m.Run())
 }
 

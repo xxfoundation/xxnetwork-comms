@@ -7,8 +7,7 @@ import (
 
 // Smoke test SendAskOnline
 func TestSendAskOnline(t *testing.T) {
-	addr := "localhost:5555"
-	_, err := SendAskOnline(addr, &pb.Ping{})
+	_, err := SendAskOnline(SERVER_ADDRESS, &pb.Ping{})
 	if err != nil {
 		t.Errorf("AskOnline: Error received: %s", err)
 	}
