@@ -54,6 +54,14 @@ func (s *server) PrecompDecrypt(ctx context.Context, msg *pb.PrecompDecryptMessa
 	return &pb.Ack{}, nil
 }
 
+// Handle a PrecompEncrypt event
+func (s *server) PrecompEncrypt(ctx context.Context,
+	msg *pb.PrecompEncryptMessage) (*pb.Ack, error) {
+
+	serverHandler.PrecompEncrypt(msg)
+	return &pb.Ack{}, nil
+}
+
 // Starts the local comm server
 func StartServer(localServer string, handler ServerHandler) {
 	// Set the serverHandler
