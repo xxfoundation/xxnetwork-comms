@@ -5,7 +5,7 @@ GRPC - Adding New Cryptop Message Types
 
 Create a new `message`, resembling a `struct` in golang.
 
-```golang
+```
 message PrecompDecryptSlot {
   uint64 Slot = 1;
   bytes EncryptedMessageKeys = 2;
@@ -66,7 +66,7 @@ Create a method on `server` for your message. It will take in a `Context` and
 your message as arguments, and return the message type that was
 specified in your `rpc`. For example, PrecompDecrypt looks like:
 
-```
+```golang
 func (s *server) PrecompDecrypt(ctx context.Context, msg *pb.PrecompDecryptMessage) (*pb.Ack, error) {
 	// Call the server handler with the msg
 	serverHandler.PrecompDecrypt(msg)
@@ -94,7 +94,7 @@ This is the last step for normal messages. For cryptop messages, continue to Ste
 
 Add a method to the interface for your new cryptop message. For example,
 
-```
+```golang
 type ServerHandler interface {
 	// Server Interface for the PrecompDecrypt Messages
 	PrecompDecrypt(*mixmessages.PrecompDecryptMessage)
