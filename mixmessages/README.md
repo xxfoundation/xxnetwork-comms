@@ -15,7 +15,7 @@ message PrecompDecryptSlot {
 }
 ```
 
-Simply specifiy a type and name for each field, and set equal to its field number.
+Simply specify a type and name for each field, and set equal to its field number.
 
 For `cryptop`-type messages, you will likely need to wrap that message in a message of its own
 containing the `RoundID` and an array (aka `repeated`) of messages. This wrapper message represents
