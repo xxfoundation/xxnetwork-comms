@@ -20,9 +20,10 @@ func SendAskOnline(addr string, message *pb.Ping) (*pb.Pong, error) {
 	}
 
 	c := pb.NewMixMessageServiceClient(conn)
-	// Send AskOnline Request and check that we get an AskOnlineAck back
 	ctx, cancel := context.WithTimeout(context.Background(), 300*time.Millisecond)
-	result, err := c.AskOnline(ctx, &pb.Ping{})
+	result, err := c.AskOnline(ctx, message)
+
+	// Make sure there are no errors with sending the message
 	if err != nil {
 		jww.ERROR.Printf("AskOnline: Error received: %s", err)
 	} else {
@@ -31,5 +32,5 @@ func SendAskOnline(addr string, message *pb.Ping) (*pb.Pong, error) {
 	cancel()
 	conn.Close()
 
-	return result, nil
+	return result, err
 }

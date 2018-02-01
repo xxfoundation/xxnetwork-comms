@@ -104,3 +104,22 @@ type ServerHandler interface {
 We will be implementing this method in the `server` repository in the `server/node` package.
 It is recommended that you stub this method out now in order to prevent interface implementation
 errors once your new message is merged.
+
+#### Step 6: Testing
+
+Go to the `mixserver/messages` package. Find the `interface_test.go` file, and add a blank
+method in order to implement the interface method you added in Step 5. Then, you may write
+a test for your `Send` function you added in Step 4 (which also tests the Step 3 endpoint,
+which is why we need the `TestInterface`). For example:
+
+```go
+// Smoke test SendPrecompDecrypt
+func TestSendPrecompDecrypt(t *testing.T) {
+	addr := "localhost:5555"
+	go mixserver.StartServer(addr, TestInterface{})
+	_, err := SendPrecompDecrypt(addr, &pb.PrecompDecryptMessage{})
+	if err != nil {
+		t.Errorf("PrecompDecrypt: Error received: %s", err)
+	}
+}
+```
