@@ -15,7 +15,7 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
-// Blank interface for testing purposes (Passing to StartServer)
+// Blank struct implementing ServerHandler interface for testing purposes (Passing to StartServer)
 type TestInterface struct{}
 
 func (m TestInterface) PrecompDecrypt(message *pb.PrecompDecryptMessage) {}
