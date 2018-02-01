@@ -9,17 +9,37 @@ package mixmessages;
 
 // The greeting service definition.
 service MixMessageService {
-  // Sends an error message
+  // Handles an error message
   rpc NetworkError (ErrorMessage) returns (ErrorAck) {}
-  // Sends an AskOnline request
+  // Handles an AskOnline message
   rpc AskOnline (Ping) returns (Pong) {}
+  // Handles Precomp Decrypt
+  rpc PrecompDecrypt (PrecompDecryptMessage) returns (Ack) {}
 }
+
+// Generic empty Ack message
+message Ack {}
 
 // The request message asking if server is online
 message Ping {}
 
 // The response message containing the online confirmation
 message Pong {}
+
+// Message for individual Precomp Decrypt Slot
+message PrecompDecryptSlot {
+  uint64 Slot = 1;
+  bytes EncryptedMessageKeys = 2;
+  bytes EncryptedRecipientIDKeys = 3;
+  bytes PartialMessageCypherText = 4;
+  bytes PartialRecipientIDCypherText = 5;
+}
+
+// Message for batch of Precomp Decrypt Slots
+message PrecompDecryptMessage {
+  string RoundID = 1;
+  repeated PrecompDecryptSlot Slots = 2;
+}
 
 // ErrorMessage encodes an error message
 message ErrorMessage {
