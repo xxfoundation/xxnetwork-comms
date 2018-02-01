@@ -60,3 +60,47 @@ Run the following command in the base project directory
 This enables interacting with your new messages like normal go `structs`.
 
 #### Step 3: Implement your rpc endpoint in mixserver.go
+
+This step is required for every `rpc` you create, otherwise there will be errors. 
+Create a method on `server` for your message. It will take in a `Context` and
+your message as arguments, and return the message type that was
+specified in your `rpc`. For example, PrecompDecrypt looks like:
+
+```
+func (s *server) PrecompDecrypt(ctx context.Context, msg *pb.PrecompDecryptMessage) (*pb.Ack, error) {
+	// Call the server handler with the msg
+	serverHandler.PrecompDecrypt(msg)
+	return &pb.Ack{}, nil
+}
+```
+
+This method will be called every time the endpoint receives your message. For cryptops,
+this is where you must pass your message to `server` by calling `serverHandler.YOURCRYPTOP(msg)`
+like above. We will create this interface method in Step 5. 
+
+#### Step 4: Add SendMessage function for your rpc in message package
+
+Create a new file in `mixserver/message` package for your `rpc`. The purpose of this
+is to be able to send a message from the `server` repository without any dependencies on grpc.
+You may copy one of the other files in this package and modify the message input and return types.
+Additionally, make sure you call your endpoint from Step 3 in the method body as follows:
+
+`result, err := c.PrecompDecrypt(ctx, input)`
+
+Add any additional logic that may be required when sending your message here.
+This is the last step for normal messages. For cryptop messages, continue to Step 5.
+
+#### Step 5: Add interface method for cryptop in serverhandler.go
+
+Add a method to the interface for your new cryptop message. For example,
+
+```
+type ServerHandler interface {
+	// Server Interface for the PrecompDecrypt Messages
+	PrecompDecrypt(*mixmessages.PrecompDecryptMessage)
+}
+```
+
+We will be implementing this method in the `server` repository in the `server/node` package.
+It is recommended that you stub this method out now in order to prevent interface implementation
+errors once your new message is merged.
