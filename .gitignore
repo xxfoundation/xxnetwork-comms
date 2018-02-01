@@ -8,3 +8,5 @@ vendor/
 localdev_*
 # Ignore logs
 *.log
+.*.swp
+.*.swo
