@@ -23,7 +23,7 @@ func SendPrecompEncrypt(addr string, message *pb.PrecompEncryptMessage) (
 	c := pb.NewMixMessageServiceClient(conn)
 	ctx, cancel := context.WithTimeout(context.Background(), 300*time.Millisecond)
 
-	// Send the PrecompDecrypt message using the Decrypt output
+	// Send the PrecompEncrypt message using the Decrypt output
 	result, err := c.PrecompEncrypt(ctx, message)
 
 	// Make sure there are no errors with sending the message
