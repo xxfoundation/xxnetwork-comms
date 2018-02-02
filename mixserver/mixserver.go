@@ -48,7 +48,8 @@ func (s *server) AskOnline(ctx context.Context, msg *pb.Ping) (
 }
 
 // Handle a PrecompDecrypt event
-func (s *server) PrecompDecrypt(ctx context.Context, msg *pb.PrecompDecryptMessage) (*pb.Ack, error) {
+func (s *server) PrecompDecrypt(ctx context.Context,
+	msg *pb.PrecompDecryptMessage) (*pb.Ack, error) {
 	// Call the server handler with the msg
 	serverHandler.PrecompDecrypt(msg)
 	return &pb.Ack{}, nil
@@ -57,8 +58,16 @@ func (s *server) PrecompDecrypt(ctx context.Context, msg *pb.PrecompDecryptMessa
 // Handle a PrecompEncrypt event
 func (s *server) PrecompEncrypt(ctx context.Context,
 	msg *pb.PrecompEncryptMessage) (*pb.Ack, error) {
-
+	// Call the server handler with the msg
 	serverHandler.PrecompEncrypt(msg)
+	return &pb.Ack{}, nil
+}
+
+// Handle a PrecompPermute event
+func (s *server) PrecompPermute(ctx context.Context,
+	msg *pb.PrecompPermuteMessage) (*pb.Ack, error) {
+	// Call the server handler with the msg
+	serverHandler.PrecompPermute(msg)
 	return &pb.Ack{}, nil
 }
 
