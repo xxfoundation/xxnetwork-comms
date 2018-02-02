@@ -10,4 +10,6 @@ import "gitlab.com/privategrity/comms/mixmessages"
 type ServerHandler interface {
 	// Server Interface for the PrecompDecrypt Messages
 	PrecompDecrypt(*mixmessages.PrecompDecryptMessage)
+	// Server Interface for the PrecompEncrypt Messages
+	PrecompEncrypt(*mixmessages.PrecompEncryptMessage)
 }

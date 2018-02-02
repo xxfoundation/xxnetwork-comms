@@ -15,6 +15,8 @@ service MixMessageService {
   rpc AskOnline (Ping) returns (Pong) {}
   // Handles Precomp Decrypt
   rpc PrecompDecrypt (PrecompDecryptMessage) returns (Ack) {}
+  // Handles Precomp Encrypt
+  rpc PrecompEncrypt (PrecompEncryptMessage) returns (Ack) {}
 }
 
 // Generic empty Ack message
@@ -39,6 +41,18 @@ message PrecompDecryptSlot {
 message PrecompDecryptMessage {
   string RoundID = 1;
   repeated PrecompDecryptSlot Slots = 2;
+}
+
+// Message for individual Precomp Encrypt Slot
+message PrecompEncryptSlot {
+  uint64 Slot = 1;
+  bytes EncryptedMessageKeys = 2;
+  bytes PartialMessageCypherText = 3;
+}
+
+message PrecompEncryptMessage {
+  string RoundID = 1;
+  repeated PrecompEncryptSlot Slots = 2;
 }
 
 // ErrorMessage encodes an error message
