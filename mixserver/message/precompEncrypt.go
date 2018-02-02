@@ -12,7 +12,7 @@ import (
 
 func SendPrecompEncrypt(addr string, message *pb.PrecompEncryptMessage) (
 	*pb.Ack, error) {
-	// Attempt to connect to nextServer
+	// Attempt to connect to addr
 	conn, err := grpc.Dial(addr, grpc.WithInsecure())
 	// Check for an error
 	if err != nil {
@@ -23,7 +23,7 @@ func SendPrecompEncrypt(addr string, message *pb.PrecompEncryptMessage) (
 	c := pb.NewMixMessageServiceClient(conn)
 	ctx, cancel := context.WithTimeout(context.Background(), 300*time.Millisecond)
 
-	// Send the PrecompEncrypt message using the Decrypt output
+	// Send the message
 	result, err := c.PrecompEncrypt(ctx, message)
 
 	// Make sure there are no errors with sending the message

@@ -10,7 +10,7 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 )
 
-func SendPrecompDecrypt(addr string, message *pb.PrecompDecryptMessage) (*pb.Ack, error) {
+func SendPrecompPermute(addr string, message *pb.PrecompPermuteMessage) (*pb.Ack, error) {
 	// Attempt to connect to addr
 	conn, err := grpc.Dial(addr, grpc.WithInsecure())
 	// Check for an error
@@ -23,11 +23,11 @@ func SendPrecompDecrypt(addr string, message *pb.PrecompDecryptMessage) (*pb.Ack
 	ctx, cancel := context.WithTimeout(context.Background(), 300*time.Millisecond)
 
 	// Send the message
-	result, err := c.PrecompDecrypt(ctx, message)
+	result, err := c.PrecompPermute(ctx, message)
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
-		jww.ERROR.Printf("PrecompDecrypt: Error received: %s", err)
+		jww.ERROR.Printf("PrecompPermute: Error received: %s", err)
 	}
 	cancel()
 	conn.Close()

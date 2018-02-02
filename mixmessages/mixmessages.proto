@@ -17,6 +17,8 @@ service MixMessageService {
   rpc PrecompDecrypt (PrecompDecryptMessage) returns (Ack) {}
   // Handles Precomp Encrypt
   rpc PrecompEncrypt (PrecompEncryptMessage) returns (Ack) {}
+  // Handles Precomp Permute
+  rpc PrecompPermute (PrecompPermuteMessage) returns (Ack) {}
 }
 
 // Generic empty Ack message
@@ -50,9 +52,25 @@ message PrecompEncryptSlot {
   bytes PartialMessageCypherText = 3;
 }
 
+// Message for batch of Precomp Encrypt Slots
 message PrecompEncryptMessage {
   string RoundID = 1;
   repeated PrecompEncryptSlot Slots = 2;
+}
+
+// Message for individual Precomp Permute Slot
+message PrecompPermuteSlot {
+  uint64 Slot = 1;
+  bytes EncryptedMessageKeys = 2;
+  bytes EncryptedRecipientIDKeys = 3;
+  bytes PartialMessageCypherText = 4;
+  bytes PartialRecipientIDCypherText = 5;
+}
+
+// Message for batch of Precomp Permute Slots
+message PrecompPermuteMessage {
+  string RoundID = 1;
+  repeated PrecompPermuteSlot Slots = 2;
 }
 
 // ErrorMessage encodes an error message
