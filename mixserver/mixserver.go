@@ -71,6 +71,22 @@ func (s *server) PrecompPermute(ctx context.Context,
 	return &pb.Ack{}, nil
 }
 
+// Handle a RealtimeDecrypt event
+func (s *server) RealtimeDecrypt(ctx context.Context,
+	msg *pb.RealtimeDecryptMessage) (*pb.Ack, error) {
+	// Call the server handler with the msg
+	serverHandler.RealtimeDecrypt(msg)
+	return &pb.Ack{}, nil
+}
+
+// Handle a RealtimeDecrypt event
+func (s *server) RealtimeEncrypt(ctx context.Context,
+	msg *pb.RealtimeEncryptMessage) (*pb.Ack, error) {
+	// Call the server handler with the msg
+	serverHandler.RealtimeEncrypt(msg)
+	return &pb.Ack{}, nil
+}
+
 // Starts the local comm server
 func StartServer(localServer string, handler ServerHandler) {
 	// Set the serverHandler

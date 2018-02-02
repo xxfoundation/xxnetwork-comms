@@ -19,6 +19,10 @@ service MixMessageService {
   rpc PrecompEncrypt (PrecompEncryptMessage) returns (Ack) {}
   // Handles Precomp Permute
   rpc PrecompPermute (PrecompPermuteMessage) returns (Ack) {}
+  // Handles Realtime Decrypt
+  rpc RealtimeDecrypt (RealtimeDecryptMessage) returns (Ack) {}
+  // Handles Realtime Encrypt
+  rpc RealtimeEncrypt (RealtimeEncryptMessage) returns (Ack) {}
 }
 
 // Generic empty Ack message
@@ -71,6 +75,35 @@ message PrecompPermuteSlot {
 message PrecompPermuteMessage {
   string RoundID = 1;
   repeated PrecompPermuteSlot Slots = 2;
+}
+
+// Message for individual Realtime Decrypt Slot
+message RealtimeDecryptSlot {
+  uint64 Slot = 1;
+  bytes SenderID = 2;
+  bytes EncryptedMessage = 3;
+  bytes EncryptedRecipientID = 4;
+  bytes TransmissionKey = 5;
+}
+
+// Message for batch of Realtime Decrypt Slots
+message RealtimeDecryptMessage {
+  string RoundID = 1;
+  repeated RealtimeDecryptSlot Slots = 2;
+}
+
+// Message for individual Realtime Encrypt Slot
+message RealtimeEncryptSlot {
+  uint64 Slot = 1;
+  bytes RecipientID = 2;
+  bytes EncryptedMessage = 3;
+  bytes ReceptionKey = 4;
+}
+
+// Message for batch of Realtime Encrypt Slots
+message RealtimeEncryptMessage {
+  string RoundID = 1;
+  repeated RealtimeEncryptSlot Slots = 2;
 }
 
 // ErrorMessage encodes an error message
