@@ -21,3 +21,5 @@ type TestInterface struct{}
 func (m TestInterface) PrecompDecrypt(message *pb.PrecompDecryptMessage) {}
 
 func (m TestInterface) PrecompEncrypt(message *pb.PrecompEncryptMessage) {}
+
+func (m TestInterface) PrecompPermute(message *pb.PrecompPermuteMessage) {}
