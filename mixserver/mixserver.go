@@ -71,6 +71,14 @@ func (s *server) PrecompPermute(ctx context.Context,
 	return &pb.Ack{}, nil
 }
 
+// Handle a PrecompShare event
+func (s *server) PrecompShare(ctx context.Context,
+	msg *pb.PrecompShareMessage) (*pb.Ack, error) {
+	// Call the server handler with the msg
+	serverHandler.PrecompShare(msg)
+	return &pb.Ack{}, nil
+}
+
 // Handle a RealtimeDecrypt event
 func (s *server) RealtimeDecrypt(ctx context.Context,
 	msg *pb.RealtimeDecryptMessage) (*pb.Ack, error) {
