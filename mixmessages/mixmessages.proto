@@ -83,7 +83,6 @@ message RealtimeDecryptSlot {
   bytes SenderID = 2;
   bytes EncryptedMessage = 3;
   bytes EncryptedRecipientID = 4;
-  bytes TransmissionKey = 5;
 }
 
 // Message for batch of Realtime Decrypt Slots
@@ -97,7 +96,6 @@ message RealtimeEncryptSlot {
   uint64 Slot = 1;
   bytes RecipientID = 2;
   bytes EncryptedMessage = 3;
-  bytes ReceptionKey = 4;
 }
 
 // Message for batch of Realtime Encrypt Slots
