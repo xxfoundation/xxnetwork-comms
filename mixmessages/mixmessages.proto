@@ -19,6 +19,8 @@ service MixMessageService {
   rpc PrecompEncrypt (PrecompEncryptMessage) returns (Ack) {}
   // Handles Precomp Permute
   rpc PrecompPermute (PrecompPermuteMessage) returns (Ack) {}
+  // Handles Precomp Share
+  rpc PrecompShare (PrecompShareMessage) returns (Ack) {}
   // Handles Realtime Decrypt
   rpc RealtimeDecrypt (RealtimeDecryptMessage) returns (Ack) {}
   // Handles Realtime Encrypt
@@ -75,6 +77,18 @@ message PrecompPermuteSlot {
 message PrecompPermuteMessage {
   string RoundID = 1;
   repeated PrecompPermuteSlot Slots = 2;
+}
+
+// Message for individual Precomp Share Slot
+message PrecompShareSlot {
+  uint64 Slot = 1;
+  bytes PartialRecipientPublicCypherKey = 2;
+}
+
+// Message for batch of Precomp Share Slots
+message PrecompShareMessage {
+  string RoundID = 1;
+  repeated PrecompShareSlot Slots = 2;
 }
 
 // Message for individual Realtime Decrypt Slot

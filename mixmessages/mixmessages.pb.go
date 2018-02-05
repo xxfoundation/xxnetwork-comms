@@ -17,6 +17,8 @@ It has these top-level messages:
 	PrecompEncryptMessage
 	PrecompPermuteSlot
 	PrecompPermuteMessage
+	PrecompShareSlot
+	PrecompShareMessage
 	RealtimeDecryptSlot
 	RealtimeDecryptMessage
 	RealtimeEncryptSlot
@@ -75,11 +77,11 @@ func (*Pong) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{2} }
 
 // Message for individual Precomp Decrypt Slot
 type PrecompDecryptSlot struct {
-	Slot                         uint64 `protobuf:"varint,1,opt,name=Slot,json=slot" json:"Slot,omitempty"`
-	EncryptedMessageKeys         []byte `protobuf:"bytes,2,opt,name=EncryptedMessageKeys,json=encryptedMessageKeys,proto3" json:"EncryptedMessageKeys,omitempty"`
-	EncryptedRecipientIDKeys     []byte `protobuf:"bytes,3,opt,name=EncryptedRecipientIDKeys,json=encryptedRecipientIDKeys,proto3" json:"EncryptedRecipientIDKeys,omitempty"`
-	PartialMessageCypherText     []byte `protobuf:"bytes,4,opt,name=PartialMessageCypherText,json=partialMessageCypherText,proto3" json:"PartialMessageCypherText,omitempty"`
-	PartialRecipientIDCypherText []byte `protobuf:"bytes,5,opt,name=PartialRecipientIDCypherText,json=partialRecipientIDCypherText,proto3" json:"PartialRecipientIDCypherText,omitempty"`
+	Slot                         uint64 `protobuf:"varint,1,opt,name=Slot" json:"Slot,omitempty"`
+	EncryptedMessageKeys         []byte `protobuf:"bytes,2,opt,name=EncryptedMessageKeys,proto3" json:"EncryptedMessageKeys,omitempty"`
+	EncryptedRecipientIDKeys     []byte `protobuf:"bytes,3,opt,name=EncryptedRecipientIDKeys,proto3" json:"EncryptedRecipientIDKeys,omitempty"`
+	PartialMessageCypherText     []byte `protobuf:"bytes,4,opt,name=PartialMessageCypherText,proto3" json:"PartialMessageCypherText,omitempty"`
+	PartialRecipientIDCypherText []byte `protobuf:"bytes,5,opt,name=PartialRecipientIDCypherText,proto3" json:"PartialRecipientIDCypherText,omitempty"`
 }
 
 func (m *PrecompDecryptSlot) Reset()                    { *m = PrecompDecryptSlot{} }
@@ -124,8 +126,8 @@ func (m *PrecompDecryptSlot) GetPartialRecipientIDCypherText() []byte {
 
 // Message for batch of Precomp Decrypt Slots
 type PrecompDecryptMessage struct {
-	RoundID string                `protobuf:"bytes,1,opt,name=RoundID,json=roundID" json:"RoundID,omitempty"`
-	Slots   []*PrecompDecryptSlot `protobuf:"bytes,2,rep,name=Slots,json=slots" json:"Slots,omitempty"`
+	RoundID string                `protobuf:"bytes,1,opt,name=RoundID" json:"RoundID,omitempty"`
+	Slots   []*PrecompDecryptSlot `protobuf:"bytes,2,rep,name=Slots" json:"Slots,omitempty"`
 }
 
 func (m *PrecompDecryptMessage) Reset()                    { *m = PrecompDecryptMessage{} }
@@ -149,9 +151,9 @@ func (m *PrecompDecryptMessage) GetSlots() []*PrecompDecryptSlot {
 
 // Message for individual Precomp Encrypt Slot
 type PrecompEncryptSlot struct {
-	Slot                     uint64 `protobuf:"varint,1,opt,name=Slot,json=slot" json:"Slot,omitempty"`
-	EncryptedMessageKeys     []byte `protobuf:"bytes,2,opt,name=EncryptedMessageKeys,json=encryptedMessageKeys,proto3" json:"EncryptedMessageKeys,omitempty"`
-	PartialMessageCypherText []byte `protobuf:"bytes,3,opt,name=PartialMessageCypherText,json=partialMessageCypherText,proto3" json:"PartialMessageCypherText,omitempty"`
+	Slot                     uint64 `protobuf:"varint,1,opt,name=Slot" json:"Slot,omitempty"`
+	EncryptedMessageKeys     []byte `protobuf:"bytes,2,opt,name=EncryptedMessageKeys,proto3" json:"EncryptedMessageKeys,omitempty"`
+	PartialMessageCypherText []byte `protobuf:"bytes,3,opt,name=PartialMessageCypherText,proto3" json:"PartialMessageCypherText,omitempty"`
 }
 
 func (m *PrecompEncryptSlot) Reset()                    { *m = PrecompEncryptSlot{} }
@@ -182,8 +184,8 @@ func (m *PrecompEncryptSlot) GetPartialMessageCypherText() []byte {
 
 // Message for batch of Precomp Encrypt Slots
 type PrecompEncryptMessage struct {
-	RoundID string                `protobuf:"bytes,1,opt,name=RoundID,json=roundID" json:"RoundID,omitempty"`
-	Slots   []*PrecompEncryptSlot `protobuf:"bytes,2,rep,name=Slots,json=slots" json:"Slots,omitempty"`
+	RoundID string                `protobuf:"bytes,1,opt,name=RoundID" json:"RoundID,omitempty"`
+	Slots   []*PrecompEncryptSlot `protobuf:"bytes,2,rep,name=Slots" json:"Slots,omitempty"`
 }
 
 func (m *PrecompEncryptMessage) Reset()                    { *m = PrecompEncryptMessage{} }
@@ -207,11 +209,11 @@ func (m *PrecompEncryptMessage) GetSlots() []*PrecompEncryptSlot {
 
 // Message for individual Precomp Permute Slot
 type PrecompPermuteSlot struct {
-	Slot                         uint64 `protobuf:"varint,1,opt,name=Slot,json=slot" json:"Slot,omitempty"`
-	EncryptedMessageKeys         []byte `protobuf:"bytes,2,opt,name=EncryptedMessageKeys,json=encryptedMessageKeys,proto3" json:"EncryptedMessageKeys,omitempty"`
-	EncryptedRecipientIDKeys     []byte `protobuf:"bytes,3,opt,name=EncryptedRecipientIDKeys,json=encryptedRecipientIDKeys,proto3" json:"EncryptedRecipientIDKeys,omitempty"`
-	PartialMessageCypherText     []byte `protobuf:"bytes,4,opt,name=PartialMessageCypherText,json=partialMessageCypherText,proto3" json:"PartialMessageCypherText,omitempty"`
-	PartialRecipientIDCypherText []byte `protobuf:"bytes,5,opt,name=PartialRecipientIDCypherText,json=partialRecipientIDCypherText,proto3" json:"PartialRecipientIDCypherText,omitempty"`
+	Slot                         uint64 `protobuf:"varint,1,opt,name=Slot" json:"Slot,omitempty"`
+	EncryptedMessageKeys         []byte `protobuf:"bytes,2,opt,name=EncryptedMessageKeys,proto3" json:"EncryptedMessageKeys,omitempty"`
+	EncryptedRecipientIDKeys     []byte `protobuf:"bytes,3,opt,name=EncryptedRecipientIDKeys,proto3" json:"EncryptedRecipientIDKeys,omitempty"`
+	PartialMessageCypherText     []byte `protobuf:"bytes,4,opt,name=PartialMessageCypherText,proto3" json:"PartialMessageCypherText,omitempty"`
+	PartialRecipientIDCypherText []byte `protobuf:"bytes,5,opt,name=PartialRecipientIDCypherText,proto3" json:"PartialRecipientIDCypherText,omitempty"`
 }
 
 func (m *PrecompPermuteSlot) Reset()                    { *m = PrecompPermuteSlot{} }
@@ -256,8 +258,8 @@ func (m *PrecompPermuteSlot) GetPartialRecipientIDCypherText() []byte {
 
 // Message for batch of Precomp Permute Slots
 type PrecompPermuteMessage struct {
-	RoundID string                `protobuf:"bytes,1,opt,name=RoundID,json=roundID" json:"RoundID,omitempty"`
-	Slots   []*PrecompPermuteSlot `protobuf:"bytes,2,rep,name=Slots,json=slots" json:"Slots,omitempty"`
+	RoundID string                `protobuf:"bytes,1,opt,name=RoundID" json:"RoundID,omitempty"`
+	Slots   []*PrecompPermuteSlot `protobuf:"bytes,2,rep,name=Slots" json:"Slots,omitempty"`
 }
 
 func (m *PrecompPermuteMessage) Reset()                    { *m = PrecompPermuteMessage{} }
@@ -279,18 +281,68 @@ func (m *PrecompPermuteMessage) GetSlots() []*PrecompPermuteSlot {
 	return nil
 }
 
+// Message for individual Precomp Share Slot
+type PrecompShareSlot struct {
+	Slot                            uint64 `protobuf:"varint,1,opt,name=Slot" json:"Slot,omitempty"`
+	PartialRecipientPublicCypherKey []byte `protobuf:"bytes,2,opt,name=PartialRecipientPublicCypherKey,proto3" json:"PartialRecipientPublicCypherKey,omitempty"`
+}
+
+func (m *PrecompShareSlot) Reset()                    { *m = PrecompShareSlot{} }
+func (m *PrecompShareSlot) String() string            { return proto.CompactTextString(m) }
+func (*PrecompShareSlot) ProtoMessage()               {}
+func (*PrecompShareSlot) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{9} }
+
+func (m *PrecompShareSlot) GetSlot() uint64 {
+	if m != nil {
+		return m.Slot
+	}
+	return 0
+}
+
+func (m *PrecompShareSlot) GetPartialRecipientPublicCypherKey() []byte {
+	if m != nil {
+		return m.PartialRecipientPublicCypherKey
+	}
+	return nil
+}
+
+// Message for batch of Precomp Share Slots
+type PrecompShareMessage struct {
+	RoundID string              `protobuf:"bytes,1,opt,name=RoundID" json:"RoundID,omitempty"`
+	Slots   []*PrecompShareSlot `protobuf:"bytes,2,rep,name=Slots" json:"Slots,omitempty"`
+}
+
+func (m *PrecompShareMessage) Reset()                    { *m = PrecompShareMessage{} }
+func (m *PrecompShareMessage) String() string            { return proto.CompactTextString(m) }
+func (*PrecompShareMessage) ProtoMessage()               {}
+func (*PrecompShareMessage) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{10} }
+
+func (m *PrecompShareMessage) GetRoundID() string {
+	if m != nil {
+		return m.RoundID
+	}
+	return ""
+}
+
+func (m *PrecompShareMessage) GetSlots() []*PrecompShareSlot {
+	if m != nil {
+		return m.Slots
+	}
+	return nil
+}
+
 // Message for individual Realtime Decrypt Slot
 type RealtimeDecryptSlot struct {
-	Slot                 uint64 `protobuf:"varint,1,opt,name=Slot,json=slot" json:"Slot,omitempty"`
-	SenderID             []byte `protobuf:"bytes,2,opt,name=SenderID,json=senderID,proto3" json:"SenderID,omitempty"`
-	EncryptedMessage     []byte `protobuf:"bytes,3,opt,name=EncryptedMessage,json=encryptedMessage,proto3" json:"EncryptedMessage,omitempty"`
-	EncryptedRecipientID []byte `protobuf:"bytes,4,opt,name=EncryptedRecipientID,json=encryptedRecipientID,proto3" json:"EncryptedRecipientID,omitempty"`
+	Slot                 uint64 `protobuf:"varint,1,opt,name=Slot" json:"Slot,omitempty"`
+	SenderID             []byte `protobuf:"bytes,2,opt,name=SenderID,proto3" json:"SenderID,omitempty"`
+	EncryptedMessage     []byte `protobuf:"bytes,3,opt,name=EncryptedMessage,proto3" json:"EncryptedMessage,omitempty"`
+	EncryptedRecipientID []byte `protobuf:"bytes,4,opt,name=EncryptedRecipientID,proto3" json:"EncryptedRecipientID,omitempty"`
 }
 
 func (m *RealtimeDecryptSlot) Reset()                    { *m = RealtimeDecryptSlot{} }
 func (m *RealtimeDecryptSlot) String() string            { return proto.CompactTextString(m) }
 func (*RealtimeDecryptSlot) ProtoMessage()               {}
-func (*RealtimeDecryptSlot) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{9} }
+func (*RealtimeDecryptSlot) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{11} }
 
 func (m *RealtimeDecryptSlot) GetSlot() uint64 {
 	if m != nil {
@@ -322,14 +374,14 @@ func (m *RealtimeDecryptSlot) GetEncryptedRecipientID() []byte {
 
 // Message for batch of Realtime Decrypt Slots
 type RealtimeDecryptMessage struct {
-	RoundID string                 `protobuf:"bytes,1,opt,name=RoundID,json=roundID" json:"RoundID,omitempty"`
-	Slots   []*RealtimeDecryptSlot `protobuf:"bytes,2,rep,name=Slots,json=slots" json:"Slots,omitempty"`
+	RoundID string                 `protobuf:"bytes,1,opt,name=RoundID" json:"RoundID,omitempty"`
+	Slots   []*RealtimeDecryptSlot `protobuf:"bytes,2,rep,name=Slots" json:"Slots,omitempty"`
 }
 
 func (m *RealtimeDecryptMessage) Reset()                    { *m = RealtimeDecryptMessage{} }
 func (m *RealtimeDecryptMessage) String() string            { return proto.CompactTextString(m) }
 func (*RealtimeDecryptMessage) ProtoMessage()               {}
-func (*RealtimeDecryptMessage) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{10} }
+func (*RealtimeDecryptMessage) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{12} }
 
 func (m *RealtimeDecryptMessage) GetRoundID() string {
 	if m != nil {
@@ -347,15 +399,15 @@ func (m *RealtimeDecryptMessage) GetSlots() []*RealtimeDecryptSlot {
 
 // Message for individual Realtime Encrypt Slot
 type RealtimeEncryptSlot struct {
-	Slot             uint64 `protobuf:"varint,1,opt,name=Slot,json=slot" json:"Slot,omitempty"`
-	RecipientID      []byte `protobuf:"bytes,2,opt,name=RecipientID,json=recipientID,proto3" json:"RecipientID,omitempty"`
-	EncryptedMessage []byte `protobuf:"bytes,3,opt,name=EncryptedMessage,json=encryptedMessage,proto3" json:"EncryptedMessage,omitempty"`
+	Slot             uint64 `protobuf:"varint,1,opt,name=Slot" json:"Slot,omitempty"`
+	RecipientID      []byte `protobuf:"bytes,2,opt,name=RecipientID,proto3" json:"RecipientID,omitempty"`
+	EncryptedMessage []byte `protobuf:"bytes,3,opt,name=EncryptedMessage,proto3" json:"EncryptedMessage,omitempty"`
 }
 
 func (m *RealtimeEncryptSlot) Reset()                    { *m = RealtimeEncryptSlot{} }
 func (m *RealtimeEncryptSlot) String() string            { return proto.CompactTextString(m) }
 func (*RealtimeEncryptSlot) ProtoMessage()               {}
-func (*RealtimeEncryptSlot) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{11} }
+func (*RealtimeEncryptSlot) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{13} }
 
 func (m *RealtimeEncryptSlot) GetSlot() uint64 {
 	if m != nil {
@@ -380,14 +432,14 @@ func (m *RealtimeEncryptSlot) GetEncryptedMessage() []byte {
 
 // Message for batch of Realtime Encrypt Slots
 type RealtimeEncryptMessage struct {
-	RoundID string                 `protobuf:"bytes,1,opt,name=RoundID,json=roundID" json:"RoundID,omitempty"`
-	Slots   []*RealtimeEncryptSlot `protobuf:"bytes,2,rep,name=Slots,json=slots" json:"Slots,omitempty"`
+	RoundID string                 `protobuf:"bytes,1,opt,name=RoundID" json:"RoundID,omitempty"`
+	Slots   []*RealtimeEncryptSlot `protobuf:"bytes,2,rep,name=Slots" json:"Slots,omitempty"`
 }
 
 func (m *RealtimeEncryptMessage) Reset()                    { *m = RealtimeEncryptMessage{} }
 func (m *RealtimeEncryptMessage) String() string            { return proto.CompactTextString(m) }
 func (*RealtimeEncryptMessage) ProtoMessage()               {}
-func (*RealtimeEncryptMessage) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{12} }
+func (*RealtimeEncryptMessage) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{14} }
 
 func (m *RealtimeEncryptMessage) GetRoundID() string {
 	if m != nil {
@@ -405,13 +457,13 @@ func (m *RealtimeEncryptMessage) GetSlots() []*RealtimeEncryptSlot {
 
 // ErrorMessage encodes an error message
 type ErrorMessage struct {
-	Message string `protobuf:"bytes,1,opt,name=Message,json=message" json:"Message,omitempty"`
+	Message string `protobuf:"bytes,1,opt,name=Message" json:"Message,omitempty"`
 }
 
 func (m *ErrorMessage) Reset()                    { *m = ErrorMessage{} }
 func (m *ErrorMessage) String() string            { return proto.CompactTextString(m) }
 func (*ErrorMessage) ProtoMessage()               {}
-func (*ErrorMessage) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{13} }
+func (*ErrorMessage) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{15} }
 
 func (m *ErrorMessage) GetMessage() string {
 	if m != nil {
@@ -422,13 +474,13 @@ func (m *ErrorMessage) GetMessage() string {
 
 // ErrorAck returns the length of the received messages
 type ErrorAck struct {
-	MsgLen int32 `protobuf:"varint,1,opt,name=MsgLen,json=msgLen" json:"MsgLen,omitempty"`
+	MsgLen int32 `protobuf:"varint,1,opt,name=MsgLen" json:"MsgLen,omitempty"`
 }
 
 func (m *ErrorAck) Reset()                    { *m = ErrorAck{} }
 func (m *ErrorAck) String() string            { return proto.CompactTextString(m) }
 func (*ErrorAck) ProtoMessage()               {}
-func (*ErrorAck) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{14} }
+func (*ErrorAck) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{16} }
 
 func (m *ErrorAck) GetMsgLen() int32 {
 	if m != nil {
@@ -447,6 +499,8 @@ func init() {
 	proto.RegisterType((*PrecompEncryptMessage)(nil), "mixmessages.PrecompEncryptMessage")
 	proto.RegisterType((*PrecompPermuteSlot)(nil), "mixmessages.PrecompPermuteSlot")
 	proto.RegisterType((*PrecompPermuteMessage)(nil), "mixmessages.PrecompPermuteMessage")
+	proto.RegisterType((*PrecompShareSlot)(nil), "mixmessages.PrecompShareSlot")
+	proto.RegisterType((*PrecompShareMessage)(nil), "mixmessages.PrecompShareMessage")
 	proto.RegisterType((*RealtimeDecryptSlot)(nil), "mixmessages.RealtimeDecryptSlot")
 	proto.RegisterType((*RealtimeDecryptMessage)(nil), "mixmessages.RealtimeDecryptMessage")
 	proto.RegisterType((*RealtimeEncryptSlot)(nil), "mixmessages.RealtimeEncryptSlot")
@@ -476,6 +530,8 @@ type MixMessageServiceClient interface {
 	PrecompEncrypt(ctx context.Context, in *PrecompEncryptMessage, opts ...grpc.CallOption) (*Ack, error)
 	// Handles Precomp Permute
 	PrecompPermute(ctx context.Context, in *PrecompPermuteMessage, opts ...grpc.CallOption) (*Ack, error)
+	// Handles Precomp Share
+	PrecompShare(ctx context.Context, in *PrecompShareMessage, opts ...grpc.CallOption) (*Ack, error)
 	// Handles Realtime Decrypt
 	RealtimeDecrypt(ctx context.Context, in *RealtimeDecryptMessage, opts ...grpc.CallOption) (*Ack, error)
 	// Handles Realtime Encrypt
@@ -535,6 +591,15 @@ func (c *mixMessageServiceClient) PrecompPermute(ctx context.Context, in *Precom
 	return out, nil
 }
 
+func (c *mixMessageServiceClient) PrecompShare(ctx context.Context, in *PrecompShareMessage, opts ...grpc.CallOption) (*Ack, error) {
+	out := new(Ack)
+	err := grpc.Invoke(ctx, "/mixmessages.MixMessageService/PrecompShare", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *mixMessageServiceClient) RealtimeDecrypt(ctx context.Context, in *RealtimeDecryptMessage, opts ...grpc.CallOption) (*Ack, error) {
 	out := new(Ack)
 	err := grpc.Invoke(ctx, "/mixmessages.MixMessageService/RealtimeDecrypt", in, out, c.cc, opts...)
@@ -566,6 +631,8 @@ type MixMessageServiceServer interface {
 	PrecompEncrypt(context.Context, *PrecompEncryptMessage) (*Ack, error)
 	// Handles Precomp Permute
 	PrecompPermute(context.Context, *PrecompPermuteMessage) (*Ack, error)
+	// Handles Precomp Share
+	PrecompShare(context.Context, *PrecompShareMessage) (*Ack, error)
 	// Handles Realtime Decrypt
 	RealtimeDecrypt(context.Context, *RealtimeDecryptMessage) (*Ack, error)
 	// Handles Realtime Encrypt
@@ -666,6 +733,24 @@ func _MixMessageService_PrecompPermute_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MixMessageService_PrecompShare_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PrecompShareMessage)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MixMessageServiceServer).PrecompShare(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/mixmessages.MixMessageService/PrecompShare",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MixMessageServiceServer).PrecompShare(ctx, req.(*PrecompShareMessage))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _MixMessageService_RealtimeDecrypt_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RealtimeDecryptMessage)
 	if err := dec(in); err != nil {
@@ -727,6 +812,10 @@ var _MixMessageService_serviceDesc = grpc.ServiceDesc{
 			Handler:    _MixMessageService_PrecompPermute_Handler,
 		},
 		{
+			MethodName: "PrecompShare",
+			Handler:    _MixMessageService_PrecompShare_Handler,
+		},
+		{
 			MethodName: "RealtimeDecrypt",
 			Handler:    _MixMessageService_RealtimeDecrypt_Handler,
 		},
@@ -742,41 +831,44 @@ var _MixMessageService_serviceDesc = grpc.ServiceDesc{
 func init() { proto.RegisterFile("mixmessages.proto", fileDescriptor0) }
 
 var fileDescriptor0 = []byte{
-	// 570 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xec, 0x96, 0xcf, 0x6e, 0xda, 0x4e,
-	0x10, 0xc7, 0x43, 0x30, 0x84, 0x0c, 0xe8, 0xf7, 0x83, 0x2d, 0x89, 0x5c, 0x14, 0xa9, 0xc8, 0xb9,
-	0xa0, 0x1e, 0x72, 0x20, 0x6a, 0x0f, 0xbd, 0x91, 0x12, 0xa9, 0xb4, 0xa5, 0x45, 0xa6, 0x2f, 0x40,
-	0xcd, 0x88, 0x6c, 0xc1, 0x6b, 0x6b, 0xed, 0x34, 0x70, 0xed, 0x53, 0xe4, 0x05, 0xfa, 0x9e, 0x95,
-	0xd7, 0x6b, 0xd8, 0x35, 0xc6, 0x50, 0x89, 0x63, 0x4f, 0x68, 0xff, 0xcc, 0x77, 0x76, 0x3e, 0xdf,
-	0xd9, 0x35, 0xd0, 0x70, 0xe9, 0xd2, 0xc5, 0x20, 0x98, 0xcc, 0x30, 0xb8, 0xf1, 0xb9, 0x17, 0x7a,
-	0xa4, 0xaa, 0x4c, 0x59, 0x25, 0x28, 0xf6, 0x9c, 0xb9, 0x55, 0x06, 0x63, 0x44, 0xd9, 0x4c, 0xfc,
-	0x7a, 0x6c, 0x66, 0x3d, 0x9f, 0x02, 0x19, 0x71, 0x74, 0x3c, 0xd7, 0xef, 0xa3, 0xc3, 0x57, 0x7e,
-	0x38, 0x5e, 0x78, 0x21, 0x21, 0x60, 0x44, 0xbf, 0x66, 0xa1, 0x5d, 0xe8, 0x18, 0xb6, 0x11, 0x44,
-	0x73, 0x5d, 0x68, 0xde, 0x33, 0xb1, 0x05, 0xa7, 0xc3, 0x58, 0xf6, 0x13, 0xae, 0x02, 0xf3, 0xb4,
-	0x5d, 0xe8, 0xd4, 0xec, 0x26, 0x66, 0xac, 0x91, 0x77, 0x60, 0xae, 0x63, 0x6c, 0x74, 0xa8, 0x4f,
-	0x91, 0x85, 0x83, 0xbe, 0x88, 0x2b, 0x8a, 0x38, 0x13, 0x77, 0xac, 0x47, 0xb1, 0xa3, 0x09, 0x0f,
-	0xe9, 0x64, 0x21, 0x15, 0xdf, 0xaf, 0xfc, 0x07, 0xe4, 0xdf, 0x70, 0x19, 0x9a, 0x46, 0x1c, 0xeb,
-	0xef, 0x58, 0x27, 0x77, 0x70, 0x25, 0x63, 0x15, 0x55, 0x25, 0xbe, 0x24, 0xe2, 0xaf, 0xfc, 0x9c,
-	0x3d, 0xd6, 0x03, 0x5c, 0xe8, 0x64, 0x64, 0x1a, 0x62, 0xc2, 0x99, 0xed, 0x3d, 0xb2, 0xe9, 0xa0,
-	0x2f, 0xf8, 0x9c, 0xdb, 0x67, 0x3c, 0x1e, 0x92, 0x37, 0x50, 0x8a, 0xb0, 0x45, 0x4c, 0x8a, 0x9d,
-	0x6a, 0xf7, 0xd5, 0x8d, 0x6a, 0xca, 0x36, 0x66, 0xbb, 0x14, 0x81, 0x0d, 0xac, 0xe7, 0xc2, 0xda,
-	0x04, 0x49, 0xeb, 0xd8, 0x26, 0xec, 0x04, 0x59, 0xcc, 0x07, 0xa9, 0x40, 0x90, 0x69, 0x8f, 0x03,
-	0x41, 0x29, 0x73, 0x0d, 0x61, 0xd3, 0x89, 0x23, 0xe4, 0xee, 0x63, 0x88, 0xff, 0x3a, 0x71, 0xcb,
-	0x04, 0x49, 0xe6, 0x38, 0x26, 0x28, 0x98, 0x13, 0x13, 0x7e, 0x17, 0xe0, 0x85, 0x8d, 0x93, 0x45,
-	0x48, 0x5d, 0xdc, 0xf7, 0x1e, 0xb4, 0xa0, 0x32, 0x46, 0x36, 0x45, 0x3e, 0xe8, 0x4b, 0xf2, 0x95,
-	0x40, 0x8e, 0xc9, 0x6b, 0xa8, 0xa7, 0x1d, 0x92, 0x94, 0xeb, 0x69, 0x77, 0x34, 0x37, 0x95, 0xfa,
-	0x25, 0xd9, 0x66, 0x96, 0x2b, 0xd6, 0x0f, 0xb8, 0x4c, 0x1d, 0x73, 0x3f, 0x92, 0xb7, 0x3a, 0x92,
-	0xb6, 0x86, 0x24, 0xa3, 0xe8, 0x84, 0xc9, 0xd3, 0x06, 0xc9, 0xbe, 0xdb, 0xd9, 0x86, 0xaa, 0x5a,
-	0x41, 0x4c, 0xa5, 0xca, 0x37, 0x53, 0x7f, 0x03, 0x46, 0x2d, 0xf2, 0xe0, 0xcb, 0x77, 0x50, 0x91,
-	0x19, 0xb7, 0xaf, 0x03, 0xb5, 0x7b, 0xce, 0x3d, 0xae, 0x64, 0x48, 0x8e, 0x27, 0x33, 0x48, 0x15,
-	0xcb, 0x82, 0x8a, 0xd8, 0xd9, 0x73, 0xe6, 0xe4, 0x12, 0xca, 0xc3, 0x60, 0xf6, 0x19, 0x99, 0xd8,
-	0x54, 0xb2, 0xcb, 0xae, 0x18, 0x75, 0x7f, 0x19, 0xd0, 0x18, 0xd2, 0xa5, 0x54, 0x18, 0x23, 0xff,
-	0x49, 0x1d, 0x24, 0x77, 0x50, 0xfb, 0x82, 0xe1, 0x93, 0xc7, 0xe7, 0x42, 0x80, 0xbc, 0xd4, 0x0e,
-	0xa7, 0xa6, 0x6f, 0x5d, 0x6c, 0x2f, 0x45, 0x5f, 0xaf, 0x13, 0x72, 0x0b, 0xe7, 0xbd, 0x60, 0xfe,
-	0x95, 0x2d, 0x28, 0x43, 0xd2, 0xd0, 0xbb, 0x9a, 0xb2, 0x59, 0x2b, 0x35, 0x15, 0x7d, 0xe2, 0x4e,
-	0xc8, 0x07, 0xf8, 0x4f, 0x7f, 0x7c, 0x89, 0x95, 0xf3, 0x32, 0x27, 0x67, 0xa8, 0x6b, 0x7b, 0xe2,
-	0xf4, 0x1b, 0x25, 0xc9, 0x30, 0x5b, 0x49, 0xb7, 0x6b, 0x8f, 0x92, 0xbc, 0x86, 0xd9, 0x4a, 0xfa,
-	0x85, 0xcf, 0x54, 0xfa, 0x08, 0xff, 0xa7, 0xba, 0x97, 0x5c, 0xe7, 0xf5, 0xf6, 0x81, 0x5a, 0x49,
-	0x81, 0xd7, 0x79, 0x2d, 0x94, 0xa3, 0xf5, 0xbd, 0x2c, 0xfe, 0x85, 0xdc, 0xfe, 0x09, 0x00, 0x00,
-	0xff, 0xff, 0x12, 0xb3, 0x58, 0xf0, 0x9a, 0x08, 0x00, 0x00,
+	// 610 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xec, 0x56, 0xcd, 0x6e, 0xda, 0x40,
+	0x10, 0x0e, 0x01, 0xd2, 0x64, 0x40, 0x2d, 0x6c, 0x9a, 0x88, 0xa2, 0x56, 0x41, 0xce, 0x05, 0xf5,
+	0x90, 0x03, 0xa8, 0x3d, 0xf4, 0x46, 0x4a, 0xa4, 0xd0, 0x94, 0x16, 0x99, 0xbe, 0x00, 0x31, 0x23,
+	0xd8, 0x02, 0x6b, 0x6b, 0x6d, 0x1a, 0x78, 0x93, 0xbc, 0x40, 0xdf, 0xa5, 0x8f, 0x55, 0x79, 0xbd,
+	0x86, 0x5d, 0xe3, 0x1f, 0x2a, 0x71, 0xec, 0xc9, 0xec, 0xfc, 0x7c, 0x33, 0xf3, 0xcd, 0xec, 0x2c,
+	0x50, 0x5d, 0xd0, 0xd5, 0x02, 0x5d, 0x77, 0x34, 0x41, 0xf7, 0xc6, 0xe1, 0xb6, 0x67, 0x93, 0x92,
+	0x22, 0x32, 0x8a, 0x90, 0xef, 0x58, 0x33, 0xe3, 0x04, 0x0a, 0x03, 0xca, 0x26, 0xe2, 0x6b, 0xb3,
+	0x89, 0xf1, 0x7c, 0x0c, 0x64, 0xc0, 0xd1, 0xb2, 0x17, 0x4e, 0x17, 0x2d, 0xbe, 0x76, 0xbc, 0xe1,
+	0xdc, 0xf6, 0x08, 0x81, 0x82, 0xff, 0xad, 0xe5, 0x1a, 0xb9, 0x66, 0xc1, 0x14, 0xbf, 0x49, 0x0b,
+	0x5e, 0xdf, 0x31, 0x61, 0x82, 0xe3, 0x7e, 0x00, 0xfb, 0x80, 0x6b, 0xb7, 0x76, 0xdc, 0xc8, 0x35,
+	0xcb, 0x66, 0xac, 0x8e, 0x7c, 0x82, 0xda, 0x46, 0x6e, 0xa2, 0x45, 0x1d, 0x8a, 0xcc, 0xeb, 0x75,
+	0x85, 0x5f, 0x5e, 0xf8, 0x25, 0xea, 0x7d, 0xdf, 0xc1, 0x88, 0x7b, 0x74, 0x34, 0x97, 0x88, 0x9f,
+	0xd7, 0xce, 0x14, 0xf9, 0x0f, 0x5c, 0x79, 0xb5, 0x42, 0xe0, 0x9b, 0xa4, 0x27, 0xb7, 0xf0, 0x56,
+	0xea, 0x14, 0x54, 0xc5, 0xbf, 0x28, 0xfc, 0x53, 0x6d, 0x8c, 0x29, 0x5c, 0xe8, 0xcc, 0xc8, 0x30,
+	0xa4, 0x06, 0x2f, 0x4c, 0x7b, 0xc9, 0xc6, 0xbd, 0xae, 0xe0, 0xe7, 0xcc, 0x0c, 0x8f, 0xe4, 0x03,
+	0x14, 0x7d, 0xaa, 0x7c, 0x4e, 0xf2, 0xcd, 0x52, 0xeb, 0xea, 0x46, 0x6d, 0xca, 0x2e, 0xcd, 0x66,
+	0x60, 0x6d, 0x3c, 0xe7, 0x36, 0x4d, 0x90, 0x6c, 0x1c, 0xba, 0x09, 0x89, 0x44, 0xe6, 0xd3, 0x89,
+	0x54, 0x48, 0x90, 0xd0, 0x87, 0x21, 0x41, 0x29, 0x73, 0x43, 0xc2, 0x76, 0x12, 0x07, 0xc8, 0x17,
+	0x4b, 0x0f, 0xff, 0x4f, 0xe2, 0x4e, 0x13, 0x24, 0x33, 0x87, 0x69, 0x82, 0x42, 0x73, 0xd8, 0x04,
+	0x07, 0x2a, 0x52, 0x39, 0x9c, 0x8e, 0x78, 0x72, 0x07, 0xee, 0xe1, 0x2a, 0x9a, 0xf1, 0x60, 0xf9,
+	0x38, 0xa7, 0x56, 0x90, 0xf5, 0x03, 0xae, 0x65, 0x33, 0xb2, 0xcc, 0x8c, 0x31, 0x9c, 0xab, 0x11,
+	0xb3, 0x2b, 0x6b, 0xeb, 0x95, 0xbd, 0x8b, 0xab, 0x6c, 0x93, 0x7c, 0x58, 0xd7, 0xef, 0x1c, 0x9c,
+	0x9b, 0x38, 0x9a, 0x7b, 0x74, 0x81, 0x59, 0x7b, 0xae, 0x0e, 0xa7, 0x43, 0x64, 0x63, 0xe4, 0xbd,
+	0xae, 0x2c, 0x62, 0x73, 0x26, 0xef, 0xa1, 0x12, 0x9d, 0x2e, 0x39, 0x3d, 0x3b, 0x72, 0x6d, 0x4a,
+	0x95, 0xbe, 0xca, 0x89, 0x89, 0xd5, 0x19, 0x3f, 0xe1, 0x32, 0x92, 0x66, 0x36, 0x21, 0x1f, 0x75,
+	0x42, 0x1a, 0x1a, 0x21, 0x31, 0x45, 0x87, 0x9c, 0x3c, 0x6d, 0x29, 0xc9, 0xda, 0x3a, 0x0d, 0x28,
+	0xa9, 0x15, 0x04, 0xac, 0xa8, 0xa2, 0x7f, 0x21, 0x46, 0x2d, 0x72, 0xef, 0xa5, 0xb2, 0x57, 0x91,
+	0x31, 0x5b, 0xa5, 0x09, 0xe5, 0x3b, 0xce, 0x6d, 0xae, 0x44, 0x08, 0xd3, 0x93, 0x11, 0xc2, 0xac,
+	0x0c, 0x38, 0x15, 0x96, 0x1d, 0x6b, 0x46, 0x2e, 0xe1, 0xa4, 0xef, 0x4e, 0xbe, 0x22, 0x13, 0x46,
+	0x45, 0x53, 0x9e, 0x5a, 0x7f, 0x0a, 0x50, 0xed, 0xd3, 0x95, 0x74, 0x19, 0x22, 0xff, 0x45, 0x2d,
+	0x24, 0xb7, 0x50, 0xfe, 0x86, 0xde, 0x93, 0xcd, 0x67, 0x02, 0x80, 0xbc, 0xd1, 0x92, 0x53, 0xc3,
+	0xd7, 0x2f, 0x76, 0x55, 0xfe, 0xab, 0x7c, 0x44, 0xda, 0x70, 0xd6, 0x71, 0x67, 0xdf, 0xd9, 0x9c,
+	0x32, 0x24, 0x55, 0x7d, 0xa6, 0x29, 0x9b, 0xd4, 0x23, 0x22, 0xff, 0xe9, 0x3e, 0x22, 0xf7, 0xf0,
+	0x52, 0x7f, 0x54, 0x88, 0x91, 0xf2, 0xe2, 0x84, 0x39, 0x54, 0x34, 0x9b, 0x20, 0xfc, 0x16, 0x49,
+	0x72, 0x18, 0x8f, 0xa4, 0xb7, 0x2b, 0x03, 0x49, 0xae, 0x97, 0x78, 0x24, 0x7d, 0x91, 0xc5, 0x22,
+	0x75, 0xa1, 0xac, 0x5e, 0x67, 0xd2, 0x48, 0xbc, 0xe9, 0x69, 0x28, 0x5f, 0xe0, 0x55, 0xe4, 0x0e,
+	0x90, 0xeb, 0xb4, 0x1b, 0xb2, 0x27, 0x56, 0x48, 0xd3, 0x75, 0xda, 0x20, 0xa6, 0x60, 0x3d, 0x9e,
+	0x88, 0xff, 0x68, 0xed, 0xbf, 0x01, 0x00, 0x00, 0xff, 0xff, 0x5a, 0xdc, 0x1c, 0xcc, 0xb8, 0x09,
+	0x00, 0x00,
 }
