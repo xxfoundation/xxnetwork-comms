@@ -12,7 +12,7 @@ import (
 
 // Send an AskOnline message to a particular server
 func SendAskOnline(addr string, message *pb.Ping) (*pb.Pong, error) {
-	conn, err := grpc.Dial(addr, grpc.WithInsecure())
+	conn, err := grpc.Dial(addr, grpc.WithInsecure(), grpc.WithBlock())
 
 	if err != nil {
 		jww.ERROR.Printf("Failed to connect to server with address %s",

@@ -12,7 +12,7 @@ import (
 
 // Send a NetworkError message to a particular server
 func SendNetworkError(addr string, message *pb.ErrorMessage) (*pb.ErrorAck, error) {
-	conn, err := grpc.Dial(addr, grpc.WithInsecure())
+	conn, err := grpc.Dial(addr, grpc.WithInsecure(), grpc.WithBlock())
 
 	if err != nil {
 		jww.ERROR.Printf("Failed to connect to server with address %s",

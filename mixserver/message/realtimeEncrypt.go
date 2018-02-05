@@ -12,7 +12,7 @@ import (
 
 func SendRealtimeEncrypt(addr string, message *pb.RealtimeEncryptMessage) (*pb.Ack, error) {
 	// Attempt to connect to addr
-	conn, err := grpc.Dial(addr, grpc.WithInsecure())
+	conn, err := grpc.Dial(addr, grpc.WithInsecure(), grpc.WithBlock())
 	// Check for an error
 	if err != nil {
 		jww.ERROR.Printf("Failed to connect to server at %v\n", addr)
