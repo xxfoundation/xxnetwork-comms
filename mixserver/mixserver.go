@@ -63,6 +63,22 @@ func (s *server) PrecompEncrypt(ctx context.Context,
 	return &pb.Ack{}, nil
 }
 
+// Handle a PrecompGeneration event
+func (s *server) PrecompGeneration(ctx context.Context,
+	msg *pb.PrecompGenerationMessage) (*pb.Ack, error) {
+	// Call the server handler with the msg
+	serverHandler.PrecompGeneration(msg)
+	return &pb.Ack{}, nil
+}
+
+// Handle a PrecompReveal event
+func (s *server) PrecompReveal(ctx context.Context,
+	msg *pb.PrecompRevealMessage) (*pb.Ack, error) {
+	// Call the server handler with the msg
+	serverHandler.PrecompReveal(msg)
+	return &pb.Ack{}, nil
+}
+
 // Handle a PrecompPermute event
 func (s *server) PrecompPermute(ctx context.Context,
 	msg *pb.PrecompPermuteMessage) (*pb.Ack, error) {
@@ -92,6 +108,22 @@ func (s *server) RealtimeEncrypt(ctx context.Context,
 	msg *pb.RealtimeEncryptMessage) (*pb.Ack, error) {
 	// Call the server handler with the msg
 	serverHandler.RealtimeEncrypt(msg)
+	return &pb.Ack{}, nil
+}
+
+// Handle a RealtimePermute event
+func (s *server) RealtimePermute(ctx context.Context,
+	msg *pb.RealtimePermuteMessage) (*pb.Ack, error) {
+	// Call the server handler with the msg
+	serverHandler.RealtimePermute(msg)
+	return &pb.Ack{}, nil
+}
+
+// Handle a RealtimeIdentify event
+func (s *server) RealtimeIdentify(ctx context.Context,
+	msg *pb.RealtimeIdentifyMessage) (*pb.Ack, error) {
+	// Call the server handler with the msg
+	serverHandler.RealtimeIdentify(msg)
 	return &pb.Ack{}, nil
 }
 

@@ -12,6 +12,10 @@ type ServerHandler interface {
 	PrecompDecrypt(*mixmessages.PrecompDecryptMessage)
 	// Server Interface for the PrecompEncrypt Messages
 	PrecompEncrypt(*mixmessages.PrecompEncryptMessage)
+	// Server Interface for the PrecompGeneration Messages
+	PrecompGeneration(*mixmessages.PrecompGenerationMessage)
+	// Server Interface for the PrecompReveal Messages
+	PrecompReveal(*mixmessages.PrecompRevealMessage)
 	// Server Interface for the PrecompPermute Messages
 	PrecompPermute(*mixmessages.PrecompPermuteMessage)
 	// Server Interface for the PrecompShare Messages
@@ -20,4 +24,8 @@ type ServerHandler interface {
 	RealtimeDecrypt(*mixmessages.RealtimeDecryptMessage)
 	// Server Interface for the RealtimeEncrypt Messages
 	RealtimeEncrypt(*mixmessages.RealtimeEncryptMessage)
+	// Server Interface for the RealtimePermute Messages
+	RealtimePermute(*mixmessages.RealtimePermuteMessage)
+	// Server Interface for the RealtimeIdentify Messages
+	RealtimeIdentify(*mixmessages.RealtimeIdentifyMessage)
 }

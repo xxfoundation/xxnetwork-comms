@@ -21,6 +21,12 @@ service MixMessageService {
     // Handles Precomp Encrypt
     rpc PrecompEncrypt (PrecompEncryptMessage) returns (Ack) {
     }
+    // Handles Precomp Generation
+    rpc PrecompGeneration (PrecompGenerationMessage) returns (Ack) {
+    }
+    // Handles Precomp Reveal
+    rpc PrecompReveal (PrecompRevealMessage) returns (Ack) {
+    }
     // Handles Precomp Permute
     rpc PrecompPermute (PrecompPermuteMessage) returns (Ack) {
     }
@@ -32,6 +38,12 @@ service MixMessageService {
     }
     // Handles Realtime Encrypt
     rpc RealtimeEncrypt (RealtimeEncryptMessage) returns (Ack) {
+    }
+    // Handles Realtime Permute
+    rpc RealtimePermute (RealtimePermuteMessage) returns (Ack) {
+    }
+    // Handles Realtime Identify
+    rpc RealtimeIdentify (RealtimeIdentifyMessage) returns (Ack) {
     }
 }
 
@@ -73,6 +85,30 @@ message PrecompEncryptSlot {
 message PrecompEncryptMessage {
     string RoundID = 1;
     repeated PrecompEncryptSlot Slots = 2;
+}
+
+// Message for individual Precomp Generation Slot
+message PrecompGenerationSlot {
+    uint64 Slot = 1;
+}
+
+// Message for batch of Precomp Generation Slots
+message PrecompGenerationMessage {
+    string RoundID = 1;
+    repeated PrecompGenerationSlot Slots = 2;
+}
+
+// Message for individual Precomp Reveal Slot
+message PrecompRevealSlot {
+    uint64 Slot = 1;
+    bytes PartialMessageCypherText = 2;
+    bytes PartialRecipientCypherText = 3;
+}
+
+// Message for batch of Precomp Reveal Slots
+message PrecompRevealMessage {
+    string RoundID = 1;
+    repeated PrecompRevealSlot Slots = 2;
 }
 
 // Message for individual Precomp Permute Slot
@@ -127,6 +163,31 @@ message RealtimeEncryptSlot {
 message RealtimeEncryptMessage {
     string RoundID = 1;
     repeated RealtimeEncryptSlot Slots = 2;
+}
+
+// Message for individual Realtime Permute Slot
+message RealtimePermuteSlot {
+    uint64 Slot = 1;
+    bytes EncryptedMessage = 2;
+    bytes EncryptedRecipientID = 3;
+}
+
+// Message for batch of Realtime Permute Slots
+message RealtimePermuteMessage {
+    string RoundID = 1;
+    repeated RealtimePermuteSlot Slots = 2;
+}
+
+// Message for individual Realtime Identify Slot
+message RealtimeIdentifySlot {
+    uint64 Slot = 1;
+    bytes EncryptedRecipientID = 2;
+}
+
+// Message for batch of Realtime Identify Slots
+message RealtimeIdentifyMessage {
+    string RoundID = 1;
+    repeated RealtimeIdentifySlot Slots = 2;
 }
 
 // ErrorMessage encodes an error message
