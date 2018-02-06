@@ -9,17 +9,23 @@ package mixmessages;
 
 // The greeting service definition.
 service MixMessageService {
-    // Handles an error message
+    // Handles ErrorMessage
     rpc NetworkError (ErrorMessage) returns (ErrorAck) {
     }
-    // Handles an AskOnline message
+    // Handles AskOnline
     rpc AskOnline (Ping) returns (Pong) {
+    }
+    // Handles Init Round
+    rpc NewRound (InitRound) returns (InitRoundAck) {
     }
     // Handles Precomp Decrypt
     rpc PrecompDecrypt (PrecompDecryptMessage) returns (Ack) {
     }
     // Handles Precomp Encrypt
     rpc PrecompEncrypt (PrecompEncryptMessage) returns (Ack) {
+    }
+    // Handles Precomp Reveal
+    rpc PrecompReveal (PrecompRevealMessage) returns (Ack) {
     }
     // Handles Precomp Permute
     rpc PrecompPermute (PrecompPermuteMessage) returns (Ack) {
@@ -33,6 +39,12 @@ service MixMessageService {
     // Handles Realtime Encrypt
     rpc RealtimeEncrypt (RealtimeEncryptMessage) returns (Ack) {
     }
+    // Handles Realtime Permute
+    rpc RealtimePermute (RealtimePermuteMessage) returns (Ack) {
+    }
+    // Handles Realtime Identify
+    rpc RealtimeIdentify (RealtimeIdentifyMessage) returns (Ack) {
+    }
 }
 
 // Generic empty Ack message
@@ -45,6 +57,14 @@ message Ping {
 
 // The response message containing the online confirmation
 message Pong {
+}
+
+// The message for Init Round
+message InitRound {
+}
+
+// The response for Init Round
+message InitRoundAck {
 }
 
 // Message for individual Precomp Decrypt Slot
@@ -73,6 +93,19 @@ message PrecompEncryptSlot {
 message PrecompEncryptMessage {
     string RoundID = 1;
     repeated PrecompEncryptSlot Slots = 2;
+}
+
+// Message for individual Precomp Reveal Slot
+message PrecompRevealSlot {
+    uint64 Slot = 1;
+    bytes PartialMessageCypherText = 2;
+    bytes PartialRecipientCypherText = 3;
+}
+
+// Message for batch of Precomp Reveal Slots
+message PrecompRevealMessage {
+    string RoundID = 1;
+    repeated PrecompRevealSlot Slots = 2;
 }
 
 // Message for individual Precomp Permute Slot
@@ -127,6 +160,31 @@ message RealtimeEncryptSlot {
 message RealtimeEncryptMessage {
     string RoundID = 1;
     repeated RealtimeEncryptSlot Slots = 2;
+}
+
+// Message for individual Realtime Permute Slot
+message RealtimePermuteSlot {
+    uint64 Slot = 1;
+    bytes EncryptedMessage = 2;
+    bytes EncryptedRecipientID = 3;
+}
+
+// Message for batch of Realtime Permute Slots
+message RealtimePermuteMessage {
+    string RoundID = 1;
+    repeated RealtimePermuteSlot Slots = 2;
+}
+
+// Message for individual Realtime Identify Slot
+message RealtimeIdentifySlot {
+    uint64 Slot = 1;
+    bytes EncryptedRecipientID = 2;
+}
+
+// Message for batch of Realtime Identify Slots
+message RealtimeIdentifyMessage {
+    string RoundID = 1;
+    repeated RealtimeIdentifySlot Slots = 2;
 }
 
 // ErrorMessage encodes an error message
