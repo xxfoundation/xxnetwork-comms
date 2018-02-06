@@ -47,6 +47,12 @@ func (s *server) AskOnline(ctx context.Context, msg *pb.Ping) (
 	return &pb.Pong{}, nil
 }
 
+// Handle a NewRound event
+func (s *server) NewRound(ctx context.Context,
+	msg *pb.InitRound) (*pb.InitRoundAck, error) {
+	return &pb.InitRoundAck{}, nil
+}
+
 // Handle a PrecompDecrypt event
 func (s *server) PrecompDecrypt(ctx context.Context,
 	msg *pb.PrecompDecryptMessage) (*pb.Ack, error) {
@@ -60,14 +66,6 @@ func (s *server) PrecompEncrypt(ctx context.Context,
 	msg *pb.PrecompEncryptMessage) (*pb.Ack, error) {
 	// Call the server handler with the msg
 	serverHandler.PrecompEncrypt(msg)
-	return &pb.Ack{}, nil
-}
-
-// Handle a PrecompGeneration event
-func (s *server) PrecompGeneration(ctx context.Context,
-	msg *pb.PrecompGenerationMessage) (*pb.Ack, error) {
-	// Call the server handler with the msg
-	serverHandler.PrecompGeneration(msg)
 	return &pb.Ack{}, nil
 }
 

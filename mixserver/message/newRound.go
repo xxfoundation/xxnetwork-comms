@@ -10,7 +10,7 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 )
 
-func SendPrecompGeneration(addr string, message *pb.PrecompGenerationMessage) (*pb.Ack, error) {
+func SendNewRound(addr string, message *pb.InitRound) (*pb.InitRoundAck, error) {
 	// Attempt to connect to addr
 	conn, err := grpc.Dial(addr, grpc.WithInsecure(), grpc.WithBlock())
 	// Check for an error
@@ -23,11 +23,11 @@ func SendPrecompGeneration(addr string, message *pb.PrecompGenerationMessage) (*
 	ctx, cancel := context.WithTimeout(context.Background(), 300*time.Millisecond)
 
 	// Send the message
-	result, err := c.PrecompGeneration(ctx, message)
+	result, err := c.NewRound(ctx, message)
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
-		jww.ERROR.Printf("PrecompGeneration: Error received: %s", err)
+		jww.ERROR.Printf("NewRound: Error received: %s", err)
 	}
 	cancel()
 	conn.Close()

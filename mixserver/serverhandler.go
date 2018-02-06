@@ -12,8 +12,6 @@ type ServerHandler interface {
 	PrecompDecrypt(*mixmessages.PrecompDecryptMessage)
 	// Server Interface for the PrecompEncrypt Messages
 	PrecompEncrypt(*mixmessages.PrecompEncryptMessage)
-	// Server Interface for the PrecompGeneration Messages
-	PrecompGeneration(*mixmessages.PrecompGenerationMessage)
 	// Server Interface for the PrecompReveal Messages
 	PrecompReveal(*mixmessages.PrecompRevealMessage)
 	// Server Interface for the PrecompPermute Messages

@@ -9,20 +9,20 @@ package mixmessages;
 
 // The greeting service definition.
 service MixMessageService {
-    // Handles an error message
+    // Handles ErrorMessage
     rpc NetworkError (ErrorMessage) returns (ErrorAck) {
     }
-    // Handles an AskOnline message
+    // Handles AskOnline
     rpc AskOnline (Ping) returns (Pong) {
+    }
+    // Handles Init Round
+    rpc NewRound (InitRound) returns (InitRoundAck) {
     }
     // Handles Precomp Decrypt
     rpc PrecompDecrypt (PrecompDecryptMessage) returns (Ack) {
     }
     // Handles Precomp Encrypt
     rpc PrecompEncrypt (PrecompEncryptMessage) returns (Ack) {
-    }
-    // Handles Precomp Generation
-    rpc PrecompGeneration (PrecompGenerationMessage) returns (Ack) {
     }
     // Handles Precomp Reveal
     rpc PrecompReveal (PrecompRevealMessage) returns (Ack) {
@@ -59,6 +59,14 @@ message Ping {
 message Pong {
 }
 
+// The message for Init Round
+message InitRound {
+}
+
+// The response for Init Round
+message InitRoundAck {
+}
+
 // Message for individual Precomp Decrypt Slot
 message PrecompDecryptSlot {
     uint64 Slot = 1;
@@ -85,17 +93,6 @@ message PrecompEncryptSlot {
 message PrecompEncryptMessage {
     string RoundID = 1;
     repeated PrecompEncryptSlot Slots = 2;
-}
-
-// Message for individual Precomp Generation Slot
-message PrecompGenerationSlot {
-    uint64 Slot = 1;
-}
-
-// Message for batch of Precomp Generation Slots
-message PrecompGenerationMessage {
-    string RoundID = 1;
-    repeated PrecompGenerationSlot Slots = 2;
 }
 
 // Message for individual Precomp Reveal Slot

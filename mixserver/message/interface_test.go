@@ -22,8 +22,6 @@ func (m TestInterface) PrecompDecrypt(message *pb.PrecompDecryptMessage) {}
 
 func (m TestInterface) PrecompEncrypt(message *pb.PrecompEncryptMessage) {}
 
-func (m TestInterface) PrecompGeneration(message *pb.PrecompGenerationMessage) {}
-
 func (m TestInterface) PrecompReveal(message *pb.PrecompRevealMessage) {}
 
 func (m TestInterface) PrecompPermute(message *pb.PrecompPermuteMessage) {}
