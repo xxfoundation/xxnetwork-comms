@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-// Smoke test SendPrecompEncrypt
+// Smoke test SendRealtimeEncrypt
 func TestSendRealtimeEncrypt(t *testing.T) {
 	_, err := SendRealtimeEncrypt(SERVER_ADDRESS, &pb.RealtimeEncryptMessage{})
 	if err != nil {
