@@ -10,17 +10,20 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 )
 
-// Send a NetworkError message to a particular server
 func SendNetworkError(addr string, message *pb.ErrorMessage) (*pb.ErrorAck, error) {
+	// Attempt to connect to addr
 	conn, err := grpc.Dial(addr, grpc.WithInsecure(), grpc.WithBlock())
-
+	// Check for an error
 	if err != nil {
-		jww.ERROR.Printf("Failed to connect to server with address %s",
+		jww.ERROR.Printf("Failed to connect to server at %s",
 			addr)
 	}
 
+	// Prepare to send a message
 	c := pb.NewMixMessageServiceClient(conn)
 	ctx, cancel := context.WithTimeout(context.Background(), 300*time.Millisecond)
+
+	// Send the message
 	result, err := c.NetworkError(ctx, message)
 
 	// Make sure there are no errors with sending the message
