@@ -126,7 +126,7 @@ message PrecompPermuteMessage {
 // Message for individual Precomp Share Slot
 message PrecompShareSlot {
     uint64 Slot = 1;
-    bytes PartialRecipientPublicCypherKey = 2;
+    bytes PartialRoundPublicCypherKey = 2;
 }
 
 // Message for batch of Precomp Share Slots
