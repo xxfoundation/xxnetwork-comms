@@ -8,6 +8,8 @@ package mixserver
 import "gitlab.com/privategrity/comms/mixmessages"
 
 type ServerHandler interface {
+	// Server Interface for starting New Rounds
+	NewRound()
 	// Server Interface for the PrecompDecrypt Messages
 	PrecompDecrypt(*mixmessages.PrecompDecryptMessage)
 	// Server Interface for the PrecompEncrypt Messages

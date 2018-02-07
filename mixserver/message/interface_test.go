@@ -18,6 +18,8 @@ func TestMain(m *testing.M) {
 // Blank struct implementing ServerHandler interface for testing purposes (Passing to StartServer)
 type TestInterface struct{}
 
+func (m TestInterface) NewRound() {}
+
 func (m TestInterface) PrecompDecrypt(message *pb.PrecompDecryptMessage) {}
 
 func (m TestInterface) PrecompEncrypt(message *pb.PrecompEncryptMessage) {}
