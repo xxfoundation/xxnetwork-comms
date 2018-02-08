@@ -127,6 +127,13 @@ func (s *server) RealtimeIdentify(ctx context.Context,
 	return &pb.Ack{}, nil
 }
 
+// Handle a SetPublicKey event
+func (s *server) SetPublicKey(ctx context.Contest,
+	msg *pb.PublicKeyMessage) (*pb.Ack, error) {
+	serverHandler.SetPublicKey(msg)
+	return &pb.Ack{}, nil
+}
+
 // Starts the local comm server
 func StartServer(localServer string, handler ServerHandler) {
 	// Set the serverHandler
