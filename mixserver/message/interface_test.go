@@ -38,4 +38,4 @@ func (m TestInterface) RealtimePermute(message *pb.RealtimePermuteMessage) {}
 
 func (m TestInterface) RealtimeIdentify(message *pb.RealtimeIdentifyMessage) {}
 
-func (m TestInterface) SetPublicKey(message *pb.PublicKeyMessage) {}
+func (m TestInterface) SetPublicKey(roundId string, pkey []byte) {}

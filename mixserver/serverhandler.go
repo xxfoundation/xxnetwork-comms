@@ -29,5 +29,5 @@ type ServerHandler interface {
 	// Server Interface for the RealtimeIdentify Messages
 	RealtimeIdentify(*mixmessages.RealtimeIdentifyMessage)
 	// Server Interface for SetPublicKey
-	SetPublicKey(*mixmessage.PublicKeyMessage)
+	SetPublicKey(RoundID string, PublicKey []byte)
 }

@@ -128,7 +128,7 @@ func (s *server) RealtimeIdentify(ctx context.Context,
 }
 
 // Handle a SetPublicKey event
-func (s *server) SetPublicKey(ctx context.Contest,
+func (s *server) SetPublicKey(ctx context.Context,
 	msg *pb.PublicKeyMessage) (*pb.Ack, error) {
 	serverHandler.SetPublicKey(msg.RoundID, msg.PublicKey)
 	return &pb.Ack{}, nil
