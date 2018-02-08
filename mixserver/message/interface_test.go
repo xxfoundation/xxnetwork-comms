@@ -37,3 +37,5 @@ func (m TestInterface) RealtimeEncrypt(message *pb.RealtimeEncryptMessage) {}
 func (m TestInterface) RealtimePermute(message *pb.RealtimePermuteMessage) {}
 
 func (m TestInterface) RealtimeIdentify(message *pb.RealtimeIdentifyMessage) {}
+
+func (m TestInterface) SetPublicKey(message *pb.PublicKeyMessage) {}
