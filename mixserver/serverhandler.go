@@ -28,4 +28,6 @@ type ServerHandler interface {
 	RealtimePermute(*mixmessages.RealtimePermuteMessage)
 	// Server Interface for the RealtimeIdentify Messages
 	RealtimeIdentify(*mixmessages.RealtimeIdentifyMessage)
+	// Server Interface for SetPublicKey
+	SetPublicKey(*mixmessage.PublicKeyMessage)
 }
