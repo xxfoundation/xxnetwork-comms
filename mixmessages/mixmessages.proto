@@ -45,6 +45,10 @@ service MixMessageService {
     // Handles Realtime Identify
     rpc RealtimeIdentify (RealtimeIdentifyMessage) returns (Ack) {
     }
+
+    // Set the public key
+    rpc SetPublicKey(PublicKeyMessage) returns (Ack) {
+    }
 }
 
 // Generic empty Ack message
@@ -185,6 +189,12 @@ message RealtimeIdentifySlot {
 message RealtimeIdentifyMessage {
     string RoundID = 1;
     repeated RealtimeIdentifySlot Slots = 2;
+}
+
+// Message for setting public key
+message PublicKeyMessage {
+    string RoundID = 1;
+    bytes PublicKey = 2;
 }
 
 // ErrorMessage encodes an error message
