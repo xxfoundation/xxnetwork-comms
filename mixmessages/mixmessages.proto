@@ -42,10 +42,6 @@ service MixMessageService {
     // Handles Realtime Permute
     rpc RealtimePermute (RealtimePermuteMessage) returns (Ack) {
     }
-    // Handles Realtime Identify
-    rpc RealtimeIdentify (RealtimeIdentifyMessage) returns (Ack) {
-    }
-
     // Set the public key
     rpc SetPublicKey(PublicKeyMessage) returns (Ack) {
     }
@@ -177,18 +173,6 @@ message RealtimePermuteSlot {
 message RealtimePermuteMessage {
     string RoundID = 1;
     repeated RealtimePermuteSlot Slots = 2;
-}
-
-// Message for individual Realtime Identify Slot
-message RealtimeIdentifySlot {
-    uint64 Slot = 1;
-    bytes EncryptedRecipientID = 2;
-}
-
-// Message for batch of Realtime Identify Slots
-message RealtimeIdentifyMessage {
-    string RoundID = 1;
-    repeated RealtimeIdentifySlot Slots = 2;
 }
 
 // Message for setting public key

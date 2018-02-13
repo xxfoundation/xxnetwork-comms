@@ -119,14 +119,6 @@ func (s *server) RealtimePermute(ctx context.Context,
 	return &pb.Ack{}, nil
 }
 
-// Handle a RealtimeIdentify event
-func (s *server) RealtimeIdentify(ctx context.Context,
-	msg *pb.RealtimeIdentifyMessage) (*pb.Ack, error) {
-	// Call the server handler with the msg
-	serverHandler.RealtimeIdentify(msg)
-	return &pb.Ack{}, nil
-}
-
 // Handle a SetPublicKey event
 func (s *server) SetPublicKey(ctx context.Context,
 	msg *pb.PublicKeyMessage) (*pb.Ack, error) {

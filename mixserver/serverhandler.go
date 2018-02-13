@@ -26,8 +26,6 @@ type ServerHandler interface {
 	RealtimeEncrypt(*mixmessages.RealtimeEncryptMessage)
 	// Server Interface for the RealtimePermute Messages
 	RealtimePermute(*mixmessages.RealtimePermuteMessage)
-	// Server Interface for the RealtimeIdentify Messages
-	RealtimeIdentify(*mixmessages.RealtimeIdentifyMessage)
 	// Server Interface for SetPublicKey
 	SetPublicKey(RoundID string, PublicKey []byte)
 }
