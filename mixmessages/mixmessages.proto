@@ -43,7 +43,7 @@ service MixMessageService {
     rpc RealtimePermute (RealtimePermuteMessage) returns (Ack) {
     }
     // Set the public key
-    rpc SetPublicKey(PublicKeyMessage) returns (Ack) {
+    rpc SetPublicKey (PublicKeyMessage) returns (Ack) {
     }
 }
 
@@ -65,6 +65,17 @@ message InitRound {
 
 // The response for Init Round
 message InitRoundAck {
+}
+
+// The standard CMIX message type
+message CmixMessage {
+    bytes MessagePayload = 1; // Designed to conform to 4096 bit length
+    bytes RecipientID = 2; // Designed to conform to 4096 bit length
+}
+
+// The message for requesting new CMIX messages
+message RequestMessage {
+    fixed64 UserID = 1; // 64 bit length
 }
 
 // Message for individual Precomp Decrypt Slot
