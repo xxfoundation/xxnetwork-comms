@@ -45,14 +45,13 @@ service MixMessageService {
     // Set the public key
     rpc SetPublicKey (PublicKeyMessage) returns (Ack) {
     }
-}
-
-// This service is for servers talking to clients
-service ClientService {
+    // Send CmixMessage from Server to Client
     rpc SendMessageToClient(CmixMessage) returns (Ack) {
     }
-    rpc ReceiveMessageFromClient(CmixMessage) returns (Ack) {
+    // Send CmixMessage from Client to Server
+    rpc SendMessageToServer(CmixMessage) returns (Ack) {
     }
+    // Request a CmixMessage from the server for the given User
     rpc PollMessage(RequestMessage) returns (CmixMessage) {
     }
 }

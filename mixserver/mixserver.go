@@ -55,6 +55,27 @@ func (s *server) NewRound(ctx context.Context,
 	return &pb.InitRoundAck{}, nil
 }
 
+// Handle CmixMessage from Server to Client
+func (s *server) SendMessageToClient(ctx context.Context,
+	msg *pb.CmixMessage) (*pb.Ack, error) {
+	// TODO: Stubbed
+	return &pb.Ack{}, nil
+}
+
+// Handle CmixMessage from Client to Server
+func (s *server) SendMessageToServer(ctx context.Context,
+	msg *pb.CmixMessage) (*pb.Ack, error) {
+	// TODO: Stubbed
+	return &pb.Ack{}, nil
+}
+
+// Request a CmixMessage from the server for the given User
+func (s *server) PollMessage(ctx context.Context,
+	msg *pb.RequestMessage) (*pb.CmixMessage, error) {
+	// TODO: Stubbed
+	return &pb.CmixMessage{}, nil
+}
+
 // Handle a PrecompDecrypt event
 func (s *server) PrecompDecrypt(ctx context.Context,
 	msg *pb.PrecompDecryptMessage) (*pb.Ack, error) {
