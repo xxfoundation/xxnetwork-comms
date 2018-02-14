@@ -7,7 +7,7 @@ syntax = "proto3";
 
 package mixmessages;
 
-// The greeting service definition.
+// This service is for servers talking to servers
 service MixMessageService {
     // Handles ErrorMessage
     rpc NetworkError (ErrorMessage) returns (ErrorAck) {
@@ -44,6 +44,16 @@ service MixMessageService {
     }
     // Set the public key
     rpc SetPublicKey (PublicKeyMessage) returns (Ack) {
+    }
+}
+
+// This service is for servers talking to clients
+service ClientService {
+    rpc SendMessageToClient(CmixMessage) returns (Ack) {
+    }
+    rpc ReceiveMessageFromClient(CmixMessage) returns (Ack) {
+    }
+    rpc PollMessage(RequestMessage) returns (CmixMessage) {
     }
 }
 
