@@ -28,4 +28,6 @@ type ServerHandler interface {
 	RealtimePermute(*mixmessages.RealtimePermuteMessage)
 	// Server Interface for SetPublicKey
 	SetPublicKey(RoundID string, PublicKey []byte)
+	// Server interface for SendMessageToServer
+	SendMessageToServer(*mixmessages.CmixMessage)
 }
