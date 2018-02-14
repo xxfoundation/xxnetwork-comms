@@ -37,3 +37,5 @@ func (m TestInterface) RealtimeEncrypt(message *pb.RealtimeEncryptMessage) {}
 func (m TestInterface) RealtimePermute(message *pb.RealtimePermuteMessage) {}
 
 func (m TestInterface) SetPublicKey(roundId string, pkey []byte) {}
+
+func (m TestInterface) SendMessageToServer(message *pb.CmixMessage) {}

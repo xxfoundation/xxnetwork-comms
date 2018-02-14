@@ -65,7 +65,8 @@ func (s *server) SendMessageToClient(ctx context.Context,
 // Handle CmixMessage from Client to Server
 func (s *server) SendMessageToServer(ctx context.Context,
 	msg *pb.CmixMessage) (*pb.Ack, error) {
-	// TODO: Stubbed
+	// Call the server handler with the msg
+	serverHandler.SendMessageToServer(msg)
 	return &pb.Ack{}, nil
 }
 
