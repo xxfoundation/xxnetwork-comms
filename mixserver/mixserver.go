@@ -55,25 +55,18 @@ func (s *server) NewRound(ctx context.Context,
 	return &pb.InitRoundAck{}, nil
 }
 
-// Handle CmixMessage from Server to Client
-func (s *server) SendMessageToClient(ctx context.Context,
-	msg *pb.CmixMessage) (*pb.Ack, error) {
-	// TODO: Stubbed
-	return &pb.Ack{}, nil
-}
-
 // Handle CmixMessage from Client to Server
-func (s *server) SendMessageToServer(ctx context.Context,
+func (s *server) ClientSendMessageToServer(ctx context.Context,
 	msg *pb.CmixMessage) (*pb.Ack, error) {
 	// Call the server handler with the msg
-	serverHandler.SendMessageToServer(msg)
+	serverHandler.ReceiveMessageFromClient(msg)
 	return &pb.Ack{}, nil
 }
 
 // Request a CmixMessage from the server for the given User
-func (s *server) PollMessage(ctx context.Context,
-	msg *pb.RequestMessage) (*pb.CmixMessage, error) {
-	// TODO: Stubbed
+func (s *server) ClientPoll(ctx context.Context,
+	msg *pb.ClientPollMessage) (*pb.CmixMessage, error) {
+	serverHandler.ClientPoll(msg)
 	return &pb.CmixMessage{}, nil
 }
 
