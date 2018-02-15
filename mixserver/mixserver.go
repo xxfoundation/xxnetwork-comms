@@ -66,8 +66,7 @@ func (s *server) ClientSendMessageToServer(ctx context.Context,
 // Request a CmixMessage from the server for the given User
 func (s *server) ClientPoll(ctx context.Context,
 	msg *pb.ClientPollMessage) (*pb.CmixMessage, error) {
-	serverHandler.ClientPoll(msg)
-	return &pb.CmixMessage{}, nil
+	return serverHandler.ClientPoll(msg), nil
 }
 
 // Handle a PrecompDecrypt event

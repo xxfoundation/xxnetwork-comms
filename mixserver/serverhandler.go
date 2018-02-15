@@ -30,8 +30,8 @@ type ServerHandler interface {
 	// Server Interface for the RealtimePermute Messages
 	RealtimePermute(*mixmessages.RealtimePermuteMessage)
 
-	// Server Interface for responding to RequestMessage
-	ClientPoll(message *mixmessages.ClientPollMessage)
+	// Server Interface for responding to ClientPoll Messages
+	ClientPoll(*mixmessages.ClientPollMessage) *mixmessages.CmixMessage
 	// Server interface for ReceiveMessageFromClient
 	ReceiveMessageFromClient(*mixmessages.CmixMessage)
 }
