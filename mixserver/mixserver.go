@@ -73,7 +73,7 @@ func (s *server) SendMessageToServer(ctx context.Context,
 // Request a CmixMessage from the server for the given User
 func (s *server) PollMessage(ctx context.Context,
 	msg *pb.RequestMessage) (*pb.CmixMessage, error) {
-	// TODO: Stubbed
+	serverHandler.RequestMessage(msg)
 	return &pb.CmixMessage{}, nil
 }
 

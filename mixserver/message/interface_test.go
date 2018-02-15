@@ -20,6 +20,8 @@ type TestInterface struct{}
 
 func (m TestInterface) NewRound() {}
 
+func (m TestInterface) SetPublicKey(roundId string, pkey []byte) {}
+
 func (m TestInterface) PrecompDecrypt(message *pb.PrecompDecryptMessage) {}
 
 func (m TestInterface) PrecompEncrypt(message *pb.PrecompEncryptMessage) {}
@@ -36,6 +38,6 @@ func (m TestInterface) RealtimeEncrypt(message *pb.RealtimeEncryptMessage) {}
 
 func (m TestInterface) RealtimePermute(message *pb.RealtimePermuteMessage) {}
 
-func (m TestInterface) SetPublicKey(roundId string, pkey []byte) {}
+func (m TestInterface) RequestMessage(message *pb.RequestMessage) {}
 
 func (m TestInterface) SendMessageToServer(message *pb.CmixMessage) {}

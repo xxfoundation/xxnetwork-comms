@@ -10,6 +10,9 @@ import "gitlab.com/privategrity/comms/mixmessages"
 type ServerHandler interface {
 	// Server Interface for starting New Rounds
 	NewRound()
+	// Server Interface for SetPublicKey
+	SetPublicKey(RoundID string, PublicKey []byte)
+
 	// Server Interface for the PrecompDecrypt Messages
 	PrecompDecrypt(*mixmessages.PrecompDecryptMessage)
 	// Server Interface for the PrecompEncrypt Messages
@@ -26,8 +29,9 @@ type ServerHandler interface {
 	RealtimeEncrypt(*mixmessages.RealtimeEncryptMessage)
 	// Server Interface for the RealtimePermute Messages
 	RealtimePermute(*mixmessages.RealtimePermuteMessage)
-	// Server Interface for SetPublicKey
-	SetPublicKey(RoundID string, PublicKey []byte)
+
+	// Server Interface for responding to RequestMessage
+	RequestMessage(*mixmessages.RequestMessage)
 	// Server interface for SendMessageToServer
 	SendMessageToServer(*mixmessages.CmixMessage)
 }
