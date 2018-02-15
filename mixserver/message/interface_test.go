@@ -38,7 +38,7 @@ func (m TestInterface) RealtimeEncrypt(message *pb.RealtimeEncryptMessage) {}
 
 func (m TestInterface) RealtimePermute(message *pb.RealtimePermuteMessage) {}
 
-func (m TestInterface) ClientPoll(*pb.ClientPollMessage) *pb.CmixMessage {
+func (m TestInterface) ClientPoll(message *pb.ClientPollMessage) *pb.CmixMessage {
 	return &pb.CmixMessage{}
 }
 
