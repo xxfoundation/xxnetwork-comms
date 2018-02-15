@@ -56,7 +56,7 @@ func (s *server) NewRound(ctx context.Context,
 }
 
 // Handle CmixMessage from Client to Server
-func (s *server) SendMessageToServer(ctx context.Context,
+func (s *server) ClientSendMessageToServer(ctx context.Context,
 	msg *pb.CmixMessage) (*pb.Ack, error) {
 	// Call the server handler with the msg
 	serverHandler.ReceiveMessageFromClient(msg)

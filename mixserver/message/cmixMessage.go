@@ -23,7 +23,7 @@ func SendMessageToServer(addr string, message *pb.CmixMessage) (*pb.Ack, error) 
 	ctx, cancel := context.WithTimeout(context.Background(), 300*time.Millisecond)
 
 	// Send the message
-	result, err := c.SendMessageToServer(ctx, message)
+	result, err := c.ClientSendMessageToServer(ctx, message)
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
