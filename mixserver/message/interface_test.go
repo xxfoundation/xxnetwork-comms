@@ -38,6 +38,6 @@ func (m TestInterface) RealtimeEncrypt(message *pb.RealtimeEncryptMessage) {}
 
 func (m TestInterface) RealtimePermute(message *pb.RealtimePermuteMessage) {}
 
-func (m TestInterface) RequestMessage(message *pb.RequestMessage) {}
+func (m TestInterface) ClientPoll(message *pb.ClientPollMessage) {}
 
-func (m TestInterface) SendMessageToServer(message *pb.CmixMessage) {}
+func (m TestInterface) ReceiveMessageFromClient(message *pb.CmixMessage) {}

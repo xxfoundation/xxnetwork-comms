@@ -35,12 +35,7 @@ func SendMessageToServer(addr string, message *pb.CmixMessage) (*pb.Ack, error) 
 	return result, err
 }
 
-func SendMessageToClient(addr string, message *pb.CmixMessage) (*pb.Ack, error) {
-	// TODO: implement
-	return nil, nil
-}
-
-func SendRequestMessage(addr string, message *pb.RequestMessage) (*pb.CmixMessage, error) {
+func SendClientPoll(addr string, message *pb.ClientPollMessage) (*pb.CmixMessage, error) {
 	// Attempt to connect to addr
 	conn, err := grpc.Dial(addr, grpc.WithInsecure(), grpc.WithBlock())
 	// Check for an error
@@ -53,11 +48,11 @@ func SendRequestMessage(addr string, message *pb.RequestMessage) (*pb.CmixMessag
 	ctx, cancel := context.WithTimeout(context.Background(), 300*time.Millisecond)
 
 	// Send the message
-	result, err := c.PollMessage(ctx, message)
+	result, err := c.ClientPoll(ctx, message)
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
-		jww.ERROR.Printf("SendRequestMessage: Error received: %s", err)
+		jww.ERROR.Printf("SendClientPoll: Error received: %s", err)
 	}
 	cancel()
 	conn.Close()
