@@ -96,7 +96,8 @@ message PrecompDecryptSlot {
 // Message for batch of Precomp Decrypt Slots
 message PrecompDecryptMessage {
     string RoundID = 1;
-    repeated PrecompDecryptSlot Slots = 2;
+    int32 LastOp = 2;
+    repeated PrecompDecryptSlot Slots = 3;
 }
 
 // Message for individual Precomp Encrypt Slot
@@ -109,7 +110,8 @@ message PrecompEncryptSlot {
 // Message for batch of Precomp Encrypt Slots
 message PrecompEncryptMessage {
     string RoundID = 1;
-    repeated PrecompEncryptSlot Slots = 2;
+    int32 LastOp = 2;
+    repeated PrecompEncryptSlot Slots = 3;
 }
 
 // Message for individual Precomp Reveal Slot
@@ -122,7 +124,8 @@ message PrecompRevealSlot {
 // Message for batch of Precomp Reveal Slots
 message PrecompRevealMessage {
     string RoundID = 1;
-    repeated PrecompRevealSlot Slots = 2;
+    int32 LastOp = 2;
+    repeated PrecompRevealSlot Slots = 3;
 }
 
 // Message for individual Precomp Permute Slot
@@ -137,7 +140,8 @@ message PrecompPermuteSlot {
 // Message for batch of Precomp Permute Slots
 message PrecompPermuteMessage {
     string RoundID = 1;
-    repeated PrecompPermuteSlot Slots = 2;
+    int32 LastOp = 2;
+    repeated PrecompPermuteSlot Slots = 3;
 }
 
 // Message for individual Precomp Share Slot
@@ -149,7 +153,8 @@ message PrecompShareSlot {
 // Message for batch of Precomp Share Slots
 message PrecompShareMessage {
     string RoundID = 1;
-    repeated PrecompShareSlot Slots = 2;
+    int32 LastOp = 2;
+    repeated PrecompShareSlot Slots = 3;
 }
 
 // Message for individual Realtime Decrypt Slot
@@ -163,7 +168,8 @@ message RealtimeDecryptSlot {
 // Message for batch of Realtime Decrypt Slots
 message RealtimeDecryptMessage {
     string RoundID = 1;
-    repeated RealtimeDecryptSlot Slots = 2;
+    int32 LastOp = 2;
+    repeated RealtimeDecryptSlot Slots = 3;
 }
 
 // Message for individual Realtime Encrypt Slot
@@ -176,7 +182,8 @@ message RealtimeEncryptSlot {
 // Message for batch of Realtime Encrypt Slots
 message RealtimeEncryptMessage {
     string RoundID = 1;
-    repeated RealtimeEncryptSlot Slots = 2;
+    int32 LastOp = 2;
+    repeated RealtimeEncryptSlot Slots = 3;
 }
 
 // Message for individual Realtime Permute Slot
@@ -189,7 +196,8 @@ message RealtimePermuteSlot {
 // Message for batch of Realtime Permute Slots
 message RealtimePermuteMessage {
     string RoundID = 1;
-    repeated RealtimePermuteSlot Slots = 2;
+    int32 LastOp = 2;
+    repeated RealtimePermuteSlot Slots = 3;
 }
 
 // Message for setting public key
