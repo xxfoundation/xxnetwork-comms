@@ -46,10 +46,10 @@ service MixMessageService {
     rpc SetPublicKey (PublicKeyMessage) returns (Ack) {
     }
     // Send CmixMessage from Client to Server
-    rpc ClientSendMessageToServer(CmixMessage) returns (Ack) {
+    rpc ClientSendMessageToServer (CmixMessage) returns (Ack) {
     }
     // Request a CmixMessage from the server for the given User
-    rpc ClientPoll(ClientPollMessage) returns (CmixMessage) {
+    rpc ClientPoll (ClientPollMessage) returns (CmixMessage) {
     }
 }
 
@@ -75,8 +75,9 @@ message InitRoundAck {
 
 // The standard CMIX message type
 message CmixMessage {
-    bytes MessagePayload = 1; // Designed to conform to 4096 bit length
-    bytes RecipientID = 2; // Designed to conform to 4096 bit length
+    fixed64 SenderID = 1; // 64 bit length
+    bytes MessagePayload = 2; // Designed to conform to 4096 bit length
+    bytes RecipientID = 3; // Designed to conform to 4096 bit length
 }
 
 // The message for clients to poll new CMIX messages
