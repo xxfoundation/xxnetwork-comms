@@ -51,8 +51,22 @@ func (s *server) AskOnline(ctx context.Context, msg *pb.Ping) (
 func (s *server) NewRound(ctx context.Context,
 	msg *pb.InitRound) (*pb.InitRoundAck, error) {
 	// Call the server handler to start a new round
-	serverHandler.NewRound()
+	serverHandler.NewRound(msg.RoundID)
 	return &pb.InitRoundAck{}, nil
+}
+
+// Handle CmixMessage from Client to Server
+func (s *server) ClientSendMessageToServer(ctx context.Context,
+	msg *pb.CmixMessage) (*pb.Ack, error) {
+	// Call the server handler with the msg
+	serverHandler.ReceiveMessageFromClient(msg)
+	return &pb.Ack{}, nil
+}
+
+// Request a CmixMessage from the server for the given User
+func (s *server) ClientPoll(ctx context.Context,
+	msg *pb.ClientPollMessage) (*pb.CmixMessage, error) {
+	return serverHandler.ClientPoll(msg), nil
 }
 
 // Handle a PrecompDecrypt event
