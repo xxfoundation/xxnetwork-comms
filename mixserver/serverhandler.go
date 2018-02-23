@@ -9,7 +9,7 @@ import "gitlab.com/privategrity/comms/mixmessages"
 
 type ServerHandler interface {
 	// Server Interface for starting New Rounds
-	NewRound()
+	NewRound(RoundID string)
 	// Server Interface for SetPublicKey
 	SetPublicKey(RoundID string, PublicKey []byte)
 
