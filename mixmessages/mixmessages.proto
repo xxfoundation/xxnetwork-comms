@@ -61,6 +61,7 @@ message Pong {
 
 // The message for Init Round
 message InitRound {
+  string RoundID = 1;
 }
 
 // The response for Init Round

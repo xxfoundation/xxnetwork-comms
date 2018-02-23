@@ -51,7 +51,7 @@ func (s *server) AskOnline(ctx context.Context, msg *pb.Ping) (
 func (s *server) NewRound(ctx context.Context,
 	msg *pb.InitRound) (*pb.InitRoundAck, error) {
 	// Call the server handler to start a new round
-	serverHandler.NewRound()
+	serverHandler.NewRound(msg.RoundID)
 	return &pb.InitRoundAck{}, nil
 }
 
