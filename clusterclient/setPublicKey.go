@@ -1,4 +1,4 @@
-package message
+package clusterclient
 
 import (
 	"golang.org/x/net/context"
@@ -10,7 +10,7 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 )
 
-func SendRealtimePermute(addr string, message *pb.RealtimePermuteMessage) (*pb.Ack, error) {
+func SetPublicKey(addr string, message *pb.PublicKeyMessage) (*pb.Ack, error) {
 	// Attempt to connect to addr
 	conn, err := grpc.Dial(addr, grpc.WithInsecure(), grpc.WithBlock())
 	// Check for an error
@@ -23,7 +23,7 @@ func SendRealtimePermute(addr string, message *pb.RealtimePermuteMessage) (*pb.A
 	ctx, cancel := context.WithTimeout(context.Background(), 300*time.Millisecond)
 
 	// Send the message
-	result, err := c.RealtimePermute(ctx, message)
+	result, err := c.SetPublicKey(ctx, message)
 
 	// Make sure there are no errors with sending the message
 	if err != nil {

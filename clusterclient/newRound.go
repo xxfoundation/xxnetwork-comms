@@ -1,4 +1,4 @@
-package message
+package clusterclient
 
 import (
 	"golang.org/x/net/context"
@@ -10,13 +10,12 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 )
 
-func SendAskOnline(addr string, message *pb.Ping) (*pb.Pong, error) {
+func SendNewRound(addr string, message *pb.InitRound) (*pb.InitRoundAck, error) {
 	// Attempt to connect to addr
 	conn, err := grpc.Dial(addr, grpc.WithInsecure(), grpc.WithBlock())
 	// Check for an error
 	if err != nil {
-		jww.ERROR.Printf("Failed to connect to server at %s",
-			addr)
+		jww.ERROR.Printf("Failed to connect to server at %v\n", addr)
 	}
 
 	// Prepare to send a message
@@ -24,11 +23,11 @@ func SendAskOnline(addr string, message *pb.Ping) (*pb.Pong, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 300*time.Millisecond)
 
 	// Send the message
-	result, err := c.AskOnline(ctx, message)
+	result, err := c.NewRound(ctx, message)
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
-		jww.ERROR.Printf("AskOnline: Error received: %s", err)
+		jww.ERROR.Printf("NewRound: Error received: %s", err)
 	}
 	cancel()
 	conn.Close()

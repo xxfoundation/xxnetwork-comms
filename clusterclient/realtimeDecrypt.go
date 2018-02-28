@@ -1,4 +1,4 @@
-package message
+package clusterclient
 
 import (
 	"golang.org/x/net/context"
@@ -10,7 +10,7 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 )
 
-func SendPrecompShare(addr string, message *pb.PrecompShareMessage) (*pb.Ack, error) {
+func SendRealtimeDecrypt(addr string, message *pb.RealtimeDecryptMessage) (*pb.Ack, error) {
 	// Attempt to connect to addr
 	conn, err := grpc.Dial(addr, grpc.WithInsecure(), grpc.WithBlock())
 	// Check for an error
@@ -23,11 +23,11 @@ func SendPrecompShare(addr string, message *pb.PrecompShareMessage) (*pb.Ack, er
 	ctx, cancel := context.WithTimeout(context.Background(), 300*time.Millisecond)
 
 	// Send the message
-	result, err := c.PrecompShare(ctx, message)
+	result, err := c.RealtimeDecrypt(ctx, message)
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
-		jww.ERROR.Printf("PrecompShare: Error received: %s", err)
+		jww.ERROR.Printf("RealtimeDecrypt: Error received: %s", err)
 	}
 	cancel()
 	conn.Close()

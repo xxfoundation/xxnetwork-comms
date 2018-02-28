@@ -1,4 +1,4 @@
-package message
+package clusterclient
 
 import (
 	pb "gitlab.com/privategrity/comms/mixmessages"

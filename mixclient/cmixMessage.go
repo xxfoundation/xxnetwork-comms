@@ -1,4 +1,4 @@
-package message
+package mixclient
 
 import (
 	"golang.org/x/net/context"

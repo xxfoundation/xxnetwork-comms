@@ -1,4 +1,4 @@
-package message
+package clusterclient
 
 import (
 	"golang.org/x/net/context"
@@ -10,8 +10,7 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 )
 
-func SendPrecompEncrypt(addr string, message *pb.PrecompEncryptMessage) (
-	*pb.Ack, error) {
+func SendPrecompReveal(addr string, message *pb.PrecompRevealMessage) (*pb.Ack, error) {
 	// Attempt to connect to addr
 	conn, err := grpc.Dial(addr, grpc.WithInsecure(), grpc.WithBlock())
 	// Check for an error
@@ -24,11 +23,11 @@ func SendPrecompEncrypt(addr string, message *pb.PrecompEncryptMessage) (
 	ctx, cancel := context.WithTimeout(context.Background(), 300*time.Millisecond)
 
 	// Send the message
-	result, err := c.PrecompEncrypt(ctx, message)
+	result, err := c.PrecompReveal(ctx, message)
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
-		jww.ERROR.Printf("PrecompEncrypt: Error received: %s", err)
+		jww.ERROR.Printf("PrecompReveal: Error received: %s", err)
 	}
 	cancel()
 	conn.Close()

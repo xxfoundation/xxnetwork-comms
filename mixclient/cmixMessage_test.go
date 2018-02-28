@@ -1,4 +1,4 @@
-package message
+package mixclient
 
 import (
 	pb "gitlab.com/privategrity/comms/mixmessages"
