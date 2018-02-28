@@ -53,7 +53,7 @@ func Connect(address string) (*pb.MixMessageServiceClient, error) {
 		} else {
 			// TODO: Retry loop?
 			jww.ERROR.Printf("Connection to %s failed: %v\n", address, err)
-			connection = nil
+			panic(err)
 		}
 	}
 
