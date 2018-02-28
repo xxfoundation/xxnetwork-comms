@@ -22,15 +22,15 @@ import (
 )
 
 // A map of string addresses to open connections
-var connections map[string]*pb.MixMessageServiceClient
+var connections map[string]*grpc.ClientConn
 // A lock used to control access to the connections map above
 var connectionsLock sync.Mutex
 
 // Connect creates a connection, or returns a pre-existing connection based on
 // a given address string.
-func Connect(address string) (*pb.MixMessageServiceClient, error) {
-	var connection *grpc.Clientconn
-	var err *error
+func Connect(address string) pb.MixMessageServiceClient {
+	var connection *grpc.ClientConn
+	var err error
 	connection = nil
 	err = nil
 
@@ -42,13 +42,12 @@ func Connect(address string) (*pb.MixMessageServiceClient, error) {
 	}
 
 	// Check and return connection if it exists and is active
-	connection, present = connections[address]
+	connection, present := connections[address]
 
 	// Create a new connection if we are not present or disconnecting/disconnected
-	if !present || connection.GetState() == connectivity.State.Shutdown {
-		serverConn, err = grpc.Dial(addr, grpc.WithInsecure(), grpc.WithBlock())
+	if !present || connection.GetState() == connectivity.Shutdown {
+		connection, err = grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
 		if err == nil {
-			connection = pb.NewMixMessageServiceClient(serverConn)
 			connections[address] = connection
 		} else {
 			// TODO: Retry loop?
@@ -59,13 +58,24 @@ func Connect(address string) (*pb.MixMessageServiceClient, error) {
 
 	connectionsLock.Unlock()
 
-	return connection
+	return pb.NewMixMessageServiceClient(connection)
+}
+
+// Disconnect closes client connections and removes them from the connection map
+func Disconnect(address string) {
+	connectionsLock.Lock()
+	connection, present := connections[address]
+	if present {
+		connection.Close()
+		delete(connections, address)
+	}
+	connectionsLock.Unlock()
 }
 
 // DefaultContexts creates a context object with the default context
 // for all client messages. This is primarily used to set the default
 // timeout for all clients at 1/2 a second.
 func DefaultContext() (context.Context, context.CancelFunc) {
-	ctx, cancel = context.WithTimeout(context.Background(), 500*time.Millisecond)
+	ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
 	return ctx, cancel
 }
