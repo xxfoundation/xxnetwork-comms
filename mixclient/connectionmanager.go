@@ -34,11 +34,14 @@ func Connect(address string) (*pb.MixMessageServiceClient, error) {
 	connection = nil
 	err = nil
 
-	// Check and return connection if it exists and is active
-	connectionsLock.Lock()
+	connectionsLock.Lock() // TODO: Really we want to lock on the key,
+                         // not the whole map
+
 	if connections == nil { // TODO: Do we need an init, or is this sufficient?
 		connections = make(map[string]*grpc.ClientConn)
 	}
+
+	// Check and return connection if it exists and is active
 	connection, present = connections[address]
 
 	// Create a new connection if we are not present or disconnecting/disconnected
@@ -48,6 +51,7 @@ func Connect(address string) (*pb.MixMessageServiceClient, error) {
 			connection = pb.NewMixMessageServiceClient(serverConn)
 			connections[address] = connection
 		} else {
+			// TODO: Retry loop?
 			jww.ERROR.Printf("Connection to %s failed: %v\n", address, err)
 			connection = nil
 		}
@@ -55,7 +59,7 @@ func Connect(address string) (*pb.MixMessageServiceClient, error) {
 
 	connectionsLock.Unlock()
 
-	return connection, err
+	return connection
 }
 
 // DefaultContexts creates a context object with the default context
