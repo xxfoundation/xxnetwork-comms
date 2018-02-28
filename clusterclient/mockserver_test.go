@@ -1,3 +1,13 @@
+////////////////////////////////////////////////////////////////////////////////
+// Copyright © 2018 Privategrity Corporation                                   /
+//                                                                             /
+// All rights reserved.                                                        /
+//                                                                             /
+////////////////////////////////////////////////////////////////////////////////
+//                                                                             /
+// This sets up a dummy/mock server instance for testing purposes              /
+//                                                                             /
+////////////////////////////////////////////////////////////////////////////////
 package clusterclient
 
 import (
