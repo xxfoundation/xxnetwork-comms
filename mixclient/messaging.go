@@ -11,13 +11,7 @@
 package mixclient
 
 import (
-	"golang.org/x/net/context"
-	"google.golang.org/grpc"
-	"time"
-
 	pb "gitlab.com/privategrity/comms/mixmessages"
-
-	jww "github.com/spf13/jwalterweatherman"
 )
 
 // SendMessageToServer sends a user's message to the cMix cluster
