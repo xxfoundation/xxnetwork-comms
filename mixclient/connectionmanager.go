@@ -2,12 +2,9 @@
 // Copyright © 2018 Privategrity Corporation                                   /
 //                                                                             /
 // All rights reserved.                                                        /
-//                                                                             /
 ////////////////////////////////////////////////////////////////////////////////
-//                                                                             /
-// Wrapper/Helper functions for comms cMix client functionality                /
-//                                                                             /
-////////////////////////////////////////////////////////////////////////////////
+
+// Wrapper/Helper functions for comms cMix client functionality
 package mixclient
 
 import (

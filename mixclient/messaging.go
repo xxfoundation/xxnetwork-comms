@@ -2,12 +2,9 @@
 // Copyright © 2018 Privategrity Corporation                                   /
 //                                                                             /
 // All rights reserved.                                                        /
-//                                                                             /
 ////////////////////////////////////////////////////////////////////////////////
-//                                                                             /
-// Send and receive comms functionality for cMix clients                       /
-//                                                                             /
-////////////////////////////////////////////////////////////////////////////////
+
+// Send and receive comms functionality for cMix clients
 package mixclient
 
 import (

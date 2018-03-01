@@ -2,13 +2,9 @@
 // Copyright © 2018 Privategrity Corporation                                   /
 //                                                                             /
 // All rights reserved.                                                        /
-//                                                                             /
-////////////////////////////////////////////////////////////////////////////////
-//                                                                             /
-// precomputation.go - all the comms client functions for precomputation.      /
-//                                                                             /
 ////////////////////////////////////////////////////////////////////////////////
 
+// precomputation.go - all the comms client functions for precomputation.
 package clusterclient
 
 import (

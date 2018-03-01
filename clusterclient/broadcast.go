@@ -2,14 +2,10 @@
 // Copyright © 2018 Privategrity Corporation                                   /
 //                                                                             /
 // All rights reserved.                                                        /
-//                                                                             /
-////////////////////////////////////////////////////////////////////////////////
-//                                                                             /
-// broadcast.go - comms client server functions that send to all servers in    /
-//                the cluster.                                                 /
-//                                                                             /
 ////////////////////////////////////////////////////////////////////////////////
 
+// broadcast.go - comms client server functions that send to all servers in
+//                the cluster.
 package clusterclient
 
 import (

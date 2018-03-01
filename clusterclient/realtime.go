@@ -2,13 +2,9 @@
 // Copyright © 2018 Privategrity Corporation                                   /
 //                                                                             /
 // All rights reserved.                                                        /
-//                                                                             /
-////////////////////////////////////////////////////////////////////////////////
-//                                                                             /
-// realtime.go - all the comms client functions for realtime.                  /
-//                                                                             /
 ////////////////////////////////////////////////////////////////////////////////
 
+// realtime.go - all the comms client functions for realtime.
 package clusterclient
 
 import (
