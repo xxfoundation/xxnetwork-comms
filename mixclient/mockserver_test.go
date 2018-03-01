@@ -1,4 +1,11 @@
-package message
+////////////////////////////////////////////////////////////////////////////////
+// Copyright © 2018 Privategrity Corporation                                   /
+//                                                                             /
+// All rights reserved.                                                        /
+////////////////////////////////////////////////////////////////////////////////
+
+// This sets up a dummy/mock server instance for testing purposes
+package mixclient
 
 import (
 	pb "gitlab.com/privategrity/comms/mixmessages"
@@ -7,7 +14,7 @@ import (
 	"testing"
 )
 
-const SERVER_ADDRESS = "localhost:5555"
+const SERVER_ADDRESS = "localhost:5556"
 
 // Start server for testing
 func TestMain(m *testing.M) {

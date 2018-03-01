@@ -1,4 +1,9 @@
-package message
+////////////////////////////////////////////////////////////////////////////////
+// Copyright © 2018 Privategrity Corporation                                   /
+//                                                                             /
+// All rights reserved.                                                        /
+////////////////////////////////////////////////////////////////////////////////
+package mixclient
 
 import (
 	pb "gitlab.com/privategrity/comms/mixmessages"
