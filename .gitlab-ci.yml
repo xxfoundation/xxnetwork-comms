@@ -31,6 +31,7 @@ setup:
   image: carback1/golang-glide:1.9
   script:
     - git clean -ffdx
+    - rf -fr ~/.glide
     - glide install -v
   artifacts:
     paths:
