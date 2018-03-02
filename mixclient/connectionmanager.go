@@ -46,7 +46,7 @@ func Connect(address string) pb.MixMessageServiceClient {
 		// TODO: Use the new DialContext method (we used the following based on
 		//       the online examples...)
 		connection, err = grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock(),
-			grpc.WithTimeout(500*time.Millisecond))
+			grpc.WithTimeout(10000*time.Millisecond))
 		if err == nil {
 			connections[address] = connection
 		} else {
