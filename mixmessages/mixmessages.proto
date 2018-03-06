@@ -2,7 +2,6 @@
 //
 // All rights reserved.
 
-
 syntax = "proto3";
 
 package mixmessages;
@@ -51,6 +50,9 @@ service MixMessageService {
     // Request a CmixMessage from the server for the given User
     rpc ClientPoll (ClientPollMessage) returns (CmixMessage) {
     }
+    // Request a list of contacts from the server
+    rpc ClientGetContactList (ContactPoll) returns (ContactMessage) {
+    }
 }
 
 // Generic empty Ack message
@@ -70,6 +72,7 @@ message InitRound {
   string RoundID = 1;
 }
 
+
 // The response for Init Round
 message InitRoundAck {
 }
@@ -84,6 +87,21 @@ message CmixMessage {
 // The message for clients to poll new CMIX messages
 message ClientPollMessage {
     fixed64 UserID = 1; // 64 bit length
+}
+
+// Message for polling for the contact list
+message ContactPoll {
+}
+
+// Message for individual contacts
+message Contact {
+    uint64 userID = 1;
+    string nick = 2;
+}
+
+// Message for list of contacts
+message ContactMessage {
+    repeated Contact Contacts = 1;
 }
 
 // Message for individual Precomp Decrypt Slot
