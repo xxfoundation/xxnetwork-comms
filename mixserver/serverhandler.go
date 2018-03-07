@@ -34,4 +34,7 @@ type ServerHandler interface {
 	ClientPoll(*mixmessages.ClientPollMessage) *mixmessages.CmixMessage
 	// Server interface for ReceiveMessageFromClient
 	ReceiveMessageFromClient(*mixmessages.CmixMessage)
+	// Server interface for responding to contact list requests from the client
+	RequestContactList(*mixmessages.
+		ContactPoll) *mixmessages.ContactMessage
 }
