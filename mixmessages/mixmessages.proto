@@ -51,7 +51,7 @@ service MixMessageService {
     rpc ClientPoll (ClientPollMessage) returns (CmixMessage) {
     }
     // Request a list of contacts from the server
-    rpc ClientGetContactList (ContactPoll) returns (ContactMessage) {
+    rpc RequestContactList (ContactPoll) returns (ContactMessage) {
     }
 }
 

@@ -10,11 +10,11 @@ import (
 	pb "gitlab.com/privategrity/comms/mixmessages"
 )
 
-func SendClientGetContactList(addr string, message *pb.ContactPoll) (*pb.
+func RequestContactList(addr string, message *pb.ContactPoll) (*pb.
 ContactMessage, error) {
 	c := Connect(addr)
 	ctx, cancel := DefaultContext()
-	result, err := c.ClientGetContactList(ctx, message)
+	result, err := c.RequestContactList(ctx, message)
 	cancel()
 	return result, err
 }

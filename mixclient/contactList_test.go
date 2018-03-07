@@ -10,10 +10,10 @@ import (
 	"testing"
 )
 
-// Smoke test SendClientGetContactList
-func TestSendClientGetContactList(t *testing.T) {
-	_, err := SendClientGetContactList(SERVER_ADDRESS, &pb.ContactPoll{})
+// Smoke test RequestContactList
+func TestRequestContactList(t *testing.T) {
+	_, err := RequestContactList(SERVER_ADDRESS, &pb.ContactPoll{})
 	if err != nil {
-		t.Errorf("SendClientGetContactList: Error received: %s", err)
+		t.Errorf("RequestContactList: Error received: %s", err)
 	}
 }

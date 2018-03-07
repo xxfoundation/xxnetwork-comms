@@ -69,9 +69,9 @@ func (s *server) ClientPoll(ctx context.Context,
 	return serverHandler.ClientPoll(msg), nil
 }
 
-func (s *server) ClientGetContactList(ctx context.Context,
+func (s *server) RequestContactList(ctx context.Context,
 	msg *pb.ContactPoll) (*pb.ContactMessage, error) {
-	return serverHandler.ClientGetContactList(msg), nil
+	return serverHandler.RequestContactList(msg), nil
 }
 
 // Handle a PrecompDecrypt event
