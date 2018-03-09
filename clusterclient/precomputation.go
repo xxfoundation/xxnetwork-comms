@@ -41,6 +41,85 @@ func SendPrecompShare(addr string, message *pb.PrecompShareMessage) (*pb.Ack, er
 	return result, err
 }
 
+func SendPrecompShareInit(addr string, message *pb.PrecompShareInitMessage) (
+	*pb.Ack, error) {
+	// Attempt to connect to addr
+	conn, err := grpc.Dial(addr, grpc.WithInsecure(), grpc.WithBlock())
+	// Check for an error
+	if err != nil {
+		jww.ERROR.Printf("Failed to connect to server at %v\n", addr)
+	}
+
+	// Prepare to send a message
+	c := pb.NewMixMessageServiceClient(conn)
+	ctx, cancel := context.WithTimeout(context.Background(), 300*time.Millisecond)
+
+	// Send the message
+	result, err := c.PrecompShareInit(ctx, message)
+
+	// Make sure there are no errors with sending the message
+	if err != nil {
+		jww.ERROR.Printf("PrecompShareInit: Error received: %s", err)
+	}
+	cancel()
+	conn.Close()
+
+	return result, err
+}
+
+func SendPrecompShareCompare(addr string,
+	message *pb.PrecompShareCompareMessage) (*pb.Ack, error) {
+	// Attempt to connect to addr
+	conn, err := grpc.Dial(addr, grpc.WithInsecure(), grpc.WithBlock())
+	// Check for an error
+	if err != nil {
+		jww.ERROR.Printf("Failed to connect to server at %v\n", addr)
+	}
+
+	// Prepare to send a message
+	c := pb.NewMixMessageServiceClient(conn)
+	ctx, cancel := context.WithTimeout(context.Background(), 300*time.Millisecond)
+
+	// Send the message
+	result, err := c.PrecompShareCompare(ctx, message)
+
+	// Make sure there are no errors with sending the message
+	if err != nil {
+		jww.ERROR.Printf("PrecompShareCompare: Error received: %s", err)
+	}
+	cancel()
+	conn.Close()
+
+	return result, err
+}
+
+func SendPrecompShareConfirm(addr string,
+	message *pb.PrecompShareConfirmMessage) (
+	*pb.Ack, error) {
+	// Attempt to connect to addr
+	conn, err := grpc.Dial(addr, grpc.WithInsecure(), grpc.WithBlock())
+	// Check for an error
+	if err != nil {
+		jww.ERROR.Printf("Failed to connect to server at %v\n", addr)
+	}
+
+	// Prepare to send a message
+	c := pb.NewMixMessageServiceClient(conn)
+	ctx, cancel := context.WithTimeout(context.Background(), 300*time.Millisecond)
+
+	// Send the message
+	result, err := c.PrecompShareConfirm(ctx, message)
+
+	// Make sure there are no errors with sending the message
+	if err != nil {
+		jww.ERROR.Printf("PrecompShareConfirm: Error received: %s", err)
+	}
+	cancel()
+	conn.Close()
+
+	return result, err
+}
+
 func SendPrecompDecrypt(addr string, message *pb.PrecompDecryptMessage) (*pb.Ack, error) {
 	// Attempt to connect to addr
 	conn, err := grpc.Dial(addr, grpc.WithInsecure(), grpc.WithBlock())

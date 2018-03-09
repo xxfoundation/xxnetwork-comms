@@ -39,6 +39,14 @@ func (m TestInterface) PrecompPermute(message *pb.PrecompPermuteMessage) {}
 
 func (m TestInterface) PrecompShare(message *pb.PrecompShareMessage) {}
 
+func (m TestInterface) PrecompShareInit(message *pb.PrecompShareInitMessage) {}
+
+func (m TestInterface) PrecompShareCompare(message *pb.
+	PrecompShareCompareMessage) {}
+
+func (m TestInterface) PrecompShareConfirm(message *pb.
+	PrecompShareConfirmMessage) {}
+
 func (m TestInterface) RealtimeDecrypt(message *pb.RealtimeDecryptMessage) {}
 
 func (m TestInterface) RealtimeEncrypt(message *pb.RealtimeEncryptMessage) {}

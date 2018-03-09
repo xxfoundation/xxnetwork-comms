@@ -19,7 +19,32 @@ func TestSendPrecompShare(t *testing.T) {
 	}
 }
 
-// Smoke test Send
+// Smoke test SendPrecompShareInit
+func TestSendPrecompShareInit(t *testing.T) {
+	_, err := SendPrecompShareInit(SERVER_ADDRESS,
+		&pb.PrecompShareInitMessage{})
+	if err != nil {
+		t.Errorf("PrecompShareInit: Error received: %s", err)
+	}
+}
+
+// Smoke test SendPrecompShareCompare
+func TestSendPrecompShareCompare(t *testing.T) {
+	_, err := SendPrecompShareCompare(SERVER_ADDRESS,
+		&pb.PrecompShareCompareMessage{})
+	if err != nil {
+		t.Errorf("PrecompShareCompare: Error received: %s", err)
+	}
+}
+
+// Smoke test SendPrecompShareConfirm
+func TestSendPrecompShareConfirm(t *testing.T) {
+	_, err := SendPrecompShareConfirm(SERVER_ADDRESS,
+		&pb.PrecompShareConfirmMessage{})
+	if err != nil {
+		t.Errorf("PrecompShareConfirm: Error received: %s", err)
+	}
+}
 
 // Smoke test SendPrecompPermute
 func TestSendPrecompPermute(t *testing.T) {

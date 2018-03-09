@@ -109,6 +109,30 @@ func (s *server) PrecompShare(ctx context.Context,
 	return &pb.Ack{}, nil
 }
 
+// Handle a PrecompShareInit event
+func (s *server) PrecompShareInit(ctx context.Context,
+	msg *pb.PrecompShareInitMessage) (*pb.Ack, error) {
+	// Call the server handler with the msg
+	serverHandler.PrecompShareInit(msg)
+	return &pb.Ack{}, nil
+}
+
+// Handle a PrecompShareCompare event
+func (s *server) PrecompShareCompare(ctx context.Context,
+	msg *pb.PrecompShareCompareMessage) (*pb.Ack, error) {
+	// Call the server handler with the msg
+	serverHandler.PrecompShareCompare(msg)
+	return &pb.Ack{}, nil
+}
+
+// Handle a PrecompShareConfirm event
+func (s *server) PrecompShareConfirm(ctx context.Context,
+	msg *pb.PrecompShareConfirmMessage) (*pb.Ack, error) {
+	// Call the server handler with the msg
+	serverHandler.PrecompShareConfirm(msg)
+	return &pb.Ack{}, nil
+}
+
 // Handle a RealtimeDecrypt event
 func (s *server) RealtimeDecrypt(ctx context.Context,
 	msg *pb.RealtimeDecryptMessage) (*pb.Ack, error) {
