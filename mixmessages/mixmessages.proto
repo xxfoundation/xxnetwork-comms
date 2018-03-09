@@ -33,6 +33,15 @@ service MixMessageService {
     // Handles Precomp Share
     rpc PrecompShare (PrecompShareMessage) returns (Ack) {
     }
+    // Handles Precomp Share Initialization
+    rpc PrecompShareInit (PrecompShareInitMessage) returns (Ack) {
+    }
+    // Handles Precomp Share Comparison
+    rpc PrecompShareCompare (PrecompShareCompareMessage) returns (Ack) {
+    }
+    // Handles Precomp Share Confirmation
+    rpc PrecompShareConfirm (PrecompShareConfirmMessage) returns (Ack) {
+    }
     // Handles Realtime Decrypt
     rpc RealtimeDecrypt (RealtimeDecryptMessage) returns (Ack) {
     }
@@ -144,6 +153,28 @@ message PrecompPermuteMessage {
     string RoundID = 1;
     int32 LastOp = 2;
     repeated PrecompPermuteSlot Slots = 3;
+}
+
+// Message from last node to indicate share phase is beginning
+message PrecompShareInitMessage {
+    string RoundID = 1;
+    uint64 NodeID = 2;
+    bytes SignedRoundID = 3;
+}
+
+// Message from each node to every other node to compare results of share phase
+message PrecompShareCompareMessage {
+    bytes RoundCypherKey = 1;
+    uint64 NodeID = 2;
+    bytes SignedCypherKey = 3;
+}
+
+// Message from each node after it has confirmed the round cypher key
+message PrecompShareConfirmMessage {
+    bytes HashedCypherKey = 1;
+    uint64 NodeID = 2;
+    bytes ComparisonResult = 3;
+    bytes SignedCypherConfirm = 4;
 }
 
 // Message for individual Precomp Share Slot

@@ -19,6 +19,8 @@ func TestSendPrecompShare(t *testing.T) {
 	}
 }
 
+// Smoke test Send
+
 // Smoke test SendPrecompPermute
 func TestSendPrecompPermute(t *testing.T) {
 	_, err := SendPrecompPermute(SERVER_ADDRESS, &pb.PrecompPermuteMessage{})
