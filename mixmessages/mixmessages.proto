@@ -53,6 +53,9 @@ service MixMessageService {
     // Request a list of contacts from the server
     rpc RequestContactList (ContactPoll) returns (ContactMessage) {
     }
+    // Set a single user's nick on the server
+    rpc SetNick (Contact) returns (Ack) {
+    }
 }
 
 // Generic empty Ack message

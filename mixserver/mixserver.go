@@ -74,6 +74,12 @@ func (s *server) RequestContactList(ctx context.Context,
 	return serverHandler.RequestContactList(msg), nil
 }
 
+func (s *server) SetNick(ctx context.Context,
+	msg *pb.Contact) (*pb.Ack, error) {
+	serverHandler.SetNick(msg)
+	return &pb.Ack{}, nil
+}
+
 // Handle a PrecompDecrypt event
 func (s *server) PrecompDecrypt(ctx context.Context,
 	msg *pb.PrecompDecryptMessage) (*pb.Ack, error) {
