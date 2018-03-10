@@ -43,9 +43,10 @@ test:
   image: $DOCKER_IMAGE
   script:
     - mkdir -p testdata
-    - goverage -coverprofile=testdata/coverage.out -v ./... | grep -v "no packages being tested depend on"
-    - go tool cover -func=testdata/coverage.out
-    - go tool cover -html=testdata/coverage.out -o testdata/coverage.html
+    - "goverage -coverprofile=testdata/coverage.out -v ./... | grep -v \"no packages being tested depend on\""
+    - "cat testdata/coverage.out | grep -v mixmessages\.pb\.go > coverage-real.out"
+    - go tool cover -func=testdata/coverage-real.out
+    - go tool cover -html=testdata/coverage-real.out -o testdata/coverage.html
   artifacts:
     paths:
       - testdata/
