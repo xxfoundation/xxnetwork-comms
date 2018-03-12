@@ -8,6 +8,7 @@
 package mixclient
 
 import (
+	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/privategrity/comms/mixmessages"
 )
 
@@ -17,6 +18,11 @@ func SendMessageToServer(addr string, message *pb.CmixMessage) (*pb.Ack, error) 
 	ctx, cancel := DefaultContext()
 	result, err := c.ClientSendMessageToServer(ctx, message)
 	cancel()
+
+	// Make sure there are no errors with sending the message
+	if err != nil {
+		jww.ERROR.Printf("SendMessageToServer: Error received: %s", err)
+	}
 	return result, err
 }
 
@@ -27,5 +33,10 @@ func SendClientPoll(addr string, message *pb.ClientPollMessage) (*pb.CmixMessage
 	// Send the message
 	result, err := c.ClientPoll(ctx, message)
 	cancel()
+
+	// Make sure there are no errors with sending the message
+	if err != nil {
+		jww.ERROR.Printf("SendClientPoll: Error received: %s", err)
+	}
 	return result, err
 }
