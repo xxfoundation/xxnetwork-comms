@@ -57,4 +57,11 @@ func (m TestInterface) ClientPoll(message *pb.ClientPollMessage) *pb.CmixMessage
 	return &pb.CmixMessage{}
 }
 
+func (m TestInterface) RequestContactList(message *pb.ContactPoll) *pb.
+ContactMessage {
+	return &pb.ContactMessage{}
+}
+
+func (m TestInterface) SetNick(message *pb.Contact) {}
+
 func (m TestInterface) ReceiveMessageFromClient(message *pb.CmixMessage) {}

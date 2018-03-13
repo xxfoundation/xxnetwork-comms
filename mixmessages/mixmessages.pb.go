@@ -15,6 +15,9 @@ It has these top-level messages:
 	InitRoundAck
 	CmixMessage
 	ClientPollMessage
+	ContactPoll
+	Contact
+	ContactMessage
 	PrecompDecryptSlot
 	PrecompDecryptMessage
 	PrecompEncryptSlot
@@ -163,6 +166,57 @@ func (m *ClientPollMessage) GetUserID() uint64 {
 	return 0
 }
 
+// Message for polling for the contact list
+type ContactPoll struct {
+}
+
+func (m *ContactPoll) Reset()                    { *m = ContactPoll{} }
+func (m *ContactPoll) String() string            { return proto.CompactTextString(m) }
+func (*ContactPoll) ProtoMessage()               {}
+func (*ContactPoll) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{7} }
+
+// Message for individual contacts
+type Contact struct {
+	UserID uint64 `protobuf:"varint,1,opt,name=userID" json:"userID,omitempty"`
+	Nick   string `protobuf:"bytes,2,opt,name=nick" json:"nick,omitempty"`
+}
+
+func (m *Contact) Reset()                    { *m = Contact{} }
+func (m *Contact) String() string            { return proto.CompactTextString(m) }
+func (*Contact) ProtoMessage()               {}
+func (*Contact) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{8} }
+
+func (m *Contact) GetUserID() uint64 {
+	if m != nil {
+		return m.UserID
+	}
+	return 0
+}
+
+func (m *Contact) GetNick() string {
+	if m != nil {
+		return m.Nick
+	}
+	return ""
+}
+
+// Message for list of contacts
+type ContactMessage struct {
+	Contacts []*Contact `protobuf:"bytes,1,rep,name=Contacts" json:"Contacts,omitempty"`
+}
+
+func (m *ContactMessage) Reset()                    { *m = ContactMessage{} }
+func (m *ContactMessage) String() string            { return proto.CompactTextString(m) }
+func (*ContactMessage) ProtoMessage()               {}
+func (*ContactMessage) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{9} }
+
+func (m *ContactMessage) GetContacts() []*Contact {
+	if m != nil {
+		return m.Contacts
+	}
+	return nil
+}
+
 // Message for individual Precomp Decrypt Slot
 type PrecompDecryptSlot struct {
 	Slot                         uint64 `protobuf:"varint,1,opt,name=Slot" json:"Slot,omitempty"`
@@ -175,7 +229,7 @@ type PrecompDecryptSlot struct {
 func (m *PrecompDecryptSlot) Reset()                    { *m = PrecompDecryptSlot{} }
 func (m *PrecompDecryptSlot) String() string            { return proto.CompactTextString(m) }
 func (*PrecompDecryptSlot) ProtoMessage()               {}
-func (*PrecompDecryptSlot) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{7} }
+func (*PrecompDecryptSlot) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{10} }
 
 func (m *PrecompDecryptSlot) GetSlot() uint64 {
 	if m != nil {
@@ -222,7 +276,7 @@ type PrecompDecryptMessage struct {
 func (m *PrecompDecryptMessage) Reset()                    { *m = PrecompDecryptMessage{} }
 func (m *PrecompDecryptMessage) String() string            { return proto.CompactTextString(m) }
 func (*PrecompDecryptMessage) ProtoMessage()               {}
-func (*PrecompDecryptMessage) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{8} }
+func (*PrecompDecryptMessage) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{11} }
 
 func (m *PrecompDecryptMessage) GetRoundID() string {
 	if m != nil {
@@ -255,7 +309,7 @@ type PrecompEncryptSlot struct {
 func (m *PrecompEncryptSlot) Reset()                    { *m = PrecompEncryptSlot{} }
 func (m *PrecompEncryptSlot) String() string            { return proto.CompactTextString(m) }
 func (*PrecompEncryptSlot) ProtoMessage()               {}
-func (*PrecompEncryptSlot) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{9} }
+func (*PrecompEncryptSlot) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{12} }
 
 func (m *PrecompEncryptSlot) GetSlot() uint64 {
 	if m != nil {
@@ -288,7 +342,7 @@ type PrecompEncryptMessage struct {
 func (m *PrecompEncryptMessage) Reset()                    { *m = PrecompEncryptMessage{} }
 func (m *PrecompEncryptMessage) String() string            { return proto.CompactTextString(m) }
 func (*PrecompEncryptMessage) ProtoMessage()               {}
-func (*PrecompEncryptMessage) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{10} }
+func (*PrecompEncryptMessage) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{13} }
 
 func (m *PrecompEncryptMessage) GetRoundID() string {
 	if m != nil {
@@ -321,7 +375,7 @@ type PrecompRevealSlot struct {
 func (m *PrecompRevealSlot) Reset()                    { *m = PrecompRevealSlot{} }
 func (m *PrecompRevealSlot) String() string            { return proto.CompactTextString(m) }
 func (*PrecompRevealSlot) ProtoMessage()               {}
-func (*PrecompRevealSlot) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{11} }
+func (*PrecompRevealSlot) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{14} }
 
 func (m *PrecompRevealSlot) GetSlot() uint64 {
 	if m != nil {
@@ -354,7 +408,7 @@ type PrecompRevealMessage struct {
 func (m *PrecompRevealMessage) Reset()                    { *m = PrecompRevealMessage{} }
 func (m *PrecompRevealMessage) String() string            { return proto.CompactTextString(m) }
 func (*PrecompRevealMessage) ProtoMessage()               {}
-func (*PrecompRevealMessage) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{12} }
+func (*PrecompRevealMessage) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{15} }
 
 func (m *PrecompRevealMessage) GetRoundID() string {
 	if m != nil {
@@ -389,7 +443,7 @@ type PrecompPermuteSlot struct {
 func (m *PrecompPermuteSlot) Reset()                    { *m = PrecompPermuteSlot{} }
 func (m *PrecompPermuteSlot) String() string            { return proto.CompactTextString(m) }
 func (*PrecompPermuteSlot) ProtoMessage()               {}
-func (*PrecompPermuteSlot) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{13} }
+func (*PrecompPermuteSlot) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{16} }
 
 func (m *PrecompPermuteSlot) GetSlot() uint64 {
 	if m != nil {
@@ -436,7 +490,7 @@ type PrecompPermuteMessage struct {
 func (m *PrecompPermuteMessage) Reset()                    { *m = PrecompPermuteMessage{} }
 func (m *PrecompPermuteMessage) String() string            { return proto.CompactTextString(m) }
 func (*PrecompPermuteMessage) ProtoMessage()               {}
-func (*PrecompPermuteMessage) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{14} }
+func (*PrecompPermuteMessage) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{17} }
 
 func (m *PrecompPermuteMessage) GetRoundID() string {
 	if m != nil {
@@ -897,6 +951,9 @@ func init() {
 	proto.RegisterType((*InitRoundAck)(nil), "mixmessages.InitRoundAck")
 	proto.RegisterType((*CmixMessage)(nil), "mixmessages.CmixMessage")
 	proto.RegisterType((*ClientPollMessage)(nil), "mixmessages.ClientPollMessage")
+	proto.RegisterType((*ContactPoll)(nil), "mixmessages.ContactPoll")
+	proto.RegisterType((*Contact)(nil), "mixmessages.Contact")
+	proto.RegisterType((*ContactMessage)(nil), "mixmessages.ContactMessage")
 	proto.RegisterType((*PrecompDecryptSlot)(nil), "mixmessages.PrecompDecryptSlot")
 	proto.RegisterType((*PrecompDecryptMessage)(nil), "mixmessages.PrecompDecryptMessage")
 	proto.RegisterType((*PrecompEncryptSlot)(nil), "mixmessages.PrecompEncryptSlot")
@@ -966,6 +1023,10 @@ type MixMessageServiceClient interface {
 	ClientSendMessageToServer(ctx context.Context, in *CmixMessage, opts ...grpc.CallOption) (*Ack, error)
 	// Request a CmixMessage from the server for the given User
 	ClientPoll(ctx context.Context, in *ClientPollMessage, opts ...grpc.CallOption) (*CmixMessage, error)
+	// Request a list of contacts from the server
+	RequestContactList(ctx context.Context, in *ContactPoll, opts ...grpc.CallOption) (*ContactMessage, error)
+	// Set a single user's nick on the server
+	SetNick(ctx context.Context, in *Contact, opts ...grpc.CallOption) (*Ack, error)
 }
 
 type mixMessageServiceClient struct {
@@ -1129,6 +1190,24 @@ func (c *mixMessageServiceClient) ClientPoll(ctx context.Context, in *ClientPoll
 	return out, nil
 }
 
+func (c *mixMessageServiceClient) RequestContactList(ctx context.Context, in *ContactPoll, opts ...grpc.CallOption) (*ContactMessage, error) {
+	out := new(ContactMessage)
+	err := grpc.Invoke(ctx, "/mixmessages.MixMessageService/RequestContactList", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *mixMessageServiceClient) SetNick(ctx context.Context, in *Contact, opts ...grpc.CallOption) (*Ack, error) {
+	out := new(Ack)
+	err := grpc.Invoke(ctx, "/mixmessages.MixMessageService/SetNick", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for MixMessageService service
 
 type MixMessageServiceServer interface {
@@ -1166,6 +1245,10 @@ type MixMessageServiceServer interface {
 	ClientSendMessageToServer(context.Context, *CmixMessage) (*Ack, error)
 	// Request a CmixMessage from the server for the given User
 	ClientPoll(context.Context, *ClientPollMessage) (*CmixMessage, error)
+	// Request a list of contacts from the server
+	RequestContactList(context.Context, *ContactPoll) (*ContactMessage, error)
+	// Set a single user's nick on the server
+	SetNick(context.Context, *Contact) (*Ack, error)
 }
 
 func RegisterMixMessageServiceServer(s *grpc.Server, srv MixMessageServiceServer) {
@@ -1478,6 +1561,42 @@ func _MixMessageService_ClientPoll_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MixMessageService_RequestContactList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ContactPoll)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MixMessageServiceServer).RequestContactList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/mixmessages.MixMessageService/RequestContactList",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MixMessageServiceServer).RequestContactList(ctx, req.(*ContactPoll))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MixMessageService_SetNick_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Contact)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MixMessageServiceServer).SetNick(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/mixmessages.MixMessageService/SetNick",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MixMessageServiceServer).SetNick(ctx, req.(*Contact))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _MixMessageService_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "mixmessages.MixMessageService",
 	HandlerType: (*MixMessageServiceServer)(nil),
@@ -1549,6 +1668,14 @@ var _MixMessageService_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ClientPoll",
 			Handler:    _MixMessageService_ClientPoll_Handler,
+		},
+		{
+			MethodName: "RequestContactList",
+			Handler:    _MixMessageService_RequestContactList_Handler,
+		},
+		{
+			MethodName: "SetNick",
+			Handler:    _MixMessageService_SetNick_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
