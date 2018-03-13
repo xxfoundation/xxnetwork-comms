@@ -23,6 +23,12 @@ type ServerHandler interface {
 	PrecompPermute(*mixmessages.PrecompPermuteMessage)
 	// Server Interface for the PrecompShare Messages
 	PrecompShare(*mixmessages.PrecompShareMessage)
+	// Server Interface for the PrecompShareInit Messages
+	PrecompShareInit(*mixmessages.PrecompShareInitMessage)
+	// Server Interface for the PrecompShareInit Messages
+	PrecompShareCompare(*mixmessages.PrecompShareCompareMessage)
+	// Server Interface for the PrecompShareConfirm Messages
+	PrecompShareConfirm(*mixmessages.PrecompShareConfirmMessage)
 	// Server Interface for the RealtimeDecrypt Messages
 	RealtimeDecrypt(*mixmessages.RealtimeDecryptMessage)
 	// Server Interface for the RealtimeEncrypt Messages

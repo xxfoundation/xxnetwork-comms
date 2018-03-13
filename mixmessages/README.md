@@ -107,10 +107,13 @@ errors once your new message is merged.
 
 #### Step 6: Testing
 
-Go to the `mixserver/messages` package. Find the `interface_test.go` file, and add a blank
-method in order to implement the interface method you added in Step 5. Then, you may write
-a test for your `Send` function you added in Step 4 (which also tests the Step 3 endpoint,
-which is why we need the `TestInterface`). For example:
+Go to the `clusterclient` package. Find the `mockserver_test.go` file, and add a
+ blank method in order to implement the interface method you added in Step 5. Do
+  the same for `mockserver_test.go` located in the `mixclient` package.
+
+ Then, you may write a test for your `Send` function you added in Step 4 (which
+ also tests the Step 3 endpoint, which is why we need the `TestInterface`). For
+ example:
 
 ```go
 // Smoke test SendPrecompDecrypt
