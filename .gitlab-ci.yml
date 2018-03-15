@@ -26,6 +26,7 @@ stages:
   - build
   - release
   - deploy
+  - trigger_integration
 
 setup:
   stage: setup
