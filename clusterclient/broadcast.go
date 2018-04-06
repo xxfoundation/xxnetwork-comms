@@ -106,16 +106,14 @@ func SendNewRound(addr string, message *pb.InitRound) (*pb.InitRoundAck, error) 
 
 	// Prepare to send a message
 	c := pb.NewMixMessageServiceClient(conn)
-	ctx, cancel := context.WithTimeout(context.Background(), 300*time.Millisecond)
 
 	// Send the message
-	result, err := c.NewRound(ctx, message)
+	result, err := c.NewRound(context.Background(), message)
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
 		jww.ERROR.Printf("NewRound: Error received: %s", err)
 	}
-	cancel()
 	conn.Close()
 
 	return result, err
