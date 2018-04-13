@@ -1,3 +1,5 @@
+package clusterclient
+
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright © 2018 Privategrity Corporation                                   /
 //                                                                             /
@@ -5,17 +7,16 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 // Wrapper/Helper functions for comms cMix client functionality
-package mixclient
 
 import (
-	"golang.org/x/net/context"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/connectivity"
-	"sync"
-	"time"
+"golang.org/x/net/context"
+"google.golang.org/grpc"
+"google.golang.org/grpc/connectivity"
+"sync"
+"time"
 
-	pb "gitlab.com/privategrity/comms/mixmessages"
-	jww "github.com/spf13/jwalterweatherman"
+pb "gitlab.com/privategrity/comms/mixmessages"
+jww "github.com/spf13/jwalterweatherman"
 )
 
 // A map of string addresses to open connections
@@ -30,8 +31,9 @@ func Connect(address string) pb.MixMessageServiceClient {
 	var err error
 	connection = nil
 	err = nil
+
 	connectionsLock.Lock() // TODO: Really we want to lock on the key,
-                         // not the whole map
+	// not the whole map
 
 	if connections == nil { // TODO: Do we need an init, or is this sufficient?
 		connections = make(map[string]*grpc.ClientConn)
@@ -42,10 +44,9 @@ func Connect(address string) pb.MixMessageServiceClient {
 
 	// Create a new connection if we are not present or disconnecting/disconnected
 	if !present || connection.GetState() == connectivity.Shutdown {
-		// TODO: Use the new DialContext method (we used the following based on
-		//       the online examples...)
-		connection, err = grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock(),
-			grpc.WithTimeout(10000*time.Millisecond))
+		ctx, cancel := context.WithTimeout(context.Background(), 10000*time.Millisecond)
+		connection, err = grpc.DialContext(ctx, address,
+			grpc.WithInsecure(), grpc.WithBlock())
 		if err == nil {
 			connections[address] = connection
 		} else {
@@ -78,3 +79,4 @@ func DefaultContext() (context.Context, context.CancelFunc) {
 	ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
 	return ctx, cancel
 }
+
