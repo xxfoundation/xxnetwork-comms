@@ -44,11 +44,13 @@ func Connect(address string) pb.MixMessageServiceClient {
 
 	// Create a new connection if we are not present or disconnecting/disconnected
 	if !present || connection.GetState() == connectivity.Shutdown {
-		ctx, cancel := context.WithTimeout(context.Background(), 10000*time.Millisecond)
+		ctx, cancel := context.WithTimeout(context.Background(),
+			10000*time.Millisecond)
 		connection, err = grpc.DialContext(ctx, address,
 			grpc.WithInsecure(), grpc.WithBlock())
 		if err == nil {
 			connections[address] = connection
+			cancel()
 		} else {
 			// TODO: Retry loop?
 			jww.FATAL.Printf("Connection to %s failed: %v\n", address, err)

@@ -44,10 +44,13 @@ func Connect(address string) pb.MixMessageServiceClient {
 	if !present || connection.GetState() == connectivity.Shutdown {
 		// TODO: Use the new DialContext method (we used the following based on
 		//       the online examples...)
-		connection, err = grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock(),
-			grpc.WithTimeout(10000*time.Millisecond))
+		ctx, cancel := context.WithTimeout(context.Background(),
+			10000*time.Millisecond)
+		connection, err = grpc.DialContext(ctx, address,
+			grpc.WithInsecure(), grpc.WithBlock())
 		if err == nil {
 			connections[address] = connection
+			cancel()
 		} else {
 			// TODO: Retry loop?
 			jww.FATAL.Printf("Connection to %s failed: %v\n", address, err)
