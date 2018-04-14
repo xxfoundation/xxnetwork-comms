@@ -44,9 +44,9 @@ func Connect(address string) pb.MixMessageServiceClient {
 
 	// Create a new connection if we are not present or disconnecting/disconnected
 	if !present || connection.GetState() == connectivity.Shutdown {
-		ctx, cancel := context.WithTimeout(context.Background(),
-			10000*time.Millisecond)
 		for !present {
+			ctx, cancel := context.WithTimeout(context.Background(),
+				10000*time.Millisecond)
 			connection, err = grpc.DialContext(ctx, address,
 				grpc.WithInsecure(), grpc.WithBlock())
 			if err == nil {
