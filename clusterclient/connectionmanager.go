@@ -53,7 +53,7 @@ func Connect(address string) pb.MixMessageServiceClient {
 				connections[address] = connection
 				cancel()
 			} else {
-				jww.ERROR.Printf("Connection to %s failed, retrying: %v\n", address, err)
+				jww.WARN.Printf("Connection to %s failed, retrying: %v\n", address, err)
 			}
 			connection, present = connections[address]
 		}
