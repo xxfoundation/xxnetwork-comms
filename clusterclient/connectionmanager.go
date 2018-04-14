@@ -46,15 +46,17 @@ func Connect(address string) pb.MixMessageServiceClient {
 	if !present || connection.GetState() == connectivity.Shutdown {
 		ctx, cancel := context.WithTimeout(context.Background(),
 			10000*time.Millisecond)
-		connection, err = grpc.DialContext(ctx, address,
-			grpc.WithInsecure(), grpc.WithBlock())
-		if err == nil {
-			connections[address] = connection
-			cancel()
-		} else {
-			// TODO: Retry loop?
-			jww.FATAL.Printf("Connection to %s failed: %v\n", address, err)
-			panic(err)
+		for {
+			connection, err = grpc.DialContext(context.Background(), address,
+				grpc.WithInsecure(), grpc.WithBlock())
+			if err == nil {
+				connections[address] = connection
+				cancel()
+				break
+			} else {
+				// TODO: Retry loop?
+				jww.ERROR.Printf("Connection to %s failed, retrying: %v\n", address, err)
+			}
 		}
 	}
 
