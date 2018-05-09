@@ -1,12 +1,11 @@
-// mixserver.go - Send/Receive functions for cMix servers
+// endpoints.go - Send/Receive functions for cMix servers
 //
 // Copyright © 2018 Privategrity Corporation
 // All rights reserved.
 
-package mixserver
+package node
 
 import (
-	"log"
 	"net"
 	"time"
 
@@ -183,7 +182,7 @@ func StartServer(localServer string, handler ServerHandler) {
 	// Listen on the given address
 	lis, err := net.Listen("tcp", localServer)
 	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+		jww.FATAL.Panicf("failed to listen: %v", err)
 	}
 	mixmessageServer := server{gs: grpc.NewServer()}
 	pb.RegisterMixMessageServiceServer(mixmessageServer.gs, &mixmessageServer)
@@ -191,6 +190,6 @@ func StartServer(localServer string, handler ServerHandler) {
 	// Register reflection service on gRPC server.
 	reflection.Register(mixmessageServer.gs)
 	if err := mixmessageServer.gs.Serve(lis); err != nil {
-		log.Fatalf("failed to serve: %v", err)
+		jww.FATAL.Panicf("failed to serve: %v", err)
 	}
 }

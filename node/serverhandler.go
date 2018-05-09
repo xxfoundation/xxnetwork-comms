@@ -3,7 +3,7 @@
 // Copyright © 2018 Privategrity Corporation
 // All rights reserved.
 
-package mixserver
+package node
 
 import "gitlab.com/privategrity/comms/mixmessages"
 

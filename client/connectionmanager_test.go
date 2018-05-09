@@ -1,7 +1,7 @@
-package clusterclient
+package client
 
 import (
-"testing"
+	"testing"
 )
 
 // Function to test the Disconnect

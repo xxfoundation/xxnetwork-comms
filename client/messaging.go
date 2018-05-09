@@ -5,7 +5,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 // Send and receive comms functionality for cMix clients
-package mixclient
+package client
 
 import (
 	jww "github.com/spf13/jwalterweatherman"

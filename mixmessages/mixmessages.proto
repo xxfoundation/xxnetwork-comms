@@ -98,6 +98,7 @@ message CmixMessage {
 // The message for clients to poll new CMIX messages
 message ClientPollMessage {
     fixed64 UserID = 1; // 64 bit length
+    string MessageID = 2;
 }
 
 // Message for polling for the contact list

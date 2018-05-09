@@ -3,18 +3,25 @@
 //                                                                             /
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
-
-package mixclient
+package client
 
 import (
 	pb "gitlab.com/privategrity/comms/mixmessages"
+	"testing"
 )
 
-func RequestContactList(addr string, message *pb.ContactPoll) (*pb.
-ContactMessage, error) {
-	c := Connect(addr)
-	ctx, cancel := DefaultContext()
-	result, err := c.RequestContactList(ctx, message)
-	cancel()
-	return result, err
+// Smoke test SendClientPoll
+func TestSendClientPoll(t *testing.T) {
+	_, err := SendClientPoll(SERVER_ADDRESS, &pb.ClientPollMessage{})
+	if err != nil {
+		t.Errorf("RequestMessage: Error received: %s", err)
+	}
+}
+
+// Smoke test SendMessagetoSender
+func TestSendMessageToServer(t *testing.T) {
+	_, err := SendMessageToServer(SERVER_ADDRESS, &pb.CmixMessage{})
+	if err != nil {
+		t.Errorf("SendMessageToServer: Error received: %s", err)
+	}
 }
