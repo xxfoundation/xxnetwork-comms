@@ -5,7 +5,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 // Wrapper/Helper functions for comms cMix client functionality
-package mixclient
+package client
 
 import (
 	"golang.org/x/net/context"
@@ -14,12 +14,13 @@ import (
 	"sync"
 	"time"
 
-	pb "gitlab.com/privategrity/comms/mixmessages"
 	jww "github.com/spf13/jwalterweatherman"
+	pb "gitlab.com/privategrity/comms/mixmessages"
 )
 
 // A map of string addresses to open connections
 var connections map[string]*grpc.ClientConn
+
 // A lock used to control access to the connections map above
 var connectionsLock sync.Mutex
 
@@ -31,7 +32,7 @@ func Connect(address string) pb.MixMessageServiceClient {
 	connection = nil
 	err = nil
 	connectionsLock.Lock() // TODO: Really we want to lock on the key,
-                         // not the whole map
+	// not the whole map
 
 	if connections == nil { // TODO: Do we need an init, or is this sufficient?
 		connections = make(map[string]*grpc.ClientConn)

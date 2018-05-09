@@ -5,11 +5,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 // precomputation.go - all the comms client functions for precomputation.
-package clusterclient
+package node
 
 import (
-	pb "gitlab.com/privategrity/comms/mixmessages"
 	jww "github.com/spf13/jwalterweatherman"
+	pb "gitlab.com/privategrity/comms/mixmessages"
 )
 
 func SendPrecompShare(addr string, message *pb.PrecompShareMessage) (*pb.Ack, error) {

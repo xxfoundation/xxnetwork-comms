@@ -4,7 +4,7 @@
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
 
-package clusterclient
+package node
 
 import (
 	pb "gitlab.com/privategrity/comms/mixmessages"

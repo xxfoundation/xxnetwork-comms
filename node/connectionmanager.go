@@ -1,4 +1,4 @@
-package clusterclient
+package node
 
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright © 2018 Privategrity Corporation                                   /
@@ -9,18 +9,19 @@ package clusterclient
 // Wrapper/Helper functions for comms cMix client functionality
 
 import (
-"golang.org/x/net/context"
-"google.golang.org/grpc"
-"google.golang.org/grpc/connectivity"
-"sync"
-"time"
+	"golang.org/x/net/context"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/connectivity"
+	"sync"
+	"time"
 
-pb "gitlab.com/privategrity/comms/mixmessages"
-jww "github.com/spf13/jwalterweatherman"
+	jww "github.com/spf13/jwalterweatherman"
+	pb "gitlab.com/privategrity/comms/mixmessages"
 )
 
 // A map of string addresses to open connections
 var connections map[string]*grpc.ClientConn
+
 // A lock used to control access to the connections map above
 var connectionsLock sync.Mutex
 
@@ -82,4 +83,3 @@ func DefaultContext() (context.Context, context.CancelFunc) {
 	ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
 	return ctx, cancel
 }
-

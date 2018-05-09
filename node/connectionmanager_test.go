@@ -1,4 +1,4 @@
-package mixclient
+package node
 
 import (
 	"testing"

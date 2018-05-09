@@ -3,17 +3,18 @@
 //                                                                             /
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
-package mixclient
+
+package client
 
 import (
 	pb "gitlab.com/privategrity/comms/mixmessages"
 	"testing"
 )
 
-// Smoke test RequestContactList
-func TestRequestContactList(t *testing.T) {
-	_, err := RequestContactList(SERVER_ADDRESS, &pb.ContactPoll{})
+// Smoke test SetNick
+func TestSetNick(t *testing.T) {
+	_, err := SetNick(SERVER_ADDRESS, &pb.Contact{})
 	if err != nil {
-		t.Errorf("RequestContactList: Error received: %s", err)
+		t.Errorf("SetNick: Error received: %s", err)
 	}
 }

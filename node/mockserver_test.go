@@ -5,20 +5,19 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 // This sets up a dummy/mock server instance for testing purposes
-package mixclient
+package node
 
 import (
 	pb "gitlab.com/privategrity/comms/mixmessages"
-	"gitlab.com/privategrity/comms/mixserver"
 	"os"
 	"testing"
 )
 
-const SERVER_ADDRESS = "localhost:5556"
+const SERVER_ADDRESS = "localhost:5555"
 
 // Start server for testing
 func TestMain(m *testing.M) {
-	go mixserver.StartServer(SERVER_ADDRESS, TestInterface{})
+	go StartServer(SERVER_ADDRESS, TestInterface{})
 	os.Exit(m.Run())
 }
 
@@ -42,10 +41,12 @@ func (m TestInterface) PrecompShare(message *pb.PrecompShareMessage) {}
 func (m TestInterface) PrecompShareInit(message *pb.PrecompShareInitMessage) {}
 
 func (m TestInterface) PrecompShareCompare(message *pb.
-PrecompShareCompareMessage) {}
+	PrecompShareCompareMessage) {
+}
 
 func (m TestInterface) PrecompShareConfirm(message *pb.
-PrecompShareConfirmMessage) {}
+	PrecompShareConfirmMessage) {
+}
 
 func (m TestInterface) RealtimeDecrypt(message *pb.RealtimeDecryptMessage) {}
 
@@ -58,7 +59,7 @@ func (m TestInterface) ClientPoll(message *pb.ClientPollMessage) *pb.CmixMessage
 }
 
 func (m TestInterface) RequestContactList(message *pb.ContactPoll) *pb.
-ContactMessage {
+	ContactMessage {
 	return &pb.ContactMessage{}
 }
 
