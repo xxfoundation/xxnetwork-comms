@@ -8,12 +8,13 @@ package gateway
 
 import (
 	pb "gitlab.com/privategrity/comms/mixmessages"
-	"golang.org/x/net/context"
+	"testing"
 )
 
-// Handle a GetMessage event
-func (s *gateway) GetMessage(ctx context.Context, msg *pb.ClientPollMessage) (
-	*pb.CmixMessage, error) {
-	returnMsg, _ := gatewayHandler.GetMessage(msg.UserID, msg.MessageID)
-	return returnMsg, nil
+// Smoke test SendGetMessage
+func TestSendGetMessage(t *testing.T) {
+	_, err := SendGetMessage(SERVER_ADDRESS, &pb.ClientPollMessage{})
+	if err != nil {
+		t.Errorf("GetMessage: Error received: %s", err)
+	}
 }

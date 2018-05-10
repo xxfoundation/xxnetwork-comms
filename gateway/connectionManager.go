@@ -1,5 +1,3 @@
-package node
-
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright © 2018 Privategrity Corporation                                   /
 //                                                                             /
@@ -7,6 +5,7 @@ package node
 ////////////////////////////////////////////////////////////////////////////////
 
 // Wrapper/Helper functions for comms cMix client functionality
+package gateway
 
 import (
 	"golang.org/x/net/context"
@@ -27,12 +26,11 @@ var connectionsLock sync.Mutex
 
 // Connect creates a connection, or returns a pre-existing connection based on
 // a given address string.
-func Connect(address string) pb.MixMessageServiceClient {
+func Connect(address string) pb.MixMessageGatewayClient {
 	var connection *grpc.ClientConn
 	var err error
 	connection = nil
 	err = nil
-
 	connectionsLock.Lock() // TODO: Really we want to lock on the key,
 	// not the whole map
 
@@ -45,24 +43,25 @@ func Connect(address string) pb.MixMessageServiceClient {
 
 	// Create a new connection if we are not present or disconnecting/disconnected
 	if !present || connection.GetState() == connectivity.Shutdown {
-		for !present {
-			ctx, cancel := context.WithTimeout(context.Background(),
-				10000*time.Millisecond)
-			connection, err = grpc.DialContext(ctx, address,
-				grpc.WithInsecure(), grpc.WithBlock())
-			if err == nil {
-				connections[address] = connection
-				cancel()
-			} else {
-				jww.WARN.Printf("Connection to %s failed, retrying: %v\n", address, err)
-			}
-			connection, present = connections[address]
+		// TODO: Use the new DialContext method (we used the following based on
+		//       the online examples...)
+		ctx, cancel := context.WithTimeout(context.Background(),
+			10000*time.Millisecond)
+		connection, err = grpc.DialContext(ctx, address,
+			grpc.WithInsecure(), grpc.WithBlock())
+		if err == nil {
+			connections[address] = connection
+			cancel()
+		} else {
+			// TODO: Retry loop?
+			jww.FATAL.Printf("Connection to %s failed: %v\n", address, err)
+			panic(err)
 		}
 	}
 
 	connectionsLock.Unlock()
 
-	return pb.NewMixMessageServiceClient(connection)
+	return pb.NewMixMessageGatewayClient(connection)
 }
 
 // Disconnect closes client connections and removes them from the connection map

@@ -7,13 +7,23 @@
 package gateway
 
 import (
+	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/privategrity/comms/mixmessages"
-	"golang.org/x/net/context"
 )
 
-// Handle a GetMessage event
-func (s *gateway) GetMessage(ctx context.Context, msg *pb.ClientPollMessage) (
-	*pb.CmixMessage, error) {
-	returnMsg, _ := gatewayHandler.GetMessage(msg.UserID, msg.MessageID)
-	return returnMsg, nil
+func SendGetMessage(addr string, message *pb.ClientPollMessage) (*pb.
+	CmixMessage, error) {
+	// Attempt to connect to addr
+	c := Connect(addr)
+	ctx, cancel := DefaultContext()
+
+	// Send the message
+	result, err := c.GetMessage(ctx, message)
+
+	// Make sure there are no errors with sending the message
+	if err != nil {
+		jww.ERROR.Printf("GetMessage: Error received: %s", err)
+	}
+	cancel()
+	return result, err
 }

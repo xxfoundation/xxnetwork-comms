@@ -8,12 +8,23 @@ package gateway
 
 import (
 	pb "gitlab.com/privategrity/comms/mixmessages"
-	"golang.org/x/net/context"
+	"os"
+	"testing"
 )
 
-// Handle a GetMessage event
-func (s *gateway) GetMessage(ctx context.Context, msg *pb.ClientPollMessage) (
-	*pb.CmixMessage, error) {
-	returnMsg, _ := gatewayHandler.GetMessage(msg.UserID, msg.MessageID)
-	return returnMsg, nil
+const SERVER_ADDRESS = "localhost:5556"
+
+// This sets up a dummy/mock gateway instance for testing purposes
+func TestMain(m *testing.M) {
+	go StartGateway(SERVER_ADDRESS, TestInterface{})
+	os.Exit(m.Run())
+}
+
+// Blank struct implementing GatewayHandler interface for testing purposes
+// (Passing to StartGateway)
+type TestInterface struct{}
+
+func (m TestInterface) GetMessage(userId uint64,
+	msgId string) (*pb.CmixMessage, bool) {
+	return &pb.CmixMessage{}, true
 }

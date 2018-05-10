@@ -8,12 +8,9 @@ package gateway
 
 import (
 	pb "gitlab.com/privategrity/comms/mixmessages"
-	"golang.org/x/net/context"
 )
 
-// Handle a GetMessage event
-func (s *gateway) GetMessage(ctx context.Context, msg *pb.ClientPollMessage) (
-	*pb.CmixMessage, error) {
-	returnMsg, _ := gatewayHandler.GetMessage(msg.UserID, msg.MessageID)
-	return returnMsg, nil
+type GatewayHandler interface {
+	// Returns the message matching the given parameters to the client
+	GetMessage(userId uint64, msgId string) (*pb.CmixMessage, bool)
 }

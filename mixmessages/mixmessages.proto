@@ -7,7 +7,7 @@ syntax = "proto3";
 package mixmessages;
 
 // This service is for servers talking to servers
-service MixMessageService {
+service MixMessageNode {
     // Handles ErrorMessage
     rpc NetworkError (ErrorMessage) returns (ErrorAck) {
     }
@@ -64,6 +64,13 @@ service MixMessageService {
     }
     // Set a single user's nick on the server
     rpc SetNick (Contact) returns (Ack) {
+    }
+}
+
+// This service is for servers talking to gateway
+service MixMessageGateway {
+    // Request a CmixMessage from the gateway for the given message information
+    rpc GetMessage (ClientPollMessage) returns (CmixMessage) {
     }
 }
 
