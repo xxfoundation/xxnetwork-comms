@@ -41,7 +41,7 @@ func StartServer(localServer string, handler ServerHandler) {
 		jww.FATAL.Panicf("failed to listen: %v", err)
 	}
 	mixmessageServer := server{gs: grpc.NewServer()}
-	pb.RegisterMixMessageServiceServer(mixmessageServer.gs, &mixmessageServer)
+	pb.RegisterMixMessageNodeServer(mixmessageServer.gs, &mixmessageServer)
 
 	// Register reflection service on gRPC server.
 	reflection.Register(mixmessageServer.gs)

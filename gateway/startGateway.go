@@ -8,7 +8,9 @@ package gateway
 
 import (
 	jww "github.com/spf13/jwalterweatherman"
+	pb "gitlab.com/privategrity/comms/mixmessages"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 	"net"
 	"time"
 )
@@ -33,8 +35,16 @@ func StartGateway(localServer string, handler GatewayHandler) {
 	gatewayHandler = handler
 
 	// Listen on the given address
-	_, err := net.Listen("tcp", localServer)
+	lis, err := net.Listen("tcp", localServer)
 	if err != nil {
 		jww.FATAL.Panicf("failed to listen: %v", err)
+	}
+	mixmessageServer := gateway{gs: grpc.NewServer()}
+	pb.RegisterMixMessageGatewayServer(mixmessageServer.gs, &mixmessageServer)
+
+	// Register reflection service on gRPC server.
+	reflection.Register(mixmessageServer.gs)
+	if err := mixmessageServer.gs.Serve(lis); err != nil {
+		jww.FATAL.Panicf("failed to serve: %v", err)
 	}
 }
