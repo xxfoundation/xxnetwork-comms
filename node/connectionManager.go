@@ -27,7 +27,7 @@ var connectionsLock sync.Mutex
 
 // Connect creates a connection, or returns a pre-existing connection based on
 // a given address string.
-func Connect(address string) pb.MixMessageServiceClient {
+func Connect(address string) pb.MixMessageNodeClient {
 	var connection *grpc.ClientConn
 	var err error
 	connection = nil
@@ -62,7 +62,7 @@ func Connect(address string) pb.MixMessageServiceClient {
 
 	connectionsLock.Unlock()
 
-	return pb.NewMixMessageServiceClient(connection)
+	return pb.NewMixMessageNodeClient(connection)
 }
 
 // Disconnect closes client connections and removes them from the connection map
