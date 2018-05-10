@@ -1,4 +1,4 @@
-// endpoints.go - Send/Receive functions for cMix servers
+// endpoint.go - Send/Receive functions for cMix servers
 //
 // Copyright © 2018 Privategrity Corporation
 // All rights reserved.

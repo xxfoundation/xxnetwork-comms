@@ -1,4 +1,4 @@
-// serverhandler.go - Interface for interaction between comms and server
+// serverHandler.go - Interface for interaction between comms and server
 //
 // Copyright © 2018 Privategrity Corporation
 // All rights reserved.
