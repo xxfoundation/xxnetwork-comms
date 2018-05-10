@@ -80,6 +80,7 @@ func Disconnect(address string) {
 // for all client messages. This is primarily used to set the default
 // timeout for all clients at 1/2 a second.
 func DefaultContext() (context.Context, context.CancelFunc) {
-	ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
+	ctx, cancel := context.WithTimeout(context.Background(),
+		1000*time.Millisecond)
 	return ctx, cancel
 }
