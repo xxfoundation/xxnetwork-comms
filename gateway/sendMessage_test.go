@@ -11,6 +11,14 @@ import (
 	"testing"
 )
 
+// Smoke test SendCheckMessages
+func TestSendCheckMessages(t *testing.T) {
+	_, err := SendCheckMessages(SERVER_ADDRESS, &pb.ClientPollMessage{})
+	if err != nil {
+		t.Errorf("CheckMessages: Error received: %s", err)
+	}
+}
+
 // Smoke test SendGetMessage
 func TestSendGetMessage(t *testing.T) {
 	_, err := SendGetMessage(SERVER_ADDRESS, &pb.ClientPollMessage{})
