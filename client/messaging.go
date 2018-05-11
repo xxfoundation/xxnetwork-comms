@@ -10,12 +10,13 @@ package client
 import (
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/privategrity/comms/mixmessages"
+	"gitlab.com/privategrity/comms/connect"
 )
 
 // SendMessageToServer sends a user's message to the cMix cluster
 func SendMessageToServer(addr string, message *pb.CmixMessage) (*pb.Ack, error) {
-	c := Connect(addr)
-	ctx, cancel := DefaultContext()
+	c := connect.ConnectToNode(addr)
+	ctx, cancel := connect.DefaultContext()
 	result, err := c.ClientSendMessageToServer(ctx, message)
 	cancel()
 
@@ -28,8 +29,8 @@ func SendMessageToServer(addr string, message *pb.CmixMessage) (*pb.Ack, error) 
 
 // SendClientPoll polls the server for new messages
 func SendClientPoll(addr string, message *pb.ClientPollMessage) (*pb.CmixMessage, error) {
-	c := Connect(addr)
-	ctx, cancel := DefaultContext()
+	c := connect.ConnectToNode(addr)
+	ctx, cancel := connect.DefaultContext()
 	// Send the message
 	result, err := c.ClientPoll(ctx, message)
 	cancel()

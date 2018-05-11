@@ -12,12 +12,13 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/privategrity/comms/mixmessages"
 	"golang.org/x/net/context"
+	"gitlab.com/privategrity/comms/connect"
 )
 
 func SetPublicKey(addr string, message *pb.PublicKeyMessage) (*pb.Ack, error) {
 	// Attempt to connect to addr
-	c := Connect(addr)
-	ctx, cancel := DefaultContext()
+	c := connect.ConnectToNode(addr)
+	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
 	result, err := c.SetPublicKey(ctx, message)
@@ -32,8 +33,8 @@ func SetPublicKey(addr string, message *pb.PublicKeyMessage) (*pb.Ack, error) {
 
 func SendAskOnline(addr string, message *pb.Ping) (*pb.Pong, error) {
 	// Attempt to connect to addr
-	c := Connect(addr)
-	ctx, cancel := DefaultContext()
+	c := connect.ConnectToNode(addr)
+	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
 	result, err := c.AskOnline(ctx, message)
@@ -48,8 +49,8 @@ func SendAskOnline(addr string, message *pb.Ping) (*pb.Pong, error) {
 
 func SendNetworkError(addr string, message *pb.ErrorMessage) (*pb.ErrorAck, error) {
 	// Attempt to connect to addr
-	c := Connect(addr)
-	ctx, cancel := DefaultContext()
+	c := connect.ConnectToNode(addr)
+	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
 	result, err := c.NetworkError(ctx, message)
@@ -63,7 +64,7 @@ func SendNetworkError(addr string, message *pb.ErrorMessage) (*pb.ErrorAck, erro
 }
 
 func SendNewRound(addr string, message *pb.InitRound) (*pb.InitRoundAck, error) {
-	c := Connect(addr)
+	c := connect.ConnectToNode(addr)
 
 	// Send the message
 	result, err := c.NewRound(context.Background(), message)

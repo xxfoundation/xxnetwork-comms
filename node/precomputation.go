@@ -10,12 +10,13 @@ package node
 import (
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/privategrity/comms/mixmessages"
+	"gitlab.com/privategrity/comms/connect"
 )
 
 func SendPrecompShare(addr string, message *pb.PrecompShareMessage) (*pb.Ack, error) {
 	// Attempt to connect to addr
-	c := Connect(addr)
-	ctx, cancel := DefaultContext()
+	c := connect.ConnectToNode(addr)
+	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
 	result, err := c.PrecompShare(ctx, message)
@@ -31,8 +32,8 @@ func SendPrecompShare(addr string, message *pb.PrecompShareMessage) (*pb.Ack, er
 func SendPrecompShareInit(addr string, message *pb.PrecompShareInitMessage) (
 	*pb.Ack, error) {
 	// Attempt to connect to addr
-	c := Connect(addr)
-	ctx, cancel := DefaultContext()
+	c := connect.ConnectToNode(addr)
+	ctx, cancel := connect.DefaultContext()
 	// Send the message
 	result, err := c.PrecompShareInit(ctx, message)
 
@@ -47,8 +48,8 @@ func SendPrecompShareInit(addr string, message *pb.PrecompShareInitMessage) (
 func SendPrecompShareCompare(addr string,
 	message *pb.PrecompShareCompareMessage) (*pb.Ack, error) {
 	// Attempt to connect to addr
-	c := Connect(addr)
-	ctx, cancel := DefaultContext()
+	c := connect.ConnectToNode(addr)
+	ctx, cancel := connect.DefaultContext()
 	// Send the message
 	result, err := c.PrecompShareCompare(ctx, message)
 
@@ -64,8 +65,8 @@ func SendPrecompShareConfirm(addr string,
 	message *pb.PrecompShareConfirmMessage) (
 	*pb.Ack, error) {
 	// Attempt to connect to addr
-	c := Connect(addr)
-	ctx, cancel := DefaultContext()
+	c := connect.ConnectToNode(addr)
+	ctx, cancel := connect.DefaultContext()
 	// Send the message
 	result, err := c.PrecompShareConfirm(ctx, message)
 
@@ -79,8 +80,8 @@ func SendPrecompShareConfirm(addr string,
 
 func SendPrecompDecrypt(addr string, message *pb.PrecompDecryptMessage) (*pb.Ack, error) {
 	// Attempt to connect to addr
-	c := Connect(addr)
-	ctx, cancel := DefaultContext()
+	c := connect.ConnectToNode(addr)
+	ctx, cancel := connect.DefaultContext()
 	// Send the message
 	result, err := c.PrecompDecrypt(ctx, message)
 
@@ -95,8 +96,8 @@ func SendPrecompDecrypt(addr string, message *pb.PrecompDecryptMessage) (*pb.Ack
 func SendPrecompEncrypt(addr string, message *pb.PrecompEncryptMessage) (
 	*pb.Ack, error) {
 	// Attempt to connect to addr
-	c := Connect(addr)
-	ctx, cancel := DefaultContext()
+	c := connect.ConnectToNode(addr)
+	ctx, cancel := connect.DefaultContext()
 	// Send the message
 	result, err := c.PrecompEncrypt(ctx, message)
 
@@ -110,8 +111,8 @@ func SendPrecompEncrypt(addr string, message *pb.PrecompEncryptMessage) (
 
 func SendPrecompPermute(addr string, message *pb.PrecompPermuteMessage) (*pb.Ack, error) {
 	// Attempt to connect to addr
-	c := Connect(addr)
-	ctx, cancel := DefaultContext()
+	c := connect.ConnectToNode(addr)
+	ctx, cancel := connect.DefaultContext()
 	// Send the message
 	result, err := c.PrecompPermute(ctx, message)
 
@@ -125,8 +126,8 @@ func SendPrecompPermute(addr string, message *pb.PrecompPermuteMessage) (*pb.Ack
 
 func SendPrecompReveal(addr string, message *pb.PrecompRevealMessage) (*pb.Ack, error) {
 	// Attempt to connect to addr
-	c := Connect(addr)
-	ctx, cancel := DefaultContext()
+	c := connect.ConnectToNode(addr)
+	ctx, cancel := connect.DefaultContext()
 	// Send the message
 	result, err := c.PrecompReveal(ctx, message)
 	// Make sure there are no errors with sending the message
