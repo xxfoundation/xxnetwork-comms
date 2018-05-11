@@ -24,11 +24,13 @@ var connections map[string]*grpc.ClientConn
 // A lock used to control access to the connections map above
 var connectionsLock sync.Mutex
 
+// Connect to a gateway with a given address string
 func ConnectToGateway(address string) pb.MixMessageGatewayClient {
 	connection := connect(address)
 	return pb.NewMixMessageGatewayClient(connection)
 }
 
+// Connect to a node with a given address string
 func ConnectToNode(address string) pb.MixMessageNodeClient {
 	connection := connect(address)
 	return pb.NewMixMessageNodeClient(connection)
