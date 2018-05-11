@@ -28,3 +28,7 @@ func (m TestInterface) GetMessage(userId uint64,
 	msgId string) (*pb.CmixMessage, bool) {
 	return &pb.CmixMessage{}, true
 }
+
+func (m TestInterface) CheckMessages(userId uint64) ([]string, bool) {
+	return make([]string, 0), true
+}

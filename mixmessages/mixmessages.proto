@@ -69,6 +69,9 @@ service MixMessageNode {
 
 // This service is for servers talking to gateway
 service MixMessageGateway {
+    // Request a list of MessageIDs from the gateway for the given UserID
+    rpc CheckMessages (ClientPollMessage) returns (ClientMessages) {
+    }
     // Request a CmixMessage from the gateway for the given message information
     rpc GetMessage (ClientPollMessage) returns (CmixMessage) {
     }
@@ -106,6 +109,11 @@ message CmixMessage {
 message ClientPollMessage {
     fixed64 UserID = 1; // 64 bit length
     string MessageID = 2;
+}
+
+// The message for clients to poll the gateway for Message IDs
+message ClientMessages {
+    repeated string MessageIDs = 1;
 }
 
 // Message for polling for the contact list
