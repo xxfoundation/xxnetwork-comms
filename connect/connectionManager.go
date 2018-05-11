@@ -5,7 +5,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 // Wrapper/Helper functions for comms cMix client functionality
-package gateway
+package connect
 
 import (
 	"golang.org/x/net/context"
@@ -24,9 +24,19 @@ var connections map[string]*grpc.ClientConn
 // A lock used to control access to the connections map above
 var connectionsLock sync.Mutex
 
+func ConnectToGateway(address string) pb.MixMessageGatewayClient {
+	connection := connect(address)
+	return pb.NewMixMessageGatewayClient(connection)
+}
+
+func ConnectToNode(address string) pb.MixMessageNodeClient {
+	connection := connect(address)
+	return pb.NewMixMessageNodeClient(connection)
+}
+
 // Connect creates a connection, or returns a pre-existing connection based on
 // a given address string.
-func Connect(address string) pb.MixMessageGatewayClient {
+func connect(address string) *grpc.ClientConn {
 	var connection *grpc.ClientConn
 	var err error
 	connection = nil
@@ -61,7 +71,7 @@ func Connect(address string) pb.MixMessageGatewayClient {
 
 	connectionsLock.Unlock()
 
-	return pb.NewMixMessageGatewayClient(connection)
+	return connection
 }
 
 // Disconnect closes client connections and removes them from the connection map
@@ -78,7 +88,9 @@ func Disconnect(address string) {
 // DefaultContexts creates a context object with the default context
 // for all client messages. This is primarily used to set the default
 // timeout for all clients at 1/2 a second.
+// TODO should gateway and node have different timeouts?
 func DefaultContext() (context.Context, context.CancelFunc) {
-	ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
+	ctx, cancel := context.WithTimeout(context.Background(),
+		1000*time.Millisecond)
 	return ctx, cancel
 }

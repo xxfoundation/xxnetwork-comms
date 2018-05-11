@@ -10,12 +10,13 @@ package node
 import (
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/privategrity/comms/mixmessages"
+	"gitlab.com/privategrity/comms/connect"
 )
 
 func SendRealtimePermute(addr string, message *pb.RealtimePermuteMessage) (*pb.Ack, error) {
 	// Attempt to connect to addr
-	c := Connect(addr)
-	ctx, cancel := DefaultContext()
+	c := connect.ConnectToNode(addr)
+	ctx, cancel := connect.DefaultContext()
 	// Send the message
 	result, err := c.RealtimePermute(ctx, message)
 
@@ -29,8 +30,8 @@ func SendRealtimePermute(addr string, message *pb.RealtimePermuteMessage) (*pb.A
 
 func SendRealtimeDecrypt(addr string, message *pb.RealtimeDecryptMessage) (*pb.Ack, error) {
 	// Attempt to connect to addr
-	c := Connect(addr)
-	ctx, cancel := DefaultContext()
+	c := connect.ConnectToNode(addr)
+	ctx, cancel := connect.DefaultContext()
 	// Send the message
 	result, err := c.RealtimeDecrypt(ctx, message)
 
@@ -44,8 +45,8 @@ func SendRealtimeDecrypt(addr string, message *pb.RealtimeDecryptMessage) (*pb.A
 
 func SendRealtimeEncrypt(addr string, message *pb.RealtimeEncryptMessage) (*pb.Ack, error) {
 	// Attempt to connect to addr
-	c := Connect(addr)
-	ctx, cancel := DefaultContext()
+	c := connect.ConnectToNode(addr)
+	ctx, cancel := connect.DefaultContext()
 	// Send the message
 	result, err := c.RealtimeEncrypt(ctx, message)
 
