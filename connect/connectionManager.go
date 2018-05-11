@@ -61,7 +61,7 @@ func connect(address string) *grpc.ClientConn {
 		// TODO: Use the new DialContext method (we used the following based on
 		//       the online examples...)
 		ctx, cancel := context.WithTimeout(context.Background(),
-			10000*time.Millisecond)
+			100000*time.Millisecond)
 		connection, err = grpc.DialContext(ctx, address,
 			grpc.WithInsecure(), grpc.WithBlock())
 		if err == nil {
@@ -96,6 +96,6 @@ func Disconnect(address string) {
 // TODO should gateway and node have different timeouts?
 func DefaultContext() (context.Context, context.CancelFunc) {
 	ctx, cancel := context.WithTimeout(context.Background(),
-		1000*time.Millisecond)
+		10000*time.Millisecond)
 	return ctx, cancel
 }
