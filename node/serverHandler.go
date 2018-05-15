@@ -9,6 +9,9 @@ package node
 import "gitlab.com/privategrity/comms/mixmessages"
 
 type ServerHandler interface {
+	// Server Interface for roundtrip ping
+	RoundtripPing(*mixmessages.TimePing)
+
 	// Server Interface for starting New Rounds
 	NewRound(RoundID string)
 	// Server Interface for SetPublicKey

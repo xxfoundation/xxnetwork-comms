@@ -14,6 +14,9 @@ service MixMessageNode {
     // Handles AskOnline
     rpc AskOnline (Ping) returns (Pong) {
     }
+    // Handles RoundtripPing
+    rpc RoundtripPing (TimePing) returns (Ack) {
+    }
     // Handles Init Round
     rpc NewRound (InitRound) returns (InitRoundAck) {
     }
@@ -89,9 +92,14 @@ message Ping {
 message Pong {
 }
 
+// The request message asking server to add their time
+message TimePing {
+    repeated int64 Times = 1;
+}
+
 // The message for Init Round
 message InitRound {
-  string RoundID = 1;
+    string RoundID = 1;
 }
 
 // The response for Init Round

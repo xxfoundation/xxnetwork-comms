@@ -26,6 +26,13 @@ func (s *server) AskOnline(ctx context.Context, msg *pb.Ping) (
 	return &pb.Pong{}, nil
 }
 
+// Handle a Roundtrip ping event
+func (s *server) RoundtripPing(ctx context.Context, msg *pb.TimePing) (
+	*pb.Ack, error){
+	serverHandler.RoundtripPing(msg)
+	return &pb.Ack{}, nil
+}
+
 // Handle a NewRound event
 func (s *server) NewRound(ctx context.Context,
 	msg *pb.InitRound) (*pb.InitRoundAck, error) {

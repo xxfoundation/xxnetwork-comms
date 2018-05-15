@@ -31,6 +31,22 @@ func SetPublicKey(addr string, message *pb.PublicKeyMessage) (*pb.Ack, error) {
 	return result, err
 }
 
+func SendRoundtripPing(addr string, message *pb.TimePing) (*pb.Ack, error) {
+	// Attempt to connect to addr
+	c := connect.ConnectToNode(addr)
+	ctx, cancel := connect.DefaultContext()
+
+	// Send the message
+	result, err := c.RoundtripPing(ctx, message)
+
+	// Make sure there are no errors with sending the message
+	if err != nil {
+		jww.ERROR.Printf("AskOnline: Error received: %s", err)
+	}
+	cancel()
+	return result, err
+}
+
 func SendAskOnline(addr string, message *pb.Ping) (*pb.Pong, error) {
 	// Attempt to connect to addr
 	c := connect.ConnectToNode(addr)
