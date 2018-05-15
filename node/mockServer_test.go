@@ -26,6 +26,8 @@ type TestInterface struct{}
 
 func (m TestInterface) NewRound(roundId string) {}
 
+func (m TestInterface) RoundtripPing(message *pb.TimePing) {}
+
 func (m TestInterface) SetPublicKey(roundId string, pkey []byte) {}
 
 func (m TestInterface) PrecompDecrypt(message *pb.PrecompDecryptMessage) {}
