@@ -65,6 +65,9 @@ service MixMessageNode {
     // Set a single user's nick on the server
     rpc SetNick (Contact) returns (Ack) {
     }
+    // Broadcasts user information to all other nodes
+    rpc UpsertUserBroadcast (UpsertUserMessage) returns (Ack) {
+    }
 }
 
 // This service is for servers talking to gateway
@@ -118,6 +121,15 @@ message ClientMessages {
 
 // Message for polling for the contact list
 message ContactPoll {
+}
+
+// Message for broadcasting user information to all other nodes
+message UpsertUserMessage {
+    fixed64 NodeID = 1; // 64-bit
+    bytes UserID = 2; // 128-bit
+    bytes UserPublicKey = 3; // Length of Prime
+    bytes Nonce = 4; // 256-bits
+    bytes DsaSignature = 5; // 2 x Length of Prime
 }
 
 // Message for individual contacts
