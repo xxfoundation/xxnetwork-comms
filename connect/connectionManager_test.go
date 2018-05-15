@@ -7,9 +7,9 @@
 package connect
 
 import (
-	"testing"
-	"os"
 	"net"
+	"os"
+	"testing"
 )
 
 const SERVER_ADDRESS = "localhost:5556"

@@ -66,7 +66,7 @@ service MixMessageNode {
     rpc SetNick (Contact) returns (Ack) {
     }
     // Broadcasts user information to all other nodes
-    rpc UpsertUserBroadcast (UpsertUserMessage) returns (Ack) {
+    rpc UserUpsert (UpsertUserMessage) returns (Ack) {
     }
 }
 

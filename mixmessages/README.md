@@ -1,6 +1,10 @@
 GRPC - Adding New Cryptop Message Types
 ----
 
+**Note**: This guide is specifically intended for adding new `node` 
+comms. It can easily generalized to comms relevant to client, gatewaty, etc.,
+but specific file paths may not be correct.
+
 #### Step 1: Add Message to mixmessages.proto
 
 Create a new `message`, resembling a `struct` in golang.
@@ -28,7 +32,8 @@ message PrecompDecryptMessage {
   repeated PrecompDecryptSlot Slots = 2;
 }
 ```
-Then, simply add an `rpc` in `service MixMessageService` specifying what the endpoint for your new
+Then, simply add an `rpc` in `service MixMessageNode` specifying what the 
+endpoint for your new
 message will be called. You must also specify what message that endpoint will trigger with, and
 what type of message to respond with.
 
@@ -59,7 +64,7 @@ Run the following command in the base project directory
 
 This enables interacting with your new messages like normal go `structs`.
 
-#### Step 3: Implement your rpc endpoint in mixserver.go
+#### Step 3: Implement your rpc endpoint in endpoint.go
 
 This step is required for every `rpc` you create, otherwise there will be errors. 
 Create a method on `server` for your message. It will take in a `Context` and
@@ -78,9 +83,9 @@ This method will be called every time the endpoint receives your message. For cr
 this is where you must pass your message to `server` by calling `serverHandler.YOURCRYPTOP(msg)`
 like above. We will create this interface method in Step 5. 
 
-#### Step 4: Add SendMessage function for your rpc in message package
+#### Step 4: Add SendMessage function for your rpc in node package
 
-Create a new file in `mixserver/message` package for your `rpc`. The purpose of this
+Create a new file in `node` package for your `rpc`. The purpose of this
 is to be able to send a message from the `server` repository without any dependencies on grpc.
 You may copy one of the other files in this package and modify the message input and return types.
 Additionally, make sure you call your endpoint from Step 3 in the method body as follows:
@@ -90,7 +95,7 @@ Additionally, make sure you call your endpoint from Step 3 in the method body as
 Add any additional logic that may be required when sending your message here.
 This is the last step for normal messages. For cryptop messages, continue to Step 5.
 
-#### Step 5: Add interface method for cryptop in serverhandler.go
+#### Step 5: Add interface method for cryptop in serverHandler.go
 
 Add a method to the interface for your new cryptop message. For example,
 
@@ -107,9 +112,9 @@ errors once your new message is merged.
 
 #### Step 6: Testing
 
-Go to the `clusterclient` package. Find the `mockserver_test.go` file, and add a
- blank method in order to implement the interface method you added in Step 5. Do
-  the same for `mockserver_test.go` located in the `mixclient` package.
+Find the `mockserver_test.go` file in the same `node` package, and add a
+blank method in order to implement the interface method you added in Step 5. Do
+the same for `mockserver_test.go` located in the `client` package.
 
  Then, you may write a test for your `Send` function you added in Step 4 (which
  also tests the Step 3 endpoint, which is why we need the `TestInterface`). For

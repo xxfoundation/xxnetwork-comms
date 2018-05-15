@@ -7,8 +7,8 @@
 package client
 
 import (
-	pb "gitlab.com/privategrity/comms/mixmessages"
 	"gitlab.com/privategrity/comms/connect"
+	pb "gitlab.com/privategrity/comms/mixmessages"
 )
 
 func SetNick(addr string, message *pb.Contact) (*pb.Ack, error) {
