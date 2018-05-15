@@ -31,7 +31,7 @@ func TestSendAskOnline(t *testing.T) {
 func TestSendRoundtripPing(t *testing.T) {
 	_, err := SendRoundtripPing(SERVER_ADDRESS, &pb.TimePing{})
 	if err != nil {
-		t.Errorf("AskOnline: Error received: %s", err)
+		t.Errorf("RoundtripPing: Error received: %s", err)
 	}
 }
 
