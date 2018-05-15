@@ -63,6 +63,8 @@ func (m TestInterface) RequestContactList(message *pb.ContactPoll) *pb.
 	return &pb.ContactMessage{}
 }
 
+func (m TestInterface) UserUpsert(message *pb.UpsertUserMessage) {}
+
 func (m TestInterface) SetNick(message *pb.Contact) {}
 
 func (m TestInterface) ReceiveMessageFromClient(message *pb.CmixMessage) {}

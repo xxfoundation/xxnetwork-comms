@@ -9,8 +9,8 @@ package node
 
 import (
 	jww "github.com/spf13/jwalterweatherman"
-	pb "gitlab.com/privategrity/comms/mixmessages"
 	"gitlab.com/privategrity/comms/connect"
+	pb "gitlab.com/privategrity/comms/mixmessages"
 )
 
 func SendPrecompShare(addr string, message *pb.PrecompShareMessage) (*pb.Ack, error) {

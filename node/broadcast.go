@@ -10,9 +10,9 @@ package node
 
 import (
 	jww "github.com/spf13/jwalterweatherman"
+	"gitlab.com/privategrity/comms/connect"
 	pb "gitlab.com/privategrity/comms/mixmessages"
 	"golang.org/x/net/context"
-	"gitlab.com/privategrity/comms/connect"
 )
 
 func SetPublicKey(addr string, message *pb.PublicKeyMessage) (*pb.Ack, error) {
@@ -72,6 +72,21 @@ func SendNewRound(addr string, message *pb.InitRound) (*pb.InitRoundAck, error) 
 	// Make sure there are no errors with sending the message
 	if err != nil {
 		jww.ERROR.Printf("NewRound: Error received: %s", err)
+	}
+	return result, err
+}
+
+// Send a User Upsert message
+func SendUserUpsert(addr string, message *pb.UpsertUserMessage) (*pb.Ack,
+	error) {
+	c := connect.ConnectToNode(addr)
+
+	// Send the message
+	result, err := c.UserUpsert(context.Background(), message)
+
+	// Make sure there are no errors with sending the message
+	if err != nil {
+		jww.ERROR.Printf("UserUpsert: Error received: %s", err)
 	}
 	return result, err
 }
