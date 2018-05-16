@@ -41,7 +41,7 @@ func SendRoundtripPing(addr string, message *pb.TimePing) (*pb.Ack, error) {
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
-		jww.ERROR.Printf("AskOnline: Error received: %s", err)
+		jww.ERROR.Printf("RoundtripPing: Error received: %s", err)
 	}
 	cancel()
 	return result, err
