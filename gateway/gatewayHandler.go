@@ -15,4 +15,6 @@ type GatewayHandler interface {
 	CheckMessages(userId uint64) ([]string, bool)
 	// Returns the message matching the given parameters to the client
 	GetMessage(userId uint64, msgId string) (*pb.CmixMessage, bool)
+	// Upload a message to the cMix Gateway
+	PutMessage(*pb.CmixMessage) bool
 }

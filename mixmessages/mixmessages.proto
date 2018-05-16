@@ -81,6 +81,9 @@ service MixMessageGateway {
     // Request a CmixMessage from the gateway for the given message information
     rpc GetMessage (ClientPollMessage) returns (CmixMessage) {
     }
+    // Put a message on the cMix Gateway
+    rpc PutMessage(CmixMessage) returns (Ack) {
+    }
 }
 
 // Generic empty Ack message

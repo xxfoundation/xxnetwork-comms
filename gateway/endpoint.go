@@ -32,3 +32,10 @@ func (s *gateway) GetMessage(ctx context.Context, msg *pb.ClientPollMessage) (
 	}
 	return returnMsg, nil
 }
+
+// Handle a PutMessage event
+func (s *gateway) PutMessage(ctx context.Context, msg *pb.CmixMessage) (*pb.Ack,
+	error) {
+	gatewayHandler.PutMessage(msg)
+	return &pb.Ack{}, nil
+}
