@@ -68,6 +68,9 @@ service MixMessageNode {
     // Broadcasts user information to all other nodes
     rpc UserUpsert (UpsertUserMessage) returns (Ack) {
     }
+    // Starts a new round with these messages (if len(msgs) == batch size)
+    rpc StartRound(InputMessages) returns (Ack) {
+    }
 }
 
 // This service is for servers talking to gateway
@@ -295,4 +298,10 @@ message ErrorMessage {
 // ErrorAck returns the length of the received messages
 message ErrorAck {
     int32 MsgLen = 1;
+}
+
+
+// Input messages are a list of messages run as a batch
+message InputMessages {
+    repeated CmixMessage Messages = 1;
 }
