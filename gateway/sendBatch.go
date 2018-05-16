@@ -14,7 +14,7 @@ import (
 	pb "gitlab.com/privategrity/comms/mixmessages"
 )
 
-func SendBatch(addr string, messages []*pb.CmixMessage) (error) {
+func SendBatch(addr string, messages []*pb.CmixMessage) error {
 	c := connect.ConnectToNode(addr)
 	ctx, cancel := connect.DefaultContext()
 

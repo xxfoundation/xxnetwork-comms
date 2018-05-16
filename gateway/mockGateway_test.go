@@ -8,9 +8,9 @@ package gateway
 
 import (
 	pb "gitlab.com/privategrity/comms/mixmessages"
+	"gitlab.com/privategrity/comms/node"
 	"os"
 	"testing"
-	"gitlab.com/privategrity/comms/node"
 )
 
 const GW_ADDRESS = "localhost:5555"
