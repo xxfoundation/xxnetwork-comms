@@ -12,17 +12,10 @@ import (
 )
 
 // Smoke test SendCheckMessages
-func TestSendCheckMessages(t *testing.T) {
-	_, err := SendCheckMessages(GW_ADDRESS, &pb.ClientPollMessage{})
+func TestSendBatch(t *testing.T) {
+	msgs := []*pb.CmixMessage{&pb.CmixMessage{}}
+	err := SendBatch(SERVER_ADDRESS, msgs)
 	if err != nil {
-		t.Errorf("CheckMessages: Error received: %s", err)
-	}
-}
-
-// Smoke test SendGetMessage
-func TestSendGetMessage(t *testing.T) {
-	_, err := SendGetMessage(GW_ADDRESS, &pb.ClientPollMessage{})
-	if err != nil {
-		t.Errorf("GetMessage: Error received: %s", err)
+		t.Errorf("SendBatch: Error received: %s", err)
 	}
 }

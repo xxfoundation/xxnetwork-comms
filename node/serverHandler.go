@@ -48,4 +48,6 @@ type ServerHandler interface {
 
 	// Server interface for upserting a new user
 	UserUpsert(message *mixmessages.UpsertUserMessage)
+	// Server interface for Starting a new round
+	StartRound(message *mixmessages.InputMessages)
 }
