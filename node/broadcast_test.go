@@ -27,6 +27,14 @@ func TestSendAskOnline(t *testing.T) {
 	}
 }
 
+// Smoke test SendRoundtripPing
+func TestSendRoundtripPing(t *testing.T) {
+	_, err := SendRoundtripPing(SERVER_ADDRESS, &pb.TimePing{})
+	if err != nil {
+		t.Errorf("RoundtripPing: Error received: %s", err)
+	}
+}
+
 // Smoke test SendNetworkError
 func TestSendNetworkError(t *testing.T) {
 	r, err := SendNetworkError(SERVER_ADDRESS, &pb.ErrorMessage{Message: "Hello, world!"})

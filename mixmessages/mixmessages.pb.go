@@ -11,6 +11,7 @@ It has these top-level messages:
 	Ack
 	Ping
 	Pong
+	TimePing
 	InitRound
 	InitRoundAck
 	CmixMessage
@@ -93,6 +94,23 @@ func (m *Pong) String() string            { return proto.CompactTextString(m) }
 func (*Pong) ProtoMessage()               {}
 func (*Pong) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{2} }
 
+// The request message asking server to add their time
+type TimePing struct {
+	Times []int64 `protobuf:"varint,1,rep,packed,name=Times" json:"Times,omitempty"`
+}
+
+func (m *TimePing) Reset()                    { *m = TimePing{} }
+func (m *TimePing) String() string            { return proto.CompactTextString(m) }
+func (*TimePing) ProtoMessage()               {}
+func (*TimePing) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{3} }
+
+func (m *TimePing) GetTimes() []int64 {
+	if m != nil {
+		return m.Times
+	}
+	return nil
+}
+
 // The message for Init Round
 type InitRound struct {
 	RoundID string `protobuf:"bytes,1,opt,name=RoundID,json=roundID" json:"RoundID,omitempty"`
@@ -101,7 +119,7 @@ type InitRound struct {
 func (m *InitRound) Reset()                    { *m = InitRound{} }
 func (m *InitRound) String() string            { return proto.CompactTextString(m) }
 func (*InitRound) ProtoMessage()               {}
-func (*InitRound) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{3} }
+func (*InitRound) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{4} }
 
 func (m *InitRound) GetRoundID() string {
 	if m != nil {
@@ -117,7 +135,7 @@ type InitRoundAck struct {
 func (m *InitRoundAck) Reset()                    { *m = InitRoundAck{} }
 func (m *InitRoundAck) String() string            { return proto.CompactTextString(m) }
 func (*InitRoundAck) ProtoMessage()               {}
-func (*InitRoundAck) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{4} }
+func (*InitRoundAck) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{5} }
 
 // The standard CMIX message type
 type CmixMessage struct {
@@ -129,7 +147,7 @@ type CmixMessage struct {
 func (m *CmixMessage) Reset()                    { *m = CmixMessage{} }
 func (m *CmixMessage) String() string            { return proto.CompactTextString(m) }
 func (*CmixMessage) ProtoMessage()               {}
-func (*CmixMessage) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{5} }
+func (*CmixMessage) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{6} }
 
 func (m *CmixMessage) GetSenderID() uint64 {
 	if m != nil {
@@ -161,7 +179,7 @@ type ClientPollMessage struct {
 func (m *ClientPollMessage) Reset()                    { *m = ClientPollMessage{} }
 func (m *ClientPollMessage) String() string            { return proto.CompactTextString(m) }
 func (*ClientPollMessage) ProtoMessage()               {}
-func (*ClientPollMessage) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{6} }
+func (*ClientPollMessage) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{7} }
 
 func (m *ClientPollMessage) GetUserID() uint64 {
 	if m != nil {
@@ -185,7 +203,7 @@ type ClientMessages struct {
 func (m *ClientMessages) Reset()                    { *m = ClientMessages{} }
 func (m *ClientMessages) String() string            { return proto.CompactTextString(m) }
 func (*ClientMessages) ProtoMessage()               {}
-func (*ClientMessages) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{7} }
+func (*ClientMessages) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{8} }
 
 func (m *ClientMessages) GetMessageIDs() []string {
 	if m != nil {
@@ -201,7 +219,7 @@ type ContactPoll struct {
 func (m *ContactPoll) Reset()                    { *m = ContactPoll{} }
 func (m *ContactPoll) String() string            { return proto.CompactTextString(m) }
 func (*ContactPoll) ProtoMessage()               {}
-func (*ContactPoll) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{8} }
+func (*ContactPoll) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{9} }
 
 // Message for broadcasting user information to all other nodes
 type UpsertUserMessage struct {
@@ -1041,6 +1059,7 @@ func init() {
 	proto.RegisterType((*Ack)(nil), "mixmessages.Ack")
 	proto.RegisterType((*Ping)(nil), "mixmessages.Ping")
 	proto.RegisterType((*Pong)(nil), "mixmessages.Pong")
+	proto.RegisterType((*TimePing)(nil), "mixmessages.TimePing")
 	proto.RegisterType((*InitRound)(nil), "mixmessages.InitRound")
 	proto.RegisterType((*InitRoundAck)(nil), "mixmessages.InitRoundAck")
 	proto.RegisterType((*CmixMessage)(nil), "mixmessages.CmixMessage")
@@ -1090,6 +1109,8 @@ type MixMessageNodeClient interface {
 	NetworkError(ctx context.Context, in *ErrorMessage, opts ...grpc.CallOption) (*ErrorAck, error)
 	// Handles AskOnline
 	AskOnline(ctx context.Context, in *Ping, opts ...grpc.CallOption) (*Pong, error)
+	// Handles RoundtripPing
+	RoundtripPing(ctx context.Context, in *TimePing, opts ...grpc.CallOption) (*Ack, error)
 	// Handles Init Round
 	NewRound(ctx context.Context, in *InitRound, opts ...grpc.CallOption) (*InitRoundAck, error)
 	// Handles Precomp Decrypt
@@ -1150,6 +1171,15 @@ func (c *mixMessageNodeClient) NetworkError(ctx context.Context, in *ErrorMessag
 func (c *mixMessageNodeClient) AskOnline(ctx context.Context, in *Ping, opts ...grpc.CallOption) (*Pong, error) {
 	out := new(Pong)
 	err := grpc.Invoke(ctx, "/mixmessages.MixMessageNode/AskOnline", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *mixMessageNodeClient) RoundtripPing(ctx context.Context, in *TimePing, opts ...grpc.CallOption) (*Ack, error) {
+	out := new(Ack)
+	err := grpc.Invoke(ctx, "/mixmessages.MixMessageNode/RoundtripPing", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1334,6 +1364,8 @@ type MixMessageNodeServer interface {
 	NetworkError(context.Context, *ErrorMessage) (*ErrorAck, error)
 	// Handles AskOnline
 	AskOnline(context.Context, *Ping) (*Pong, error)
+	// Handles RoundtripPing
+	RoundtripPing(context.Context, *TimePing) (*Ack, error)
 	// Handles Init Round
 	NewRound(context.Context, *InitRound) (*InitRoundAck, error)
 	// Handles Precomp Decrypt
@@ -1410,6 +1442,24 @@ func _MixMessageNode_AskOnline_Handler(srv interface{}, ctx context.Context, dec
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(MixMessageNodeServer).AskOnline(ctx, req.(*Ping))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MixMessageNode_RoundtripPing_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TimePing)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MixMessageNodeServer).RoundtripPing(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/mixmessages.MixMessageNode/RoundtripPing",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MixMessageNodeServer).RoundtripPing(ctx, req.(*TimePing))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1767,6 +1817,10 @@ var _MixMessageNode_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AskOnline",
 			Handler:    _MixMessageNode_AskOnline_Handler,
+		},
+		{
+			MethodName: "RoundtripPing",
+			Handler:    _MixMessageNode_RoundtripPing_Handler,
 		},
 		{
 			MethodName: "NewRound",
