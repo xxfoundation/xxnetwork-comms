@@ -19,14 +19,14 @@ func SendBatch(addr string, messages []*pb.CmixMessage) (error) {
 	ctx, cancel := connect.DefaultContext()
 
 	// Create an InputMessage
-	msgs := &pb.InputMessage{Messages: messages}
+	msgs := &pb.InputMessages{Messages: messages}
 
-	result, err := c.StartRound(msgs, ctx)
+	_, err := c.StartRound(ctx, msgs)
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
 		jww.ERROR.Printf("SendBatch: Error received: %s", err)
 	}
 	cancel()
-	return result, err
+	return err
 }
