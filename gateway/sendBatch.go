@@ -4,8 +4,6 @@
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
 
-// SendBatch kicks off a realtime round by sending a batchsize of messages
-// at the node
 package gateway
 
 import (
@@ -14,6 +12,8 @@ import (
 	pb "gitlab.com/privategrity/comms/mixmessages"
 )
 
+// SendBatch kicks off a realtime round by sending a batchsize of messages
+// at the node
 func SendBatch(addr string, messages []*pb.CmixMessage) error {
 	c := connect.ConnectToNode(addr)
 	ctx, cancel := connect.DefaultContext()
