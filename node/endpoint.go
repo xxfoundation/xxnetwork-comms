@@ -162,3 +162,10 @@ func (s *server) SetPublicKey(ctx context.Context,
 	serverHandler.SetPublicKey(msg.RoundID, msg.PublicKey)
 	return &pb.Ack{}, nil
 }
+
+// Handle a StartRound event
+func (s *server) StartRound(ctx context.Context,
+	msg *pb.InputMessages) (*pb.Ack, error) {
+	serverHandler.StartRound(msg)
+	return &pb.Ack{}, nil
+}
