@@ -54,3 +54,11 @@ func TestSendNewRound(t *testing.T) {
 		t.Errorf("NewRound: Error received: %s", err)
 	}
 }
+
+// Smoke test SendUserUpsert
+func TestSendUserUpsert(t *testing.T) {
+	_, err := SendUserUpsert(SERVER_ADDRESS, &pb.UpsertUserMessage{})
+	if err != nil {
+		t.Errorf("UserUpsert: Error received: %s", err)
+	}
+}

@@ -8,13 +8,14 @@ package gateway
 
 import (
 	pb "gitlab.com/privategrity/comms/mixmessages"
+	"testing"
 )
 
-type GatewayHandler interface {
-	// Return any MessageIDs in the buffer for this UserID
-	CheckMessages(userId uint64) ([]string, bool)
-	// Returns the message matching the given parameters to the client
-	GetMessage(userId uint64, msgId string) (*pb.CmixMessage, bool)
-	// Upload a message to the cMix Gateway
-	PutMessage(*pb.CmixMessage) bool
+// Smoke test SendCheckMessages
+func TestSendBatch(t *testing.T) {
+	msgs := []*pb.CmixMessage{&pb.CmixMessage{}}
+	err := SendBatch(SERVER_ADDRESS, msgs)
+	if err != nil {
+		t.Errorf("SendBatch: Error received: %s", err)
+	}
 }

@@ -55,11 +55,20 @@ func (s *server) ClientPoll(ctx context.Context,
 	return serverHandler.ClientPoll(msg), nil
 }
 
+// Given an UpsertUserMessage, add the user to the node
+func (s *server) UserUpsert(ctx context.Context,
+	msg *pb.UpsertUserMessage) (*pb.Ack, error) {
+	serverHandler.UserUpsert(msg)
+	return &pb.Ack{}, nil
+}
+
+// Request contact list from server
 func (s *server) RequestContactList(ctx context.Context,
 	msg *pb.ContactPoll) (*pb.ContactMessage, error) {
 	return serverHandler.RequestContactList(msg), nil
 }
 
+// Set user nickname
 func (s *server) SetNick(ctx context.Context,
 	msg *pb.Contact) (*pb.Ack, error) {
 	serverHandler.SetNick(msg)
@@ -158,5 +167,12 @@ func (s *server) RealtimePermute(ctx context.Context,
 func (s *server) SetPublicKey(ctx context.Context,
 	msg *pb.PublicKeyMessage) (*pb.Ack, error) {
 	serverHandler.SetPublicKey(msg.RoundID, msg.PublicKey)
+	return &pb.Ack{}, nil
+}
+
+// Handle a StartRound event
+func (s *server) StartRound(ctx context.Context,
+	msg *pb.InputMessages) (*pb.Ack, error) {
+	serverHandler.StartRound(msg)
 	return &pb.Ack{}, nil
 }

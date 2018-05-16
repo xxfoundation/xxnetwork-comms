@@ -68,6 +68,12 @@ service MixMessageNode {
     // Set a single user's nick on the server
     rpc SetNick (Contact) returns (Ack) {
     }
+    // Broadcasts user information to all other nodes
+    rpc UserUpsert (UpsertUserMessage) returns (Ack) {
+    }
+    // Starts a new round with these messages (if len(msgs) == batch size)
+    rpc StartRound(InputMessages) returns (Ack) {
+    }
 }
 
 // This service is for servers talking to gateway
@@ -77,6 +83,9 @@ service MixMessageGateway {
     }
     // Request a CmixMessage from the gateway for the given message information
     rpc GetMessage (ClientPollMessage) returns (CmixMessage) {
+    }
+    // Put a message on the cMix Gateway
+    rpc PutMessage(CmixMessage) returns (Ack) {
     }
 }
 
@@ -126,6 +135,15 @@ message ClientMessages {
 
 // Message for polling for the contact list
 message ContactPoll {
+}
+
+// Message for broadcasting user information to all other nodes
+message UpsertUserMessage {
+    fixed64 NodeID = 1; // 64-bit
+    bytes UserID = 2; // 128-bit
+    bytes UserPublicKey = 3; // Length of Prime
+    bytes Nonce = 4; // 256-bits
+    bytes DsaSignature = 5; // 2 x Length of Prime
 }
 
 // Message for individual contacts
@@ -291,4 +309,10 @@ message ErrorMessage {
 // ErrorAck returns the length of the received messages
 message ErrorAck {
     int32 MsgLen = 1;
+}
+
+
+// Input messages are a list of messages run as a batch
+message InputMessages {
+    repeated CmixMessage Messages = 1;
 }

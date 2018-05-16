@@ -58,7 +58,7 @@ func connect(address string) *grpc.ClientConn {
 		// TODO: Use the new DialContext method (we used the following based on
 		//       the online examples...)
 		ctx, cancel := context.WithTimeout(context.Background(),
-			10000*time.Millisecond)
+			100000*time.Millisecond)
 		connection, err = grpc.DialContext(ctx, address,
 			grpc.WithInsecure(), grpc.WithBlock())
 		if err == nil {
