@@ -112,7 +112,7 @@ message TimePing {
 // The message containing the server metrics from all visited nodes
 message ServerMetricsMessage {
     repeated uint32 RamUsage = 1;
-    repeated uint32 MemUsage = 2;
+    repeated uint32 threadUsage = 2;
     repeated uint32 CpuUsage = 3;
     repeated uint64 UpSince = 4;
 }
