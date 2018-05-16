@@ -111,10 +111,10 @@ message TimePing {
 
 // The message containing the server metrics from all visited nodes
 message ServerMetricsMessage {
-    repeated int32 RamUsage = 1;
-    repeated int32 MemUsage = 2;
-    repeated int32 CpuUsage = 3;
-    repeated int64 UpSince = 4;
+    repeated uint32 RamUsage = 1;
+    repeated uint32 MemUsage = 2;
+    repeated uint32 CpuUsage = 3;
+    repeated uint64 UpSince = 4;
 }
 
 // The message for Init Round
