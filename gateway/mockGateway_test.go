@@ -35,3 +35,7 @@ func (m TestInterface) GetMessage(userId uint64,
 func (m TestInterface) CheckMessages(userId uint64) ([]string, bool) {
 	return make([]string, 0), true
 }
+
+func (m TestInterface) PutMessage(message *pb.CmixMessage) bool {
+	return true
+}
