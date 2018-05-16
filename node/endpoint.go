@@ -33,6 +33,13 @@ func (s *server) RoundtripPing(ctx context.Context, msg *pb.TimePing) (
 	return &pb.Ack{}, nil
 }
 
+// Handle a broadcasted ServerMetric event
+func (s *server) ServerMetrics(ctx context.Context, msg *pb.ServerMetricsMessage) (
+	*pb.Ack, error){
+	serverHandler.ServerMetrics(msg)
+	return &pb.Ack{}, nil
+}
+
 // Handle a NewRound event
 func (s *server) NewRound(ctx context.Context,
 	msg *pb.InitRound) (*pb.InitRoundAck, error) {

@@ -17,6 +17,9 @@ service MixMessageNode {
     // Handles RoundtripPing
     rpc RoundtripPing (TimePing) returns (Ack) {
     }
+    // Handles ServerMetrics
+    rpc ServerMetrics (ServerMetricsMessage) returns (Ack) {
+    }
     // Handles Init Round
     rpc NewRound (InitRound) returns (InitRoundAck) {
     }
@@ -104,6 +107,14 @@ message Pong {
 // The request message asking server to add their time
 message TimePing {
     repeated int64 Times = 1;
+}
+
+// The message containing the server metrics from all visited nodes
+message ServerMetricsMessage {
+    repeated int32 RamUsage = 1;
+    repeated int32 MemUsage = 2;
+    repeated int32 CpuUsage = 3;
+    repeated int64 UpSince = 4;
 }
 
 // The message for Init Round
