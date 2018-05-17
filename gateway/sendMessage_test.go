@@ -34,3 +34,12 @@ func TestSendPutMessage(t *testing.T) {
 		t.Errorf("PutMessage: Error received: %s", err)
 	}
 }
+
+// Smoke test SendReceiveBatch
+func TestSendReceiveBatch(t *testing.T) {
+	x := make([]*pb.CmixMessage, 0)
+	err := SendReceiveBatch(GW_ADDRESS, x)
+	if err != nil {
+		t.Errorf("PutMessage: Error received: %s", err)
+	}
+}

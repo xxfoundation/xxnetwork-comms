@@ -39,3 +39,7 @@ func (m TestInterface) CheckMessages(userId uint64) ([]string, bool) {
 func (m TestInterface) PutMessage(message *pb.CmixMessage) bool {
 	return true
 }
+
+func (m TestInterface) ReceiveBatch(message *pb.OutputMessages) bool {
+	return true
+}
