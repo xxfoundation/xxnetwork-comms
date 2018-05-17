@@ -8,6 +8,7 @@
 package node
 
 import (
+	"github.com/grpc-ecosystem/go-grpc-middleware/retry"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/privategrity/comms/connect"
 	pb "gitlab.com/privategrity/comms/mixmessages"
@@ -18,7 +19,7 @@ func SendRealtimePermute(addr string, message *pb.RealtimePermuteMessage) (*pb.A
 	c := connect.ConnectToNode(addr)
 	ctx, cancel := connect.DefaultContext()
 	// Send the message
-	result, err := c.RealtimePermute(ctx, message)
+	result, err := c.RealtimePermute(ctx, message, grpc_retry.WithMax(connect.MAX_RETRIES))
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
@@ -33,7 +34,7 @@ func SendRealtimeDecrypt(addr string, message *pb.RealtimeDecryptMessage) (*pb.A
 	c := connect.ConnectToNode(addr)
 	ctx, cancel := connect.DefaultContext()
 	// Send the message
-	result, err := c.RealtimeDecrypt(ctx, message)
+	result, err := c.RealtimeDecrypt(ctx, message, grpc_retry.WithMax(connect.MAX_RETRIES))
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
@@ -48,7 +49,7 @@ func SendRealtimeEncrypt(addr string, message *pb.RealtimeEncryptMessage) (*pb.A
 	c := connect.ConnectToNode(addr)
 	ctx, cancel := connect.DefaultContext()
 	// Send the message
-	result, err := c.RealtimeEncrypt(ctx, message)
+	result, err := c.RealtimeEncrypt(ctx, message, grpc_retry.WithMax(connect.MAX_RETRIES))
 
 	// Make sure there are no errors with sending the message
 	if err != nil {

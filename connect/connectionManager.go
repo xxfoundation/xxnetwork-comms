@@ -24,6 +24,9 @@ var connections map[string]*grpc.ClientConn
 // A lock used to control access to the connections map above
 var connectionsLock sync.Mutex
 
+// Default maximum number of retries
+const MAX_RETRIES = 5
+
 // Connect to a gateway with a given address string
 func ConnectToGateway(address string) pb.MixMessageGatewayClient {
 	connection := connect(address)
@@ -102,6 +105,6 @@ func Disconnect(address string) {
 // TODO should gateway and node have different timeouts?
 func DefaultContext() (context.Context, context.CancelFunc) {
 	ctx, cancel := context.WithTimeout(context.Background(),
-		1000*time.Millisecond)
+		10000*time.Millisecond)
 	return ctx, cancel
 }
