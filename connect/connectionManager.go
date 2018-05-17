@@ -36,6 +36,12 @@ func ConnectToNode(address string) pb.MixMessageNodeClient {
 	return pb.NewMixMessageNodeClient(connection)
 }
 
+// Is a connection in the map and alive?
+func isConnectionGood(address string, connections map[string]*grpc.ClientConn) bool {
+	connection, ok := connections[address]
+	return ok && connection.GetState() != connectivity.Shutdown
+}
+
 // Connect creates a connection, or returns a pre-existing connection based on
 // a given address string.
 func connect(address string) *grpc.ClientConn {
@@ -50,13 +56,10 @@ func connect(address string) *grpc.ClientConn {
 		connections = make(map[string]*grpc.ClientConn)
 	}
 
-	// Check and return connection if it exists and is active
-	connection, present := connections[address]
-
 	maxRetries := 10
 	// Create a new connection if we are not present or disconnecting/disconnected
-	for numRetries := 0; numRetries < maxRetries && (!present || connection.
-		GetState() == connectivity.Shutdown); numRetries++ {
+	for numRetries := 0; numRetries < maxRetries && !isConnectionGood(
+		address, connections); numRetries++ {
 
 		jww.DEBUG.Printf("Trying to connect to %v", address)
 
@@ -71,16 +74,15 @@ func connect(address string) *grpc.ClientConn {
 		} else {
 			jww.ERROR.Printf("Connection to %s failed: %v\n", address, err)
 		}
-		connection, present = connections[address]
 	}
 
-	if !present {
+	if !isConnectionGood(connections[address]) {
 		jww.FATAL.Panicf("Last try to connect to %s failed. Giving up", address)
 	}
 
 	connectionsLock.Unlock()
 
-	return connection
+	return connections[address]
 }
 
 // Disconnect closes client connections and removes them from the connection map
