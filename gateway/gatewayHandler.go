@@ -17,4 +17,6 @@ type GatewayHandler interface {
 	GetMessage(userId uint64, msgId string) (*pb.CmixMessage, bool)
 	// Upload a message to the cMix Gateway
 	PutMessage(*pb.CmixMessage) bool
+	//
+	ReceiveBatch(messages *pb.OutputMessages)
 }

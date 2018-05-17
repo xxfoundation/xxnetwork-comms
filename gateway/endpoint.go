@@ -39,3 +39,10 @@ func (s *gateway) PutMessage(ctx context.Context, msg *pb.CmixMessage) (*pb.Ack,
 	gatewayHandler.PutMessage(msg)
 	return &pb.Ack{}, nil
 }
+
+// Handle a PutMessage event
+func (s *gateway) ReceiveBatch(ctx context.Context, msg *pb.OutputMessages) (*pb.Ack,
+	error) {
+	gatewayHandler.ReceiveBatch(msg)
+	return &pb.Ack{}, nil
+}
