@@ -53,22 +53,25 @@ func connect(address string) *grpc.ClientConn {
 	// Check and return connection if it exists and is active
 	connection, present := connections[address]
 
+	maxRetries := 10
 	// Create a new connection if we are not present or disconnecting/disconnected
-	if !present || connection.GetState() == connectivity.Shutdown {
-		// TODO: Use the new DialContext method (we used the following based on
-		//       the online examples...)
+	for numRetries := 0; numRetries < maxRetries && (!present || connection.
+		GetState() == connectivity.Shutdown); numRetries++ {
+
+		jww.DEBUG.Printf("Trying to connect to %v", address)
+
 		ctx, cancel := context.WithTimeout(context.Background(),
 			100000*time.Millisecond)
 		connection, err = grpc.DialContext(ctx, address,
 			grpc.WithInsecure(), grpc.WithBlock())
+
 		if err == nil {
 			connections[address] = connection
 			cancel()
 		} else {
-			// TODO: Retry loop?
-			jww.FATAL.Printf("Connection to %s failed: %v\n", address, err)
-			panic(err)
+			jww.ERROR.Printf("Connection to %s failed: %v\n", address, err)
 		}
+		connection, present = connections[address]
 	}
 
 	connectionsLock.Unlock()
