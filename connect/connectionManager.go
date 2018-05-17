@@ -74,6 +74,10 @@ func connect(address string) *grpc.ClientConn {
 		connection, present = connections[address]
 	}
 
+	if !present {
+		jww.FATAL.Panicf("Last try to connect to %s failed. Giving up", address)
+	}
+
 	connectionsLock.Unlock()
 
 	return connection
