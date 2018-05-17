@@ -76,7 +76,7 @@ func connect(address string) *grpc.ClientConn {
 		}
 	}
 
-	if !isConnectionGood(connections[address]) {
+	if !isConnectionGood(address, connections) {
 		jww.FATAL.Panicf("Last try to connect to %s failed. Giving up", address)
 	}
 
