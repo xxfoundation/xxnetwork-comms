@@ -40,6 +40,5 @@ func (m TestInterface) PutMessage(message *pb.CmixMessage) bool {
 	return true
 }
 
-func (m TestInterface) ReceiveBatch(message *pb.OutputMessages) bool {
-	return true
+func (m TestInterface) ReceiveBatch(message *pb.OutputMessages) {
 }
