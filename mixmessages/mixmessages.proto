@@ -87,6 +87,9 @@ service MixMessageGateway {
     // Put a message on the cMix Gateway
     rpc PutMessage(CmixMessage) returns (Ack) {
     }
+
+    rpc ReceiveBatch(OutputMessages) returns (Ack){
+    }
 }
 
 // Generic empty Ack message
@@ -314,5 +317,10 @@ message ErrorAck {
 
 // Input messages are a list of messages run as a batch
 message InputMessages {
+    repeated CmixMessage Messages = 1;
+}
+
+// Output messages are a list of messages run as a batch
+message OutputMessages {
     repeated CmixMessage Messages = 1;
 }
