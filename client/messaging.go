@@ -8,10 +8,10 @@
 package client
 
 import (
-	jww "github.com/spf13/jwalterweatherman"
-	pb "gitlab.com/privategrity/comms/mixmessages"
-	"gitlab.com/privategrity/comms/connect"
 	"github.com/grpc-ecosystem/go-grpc-middleware/retry"
+	jww "github.com/spf13/jwalterweatherman"
+	"gitlab.com/privategrity/comms/connect"
+	pb "gitlab.com/privategrity/comms/mixmessages"
 )
 
 // SendMessageToServer sends a user's message to the cMix cluster

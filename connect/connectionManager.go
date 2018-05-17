@@ -70,7 +70,7 @@ func connect(address string) *grpc.ClientConn {
 		} else {
 			// TODO: Retry loop?
 			jww.FATAL.Printf("Connection to %s failed: %v\n", address, err)
-			panic(err)
+			jww.FATAL.Panic(err)
 		}
 	}
 

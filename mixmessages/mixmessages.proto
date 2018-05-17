@@ -14,6 +14,9 @@ service MixMessageNode {
     // Handles AskOnline
     rpc AskOnline (Ping) returns (Pong) {
     }
+    // Handles RoundtripPing
+    rpc RoundtripPing (TimePing) returns (Ack) {
+    }
     // Handles Init Round
     rpc NewRound (InitRound) returns (InitRoundAck) {
     }
@@ -65,12 +68,27 @@ service MixMessageNode {
     // Set a single user's nick on the server
     rpc SetNick (Contact) returns (Ack) {
     }
+    // Broadcasts user information to all other nodes
+    rpc UserUpsert (UpsertUserMessage) returns (Ack) {
+    }
+    // Starts a new round with these messages (if len(msgs) == batch size)
+    rpc StartRound(InputMessages) returns (Ack) {
+    }
 }
 
 // This service is for servers talking to gateway
 service MixMessageGateway {
+    // Request a list of MessageIDs from the gateway for the given UserID
+    rpc CheckMessages (ClientPollMessage) returns (ClientMessages) {
+    }
     // Request a CmixMessage from the gateway for the given message information
     rpc GetMessage (ClientPollMessage) returns (CmixMessage) {
+    }
+    // Put a message on the cMix Gateway
+    rpc PutMessage(CmixMessage) returns (Ack) {
+    }
+
+    rpc ReceiveBatch(OutputMessages) returns (Ack){
     }
 }
 
@@ -86,9 +104,14 @@ message Ping {
 message Pong {
 }
 
+// The request message asking server to add their time
+message TimePing {
+    repeated int64 Times = 1;
+}
+
 // The message for Init Round
 message InitRound {
-  string RoundID = 1;
+    string RoundID = 1;
 }
 
 // The response for Init Round
@@ -108,8 +131,22 @@ message ClientPollMessage {
     string MessageID = 2;
 }
 
+// The message for clients to poll the gateway for Message IDs
+message ClientMessages {
+    repeated string MessageIDs = 1;
+}
+
 // Message for polling for the contact list
 message ContactPoll {
+}
+
+// Message for broadcasting user information to all other nodes
+message UpsertUserMessage {
+    fixed64 NodeID = 1; // 64-bit
+    bytes UserID = 2; // 128-bit
+    bytes UserPublicKey = 3; // Length of Prime
+    bytes Nonce = 4; // 256-bits
+    bytes DsaSignature = 5; // 2 x Length of Prime
 }
 
 // Message for individual contacts
@@ -275,4 +312,15 @@ message ErrorMessage {
 // ErrorAck returns the length of the received messages
 message ErrorAck {
     int32 MsgLen = 1;
+}
+
+
+// Input messages are a list of messages run as a batch
+message InputMessages {
+    repeated CmixMessage Messages = 1;
+}
+
+// Output messages are a list of messages run as a batch
+message OutputMessages {
+    repeated CmixMessage Messages = 1;
 }

@@ -7,9 +7,9 @@
 package client
 
 import (
-	pb "gitlab.com/privategrity/comms/mixmessages"
-	"gitlab.com/privategrity/comms/connect"
 	"github.com/grpc-ecosystem/go-grpc-middleware/retry"
+	"gitlab.com/privategrity/comms/connect"
+	pb "gitlab.com/privategrity/comms/mixmessages"
 )
 
 func RequestContactList(addr string, message *pb.ContactPoll) (*pb.

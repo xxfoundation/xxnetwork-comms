@@ -8,10 +8,10 @@
 package node
 
 import (
-	jww "github.com/spf13/jwalterweatherman"
-	pb "gitlab.com/privategrity/comms/mixmessages"
-	"gitlab.com/privategrity/comms/connect"
 	"github.com/grpc-ecosystem/go-grpc-middleware/retry"
+	jww "github.com/spf13/jwalterweatherman"
+	"gitlab.com/privategrity/comms/connect"
+	pb "gitlab.com/privategrity/comms/mixmessages"
 )
 
 func SendRealtimePermute(addr string, message *pb.RealtimePermuteMessage) (*pb.Ack, error) {
