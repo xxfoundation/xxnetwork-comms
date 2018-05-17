@@ -45,3 +45,36 @@ func SendGetMessage(addr string, message *pb.ClientPollMessage) (*pb.
 	cancel()
 	return result, err
 }
+
+func SendPutMessage(addr string, message *pb.CmixMessage) error {
+	// Attempt to connect to addr
+	c := connect.ConnectToGateway(addr)
+	ctx, cancel := connect.DefaultContext()
+
+	// Send the message
+	_, err := c.PutMessage(ctx, message)
+
+	// Make sure there are no errors with sending the message
+	if err != nil {
+		jww.ERROR.Printf("PutMessage: Error received: %s", err)
+	}
+	cancel()
+	return err
+}
+
+func SendReceiveBatch(addr string, message []*pb.CmixMessage) error {
+	// Attempt to connect to addr
+	c := connect.ConnectToGateway(addr)
+	ctx, cancel := connect.DefaultContext()
+
+	outputMessages := pb.OutputMessages{Messages: message}
+
+	_, err := c.ReceiveBatch(ctx, &outputMessages)
+
+	// Make sure there are no errors with sending the message
+	if err != nil {
+		jww.ERROR.Printf("ReceiveBatch(): Error received: %s", err)
+	}
+	cancel()
+	return err
+}

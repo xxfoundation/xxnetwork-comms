@@ -4,18 +4,18 @@
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
 
-// This sets up a dummy/mock server instance for testing purposes
-package node
+package gateway
 
 import (
-	"os"
+	pb "gitlab.com/privategrity/comms/mixmessages"
 	"testing"
 )
 
-const SERVER_ADDRESS = "localhost:5555"
-
-// Start server for testing
-func TestMain(m *testing.M) {
-	go StartServer(SERVER_ADDRESS, TestInterface{})
-	os.Exit(m.Run())
+// Smoke test SendCheckMessages
+func TestSendBatch(t *testing.T) {
+	msgs := []*pb.CmixMessage{&pb.CmixMessage{}}
+	err := SendBatch(SERVER_ADDRESS, msgs)
+	if err != nil {
+		t.Errorf("SendBatch: Error received: %s", err)
+	}
 }
