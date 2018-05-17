@@ -18,7 +18,7 @@ service MixMessageNode {
     rpc RoundtripPing (TimePing) returns (Ack) {
     }
     // Handles Init Round
-    rpc NewRound (InitRound) returns (InitRoundAck) {
+    rpc NewRound (InitRound) returns (Ack) {
     }
     // Handles Precomp Decrypt
     rpc PrecompDecrypt (PrecompDecryptMessage) returns (Ack) {
@@ -71,6 +71,9 @@ service MixMessageNode {
     // Broadcasts user information to all other nodes
     rpc UserUpsert (UpsertUserMessage) returns (Ack) {
     }
+    // Poll the server for the user's registration status
+    rpc PollRegistrationStatus (RegistrationPoll) returns (RegistrationConfirmation) {
+    }
     // Starts a new round with these messages (if len(msgs) == batch size)
     rpc StartRound(InputMessages) returns (Ack) {
     }
@@ -111,10 +114,6 @@ message InitRound {
     string RoundID = 1;
 }
 
-// The response for Init Round
-message InitRoundAck {
-}
-
 // The standard CMIX message type
 message CmixMessage {
     fixed64 SenderID = 1; // 64 bit length
@@ -142,8 +141,21 @@ message UpsertUserMessage {
     fixed64 NodeID = 1; // 64-bit
     bytes UserID = 2; // 128-bit
     bytes UserPublicKey = 3; // Length of Prime
-    bytes Nonce = 4; // 256-bits
+    bytes Nonce = 4; // 256-bit
     bytes DsaSignature = 5; // 2 x Length of Prime
+}
+
+// Message for polling for a user's registration status
+message RegistrationPoll {
+    bytes RegistrationHash = 1;
+    bytes Nonce = 2;
+}
+
+// Message for confirming a user's registration
+message RegistrationConfirmation {
+    bytes UserID = 1; // 128-bit
+    map<fixed64, string> Topology = 2; // Map of NodeID to node address
+    bytes Nonce = 3; // 256-bit
 }
 
 // Message for individual contacts

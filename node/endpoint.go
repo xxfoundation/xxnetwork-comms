@@ -28,17 +28,17 @@ func (s *server) AskOnline(ctx context.Context, msg *pb.Ping) (
 
 // Handle a Roundtrip ping event
 func (s *server) RoundtripPing(ctx context.Context, msg *pb.TimePing) (
-	*pb.Ack, error){
+	*pb.Ack, error) {
 	serverHandler.RoundtripPing(msg)
 	return &pb.Ack{}, nil
 }
 
 // Handle a NewRound event
 func (s *server) NewRound(ctx context.Context,
-	msg *pb.InitRound) (*pb.InitRoundAck, error) {
+	msg *pb.InitRound) (*pb.Ack, error) {
 	// Call the server handler to start a new round
 	serverHandler.NewRound(msg.RoundID)
-	return &pb.InitRoundAck{}, nil
+	return &pb.Ack{}, nil
 }
 
 // Handle CmixMessage from Client to Server
