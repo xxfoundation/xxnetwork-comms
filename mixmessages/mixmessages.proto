@@ -117,7 +117,7 @@ message ServerMetricsMessage {
     repeated uint32 MemUsage = 1;
     repeated uint32 ThreadUsage = 2;
     repeated uint32 CpuUsage = 3;
-    repeated uint64 UpSince = 4;
+    repeated int64 UpSince = 4;
 }
 
 // The message for Init Round
