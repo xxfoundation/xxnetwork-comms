@@ -35,6 +35,14 @@ func TestSendRoundtripPing(t *testing.T) {
 	}
 }
 
+// Smoke test SendServerMetrics
+func TestSendServerMetrics(t *testing.T) {
+	_, err := SendServerMetrics(SERVER_ADDRESS, &pb.ServerMetricsMessage{})
+	if err != nil {
+		t.Errorf("ServerMetrics: Error received: %s", err)
+	}
+}
+
 // Smoke test SendNetworkError
 func TestSendNetworkError(t *testing.T) {
 	r, err := SendNetworkError(SERVER_ADDRESS, &pb.ErrorMessage{Message: "Hello, world!"})
