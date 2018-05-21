@@ -42,3 +42,20 @@ func SendClientPoll(addr string, message *pb.ClientPollMessage) (*pb.CmixMessage
 	}
 	return result, err
 }
+
+// SendRegistrationPoll polls the server for a user's registration status
+func SendRegistrationPoll(addr string, message *pb.RegistrationPoll) (*pb.
+	RegistrationConfirmation, error) {
+	c := connect.ConnectToNode(addr)
+	ctx, cancel := connect.DefaultContext()
+	// Send the message
+	result, err := c.PollRegistrationStatus(ctx, message,
+		grpc_retry.WithMax(connect.MAX_RETRIES))
+	cancel()
+
+	// Make sure there are no errors with sending the message
+	if err != nil {
+		jww.ERROR.Printf("SendRegistrationPoll: Error received: %s", err)
+	}
+	return result, err
+}

@@ -170,6 +170,7 @@ message RegistrationConfirmation {
     bytes UserID = 1; // 128-bit
     map<fixed64, string> Topology = 2; // Map of NodeID to node address
     bytes Nonce = 3; // 256-bit
+    string Error = 4;
 }
 
 // Message for individual contacts

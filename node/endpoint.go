@@ -35,7 +35,7 @@ func (s *server) RoundtripPing(ctx context.Context, msg *pb.TimePing) (
 
 // Handle a broadcasted ServerMetric event
 func (s *server) ServerMetrics(ctx context.Context, msg *pb.ServerMetricsMessage) (
-	*pb.Ack, error){
+	*pb.Ack, error) {
 	serverHandler.ServerMetrics(msg)
 	return &pb.Ack{}, nil
 }
@@ -60,6 +60,13 @@ func (s *server) ClientSendMessageToServer(ctx context.Context,
 func (s *server) ClientPoll(ctx context.Context,
 	msg *pb.ClientPollMessage) (*pb.CmixMessage, error) {
 	return serverHandler.ClientPoll(msg), nil
+}
+
+// When a client polls for their registration status, return their
+// RegistrationConfirmation message with the relevant information
+func (s *server) PollRegistrationStatus(ctx context.Context, msg *pb.
+	RegistrationPoll) (*pb.RegistrationConfirmation, error) {
+	return serverHandler.PollRegistrationStatus(msg), nil
 }
 
 // Given an UpsertUserMessage, add the user to the node
