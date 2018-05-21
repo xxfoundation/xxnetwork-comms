@@ -96,7 +96,7 @@ func SendNetworkError(addr string, message *pb.ErrorMessage) (*pb.ErrorAck, erro
 	return result, err
 }
 
-func SendNewRound(addr string, message *pb.InitRound) (*pb.InitRoundAck, error) {
+func SendNewRound(addr string, message *pb.InitRound) (*pb.Ack, error) {
 	c := connect.ConnectToNode(addr)
 
 	// Send the message

@@ -14,7 +14,15 @@ import (
 func TestSendClientPoll(t *testing.T) {
 	_, err := SendClientPoll(SERVER_ADDRESS, &pb.ClientPollMessage{})
 	if err != nil {
-		t.Errorf("RequestMessage: Error received: %s", err)
+		t.Errorf("SendClientPoll: Error received: %s", err)
+	}
+}
+
+// Smoke test SendRegistrationPoll
+func TestSendRegistrationPoll(t *testing.T) {
+	_, err := SendRegistrationPoll(SERVER_ADDRESS, &pb.RegistrationPoll{})
+	if err != nil {
+		t.Errorf("SendRegistrationPoll: Error received: %s", err)
 	}
 }
 

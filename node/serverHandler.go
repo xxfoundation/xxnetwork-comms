@@ -53,6 +53,8 @@ type ServerHandler interface {
 
 	// Server interface for upserting a new user
 	UserUpsert(message *mixmessages.UpsertUserMessage)
+	// Check the registration status of a specific user
+	PollRegistrationStatus(message *mixmessages.RegistrationPoll) *mixmessages.RegistrationConfirmation
 	// Server interface for Starting a new round
 	StartRound(message *mixmessages.InputMessages)
 }
