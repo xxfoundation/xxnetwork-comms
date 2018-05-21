@@ -24,6 +24,9 @@ var connections map[string]*grpc.ClientConn
 // A lock used to control access to the connections map above
 var connectionsLock sync.Mutex
 
+// Default maximum number of retries
+const MAX_RETRIES = 5
+
 // Connect to a gateway with a given address string
 func ConnectToGateway(address string) pb.MixMessageGatewayClient {
 	connection := connect(address)
@@ -34,6 +37,12 @@ func ConnectToGateway(address string) pb.MixMessageGatewayClient {
 func ConnectToNode(address string) pb.MixMessageNodeClient {
 	connection := connect(address)
 	return pb.NewMixMessageNodeClient(connection)
+}
+
+// Is a connection in the map and alive?
+func isConnectionGood(address string, connections map[string]*grpc.ClientConn) bool {
+	connection, ok := connections[address]
+	return ok && connection.GetState() != connectivity.Shutdown
 }
 
 // Connect creates a connection, or returns a pre-existing connection based on
@@ -50,30 +59,33 @@ func connect(address string) *grpc.ClientConn {
 		connections = make(map[string]*grpc.ClientConn)
 	}
 
-	// Check and return connection if it exists and is active
-	connection, present := connections[address]
-
+	maxRetries := 10
 	// Create a new connection if we are not present or disconnecting/disconnected
-	if !present || connection.GetState() == connectivity.Shutdown {
-		// TODO: Use the new DialContext method (we used the following based on
-		//       the online examples...)
+	for numRetries := 0; numRetries < maxRetries && !isConnectionGood(
+		address, connections); numRetries++ {
+
+		jww.DEBUG.Printf("Trying to connect to %v", address)
+
 		ctx, cancel := context.WithTimeout(context.Background(),
 			100000*time.Millisecond)
 		connection, err = grpc.DialContext(ctx, address,
 			grpc.WithInsecure(), grpc.WithBlock())
+
 		if err == nil {
 			connections[address] = connection
 			cancel()
 		} else {
-			// TODO: Retry loop?
-			jww.FATAL.Printf("Connection to %s failed: %v\n", address, err)
-			panic(err)
+			jww.ERROR.Printf("Connection to %s failed: %v\n", address, err)
 		}
+	}
+
+	if !isConnectionGood(address, connections) {
+		jww.FATAL.Panicf("Last try to connect to %s failed. Giving up", address)
 	}
 
 	connectionsLock.Unlock()
 
-	return connection
+	return connections[address]
 }
 
 // Disconnect closes client connections and removes them from the connection map
@@ -93,6 +105,6 @@ func Disconnect(address string) {
 // TODO should gateway and node have different timeouts?
 func DefaultContext() (context.Context, context.CancelFunc) {
 	ctx, cancel := context.WithTimeout(context.Background(),
-		1000*time.Millisecond)
+		10000*time.Millisecond)
 	return ctx, cancel
 }

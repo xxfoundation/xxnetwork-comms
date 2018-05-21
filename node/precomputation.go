@@ -8,6 +8,7 @@
 package node
 
 import (
+	"github.com/grpc-ecosystem/go-grpc-middleware/retry"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/privategrity/comms/connect"
 	pb "gitlab.com/privategrity/comms/mixmessages"
@@ -19,7 +20,8 @@ func SendPrecompShare(addr string, message *pb.PrecompShareMessage) (*pb.Ack, er
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
-	result, err := c.PrecompShare(ctx, message)
+	result, err := c.PrecompShare(ctx, message,
+		grpc_retry.WithMax(connect.MAX_RETRIES))
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
@@ -35,7 +37,8 @@ func SendPrecompShareInit(addr string, message *pb.PrecompShareInitMessage) (
 	c := connect.ConnectToNode(addr)
 	ctx, cancel := connect.DefaultContext()
 	// Send the message
-	result, err := c.PrecompShareInit(ctx, message)
+	result, err := c.PrecompShareInit(ctx, message,
+		grpc_retry.WithMax(connect.MAX_RETRIES))
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
@@ -51,7 +54,8 @@ func SendPrecompShareCompare(addr string,
 	c := connect.ConnectToNode(addr)
 	ctx, cancel := connect.DefaultContext()
 	// Send the message
-	result, err := c.PrecompShareCompare(ctx, message)
+	result, err := c.PrecompShareCompare(ctx, message,
+		grpc_retry.WithMax(connect.MAX_RETRIES))
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
@@ -68,7 +72,8 @@ func SendPrecompShareConfirm(addr string,
 	c := connect.ConnectToNode(addr)
 	ctx, cancel := connect.DefaultContext()
 	// Send the message
-	result, err := c.PrecompShareConfirm(ctx, message)
+	result, err := c.PrecompShareConfirm(ctx, message,
+		grpc_retry.WithMax(connect.MAX_RETRIES))
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
@@ -83,7 +88,8 @@ func SendPrecompDecrypt(addr string, message *pb.PrecompDecryptMessage) (*pb.Ack
 	c := connect.ConnectToNode(addr)
 	ctx, cancel := connect.DefaultContext()
 	// Send the message
-	result, err := c.PrecompDecrypt(ctx, message)
+	result, err := c.PrecompDecrypt(ctx, message,
+		grpc_retry.WithMax(connect.MAX_RETRIES))
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
@@ -99,7 +105,8 @@ func SendPrecompEncrypt(addr string, message *pb.PrecompEncryptMessage) (
 	c := connect.ConnectToNode(addr)
 	ctx, cancel := connect.DefaultContext()
 	// Send the message
-	result, err := c.PrecompEncrypt(ctx, message)
+	result, err := c.PrecompEncrypt(ctx, message,
+		grpc_retry.WithMax(connect.MAX_RETRIES))
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
@@ -114,7 +121,8 @@ func SendPrecompPermute(addr string, message *pb.PrecompPermuteMessage) (*pb.Ack
 	c := connect.ConnectToNode(addr)
 	ctx, cancel := connect.DefaultContext()
 	// Send the message
-	result, err := c.PrecompPermute(ctx, message)
+	result, err := c.PrecompPermute(ctx, message,
+		grpc_retry.WithMax(connect.MAX_RETRIES))
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
@@ -129,7 +137,8 @@ func SendPrecompReveal(addr string, message *pb.PrecompRevealMessage) (*pb.Ack, 
 	c := connect.ConnectToNode(addr)
 	ctx, cancel := connect.DefaultContext()
 	// Send the message
-	result, err := c.PrecompReveal(ctx, message)
+	result, err := c.PrecompReveal(ctx, message,
+		grpc_retry.WithMax(connect.MAX_RETRIES))
 	// Make sure there are no errors with sending the message
 	if err != nil {
 		jww.ERROR.Printf("PrecompReveal: Error received: %s", err)

@@ -61,3 +61,20 @@ func SendPutMessage(addr string, message *pb.CmixMessage) error {
 	cancel()
 	return err
 }
+
+func SendReceiveBatch(addr string, message []*pb.CmixMessage) error {
+	// Attempt to connect to addr
+	c := connect.ConnectToGateway(addr)
+	ctx, cancel := connect.DefaultContext()
+
+	outputMessages := pb.OutputMessages{Messages: message}
+
+	_, err := c.ReceiveBatch(ctx, &outputMessages)
+
+	// Make sure there are no errors with sending the message
+	if err != nil {
+		jww.ERROR.Printf("ReceiveBatch(): Error received: %s", err)
+	}
+	cancel()
+	return err
+}

@@ -9,6 +9,7 @@
 package node
 
 import (
+	"github.com/grpc-ecosystem/go-grpc-middleware/retry"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/privategrity/comms/connect"
 	pb "gitlab.com/privategrity/comms/mixmessages"
@@ -21,11 +22,27 @@ func SetPublicKey(addr string, message *pb.PublicKeyMessage) (*pb.Ack, error) {
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
-	result, err := c.SetPublicKey(ctx, message)
+	result, err := c.SetPublicKey(ctx, message, grpc_retry.WithMax(connect.MAX_RETRIES))
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
 		jww.ERROR.Printf("RealtimePermute: Error received: %s", err)
+	}
+	cancel()
+	return result, err
+}
+
+func SendServerMetrics(addr string, message *pb.ServerMetricsMessage) (*pb.Ack, error) {
+	// Attempt to connect to addr
+	c := connect.ConnectToNode(addr)
+	ctx, cancel := connect.DefaultContext()
+
+	// Send the message
+	result, err := c.ServerMetrics(ctx, message)
+
+	// Make sure there are no errors with sending the message
+	if err != nil {
+		jww.ERROR.Printf("ServerMetrics: Error received: %s", err)
 	}
 	cancel()
 	return result, err
@@ -53,7 +70,7 @@ func SendAskOnline(addr string, message *pb.Ping) (*pb.Pong, error) {
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
-	result, err := c.AskOnline(ctx, message)
+	result, err := c.AskOnline(ctx, message, grpc_retry.WithMax(connect.MAX_RETRIES))
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
@@ -69,7 +86,7 @@ func SendNetworkError(addr string, message *pb.ErrorMessage) (*pb.ErrorAck, erro
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
-	result, err := c.NetworkError(ctx, message)
+	result, err := c.NetworkError(ctx, message, grpc_retry.WithMax(connect.MAX_RETRIES))
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
@@ -83,7 +100,7 @@ func SendNewRound(addr string, message *pb.InitRound) (*pb.Ack, error) {
 	c := connect.ConnectToNode(addr)
 
 	// Send the message
-	result, err := c.NewRound(context.Background(), message)
+	result, err := c.NewRound(context.Background(), message, grpc_retry.WithMax(connect.MAX_RETRIES))
 
 	// Make sure there are no errors with sending the message
 	if err != nil {

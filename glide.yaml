@@ -4,3 +4,4 @@ import:
   version: master
   repo: https://github.com/grpc/grpc-go.git
 - package: github.com/spf13/jwalterweatherman
+- package: github.com/grpc-ecosystem/go-grpc-middleware

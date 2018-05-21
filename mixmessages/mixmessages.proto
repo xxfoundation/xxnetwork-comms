@@ -17,6 +17,9 @@ service MixMessageNode {
     // Handles RoundtripPing
     rpc RoundtripPing (TimePing) returns (Ack) {
     }
+    // Handles ServerMetrics
+    rpc ServerMetrics (ServerMetricsMessage) returns (Ack) {
+    }
     // Handles Init Round
     rpc NewRound (InitRound) returns (Ack) {
     }
@@ -90,6 +93,9 @@ service MixMessageGateway {
     // Put a message on the cMix Gateway
     rpc PutMessage(CmixMessage) returns (Ack) {
     }
+
+    rpc ReceiveBatch(OutputMessages) returns (Ack){
+    }
 }
 
 // Generic empty Ack message
@@ -107,6 +113,14 @@ message Pong {
 // The request message asking server to add their time
 message TimePing {
     repeated int64 Times = 1;
+}
+
+// The message containing the server metrics from all visited nodes
+message ServerMetricsMessage {
+    repeated uint32 MemUsage = 1;
+    repeated uint32 ThreadUsage = 2;
+    repeated uint32 CpuUsage = 3;
+    repeated int64 UpSince = 4;
 }
 
 // The message for Init Round
@@ -326,5 +340,10 @@ message ErrorAck {
 
 // Input messages are a list of messages run as a batch
 message InputMessages {
+    repeated CmixMessage Messages = 1;
+}
+
+// Output messages are a list of messages run as a batch
+message OutputMessages {
     repeated CmixMessage Messages = 1;
 }
