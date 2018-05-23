@@ -4,12 +4,20 @@
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
 
-package gateway
+package client
 
 import (
 	pb "gitlab.com/privategrity/comms/mixmessages"
 	"testing"
 )
+
+// Smoke test SendGetMessage
+func TestSendPutMessage(t *testing.T) {
+	err := SendPutMessage(GW_ADDRESS, &pb.CmixMessage{})
+	if err != nil {
+		t.Errorf("PutMessage: Error received: %s", err)
+	}
+}
 
 // Smoke test SendCheckMessages
 func TestSendCheckMessages(t *testing.T) {
@@ -24,22 +32,5 @@ func TestSendGetMessage(t *testing.T) {
 	_, err := SendGetMessage(GW_ADDRESS, &pb.ClientPollMessage{})
 	if err != nil {
 		t.Errorf("GetMessage: Error received: %s", err)
-	}
-}
-
-// Smoke test SendGetMessage
-func TestSendPutMessage(t *testing.T) {
-	err := SendPutMessage(GW_ADDRESS, &pb.CmixMessage{})
-	if err != nil {
-		t.Errorf("PutMessage: Error received: %s", err)
-	}
-}
-
-// Smoke test SendReceiveBatch
-func TestSendReceiveBatch(t *testing.T) {
-	x := make([]*pb.CmixMessage, 0)
-	err := SendReceiveBatch(GW_ADDRESS, x)
-	if err != nil {
-		t.Errorf("PutMessage: Error received: %s", err)
 	}
 }
