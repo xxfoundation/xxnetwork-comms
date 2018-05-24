@@ -13,13 +13,13 @@ import (
 	"testing"
 )
 
-const GW_ADDRESS = "localhost:5555"
-const SERVER_ADDRESS = "localhost:5556"
+const GatewayAddress = "localhost:5566"
+const ServerAddress = "localhost:5569"
 
 // This sets up a dummy/mock gateway instance for testing purposes
 func TestMain(m *testing.M) {
-	go StartGateway(GW_ADDRESS, TestInterface{})
-	go node.StartServer(SERVER_ADDRESS, node.TestInterface{})
+	go StartGateway(GatewayAddress, TestInterface{})
+	go node.StartServer(ServerAddress, node.TestInterface{})
 	os.Exit(m.Run())
 }
 

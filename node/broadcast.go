@@ -32,6 +32,22 @@ func SetPublicKey(addr string, message *pb.PublicKeyMessage) (*pb.Ack, error) {
 	return result, err
 }
 
+func SendServerMetrics(addr string, message *pb.ServerMetricsMessage) (*pb.Ack, error) {
+	// Attempt to connect to addr
+	c := connect.ConnectToNode(addr)
+	ctx, cancel := connect.DefaultContext()
+
+	// Send the message
+	result, err := c.ServerMetrics(ctx, message)
+
+	// Make sure there are no errors with sending the message
+	if err != nil {
+		jww.ERROR.Printf("ServerMetrics: Error received: %s", err)
+	}
+	cancel()
+	return result, err
+}
+
 func SendRoundtripPing(addr string, message *pb.TimePing) (*pb.Ack, error) {
 	// Attempt to connect to addr
 	c := connect.ConnectToNode(addr)
@@ -80,7 +96,7 @@ func SendNetworkError(addr string, message *pb.ErrorMessage) (*pb.ErrorAck, erro
 	return result, err
 }
 
-func SendNewRound(addr string, message *pb.InitRound) (*pb.InitRoundAck, error) {
+func SendNewRound(addr string, message *pb.InitRound) (*pb.Ack, error) {
 	c := connect.ConnectToNode(addr)
 
 	// Send the message

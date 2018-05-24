@@ -11,6 +11,8 @@ import "gitlab.com/privategrity/comms/mixmessages"
 type ServerHandler interface {
 	// Server Interface for roundtrip ping
 	RoundtripPing(*mixmessages.TimePing)
+	// Server Interface for ServerMetrics Messages
+	ServerMetrics(*mixmessages.ServerMetricsMessage)
 
 	// Server Interface for starting New Rounds
 	NewRound(RoundID string)
@@ -49,6 +51,8 @@ type ServerHandler interface {
 
 	// Server interface for upserting a new user
 	UserUpsert(message *mixmessages.UpsertUserMessage)
+	// Check the registration status of a specific user
+	PollRegistrationStatus(message *mixmessages.RegistrationPoll) *mixmessages.RegistrationConfirmation
 	// Server interface for Starting a new round
 	StartRound(message *mixmessages.InputMessages)
 }

@@ -2,7 +2,7 @@ GRPC - Adding New Cryptop Message Types
 ----
 
 **Note**: This guide is specifically intended for adding new `node` 
-comms. It can easily generalized to comms relevant to client, gatewaty, etc.,
+comms. It can easily generalized to comms relevant to client, gateway, etc.,
 but specific file paths may not be correct.
 
 #### Step 1: Add Message to mixmessages.proto

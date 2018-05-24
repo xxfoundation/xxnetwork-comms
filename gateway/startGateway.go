@@ -36,15 +36,22 @@ func StartGateway(localServer string, handler GatewayHandler) {
 
 	// Listen on the given address
 	lis, err := net.Listen("tcp", localServer)
+
 	if err != nil {
 		jww.FATAL.Panicf("failed to listen: %v", err)
 	}
+
+	//Make the port close when the gateway dies
+	defer lis.Close()
+
 	mixmessageServer := gateway{gs: grpc.NewServer()}
 	pb.RegisterMixMessageGatewayServer(mixmessageServer.gs, &mixmessageServer)
 
 	// Register reflection service on gRPC server.
+	// This blocks for the lifetime of the listener.
 	reflection.Register(mixmessageServer.gs)
 	if err := mixmessageServer.gs.Serve(lis); err != nil {
 		jww.FATAL.Panicf("failed to serve: %v", err)
 	}
+
 }

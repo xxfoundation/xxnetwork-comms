@@ -13,9 +13,18 @@ import (
 
 // Smoke test SendCheckMessages
 func TestSendBatch(t *testing.T) {
-	msgs := []*pb.CmixMessage{&pb.CmixMessage{}}
-	err := SendBatch(SERVER_ADDRESS, msgs)
+	msgs := []*pb.CmixMessage{{}}
+	err := SendBatch(ServerAddress, msgs)
 	if err != nil {
 		t.Errorf("SendBatch: Error received: %s", err)
+	}
+}
+
+// Smoke test SendReceiveBatch
+func TestSendReceiveBatch(t *testing.T) {
+	x := make([]*pb.CmixMessage, 0)
+	err := SendReceiveBatch(GatewayAddress, x)
+	if err != nil {
+		t.Errorf("PutMessage: Error received: %s", err)
 	}
 }

@@ -33,12 +33,19 @@ func (s *server) RoundtripPing(ctx context.Context, msg *pb.TimePing) (
 	return &pb.Ack{}, nil
 }
 
+// Handle a broadcasted ServerMetric event
+func (s *server) ServerMetrics(ctx context.Context, msg *pb.ServerMetricsMessage) (
+	*pb.Ack, error) {
+	serverHandler.ServerMetrics(msg)
+	return &pb.Ack{}, nil
+}
+
 // Handle a NewRound event
 func (s *server) NewRound(ctx context.Context,
-	msg *pb.InitRound) (*pb.InitRoundAck, error) {
+	msg *pb.InitRound) (*pb.Ack, error) {
 	// Call the server handler to start a new round
 	serverHandler.NewRound(msg.RoundID)
-	return &pb.InitRoundAck{}, nil
+	return &pb.Ack{}, nil
 }
 
 // Handle CmixMessage from Client to Server
@@ -53,6 +60,13 @@ func (s *server) ClientSendMessageToServer(ctx context.Context,
 func (s *server) ClientPoll(ctx context.Context,
 	msg *pb.ClientPollMessage) (*pb.CmixMessage, error) {
 	return serverHandler.ClientPoll(msg), nil
+}
+
+// When a client polls for their registration status, return their
+// RegistrationConfirmation message with the relevant information
+func (s *server) PollRegistrationStatus(ctx context.Context, msg *pb.
+	RegistrationPoll) (*pb.RegistrationConfirmation, error) {
+	return serverHandler.PollRegistrationStatus(msg), nil
 }
 
 // Given an UpsertUserMessage, add the user to the node

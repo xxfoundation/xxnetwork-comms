@@ -13,7 +13,7 @@ import (
 
 // Smoke test SendRealtimePermute
 func TestSetPublicKey(t *testing.T) {
-	_, err := SetPublicKey(SERVER_ADDRESS, &pb.PublicKeyMessage{})
+	_, err := SetPublicKey(ServerAddress, &pb.PublicKeyMessage{})
 	if err != nil {
 		t.Errorf("PublicKeyMessage: Error received: %s", err)
 	}
@@ -21,7 +21,7 @@ func TestSetPublicKey(t *testing.T) {
 
 // Smoke test SendAskOnline
 func TestSendAskOnline(t *testing.T) {
-	_, err := SendAskOnline(SERVER_ADDRESS, &pb.Ping{})
+	_, err := SendAskOnline(ServerAddress, &pb.Ping{})
 	if err != nil {
 		t.Errorf("AskOnline: Error received: %s", err)
 	}
@@ -29,15 +29,23 @@ func TestSendAskOnline(t *testing.T) {
 
 // Smoke test SendRoundtripPing
 func TestSendRoundtripPing(t *testing.T) {
-	_, err := SendRoundtripPing(SERVER_ADDRESS, &pb.TimePing{})
+	_, err := SendRoundtripPing(ServerAddress, &pb.TimePing{})
 	if err != nil {
 		t.Errorf("RoundtripPing: Error received: %s", err)
 	}
 }
 
+// Smoke test SendServerMetrics
+func TestSendServerMetrics(t *testing.T) {
+	_, err := SendServerMetrics(ServerAddress, &pb.ServerMetricsMessage{})
+	if err != nil {
+		t.Errorf("ServerMetrics: Error received: %s", err)
+	}
+}
+
 // Smoke test SendNetworkError
 func TestSendNetworkError(t *testing.T) {
-	r, err := SendNetworkError(SERVER_ADDRESS, &pb.ErrorMessage{Message: "Hello, world!"})
+	r, err := SendNetworkError(ServerAddress, &pb.ErrorMessage{Message: "Hello, world!"})
 
 	if err != nil {
 		t.Errorf("PrecompDecrypt: Error received: %s", err)
@@ -49,7 +57,7 @@ func TestSendNetworkError(t *testing.T) {
 
 // Smoke test SendNewRound
 func TestSendNewRound(t *testing.T) {
-	_, err := SendNewRound(SERVER_ADDRESS, &pb.InitRound{})
+	_, err := SendNewRound(ServerAddress, &pb.InitRound{})
 	if err != nil {
 		t.Errorf("NewRound: Error received: %s", err)
 	}
@@ -57,7 +65,7 @@ func TestSendNewRound(t *testing.T) {
 
 // Smoke test SendUserUpsert
 func TestSendUserUpsert(t *testing.T) {
-	_, err := SendUserUpsert(SERVER_ADDRESS, &pb.UpsertUserMessage{})
+	_, err := SendUserUpsert(ServerAddress, &pb.UpsertUserMessage{})
 	if err != nil {
 		t.Errorf("UserUpsert: Error received: %s", err)
 	}

@@ -12,10 +12,10 @@ import (
 	"testing"
 )
 
-const SERVER_ADDRESS = "localhost:5555"
+const ServerAddress = "localhost:5556"
 
 // Start server for testing
 func TestMain(m *testing.M) {
-	go StartServer(SERVER_ADDRESS, TestInterface{})
+	go StartServer(ServerAddress, TestInterface{})
 	os.Exit(m.Run())
 }
