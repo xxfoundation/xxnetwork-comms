@@ -37,9 +37,15 @@ func StartServer(localServer string, handler ServerHandler) {
 
 	// Listen on the given address
 	lis, err := net.Listen("tcp", localServer)
+
 	if err != nil {
 		jww.FATAL.Panicf("failed to listen: %v", err)
 	}
+
+	// Make the port close when the gateway dies
+	// This blocks for the lifetime of the listener.
+	defer lis.Close()
+
 	mixmessageServer := server{gs: grpc.NewServer()}
 	pb.RegisterMixMessageNodeServer(mixmessageServer.gs, &mixmessageServer)
 

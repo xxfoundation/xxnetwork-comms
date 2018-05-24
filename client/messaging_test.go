@@ -12,7 +12,7 @@ import (
 
 // Smoke test SendClientPoll
 func TestSendClientPoll(t *testing.T) {
-	_, err := SendClientPoll(SERVER_ADDRESS, &pb.ClientPollMessage{})
+	_, err := SendClientPoll(ServerAddress, &pb.ClientPollMessage{})
 	if err != nil {
 		t.Errorf("SendClientPoll: Error received: %s", err)
 	}
@@ -20,7 +20,7 @@ func TestSendClientPoll(t *testing.T) {
 
 // Smoke test SendRegistrationPoll
 func TestSendRegistrationPoll(t *testing.T) {
-	_, err := SendRegistrationPoll(SERVER_ADDRESS, &pb.RegistrationPoll{})
+	_, err := SendRegistrationPoll(ServerAddress, &pb.RegistrationPoll{})
 	if err != nil {
 		t.Errorf("SendRegistrationPoll: Error received: %s", err)
 	}
@@ -28,7 +28,7 @@ func TestSendRegistrationPoll(t *testing.T) {
 
 // Smoke test SendMessagetoSender
 func TestSendMessageToServer(t *testing.T) {
-	_, err := SendMessageToServer(SERVER_ADDRESS, &pb.CmixMessage{})
+	_, err := SendMessageToServer(ServerAddress, &pb.CmixMessage{})
 	if err != nil {
 		t.Errorf("SendMessageToServer: Error received: %s", err)
 	}

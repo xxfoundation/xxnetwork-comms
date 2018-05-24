@@ -12,7 +12,7 @@ import (
 
 // Smoke test RequestContactList
 func TestRequestContactList(t *testing.T) {
-	_, err := RequestContactList(SERVER_ADDRESS, &pb.ContactPoll{})
+	_, err := RequestContactList(ServerAddress, &pb.ContactPoll{})
 	if err != nil {
 		t.Errorf("RequestContactList: Error received: %s", err)
 	}

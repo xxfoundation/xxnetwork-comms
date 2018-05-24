@@ -13,7 +13,7 @@ import (
 
 // Smoke test SetNick
 func TestSetNick(t *testing.T) {
-	_, err := SetNick(SERVER_ADDRESS, &pb.Contact{})
+	_, err := SetNick(ServerAddress, &pb.Contact{})
 	if err != nil {
 		t.Errorf("SetNick: Error received: %s", err)
 	}

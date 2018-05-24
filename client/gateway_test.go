@@ -13,7 +13,7 @@ import (
 
 // Smoke test SendGetMessage
 func TestSendPutMessage(t *testing.T) {
-	err := SendPutMessage(GW_ADDRESS, &pb.CmixMessage{})
+	err := SendPutMessage(GatewayAddress, &pb.CmixMessage{})
 	if err != nil {
 		t.Errorf("PutMessage: Error received: %s", err)
 	}
@@ -21,7 +21,7 @@ func TestSendPutMessage(t *testing.T) {
 
 // Smoke test SendCheckMessages
 func TestSendCheckMessages(t *testing.T) {
-	_, err := SendCheckMessages(GW_ADDRESS, &pb.ClientPollMessage{})
+	_, err := SendCheckMessages(GatewayAddress, &pb.ClientPollMessage{})
 	if err != nil {
 		t.Errorf("CheckMessages: Error received: %s", err)
 	}
@@ -29,7 +29,7 @@ func TestSendCheckMessages(t *testing.T) {
 
 // Smoke test SendGetMessage
 func TestSendGetMessage(t *testing.T) {
-	_, err := SendGetMessage(GW_ADDRESS, &pb.ClientPollMessage{})
+	_, err := SendGetMessage(GatewayAddress, &pb.ClientPollMessage{})
 	if err != nil {
 		t.Errorf("GetMessage: Error received: %s", err)
 	}
