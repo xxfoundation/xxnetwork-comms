@@ -28,7 +28,7 @@ func (s *server) AskOnline(ctx context.Context, msg *pb.Ping) (
 
 // Handle a Roundtrip ping event
 func (s *server) RoundtripPing(ctx context.Context, msg *pb.TimePing) (
-	*pb.Ack, error){
+	*pb.Ack, error) {
 	serverHandler.RoundtripPing(msg)
 	return &pb.Ack{}, nil
 }
@@ -66,13 +66,6 @@ func (s *server) UserUpsert(ctx context.Context,
 func (s *server) RequestContactList(ctx context.Context,
 	msg *pb.ContactPoll) (*pb.ContactMessage, error) {
 	return serverHandler.RequestContactList(msg), nil
-}
-
-// Set user nickname
-func (s *server) SetNick(ctx context.Context,
-	msg *pb.Contact) (*pb.Ack, error) {
-	serverHandler.SetNick(msg)
-	return &pb.Ack{}, nil
 }
 
 // Handle a PrecompDecrypt event

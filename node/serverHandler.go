@@ -46,8 +46,6 @@ type ServerHandler interface {
 	ReceiveMessageFromClient(*mixmessages.CmixMessage)
 	// Server interface for responding to contact list requests from the client
 	RequestContactList(*mixmessages.ContactPoll) *mixmessages.ContactMessage
-	// Server interface for setting a user's nick by a client's request
-	SetNick(contact *mixmessages.Contact)
 
 	// Server interface for upserting a new user
 	UserUpsert(message *mixmessages.UpsertUserMessage)
