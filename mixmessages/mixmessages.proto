@@ -68,9 +68,6 @@ service MixMessageNode {
     // Request a list of contacts from the server
     rpc RequestContactList (ContactPoll) returns (ContactMessage) {
     }
-    // Set a single user's nick on the server
-    rpc SetNick (Contact) returns (Ack) {
-    }
     // Broadcasts user information to all other nodes
     rpc UserUpsert (UpsertUserMessage) returns (Ack) {
     }
