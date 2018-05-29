@@ -64,8 +64,6 @@ func (m TestInterface) PollRegistrationStatus(message *pb.
 	return &pb.RegistrationConfirmation{}
 }
 
-func (m TestInterface) SetNick(message *pb.Contact) {}
-
 func (m TestInterface) ReceiveMessageFromClient(message *pb.CmixMessage) {}
 
 func (m TestInterface) StartRound(messages *pb.InputMessages) {}
