@@ -25,6 +25,8 @@ type server struct {
 	gs *grpc.Server
 }
 
+var ServerObj *server
+
 func ShutDown(s *server) {
 	time.Sleep(time.Millisecond * 500)
 	s.gs.GracefulStop()
@@ -47,6 +49,7 @@ func StartServer(localServer string, handler ServerHandler) {
 	defer lis.Close()
 
 	mixmessageServer := server{gs: grpc.NewServer()}
+	ServerObj = &mixmessageServer
 	pb.RegisterMixMessageNodeServer(mixmessageServer.gs, &mixmessageServer)
 
 	// Register reflection service on gRPC server.

@@ -4,7 +4,7 @@
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
 
-package gateway
+package node
 
 import (
 	jww "github.com/spf13/jwalterweatherman"
@@ -12,20 +12,19 @@ import (
 	pb "gitlab.com/privategrity/comms/mixmessages"
 )
 
-// SendBatch kicks off a realtime round by sending a batchsize of messages
-// at the node
-func SendBatch(addr string, messages []*pb.CmixMessage) error {
-	c := connect.ConnectToNode(addr)
+// SendReceiveBatch sends a batch to the gateway
+func SendReceiveBatch(addr string, message []*pb.CmixMessage) error {
+	// Attempt to connect to addr
+	c := connect.ConnectToGateway(addr)
 	ctx, cancel := connect.DefaultContext()
 
-	// Create an InputMessage
-	msgs := &pb.InputMessages{Messages: messages}
+	outputMessages := pb.OutputMessages{Messages: message}
 
-	_, err := c.StartRound(ctx, msgs)
+	_, err := c.ReceiveBatch(ctx, &outputMessages)
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
-		jww.ERROR.Printf("SendBatch: Error received: %s", err)
+		jww.ERROR.Printf("ReceiveBatch(): Error received: %s", err)
 	}
 	cancel()
 	return err
