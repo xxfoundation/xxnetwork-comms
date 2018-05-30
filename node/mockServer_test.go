@@ -18,4 +18,5 @@ const ServerAddress = "localhost:5556"
 func TestMain(m *testing.M) {
 	go StartServer(ServerAddress, TestInterface{})
 	os.Exit(m.Run())
+	ShutDown(ServerObj)
 }
