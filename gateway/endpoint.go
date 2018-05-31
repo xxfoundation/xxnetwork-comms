@@ -14,7 +14,7 @@ import (
 // Handle a CheckMessages event
 func (s *gateway) CheckMessages(ctx context.Context, msg *pb.ClientPollMessage) (
 	*pb.ClientMessages, error) {
-	msgIds, ok := gatewayHandler.CheckMessages(msg.UserID)
+	msgIds, ok := gatewayHandler.CheckMessages(msg.UserID, msg.MessageID)
 	returnMsg := &pb.ClientMessages{}
 	if ok {
 		returnMsg.MessageIDs = msgIds
