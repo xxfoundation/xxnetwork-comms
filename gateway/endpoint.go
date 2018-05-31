@@ -11,7 +11,7 @@ import (
 	"golang.org/x/net/context"
 )
 
-// Handle a CheckMessages event
+// CheckMessages response with new message for a client
 func (s *gateway) CheckMessages(ctx context.Context, msg *pb.ClientPollMessage) (
 	*pb.ClientMessages, error) {
 	msgIds, ok := gatewayHandler.CheckMessages(msg.UserID, msg.MessageID)
@@ -22,7 +22,7 @@ func (s *gateway) CheckMessages(ctx context.Context, msg *pb.ClientPollMessage) 
 	return returnMsg, nil
 }
 
-// Handle a GetMessage event
+// GetMessage gives a specific message back to a client
 func (s *gateway) GetMessage(ctx context.Context, msg *pb.ClientPollMessage) (
 	*pb.CmixMessage, error) {
 	returnMsg, ok := gatewayHandler.GetMessage(msg.UserID, msg.MessageID)
@@ -33,14 +33,14 @@ func (s *gateway) GetMessage(ctx context.Context, msg *pb.ClientPollMessage) (
 	return returnMsg, nil
 }
 
-// Handle a PutMessage event
+// PutMessage receives a message from a client
 func (s *gateway) PutMessage(ctx context.Context, msg *pb.CmixMessage) (*pb.Ack,
 	error) {
 	gatewayHandler.PutMessage(msg)
 	return &pb.Ack{}, nil
 }
 
-// Handle a PutMessage event
+// ReceiveBatch receives messages from a cMixNode
 func (s *gateway) ReceiveBatch(ctx context.Context, msg *pb.OutputMessages) (*pb.Ack,
 	error) {
 	gatewayHandler.ReceiveBatch(msg)
