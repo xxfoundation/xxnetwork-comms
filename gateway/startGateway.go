@@ -17,20 +17,21 @@ import (
 
 // Passed into StartGateway to serve as an interface
 // for interacting with the gateway repo
-var gatewayHandler GatewayHandler
+var gatewayHandler Handler
 
 // gateway object
 type gateway struct {
 	gs *grpc.Server
 }
 
+// ShutDown stops the server
 func ShutDown(s *gateway) {
 	time.Sleep(time.Millisecond * 500)
 	s.gs.GracefulStop()
 }
 
 // Start local comm server
-func StartGateway(localServer string, handler GatewayHandler) {
+func StartGateway(localServer string, handler Handler) {
 	// Set the gatewayHandler
 	gatewayHandler = handler
 
