@@ -4,6 +4,8 @@
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
 
+// Package node handles all cMix node functionality. This file contains the
+// main control logic when running a cMix Node.
 package node
 
 import (
@@ -32,7 +34,9 @@ func ShutDown(s *server) {
 	s.gs.GracefulStop()
 }
 
-// Starts the local comm server
+// StartServer starts a new server on the address:port specified by localServer
+// NOTE: handler should be of type ServerImplementation. This will change
+//       soon.
 func StartServer(localServer string, handler ServerHandler) {
 	// Set the serverHandler
 	serverHandler = handler
@@ -46,7 +50,12 @@ func StartServer(localServer string, handler ServerHandler) {
 
 	// Make the port close when the gateway dies
 	// This blocks for the lifetime of the listener.
-	defer lis.Close()
+	defer func() {
+		err := lis.Close()
+		if err != nil {
+			jww.WARN.Printf("Unable to close listening port: %s", err.Error())
+		}
+	}()
 
 	mixmessageServer := server{gs: grpc.NewServer()}
 	ServerObj = &mixmessageServer

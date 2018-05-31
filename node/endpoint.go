@@ -4,7 +4,12 @@
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
 
+// Package node endpoints implementations. This is meant to hide all gRPC stuff
+// behind a clean interface.
 package node
+
+// TODO: A lot of message types from gRPC are passed through, and a number of
+//       errors that can occur are not accounted for.
 
 import (
 	jww "github.com/spf13/jwalterweatherman"
