@@ -54,6 +54,32 @@ protoc -I mixmessages/ mixmessages/mixmessages.proto --go_out=plugins=grpc:mixme
 This repository is organized into 4 key folders:
 1. `mixmessages` - contains the gRPC proto spec file and the file generated from
    that, along with any future shared helper functionality.
-2. `mixclient` - client functions for proper cmix clients.
-3. `mixserver` - gRPC endpoints hosted by cMix servers.
-4. `clusterclient` - client functions used between the mix servers.
+2. `client` - client functions for proper cmix clients.
+3. `node` - gRPC endpoints hosted by cMix servers.
+4. `gateway` - gateway endpoints and functions
+
+Note that `gateway` and `node` are organized similarly. The `endpoints.go` file contains
+gRPC endpoint implementations, and the `handler.go` file contains the handler interface
+used by the endpoint implementations as well as the implementation struct.
+
+## Adding Network Endpoints
+
+To add an endpoint, you need to make changes to `handler.go` and `endpoint.go`. You will
+also need to add a client function to call your new endpoint in the repo where the client
+is implemented.
+
+`handler.go`:
+1. Add your function to the interface.
+2. Add it to the `implementationFunctions` struct.
+3. Add the "Unimplemented warning" version of the function to `NewImplementation()`
+4. Add the wrapper call to `s.Functions.FUNCNAME(...)` at the bottom to implement the 
+   interface for Implementation struct.
+
+`endpoint.go`:
+1. Add the gRPC implementation which calls the function through the handler.
+
+`Client Function`:
+1. Implement the client call either via a new module or an existing module. It should
+   go in the location where the module is the client (i.e., if the node calls to the
+   gateway, it goes in node)
+
