@@ -25,13 +25,13 @@ type gateway struct {
 }
 
 // ShutDown stops the server
-func ShutDown(s *gateway) {
-	time.Sleep(time.Millisecond * 500)
+func (s *gateway) ShutDown() {
 	s.gs.GracefulStop()
+	time.Sleep(time.Millisecond * 500)
 }
 
 // Start local comm server
-func StartGateway(localServer string, handler Handler) {
+func StartGateway(localServer string, handler Handler) func() {
 	// Set the gatewayHandler
 	gatewayHandler = handler
 
@@ -42,17 +42,25 @@ func StartGateway(localServer string, handler Handler) {
 		jww.FATAL.Panicf("failed to listen: %v", err)
 	}
 
-	//Make the port close when the gateway dies
-	defer lis.Close()
-
 	mixmessageServer := gateway{gs: grpc.NewServer()}
-	pb.RegisterMixMessageGatewayServer(mixmessageServer.gs, &mixmessageServer)
+	go func() {
+		//Make the port close when the gateway dies
+		defer func() {
+			err := lis.Close()
+			if err != nil {
+				jww.WARN.Printf("Unable to close listening port: %s", err.Error())
+			}
+		}()
 
-	// Register reflection service on gRPC server.
-	// This blocks for the lifetime of the listener.
-	reflection.Register(mixmessageServer.gs)
-	if err := mixmessageServer.gs.Serve(lis); err != nil {
-		jww.FATAL.Panicf("failed to serve: %v", err)
-	}
+		pb.RegisterMixMessageGatewayServer(mixmessageServer.gs, &mixmessageServer)
 
+		// Register reflection service on gRPC server.
+		// This blocks for the lifetime of the listener.
+		reflection.Register(mixmessageServer.gs)
+		if err := mixmessageServer.gs.Serve(lis); err != nil {
+			jww.FATAL.Panicf("failed to serve: %v", err)
+		}
+	}()
+
+	return mixmessageServer.ShutDown
 }

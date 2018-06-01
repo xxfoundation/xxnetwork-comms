@@ -13,6 +13,8 @@ import (
 
 // Smoke test SendRealtimePermute
 func TestSetPublicKey(t *testing.T) {
+	ShutDown := StartServer(ServerAddress, NewImplementation())
+	defer ShutDown()
 	_, err := SetPublicKey(ServerAddress, &pb.PublicKeyMessage{})
 	if err != nil {
 		t.Errorf("PublicKeyMessage: Error received: %s", err)
@@ -21,6 +23,8 @@ func TestSetPublicKey(t *testing.T) {
 
 // Smoke test SendAskOnline
 func TestSendAskOnline(t *testing.T) {
+	ShutDown := StartServer(ServerAddress, NewImplementation())
+	defer ShutDown()
 	_, err := SendAskOnline(ServerAddress, &pb.Ping{})
 	if err != nil {
 		t.Errorf("AskOnline: Error received: %s", err)
@@ -29,6 +33,8 @@ func TestSendAskOnline(t *testing.T) {
 
 // Smoke test SendRoundtripPing
 func TestSendRoundtripPing(t *testing.T) {
+	ShutDown := StartServer(ServerAddress, NewImplementation())
+	defer ShutDown()
 	_, err := SendRoundtripPing(ServerAddress, &pb.TimePing{})
 	if err != nil {
 		t.Errorf("RoundtripPing: Error received: %s", err)
@@ -37,6 +43,8 @@ func TestSendRoundtripPing(t *testing.T) {
 
 // Smoke test SendServerMetrics
 func TestSendServerMetrics(t *testing.T) {
+	ShutDown := StartServer(ServerAddress, NewImplementation())
+	defer ShutDown()
 	_, err := SendServerMetrics(ServerAddress, &pb.ServerMetricsMessage{})
 	if err != nil {
 		t.Errorf("ServerMetrics: Error received: %s", err)
@@ -45,6 +53,8 @@ func TestSendServerMetrics(t *testing.T) {
 
 // Smoke test SendNetworkError
 func TestSendNetworkError(t *testing.T) {
+	ShutDown := StartServer(ServerAddress, NewImplementation())
+	defer ShutDown()
 	r, err := SendNetworkError(ServerAddress, &pb.ErrorMessage{Message: "Hello, world!"})
 
 	if err != nil {
@@ -57,6 +67,8 @@ func TestSendNetworkError(t *testing.T) {
 
 // Smoke test SendNewRound
 func TestSendNewRound(t *testing.T) {
+	ShutDown := StartServer(ServerAddress, NewImplementation())
+	defer ShutDown()
 	_, err := SendNewRound(ServerAddress, &pb.InitRound{})
 	if err != nil {
 		t.Errorf("NewRound: Error received: %s", err)
@@ -65,6 +77,8 @@ func TestSendNewRound(t *testing.T) {
 
 // Smoke test SendUserUpsert
 func TestSendUserUpsert(t *testing.T) {
+	ShutDown := StartServer(ServerAddress, NewImplementation())
+	defer ShutDown()
 	_, err := SendUserUpsert(ServerAddress, &pb.UpsertUserMessage{})
 	if err != nil {
 		t.Errorf("UserUpsert: Error received: %s", err)

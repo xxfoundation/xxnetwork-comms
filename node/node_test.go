@@ -3,21 +3,19 @@
 //                                                                             /
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
-package client
+
+package node
 
 import (
-	pb "gitlab.com/privategrity/comms/mixmessages"
-	"gitlab.com/privategrity/comms/node"
 	"testing"
+	"os"
+	"math/rand"
+	"fmt"
 )
 
-// Smoke test RequestContactList
-func TestRequestContactList(t *testing.T) {
-	nodeShutDown := node.StartServer(ServerAddress, node.NewImplementation())
-	defer nodeShutDown()
+var ServerAddress = ""
 
-	_, err := RequestContactList(ServerAddress, &pb.ContactPoll{})
-	if err != nil {
-		t.Errorf("RequestContactList: Error received: %s", err)
-	}
+func TestMain(m *testing.M) {
+	ServerAddress = fmt.Sprintf("localhost:%d", (rand.Intn(2000) + 4000))
+	os.Exit(m.Run())
 }

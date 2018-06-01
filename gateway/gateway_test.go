@@ -4,19 +4,21 @@
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
 
-// This sets up a dummy/mock server instance for testing purposes
-package node
+package gateway
 
 import (
+	"fmt"
+	"math/rand"
 	"os"
 	"testing"
 )
 
-const ServerAddress = "localhost:5556"
+var GatewayAddress = ""
+var ServerAddress = ""
 
-// Start server for testing
+// This sets up a dummy/mock gateway instance for testing purposes
 func TestMain(m *testing.M) {
-	go StartServer(ServerAddress, TestInterface{})
+	GatewayAddress = fmt.Sprintf("localhost:%d", (rand.Intn(1000) + 5001))
+	ServerAddress = fmt.Sprintf("localhost:%d", (rand.Intn(1000) + 4000))
 	os.Exit(m.Run())
-	ShutDown(ServerObj)
 }
