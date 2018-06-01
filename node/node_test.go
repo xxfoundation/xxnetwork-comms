@@ -4,19 +4,18 @@
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
 
-// This sets up a dummy/mock server instance for testing purposes
 package node
 
 import (
-	"os"
 	"testing"
+	"os"
+	"math/rand"
+	"fmt"
 )
 
-const ServerAddress = "localhost:5556"
+var ServerAddress = ""
 
-// Start server for testing
 func TestMain(m *testing.M) {
-	go StartServer(ServerAddress, TestInterface{})
+	ServerAddress = fmt.Sprintf("localhost:%d", (rand.Intn(2000) + 4000))
 	os.Exit(m.Run())
-	ShutDown(ServerObj)
 }
