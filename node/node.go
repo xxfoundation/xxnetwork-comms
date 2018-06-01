@@ -27,17 +27,15 @@ type server struct {
 	gs *grpc.Server
 }
 
-var ServerObj *server
-
-func ShutDown(s *server) {
-	time.Sleep(time.Millisecond * 500)
+func (s *server) ShutDown() {
 	s.gs.GracefulStop()
+	time.Sleep(time.Millisecond * 500)
 }
 
 // StartServer starts a new server on the address:port specified by localServer
 // NOTE: handler should be of type ServerImplementation. This will change
 //       soon.
-func StartServer(localServer string, handler ServerHandler) {
+func StartServer(localServer string, handler ServerHandler) func() {
 	// Set the serverHandler
 	serverHandler = handler
 
@@ -48,22 +46,24 @@ func StartServer(localServer string, handler ServerHandler) {
 		jww.FATAL.Panicf("failed to listen: %v", err)
 	}
 
-	// Make the port close when the gateway dies
-	// This blocks for the lifetime of the listener.
-	defer func() {
-		err := lis.Close()
-		if err != nil {
-			jww.WARN.Printf("Unable to close listening port: %s", err.Error())
+	mixmessageServer := server{gs: grpc.NewServer()}
+	go func() {
+		// Make the port close when the gateway dies
+		defer func() {
+			err := lis.Close()
+			if err != nil {
+				jww.WARN.Printf("Unable to close listening port: %s", err.Error())
+			}
+		}()
+
+		pb.RegisterMixMessageNodeServer(mixmessageServer.gs, &mixmessageServer)
+
+		// Register reflection service on gRPC server.
+		reflection.Register(mixmessageServer.gs)
+		if err := mixmessageServer.gs.Serve(lis); err != nil {
+			jww.FATAL.Panicf("failed to serve: %v", err)
 		}
 	}()
 
-	mixmessageServer := server{gs: grpc.NewServer()}
-	ServerObj = &mixmessageServer
-	pb.RegisterMixMessageNodeServer(mixmessageServer.gs, &mixmessageServer)
-
-	// Register reflection service on gRPC server.
-	reflection.Register(mixmessageServer.gs)
-	if err := mixmessageServer.gs.Serve(lis); err != nil {
-		jww.FATAL.Panicf("failed to serve: %v", err)
-	}
+	return mixmessageServer.ShutDown
 }
