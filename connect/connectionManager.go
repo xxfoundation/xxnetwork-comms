@@ -42,7 +42,13 @@ func ConnectToNode(address string) pb.MixMessageNodeClient {
 // Is a connection in the map and alive?
 func isConnectionGood(address string, connections map[string]*grpc.ClientConn) bool {
 	connection, ok := connections[address]
-	return ok && connection.GetState() != connectivity.Shutdown
+	if !ok {
+		return false
+	}
+	state := connection.GetState()
+	return (state == connectivity.Idle || state == connectivity.Connecting ||
+		state == connectivity.Ready)
+
 }
 
 // Connect creates a connection, or returns a pre-existing connection based on
