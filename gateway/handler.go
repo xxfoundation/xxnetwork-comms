@@ -55,7 +55,7 @@ func NewImplementation() Handler {
 			},
 			GetMessage: func(userID uint64, msgID string) (*pb.CmixMessage, bool) {
 				warn(um)
-				return nil, false
+				return &pb.CmixMessage{}, false
 			},
 			PutMessage: func(message *pb.CmixMessage) bool {
 				warn(um)

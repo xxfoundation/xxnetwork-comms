@@ -150,17 +150,17 @@ func NewImplementation() ServerHandler {
 			RealtimePermute: func(m *mixmessages.RealtimePermuteMessage) { warn(um) },
 			ClientPoll: func(m *mixmessages.ClientPollMessage) *mixmessages.CmixMessage {
 				warn(um)
-				return nil
+				return &mixmessages.CmixMessage{}
 			},
 			ReceiveMessageFromClient: func(m *mixmessages.CmixMessage) { warn(um) },
 			RequestContactList: func(m *mixmessages.ContactPoll) *mixmessages.ContactMessage {
 				warn(um)
-				return nil
+				return &mixmessages.ContactMessage{}
 			},
 			UserUpsert: func(message *mixmessages.UpsertUserMessage) { warn(um) },
 			PollRegistrationStatus: func(message *mixmessages.RegistrationPoll) *mixmessages.RegistrationConfirmation {
 				warn(um)
-				return nil
+				return &mixmessages.RegistrationConfirmation{}
 			},
 			StartRound: func(message *mixmessages.InputMessages) { warn(um) },
 		},
