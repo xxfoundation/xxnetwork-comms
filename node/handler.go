@@ -110,6 +110,8 @@ type implementationFunctions struct {
 	StartRound func(message *mixmessages.InputMessages)
 }
 
+// Implementation allows users of the client library to set the
+// functions that implement the node functions
 type Implementation struct {
 	Functions implementationFunctions
 }
