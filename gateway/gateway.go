@@ -13,6 +13,7 @@ import (
 	"google.golang.org/grpc/reflection"
 	"net"
 	"time"
+	"math"
 )
 
 // Passed into StartGateway to serve as an interface
@@ -42,7 +43,11 @@ func StartGateway(localServer string, handler Handler) func() {
 		jww.FATAL.Panicf("failed to listen: %v", err)
 	}
 
-	mixmessageServer := gateway{gs: grpc.NewServer()}
+	grpcServer := grpc.NewServer(grpc.MaxConcurrentStreams(math.MaxUint32),
+		grpc.MaxRecvMsgSize(math.MaxInt64))
+
+	gatewayServer := gateway{gs: grpcServer}
+
 	go func() {
 		//Make the port close when the gateway dies
 		defer func() {
@@ -52,15 +57,15 @@ func StartGateway(localServer string, handler Handler) func() {
 			}
 		}()
 
-		pb.RegisterMixMessageGatewayServer(mixmessageServer.gs, &mixmessageServer)
+		pb.RegisterMixMessageGatewayServer(gatewayServer.gs, &gatewayServer)
 
 		// Register reflection service on gRPC server.
 		// This blocks for the lifetime of the listener.
-		reflection.Register(mixmessageServer.gs)
-		if err := mixmessageServer.gs.Serve(lis); err != nil {
+		reflection.Register(gatewayServer.gs)
+		if err := gatewayServer.gs.Serve(lis); err != nil {
 			jww.FATAL.Panicf("failed to serve: %v", err)
 		}
 	}()
 
-	return mixmessageServer.ShutDown
+	return gatewayServer.ShutDown
 }
