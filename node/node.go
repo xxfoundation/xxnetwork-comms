@@ -16,6 +16,7 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	"net"
 	"time"
+	"math"
 )
 
 // Passed into StartServer to serve as an interface
@@ -46,7 +47,11 @@ func StartServer(localServer string, handler ServerHandler) func() {
 		jww.FATAL.Panicf("failed to listen: %v", err)
 	}
 
-	mixmessageServer := server{gs: grpc.NewServer()}
+	grpcServer := grpc.NewServer(grpc.MaxConcurrentStreams(math.MaxUint32),
+		grpc.MaxRecvMsgSize(math.MaxInt64))
+
+	mixmessageServer := server{gs: grpcServer}
+
 	go func() {
 		// Make the port close when the gateway dies
 		defer func() {
