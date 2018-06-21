@@ -44,7 +44,7 @@ func StartGateway(localServer string, handler Handler) func() {
 	}
 
 	grpcServer := grpc.NewServer(grpc.MaxConcurrentStreams(math.MaxUint32),
-		grpc.MaxRecvMsgSize(math.MaxInt64))
+		grpc.MaxRecvMsgSize(33554432)) // 32 MiB
 
 	gatewayServer := gateway{gs: grpcServer}
 
