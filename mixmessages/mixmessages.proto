@@ -127,9 +127,11 @@ message InitRound {
 
 // The standard CMIX message type
 message CmixMessage {
-    fixed64 SenderID = 1; // 64 bit length
-    bytes MessagePayload = 2; // Designed to conform to 4096 bit length
-    bytes RecipientID = 3; // Designed to conform to 4096 bit length
+    fixed64 SenderID = 1;     // 64 bit Sender Identity
+    bytes MessagePayload = 2; // Len(Prime) bit length Encrypted Payload
+    bytes RecipientID = 3;    // Len(Prime) bit length Encrypted Recipient
+    bytes Salt = 4;           // Salt to identify message key
+    repeated bytes MACs = 5;  // Individual MAC for each node in network
 }
 
 // The message for clients to poll new CMIX messages
