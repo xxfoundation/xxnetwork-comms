@@ -285,18 +285,11 @@ message RealtimeDecryptMessage {
     repeated CmixMessage Slots = 3;
 }
 
-// Message for individual Realtime Encrypt Slot
-message RealtimeEncryptSlot {
-    uint64 Slot = 1;
-    uint64 RecipientID = 2;
-    bytes EncryptedMessage = 3;
-}
-
 // Message for batch of Realtime Encrypt Slots
 message RealtimeEncryptMessage {
     string RoundID = 1;
     int32 LastOp = 2;
-    repeated RealtimeEncryptSlot Slots = 3;
+    repeated CmixMessage Slots = 3;
 }
 
 // Message for individual Realtime Permute Slot
