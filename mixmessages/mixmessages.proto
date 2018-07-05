@@ -131,7 +131,7 @@ message CmixMessage {
     bytes MessagePayload = 2; // Len(Prime) bit length Encrypted Payload
     bytes RecipientID = 3;    // Len(Prime) bit length Encrypted Recipient
     bytes Salt = 4;           // Salt to identify message key
-    repeated bytes MACs = 5;  // Individual MAC for each node in network
+    repeated bytes KMACs = 5; // Individual Key MAC for each node in network
 }
 
 // The message for clients to poll new CMIX messages
@@ -278,33 +278,18 @@ message PrecompShareMessage {
     repeated PrecompShareSlot Slots = 3;
 }
 
-// Message for individual Realtime Decrypt Slot
-message RealtimeDecryptSlot {
-    uint64 Slot = 1;
-    uint64 SenderID = 2;
-    bytes EncryptedMessage = 3;
-    bytes EncryptedRecipientID = 4;
-}
-
 // Message for batch of Realtime Decrypt Slots
 message RealtimeDecryptMessage {
     string RoundID = 1;
     int32 LastOp = 2;
-    repeated RealtimeDecryptSlot Slots = 3;
-}
-
-// Message for individual Realtime Encrypt Slot
-message RealtimeEncryptSlot {
-    uint64 Slot = 1;
-    uint64 RecipientID = 2;
-    bytes EncryptedMessage = 3;
+    repeated CmixMessage Slots = 3;
 }
 
 // Message for batch of Realtime Encrypt Slots
 message RealtimeEncryptMessage {
     string RoundID = 1;
     int32 LastOp = 2;
-    repeated RealtimeEncryptSlot Slots = 3;
+    repeated CmixMessage Slots = 3;
 }
 
 // Message for individual Realtime Permute Slot
