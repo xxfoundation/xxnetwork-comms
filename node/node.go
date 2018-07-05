@@ -14,9 +14,9 @@ import (
 	"google.golang.org/grpc/reflection"
 
 	jww "github.com/spf13/jwalterweatherman"
+	"math"
 	"net"
 	"time"
-	"math"
 )
 
 // Passed into StartServer to serve as an interface
@@ -48,7 +48,7 @@ func StartServer(localServer string, handler ServerHandler) func() {
 	}
 
 	grpcServer := grpc.NewServer(grpc.MaxConcurrentStreams(math.MaxUint32),
-		grpc.MaxRecvMsgSize(math.MaxInt64))
+		grpc.MaxRecvMsgSize(math.MaxInt32))
 
 	mixmessageServer := server{gs: grpcServer}
 
