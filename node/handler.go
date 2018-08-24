@@ -46,17 +46,8 @@ type ServerHandler interface {
 	// Server Interface for the RealtimePermute Messages
 	RealtimePermute(*mixmessages.RealtimePermuteMessage)
 
-	// Server Interface for responding to ClientPoll Messages
-	ClientPoll(*mixmessages.ClientPollMessage) *mixmessages.CmixMessage
-	// Server interface for ReceiveMessageFromClient
-	ReceiveMessageFromClient(*mixmessages.CmixMessage)
-	// Server interface for responding to contact list requests from the client
-	RequestContactList(*mixmessages.ContactPoll) *mixmessages.ContactMessage
-
 	// Server interface for upserting a new user
 	UserUpsert(message *mixmessages.UpsertUserMessage)
-	// Check the registration status of a specific user
-	PollRegistrationStatus(message *mixmessages.RegistrationPoll) *mixmessages.RegistrationConfirmation
 	// Server interface for Starting a new round
 	StartRound(message *mixmessages.InputMessages)
 }
@@ -95,17 +86,8 @@ type implementationFunctions struct {
 	// Server Interface for the RealtimePermute Messages
 	RealtimePermute func(*mixmessages.RealtimePermuteMessage)
 
-	// Server Interface for responding to ClientPoll Messages
-	ClientPoll func(*mixmessages.ClientPollMessage) *mixmessages.CmixMessage
-	// Server interface for ReceiveMessageFromClient
-	ReceiveMessageFromClient func(*mixmessages.CmixMessage)
-	// Server interface for responding to contact list requests from the client
-	RequestContactList func(*mixmessages.ContactPoll) *mixmessages.ContactMessage
-
 	// Server interface for upserting a new user
 	UserUpsert func(message *mixmessages.UpsertUserMessage)
-	// Check the registration status of a specific user
-	PollRegistrationStatus func(message *mixmessages.RegistrationPoll) *mixmessages.RegistrationConfirmation
 	// Server interface for Starting a new round
 	StartRound func(message *mixmessages.InputMessages)
 }
@@ -148,21 +130,8 @@ func NewImplementation() ServerHandler {
 			RealtimeDecrypt: func(m *mixmessages.RealtimeDecryptMessage) { warn(um) },
 			RealtimeEncrypt: func(m *mixmessages.RealtimeEncryptMessage) { warn(um) },
 			RealtimePermute: func(m *mixmessages.RealtimePermuteMessage) { warn(um) },
-			ClientPoll: func(m *mixmessages.ClientPollMessage) *mixmessages.CmixMessage {
-				warn(um)
-				return &mixmessages.CmixMessage{}
-			},
-			ReceiveMessageFromClient: func(m *mixmessages.CmixMessage) { warn(um) },
-			RequestContactList: func(m *mixmessages.ContactPoll) *mixmessages.ContactMessage {
-				warn(um)
-				return &mixmessages.ContactMessage{}
-			},
-			UserUpsert: func(message *mixmessages.UpsertUserMessage) { warn(um) },
-			PollRegistrationStatus: func(message *mixmessages.RegistrationPoll) *mixmessages.RegistrationConfirmation {
-				warn(um)
-				return &mixmessages.RegistrationConfirmation{}
-			},
-			StartRound: func(message *mixmessages.InputMessages) { warn(um) },
+			UserUpsert:      func(message *mixmessages.UpsertUserMessage) { warn(um) },
+			StartRound:      func(message *mixmessages.InputMessages) { warn(um) },
 		},
 	})
 }
@@ -249,30 +218,9 @@ func (s *Implementation) RealtimePermute(
 	s.Functions.RealtimePermute(m)
 }
 
-// Server Interface for responding to ClientPoll Messages
-func (s *Implementation) ClientPoll(m *mixmessages.ClientPollMessage) *mixmessages.CmixMessage {
-	return s.Functions.ClientPoll(m)
-}
-
-// Server interface for ReceiveMessageFromClient
-func (s *Implementation) ReceiveMessageFromClient(m *mixmessages.CmixMessage) {
-	s.Functions.ReceiveMessageFromClient(m)
-}
-
-// Server interface for responding to contact list requests from the client
-func (s *Implementation) RequestContactList(m *mixmessages.ContactPoll) *mixmessages.ContactMessage {
-	return s.Functions.RequestContactList(m)
-}
-
 // Server interface for upserting a new user
 func (s *Implementation) UserUpsert(message *mixmessages.UpsertUserMessage) {
 	s.Functions.UserUpsert(message)
-}
-
-// Check the registration status of a specific user
-func (s *Implementation) PollRegistrationStatus(
-	message *mixmessages.RegistrationPoll) *mixmessages.RegistrationConfirmation {
-	return s.Functions.PollRegistrationStatus(message)
 }
 
 // Server interface for Starting a new round
