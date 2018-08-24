@@ -48,22 +48,6 @@ func (m TestInterface) RealtimeEncrypt(message *pb.RealtimeEncryptMessage) {}
 
 func (m TestInterface) RealtimePermute(message *pb.RealtimePermuteMessage) {}
 
-func (m TestInterface) ClientPoll(message *pb.ClientPollMessage) *pb.CmixMessage {
-	return &pb.CmixMessage{}
-}
-
-func (m TestInterface) RequestContactList(message *pb.ContactPoll) *pb.
-	ContactMessage {
-	return &pb.ContactMessage{}
-}
-
 func (m TestInterface) UserUpsert(message *pb.UpsertUserMessage) {}
-
-func (m TestInterface) PollRegistrationStatus(message *pb.
-	RegistrationPoll) *pb.RegistrationConfirmation {
-	return &pb.RegistrationConfirmation{}
-}
-
-func (m TestInterface) ReceiveMessageFromClient(message *pb.CmixMessage) {}
 
 func (m TestInterface) StartRound(messages *pb.InputMessages) {}

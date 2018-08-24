@@ -53,38 +53,11 @@ func (s *server) NewRound(ctx context.Context,
 	return &pb.Ack{}, nil
 }
 
-// Handle CmixMessage from Client to Server
-func (s *server) ClientSendMessageToServer(ctx context.Context,
-	msg *pb.CmixMessage) (*pb.Ack, error) {
-	// Call the server handler with the msg
-	serverHandler.ReceiveMessageFromClient(msg)
-	return &pb.Ack{}, nil
-}
-
-// Request a CmixMessage from the server for the given User
-func (s *server) ClientPoll(ctx context.Context,
-	msg *pb.ClientPollMessage) (*pb.CmixMessage, error) {
-	return serverHandler.ClientPoll(msg), nil
-}
-
-// When a client polls for their registration status, return their
-// RegistrationConfirmation message with the relevant information
-func (s *server) PollRegistrationStatus(ctx context.Context, msg *pb.
-	RegistrationPoll) (*pb.RegistrationConfirmation, error) {
-	return serverHandler.PollRegistrationStatus(msg), nil
-}
-
 // Given an UpsertUserMessage, add the user to the node
 func (s *server) UserUpsert(ctx context.Context,
 	msg *pb.UpsertUserMessage) (*pb.Ack, error) {
 	serverHandler.UserUpsert(msg)
 	return &pb.Ack{}, nil
-}
-
-// Request contact list from server
-func (s *server) RequestContactList(ctx context.Context,
-	msg *pb.ContactPoll) (*pb.ContactMessage, error) {
-	return serverHandler.RequestContactList(msg), nil
 }
 
 // Handle a PrecompDecrypt event

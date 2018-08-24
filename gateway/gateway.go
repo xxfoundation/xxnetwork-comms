@@ -11,9 +11,9 @@ import (
 	pb "gitlab.com/privategrity/comms/mixmessages"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+	"math"
 	"net"
 	"time"
-	"math"
 )
 
 // Passed into StartGateway to serve as an interface
