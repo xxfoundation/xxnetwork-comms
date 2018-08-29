@@ -15,9 +15,9 @@ import (
 // Handler implementation for the Gateway
 type Handler interface {
 	// Return any MessageIDs in the buffer for this UserID
-	CheckMessages(userID uint64, messageID string) ([]string, bool)
+	CheckMessages(userID string, messageID string) ([]string, bool)
 	// Returns the message matching the given parameters to the client
-	GetMessage(userID uint64, msgID string) (*pb.CmixMessage, bool)
+	GetMessage(userID string, msgID string) (*pb.CmixMessage, bool)
 	// Upload a message to the cMix Gateway
 	PutMessage(message *pb.CmixMessage) bool
 	// ReceiveBatch receives message from a cMix node
@@ -26,9 +26,9 @@ type Handler interface {
 
 type implementationFunctions struct {
 	// Return any MessageIDs in the buffer for this UserID
-	CheckMessages func(userID uint64, messageID string) ([]string, bool)
+	CheckMessages func(userID string, messageID string) ([]string, bool)
 	// Returns the message matching the given parameters to the client
-	GetMessage func(userID uint64, msgID string) (*pb.CmixMessage, bool)
+	GetMessage func(userID string, msgID string) (*pb.CmixMessage, bool)
 	// Upload a message to the cMix Gateway
 	PutMessage func(message *pb.CmixMessage) bool
 	// ReceiveBatch receives message from a cMix node
@@ -49,11 +49,11 @@ func NewImplementation() Handler {
 	}
 	return Handler(&Implementation{
 		Functions: implementationFunctions{
-			CheckMessages: func(userID uint64, messageID string) ([]string, bool) {
+			CheckMessages: func(userID string, messageID string) ([]string, bool) {
 				warn(um)
 				return nil, false
 			},
-			GetMessage: func(userID uint64, msgID string) (*pb.CmixMessage, bool) {
+			GetMessage: func(userID string, msgID string) (*pb.CmixMessage, bool) {
 				warn(um)
 				return &pb.CmixMessage{}, false
 			},
@@ -67,13 +67,13 @@ func NewImplementation() Handler {
 }
 
 // Return any MessageIDs in the buffer for this UserID
-func (s *Implementation) CheckMessages(userID uint64, messageID string) (
+func (s *Implementation) CheckMessages(userID string, messageID string) (
 	[]string, bool) {
 	return s.Functions.CheckMessages(userID, messageID)
 }
 
 // Returns the message matching the given parameters to the client
-func (s *Implementation) GetMessage(userID uint64, msgID string) (
+func (s *Implementation) GetMessage(userID string, msgID string) (
 	*pb.CmixMessage, bool) {
 	return s.Functions.GetMessage(userID, msgID)
 }
