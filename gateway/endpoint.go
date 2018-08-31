@@ -9,12 +9,14 @@ package gateway
 import (
 	pb "gitlab.com/privategrity/comms/mixmessages"
 	"golang.org/x/net/context"
+	"gitlab.com/privategrity/crypto/id"
 )
 
 // CheckMessages response with new message for a client
 func (s *gateway) CheckMessages(ctx context.Context, msg *pb.ClientPollMessage) (
 	*pb.ClientMessages, error) {
-	msgIds, ok := gatewayHandler.CheckMessages(msg.UserID, msg.MessageID)
+	msgIds, ok := gatewayHandler.CheckMessages(id.UserID(msg.UserID),
+		msg.MessageID)
 	returnMsg := &pb.ClientMessages{}
 	if ok {
 		returnMsg.MessageIDs = msgIds
@@ -25,7 +27,8 @@ func (s *gateway) CheckMessages(ctx context.Context, msg *pb.ClientPollMessage) 
 // GetMessage gives a specific message back to a client
 func (s *gateway) GetMessage(ctx context.Context, msg *pb.ClientPollMessage) (
 	*pb.CmixMessage, error) {
-	returnMsg, ok := gatewayHandler.GetMessage(msg.UserID, msg.MessageID)
+	returnMsg, ok := gatewayHandler.GetMessage(id.UserID(msg.UserID),
+		msg.MessageID)
 	if !ok {
 		// Return an empty message if no results
 		returnMsg = &pb.CmixMessage{}
