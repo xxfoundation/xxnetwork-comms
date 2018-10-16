@@ -15,13 +15,7 @@ import (
 // CheckMessages response with new message for a client
 func (s *gateway) CheckMessages(ctx context.Context, msg *pb.ClientPollMessage) (
 	*pb.ClientMessages, error) {
-	// We don't trust clients to fill out the user ID correctly, so leftpad
-	// it up to the required length just in case
-	msg.UserID = append(make([]byte, id.UserIDLen - len(msg.UserID)), msg.UserID...)
-	userID, err := new(id.UserID).SetBytes(msg.UserID)
-	if err != nil {
-		return nil, err
-	}
+	userID := new(id.UserID).SetBytes(msg.UserID)
 	msgIds, ok := gatewayHandler.CheckMessages(userID, msg.MessageID)
 	returnMsg := &pb.ClientMessages{}
 	if ok {
@@ -33,13 +27,7 @@ func (s *gateway) CheckMessages(ctx context.Context, msg *pb.ClientPollMessage) 
 // GetMessage gives a specific message back to a client
 func (s *gateway) GetMessage(ctx context.Context, msg *pb.ClientPollMessage) (
 	*pb.CmixMessage, error) {
-	// We don't trust clients to fill out the user ID correctly, so leftpad
-	// it up to the required length just in case
-	msg.UserID = append(make([]byte, id.UserIDLen - len(msg.UserID)), msg.UserID...)
-	userID, err := new(id.UserID).SetBytes(msg.UserID)
-	if err != nil {
-		return nil, err
-	}
+	userID := new(id.UserID).SetBytes(msg.UserID)
 	returnMsg, ok := gatewayHandler.GetMessage(userID, msg.MessageID)
 	if !ok {
 		// Return an empty message if no results
