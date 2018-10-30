@@ -5,3 +5,7 @@ import:
   repo: https://github.com/grpc/grpc-go.git
 - package: github.com/spf13/jwalterweatherman
 - package: github.com/grpc-ecosystem/go-grpc-middleware
+- package: gitlab.com/privategrity/crypto
+  version: userid-migration
+  repo: git@gitlab.com:privategrity/crypto
+  vcs: git

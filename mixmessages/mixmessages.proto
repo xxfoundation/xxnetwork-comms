@@ -115,7 +115,7 @@ message InitRound {
 
 // The standard CMIX message type
 message CmixMessage {
-    fixed64 SenderID = 1;     // 64 bit Sender Identity
+    bytes SenderID = 1;       // 128 bit Sender Identity
     bytes MessagePayload = 2; // Len(Prime) bit length Encrypted Payload
     bytes RecipientID = 3;    // Len(Prime) bit length Encrypted Recipient
     bytes Salt = 4;           // Salt to identify message key
@@ -124,17 +124,13 @@ message CmixMessage {
 
 // The message for clients to poll new CMIX messages
 message ClientPollMessage {
-    fixed64 UserID = 1; // 64 bit length
+    bytes UserID = 1; // 128 bit length
     string MessageID = 2;
 }
 
 // The message for clients to poll the gateway for Message IDs
 message ClientMessages {
     repeated string MessageIDs = 1;
-}
-
-// Message for polling for the contact list
-message ContactPoll {
 }
 
 // Message for broadcasting user information to all other nodes
