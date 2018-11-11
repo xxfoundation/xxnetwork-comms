@@ -44,19 +44,27 @@ func StartServer(localServer string, handler ServerHandler,
 	// Listen on the given address
 	lis, err := net.Listen("tcp", localServer)
 	if err != nil {
-		jww.FATAL.Panicf("failed to listen: %v", err)
+		jww.FATAL.Panicf("Failed to listen: %v", err)
 	}
 
-	// Create the TLS credentials
-	creds, err := credentials.NewServerTLSFromFile(certPath, keyPath)
-	if err != nil {
-		jww.FATAL.Panicf("could not load TLS keys: %s", err)
-	}
-
-	// Create the GRPC server
-	grpcServer := grpc.NewServer(grpc.Creds(creds),
-		grpc.MaxConcurrentStreams(math.MaxUint32),
+	// Create the GRPC server without TLS
+	grpcServer := grpc.NewServer(grpc.MaxConcurrentStreams(math.MaxUint32),
 		grpc.MaxRecvMsgSize(math.MaxInt32))
+
+	// If TLS was specified
+	if certPath != "" && keyPath != "" {
+		// Create the TLS credentials
+		creds, err := credentials.NewServerTLSFromFile(certPath, keyPath)
+		if err != nil {
+			jww.FATAL.Panicf("Could not load TLS keys: %s", err)
+		}
+
+		// Create the GRPC server with TLS
+		jww.INFO.Printf("Starting server with TLS...")
+		grpcServer = grpc.NewServer(grpc.Creds(creds),
+			grpc.MaxConcurrentStreams(math.MaxUint32),
+			grpc.MaxRecvMsgSize(math.MaxInt32))
+	}
 	mixmessageServer := server{gs: grpcServer}
 
 	go func() {

@@ -13,7 +13,7 @@ import (
 
 // Smoke test SendPrecompShare
 func TestSendPrecompShare(t *testing.T) {
-	ShutDown := StartServer(ServerAddress, NewImplementation())
+	ShutDown := StartServer(ServerAddress, NewImplementation(), "", "")
 	defer ShutDown()
 	_, err := SendPrecompShare(ServerAddress, &pb.PrecompShareMessage{})
 	if err != nil {
@@ -23,7 +23,7 @@ func TestSendPrecompShare(t *testing.T) {
 
 // Smoke test SendPrecompShareInit
 func TestSendPrecompShareInit(t *testing.T) {
-	ShutDown := StartServer(ServerAddress, NewImplementation())
+	ShutDown := StartServer(ServerAddress, NewImplementation(), "", "")
 	defer ShutDown()
 	_, err := SendPrecompShareInit(ServerAddress,
 		&pb.PrecompShareInitMessage{})
@@ -34,7 +34,7 @@ func TestSendPrecompShareInit(t *testing.T) {
 
 // Smoke test SendPrecompShareCompare
 func TestSendPrecompShareCompare(t *testing.T) {
-	ShutDown := StartServer(ServerAddress, NewImplementation())
+	ShutDown := StartServer(ServerAddress, NewImplementation(), "", "")
 	defer ShutDown()
 	_, err := SendPrecompShareCompare(ServerAddress,
 		&pb.PrecompShareCompareMessage{})
@@ -45,7 +45,7 @@ func TestSendPrecompShareCompare(t *testing.T) {
 
 // Smoke test SendPrecompShareConfirm
 func TestSendPrecompShareConfirm(t *testing.T) {
-	ShutDown := StartServer(ServerAddress, NewImplementation())
+	ShutDown := StartServer(ServerAddress, NewImplementation(), "", "")
 	defer ShutDown()
 	_, err := SendPrecompShareConfirm(ServerAddress,
 		&pb.PrecompShareConfirmMessage{})
@@ -56,7 +56,7 @@ func TestSendPrecompShareConfirm(t *testing.T) {
 
 // Smoke test SendPrecompPermute
 func TestSendPrecompPermute(t *testing.T) {
-	ShutDown := StartServer(ServerAddress, NewImplementation())
+	ShutDown := StartServer(ServerAddress, NewImplementation(), "", "")
 	defer ShutDown()
 	_, err := SendPrecompPermute(ServerAddress, &pb.PrecompPermuteMessage{})
 	if err != nil {
@@ -66,7 +66,7 @@ func TestSendPrecompPermute(t *testing.T) {
 
 // Smoke test SendPrecompEncrypt
 func TestSendPrecompEncrypt(t *testing.T) {
-	ShutDown := StartServer(ServerAddress, NewImplementation())
+	ShutDown := StartServer(ServerAddress, NewImplementation(), "", "")
 	defer ShutDown()
 	_, err := SendPrecompEncrypt(ServerAddress, &pb.PrecompEncryptMessage{})
 	if err != nil {
@@ -76,7 +76,7 @@ func TestSendPrecompEncrypt(t *testing.T) {
 
 // Smoke test SendPrecompDecrypt
 func TestSendPrecompDecrypt(t *testing.T) {
-	ShutDown := StartServer(ServerAddress, NewImplementation())
+	ShutDown := StartServer(ServerAddress, NewImplementation(), "", "")
 	defer ShutDown()
 	_, err := SendPrecompDecrypt(ServerAddress, &pb.PrecompDecryptMessage{})
 	if err != nil {
@@ -86,7 +86,7 @@ func TestSendPrecompDecrypt(t *testing.T) {
 
 // Smoke test SendPrecompReveal
 func TestSendPrecompReveal(t *testing.T) {
-	ShutDown := StartServer(ServerAddress, NewImplementation())
+	ShutDown := StartServer(ServerAddress, NewImplementation(), "", "")
 	defer ShutDown()
 	_, err := SendPrecompReveal(ServerAddress, &pb.PrecompRevealMessage{})
 	if err != nil {
