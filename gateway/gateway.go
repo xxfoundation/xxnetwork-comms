@@ -10,6 +10,7 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/privategrity/comms/mixmessages"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/reflection"
 	"math"
 	"net"
@@ -31,21 +32,29 @@ func (s *gateway) ShutDown() {
 	time.Sleep(time.Millisecond * 500)
 }
 
-// Start local comm server
-func StartGateway(localServer string, handler Handler) func() {
+// Starts a new gateway on the address:port specified by localServer
+// with given path to public and private key for TLS connection
+func StartGateway(localServer string, handler Handler,
+	certPath string, keyPath string) func() {
 	// Set the gatewayHandler
 	gatewayHandler = handler
 
 	// Listen on the given address
 	lis, err := net.Listen("tcp", localServer)
-
 	if err != nil {
 		jww.FATAL.Panicf("failed to listen: %v", err)
 	}
 
-	grpcServer := grpc.NewServer(grpc.MaxConcurrentStreams(math.MaxUint32),
-		grpc.MaxRecvMsgSize(33554432)) // 32 MiB
+	// Create the TLS credentials
+	creds, err := credentials.NewServerTLSFromFile(certPath, keyPath)
+	if err != nil {
+		jww.FATAL.Panicf("could not load TLS keys: %s", err)
+	}
 
+	// Create the GRPC server
+	grpcServer := grpc.NewServer(grpc.Creds(creds),
+		grpc.MaxConcurrentStreams(math.MaxUint32),
+		grpc.MaxRecvMsgSize(33554432)) // 32 MiB
 	gatewayServer := gateway{gs: grpcServer}
 
 	go func() {
