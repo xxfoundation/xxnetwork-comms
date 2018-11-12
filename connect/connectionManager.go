@@ -23,8 +23,7 @@ import (
 var connections map[string]*grpc.ClientConn
 
 // Holds the path for connecting to servers
-// Set in StartGateway & StartServer
-var ServerCertPath string
+var ServerCertPath = ""
 
 // A lock used to control access to the connections map above
 var connectionsLock sync.Mutex

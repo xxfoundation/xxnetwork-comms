@@ -35,14 +35,17 @@ func (s *server) ShutDown() {
 	time.Sleep(time.Millisecond * 500)
 }
 
+// Set the path to the server cert
+func SetServerCert(serverCertPath string) {
+	connect.ServerCertPath = serverCertPath
+}
+
 // Starts a new server on the address:port specified by localServer
 // with given path to public and private key for TLS connection
 func StartServer(localServer string, handler ServerHandler,
 	certPath string, keyPath string) func() {
 	// Set the serverHandler
 	serverHandler = handler
-	// Set the path to the server cert (if any)
-	connect.ServerCertPath = certPath
 
 	// Listen on the given address
 	lis, err := net.Listen("tcp", localServer)

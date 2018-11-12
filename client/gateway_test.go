@@ -16,7 +16,7 @@ import (
 // Smoke test SendGetMessage
 func TestSendPutMessage(t *testing.T) {
 	gwShutDown := gateway.StartGateway(GatewayAddress,
-		gateway.NewImplementation(), "", "", "")
+		gateway.NewImplementation(), "", "")
 	nodeShutDown := node.StartServer(ServerAddress, node.NewImplementation(),
 		"", "")
 	defer gwShutDown()
@@ -31,7 +31,7 @@ func TestSendPutMessage(t *testing.T) {
 // Smoke test SendCheckMessages
 func TestSendCheckMessages(t *testing.T) {
 	gwShutDown := gateway.StartGateway(GatewayAddress,
-		gateway.NewImplementation(), "", "", "")
+		gateway.NewImplementation(), "", "")
 	nodeShutDown := node.StartServer(ServerAddress, node.NewImplementation(),
 		"", "")
 	defer gwShutDown()
@@ -46,7 +46,7 @@ func TestSendCheckMessages(t *testing.T) {
 // Smoke test SendGetMessage
 func TestSendGetMessage(t *testing.T) {
 	gwShutDown := gateway.StartGateway(GatewayAddress,
-		gateway.NewImplementation(), "", "", "")
+		gateway.NewImplementation(), "", "")
 	nodeShutDown := node.StartServer(ServerAddress, node.NewImplementation(),
 		"", "")
 	defer gwShutDown()
