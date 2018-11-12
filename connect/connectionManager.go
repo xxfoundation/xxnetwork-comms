@@ -75,13 +75,14 @@ func connect(address string, certPath string) *grpc.ClientConn {
 		address, connections); numRetries++ {
 
 		jww.DEBUG.Printf("Trying to connect to %v", address)
-
 		ctx, cancel := context.WithTimeout(context.Background(),
 			100000*time.Millisecond)
+
 		// If TLS was specified
 		if certPath != "" {
 			// Create the TLS credentials
-			creds, err := credentials.NewClientTLSFromFile(certPath, "")
+			var creds credentials.TransportCredentials
+			creds, err = credentials.NewClientTLSFromFile(certPath, "")
 			if err != nil {
 				jww.FATAL.Panicf("Could not load TLS keys: %s", err)
 			}

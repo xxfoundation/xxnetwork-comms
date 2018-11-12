@@ -8,7 +8,6 @@ package gateway
 
 import (
 	jww "github.com/spf13/jwalterweatherman"
-	"gitlab.com/privategrity/comms/connect"
 	pb "gitlab.com/privategrity/comms/mixmessages"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -31,11 +30,6 @@ type gateway struct {
 func (s *gateway) ShutDown() {
 	s.gs.GracefulStop()
 	time.Sleep(time.Millisecond * 500)
-}
-
-// Set the path to the server cert
-func SetServerCert(serverCertPath string) {
-	connect.ServerCertPath = serverCertPath
 }
 
 // Starts a new gateway on the address:port specified by localServer

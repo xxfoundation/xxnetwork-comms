@@ -15,7 +15,6 @@ import (
 	"google.golang.org/grpc/reflection"
 
 	jww "github.com/spf13/jwalterweatherman"
-	"gitlab.com/privategrity/comms/connect"
 	"math"
 	"net"
 	"time"
@@ -33,11 +32,6 @@ type server struct {
 func (s *server) ShutDown() {
 	s.gs.GracefulStop()
 	time.Sleep(time.Millisecond * 500)
-}
-
-// Set the path to the server cert
-func SetServerCert(serverCertPath string) {
-	connect.ServerCertPath = serverCertPath
 }
 
 // Starts a new server on the address:port specified by localServer
