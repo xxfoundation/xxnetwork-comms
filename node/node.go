@@ -15,6 +15,7 @@ import (
 	"google.golang.org/grpc/reflection"
 
 	jww "github.com/spf13/jwalterweatherman"
+	"gitlab.com/privategrity/comms/connect"
 	"math"
 	"net"
 	"time"
@@ -40,6 +41,8 @@ func StartServer(localServer string, handler ServerHandler,
 	certPath string, keyPath string) func() {
 	// Set the serverHandler
 	serverHandler = handler
+	// Set the path to the server cert (if any)
+	connect.ServerCertPath = certPath
 
 	// Listen on the given address
 	lis, err := net.Listen("tcp", localServer)

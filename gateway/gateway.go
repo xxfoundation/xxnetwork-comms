@@ -8,6 +8,7 @@ package gateway
 
 import (
 	jww "github.com/spf13/jwalterweatherman"
+	"gitlab.com/privategrity/comms/connect"
 	pb "gitlab.com/privategrity/comms/mixmessages"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -35,9 +36,11 @@ func (s *gateway) ShutDown() {
 // Starts a new gateway on the address:port specified by localServer
 // with given path to public and private key for TLS connection
 func StartGateway(localServer string, handler Handler,
-	certPath string, keyPath string) func() {
+	certPath string, keyPath string, serverCertPath string) func() {
 	// Set the gatewayHandler
 	gatewayHandler = handler
+	// Set the path to the server cert (if any)
+	connect.ServerCertPath = serverCertPath
 
 	// Listen on the given address
 	lis, err := net.Listen("tcp", localServer)

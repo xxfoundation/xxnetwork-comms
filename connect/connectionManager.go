@@ -11,6 +11,7 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/connectivity"
+	"google.golang.org/grpc/credentials"
 	"sync"
 	"time"
 
@@ -21,6 +22,10 @@ import (
 // A map of string addresses to open connections
 var connections map[string]*grpc.ClientConn
 
+// Holds the path for connecting to servers
+// Set in StartGateway & StartServer
+var ServerCertPath string
+
 // A lock used to control access to the connections map above
 var connectionsLock sync.Mutex
 
@@ -29,13 +34,13 @@ const MAX_RETRIES = 5
 
 // Connect to a gateway with a given address string
 func ConnectToGateway(address string) pb.MixMessageGatewayClient {
-	connection := connect(address)
+	connection := connect(address, "")
 	return pb.NewMixMessageGatewayClient(connection)
 }
 
 // Connect to a node with a given address string
 func ConnectToNode(address string) pb.MixMessageNodeClient {
-	connection := connect(address)
+	connection := connect(address, ServerCertPath)
 	return pb.NewMixMessageNodeClient(connection)
 }
 
@@ -46,14 +51,14 @@ func isConnectionGood(address string, connections map[string]*grpc.ClientConn) b
 		return false
 	}
 	state := connection.GetState()
-	return (state == connectivity.Idle || state == connectivity.Connecting ||
-		state == connectivity.Ready)
+	return state == connectivity.Idle || state == connectivity.Connecting ||
+		state == connectivity.Ready
 
 }
 
 // Connect creates a connection, or returns a pre-existing connection based on
 // a given address string.
-func connect(address string) *grpc.ClientConn {
+func connect(address string, certPath string) *grpc.ClientConn {
 	var connection *grpc.ClientConn
 	var err error
 	connection = nil
@@ -74,8 +79,21 @@ func connect(address string) *grpc.ClientConn {
 
 		ctx, cancel := context.WithTimeout(context.Background(),
 			100000*time.Millisecond)
-		connection, err = grpc.DialContext(ctx, address,
-			grpc.WithInsecure(), grpc.WithBlock())
+		// If TLS was specified
+		if certPath != "" {
+			// Create the TLS credentials
+			creds, err := credentials.NewClientTLSFromFile(certPath, "")
+			if err != nil {
+				jww.FATAL.Panicf("Could not load TLS keys: %s", err)
+			}
+			// Create the GRPC client with TLS
+			connection, err = grpc.DialContext(ctx, address,
+				grpc.WithTransportCredentials(creds), grpc.WithBlock())
+		} else {
+			// Create the GRPC client without TLS
+			connection, err = grpc.DialContext(ctx, address,
+				grpc.WithInsecure(), grpc.WithBlock())
+		}
 
 		if err == nil {
 			connections[address] = connection
