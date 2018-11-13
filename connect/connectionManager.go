@@ -82,7 +82,8 @@ func connect(address string, certPath string) *grpc.ClientConn {
 		if certPath != "" {
 			// Create the TLS credentials
 			var creds credentials.TransportCredentials
-			creds, err = credentials.NewClientTLSFromFile(certPath, "")
+			creds, err = credentials.NewClientTLSFromFile(certPath,
+				"*.cmix.rip")
 			if err != nil {
 				jww.FATAL.Panicf("Could not load TLS keys: %s", err)
 			}
