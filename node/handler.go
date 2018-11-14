@@ -8,7 +8,7 @@ package node
 
 import (
 	jww "github.com/spf13/jwalterweatherman"
-	"gitlab.com/privategrity/comms/mixmessages"
+	"gitlab.com/elixxir/comms/mixmessages"
 	"runtime/debug"
 )
 

@@ -8,7 +8,7 @@ package node
 
 import (
 	jww "github.com/spf13/jwalterweatherman"
-	pb "gitlab.com/privategrity/comms/mixmessages"
+	pb "gitlab.com/elixxir/comms/mixmessages"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"

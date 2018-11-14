@@ -8,7 +8,7 @@
 package node
 
 import (
-	pb "gitlab.com/privategrity/comms/mixmessages"
+	pb "gitlab.com/elixxir/comms/mixmessages"
 )
 
 // Blank struct implementing ServerHandler interface for testing purposes (Passing to StartServer)

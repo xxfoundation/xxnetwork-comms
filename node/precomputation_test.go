@@ -7,7 +7,7 @@
 package node
 
 import (
-	pb "gitlab.com/privategrity/comms/mixmessages"
+	pb "gitlab.com/elixxir/comms/mixmessages"
 	"testing"
 )
 

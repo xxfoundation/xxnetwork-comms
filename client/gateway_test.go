@@ -7,9 +7,9 @@
 package client
 
 import (
-	"gitlab.com/privategrity/comms/gateway"
-	pb "gitlab.com/privategrity/comms/mixmessages"
-	"gitlab.com/privategrity/comms/node"
+	"gitlab.com/elixxir/comms/gateway"
+	pb "gitlab.com/elixxir/comms/mixmessages"
+	"gitlab.com/elixxir/comms/node"
 	"testing"
 )
 

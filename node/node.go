@@ -9,7 +9,7 @@
 package node
 
 import (
-	pb "gitlab.com/privategrity/comms/mixmessages"
+	pb "gitlab.com/elixxir/comms/mixmessages"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
