@@ -7,5 +7,5 @@ import:
 - package: github.com/grpc-ecosystem/go-grpc-middleware
 - package: gitlab.com/elixxir/crypto
   version: master
-  repo: git@gitlab.com:privategrity/crypto
+  repo: git@gitlab.com:elixxir/crypto
   vcs: git

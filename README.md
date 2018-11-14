@@ -1,4 +1,4 @@
-# privategrity/comms
+# elixxir/comms
 
 [![pipeline status](https://gitlab.com/elixxir/comms/badges/master/pipeline.svg)](https://gitlab.com/elixxir/comms/commits/master)
 [![coverage report](https://gitlab.com/elixxir/comms/badges/master/coverage.svg)](https://gitlab.com/elixxir/comms/commits/master)
