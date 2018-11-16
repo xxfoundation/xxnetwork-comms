@@ -23,6 +23,7 @@ import (
 var connections map[string]*grpc.ClientConn
 
 // Holds the path for connecting to servers
+// Must be explicitly set by gateways and servers to avoid data races
 var ServerCertPath = ""
 
 // A lock used to control access to the connections map above
