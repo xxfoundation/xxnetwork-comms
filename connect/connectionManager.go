@@ -16,7 +16,7 @@ import (
 	"time"
 
 	jww "github.com/spf13/jwalterweatherman"
-	pb "gitlab.com/privategrity/comms/mixmessages"
+	pb "gitlab.com/elixxir/comms/mixmessages"
 )
 
 // A map of string addresses to open connections

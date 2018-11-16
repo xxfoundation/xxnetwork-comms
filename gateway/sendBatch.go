@@ -8,8 +8,8 @@ package gateway
 
 import (
 	jww "github.com/spf13/jwalterweatherman"
-	"gitlab.com/privategrity/comms/connect"
-	pb "gitlab.com/privategrity/comms/mixmessages"
+	"gitlab.com/elixxir/comms/connect"
+	pb "gitlab.com/elixxir/comms/mixmessages"
 )
 
 // SendBatch kicks off a realtime round by sending a batchsize of messages

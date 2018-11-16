@@ -11,8 +11,8 @@ package node
 import (
 	"github.com/grpc-ecosystem/go-grpc-middleware/retry"
 	jww "github.com/spf13/jwalterweatherman"
-	"gitlab.com/privategrity/comms/connect"
-	pb "gitlab.com/privategrity/comms/mixmessages"
+	"gitlab.com/elixxir/comms/connect"
+	pb "gitlab.com/elixxir/comms/mixmessages"
 	"golang.org/x/net/context"
 )
 

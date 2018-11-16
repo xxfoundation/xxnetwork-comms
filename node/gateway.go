@@ -8,8 +8,8 @@ package node
 
 import (
 	jww "github.com/spf13/jwalterweatherman"
-	"gitlab.com/privategrity/comms/connect"
-	pb "gitlab.com/privategrity/comms/mixmessages"
+	"gitlab.com/elixxir/comms/connect"
+	pb "gitlab.com/elixxir/comms/mixmessages"
 )
 
 // SendReceiveBatch sends a batch to the gateway
