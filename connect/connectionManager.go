@@ -26,6 +26,10 @@ var connections map[string]*grpc.ClientConn
 // Must be explicitly set by gateways and servers to avoid data races
 var ServerCertPath = ""
 
+// Holds the path for connecting to gateways
+// Must be explicitly set by clients to avoid data races
+var GatewayCertPath = ""
+
 // A lock used to control access to the connections map above
 var connectionsLock sync.Mutex
 
@@ -34,7 +38,7 @@ const MAX_RETRIES = 5
 
 // Connect to a gateway with a given address string
 func ConnectToGateway(address string) pb.MixMessageGatewayClient {
-	connection := connect(address, "")
+	connection := connect(address, GatewayCertPath)
 	return pb.NewMixMessageGatewayClient(connection)
 }
 
