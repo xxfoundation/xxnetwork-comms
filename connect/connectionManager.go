@@ -29,8 +29,7 @@ var ServerCertPath = ""
 
 // Holds the path for connecting to gateways
 // Must be explicitly set by clients to avoid data races
-// TODO: Should be set dynamically pending bugfix in client
-var GatewayCertPath = "~/.elixxir/gateway.cmix.rip.crt"
+var GatewayCertPath = ""
 
 // A lock used to control access to the connections map above
 var connectionsLock sync.Mutex
@@ -40,6 +39,8 @@ const MAX_RETRIES = 5
 
 // Connect to a gateway with a given address string
 func ConnectToGateway(address string) pb.MixMessageGatewayClient {
+	// TODO: Should be set dynamically by client pending bugfix in client
+	GatewayCertPath = "~/.elixxir/gateway.cmix.rip.crt"
 	connection := connect(address, GatewayCertPath)
 	return pb.NewMixMessageGatewayClient(connection)
 }
