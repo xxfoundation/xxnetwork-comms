@@ -17,6 +17,7 @@ import (
 
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
+	"gitlab.com/elixxir/comms/utils"
 )
 
 // A map of string addresses to open connections
@@ -87,6 +88,7 @@ func connect(address string, certPath string) *grpc.ClientConn {
 		// If TLS was specified
 		if certPath != "" {
 			// Create the TLS credentials
+			certPath = utils.GetFullPath(certPath)
 			var creds credentials.TransportCredentials
 			creds, err = credentials.NewClientTLSFromFile(certPath,
 				"*.cmix.rip")

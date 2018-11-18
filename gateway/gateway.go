@@ -9,6 +9,7 @@ package gateway
 import (
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
+	"gitlab.com/elixxir/comms/utils"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/reflection"
@@ -49,6 +50,8 @@ func StartGateway(localServer string, handler Handler,
 	// If TLS was specified
 	if certPath != "" && keyPath != "" {
 		// Create the TLS credentials
+		certPath = utils.GetFullPath(certPath)
+		keyPath = utils.GetFullPath(keyPath)
 		creds, err := credentials.NewServerTLSFromFile(certPath, keyPath)
 		if err != nil {
 			jww.FATAL.Panicf("Could not load TLS keys: %s", err)

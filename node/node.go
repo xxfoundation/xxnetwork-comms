@@ -15,6 +15,7 @@ import (
 	"google.golang.org/grpc/reflection"
 
 	jww "github.com/spf13/jwalterweatherman"
+	"gitlab.com/elixxir/comms/utils"
 	"math"
 	"net"
 	"time"
@@ -51,6 +52,8 @@ func StartServer(localServer string, handler ServerHandler,
 	// If TLS was specified
 	if certPath != "" && keyPath != "" {
 		// Create the TLS credentials
+		certPath = utils.GetFullPath(certPath)
+		keyPath = utils.GetFullPath(keyPath)
 		creds, err := credentials.NewServerTLSFromFile(certPath, keyPath)
 		if err != nil {
 			jww.FATAL.Panicf("Could not load TLS keys: %s", err)
