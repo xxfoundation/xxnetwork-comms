@@ -39,8 +39,6 @@ const MAX_RETRIES = 5
 
 // Connect to a gateway with a given address string
 func ConnectToGateway(address string) pb.MixMessageGatewayClient {
-	// TODO: Should be set dynamically by client pending bugfix in client
-	GatewayCertPath = "~/.elixxir/gateway.cmix.rip.crt"
 	connection := connect(address, GatewayCertPath, "gateway*.cmix.rip")
 	return pb.NewMixMessageGatewayClient(connection)
 }
