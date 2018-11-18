@@ -36,7 +36,7 @@ func (s *gateway) ShutDown() {
 // Starts a new gateway on the address:port specified by localServer
 // with given path to public and private key for TLS connection
 func StartGateway(localServer string, handler Handler,
-	certPath string, keyPath string) func() {
+	certPath, keyPath string) func() {
 	var grpcServer *grpc.Server
 	// Set the gatewayHandler
 	gatewayHandler = handler

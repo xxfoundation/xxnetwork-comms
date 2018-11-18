@@ -41,13 +41,13 @@ const MAX_RETRIES = 5
 func ConnectToGateway(address string) pb.MixMessageGatewayClient {
 	// TODO: Should be set dynamically by client pending bugfix in client
 	GatewayCertPath = "~/.elixxir/gateway.cmix.rip.crt"
-	connection := connect(address, GatewayCertPath)
+	connection := connect(address, GatewayCertPath, "gateway*.cmix.rip")
 	return pb.NewMixMessageGatewayClient(connection)
 }
 
 // Connect to a node with a given address string
 func ConnectToNode(address string) pb.MixMessageNodeClient {
-	connection := connect(address, ServerCertPath)
+	connection := connect(address, ServerCertPath, "*.cmix.rip")
 	return pb.NewMixMessageNodeClient(connection)
 }
 
@@ -65,7 +65,7 @@ func isConnectionGood(address string, connections map[string]*grpc.ClientConn) b
 
 // Connect creates a connection, or returns a pre-existing connection based on
 // a given address string.
-func connect(address string, certPath string) *grpc.ClientConn {
+func connect(address, certPath, serverName string) *grpc.ClientConn {
 	var connection *grpc.ClientConn
 	var err error
 	connection = nil
@@ -91,8 +91,7 @@ func connect(address string, certPath string) *grpc.ClientConn {
 			// Create the TLS credentials
 			certPath = utils.GetFullPath(certPath)
 			var creds credentials.TransportCredentials
-			creds, err = credentials.NewClientTLSFromFile(certPath,
-				"*.cmix.rip")
+			creds, err = credentials.NewClientTLSFromFile(certPath, serverName)
 			if err != nil {
 				jww.FATAL.Panicf("Could not load TLS keys: %s", err)
 			}

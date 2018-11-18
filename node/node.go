@@ -38,7 +38,7 @@ func (s *server) ShutDown() {
 // Starts a new server on the address:port specified by localServer
 // with given path to public and private key for TLS connection
 func StartServer(localServer string, handler ServerHandler,
-	certPath string, keyPath string) func() {
+	certPath, keyPath string) func() {
 	var grpcServer *grpc.Server
 	// Set the serverHandler
 	serverHandler = handler
