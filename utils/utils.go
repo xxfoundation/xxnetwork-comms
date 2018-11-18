@@ -3,7 +3,6 @@ package utils
 import (
 	"github.com/mitchellh/go-homedir"
 	jww "github.com/spf13/jwalterweatherman"
-	"os"
 	"strings"
 )
 
@@ -14,8 +13,7 @@ func GetFullPath(path string) string {
 		// Find home directory.
 		home, err := homedir.Dir()
 		if err != nil {
-			jww.ERROR.Println(err)
-			os.Exit(1)
+			jww.FATAL.Panicf("Unable to locate home directory: %v", err)
 		}
 		// Append the home directory to the path
 		return home + strings.TrimLeft(path, "~")
