@@ -36,6 +36,7 @@ func (s *gateway) ShutDown() {
 // with given path to public and private key for TLS connection
 func StartGateway(localServer string, handler Handler,
 	certPath string, keyPath string) func() {
+	var grpcServer *grpc.Server
 	// Set the gatewayHandler
 	gatewayHandler = handler
 
@@ -44,10 +45,6 @@ func StartGateway(localServer string, handler Handler,
 	if err != nil {
 		jww.FATAL.Panicf("Failed to listen: %v", err)
 	}
-
-	// Create the GRPC server without TLS
-	grpcServer := grpc.NewServer(grpc.MaxConcurrentStreams(math.MaxUint32),
-		grpc.MaxRecvMsgSize(33554432)) // 32 MiB
 
 	// If TLS was specified
 	if certPath != "" && keyPath != "" {
@@ -61,6 +58,11 @@ func StartGateway(localServer string, handler Handler,
 		jww.INFO.Printf("Starting gateway with TLS...")
 		grpcServer = grpc.NewServer(grpc.Creds(creds),
 			grpc.MaxConcurrentStreams(math.MaxUint32),
+			grpc.MaxRecvMsgSize(33554432)) // 32 MiB
+	} else {
+		// Create the GRPC server without TLS
+		jww.INFO.Printf("Starting gateway with TLS disabled...")
+		grpcServer = grpc.NewServer(grpc.MaxConcurrentStreams(math.MaxUint32),
 			grpc.MaxRecvMsgSize(33554432)) // 32 MiB
 	}
 	gatewayServer := gateway{gs: grpcServer}

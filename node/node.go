@@ -38,6 +38,7 @@ func (s *server) ShutDown() {
 // with given path to public and private key for TLS connection
 func StartServer(localServer string, handler ServerHandler,
 	certPath string, keyPath string) func() {
+	var grpcServer *grpc.Server
 	// Set the serverHandler
 	serverHandler = handler
 
@@ -46,10 +47,6 @@ func StartServer(localServer string, handler ServerHandler,
 	if err != nil {
 		jww.FATAL.Panicf("Failed to listen: %v", err)
 	}
-
-	// Create the GRPC server without TLS
-	grpcServer := grpc.NewServer(grpc.MaxConcurrentStreams(math.MaxUint32),
-		grpc.MaxRecvMsgSize(math.MaxInt32))
 
 	// If TLS was specified
 	if certPath != "" && keyPath != "" {
@@ -63,6 +60,11 @@ func StartServer(localServer string, handler ServerHandler,
 		jww.INFO.Printf("Starting server with TLS...")
 		grpcServer = grpc.NewServer(grpc.Creds(creds),
 			grpc.MaxConcurrentStreams(math.MaxUint32),
+			grpc.MaxRecvMsgSize(math.MaxInt32))
+	} else {
+		// Create the GRPC server without TLS
+		jww.INFO.Printf("Starting server with TLS disabled...")
+		grpcServer = grpc.NewServer(grpc.MaxConcurrentStreams(math.MaxUint32),
 			grpc.MaxRecvMsgSize(math.MaxInt32))
 	}
 	mixmessageServer := server{gs: grpcServer}
