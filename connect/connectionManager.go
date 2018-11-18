@@ -28,7 +28,8 @@ var ServerCertPath = ""
 
 // Holds the path for connecting to gateways
 // Must be explicitly set by clients to avoid data races
-var GatewayCertPath = ""
+// TODO: Should be set dynamically pending bugfix in client
+var GatewayCertPath = "~/.elixxir/gateway.cmix.rip.crt"
 
 // A lock used to control access to the connections map above
 var connectionsLock sync.Mutex
