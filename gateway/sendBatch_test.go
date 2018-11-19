@@ -14,8 +14,9 @@ import (
 
 // Smoke test SendCheckMessages
 func TestSendBatch(t *testing.T) {
-	gwShutDown := StartGateway(GatewayAddress, NewImplementation())
-	nodeShutDown := node.StartServer(ServerAddress, node.NewImplementation())
+	gwShutDown := StartGateway(GatewayAddress, NewImplementation(), "", "")
+	nodeShutDown := node.StartServer(ServerAddress, node.NewImplementation(),
+		"", "")
 	defer gwShutDown()
 	defer nodeShutDown()
 

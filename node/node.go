@@ -11,9 +11,11 @@ package node
 import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/reflection"
 
 	jww "github.com/spf13/jwalterweatherman"
+	"gitlab.com/elixxir/comms/utils"
 	"math"
 	"net"
 	"time"
@@ -33,23 +35,41 @@ func (s *server) ShutDown() {
 	time.Sleep(time.Millisecond * 500)
 }
 
-// StartServer starts a new server on the address:port specified by localServer
-// NOTE: handler should be of type ServerImplementation. This will change
-//       soon.
-func StartServer(localServer string, handler ServerHandler) func() {
+// Starts a new server on the address:port specified by localServer
+// with given path to public and private key for TLS connection
+func StartServer(localServer string, handler ServerHandler,
+	certPath, keyPath string) func() {
+	var grpcServer *grpc.Server
 	// Set the serverHandler
 	serverHandler = handler
 
 	// Listen on the given address
 	lis, err := net.Listen("tcp", localServer)
-
 	if err != nil {
-		jww.FATAL.Panicf("failed to listen: %v", err)
+		jww.FATAL.Panicf("Failed to listen: %v", err)
 	}
 
-	grpcServer := grpc.NewServer(grpc.MaxConcurrentStreams(math.MaxUint32),
-		grpc.MaxRecvMsgSize(math.MaxInt32))
+	// If TLS was specified
+	if certPath != "" && keyPath != "" {
+		// Create the TLS credentials
+		certPath = utils.GetFullPath(certPath)
+		keyPath = utils.GetFullPath(keyPath)
+		creds, err := credentials.NewServerTLSFromFile(certPath, keyPath)
+		if err != nil {
+			jww.FATAL.Panicf("Could not load TLS keys: %s", err)
+		}
 
+		// Create the GRPC server with TLS
+		jww.INFO.Printf("Starting server with TLS...")
+		grpcServer = grpc.NewServer(grpc.Creds(creds),
+			grpc.MaxConcurrentStreams(math.MaxUint32),
+			grpc.MaxRecvMsgSize(math.MaxInt32))
+	} else {
+		// Create the GRPC server without TLS
+		jww.INFO.Printf("Starting server with TLS disabled...")
+		grpcServer = grpc.NewServer(grpc.MaxConcurrentStreams(math.MaxUint32),
+			grpc.MaxRecvMsgSize(math.MaxInt32))
+	}
 	mixmessageServer := server{gs: grpcServer}
 
 	go func() {

@@ -13,7 +13,7 @@ import (
 
 // Smoke test SendRealtimePermute
 func TestSetPublicKey(t *testing.T) {
-	ShutDown := StartServer(ServerAddress, NewImplementation())
+	ShutDown := StartServer(ServerAddress, NewImplementation(), "", "")
 	defer ShutDown()
 	_, err := SetPublicKey(ServerAddress, &pb.PublicKeyMessage{})
 	if err != nil {
@@ -23,7 +23,7 @@ func TestSetPublicKey(t *testing.T) {
 
 // Smoke test SendAskOnline
 func TestSendAskOnline(t *testing.T) {
-	ShutDown := StartServer(ServerAddress, NewImplementation())
+	ShutDown := StartServer(ServerAddress, NewImplementation(), "", "")
 	defer ShutDown()
 	_, err := SendAskOnline(ServerAddress, &pb.Ping{})
 	if err != nil {
@@ -33,7 +33,7 @@ func TestSendAskOnline(t *testing.T) {
 
 // Smoke test SendRoundtripPing
 func TestSendRoundtripPing(t *testing.T) {
-	ShutDown := StartServer(ServerAddress, NewImplementation())
+	ShutDown := StartServer(ServerAddress, NewImplementation(), "", "")
 	defer ShutDown()
 	_, err := SendRoundtripPing(ServerAddress, &pb.TimePing{})
 	if err != nil {
@@ -43,7 +43,7 @@ func TestSendRoundtripPing(t *testing.T) {
 
 // Smoke test SendServerMetrics
 func TestSendServerMetrics(t *testing.T) {
-	ShutDown := StartServer(ServerAddress, NewImplementation())
+	ShutDown := StartServer(ServerAddress, NewImplementation(), "", "")
 	defer ShutDown()
 	_, err := SendServerMetrics(ServerAddress, &pb.ServerMetricsMessage{})
 	if err != nil {
@@ -53,7 +53,7 @@ func TestSendServerMetrics(t *testing.T) {
 
 // Smoke test SendNetworkError
 func TestSendNetworkError(t *testing.T) {
-	ShutDown := StartServer(ServerAddress, NewImplementation())
+	ShutDown := StartServer(ServerAddress, NewImplementation(), "", "")
 	defer ShutDown()
 	r, err := SendNetworkError(ServerAddress, &pb.ErrorMessage{Message: "Hello, world!"})
 
@@ -67,7 +67,7 @@ func TestSendNetworkError(t *testing.T) {
 
 // Smoke test SendNewRound
 func TestSendNewRound(t *testing.T) {
-	ShutDown := StartServer(ServerAddress, NewImplementation())
+	ShutDown := StartServer(ServerAddress, NewImplementation(), "", "")
 	defer ShutDown()
 	_, err := SendNewRound(ServerAddress, &pb.InitRound{})
 	if err != nil {
@@ -77,7 +77,7 @@ func TestSendNewRound(t *testing.T) {
 
 // Smoke test SendUserUpsert
 func TestSendUserUpsert(t *testing.T) {
-	ShutDown := StartServer(ServerAddress, NewImplementation())
+	ShutDown := StartServer(ServerAddress, NewImplementation(), "", "")
 	defer ShutDown()
 	_, err := SendUserUpsert(ServerAddress, &pb.UpsertUserMessage{})
 	if err != nil {
