@@ -105,6 +105,9 @@ func connect(address, certPath, certString,
 				certPath = utils.GetFullPath(certPath)
 				// Generate credentials from path
 				creds, err = credentials.NewClientTLSFromFile(certPath, serverName)
+				if err != nil {
+					jww.FATAL.Panicf("Could not load TLS keys: %s", err)
+				}
 			} else if certString != "" {
 				// Create cert pool
 				pool := x509.NewCertPool()
@@ -112,10 +115,6 @@ func connect(address, certPath, certString,
 				pool.AppendCertsFromPEM([]byte(certString))
 				// Generate credentials from pool
 				creds = credentials.NewClientTLSFromCert(pool, serverName)
-			}
-
-			if err != nil {
-				jww.FATAL.Panicf("Could not load TLS keys: %s", err)
 			}
 
 			// Create the GRPC client with TLS
