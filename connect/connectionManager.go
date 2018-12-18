@@ -91,27 +91,27 @@ func connect(address, certPath, certString,
 		ctx, cancel := context.WithTimeout(context.Background(),
 			100000*time.Millisecond)
 
-		// If TLS was specified
-		if certPath != "" || certString != "" {
+		// If TLS was NOT specified
+		if certPath == "" && certString == "" {
+			// Create the GRPC client without TLS
+			connection, err = grpc.DialContext(ctx, address,
+				grpc.WithInsecure(), grpc.WithBlock())
+		} else {
 			// Create the TLS credentials
 			var creds credentials.TransportCredentials
 
 			if certPath != "" {
-
 				// Convert to fully qualified path
 				certPath = utils.GetFullPath(certPath)
 				// Generate credentials from path
 				creds, err = credentials.NewClientTLSFromFile(certPath, serverName)
-
 			} else if certString != "" {
-
 				// Create cert pool
 				pool := x509.NewCertPool()
 				// Append the cert string
 				pool.AppendCertsFromPEM([]byte(certString))
 				// Generate credentials from pool
 				creds = credentials.NewClientTLSFromCert(pool, serverName)
-
 			}
 
 			if err != nil {
@@ -122,10 +122,6 @@ func connect(address, certPath, certString,
 			connection, err = grpc.DialContext(ctx, address,
 				grpc.WithTransportCredentials(creds), grpc.WithBlock())
 
-		} else {
-			// Create the GRPC client without TLS
-			connection, err = grpc.DialContext(ctx, address,
-				grpc.WithInsecure(), grpc.WithBlock())
 		}
 
 		if err == nil {
