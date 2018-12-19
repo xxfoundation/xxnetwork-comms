@@ -27,7 +27,7 @@ func TestDisconnect(t *testing.T) {
 	pass := 0
 	address := SERVER_ADDRESS
 
-	connect(address, "", "", "")
+	connect(address, "", "", make([]byte, 0))
 
 	_, alive := connections[address]
 
