@@ -34,7 +34,7 @@ var GatewayCertPath = ""
 
 // Holds the cert contents as a byte array for connecting to gateways
 // Must be explicitly set by clients that cannot read in file paths
-var GatewayCertBytes = ""
+var GatewayCertString = ""
 
 // A lock used to control access to the connections map above
 var connectionsLock sync.Mutex
@@ -45,7 +45,7 @@ const MAX_RETRIES = 5
 // Connect to a gateway with a given address string
 func ConnectToGateway(address string) pb.MixMessageGatewayClient {
 	connection := connect(address, "gateway*.cmix.rip",
-		GatewayCertPath, GatewayCertBytes)
+		GatewayCertPath, GatewayCertString)
 	return pb.NewMixMessageGatewayClient(connection)
 }
 
@@ -71,7 +71,7 @@ func isConnectionGood(address string, connections map[string]*grpc.ClientConn) b
 // Connect creates a connection, or returns a pre-existing connection based on
 // a given address string.
 func connect(address, serverName,
-	certPath string, certBytes string) *grpc.ClientConn {
+	certPath, certString string) *grpc.ClientConn {
 
 	// Create top level vars
 	var connection *grpc.ClientConn
@@ -94,7 +94,7 @@ func connect(address, serverName,
 			100000*time.Millisecond)
 
 		// If TLS was NOT specified
-		if certPath == "" && certBytes == "" {
+		if certPath == "" && certString == "" {
 			// Create the GRPC client without TLS
 			connection, err = grpc.DialContext(ctx, address,
 				grpc.WithInsecure(), grpc.WithBlock())
@@ -110,12 +110,12 @@ func connect(address, serverName,
 				if err != nil {
 					jww.FATAL.Panicf("Could not load TLS keys: %s", err)
 				}
-			} else if len(certBytes) > 0 {
+			} else if certString != "" {
 				// Create cert pool
 				pool := x509.NewCertPool()
 				// Append the cert string
-				if !pool.AppendCertsFromPEM([]byte(certBytes)) {
-					jww.FATAL.Panic("Failed to parse certificate")
+				if !pool.AppendCertsFromPEM([]byte(certString)) {
+					jww.FATAL.Panicf("Failed to parse certificate string!")
 				}
 				// Generate credentials from pool
 				creds = credentials.NewClientTLSFromCert(pool, serverName)
