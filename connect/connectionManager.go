@@ -34,7 +34,7 @@ var GatewayCertPath = ""
 
 // Holds the cert contents as a byte array for connecting to gateways
 // Must be explicitly set by clients that cannot read in file paths
-var GatewayCertBytes = make([]byte, 0)
+var GatewayCertBytes = ""
 
 // A lock used to control access to the connections map above
 var connectionsLock sync.Mutex
@@ -52,7 +52,7 @@ func ConnectToGateway(address string) pb.MixMessageGatewayClient {
 // Connect to a node with a given address string
 func ConnectToNode(address string) pb.MixMessageNodeClient {
 	connection := connect(address, "*.cmix.rip",
-		ServerCertPath, make([]byte, 0))
+		ServerCertPath, "")
 	return pb.NewMixMessageNodeClient(connection)
 }
 
@@ -71,7 +71,7 @@ func isConnectionGood(address string, connections map[string]*grpc.ClientConn) b
 // Connect creates a connection, or returns a pre-existing connection based on
 // a given address string.
 func connect(address, serverName,
-	certPath string, certBytes []byte) *grpc.ClientConn {
+	certPath string, certBytes string) *grpc.ClientConn {
 
 	// Create top level vars
 	var connection *grpc.ClientConn
@@ -94,7 +94,7 @@ func connect(address, serverName,
 			100000*time.Millisecond)
 
 		// If TLS was NOT specified
-		if certPath == "" && len(certBytes) == 0 {
+		if certPath == "" && certBytes == "" {
 			// Create the GRPC client without TLS
 			connection, err = grpc.DialContext(ctx, address,
 				grpc.WithInsecure(), grpc.WithBlock())
@@ -114,7 +114,9 @@ func connect(address, serverName,
 				// Create cert pool
 				pool := x509.NewCertPool()
 				// Append the cert string
-				pool.AppendCertsFromPEM(certBytes)
+				if !pool.AppendCertsFromPEM([]byte(certBytes)) {
+					jww.FATAL.Panic("Failed to parse certificate")
+				}
 				// Generate credentials from pool
 				creds = credentials.NewClientTLSFromCert(pool, serverName)
 			}
