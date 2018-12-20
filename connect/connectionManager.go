@@ -8,6 +8,7 @@
 package connect
 
 import (
+	"crypto/x509"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/connectivity"
@@ -31,6 +32,10 @@ var ServerCertPath = ""
 // Must be explicitly set by clients to avoid data races
 var GatewayCertPath = ""
 
+// Holds the cert contents as a byte array for connecting to gateways
+// Must be explicitly set by clients that cannot read in file paths
+var GatewayCertString = ""
+
 // A lock used to control access to the connections map above
 var connectionsLock sync.Mutex
 
@@ -39,13 +44,15 @@ const MAX_RETRIES = 5
 
 // Connect to a gateway with a given address string
 func ConnectToGateway(address string) pb.MixMessageGatewayClient {
-	connection := connect(address, GatewayCertPath, "gateway*.cmix.rip")
+	connection := connect(address, "gateway*.cmix.rip",
+		GatewayCertPath, GatewayCertString)
 	return pb.NewMixMessageGatewayClient(connection)
 }
 
 // Connect to a node with a given address string
 func ConnectToNode(address string) pb.MixMessageNodeClient {
-	connection := connect(address, ServerCertPath, "*.cmix.rip")
+	connection := connect(address, "*.cmix.rip",
+		ServerCertPath, "")
 	return pb.NewMixMessageNodeClient(connection)
 }
 
@@ -63,13 +70,15 @@ func isConnectionGood(address string, connections map[string]*grpc.ClientConn) b
 
 // Connect creates a connection, or returns a pre-existing connection based on
 // a given address string.
-func connect(address, certPath, serverName string) *grpc.ClientConn {
+func connect(address, serverName,
+	certPath, certString string) *grpc.ClientConn {
+
+	// Create top level vars
 	var connection *grpc.ClientConn
 	var err error
 	connection = nil
 	err = nil
 	connectionsLock.Lock() // TODO: Really we want to lock on the key,
-	// not the whole map
 
 	if connections == nil { // TODO: Do we need an init, or is this sufficient?
 		connections = make(map[string]*grpc.ClientConn)
@@ -84,22 +93,38 @@ func connect(address, certPath, serverName string) *grpc.ClientConn {
 		ctx, cancel := context.WithTimeout(context.Background(),
 			100000*time.Millisecond)
 
-		// If TLS was specified
-		if certPath != "" {
-			// Create the TLS credentials
-			certPath = utils.GetFullPath(certPath)
-			var creds credentials.TransportCredentials
-			creds, err = credentials.NewClientTLSFromFile(certPath, serverName)
-			if err != nil {
-				jww.FATAL.Panicf("Could not load TLS keys: %s", err)
-			}
-			// Create the GRPC client with TLS
-			connection, err = grpc.DialContext(ctx, address,
-				grpc.WithTransportCredentials(creds), grpc.WithBlock())
-		} else {
+		// If TLS was NOT specified
+		if certPath == "" && certString == "" {
 			// Create the GRPC client without TLS
 			connection, err = grpc.DialContext(ctx, address,
 				grpc.WithInsecure(), grpc.WithBlock())
+		} else {
+			// Create the TLS credentials
+			var creds credentials.TransportCredentials
+
+			if certPath != "" {
+				// Convert to fully qualified path
+				certPath = utils.GetFullPath(certPath)
+				// Generate credentials from path
+				creds, err = credentials.NewClientTLSFromFile(certPath, serverName)
+				if err != nil {
+					jww.FATAL.Panicf("Could not load TLS keys: %s", err)
+				}
+			} else if certString != "" {
+				// Create cert pool
+				pool := x509.NewCertPool()
+				// Append the cert string
+				if !pool.AppendCertsFromPEM([]byte(certString)) {
+					jww.FATAL.Panicf("Failed to parse certificate string!")
+				}
+				// Generate credentials from pool
+				creds = credentials.NewClientTLSFromCert(pool, serverName)
+			}
+
+			// Create the GRPC client with TLS
+			connection, err = grpc.DialContext(ctx, address,
+				grpc.WithTransportCredentials(creds), grpc.WithBlock())
+
 		}
 
 		if err == nil {
