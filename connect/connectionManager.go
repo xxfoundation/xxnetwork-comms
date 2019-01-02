@@ -149,7 +149,12 @@ func Disconnect(address string) {
 	connectionsLock.Lock()
 	connection, present := connections[address]
 	if present {
-		connection.Close()
+
+		err := connection.Close()
+		if err != nil {
+			jww.ERROR.Printf("Unable to close connection to %s: %v", address,
+				err)
+		}
 		delete(connections, address)
 	}
 	connectionsLock.Unlock()
@@ -157,8 +162,7 @@ func Disconnect(address string) {
 
 // DefaultContexts creates a context object with the default context
 // for all client messages. This is primarily used to set the default
-// timeout for all clients at 1/2 a second.
-// TODO should gateway and node have different timeouts?
+// timeout for all clients
 func DefaultContext() (context.Context, context.CancelFunc) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		10000*time.Millisecond)
