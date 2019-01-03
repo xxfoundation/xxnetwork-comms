@@ -4,16 +4,18 @@
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
 
+// Contains callback interface for gateway functionality
+
 package gateway
 
 import (
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
-	"runtime/debug"
 	"gitlab.com/elixxir/crypto/id"
+	"runtime/debug"
 )
 
-// Handler implementation for the Gateway
+// Handler interface for the Gateway
 type Handler interface {
 	// Return any MessageIDs in the buffer for this UserID
 	CheckMessages(userID *id.UserID, messageID string) ([]string, bool)
@@ -21,10 +23,11 @@ type Handler interface {
 	GetMessage(userID *id.UserID, msgID string) (*pb.CmixMessage, bool)
 	// Upload a message to the cMix Gateway
 	PutMessage(message *pb.CmixMessage) bool
-	// ReceiveBatch receives message from a cMix node
+	// Receives a batch of messages from a server
 	ReceiveBatch(messages *pb.OutputMessages)
 }
 
+// Handler implementation for the Gateway
 type implementationFunctions struct {
 	// Return any MessageIDs in the buffer for this UserID
 	CheckMessages func(userID *id.UserID, messageID string) ([]string, bool)
@@ -32,7 +35,7 @@ type implementationFunctions struct {
 	GetMessage func(userID *id.UserID, msgID string) (*pb.CmixMessage, bool)
 	// Upload a message to the cMix Gateway
 	PutMessage func(message *pb.CmixMessage) bool
-	// ReceiveBatch receives message from a cMix node
+	// Receives a batch of messages from a server
 	ReceiveBatch func(messages *pb.OutputMessages)
 }
 
@@ -42,6 +45,7 @@ type Implementation struct {
 	Functions implementationFunctions
 }
 
+// Creates and returns a new Handler interface
 func NewImplementation() Handler {
 	um := "UNIMPLEMENTED FUNCTION!"
 	warn := func(msg string) {
@@ -86,7 +90,7 @@ func (s *Implementation) PutMessage(message *pb.CmixMessage) bool {
 	return s.Functions.PutMessage(message)
 }
 
-// ReceiveBatch receives message from a cMix node
+// Receives a batch of messages from a server
 func (s *Implementation) ReceiveBatch(messages *pb.OutputMessages) {
 	s.Functions.ReceiveBatch(messages)
 }

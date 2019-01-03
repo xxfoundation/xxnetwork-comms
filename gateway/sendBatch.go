@@ -4,6 +4,8 @@
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
 
+// Contains gateway -> server functionality
+
 package gateway
 
 import (
@@ -12,8 +14,7 @@ import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 )
 
-// SendBatch kicks off a realtime round by sending a batchsize of messages
-// at the node
+// Sends a batch of messages from the gateway to a server
 func SendBatch(addr string, messages []*pb.CmixMessage) error {
 	c := connect.ConnectToNode(addr)
 	ctx, cancel := connect.DefaultContext()

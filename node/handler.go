@@ -4,6 +4,8 @@
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
 
+// Contains callback interface for server functionality
+
 package node
 
 import (
@@ -13,13 +15,15 @@ import (
 )
 
 type ServerHandler interface {
-	// Server Interface for roundtrip ping
+	// Server Interface for round trip ping
 	RoundtripPing(*mixmessages.TimePing)
 	// Server Interface for ServerMetrics Messages
 	ServerMetrics(*mixmessages.ServerMetricsMessage)
 
 	// Server Interface for starting New Rounds
 	NewRound(RoundID string)
+	// Server interface for Starting a new round
+	StartRound(message *mixmessages.InputMessages)
 	// Server Interface for SetPublicKey
 	SetPublicKey(RoundID string, PublicKey []byte)
 
@@ -45,11 +49,6 @@ type ServerHandler interface {
 	RealtimeEncrypt(*mixmessages.RealtimeEncryptMessage)
 	// Server Interface for the RealtimePermute Messages
 	RealtimePermute(*mixmessages.RealtimePermuteMessage)
-
-	// Server interface for upserting a new user
-	UserUpsert(message *mixmessages.UpsertUserMessage)
-	// Server interface for Starting a new round
-	StartRound(message *mixmessages.InputMessages)
 }
 
 type implementationFunctions struct {
@@ -60,6 +59,8 @@ type implementationFunctions struct {
 
 	// Server Interface for starting New Rounds
 	NewRound func(RoundID string)
+	// Server interface for Starting a new round
+	StartRound func(message *mixmessages.InputMessages)
 	// Server Interface for SetPublicKey
 	SetPublicKey func(RoundID string, PublicKey []byte)
 
@@ -85,11 +86,6 @@ type implementationFunctions struct {
 	RealtimeEncrypt func(*mixmessages.RealtimeEncryptMessage)
 	// Server Interface for the RealtimePermute Messages
 	RealtimePermute func(*mixmessages.RealtimePermuteMessage)
-
-	// Server interface for upserting a new user
-	UserUpsert func(message *mixmessages.UpsertUserMessage)
-	// Server interface for Starting a new round
-	StartRound func(message *mixmessages.InputMessages)
 }
 
 // Implementation allows users of the client library to set the
@@ -130,7 +126,6 @@ func NewImplementation() ServerHandler {
 			RealtimeDecrypt: func(m *mixmessages.RealtimeDecryptMessage) { warn(um) },
 			RealtimeEncrypt: func(m *mixmessages.RealtimeEncryptMessage) { warn(um) },
 			RealtimePermute: func(m *mixmessages.RealtimePermuteMessage) { warn(um) },
-			UserUpsert:      func(message *mixmessages.UpsertUserMessage) { warn(um) },
 			StartRound:      func(message *mixmessages.InputMessages) { warn(um) },
 		},
 	})
@@ -216,11 +211,6 @@ func (s *Implementation) RealtimeEncrypt(
 func (s *Implementation) RealtimePermute(
 	m *mixmessages.RealtimePermuteMessage) {
 	s.Functions.RealtimePermute(m)
-}
-
-// Server interface for upserting a new user
-func (s *Implementation) UserUpsert(message *mixmessages.UpsertUserMessage) {
-	s.Functions.UserUpsert(message)
 }
 
 // Server interface for Starting a new round

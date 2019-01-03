@@ -4,7 +4,8 @@
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
 
-// precomputation.go - all the comms client functions for precomputation.
+// Contains server -> server functionality for precomputation operations
+
 package node
 
 import (

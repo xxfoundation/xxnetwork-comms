@@ -4,31 +4,22 @@
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
 
-// Package node endpoints implementations. This is meant to hide all gRPC stuff
-// behind a clean interface.
+// Contains server GRPC endpoints
+
 package node
 
 // TODO: A lot of message types from gRPC are passed through, and a number of
 //       errors that can occur are not accounted for.
 
 import (
-	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"golang.org/x/net/context"
 )
 
-// Handle a Broadcasted Network Error event
-func (s *server) NetworkError(ctx context.Context, err *pb.ErrorMessage) (
-	*pb.ErrorAck, error) {
-	msgLen := int32(len(err.Message))
-	jww.ERROR.Println(err.Message)
-	return &pb.ErrorAck{MsgLen: msgLen}, nil
-}
-
 // Handle a Broadcasted Ask Online event
 func (s *server) AskOnline(ctx context.Context, msg *pb.Ping) (
-	*pb.Pong, error) {
-	return &pb.Pong{}, nil
+	*pb.Ack, error) {
+	return &pb.Ack{}, nil
 }
 
 // Handle a Roundtrip ping event
@@ -50,13 +41,6 @@ func (s *server) NewRound(ctx context.Context,
 	msg *pb.InitRound) (*pb.Ack, error) {
 	// Call the server handler to start a new round
 	serverHandler.NewRound(msg.RoundID)
-	return &pb.Ack{}, nil
-}
-
-// Given an UpsertUserMessage, add the user to the node
-func (s *server) UserUpsert(ctx context.Context,
-	msg *pb.UpsertUserMessage) (*pb.Ack, error) {
-	serverHandler.UserUpsert(msg)
 	return &pb.Ack{}, nil
 }
 

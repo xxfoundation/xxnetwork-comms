@@ -4,15 +4,17 @@
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
 
+// Contains gateway GRPC endpoints
+
 package gateway
 
 import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
-	"golang.org/x/net/context"
 	"gitlab.com/elixxir/crypto/id"
+	"golang.org/x/net/context"
 )
 
-// CheckMessages response with new message for a client
+// Sends new MessageIDs in the buffer to a client
 func (s *gateway) CheckMessages(ctx context.Context, msg *pb.ClientPollMessage) (
 	*pb.ClientMessages, error) {
 	userID := new(id.UserID).SetBytes(msg.UserID)
@@ -24,7 +26,7 @@ func (s *gateway) CheckMessages(ctx context.Context, msg *pb.ClientPollMessage) 
 	return returnMsg, nil
 }
 
-// GetMessage gives a specific message back to a client
+// Sends a message matching the given parameters to a client
 func (s *gateway) GetMessage(ctx context.Context, msg *pb.ClientPollMessage) (
 	*pb.CmixMessage, error) {
 	userID := new(id.UserID).SetBytes(msg.UserID)
@@ -36,14 +38,14 @@ func (s *gateway) GetMessage(ctx context.Context, msg *pb.ClientPollMessage) (
 	return returnMsg, nil
 }
 
-// PutMessage receives a message from a client
+// Receives a single message from a client
 func (s *gateway) PutMessage(ctx context.Context, msg *pb.CmixMessage) (*pb.Ack,
 	error) {
 	gatewayHandler.PutMessage(msg)
 	return &pb.Ack{}, nil
 }
 
-// ReceiveBatch receives messages from a cMixNode
+// Receives a batch of messages from a server
 func (s *gateway) ReceiveBatch(ctx context.Context, msg *pb.OutputMessages) (*pb.Ack,
 	error) {
 	gatewayHandler.ReceiveBatch(msg)

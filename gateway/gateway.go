@@ -4,6 +4,8 @@
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
 
+// Contains gateway comms initialization functionality
+
 package gateway
 
 import (
@@ -18,22 +20,22 @@ import (
 	"time"
 )
 
-// Passed into StartGateway to serve as an interface
-// for interacting with the gateway repo
+// Callback interface provided by the Gateway repository to StartGateway
 var gatewayHandler Handler
 
-// gateway object
+// Gateway object containing a GRPC server
 type gateway struct {
 	gs *grpc.Server
 }
 
-// ShutDown stops the server
+// Performs a graceful shutdown of the gateway
 func (s *gateway) ShutDown() {
 	s.gs.GracefulStop()
 	time.Sleep(time.Millisecond * 500)
 }
 
 // Starts a new gateway on the address:port specified by localServer
+// and a callback interface for gateway operations
 // with given path to public and private key for TLS connection
 func StartGateway(localServer string, handler Handler,
 	certPath, keyPath string) func() {
@@ -85,7 +87,7 @@ func StartGateway(localServer string, handler Handler,
 		// This blocks for the lifetime of the listener.
 		reflection.Register(gatewayServer.gs)
 		if err := gatewayServer.gs.Serve(lis); err != nil {
-			jww.FATAL.Panicf("failed to serve: %v", err)
+			jww.FATAL.Panicf("Failed to serve: %v", err)
 		}
 	}()
 

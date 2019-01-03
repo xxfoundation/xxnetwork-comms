@@ -4,8 +4,8 @@
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
 
-// Package node handles all cMix node functionality. This file contains the
-// main control logic when running a cMix Node.
+// Contains server comms initialization functionality
+
 package node
 
 import (
@@ -21,21 +21,22 @@ import (
 	"time"
 )
 
-// Passed into StartServer to serve as an interface
-// for interacting with the server repo
+// Callback interface provided by the Server repository to StartServer
 var serverHandler ServerHandler
 
-// server object
+// Server object containing a GRPC server
 type server struct {
 	gs *grpc.Server
 }
 
+// Performs a graceful shutdown of the server
 func (s *server) ShutDown() {
 	s.gs.GracefulStop()
 	time.Sleep(time.Millisecond * 500)
 }
 
 // Starts a new server on the address:port specified by localServer
+// and a callback interface for server operations
 // with given path to public and private key for TLS connection
 func StartServer(localServer string, handler ServerHandler,
 	certPath, keyPath string) func() {
