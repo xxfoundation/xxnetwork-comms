@@ -1,18 +1,18 @@
-// Copyright © 2018 Privategrity Corporation
-//
-// All rights reserved.
+////////////////////////////////////////////////////////////////////////////////
+// Copyright © 2018 Privategrity Corporation                                   /
+//                                                                             /
+// All rights reserved.                                                        /
+////////////////////////////////////////////////////////////////////////////////
 
 syntax = "proto3";
 
 package mixmessages;
 
-// This service is for servers talking to servers
+// SERVER MESSAGE SERVICE ------------------------------------------------------
+
 service MixMessageNode {
-    // Handles ErrorMessage
-    rpc NetworkError (ErrorMessage) returns (ErrorAck) {
-    }
     // Handles AskOnline
-    rpc AskOnline (Ping) returns (Pong) {
+    rpc AskOnline (Ping) returns (Ack) {
     }
     // Handles RoundtripPing
     rpc RoundtripPing (TimePing) returns (Ack) {
@@ -59,40 +59,13 @@ service MixMessageNode {
     // Set the public key
     rpc SetPublicKey (PublicKeyMessage) returns (Ack) {
     }
-    // Broadcasts user information to all other nodes
-    rpc UserUpsert (UpsertUserMessage) returns (Ack) {
-    }
     // Starts a new round with these messages (if len(msgs) == batch size)
     rpc StartRound(InputMessages) returns (Ack) {
     }
 }
 
-// This service is for servers talking to gateway
-service MixMessageGateway {
-    // Request a list of MessageIDs from the gateway for the given UserID
-    rpc CheckMessages (ClientPollMessage) returns (ClientMessages) {
-    }
-    // Request a CmixMessage from the gateway for the given message information
-    rpc GetMessage (ClientPollMessage) returns (CmixMessage) {
-    }
-    // Put a message on the cMix Gateway
-    rpc PutMessage(CmixMessage) returns (Ack) {
-    }
-
-    rpc ReceiveBatch(OutputMessages) returns (Ack){
-    }
-}
-
-// Generic empty Ack message
-message Ack {
-}
-
 // The request message asking if server is online
 message Ping {
-}
-
-// The response message containing the online confirmation
-message Pong {
 }
 
 // The request message asking server to add their time
@@ -113,13 +86,21 @@ message InitRound {
     string RoundID = 1;
 }
 
-// The standard CMIX message type
-message CmixMessage {
-    bytes SenderID = 1;       // 128 bit Sender Identity
-    bytes MessagePayload = 2; // Len(Prime) bit length Encrypted Payload
-    bytes RecipientID = 3;    // Len(Prime) bit length Encrypted Recipient
-    bytes Salt = 4;           // Salt to identify message key
-    repeated bytes KMACs = 5; // Individual Key MAC for each node in network
+// GATEWAY MESSAGE SERVICE -----------------------------------------------------
+
+service MixMessageGateway {
+    // Request a list of MessageIDs from the gateway for the given UserID
+    rpc CheckMessages (ClientPollMessage) returns (ClientMessages) {
+    }
+    // Request a CmixMessage from the gateway for the given message information
+    rpc GetMessage (ClientPollMessage) returns (CmixMessage) {
+    }
+    // Put a message on the cMix Gateway
+    rpc PutMessage(CmixMessage) returns (Ack) {
+    }
+    // Receives a batch of messages from the server
+    rpc ReceiveBatch(OutputMessages) returns (Ack){
+    }
 }
 
 // The message for clients to poll new CMIX messages
@@ -133,14 +114,39 @@ message ClientMessages {
     repeated string MessageIDs = 1;
 }
 
-// Message for broadcasting user information to all other nodes
-message UpsertUserMessage {
-    fixed64 NodeID = 1; // 64-bit
-    bytes UserID = 2; // 128-bit
-    bytes UserPublicKey = 3; // Length of Prime
-    bytes Nonce = 4; // 256-bit
-    bytes DsaSignature = 5; // 2 x Length of Prime
+// Message for setting public key
+message PublicKeyMessage {
+    string RoundID = 1;
+    bytes PublicKey = 2;
 }
+
+// Input messages are a list of messages run as a batch
+message InputMessages {
+    repeated CmixMessage Messages = 1;
+}
+
+// Output messages are a list of messages run as a batch
+message OutputMessages {
+    repeated CmixMessage Messages = 1;
+}
+
+// GENERAL USE MESSAGES --------------------------------------------------------
+
+// Generic empty Ack message
+message Ack {
+    string Error = 1;
+}
+
+// The standard CMIX message type
+message CmixMessage {
+    bytes SenderID = 1;       // 128 bit Sender Identity
+    bytes MessagePayload = 2; // Len(Prime) bit length Encrypted Payload
+    bytes RecipientID = 3;    // Len(Prime) bit length Encrypted Recipient
+    bytes Salt = 4;           // Salt to identify message key
+    repeated bytes KMACs = 5; // Individual Key MAC for each node in network
+}
+
+// PRECOMPUTATION MESSAGES -----------------------------------------------------
 
 // Message for individual Precomp Decrypt Slot
 message PrecompDecryptSlot {
@@ -237,6 +243,8 @@ message PrecompShareMessage {
     repeated PrecompShareSlot Slots = 3;
 }
 
+// REALTIME MESSAGES -----------------------------------------------------------
+
 // Message for batch of Realtime Decrypt Slots
 message RealtimeDecryptMessage {
     string RoundID = 1;
@@ -263,31 +271,4 @@ message RealtimePermuteMessage {
     string RoundID = 1;
     int32 LastOp = 2;
     repeated RealtimePermuteSlot Slots = 3;
-}
-
-// Message for setting public key
-message PublicKeyMessage {
-    string RoundID = 1;
-    bytes PublicKey = 2;
-}
-
-// ErrorMessage encodes an error message
-message ErrorMessage {
-    string Message = 1;
-}
-
-// ErrorAck returns the length of the received messages
-message ErrorAck {
-    int32 MsgLen = 1;
-}
-
-
-// Input messages are a list of messages run as a batch
-message InputMessages {
-    repeated CmixMessage Messages = 1;
-}
-
-// Output messages are a list of messages run as a batch
-message OutputMessages {
-    repeated CmixMessage Messages = 1;
 }

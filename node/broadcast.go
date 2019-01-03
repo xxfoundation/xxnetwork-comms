@@ -64,7 +64,7 @@ func SendRoundtripPing(addr string, message *pb.TimePing) (*pb.Ack, error) {
 	return result, err
 }
 
-func SendAskOnline(addr string, message *pb.Ping) (*pb.Pong, error) {
+func SendAskOnline(addr string, message *pb.Ping) (*pb.Ack, error) {
 	// Attempt to connect to addr
 	c := connect.ConnectToNode(addr)
 	ctx, cancel := connect.DefaultContext()
@@ -80,22 +80,6 @@ func SendAskOnline(addr string, message *pb.Ping) (*pb.Pong, error) {
 	return result, err
 }
 
-func SendNetworkError(addr string, message *pb.ErrorMessage) (*pb.ErrorAck, error) {
-	// Attempt to connect to addr
-	c := connect.ConnectToNode(addr)
-	ctx, cancel := connect.DefaultContext()
-
-	// Send the message
-	result, err := c.NetworkError(ctx, message, grpc_retry.WithMax(connect.MAX_RETRIES))
-
-	// Make sure there are no errors with sending the message
-	if err != nil {
-		jww.ERROR.Printf("NetworkError: Error received: %s", err)
-	}
-	cancel()
-	return result, err
-}
-
 func SendNewRound(addr string, message *pb.InitRound) (*pb.Ack, error) {
 	c := connect.ConnectToNode(addr)
 
@@ -105,21 +89,6 @@ func SendNewRound(addr string, message *pb.InitRound) (*pb.Ack, error) {
 	// Make sure there are no errors with sending the message
 	if err != nil {
 		jww.ERROR.Printf("NewRound: Error received: %s", err)
-	}
-	return result, err
-}
-
-// Send a User Upsert message
-func SendUserUpsert(addr string, message *pb.UpsertUserMessage) (*pb.Ack,
-	error) {
-	c := connect.ConnectToNode(addr)
-
-	// Send the message
-	result, err := c.UserUpsert(context.Background(), message)
-
-	// Make sure there are no errors with sending the message
-	if err != nil {
-		jww.ERROR.Printf("UserUpsert: Error received: %s", err)
 	}
 	return result, err
 }

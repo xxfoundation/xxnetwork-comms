@@ -48,6 +48,4 @@ func (m TestInterface) RealtimeEncrypt(message *pb.RealtimeEncryptMessage) {}
 
 func (m TestInterface) RealtimePermute(message *pb.RealtimePermuteMessage) {}
 
-func (m TestInterface) UserUpsert(message *pb.UpsertUserMessage) {}
-
 func (m TestInterface) StartRound(messages *pb.InputMessages) {}
