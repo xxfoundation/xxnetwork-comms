@@ -150,7 +150,6 @@ func Disconnect(address string) {
 	connectionsLock.Lock()
 	connection, present := connections[address]
 	if present {
-
 		err := connection.Close()
 		if err != nil {
 			jww.ERROR.Printf("Unable to close connection to %s: %v", address,
