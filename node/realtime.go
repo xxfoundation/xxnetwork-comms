@@ -4,7 +4,8 @@
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
 
-// realtime.go - all the comms client functions for realtime.
+// Contains server -> server functionality for realtime operations
+
 package node
 
 import (

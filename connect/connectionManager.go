@@ -4,7 +4,8 @@
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
 
-// Wrapper/Helper functions for comms cMix client functionality
+// Contains functionality for connecting to gateways and servers
+
 package connect
 
 import (

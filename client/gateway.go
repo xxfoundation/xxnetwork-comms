@@ -4,6 +4,8 @@
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
 
+// Contains client -> gateway functionality
+
 package client
 
 import (
@@ -12,6 +14,7 @@ import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 )
 
+// Send a message to the gateway
 func SendPutMessage(addr string, message *pb.CmixMessage) error {
 	// Attempt to connect to addr
 	c := connect.ConnectToGateway(addr)
@@ -28,6 +31,7 @@ func SendPutMessage(addr string, message *pb.CmixMessage) error {
 	return err
 }
 
+// Request MessageIDs of new messages in the buffer from the gateway
 func SendCheckMessages(addr string, message *pb.ClientPollMessage) (*pb.
 	ClientMessages, error) {
 	// Attempt to connect to addr
@@ -45,6 +49,7 @@ func SendCheckMessages(addr string, message *pb.ClientPollMessage) (*pb.
 	return result, err
 }
 
+// Request a message with a specific ID from the gateway
 func SendGetMessage(addr string, message *pb.ClientPollMessage) (*pb.
 	CmixMessage, error) {
 	// Attempt to connect to addr

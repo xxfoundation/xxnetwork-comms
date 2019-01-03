@@ -4,8 +4,8 @@
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
 
-// broadcast.go - comms client server functions that send to all servers in
-//                the cluster.
+// Contains server -> all servers functionality
+
 package node
 
 import (
@@ -26,7 +26,7 @@ func SetPublicKey(addr string, message *pb.PublicKeyMessage) (*pb.Ack, error) {
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
-		jww.ERROR.Printf("RealtimePermute: Error received: %s", err)
+		jww.ERROR.Printf("SetPublicKey: Error received: %s", err)
 	}
 	cancel()
 	return result, err

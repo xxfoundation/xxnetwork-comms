@@ -4,8 +4,8 @@
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
 
-// Package node endpoints implementations. This is meant to hide all gRPC stuff
-// behind a clean interface.
+// Contains server GRPC endpoints
+
 package node
 
 // TODO: A lot of message types from gRPC are passed through, and a number of

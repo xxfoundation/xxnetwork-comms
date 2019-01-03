@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+// Copyright © 2018 Privategrity Corporation                                   /
+//                                                                             /
+// All rights reserved.                                                        /
+////////////////////////////////////////////////////////////////////////////////
+
+// Contains utility operations used throughout the repo
+
 package utils
 
 import (

@@ -4,6 +4,8 @@
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
 
+// Contains callback interface for server functionality
+
 package node
 
 import (
