@@ -132,7 +132,7 @@ message OutputMessages {
 
 // GENERAL USE MESSAGES --------------------------------------------------------
 
-// Generic empty Ack message
+// Generic Ack message containing an Error field
 message Ack {
     string Error = 1;
 }
