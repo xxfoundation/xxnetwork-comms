@@ -244,7 +244,7 @@ func (m *OutputMessages) GetMessages() []*CmixMessage {
 	return nil
 }
 
-// Generic empty Ack message
+// Generic Ack message containing an Error field
 type Ack struct {
 	Error string `protobuf:"bytes,1,opt,name=Error" json:"Error,omitempty"`
 }
