@@ -37,11 +37,27 @@ var GatewayCertPath = ""
 // Must be explicitly set by clients that cannot read in file paths
 var GatewayCertString = ""
 
+// Holds the path for connecting to the registration server
+// Must be explicitly set by clients to avoid data races
+var RegistrationCertPath = ""
+
+// Holds the cert contents as a byte array
+// for connecting to the registration server
+// Must be explicitly set by clients that cannot read in file paths
+var RegistrationCertString = ""
+
 // A lock used to control access to the connections map above
 var connectionsLock sync.Mutex
 
 // Default maximum number of retries
 const MAX_RETRIES = 5
+
+// Connect to the registration server with a given address string
+func ConnectToRegistration(address string) pb.RegistrationClient {
+	connection := connect(address, "*.cmix.rip",
+		RegistrationCertPath, RegistrationCertString)
+	return pb.NewRegistrationClient(connection)
+}
 
 // Connect to a gateway with a given address string
 func ConnectToGateway(address string) pb.MixMessageGatewayClient {
