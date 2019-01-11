@@ -99,7 +99,7 @@ service MixMessageGateway {
     rpc PutMessage(CmixMessage) returns (Ack) {
     }
     // Receives a batch of messages from the server
-    rpc ReceiveBatch(OutputMessages) returns (Ack){
+    rpc ReceiveBatch(OutputMessages) returns (Ack) {
     }
 }
 
@@ -128,6 +128,28 @@ message InputMessages {
 // Output messages are a list of messages run as a batch
 message OutputMessages {
     repeated CmixMessage Messages = 1;
+}
+
+// REGISTRATION MESSAGE SERVICE ------------------------------------------------
+
+service Registration {
+    // Handles reception of client data for user registration
+    rpc RegisterUser(RegisterUserMessage) returns (ConfirmRegisterUserMessage) {
+    }
+}
+
+// Message sent to registration server to initialize registration process
+message RegisterUserMessage {
+    string RegistrationCode = 1;
+    string Email = 2;
+    string Password = 3;
+    bytes PublicKey = 4;
+}
+
+// Response from the registration server to RegisterUser messages
+message ConfirmRegisterUserMessage {
+    string Error = 1;
+    bytes SignedPublicKey = 2;
 }
 
 // GENERAL USE MESSAGES --------------------------------------------------------
