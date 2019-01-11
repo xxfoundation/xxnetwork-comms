@@ -17,11 +17,19 @@ import (
 func (s *server) RegisterUser(ctx context.Context, msg *pb.RegisterUserMessage) (
 	*pb.ConfirmRegisterUserMessage, error) {
 
+	// Obtain the signed key by passing to registration server
 	signedKey, err := registrationHandler.RegisterUser(msg.
 		RegistrationCode, msg.Email, msg.Password, msg.PublicKey)
 
+	// Obtain the error message, if any
+	errMsg := ""
+	if err != nil {
+		errMsg = err.Error()
+	}
+
+	// Return the confirmation message
 	return &pb.ConfirmRegisterUserMessage{
 		SignedPublicKey: signedKey,
-		Error:           err.Error(),
+		Error:           errMsg,
 	}, err
 }
