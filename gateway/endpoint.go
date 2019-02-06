@@ -10,8 +10,8 @@ package gateway
 
 import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/elixxir/crypto/id"
 	"golang.org/x/net/context"
+	"gitlab.com/elixxir/primitives/userid"
 )
 
 // Sends new MessageIDs in the buffer to a client

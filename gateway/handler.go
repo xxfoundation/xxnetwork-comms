@@ -11,8 +11,8 @@ package gateway
 import (
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/elixxir/crypto/id"
 	"runtime/debug"
+	"gitlab.com/elixxir/primitives/userid"
 )
 
 // Handler interface for the Gateway
