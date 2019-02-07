@@ -17,7 +17,7 @@ import (
 // Sends new MessageIDs in the buffer to a client
 func (s *gateway) CheckMessages(ctx context.Context, msg *pb.ClientPollMessage) (
 	*pb.ClientMessages, error) {
-	userID := new(id.UserID).SetBytes(msg.UserID)
+	userID := new(userid.UserID).SetBytes(msg.UserID)
 	msgIds, ok := gatewayHandler.CheckMessages(userID, msg.MessageID)
 	returnMsg := &pb.ClientMessages{}
 	if ok {
@@ -29,7 +29,7 @@ func (s *gateway) CheckMessages(ctx context.Context, msg *pb.ClientPollMessage) 
 // Sends a message matching the given parameters to a client
 func (s *gateway) GetMessage(ctx context.Context, msg *pb.ClientPollMessage) (
 	*pb.CmixMessage, error) {
-	userID := new(id.UserID).SetBytes(msg.UserID)
+	userID := new(userid.UserID).SetBytes(msg.UserID)
 	returnMsg, ok := gatewayHandler.GetMessage(userID, msg.MessageID)
 	if !ok {
 		// Return an empty message if no results
