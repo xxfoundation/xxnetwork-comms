@@ -7,6 +7,8 @@
 package connect
 
 import (
+	"google.golang.org/grpc"
+	"math"
 	"net"
 	"os"
 	"testing"
@@ -15,7 +17,15 @@ import (
 const SERVER_ADDRESS = "localhost:5556"
 
 func TestMain(m *testing.M) {
-	net.Listen("tcp", ":5556")
+	lis, _ := net.Listen("tcp", ":5556")
+
+	grpcServer := grpc.NewServer(grpc.MaxConcurrentStreams(math.MaxUint32),
+		grpc.MaxRecvMsgSize(33554432))
+
+	go func() {
+		defer lis.Close()
+		grpcServer.Serve(lis)
+	}()
 	os.Exit(m.Run())
 }
 
