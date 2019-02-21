@@ -12,6 +12,7 @@ import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/primitives/id"
 	"golang.org/x/net/context"
+	"google.golang.org/grpc/peer"
 )
 
 // Sends new MessageIDs in the buffer to a client
@@ -41,7 +42,12 @@ func (s *gateway) GetMessage(ctx context.Context, msg *pb.ClientPollMessage) (
 // Receives a single message from a client
 func (s *gateway) PutMessage(ctx context.Context, msg *pb.CmixMessage) (*pb.Ack,
 	error) {
-	gatewayHandler.PutMessage(msg)
+
+	p, ok := peer.FromContext(ctx)
+	if ok {
+		gatewayHandler.PutMessage(msg, p.Addr.String())
+	}
+
 	return &pb.Ack{}, nil
 }
 
