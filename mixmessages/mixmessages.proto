@@ -163,7 +163,9 @@ message Ack {
 message CmixMessage {
     bytes SenderID = 1;       // 128 bit Sender Identity
     bytes MessagePayload = 2; // Len(Prime) bit length Encrypted Payload
-    bytes RecipientID = 3;    // Len(Prime) bit length Encrypted Recipient
+    // TODO When we increase the size of the prime, the payload and associated
+    // data should become part of the
+    bytes AssociatedData = 3; // Len(Prime) bit length associated data
     bytes Salt = 4;           // Salt to identify message key
     repeated bytes KMACs = 5; // Individual Key MAC for each node in network
 }
@@ -174,9 +176,9 @@ message CmixMessage {
 message PrecompDecryptSlot {
     uint64 Slot = 1;
     bytes EncryptedMessageKeys = 2;
-    bytes EncryptedRecipientIDKeys = 3;
+    bytes EncryptedAssociatedDataKeys = 3;
     bytes PartialMessageCypherText = 4;
-    bytes PartialRecipientIDCypherText = 5;
+    bytes PartialAssociatedDataCypherText = 5;
 }
 
 // Message for batch of Precomp Decrypt Slots
@@ -218,9 +220,9 @@ message PrecompRevealMessage {
 message PrecompPermuteSlot {
     uint64 Slot = 1;
     bytes EncryptedMessageKeys = 2;
-    bytes EncryptedRecipientIDKeys = 3;
+    bytes EncryptedAssociatedDataKeys = 3;
     bytes PartialMessageCypherText = 4;
-    bytes PartialRecipientIDCypherText = 5;
+    bytes PartialAssociatedDataCypherText = 5;
 }
 
 // Message for batch of Precomp Permute Slots
@@ -285,7 +287,7 @@ message RealtimeEncryptMessage {
 message RealtimePermuteSlot {
     uint64 Slot = 1;
     bytes EncryptedMessage = 2;
-    bytes EncryptedRecipientID = 3;
+    bytes EncryptedAssociatedData = 3;
 }
 
 // Message for batch of Realtime Permute Slots
