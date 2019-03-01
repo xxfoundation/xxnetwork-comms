@@ -206,7 +206,7 @@ message PrecompEncryptMessage {
 message PrecompRevealSlot {
     uint64 Slot = 1;
     bytes PartialMessageCypherText = 2;
-    bytes PartialRecipientCypherText = 3;
+    bytes PartialAssociatedDataCypherText = 3;
 }
 
 // Message for batch of Precomp Reveal Slots
