@@ -15,14 +15,14 @@ import (
 
 type Handler interface {
 	// RegistrationServer interface for RegisterUser Messages
-	RegisterUser(registrationCode string, Y, P, Q, G []byte) ([]byte, []byte,
-		[]byte, error)
+	RegisterUser(registrationCode string, Y, P, Q, G []byte) (hash,
+		R, S []byte, err error)
 }
 
 type implementationFunctions struct {
 	// RegistrationServer interface for RegisterUser Messages
-	RegisterUser func(registrationCode string, Y, P, Q, G []byte) ([]byte,
-		[]byte, []byte, error)
+	RegisterUser func(registrationCode string, Y, P, Q, G []byte) (hash,
+		R, S []byte, err error)
 }
 
 // Implementation allows users of the client library to set the
@@ -42,7 +42,7 @@ func NewImplementation() Handler {
 	return Handler(&Implementation{
 		Functions: implementationFunctions{
 			RegisterUser: func(registrationCode string,
-				Y, P, Q, G []byte) ([]byte, []byte, []byte, error) {
+				Y, P, Q, G []byte) (hash, R, S []byte, err error) {
 				warn(um)
 				return nil, nil, nil, nil
 			},
@@ -52,6 +52,6 @@ func NewImplementation() Handler {
 
 // Registers a user and returns a signed public key
 func (s *Implementation) RegisterUser(registrationCode string,
-	Y, P, Q, G []byte) ([]byte, []byte, []byte, error) {
+	Y, P, Q, G []byte) (hash, R, S []byte, err error) {
 	return s.Functions.RegisterUser(registrationCode, Y, P, Q, G)
 }
