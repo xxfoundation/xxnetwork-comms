@@ -138,18 +138,21 @@ service Registration {
     }
 }
 
-// Message sent to registration server to initialize registration process
+// Client -> RegistrationServer message to initialize registration process
 message RegisterUserMessage {
     string RegistrationCode = 1;
-    string Email = 2;
-    string Password = 3;
-    bytes PublicKey = 4;
+    bytes Y = 2;
+    bytes P = 3;
+    bytes Q = 4;
+    bytes G = 5;
 }
 
-// Response from the registration server to RegisterUser messages
+// RegistrationServer -> Client response to RegisterUser messages
 message ConfirmRegisterUserMessage {
-    string Error = 1;
-    bytes SignedPublicKey = 2;
+    bytes Hash = 1;
+    bytes R = 2;
+    bytes S = 3;
+    string Error = 4;
 }
 
 // GENERAL USE MESSAGES --------------------------------------------------------

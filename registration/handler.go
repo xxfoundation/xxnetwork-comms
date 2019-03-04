@@ -14,13 +14,13 @@ import (
 )
 
 type RegistrationHandler interface {
-	RegisterUser(registrationCode, email, password string,
-		publicKey []byte) ([]byte, error)
+	RegisterUser(registrationCode string, Y, P, Q, G []byte) ([]byte, []byte,
+		[]byte, error)
 }
 
 type implementationFunctions struct {
-	RegisterUser func(registrationCode, email, password string,
-		publicKey []byte) ([]byte, error)
+	RegisterUser func(registrationCode string, Y, P, Q, G []byte) ([]byte,
+		[]byte, []byte, error)
 }
 
 // Implementation allows users of the client library to set the
@@ -39,17 +39,17 @@ func NewImplementation() RegistrationHandler {
 	}
 	return RegistrationHandler(&Implementation{
 		Functions: implementationFunctions{
-			RegisterUser: func(registrationCode, email, password string,
-				publicKey []byte) ([]byte, error) {
+			RegisterUser: func(registrationCode string,
+				Y, P, Q, G []byte) ([]byte, []byte, []byte, error) {
 				warn(um)
-				return nil, nil
+				return nil, nil, nil, nil
 			},
 		},
 	})
 }
 
 // Registers a user and returns a signed public key
-func (s *Implementation) RegisterUser(registrationCode, email, password string,
-	publicKey []byte) ([]byte, error) {
-	return s.Functions.RegisterUser(registrationCode, email, password, publicKey)
+func (s *Implementation) RegisterUser(registrationCode string,
+	Y, P, Q, G []byte) ([]byte, []byte, []byte, error) {
+	return s.Functions.RegisterUser(registrationCode, Y, P, Q, G)
 }
