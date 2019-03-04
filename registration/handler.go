@@ -13,7 +13,7 @@ import (
 	"runtime/debug"
 )
 
-type RegistrationHandler interface {
+type Handler interface {
 	// RegistrationServer interface for RegisterUser Messages
 	RegisterUser(registrationCode string, Y, P, Q, G []byte) ([]byte, []byte,
 		[]byte, error)
@@ -33,13 +33,13 @@ type Implementation struct {
 
 // NewImplementation returns a Implementation struct with all of the
 // function pointers returning nothing and printing an error.
-func NewImplementation() RegistrationHandler {
+func NewImplementation() Handler {
 	um := "UNIMPLEMENTED FUNCTION!"
 	warn := func(msg string) {
 		jww.WARN.Printf(msg)
 		jww.WARN.Printf("%v", debug.Stack())
 	}
-	return RegistrationHandler(&Implementation{
+	return Handler(&Implementation{
 		Functions: implementationFunctions{
 			RegisterUser: func(registrationCode string,
 				Y, P, Q, G []byte) ([]byte, []byte, []byte, error) {

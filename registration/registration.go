@@ -21,7 +21,7 @@ import (
 )
 
 // Callback interface provided by the Server repository to StartServer
-var registrationHandler RegistrationHandler
+var registrationHandler Handler
 
 // Server object containing a GRPC server
 type server struct {
@@ -37,7 +37,7 @@ func (s *server) ShutDown() {
 // Starts a new server on the address:port specified by localServer
 // and a callback interface for server operations
 // with given path to public and private key for TLS connection
-func StartRegistrationServer(localServer string, handler RegistrationHandler,
+func StartRegistrationServer(localServer string, handler Handler,
 	certPath, keyPath string) func() {
 	var grpcServer *grpc.Server
 	// Set the serverHandler
