@@ -85,7 +85,7 @@ func SendRequestNonceMessage(addr string, message *pb.RequestNonceMessage) (
 	}
 
 	// Handle logic errors
-	errMsg := response.Error
+	errMsg := response.GetError()
 	if errMsg != "" {
 		jww.ERROR.Printf("RequestNonceMessage: Error received: %s",
 			errMsg)
@@ -113,7 +113,7 @@ func SendConfirmNonceMessage(addr string, message *pb.ConfirmNonceMessage) (
 	}
 
 	// Handle logic errors
-	errMsg := response.Error
+	errMsg := response.GetError()
 	if errMsg != "" {
 		jww.ERROR.Printf("ConfirmNonceMessage: Error received: %s",
 			errMsg)

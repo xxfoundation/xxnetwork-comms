@@ -85,12 +85,12 @@ func NewImplementation() Handler {
 			RequestNonce: func(message *pb.RequestNonceMessage) (*pb.
 				NonceMessage, error) {
 				warn(um)
-				return nil, nil
+				return new(pb.NonceMessage), nil
 			},
 			ConfirmNonce: func(message *pb.ConfirmNonceMessage) (*pb.
 				RegistrationConfirmation, error) {
 				warn(um)
-				return nil, nil
+				return new(pb.RegistrationConfirmation), nil
 			},
 		},
 	})
