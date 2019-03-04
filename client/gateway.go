@@ -9,6 +9,7 @@
 package client
 
 import (
+	"errors"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
@@ -65,4 +66,60 @@ func SendGetMessage(addr string, message *pb.ClientPollMessage) (*pb.
 	}
 	cancel()
 	return result, err
+}
+
+// Send a RequestNonceMessage to the gateway
+func SendRequestNonceMessage(addr string, message *pb.RequestNonceMessage) (
+	*pb.NonceMessage, error) {
+
+	// Attempt to connect to addr
+	c := connect.ConnectToGateway(addr)
+	ctx, cancel := connect.DefaultContext()
+
+	// Send the message
+	response, err := c.RequestNonce(ctx, message)
+
+	// Handle comms errors
+	if err != nil {
+		jww.ERROR.Printf("RequestNonceMessage: Error received: %s", err)
+	}
+
+	// Handle logic errors
+	errMsg := response.Error
+	if errMsg != "" {
+		jww.ERROR.Printf("RequestNonceMessage: Error received: %s",
+			errMsg)
+		err = errors.New(errMsg)
+	}
+
+	cancel()
+	return response, err
+}
+
+// Send a ConfirmNonceMessage to the gateway
+func SendConfirmNonceMessage(addr string, message *pb.ConfirmNonceMessage) (
+	*pb.RegistrationConfirmation, error) {
+
+	// Attempt to connect to addr
+	c := connect.ConnectToGateway(addr)
+	ctx, cancel := connect.DefaultContext()
+
+	// Send the message
+	response, err := c.ConfirmNonce(ctx, message)
+
+	// Handle comms errors
+	if err != nil {
+		jww.ERROR.Printf("ConfirmNonceMessage: Error received: %s", err)
+	}
+
+	// Handle logic errors
+	errMsg := response.Error
+	if errMsg != "" {
+		jww.ERROR.Printf("ConfirmNonceMessage: Error received: %s",
+			errMsg)
+		err = errors.New(errMsg)
+	}
+
+	cancel()
+	return response, err
 }

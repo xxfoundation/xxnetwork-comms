@@ -25,6 +25,12 @@ type Handler interface {
 	PutMessage(message *pb.CmixMessage) bool
 	// Receives a batch of messages from a server
 	ReceiveBatch(messages *pb.OutputMessages)
+
+	// Pass-through for Registration Nonce Communication
+	RequestNonce(message *pb.RequestNonceMessage) (*pb.NonceMessage, error)
+	// Pass-through for Registration Nonce Confirmation
+	ConfirmNonce(message *pb.ConfirmNonceMessage) (*pb.
+		RegistrationConfirmation, error)
 }
 
 // Handler implementation for the Gateway
@@ -37,6 +43,12 @@ type implementationFunctions struct {
 	PutMessage func(message *pb.CmixMessage) bool
 	// Receives a batch of messages from a server
 	ReceiveBatch func(messages *pb.OutputMessages)
+
+	// Pass-through for Registration Nonce Communication
+	RequestNonce func(message *pb.RequestNonceMessage) (*pb.NonceMessage, error)
+	// Pass-through for Registration Nonce Confirmation
+	ConfirmNonce func(message *pb.ConfirmNonceMessage) (*pb.
+			RegistrationConfirmation, error)
 }
 
 // Implementation allows users of the client library to set the
@@ -69,6 +81,17 @@ func NewImplementation() Handler {
 				return false
 			},
 			ReceiveBatch: func(messages *pb.OutputMessages) { warn(um) },
+
+			RequestNonce: func(message *pb.RequestNonceMessage) (*pb.
+				NonceMessage, error) {
+				warn(um)
+				return nil, nil
+			},
+			ConfirmNonce: func(message *pb.ConfirmNonceMessage) (*pb.
+				RegistrationConfirmation, error) {
+				warn(um)
+				return nil, nil
+			},
 		},
 	})
 }
@@ -93,4 +116,16 @@ func (s *Implementation) PutMessage(message *pb.CmixMessage) bool {
 // Receives a batch of messages from a server
 func (s *Implementation) ReceiveBatch(messages *pb.OutputMessages) {
 	s.Functions.ReceiveBatch(messages)
+}
+
+// Pass-through for Registration Nonce Communication
+func (s *Implementation) RequestNonce(message *pb.RequestNonceMessage) (
+	*pb.NonceMessage, error) {
+	return s.Functions.RequestNonce(message)
+}
+
+// Pass-through for Registration Nonce Confirmation
+func (s *Implementation) ConfirmNonce(message *pb.ConfirmNonceMessage) (*pb.
+	RegistrationConfirmation, error) {
+	return s.Functions.ConfirmNonce(message)
 }

@@ -14,7 +14,7 @@ import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 )
 
-// Send a Registration message to the registration server
+// Send a RegisterUserMessage to the RegistrationServer
 func SendRegistrationMessage(addr string, message *pb.RegisterUserMessage) error {
 	// Attempt to connect to addr
 	c := connect.ConnectToRegistration(addr)

@@ -102,10 +102,16 @@ service MixMessageGateway {
     rpc GetMessage (ClientPollMessage) returns (CmixMessage) {
     }
     // Put a message on the cMix Gateway
-    rpc PutMessage(CmixMessage) returns (Ack) {
+    rpc PutMessage (CmixMessage) returns (Ack) {
     }
     // Receives a batch of messages from the server
-    rpc ReceiveBatch(OutputMessages) returns (Ack) {
+    rpc ReceiveBatch (OutputMessages) returns (Ack) {
+    }
+    // Pass-through for Registration Nonce Communication
+    rpc RequestNonce (RequestNonceMessage) returns (NonceMessage) {
+    }
+    // Pass-through for Registration Nonce Confirmation
+    rpc ConfirmNonce (ConfirmNonceMessage) returns (RegistrationConfirmation) {
     }
 }
 
@@ -163,7 +169,7 @@ message ConfirmRegisterUserMessage {
     string Error = 4;
 }
 
-// Client -> Server message to request nonce
+// Client -> Gateway -> Server message to request nonce
 message RequestNonceMessage {
     bytes Salt = 1;
     bytes DiffieKey = 2;
@@ -178,13 +184,13 @@ message RequestNonceMessage {
     bytes S = 9;
 }
 
-// Server -> Client response to RequestNonceMessage
+// Server -> Gateway -> Client response to RequestNonceMessage
 message NonceMessage {
     bytes Nonce = 1;
     string Error = 2;
 }
 
-// Client -> Server message to confirm nonce
+// Client -> Gateway -> Server message to confirm nonce
 message ConfirmNonceMessage {
     // Client-Signed Nonce
     bytes Hash = 1;
@@ -192,7 +198,7 @@ message ConfirmNonceMessage {
     bytes S = 3;
 }
 
-// Server -> Client response to ConfirmNonceMessage
+// Server -> Gateway -> Client response to ConfirmNonceMessage
 message RegistrationConfirmation {
     // Server-Signed Client Public Key
     bytes Hash = 1;
