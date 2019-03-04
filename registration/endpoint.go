@@ -13,7 +13,7 @@ import (
 	"golang.org/x/net/context"
 )
 
-// Handle a Register User event
+// Handle a RegisterUser event
 func (s *server) RegisterUser(ctx context.Context, msg *pb.RegisterUserMessage) (
 	*pb.ConfirmRegisterUserMessage, error) {
 

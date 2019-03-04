@@ -14,11 +14,13 @@ import (
 )
 
 type RegistrationHandler interface {
+	// RegistrationServer interface for RegisterUser Messages
 	RegisterUser(registrationCode string, Y, P, Q, G []byte) ([]byte, []byte,
 		[]byte, error)
 }
 
 type implementationFunctions struct {
+	// RegistrationServer interface for RegisterUser Messages
 	RegisterUser func(registrationCode string, Y, P, Q, G []byte) ([]byte,
 		[]byte, []byte, error)
 }
