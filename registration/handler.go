@@ -13,14 +13,16 @@ import (
 	"runtime/debug"
 )
 
-type RegistrationHandler interface {
-	RegisterUser(registrationCode, email, password string,
-		publicKey []byte) ([]byte, error)
+type Handler interface {
+	// RegistrationServer interface for RegisterUser Messages
+	RegisterUser(registrationCode string, Y, P, Q, G []byte) (hash,
+		R, S []byte, err error)
 }
 
 type implementationFunctions struct {
-	RegisterUser func(registrationCode, email, password string,
-		publicKey []byte) ([]byte, error)
+	// RegistrationServer interface for RegisterUser Messages
+	RegisterUser func(registrationCode string, Y, P, Q, G []byte) (hash,
+		R, S []byte, err error)
 }
 
 // Implementation allows users of the client library to set the
@@ -31,25 +33,25 @@ type Implementation struct {
 
 // NewImplementation returns a Implementation struct with all of the
 // function pointers returning nothing and printing an error.
-func NewImplementation() RegistrationHandler {
+func NewImplementation() Handler {
 	um := "UNIMPLEMENTED FUNCTION!"
 	warn := func(msg string) {
 		jww.WARN.Printf(msg)
 		jww.WARN.Printf("%v", debug.Stack())
 	}
-	return RegistrationHandler(&Implementation{
+	return Handler(&Implementation{
 		Functions: implementationFunctions{
-			RegisterUser: func(registrationCode, email, password string,
-				publicKey []byte) ([]byte, error) {
+			RegisterUser: func(registrationCode string,
+				Y, P, Q, G []byte) (hash, R, S []byte, err error) {
 				warn(um)
-				return nil, nil
+				return nil, nil, nil, nil
 			},
 		},
 	})
 }
 
 // Registers a user and returns a signed public key
-func (s *Implementation) RegisterUser(registrationCode, email, password string,
-	publicKey []byte) ([]byte, error) {
-	return s.Functions.RegisterUser(registrationCode, email, password, publicKey)
+func (s *Implementation) RegisterUser(registrationCode string,
+	Y, P, Q, G []byte) (hash, R, S []byte, err error) {
+	return s.Functions.RegisterUser(registrationCode, Y, P, Q, G)
 }

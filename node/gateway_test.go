@@ -82,3 +82,15 @@ func (s *TestInterfaceGW) ReceiveBatch(ctx context.Context, msg *pb.OutputMessag
 	error) {
 	return &pb.Ack{}, nil
 }
+
+// Pass-through for Registration Nonce Communication
+func (s *TestInterfaceGW) RequestNonce(ctx context.Context,
+	msg *pb.RequestNonceMessage) (*pb.NonceMessage, error) {
+	return &pb.NonceMessage{}, nil
+}
+
+// Pass-through for Registration Nonce Confirmation
+func (s *TestInterfaceGW) ConfirmNonce(ctx context.Context,
+	msg *pb.ConfirmNonceMessage) (*pb.RegistrationConfirmation, error) {
+	return &pb.RegistrationConfirmation{}, nil
+}

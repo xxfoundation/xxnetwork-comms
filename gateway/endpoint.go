@@ -51,3 +51,15 @@ func (s *gateway) ReceiveBatch(ctx context.Context, msg *pb.OutputMessages) (*pb
 	gatewayHandler.ReceiveBatch(msg)
 	return &pb.Ack{}, nil
 }
+
+// Pass-through for Registration Nonce Communication
+func (s *gateway) RequestNonce(ctx context.Context,
+	msg *pb.RequestNonceMessage) (*pb.NonceMessage, error) {
+	return gatewayHandler.RequestNonce(msg)
+}
+
+// Pass-through for Registration Nonce Confirmation
+func (s *gateway) ConfirmNonce(ctx context.Context,
+	msg *pb.ConfirmNonceMessage) (*pb.RegistrationConfirmation, error) {
+	return gatewayHandler.ConfirmNonce(msg)
+}

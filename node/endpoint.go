@@ -145,3 +145,48 @@ func (s *server) StartRound(ctx context.Context,
 	serverHandler.StartRound(msg)
 	return &pb.Ack{}, nil
 }
+
+// Handles Registration Nonce Communication
+func (s *server) RequestNonce(ctx context.Context,
+	msg *pb.RequestNonceMessage) (*pb.NonceMessage, error) {
+
+	// Obtain the nonce by passing to server
+	nonce, err := serverHandler.RequestNonce(msg.GetSalt(),
+		msg.GetDiffieKey(), msg.GetY(), msg.GetP(), msg.GetQ(),
+		msg.GetG(), msg.GetHash(), msg.GetR(), msg.GetS())
+
+	// Obtain the error message, if any
+	errMsg := ""
+	if err != nil {
+		errMsg = err.Error()
+	}
+
+	// Return the NonceMessage
+	return &pb.NonceMessage{
+		Nonce: nonce,
+		Error: errMsg,
+	}, err
+}
+
+// Handles Registration Nonce Confirmation
+func (s *server) ConfirmNonce(ctx context.Context,
+	msg *pb.ConfirmNonceMessage) (*pb.RegistrationConfirmation, error) {
+
+	// Obtain signed client public key by passing to server
+	hash, R, S, err := serverHandler.ConfirmNonce(msg.GetHash(),
+		msg.GetR(), msg.GetS())
+
+	// Obtain the error message, if any
+	errMsg := ""
+	if err != nil {
+		errMsg = err.Error()
+	}
+
+	// Return the RegistrationConfirmation
+	return &pb.RegistrationConfirmation{
+		Hash:  hash,
+		R:     R,
+		S:     S,
+		Error: errMsg,
+	}, err
+}

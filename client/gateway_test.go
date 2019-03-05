@@ -57,3 +57,33 @@ func TestSendGetMessage(t *testing.T) {
 		t.Errorf("GetMessage: Error received: %s", err)
 	}
 }
+
+// Smoke test SendRequestNonceMessage
+func TestSendRequestNonceMessage(t *testing.T) {
+	gwShutDown := gateway.StartGateway(GatewayAddress,
+		gateway.NewImplementation(), "", "")
+	nodeShutDown := node.StartServer(ServerAddress, node.NewImplementation(),
+		"", "")
+	defer gwShutDown()
+	defer nodeShutDown()
+
+	_, err := SendRequestNonceMessage(GatewayAddress, &pb.RequestNonceMessage{})
+	if err != nil {
+		t.Errorf("SendRequestNonceMessage: Error received: %s", err)
+	}
+}
+
+// Smoke test SendConfirmNonceMessage
+func TestSendConfirmNonceMessage(t *testing.T) {
+	gwShutDown := gateway.StartGateway(GatewayAddress,
+		gateway.NewImplementation(), "", "")
+	nodeShutDown := node.StartServer(ServerAddress, node.NewImplementation(),
+		"", "")
+	defer gwShutDown()
+	defer nodeShutDown()
+
+	_, err := SendConfirmNonceMessage(GatewayAddress, &pb.ConfirmNonceMessage{})
+	if err != nil {
+		t.Errorf("SendConfirmNonceMessage: Error received: %s", err)
+	}
+}

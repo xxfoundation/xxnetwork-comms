@@ -49,6 +49,12 @@ type ServerHandler interface {
 	RealtimeEncrypt(*mixmessages.RealtimeEncryptMessage)
 	// Server Interface for the RealtimePermute Messages
 	RealtimePermute(*mixmessages.RealtimePermuteMessage)
+
+	// Server interface for RequestNonceMessage
+	RequestNonce(salt, diffieKey, Y, P, Q, G,
+		hash, R, S []byte) ([]byte, error)
+	// Server interface for ConfirmNonceMessage
+	ConfirmNonce(hash, R, S []byte) ([]byte, []byte, []byte, error)
 }
 
 type implementationFunctions struct {
@@ -86,6 +92,12 @@ type implementationFunctions struct {
 	RealtimeEncrypt func(*mixmessages.RealtimeEncryptMessage)
 	// Server Interface for the RealtimePermute Messages
 	RealtimePermute func(*mixmessages.RealtimePermuteMessage)
+
+	// Server interface for RequestNonceMessage
+	RequestNonce func(salt, diffieKey, Y, P, Q, G,
+		hash, R, S []byte) ([]byte, error)
+	// Server interface for ConfirmNonceMessage
+	ConfirmNonce func(hash, R, S []byte) ([]byte, []byte, []byte, error)
 }
 
 // Implementation allows users of the client library to set the
@@ -123,10 +135,21 @@ func NewImplementation() ServerHandler {
 			PrecompShareConfirm: func(m *mixmessages.PrecompShareConfirmMessage) {
 				warn(um)
 			},
+
 			RealtimeDecrypt: func(m *mixmessages.RealtimeDecryptMessage) { warn(um) },
 			RealtimeEncrypt: func(m *mixmessages.RealtimeEncryptMessage) { warn(um) },
 			RealtimePermute: func(m *mixmessages.RealtimePermuteMessage) { warn(um) },
 			StartRound:      func(message *mixmessages.InputMessages) { warn(um) },
+
+			RequestNonce: func(salt, diffieKey, Y, P, Q, G,
+				hash, R, S []byte) ([]byte, error) {
+				warn(um)
+				return nil, nil
+			},
+			ConfirmNonce: func(hash, R, S []byte) ([]byte, []byte, []byte, error) {
+				warn(um)
+				return nil, nil, nil, nil
+			},
 		},
 	})
 }
@@ -216,4 +239,16 @@ func (s *Implementation) RealtimePermute(
 // Server interface for Starting a new round
 func (s *Implementation) StartRound(message *mixmessages.InputMessages) {
 	s.Functions.StartRound(message)
+}
+
+// Server interface for RequestNonceMessage
+func (s *Implementation) RequestNonce(salt, diffieKey, Y, P, Q, G,
+	hash, R, S []byte) ([]byte, error) {
+	return s.Functions.RequestNonce(salt, diffieKey, Y, P, Q, G, hash, R, S)
+}
+
+// Server interface for ConfirmNonceMessage
+func (s *Implementation) ConfirmNonce(hash, R, S []byte) ([]byte,
+	[]byte, []byte, error) {
+	return s.Functions.ConfirmNonce(hash, R, S)
 }

@@ -60,7 +60,13 @@ service MixMessageNode {
     rpc SetPublicKey (PublicKeyMessage) returns (Ack) {
     }
     // Starts a new round with these messages (if len(msgs) == batch size)
-    rpc StartRound(InputMessages) returns (Ack) {
+    rpc StartRound (InputMessages) returns (Ack) {
+    }
+    // Handles Registration Nonce Communication
+    rpc RequestNonce (RequestNonceMessage) returns (NonceMessage) {
+    }
+    // Handles Registration Nonce Confirmation
+    rpc ConfirmNonce (ConfirmNonceMessage) returns (RegistrationConfirmation) {
     }
 }
 
@@ -96,10 +102,16 @@ service MixMessageGateway {
     rpc GetMessage (ClientPollMessage) returns (CmixMessage) {
     }
     // Put a message on the cMix Gateway
-    rpc PutMessage(CmixMessage) returns (Ack) {
+    rpc PutMessage (CmixMessage) returns (Ack) {
     }
     // Receives a batch of messages from the server
-    rpc ReceiveBatch(OutputMessages) returns (Ack) {
+    rpc ReceiveBatch (OutputMessages) returns (Ack) {
+    }
+    // Pass-through for Registration Nonce Communication
+    rpc RequestNonce (RequestNonceMessage) returns (NonceMessage) {
+    }
+    // Pass-through for Registration Nonce Confirmation
+    rpc ConfirmNonce (ConfirmNonceMessage) returns (RegistrationConfirmation) {
     }
 }
 
@@ -133,23 +145,66 @@ message OutputMessages {
 // REGISTRATION MESSAGE SERVICE ------------------------------------------------
 
 service Registration {
-    // Handles reception of client data for user registration
-    rpc RegisterUser(RegisterUserMessage) returns (ConfirmRegisterUserMessage) {
+    // Client & RegistrationServer Communication
+    rpc RegisterUser (RegisterUserMessage) returns (ConfirmRegisterUserMessage) {
     }
 }
 
-// Message sent to registration server to initialize registration process
+// Client -> RegistrationServer message to initialize registration process
 message RegisterUserMessage {
     string RegistrationCode = 1;
-    string Email = 2;
-    string Password = 3;
-    bytes PublicKey = 4;
+    // Client Public Key
+    bytes Y = 2;
+    bytes P = 3;
+    bytes Q = 4;
+    bytes G = 5;
 }
 
-// Response from the registration server to RegisterUser messages
+// RegistrationServer -> Client response to RegisterUserMessage
 message ConfirmRegisterUserMessage {
-    string Error = 1;
-    bytes SignedPublicKey = 2;
+    // RegistrationServer-Signed Client Public Key
+    bytes Hash = 1;
+    bytes R = 2;
+    bytes S = 3;
+    string Error = 4;
+}
+
+// Client -> Gateway -> Server message to request nonce
+message RequestNonceMessage {
+    bytes Salt = 1;
+    bytes DiffieKey = 2;
+    // Client Public Key
+    bytes Y = 3;
+    bytes P = 4;
+    bytes Q = 5;
+    bytes G = 6;
+    // RegistrationServer-Signed Client Public Key
+    bytes Hash = 7;
+    bytes R = 8;
+    bytes S = 9;
+}
+
+// Server -> Gateway -> Client response to RequestNonceMessage
+message NonceMessage {
+    bytes Nonce = 1;
+    string Error = 2;
+}
+
+// Client -> Gateway -> Server message to confirm nonce
+message ConfirmNonceMessage {
+    // Client-Signed Nonce
+    bytes Hash = 1;
+    bytes R = 2;
+    bytes S = 3;
+}
+
+// Server -> Gateway -> Client response to ConfirmNonceMessage
+message RegistrationConfirmation {
+    // Server-Signed Client Public Key
+    bytes Hash = 1;
+    bytes R = 2;
+    bytes S = 3;
+    string Error = 4;
 }
 
 // GENERAL USE MESSAGES --------------------------------------------------------

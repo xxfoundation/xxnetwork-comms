@@ -13,13 +13,13 @@ import (
 	"golang.org/x/net/context"
 )
 
-// Handle a Register User event
+// Handle a RegisterUser event
 func (s *server) RegisterUser(ctx context.Context, msg *pb.RegisterUserMessage) (
 	*pb.ConfirmRegisterUserMessage, error) {
 
 	// Obtain the signed key by passing to registration server
-	signedKey, err := registrationHandler.RegisterUser(msg.
-		RegistrationCode, msg.Email, msg.Password, msg.PublicKey)
+	hash, R, S, err := registrationHandler.RegisterUser(msg.
+		GetRegistrationCode(), msg.GetY(), msg.GetP(), msg.GetQ(), msg.GetG())
 
 	// Obtain the error message, if any
 	errMsg := ""
@@ -29,7 +29,9 @@ func (s *server) RegisterUser(ctx context.Context, msg *pb.RegisterUserMessage) 
 
 	// Return the confirmation message
 	return &pb.ConfirmRegisterUserMessage{
-		SignedPublicKey: signedKey,
-		Error:           errMsg,
+		Hash:  hash,
+		R:     R,
+		S:     S,
+		Error: errMsg,
 	}, err
 }
