@@ -51,7 +51,7 @@ type ServerHandler interface {
 	RealtimePermute(*mixmessages.RealtimePermuteMessage)
 
 	// Server interface for RequestNonceMessage
-	RequestNonce(salt, diffieKey, Y, P, Q, G,
+	RequestNonce(salt, Y, P, Q, G,
 		hash, R, S []byte) ([]byte, error)
 	// Server interface for ConfirmNonceMessage
 	ConfirmNonce(hash, R, S []byte) ([]byte, []byte, []byte, error)
@@ -94,7 +94,7 @@ type implementationFunctions struct {
 	RealtimePermute func(*mixmessages.RealtimePermuteMessage)
 
 	// Server interface for RequestNonceMessage
-	RequestNonce func(salt, diffieKey, Y, P, Q, G,
+	RequestNonce func(salt, Y, P, Q, G,
 		hash, R, S []byte) ([]byte, error)
 	// Server interface for ConfirmNonceMessage
 	ConfirmNonce func(hash, R, S []byte) ([]byte, []byte, []byte, error)
@@ -141,7 +141,7 @@ func NewImplementation() ServerHandler {
 			RealtimePermute: func(m *mixmessages.RealtimePermuteMessage) { warn(um) },
 			StartRound:      func(message *mixmessages.InputMessages) { warn(um) },
 
-			RequestNonce: func(salt, diffieKey, Y, P, Q, G,
+			RequestNonce: func(salt, Y, P, Q, G,
 				hash, R, S []byte) ([]byte, error) {
 				warn(um)
 				return nil, nil
@@ -242,9 +242,9 @@ func (s *Implementation) StartRound(message *mixmessages.InputMessages) {
 }
 
 // Server interface for RequestNonceMessage
-func (s *Implementation) RequestNonce(salt, diffieKey, Y, P, Q, G,
+func (s *Implementation) RequestNonce(salt, Y, P, Q, G,
 	hash, R, S []byte) ([]byte, error) {
-	return s.Functions.RequestNonce(salt, diffieKey, Y, P, Q, G, hash, R, S)
+	return s.Functions.RequestNonce(salt, Y, P, Q, G, hash, R, S)
 }
 
 // Server interface for ConfirmNonceMessage

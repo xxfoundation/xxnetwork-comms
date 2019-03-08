@@ -152,7 +152,7 @@ func (s *server) RequestNonce(ctx context.Context,
 
 	// Obtain the nonce by passing to server
 	nonce, err := serverHandler.RequestNonce(msg.GetSalt(),
-		msg.GetDiffieKey(), msg.GetY(), msg.GetP(), msg.GetQ(),
+		msg.GetY(), msg.GetP(), msg.GetQ(),
 		msg.GetG(), msg.GetHash(), msg.GetR(), msg.GetS())
 
 	// Obtain the error message, if any
