@@ -172,16 +172,15 @@ message ConfirmRegisterUserMessage {
 // Client -> Gateway -> Server message to request nonce
 message RequestNonceMessage {
     bytes Salt = 1;
-    bytes DiffieKey = 2;
     // Client Public Key
-    bytes Y = 3;
-    bytes P = 4;
-    bytes Q = 5;
-    bytes G = 6;
+    bytes Y = 2;
+    bytes P = 3;
+    bytes Q = 4;
+    bytes G = 5;
     // RegistrationServer-Signed Client Public Key
-    bytes Hash = 7;
-    bytes R = 8;
-    bytes S = 9;
+    bytes Hash = 6;
+    bytes R = 7;
+    bytes S = 8;
 }
 
 // Server -> Gateway -> Client response to RequestNonceMessage
