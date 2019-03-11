@@ -26,3 +26,20 @@ func TestSendBatch(t *testing.T) {
 		t.Errorf("SendBatch: Error received: %s", err)
 	}
 }
+
+// Smoke Test GetBufferInfo
+func TestGetRoundBufferInfo(t *testing.T) {
+	gwShutDown := StartGateway(GatewayAddress, NewImplementation(), "", "")
+	nodeShutDown := node.StartServer(ServerAddress, node.NewImplementation(),
+		"", "")
+	defer gwShutDown()
+	defer nodeShutDown()
+
+	bufSize, err := GetRoundBufferInfo(ServerAddress)
+	if err != nil {
+		t.Errorf("GetRoundBufferInfo: Error received: %s", err)
+	}
+	if bufSize != 0 {
+		t.Errorf("GetRoundBufferInfo: Unexpected buffer size.")
+	}
+}

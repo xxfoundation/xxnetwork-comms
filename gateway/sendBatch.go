@@ -31,3 +31,23 @@ func SendBatch(addr string, messages []*pb.CmixMessage) error {
 	cancel()
 	return err
 }
+
+// GetRoundBufferInfo Asks the server for round buffer info, specifically how
+// many rounds have gone through precomputation.
+// Note that this function should block if the buffer size is 0
+// This allows the caller to continuously poll without spinning too much.
+func GetRoundBufferInfo(addr string) (int, error) {
+	c := connect.ConnectToNode(addr)
+	ctx, cancel := connect.DefaultContext()
+
+	msg := &pb.Ping{}
+	bufInfo, err := c.GetRoundBufferInfo(ctx, msg)
+	// Make sure there are no errors with sending the message
+	if err != nil {
+		jww.ERROR.Printf("GetRoundBufferInfo: Error received: %s", err)
+	}
+	cancel()
+
+	bufSize := int(bufInfo.RoundBufferSize)
+	return bufSize, err
+}
