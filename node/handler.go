@@ -24,6 +24,8 @@ type ServerHandler interface {
 	NewRound(RoundID string)
 	// Server interface for Starting a new round
 	StartRound(message *mixmessages.InputMessages)
+	// GetRoundBufferInfo returns # of available precomputations
+	GetRoundBufferInfo() (int, error)
 	// Server Interface for SetPublicKey
 	SetPublicKey(RoundID string, PublicKey []byte)
 
@@ -67,6 +69,8 @@ type implementationFunctions struct {
 	NewRound func(RoundID string)
 	// Server interface for Starting a new round
 	StartRound func(message *mixmessages.InputMessages)
+	// GetRoundBufferInfo returns # of available precomputations completed
+	GetRoundBufferInfo func() (int, error)
 	// Server Interface for SetPublicKey
 	SetPublicKey func(RoundID string, PublicKey []byte)
 
@@ -111,13 +115,13 @@ type Implementation struct {
 
 // NewImplementation returns a Implementation struct with all of the
 // function pointers returning nothing and printing an error.
-func NewImplementation() ServerHandler {
+func NewImplementation() *Implementation {
 	um := "UNIMPLEMENTED FUNCTION!"
 	warn := func(msg string) {
 		jww.WARN.Printf(msg)
 		jww.WARN.Printf("%v", debug.Stack())
 	}
-	return ServerHandler(&Implementation{
+	return &Implementation{
 		Functions: implementationFunctions{
 			RoundtripPing:    func(pingMsg *mixmessages.TimePing) { warn(um) },
 			ServerMetrics:    func(metMsg *mixmessages.ServerMetricsMessage) { warn(um) },
@@ -140,6 +144,10 @@ func NewImplementation() ServerHandler {
 			RealtimeEncrypt: func(m *mixmessages.RealtimeEncryptMessage) { warn(um) },
 			RealtimePermute: func(m *mixmessages.RealtimePermuteMessage) { warn(um) },
 			StartRound:      func(message *mixmessages.InputMessages) { warn(um) },
+			GetRoundBufferInfo: func() (int, error) {
+				warn(um)
+				return 0, nil
+			},
 
 			RequestNonce: func(salt, Y, P, Q, G,
 				hash, R, S []byte) ([]byte, error) {
@@ -151,7 +159,7 @@ func NewImplementation() ServerHandler {
 				return nil, nil, nil, nil
 			},
 		},
-	})
+	}
 }
 
 // Server Interface for roundtrip ping
@@ -239,6 +247,11 @@ func (s *Implementation) RealtimePermute(
 // Server interface for Starting a new round
 func (s *Implementation) StartRound(message *mixmessages.InputMessages) {
 	s.Functions.StartRound(message)
+}
+
+// GetRoundBufferInfo returns # of completed precomputations
+func (s *Implementation) GetRoundBufferInfo() (int, error) {
+	return s.Functions.GetRoundBufferInfo()
 }
 
 // Server interface for RequestNonceMessage

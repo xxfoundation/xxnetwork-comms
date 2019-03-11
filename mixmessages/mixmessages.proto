@@ -62,6 +62,9 @@ service MixMessageNode {
     // Starts a new round with these messages (if len(msgs) == batch size)
     rpc StartRound (InputMessages) returns (Ack) {
     }
+    // GetRoundBufferInfo returns the # of rounds ready for messages
+    rpc GetRoundBufferInfo (Ping) returns (RoundBufferInfo) {
+    }
     // Handles Registration Nonce Communication
     rpc RequestNonce (RequestNonceMessage) returns (NonceMessage) {
     }
@@ -90,6 +93,12 @@ message ServerMetricsMessage {
 // The message for Init Round
 message InitRound {
     string RoundID = 1;
+}
+
+// RoundInfo contains the # of precomputations ready for messages, among other
+// information
+message RoundBufferInfo {
+    uint32 RoundBufferSize = 1;
 }
 
 // GATEWAY MESSAGE SERVICE -----------------------------------------------------

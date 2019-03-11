@@ -146,6 +146,17 @@ func (s *server) StartRound(ctx context.Context,
 	return &pb.Ack{}, nil
 }
 
+// GetBufferInfo returns buffer size (number of completed precomputations)
+func (s *server) GetRoundBufferInfo(ctx context.Context, msg *pb.Ping) (
+	*pb.RoundBufferInfo, error) {
+	bufSize, err := serverHandler.GetRoundBufferInfo()
+	if bufSize < 0 {
+		bufSize = 0
+	}
+	size := uint32(bufSize)
+	return &pb.RoundBufferInfo{RoundBufferSize: size}, err
+}
+
 // Handles Registration Nonce Communication
 func (s *server) RequestNonce(ctx context.Context,
 	msg *pb.RequestNonceMessage) (*pb.NonceMessage, error) {
