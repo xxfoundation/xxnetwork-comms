@@ -15,18 +15,19 @@ import (
 )
 
 // Send a RegisterUserMessage to the RegistrationServer
-func SendRegistrationMessage(addr string, message *pb.RegisterUserMessage) error {
+func SendRegistrationMessage(addr string, message *pb.RegisterUserMessage) (
+	*pb.ConfirmRegisterUserMessage, error) {
 	// Attempt to connect to addr
 	c := connect.ConnectToRegistration(addr)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
-	_, err := c.RegisterUser(ctx, message)
+	response, err := c.RegisterUser(ctx, message)
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
 		jww.ERROR.Printf("RegistrationMessage: Error received: %s", err)
 	}
 	cancel()
-	return err
+	return response, err
 }
