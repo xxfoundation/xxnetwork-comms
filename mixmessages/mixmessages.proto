@@ -212,7 +212,12 @@ message RegistrationConfirmation {
     bytes Hash = 1;
     bytes R = 2;
     bytes S = 3;
-    string Error = 4;
+    // Server Public Key
+    bytes Y = 4;
+    bytes P = 5;
+    bytes Q = 6;
+    bytes G = 7;
+    string Error = 8;
 }
 
 // GENERAL USE MESSAGES --------------------------------------------------------
