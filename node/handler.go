@@ -56,7 +56,8 @@ type ServerHandler interface {
 	RequestNonce(salt, Y, P, Q, G,
 		hash, R, S []byte) ([]byte, error)
 	// Server interface for ConfirmNonceMessage
-	ConfirmNonce(hash, R, S []byte) ([]byte, []byte, []byte, error)
+	ConfirmNonce(hash, R, S []byte) ([]byte,
+		[]byte, []byte, []byte, []byte, []byte, []byte, error)
 }
 
 type implementationFunctions struct {
@@ -101,7 +102,8 @@ type implementationFunctions struct {
 	RequestNonce func(salt, Y, P, Q, G,
 		hash, R, S []byte) ([]byte, error)
 	// Server interface for ConfirmNonceMessage
-	ConfirmNonce func(hash, R, S []byte) ([]byte, []byte, []byte, error)
+	ConfirmNonce func(hash, R, S []byte) ([]byte,
+		[]byte, []byte, []byte, []byte, []byte, []byte, error)
 }
 
 // Implementation allows users of the client library to set the
@@ -154,9 +156,10 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return nil, nil
 			},
-			ConfirmNonce: func(hash, R, S []byte) ([]byte, []byte, []byte, error) {
+			ConfirmNonce: func(hash, R, S []byte) ([]byte,
+				[]byte, []byte, []byte, []byte, []byte, []byte, error) {
 				warn(um)
-				return nil, nil, nil, nil
+				return nil, nil, nil, nil, nil, nil, nil, nil
 			},
 		},
 	}
@@ -262,6 +265,6 @@ func (s *Implementation) RequestNonce(salt, Y, P, Q, G,
 
 // Server interface for ConfirmNonceMessage
 func (s *Implementation) ConfirmNonce(hash, R, S []byte) ([]byte,
-	[]byte, []byte, error) {
+	[]byte, []byte, []byte, []byte, []byte, []byte, error) {
 	return s.Functions.ConfirmNonce(hash, R, S)
 }

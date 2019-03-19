@@ -184,7 +184,7 @@ func (s *server) ConfirmNonce(ctx context.Context,
 	msg *pb.ConfirmNonceMessage) (*pb.RegistrationConfirmation, error) {
 
 	// Obtain signed client public key by passing to server
-	hash, R, S, err := serverHandler.ConfirmNonce(msg.GetHash(),
+	hash, R, S, Y, P, Q, G, err := serverHandler.ConfirmNonce(msg.GetHash(),
 		msg.GetR(), msg.GetS())
 
 	// Obtain the error message, if any
@@ -198,6 +198,10 @@ func (s *server) ConfirmNonce(ctx context.Context,
 		Hash:  hash,
 		R:     R,
 		S:     S,
+		Y:     Y,
+		P:     P,
+		Q:     Q,
+		G:     G,
 		Error: errMsg,
 	}, err
 }
