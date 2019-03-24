@@ -54,7 +54,7 @@ const MAX_RETRIES = 5
 
 // Connect to the registration server with a given address string
 func ConnectToRegistration(address string) pb.RegistrationClient {
-	connection := connect(address, "*.cmix.rip",
+	connection := connect(address, "registration*.cmix.rip",
 		RegistrationCertPath, RegistrationCertString)
 	return pb.NewRegistrationClient(connection)
 }
