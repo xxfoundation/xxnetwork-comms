@@ -41,13 +41,15 @@ func GetRoundBufferInfo(addr string) (int, error) {
 	ctx, cancel := connect.DefaultContext()
 
 	msg := &pb.Ping{}
+	bufSize := int(0)
 	bufInfo, err := c.GetRoundBufferInfo(ctx, msg)
 	// Make sure there are no errors with sending the message
 	if err != nil {
 		jww.ERROR.Printf("GetRoundBufferInfo: Error received: %s", err)
+	} else {
+		bufSize = int(bufInfo.RoundBufferSize)
 	}
 	cancel()
 
-	bufSize := int(bufInfo.RoundBufferSize)
 	return bufSize, err
 }
