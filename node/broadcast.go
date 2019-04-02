@@ -80,7 +80,7 @@ func SendAskOnline(addr string, message *pb.Ping) (*pb.Ack, error) {
 	return result, err
 }
 
-func SendNewRound(addr string, message *pb.InitRound) (*pb.Ack, error) {
+func SendNewRound(addr string, message *pb.CmixMessage) (*pb.Ack, error) {
 	c := connect.ConnectToNode(addr)
 
 	// Send the message

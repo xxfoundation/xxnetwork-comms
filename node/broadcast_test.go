@@ -55,7 +55,7 @@ func TestSendServerMetrics(t *testing.T) {
 func TestSendNewRound(t *testing.T) {
 	ShutDown := StartServer(ServerAddress, NewImplementation(), "", "")
 	defer ShutDown()
-	_, err := SendNewRound(ServerAddress, &pb.InitRound{})
+	_, err := SendNewRound(ServerAddress, &pb.CmixMessage{})
 	if err != nil {
 		t.Errorf("NewRound: Error received: %s", err)
 	}

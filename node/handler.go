@@ -29,28 +29,8 @@ type ServerHandler interface {
 	// Server Interface for SetPublicKey
 	SetPublicKey(RoundID string, PublicKey []byte)
 
-	// Server Interface for the PrecompDecrypt Messages
-	PrecompDecrypt(*mixmessages.PrecompDecryptMessage)
-	// Server Interface for the PrecompEncrypt Messages
-	PrecompEncrypt(*mixmessages.PrecompEncryptMessage)
-	// Server Interface for the PrecompReveal Messages
-	PrecompReveal(*mixmessages.PrecompRevealMessage)
-	// Server Interface for the PrecompPermute Messages
-	PrecompPermute(*mixmessages.PrecompPermuteMessage)
-	// Server Interface for the PrecompShare Messages
-	PrecompShare(*mixmessages.PrecompShareMessage)
-	// Server Interface for the PrecompShareInit Messages
-	PrecompShareInit(*mixmessages.PrecompShareInitMessage)
-	// Server Interface for the PrecompShareInit Messages
-	PrecompShareCompare(*mixmessages.PrecompShareCompareMessage)
-	// Server Interface for the PrecompShareConfirm Messages
-	PrecompShareConfirm(*mixmessages.PrecompShareConfirmMessage)
-	// Server Interface for the RealtimeDecrypt Messages
-	RealtimeDecrypt(*mixmessages.RealtimeDecryptMessage)
-	// Server Interface for the RealtimeEncrypt Messages
-	RealtimeEncrypt(*mixmessages.RealtimeEncryptMessage)
-	// Server Interface for the RealtimePermute Messages
-	RealtimePermute(*mixmessages.RealtimePermuteMessage)
+	// Server Interface for all Internode Comms
+	Phase(message *mixmessages.CmixMessage)
 
 	// Server interface for RequestNonceMessage
 	RequestNonce(salt, Y, P, Q, G,
@@ -75,28 +55,8 @@ type implementationFunctions struct {
 	// Server Interface for SetPublicKey
 	SetPublicKey func(RoundID string, PublicKey []byte)
 
-	// Server Interface for the PrecompDecrypt Messages
-	PrecompDecrypt func(*mixmessages.PrecompDecryptMessage)
-	// Server Interface for the PrecompEncrypt Messages
-	PrecompEncrypt func(*mixmessages.PrecompEncryptMessage)
-	// Server Interface for the PrecompReveal Messages
-	PrecompReveal func(*mixmessages.PrecompRevealMessage)
-	// Server Interface for the PrecompPermute Messages
-	PrecompPermute func(*mixmessages.PrecompPermuteMessage)
-	// Server Interface for the PrecompShare Messages
-	PrecompShare func(*mixmessages.PrecompShareMessage)
-	// Server Interface for the PrecompShareInit Messages
-	PrecompShareInit func(*mixmessages.PrecompShareInitMessage)
-	// Server Interface for the PrecompShareInit Messages
-	PrecompShareCompare func(*mixmessages.PrecompShareCompareMessage)
-	// Server Interface for the PrecompShareConfirm Messages
-	PrecompShareConfirm func(*mixmessages.PrecompShareConfirmMessage)
-	// Server Interface for the RealtimeDecrypt Messages
-	RealtimeDecrypt func(*mixmessages.RealtimeDecryptMessage)
-	// Server Interface for the RealtimeEncrypt Messages
-	RealtimeEncrypt func(*mixmessages.RealtimeEncryptMessage)
-	// Server Interface for the RealtimePermute Messages
-	RealtimePermute func(*mixmessages.RealtimePermuteMessage)
+	// Server Interface for the Internode Messages
+	Phase func(message *mixmessages.CmixMessage)
 
 	// Server interface for RequestNonceMessage
 	RequestNonce func(salt, Y, P, Q, G,
@@ -129,22 +89,7 @@ func NewImplementation() *Implementation {
 			ServerMetrics:    func(metMsg *mixmessages.ServerMetricsMessage) { warn(um) },
 			NewRound:         func(RoundID string) { warn(um) },
 			SetPublicKey:     func(RoundID string, PublicKey []byte) { warn(um) },
-			PrecompDecrypt:   func(m *mixmessages.PrecompDecryptMessage) { warn(um) },
-			PrecompEncrypt:   func(m *mixmessages.PrecompEncryptMessage) { warn(um) },
-			PrecompReveal:    func(m *mixmessages.PrecompRevealMessage) { warn(um) },
-			PrecompPermute:   func(m *mixmessages.PrecompPermuteMessage) { warn(um) },
-			PrecompShare:     func(m *mixmessages.PrecompShareMessage) { warn(um) },
-			PrecompShareInit: func(m *mixmessages.PrecompShareInitMessage) { warn(um) },
-			PrecompShareCompare: func(m *mixmessages.PrecompShareCompareMessage) {
-				warn(um)
-			},
-			PrecompShareConfirm: func(m *mixmessages.PrecompShareConfirmMessage) {
-				warn(um)
-			},
-
-			RealtimeDecrypt: func(m *mixmessages.RealtimeDecryptMessage) { warn(um) },
-			RealtimeEncrypt: func(m *mixmessages.RealtimeEncryptMessage) { warn(um) },
-			RealtimePermute: func(m *mixmessages.RealtimePermuteMessage) { warn(um) },
+			Phase: func(m *mixmessages.CmixMessage) { warn(um) },
 			StartRound:      func(message *mixmessages.InputMessages) { warn(um) },
 			GetRoundBufferInfo: func() (int, error) {
 				warn(um)
@@ -186,65 +131,9 @@ func (s *Implementation) SetPublicKey(RoundID string, PublicKey []byte) {
 	s.Functions.SetPublicKey(RoundID, PublicKey)
 }
 
-// Server Interface for the PrecompDecrypt Messages
-func (s *Implementation) PrecompDecrypt(m *mixmessages.PrecompDecryptMessage) {
-	s.Functions.PrecompDecrypt(m)
-}
-
-// Server Interface for the PrecompEncrypt Messages
-func (s *Implementation) PrecompEncrypt(m *mixmessages.PrecompEncryptMessage) {
-	s.Functions.PrecompEncrypt(m)
-}
-
-// Server Interface for the PrecompReveal Messages
-func (s *Implementation) PrecompReveal(m *mixmessages.PrecompRevealMessage) {
-	s.Functions.PrecompReveal(m)
-}
-
-// Server Interface for the PrecompPermute Messages
-func (s *Implementation) PrecompPermute(m *mixmessages.PrecompPermuteMessage) {
-	s.Functions.PrecompPermute(m)
-}
-
-// Server Interface for the PrecompShare Messages
-func (s *Implementation) PrecompShare(m *mixmessages.PrecompShareMessage) {
-	s.Functions.PrecompShare(m)
-}
-
-// Server Interface for the PrecompShareInit Messages
-func (s *Implementation) PrecompShareInit(
-	m *mixmessages.PrecompShareInitMessage) {
-	s.Functions.PrecompShareInit(m)
-}
-
-// Server Interface for the PrecompShareInit Messages
-func (s *Implementation) PrecompShareCompare(
-	m *mixmessages.PrecompShareCompareMessage) {
-	s.Functions.PrecompShareCompare(m)
-}
-
-// Server Interface for the PrecompShareConfirm Messages
-func (s *Implementation) PrecompShareConfirm(
-	m *mixmessages.PrecompShareConfirmMessage) {
-	s.Functions.PrecompShareConfirm(m)
-}
-
-// Server Interface for the RealtimeDecrypt Messages
-func (s *Implementation) RealtimeDecrypt(
-	m *mixmessages.RealtimeDecryptMessage) {
-	s.Functions.RealtimeDecrypt(m)
-}
-
-// Server Interface for the RealtimeEncrypt Messages
-func (s *Implementation) RealtimeEncrypt(
-	m *mixmessages.RealtimeEncryptMessage) {
-	s.Functions.RealtimeEncrypt(m)
-}
-
-// Server Interface for the RealtimePermute Messages
-func (s *Implementation) RealtimePermute(
-	m *mixmessages.RealtimePermuteMessage) {
-	s.Functions.RealtimePermute(m)
+// Server Interface for the phase messages
+func (s *Implementation) Phase(m *mixmessages.CmixMessage) {
+	s.Functions.Phase(m)
 }
 
 // Server interface for Starting a new round

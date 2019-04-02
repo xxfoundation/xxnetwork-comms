@@ -20,47 +20,17 @@ service MixMessageNode {
     // Handles ServerMetrics
     rpc ServerMetrics (ServerMetricsMessage) returns (Ack) {
     }
-    // Handles Init Round
-    rpc NewRound (InitRound) returns (Ack) {
-    }
-    // Handles Precomp Decrypt
-    rpc PrecompDecrypt (PrecompDecryptMessage) returns (Ack) {
-    }
-    // Handles Precomp Encrypt
-    rpc PrecompEncrypt (PrecompEncryptMessage) returns (Ack) {
-    }
-    // Handles Precomp Reveal
-    rpc PrecompReveal (PrecompRevealMessage) returns (Ack) {
-    }
-    // Handles Precomp Permute
-    rpc PrecompPermute (PrecompPermuteMessage) returns (Ack) {
-    }
-    // Handles Precomp Share
-    rpc PrecompShare (PrecompShareMessage) returns (Ack) {
-    }
-    // Handles Precomp Share Initialization
-    rpc PrecompShareInit (PrecompShareInitMessage) returns (Ack) {
-    }
-    // Handles Precomp Share Comparison
-    rpc PrecompShareCompare (PrecompShareCompareMessage) returns (Ack) {
-    }
-    // Handles Precomp Share Confirmation
-    rpc PrecompShareConfirm (PrecompShareConfirmMessage) returns (Ack) {
-    }
-    // Handles Realtime Decrypt
-    rpc RealtimeDecrypt (RealtimeDecryptMessage) returns (Ack) {
-    }
-    // Handles Realtime Encrypt
-    rpc RealtimeEncrypt (RealtimeEncryptMessage) returns (Ack) {
-    }
-    // Handles Realtime Permute
-    rpc RealtimePermute (RealtimePermuteMessage) returns (Ack) {
-    }
-    // Set the public key
-    rpc SetPublicKey (PublicKeyMessage) returns (Ack) {
+    // Creates a new round with a certain ID
+    rpc NewRound (CmixMessage) returns (Ack) {
     }
     // Starts a new round with these messages (if len(msgs) == batch size)
     rpc StartRound (InputMessages) returns (Ack) {
+    }
+    // Runs a cMix phase on another node
+    rpc Phase (CmixMessage) returns (Ack) {
+    }
+    // Set the public key
+    rpc SetPublicKey (PublicKeyMessage) returns (Ack) {
     }
     // GetRoundBufferInfo returns the # of rounds ready for messages
     rpc GetRoundBufferInfo (Ping) returns (RoundBufferInfo) {
@@ -91,7 +61,7 @@ message ServerMetricsMessage {
 }
 
 // The message for Init Round
-message InitRound {
+message RoundIDMessage {
     string RoundID = 1;
 }
 
@@ -227,140 +197,63 @@ message Ack {
     string Error = 1;
 }
 
-// The standard CMIX message type
+enum Phase {
+    // Off: An Initialized round which hasn't been started by the master yet
+    OFF = 0;
+    // Precomputation Generation: Initializes all the random values in round
+    PRECOMP_GENERATION = 1;
+    // Precomputation Share: Combine partial recipient public cypher keys
+    PRECOMP_SHARE = 2;
+    // Precomputation Decrypt: Adds in first set of encrypted keys
+    PRECOMP_DECRYPT = 3;
+    // Precomputation Decrypt: Adds in second set of encrypted keys and permutes
+    PRECOMP_PERMUTE = 4;
+    // Precomputation Encrypt: Adds in last set of encrypted keys
+    PRECOMP_ENCRYPT = 5;
+    // Precomputation Reveal: Generates public key to decrypt keys
+    PRECOMP_REVEAL = 6;
+    // Precomputation Strip: Decrypts the Precomputation
+    PRECOMP_STRIP = 7;
+    // Precomputation Complete: Precomputation has finished but Realtime hasn't
+    //                          started
+    PRECOMP_COMPLETE = 8;
+    // Realtime Decrypt: Removes Transmission Keys and add first Keys
+    REAL_DECRYPT = 9;
+    // Realtime Permute: Permutes Slots and add in second keys
+    REAL_PERMUTE = 10;
+    // Realtime Identify: Uses Precomputation to reveal Recipient, broadcasts
+    REAL_IDENTIFY = 11;
+    // Realtime Encrypt: Add in Reception Keys and Last Keys
+    REAL_ENCRYPT = 12;
+    // Realtime Peel: Uses Precomputation to prepare slots for Reception
+    REAL_PEEL = 13;
+    // Realtime Complete: Round has been completed
+    REAL_COMPLETE = 14;
+    // Error: A Fatal Error has occurred, cannot continue
+    // To kill a round, call Phase() on all other nodes with the round ID and
+    // this Phase
+    ERROR = 15;
+}
+
 message CmixMessage {
-    bytes SenderID = 1;       // 128 bit Sender Identity
-    bytes MessagePayload = 2; // Len(Prime) bit length Encrypted Payload
-    // TODO When we increase the size of the prime, the payload and associated
-    // data should become part of the
-    bytes AssociatedData = 3; // Len(Prime) bit length associated data
-    bytes Salt = 4;           // Salt to identify message key
-    repeated bytes KMACs = 5; // Individual Key MAC for each node in network
+    string RoundID = 1;
+    Phase ForPhase = 2;
+    repeated CmixSlot slots = 3;
 }
 
-// PRECOMPUTATION MESSAGES -----------------------------------------------------
-
-// Message for individual Precomp Decrypt Slot
-message PrecompDecryptSlot {
-    uint64 Slot = 1;
+message CmixSlot {
+    uint64 SlotID = 1;
+    // Precomputation fields
     bytes EncryptedMessageKeys = 2;
     bytes EncryptedAssociatedDataKeys = 3;
     bytes PartialMessageCypherText = 4;
     bytes PartialAssociatedDataCypherText = 5;
+    bytes PartialRoundPublicCypherKey = 6;
+    // Realtime/client fields
+    bytes SenderID = 7;        // 256 bit Sender Id
+    bytes MessagePayload = 8;  // Len(Prime) bit length Encrypted Payload
+    bytes AssociatedData = 9;  // Len(Prime) bit length associated data
+    bytes Salt = 10;           // Salt to identify message key
+    repeated bytes KMACs = 11; // Individual Key MAC for each node in network
 }
 
-// Message for batch of Precomp Decrypt Slots
-message PrecompDecryptMessage {
-    string RoundID = 1;
-    int32 LastOp = 2;
-    repeated PrecompDecryptSlot Slots = 3;
-}
-
-// Message for individual Precomp Encrypt Slot
-message PrecompEncryptSlot {
-    uint64 Slot = 1;
-    bytes EncryptedMessageKeys = 2;
-    bytes PartialMessageCypherText = 3;
-}
-
-// Message for batch of Precomp Encrypt Slots
-message PrecompEncryptMessage {
-    string RoundID = 1;
-    int32 LastOp = 2;
-    repeated PrecompEncryptSlot Slots = 3;
-}
-
-// Message for individual Precomp Reveal Slot
-message PrecompRevealSlot {
-    uint64 Slot = 1;
-    bytes PartialMessageCypherText = 2;
-    bytes PartialAssociatedDataCypherText = 3;
-}
-
-// Message for batch of Precomp Reveal Slots
-message PrecompRevealMessage {
-    string RoundID = 1;
-    int32 LastOp = 2;
-    repeated PrecompRevealSlot Slots = 3;
-}
-
-// Message for individual Precomp Permute Slot
-message PrecompPermuteSlot {
-    uint64 Slot = 1;
-    bytes EncryptedMessageKeys = 2;
-    bytes EncryptedAssociatedDataKeys = 3;
-    bytes PartialMessageCypherText = 4;
-    bytes PartialAssociatedDataCypherText = 5;
-}
-
-// Message for batch of Precomp Permute Slots
-message PrecompPermuteMessage {
-    string RoundID = 1;
-    int32 LastOp = 2;
-    repeated PrecompPermuteSlot Slots = 3;
-}
-
-// Message from last node to indicate share phase is beginning
-message PrecompShareInitMessage {
-    string RoundID = 1;
-    uint64 NodeID = 2;
-    bytes SignedRoundID = 3;
-}
-
-// Message from each node to every other node to compare results of share phase
-message PrecompShareCompareMessage {
-    bytes RoundCypherKey = 1;
-    uint64 NodeID = 2;
-    bytes SignedCypherKey = 3;
-}
-
-// Message from each node after it has confirmed the round cypher key
-message PrecompShareConfirmMessage {
-    bytes HashedCypherKey = 1;
-    uint64 NodeID = 2;
-    bytes ComparisonResult = 3;
-    bytes SignedCypherConfirm = 4;
-}
-
-// Message for individual Precomp Share Slot
-message PrecompShareSlot {
-    uint64 Slot = 1;
-    bytes PartialRoundPublicCypherKey = 2;
-}
-
-// Message for batch of Precomp Share Slots
-message PrecompShareMessage {
-    string RoundID = 1;
-    int32 LastOp = 2;
-    repeated PrecompShareSlot Slots = 3;
-}
-
-// REALTIME MESSAGES -----------------------------------------------------------
-
-// Message for batch of Realtime Decrypt Slots
-message RealtimeDecryptMessage {
-    string RoundID = 1;
-    int32 LastOp = 2;
-    repeated CmixMessage Slots = 3;
-}
-
-// Message for batch of Realtime Encrypt Slots
-message RealtimeEncryptMessage {
-    string RoundID = 1;
-    int32 LastOp = 2;
-    repeated CmixMessage Slots = 3;
-}
-
-// Message for individual Realtime Permute Slot
-message RealtimePermuteSlot {
-    uint64 Slot = 1;
-    bytes EncryptedMessage = 2;
-    bytes EncryptedAssociatedData = 3;
-}
-
-// Message for batch of Realtime Permute Slots
-message RealtimePermuteMessage {
-    string RoundID = 1;
-    int32 LastOp = 2;
-    repeated RealtimePermuteSlot Slots = 3;
-}

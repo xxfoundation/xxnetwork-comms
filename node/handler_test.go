@@ -22,30 +22,6 @@ func (m TestInterface) ServerMetrics(message *pb.ServerMetricsMessage) {}
 
 func (m TestInterface) SetPublicKey(roundId string, pkey []byte) {}
 
-func (m TestInterface) PrecompDecrypt(message *pb.PrecompDecryptMessage) {}
-
-func (m TestInterface) PrecompEncrypt(message *pb.PrecompEncryptMessage) {}
-
-func (m TestInterface) PrecompReveal(message *pb.PrecompRevealMessage) {}
-
-func (m TestInterface) PrecompPermute(message *pb.PrecompPermuteMessage) {}
-
-func (m TestInterface) PrecompShare(message *pb.PrecompShareMessage) {}
-
-func (m TestInterface) PrecompShareInit(message *pb.PrecompShareInitMessage) {}
-
-func (m TestInterface) PrecompShareCompare(message *pb.
-	PrecompShareCompareMessage) {
-}
-
-func (m TestInterface) PrecompShareConfirm(message *pb.
-	PrecompShareConfirmMessage) {
-}
-
-func (m TestInterface) RealtimeDecrypt(message *pb.RealtimeDecryptMessage) {}
-
-func (m TestInterface) RealtimeEncrypt(message *pb.RealtimeEncryptMessage) {}
-
-func (m TestInterface) RealtimePermute(message *pb.RealtimePermuteMessage) {}
-
 func (m TestInterface) StartRound(messages *pb.InputMessages) {}
+
+func (m TestInterface) Phase(message *pb.CmixMessage) {}
