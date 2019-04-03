@@ -8,7 +8,6 @@ package client
 
 import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/elixxir/comms/node"
 	"gitlab.com/elixxir/comms/registration"
 	"testing"
 )
@@ -16,13 +15,9 @@ import (
 // Smoke test SendRegistrationMessage
 func TestSendRegistrationMessage(t *testing.T) {
 	GatewayAddress := getNextGatewayAddress()
-	ServerAddress := getNextServerAddress()
 	rgShutDown := registration.StartRegistrationServer(GatewayAddress,
 		registration.NewImplementation(), "", "")
-	nodeShutDown := node.StartServer(ServerAddress, node.NewImplementation(),
-		"", "")
 	defer rgShutDown()
-	defer nodeShutDown()
 
 	_, err := SendRegistrationMessage(GatewayAddress, "", "",
 		&pb.RegisterUserMessage{})
