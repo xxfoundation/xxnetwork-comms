@@ -81,11 +81,11 @@ func NewImplementation() *Implementation {
 	}
 	return &Implementation{
 		Functions: implementationFunctions{
-			RoundtripPing:    func(pingMsg *mixmessages.TimePing) { warn(um) },
-			ServerMetrics:    func(metMsg *mixmessages.ServerMetricsMessage) { warn(um) },
-			NewRound:         func(RoundID string) { warn(um) },
-			Phase: func(m *mixmessages.CmixMessage) { warn(um) },
-			StartRound:      func(message *mixmessages.InputMessages) { warn(um) },
+			RoundtripPing: func(pingMsg *mixmessages.TimePing) { warn(um) },
+			ServerMetrics: func(metMsg *mixmessages.ServerMetricsMessage) { warn(um) },
+			NewRound:      func(RoundID string) { warn(um) },
+			Phase:         func(m *mixmessages.CmixMessage) { warn(um) },
+			StartRound:    func(message *mixmessages.InputMessages) { warn(um) },
 			GetRoundBufferInfo: func() (int, error) {
 				warn(um)
 				return 0, nil

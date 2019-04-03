@@ -19,7 +19,7 @@ var ServerAddress = ""
 
 // This sets up a dummy/mock gateway instance for testing purposes
 func TestMain(m *testing.M) {
-	rand.Seed(time.Now().Unix())
+	rand.Seed(time.Now().UnixNano())
 	GatewayAddress = fmt.Sprintf("localhost:%d", rand.Intn(3000)+4000)
 	ServerAddress = fmt.Sprintf("localhost:%d", rand.Intn(3000)+3000)
 	// If they're the same address, keep trying until they're different

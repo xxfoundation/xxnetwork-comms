@@ -13,6 +13,10 @@ import (
 
 // Smoke test SendAskOnline
 func TestSendAskOnline(t *testing.T) {
+	serverAddressLock.Lock()
+	defer serverAddressLock.Unlock()
+	ServerAddress = getNextServerAddress()
+	t.Log(ServerAddress)
 	ShutDown := StartServer(ServerAddress, NewImplementation(), "", "")
 	defer ShutDown()
 	_, err := SendAskOnline(ServerAddress, &pb.Ping{})
@@ -23,6 +27,10 @@ func TestSendAskOnline(t *testing.T) {
 
 // Smoke test SendRoundtripPing
 func TestSendRoundtripPing(t *testing.T) {
+	serverAddressLock.Lock()
+	defer serverAddressLock.Unlock()
+	ServerAddress = getNextServerAddress()
+	t.Log(ServerAddress)
 	ShutDown := StartServer(ServerAddress, NewImplementation(), "", "")
 	defer ShutDown()
 	_, err := SendRoundtripPing(ServerAddress, &pb.TimePing{})
@@ -33,6 +41,10 @@ func TestSendRoundtripPing(t *testing.T) {
 
 // Smoke test SendServerMetrics
 func TestSendServerMetrics(t *testing.T) {
+	serverAddressLock.Lock()
+	defer serverAddressLock.Unlock()
+	ServerAddress = getNextServerAddress()
+	t.Log(ServerAddress)
 	ShutDown := StartServer(ServerAddress, NewImplementation(), "", "")
 	defer ShutDown()
 	_, err := SendServerMetrics(ServerAddress, &pb.ServerMetricsMessage{})
@@ -43,10 +55,27 @@ func TestSendServerMetrics(t *testing.T) {
 
 // Smoke test SendNewRound
 func TestSendNewRound(t *testing.T) {
+	serverAddressLock.Lock()
+	defer serverAddressLock.Unlock()
+	ServerAddress = getNextServerAddress()
+	t.Log(ServerAddress)
 	ShutDown := StartServer(ServerAddress, NewImplementation(), "", "")
 	defer ShutDown()
 	_, err := SendNewRound(ServerAddress, &pb.CmixMessage{})
 	if err != nil {
 		t.Errorf("NewRound: Error received: %s", err)
+	}
+}
+
+// Smoke test SendPhase
+func TestSendPhase(t *testing.T) {
+	serverAddressLock.Lock()
+	defer serverAddressLock.Unlock()
+	ServerAddress = getNextServerAddress()
+	ShutDown := StartServer(ServerAddress, NewImplementation(), "", "")
+	defer ShutDown()
+	_, err := SendPhase(ServerAddress, &pb.CmixMessage{})
+	if err != nil {
+		t.Errorf("Phase: Error received: %s", err)
 	}
 }

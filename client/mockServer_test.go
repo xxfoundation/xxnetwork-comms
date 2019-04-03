@@ -21,7 +21,7 @@ var ServerAddress = ""
 
 // Start server for testing
 func TestMain(m *testing.M) {
-	rand.Seed(time.Now().Unix())
+	rand.Seed(time.Now().UnixNano())
 	GatewayAddress = fmt.Sprintf("localhost:%d", rand.Intn(1000)+5001)
 	ServerAddress = fmt.Sprintf("localhost:%d", rand.Intn(1000)+4000)
 	os.Exit(m.Run())
