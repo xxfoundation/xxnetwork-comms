@@ -12,11 +12,11 @@ import (
 )
 
 // Smoke test SendPhase
-func TestSendRunPhase(t *testing.T) {
+func TestSendPhase(t *testing.T) {
 	ShutDown := StartServer(ServerAddress, NewImplementation(), "", "")
 	defer ShutDown()
 	_, err := SendPhase(ServerAddress, &pb.CmixMessage{})
 	if err != nil {
-		t.Errorf("RunPhase: Error received: %s", err)
+		t.Errorf("Phase: Error received: %s", err)
 	}
 }
