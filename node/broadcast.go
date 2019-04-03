@@ -16,22 +16,6 @@ import (
 	"golang.org/x/net/context"
 )
 
-func SetPublicKey(addr string, message *pb.PublicKeyMessage) (*pb.Ack, error) {
-	// Attempt to connect to addr
-	c := connect.ConnectToNode(addr)
-	ctx, cancel := connect.DefaultContext()
-
-	// Send the message
-	result, err := c.SetPublicKey(ctx, message, grpc_retry.WithMax(connect.MAX_RETRIES))
-
-	// Make sure there are no errors with sending the message
-	if err != nil {
-		jww.ERROR.Printf("SetPublicKey: Error received: %s", err)
-	}
-	cancel()
-	return result, err
-}
-
 func SendServerMetrics(addr string, message *pb.ServerMetricsMessage) (*pb.Ack, error) {
 	// Attempt to connect to addr
 	c := connect.ConnectToNode(addr)

@@ -26,8 +26,6 @@ type ServerHandler interface {
 	StartRound(message *mixmessages.InputMessages)
 	// GetRoundBufferInfo returns # of available precomputations
 	GetRoundBufferInfo() (int, error)
-	// Server Interface for SetPublicKey
-	SetPublicKey(RoundID string, PublicKey []byte)
 
 	// Server Interface for all Internode Comms
 	Phase(message *mixmessages.CmixMessage)
@@ -52,8 +50,6 @@ type implementationFunctions struct {
 	StartRound func(message *mixmessages.InputMessages)
 	// GetRoundBufferInfo returns # of available precomputations completed
 	GetRoundBufferInfo func() (int, error)
-	// Server Interface for SetPublicKey
-	SetPublicKey func(RoundID string, PublicKey []byte)
 
 	// Server Interface for the Internode Messages
 	Phase func(message *mixmessages.CmixMessage)
@@ -88,7 +84,6 @@ func NewImplementation() *Implementation {
 			RoundtripPing:    func(pingMsg *mixmessages.TimePing) { warn(um) },
 			ServerMetrics:    func(metMsg *mixmessages.ServerMetricsMessage) { warn(um) },
 			NewRound:         func(RoundID string) { warn(um) },
-			SetPublicKey:     func(RoundID string, PublicKey []byte) { warn(um) },
 			Phase: func(m *mixmessages.CmixMessage) { warn(um) },
 			StartRound:      func(message *mixmessages.InputMessages) { warn(um) },
 			GetRoundBufferInfo: func() (int, error) {
@@ -124,11 +119,6 @@ func (s *Implementation) ServerMetrics(
 // Server Interface for starting New Rounds
 func (s *Implementation) NewRound(RoundID string) {
 	s.Functions.NewRound(RoundID)
-}
-
-// Server Interface for SetPublicKey
-func (s *Implementation) SetPublicKey(RoundID string, PublicKey []byte) {
-	s.Functions.SetPublicKey(RoundID, PublicKey)
 }
 
 // Server Interface for the phase messages

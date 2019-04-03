@@ -20,8 +20,6 @@ func (m TestInterface) RoundtripPing(message *pb.TimePing) {}
 
 func (m TestInterface) ServerMetrics(message *pb.ServerMetricsMessage) {}
 
-func (m TestInterface) SetPublicKey(roundId string, pkey []byte) {}
-
 func (m TestInterface) StartRound(messages *pb.InputMessages) {}
 
 func (m TestInterface) Phase(message *pb.CmixMessage) {}

@@ -11,16 +11,6 @@ import (
 	"testing"
 )
 
-// Smoke test SendRealtimePermute
-func TestSetPublicKey(t *testing.T) {
-	ShutDown := StartServer(ServerAddress, NewImplementation(), "", "")
-	defer ShutDown()
-	_, err := SetPublicKey(ServerAddress, &pb.PublicKeyMessage{})
-	if err != nil {
-		t.Errorf("PublicKeyMessage: Error received: %s", err)
-	}
-}
-
 // Smoke test SendAskOnline
 func TestSendAskOnline(t *testing.T) {
 	ShutDown := StartServer(ServerAddress, NewImplementation(), "", "")

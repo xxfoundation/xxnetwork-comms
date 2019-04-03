@@ -29,9 +29,6 @@ service MixMessageNode {
     // Runs a cMix phase on another node
     rpc Phase (CmixMessage) returns (Ack) {
     }
-    // Set the public key
-    rpc SetPublicKey (PublicKeyMessage) returns (Ack) {
-    }
     // GetRoundBufferInfo returns the # of rounds ready for messages
     rpc GetRoundBufferInfo (Ping) returns (RoundBufferInfo) {
     }
@@ -103,12 +100,6 @@ message ClientPollMessage {
 // The message for clients to poll the gateway for Message IDs
 message ClientMessages {
     repeated string MessageIDs = 1;
-}
-
-// Message for setting public key
-message PublicKeyMessage {
-    string RoundID = 1;
-    bytes PublicKey = 2;
 }
 
 // Input messages are a list of messages run as a batch
@@ -204,41 +195,44 @@ enum Phase {
     PRECOMP_GENERATION = 1;
     // Precomputation Share: Combine partial recipient public cypher keys
     PRECOMP_SHARE = 2;
+    // Precomputation Share Set: Set public keys at the end of the share phase
+    PRECOMP_SHARE_SET = 3;
     // Precomputation Decrypt: Adds in first set of encrypted keys
-    PRECOMP_DECRYPT = 3;
+    PRECOMP_DECRYPT = 4;
     // Precomputation Decrypt: Adds in second set of encrypted keys and permutes
-    PRECOMP_PERMUTE = 4;
+    PRECOMP_PERMUTE = 5;
     // Precomputation Encrypt: Adds in last set of encrypted keys
-    PRECOMP_ENCRYPT = 5;
+    PRECOMP_ENCRYPT = 6;
     // Precomputation Reveal: Generates public key to decrypt keys
-    PRECOMP_REVEAL = 6;
+    PRECOMP_REVEAL = 7;
     // Precomputation Strip: Decrypts the Precomputation
-    PRECOMP_STRIP = 7;
+    PRECOMP_STRIP = 8;
     // Precomputation Complete: Precomputation has finished but Realtime hasn't
     //                          started
-    PRECOMP_COMPLETE = 8;
+    PRECOMP_COMPLETE = 9;
     // Realtime Decrypt: Removes Transmission Keys and add first Keys
-    REAL_DECRYPT = 9;
+    REAL_DECRYPT = 10;
     // Realtime Permute: Permutes Slots and add in second keys
-    REAL_PERMUTE = 10;
+    REAL_PERMUTE = 11;
     // Realtime Identify: Uses Precomputation to reveal Recipient, broadcasts
-    REAL_IDENTIFY = 11;
+    REAL_IDENTIFY = 12;
     // Realtime Encrypt: Add in Reception Keys and Last Keys
-    REAL_ENCRYPT = 12;
+    REAL_ENCRYPT = 13;
     // Realtime Peel: Uses Precomputation to prepare slots for Reception
-    REAL_PEEL = 13;
+    REAL_PEEL = 14;
     // Realtime Complete: Round has been completed
-    REAL_COMPLETE = 14;
+    REAL_COMPLETE = 15;
     // Error: A Fatal Error has occurred, cannot continue
     // To kill a round, call Phase() on all other nodes with the round ID and
     // this Phase
-    ERROR = 15;
+    ERROR = 16;
 }
 
 message CmixMessage {
     string RoundID = 1;
     Phase ForPhase = 2;
-    repeated CmixSlot slots = 3;
+    bytes PublicKey = 3;
+    repeated CmixSlot slots = 4;
 }
 
 message CmixSlot {
