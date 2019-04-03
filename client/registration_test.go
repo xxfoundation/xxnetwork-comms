@@ -15,6 +15,8 @@ import (
 
 // Smoke test SendRegistrationMessage
 func TestSendRegistrationMessage(t *testing.T) {
+	GatewayAddress := getNextGatewayAddress()
+	ServerAddress := getNextServerAddress()
 	rgShutDown := registration.StartRegistrationServer(GatewayAddress,
 		registration.NewImplementation(), "", "")
 	nodeShutDown := node.StartServer(ServerAddress, node.NewImplementation(),
@@ -22,7 +24,8 @@ func TestSendRegistrationMessage(t *testing.T) {
 	defer rgShutDown()
 	defer nodeShutDown()
 
-	_, err := SendRegistrationMessage(GatewayAddress, &pb.RegisterUserMessage{})
+	_, err := SendRegistrationMessage(GatewayAddress, "", "",
+		&pb.RegisterUserMessage{})
 	if err != nil {
 		t.Errorf("RegistrationMessage: Error received: %s", err)
 	}

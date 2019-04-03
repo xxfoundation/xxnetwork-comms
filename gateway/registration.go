@@ -15,11 +15,12 @@ import (
 )
 
 // Send a RequestNonceMessage to the server
-func SendRequestNonceMessage(addr string, message *pb.RequestNonceMessage) (
+func SendRequestNonceMessage(addr string,
+	serverCertPath string, message *pb.RequestNonceMessage) (
 	*pb.NonceMessage, error) {
 
 	// Attempt to connect to addr
-	c := connect.ConnectToNode(addr)
+	c := connect.ConnectToNode(addr, serverCertPath)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
@@ -36,11 +37,12 @@ func SendRequestNonceMessage(addr string, message *pb.RequestNonceMessage) (
 }
 
 // Send a ConfirmNonceMessage to the server
-func SendConfirmNonceMessage(addr string, message *pb.ConfirmNonceMessage) (
+func SendConfirmNonceMessage(addr string,
+	serverCertPath string, message *pb.ConfirmNonceMessage) (
 	*pb.RegistrationConfirmation, error) {
 
 	// Attempt to connect to addr
-	c := connect.ConnectToNode(addr)
+	c := connect.ConnectToNode(addr, serverCertPath)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message

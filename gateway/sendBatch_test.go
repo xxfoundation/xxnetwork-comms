@@ -14,6 +14,8 @@ import (
 
 // Smoke test SendCheckMessages
 func TestSendBatch(t *testing.T) {
+	GatewayAddress := getNextGatewayAddress()
+	ServerAddress := getNextServerAddress()
 	gwShutDown := StartGateway(GatewayAddress, NewImplementation(), "", "")
 	nodeShutDown := node.StartServer(ServerAddress, node.NewImplementation(),
 		"", "")
@@ -21,7 +23,7 @@ func TestSendBatch(t *testing.T) {
 	defer nodeShutDown()
 
 	msgs := []*pb.CmixMessage{{}}
-	err := SendBatch(ServerAddress, msgs)
+	err := SendBatch(ServerAddress, "", msgs)
 	if err != nil {
 		t.Errorf("SendBatch: Error received: %s", err)
 	}
@@ -29,13 +31,15 @@ func TestSendBatch(t *testing.T) {
 
 // Smoke Test GetBufferInfo
 func TestGetRoundBufferInfo(t *testing.T) {
+	GatewayAddress := getNextGatewayAddress()
+	ServerAddress := getNextServerAddress()
 	gwShutDown := StartGateway(GatewayAddress, NewImplementation(), "", "")
 	nodeShutDown := node.StartServer(ServerAddress, node.NewImplementation(),
 		"", "")
 	defer gwShutDown()
 	defer nodeShutDown()
 
-	bufSize, err := GetRoundBufferInfo(ServerAddress)
+	bufSize, err := GetRoundBufferInfo(ServerAddress, "")
 	if err != nil {
 		t.Errorf("GetRoundBufferInfo: Error received: %s", err)
 	}

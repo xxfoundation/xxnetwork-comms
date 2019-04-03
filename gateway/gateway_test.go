@@ -8,23 +8,29 @@ package gateway
 
 import (
 	"fmt"
-	"math/rand"
-	"os"
-	"testing"
-	"time"
+	"sync"
 )
 
-var GatewayAddress = ""
-var ServerAddress = ""
+var serverPortLock sync.Mutex
+var serverPort = 5500
 
-// This sets up a dummy/mock gateway instance for testing purposes
-func TestMain(m *testing.M) {
-	rand.Seed(time.Now().UnixNano())
-	GatewayAddress = fmt.Sprintf("localhost:%d", rand.Intn(3000)+4000)
-	ServerAddress = fmt.Sprintf("localhost:%d", rand.Intn(3000)+3000)
-	// If they're the same address, keep trying until they're different
-	for ServerAddress == GatewayAddress {
-		ServerAddress = fmt.Sprintf("localhost:%d", rand.Intn(3000)+3000)
-	}
-	os.Exit(m.Run())
+func getNextServerAddress() string {
+	serverPortLock.Lock()
+	defer func() {
+		serverPort++
+		serverPortLock.Unlock()
+	}()
+	return fmt.Sprintf("localhost:%d", serverPort)
+}
+
+var gatewayPortLock sync.Mutex
+var gatewayPort = 5600
+
+func getNextGatewayAddress() string {
+	gatewayPortLock.Lock()
+	defer func() {
+		gatewayPort++
+		gatewayPortLock.Unlock()
+	}()
+	return fmt.Sprintf("localhost:%d", gatewayPort)
 }

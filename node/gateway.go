@@ -15,9 +15,10 @@ import (
 )
 
 // SendReceiveBatch sends a batch to the gateway
-func SendReceiveBatch(addr string, message []*pb.CmixMessage) error {
+func SendReceiveBatch(addr string, gatewayCertPath string,
+	gatewayCertString string, message []*pb.CmixMessage) error {
 	// Attempt to connect to addr
-	c := connect.ConnectToGateway(addr)
+	c := connect.ConnectToGateway(addr, gatewayCertPath, gatewayCertString)
 	ctx, cancel := connect.DefaultContext()
 
 	outputMessages := pb.OutputMessages{Messages: message}

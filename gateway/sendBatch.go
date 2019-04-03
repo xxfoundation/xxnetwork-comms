@@ -15,8 +15,9 @@ import (
 )
 
 // Sends a batch of messages from the gateway to a server
-func SendBatch(addr string, messages []*pb.CmixMessage) error {
-	c := connect.ConnectToNode(addr)
+func SendBatch(addr string, serverCertPath string, messages []*pb.
+	CmixMessage) error {
+	c := connect.ConnectToNode(addr, serverCertPath)
 	ctx, cancel := connect.DefaultContext()
 
 	// Create an InputMessage
@@ -36,8 +37,8 @@ func SendBatch(addr string, messages []*pb.CmixMessage) error {
 // many rounds have gone through precomputation.
 // Note that this function should block if the buffer size is 0
 // This allows the caller to continuously poll without spinning too much.
-func GetRoundBufferInfo(addr string) (int, error) {
-	c := connect.ConnectToNode(addr)
+func GetRoundBufferInfo(addr string, serverCertPath string) (int, error) {
+	c := connect.ConnectToNode(addr, serverCertPath)
 	ctx, cancel := connect.DefaultContext()
 
 	msg := &pb.Ping{}

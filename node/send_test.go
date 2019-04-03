@@ -16,10 +16,9 @@ func TestSendAskOnline(t *testing.T) {
 	serverAddressLock.Lock()
 	defer serverAddressLock.Unlock()
 	ServerAddress = getNextServerAddress()
-	t.Log(ServerAddress)
 	ShutDown := StartServer(ServerAddress, NewImplementation(), "", "")
 	defer ShutDown()
-	_, err := SendAskOnline(ServerAddress, &pb.Ping{})
+	_, err := SendAskOnline(ServerAddress, "", &pb.Ping{})
 	if err != nil {
 		t.Errorf("AskOnline: Error received: %s", err)
 	}
@@ -30,10 +29,9 @@ func TestSendRoundtripPing(t *testing.T) {
 	serverAddressLock.Lock()
 	defer serverAddressLock.Unlock()
 	ServerAddress = getNextServerAddress()
-	t.Log(ServerAddress)
 	ShutDown := StartServer(ServerAddress, NewImplementation(), "", "")
 	defer ShutDown()
-	_, err := SendRoundtripPing(ServerAddress, &pb.TimePing{})
+	_, err := SendRoundtripPing(ServerAddress, "", &pb.TimePing{})
 	if err != nil {
 		t.Errorf("RoundtripPing: Error received: %s", err)
 	}
@@ -44,10 +42,9 @@ func TestSendServerMetrics(t *testing.T) {
 	serverAddressLock.Lock()
 	defer serverAddressLock.Unlock()
 	ServerAddress = getNextServerAddress()
-	t.Log(ServerAddress)
 	ShutDown := StartServer(ServerAddress, NewImplementation(), "", "")
 	defer ShutDown()
-	_, err := SendServerMetrics(ServerAddress, &pb.ServerMetricsMessage{})
+	_, err := SendServerMetrics(ServerAddress, "", &pb.ServerMetricsMessage{})
 	if err != nil {
 		t.Errorf("ServerMetrics: Error received: %s", err)
 	}
@@ -58,10 +55,9 @@ func TestSendNewRound(t *testing.T) {
 	serverAddressLock.Lock()
 	defer serverAddressLock.Unlock()
 	ServerAddress = getNextServerAddress()
-	t.Log(ServerAddress)
 	ShutDown := StartServer(ServerAddress, NewImplementation(), "", "")
 	defer ShutDown()
-	_, err := SendNewRound(ServerAddress, &pb.CmixMessage{})
+	_, err := SendNewRound(ServerAddress, "", &pb.CmixMessage{})
 	if err != nil {
 		t.Errorf("NewRound: Error received: %s", err)
 	}
@@ -74,7 +70,7 @@ func TestSendPhase(t *testing.T) {
 	ServerAddress = getNextServerAddress()
 	ShutDown := StartServer(ServerAddress, NewImplementation(), "", "")
 	defer ShutDown()
-	_, err := SendPhase(ServerAddress, &pb.CmixMessage{})
+	_, err := SendPhase(ServerAddress, "", &pb.CmixMessage{})
 	if err != nil {
 		t.Errorf("Phase: Error received: %s", err)
 	}

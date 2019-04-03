@@ -45,7 +45,7 @@ func TestSendReceiveBatch(t *testing.T) {
 	go startDummyGW()
 
 	x := make([]*pb.CmixMessage, 0)
-	err := SendReceiveBatch(GatewayAddress, x)
+	err := SendReceiveBatch(GatewayAddress,  "", "",x)
 	if err != nil {
 		t.Errorf("PutMessage: Error received: %s", err)
 	}

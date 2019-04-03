@@ -14,13 +14,15 @@ import (
 
 // Smoke test SendRequestNonceMessage
 func TestSendRequestNonceMessage(t *testing.T) {
+	GatewayAddress := getNextGatewayAddress()
+	ServerAddress := getNextServerAddress()
 	gwShutDown := StartGateway(GatewayAddress, NewImplementation(), "", "")
 	nodeShutDown := node.StartServer(ServerAddress, node.NewImplementation(),
 		"", "")
 	defer gwShutDown()
 	defer nodeShutDown()
 
-	_, err := SendRequestNonceMessage(ServerAddress, &pb.RequestNonceMessage{})
+	_, err := SendRequestNonceMessage(ServerAddress,  "", &pb.RequestNonceMessage{})
 	if err != nil {
 		t.Errorf("SendRequestNonceMessage: Error received: %s", err)
 	}
@@ -28,13 +30,15 @@ func TestSendRequestNonceMessage(t *testing.T) {
 
 // Smoke test SendConfirmNonceMessage
 func TestSendConfirmNonceMessage(t *testing.T) {
+	GatewayAddress := getNextGatewayAddress()
+	ServerAddress := getNextServerAddress()
 	gwShutDown := StartGateway(GatewayAddress, NewImplementation(), "", "")
 	nodeShutDown := node.StartServer(ServerAddress, node.NewImplementation(),
 		"", "")
 	defer gwShutDown()
 	defer nodeShutDown()
 
-	_, err := SendConfirmNonceMessage(ServerAddress, &pb.ConfirmNonceMessage{})
+	_, err := SendConfirmNonceMessage(ServerAddress, "", &pb.ConfirmNonceMessage{})
 	if err != nil {
 		t.Errorf("SendConfirmNonceMessage: Error received: %s", err)
 	}

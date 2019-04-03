@@ -8,7 +8,6 @@ package node
 
 import (
 	"fmt"
-	"gitlab.com/elixxir/comms/connect"
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/testkeys"
 	"sync"
@@ -35,16 +34,12 @@ func TestTLS(t *testing.T) {
 	serverAddressLock.Lock()
 	defer serverAddressLock.Unlock()
 	ServerAddress = getNextServerAddress()
-	t.Log(ServerAddress)
-	connect.ServerCertPath = testkeys.GetNodeCertPath()
 	shutdown := StartServer(ServerAddress, NewImplementation(),
 		testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath())
 	// Reset TLS-related global variables
-	defer func() {
-		connect.ServerCertPath = ""
-		shutdown()
-	}()
-	_, err := SendAskOnline(ServerAddress, &mixmessages.Ping{})
+	defer shutdown()
+	_, err := SendAskOnline(ServerAddress, testkeys.GetNodeCertPath(),
+		&mixmessages.Ping{})
 	if err != nil {
 		t.Error(err)
 	}

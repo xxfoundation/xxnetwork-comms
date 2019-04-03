@@ -16,9 +16,11 @@ import (
 )
 
 // Send a message to the gateway
-func SendPutMessage(addr string, message *pb.CmixMessage) error {
+func SendPutMessage(addr string, gatewayCertPath string,
+	gatewayCertString string, message *pb.
+	CmixMessage) error {
 	// Attempt to connect to addr
-	c := connect.ConnectToGateway(addr)
+	c := connect.ConnectToGateway(addr, gatewayCertPath, gatewayCertString)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
@@ -33,10 +35,11 @@ func SendPutMessage(addr string, message *pb.CmixMessage) error {
 }
 
 // Request MessageIDs of new messages in the buffer from the gateway
-func SendCheckMessages(addr string, message *pb.ClientPollMessage) (*pb.
+func SendCheckMessages(addr string, gatewayCertPath string,
+	gatewayCertString string, message *pb.ClientPollMessage) (*pb.
 	ClientMessages, error) {
 	// Attempt to connect to addr
-	c := connect.ConnectToGateway(addr)
+	c := connect.ConnectToGateway(addr, gatewayCertPath, gatewayCertString)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
@@ -51,10 +54,11 @@ func SendCheckMessages(addr string, message *pb.ClientPollMessage) (*pb.
 }
 
 // Request a message with a specific ID from the gateway
-func SendGetMessage(addr string, message *pb.ClientPollMessage) (*pb.
+func SendGetMessage(addr string, gatewayCertPath string,
+	gatewayCertString string, message *pb.ClientPollMessage) (*pb.
 	CmixMessage, error) {
 	// Attempt to connect to addr
-	c := connect.ConnectToGateway(addr)
+	c := connect.ConnectToGateway(addr, gatewayCertPath, gatewayCertString)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
@@ -69,11 +73,12 @@ func SendGetMessage(addr string, message *pb.ClientPollMessage) (*pb.
 }
 
 // Send a RequestNonceMessage to the gateway
-func SendRequestNonceMessage(addr string, message *pb.RequestNonceMessage) (
+func SendRequestNonceMessage(addr string, gatewayCertPath string,
+	gatewayCertString string, message *pb.RequestNonceMessage) (
 	*pb.NonceMessage, error) {
 
 	// Attempt to connect to addr
-	c := connect.ConnectToGateway(addr)
+	c := connect.ConnectToGateway(addr, gatewayCertPath, gatewayCertString)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
@@ -97,11 +102,12 @@ func SendRequestNonceMessage(addr string, message *pb.RequestNonceMessage) (
 }
 
 // Send a ConfirmNonceMessage to the gateway
-func SendConfirmNonceMessage(addr string, message *pb.ConfirmNonceMessage) (
+func SendConfirmNonceMessage(addr string, gatewayCertPath string,
+	gatewayCertString string, message *pb.ConfirmNonceMessage) (
 	*pb.RegistrationConfirmation, error) {
 
 	// Attempt to connect to addr
-	c := connect.ConnectToGateway(addr)
+	c := connect.ConnectToGateway(addr, gatewayCertPath, gatewayCertString)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message

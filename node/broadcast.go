@@ -16,9 +16,10 @@ import (
 	"golang.org/x/net/context"
 )
 
-func SendServerMetrics(addr string, message *pb.ServerMetricsMessage) (*pb.Ack, error) {
+func SendServerMetrics(addr string, serverCertPath string, message *pb.
+	ServerMetricsMessage) (*pb.Ack, error) {
 	// Attempt to connect to addr
-	c := connect.ConnectToNode(addr)
+	c := connect.ConnectToNode(addr, serverCertPath)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
@@ -32,9 +33,10 @@ func SendServerMetrics(addr string, message *pb.ServerMetricsMessage) (*pb.Ack, 
 	return result, err
 }
 
-func SendRoundtripPing(addr string, message *pb.TimePing) (*pb.Ack, error) {
+func SendRoundtripPing(addr string, serverCertPath string,
+	message *pb.TimePing) (*pb.Ack, error) {
 	// Attempt to connect to addr
-	c := connect.ConnectToNode(addr)
+	c := connect.ConnectToNode(addr, serverCertPath)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
@@ -48,9 +50,10 @@ func SendRoundtripPing(addr string, message *pb.TimePing) (*pb.Ack, error) {
 	return result, err
 }
 
-func SendAskOnline(addr string, message *pb.Ping) (*pb.Ack, error) {
+func SendAskOnline(addr string, serverCertPath string, message *pb.Ping) (*pb.
+	Ack, error) {
 	// Attempt to connect to addr
-	c := connect.ConnectToNode(addr)
+	c := connect.ConnectToNode(addr, serverCertPath)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
@@ -64,8 +67,9 @@ func SendAskOnline(addr string, message *pb.Ping) (*pb.Ack, error) {
 	return result, err
 }
 
-func SendNewRound(addr string, message *pb.CmixMessage) (*pb.Ack, error) {
-	c := connect.ConnectToNode(addr)
+func SendNewRound(addr string, serverCertPath string, message *pb.CmixMessage) (
+	*pb.Ack, error) {
+	c := connect.ConnectToNode(addr, serverCertPath)
 
 	// Send the message
 	result, err := c.NewRound(context.Background(), message, grpc_retry.WithMax(connect.MAX_RETRIES))

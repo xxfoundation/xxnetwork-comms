@@ -25,27 +25,6 @@ import (
 // A map of string addresses to open connections
 var connections map[string]*grpc.ClientConn
 
-// Holds the path for connecting to servers
-// Must be explicitly set by gateways and servers to avoid data races
-var ServerCertPath = ""
-
-// Holds the path for connecting to gateways
-// Must be explicitly set by clients to avoid data races
-var GatewayCertPath = ""
-
-// Holds the cert contents as a byte array for connecting to gateways
-// Must be explicitly set by clients that cannot read in file paths
-var GatewayCertString = ""
-
-// Holds the path for connecting to the registration server
-// Must be explicitly set by clients to avoid data races
-var RegistrationCertPath = ""
-
-// Holds the cert contents as a byte array
-// for connecting to the registration server
-// Must be explicitly set by clients that cannot read in file paths
-var RegistrationCertString = ""
-
 // A lock used to control access to the connections map above
 var connectionsLock sync.Mutex
 
@@ -53,21 +32,26 @@ var connectionsLock sync.Mutex
 const MAX_RETRIES = 5
 
 // Connect to the registration server with a given address string
-func ConnectToRegistration(address string) pb.RegistrationClient {
+func ConnectToRegistration(address string,
+	RegistrationCertPath string, RegistrationCertString string) pb.
+	RegistrationClient {
 	connection := connect(address, "registration*.cmix.rip",
 		RegistrationCertPath, RegistrationCertString)
 	return pb.NewRegistrationClient(connection)
 }
 
 // Connect to a gateway with a given address string
-func ConnectToGateway(address string) pb.MixMessageGatewayClient {
+func ConnectToGateway(address string,
+	GatewayCertPath string, GatewayCertString string) pb.
+	MixMessageGatewayClient {
 	connection := connect(address, "gateway*.cmix.rip",
 		GatewayCertPath, GatewayCertString)
 	return pb.NewMixMessageGatewayClient(connection)
 }
 
 // Connect to a node with a given address string
-func ConnectToNode(address string) pb.MixMessageNodeClient {
+func ConnectToNode(address string, ServerCertPath string) pb.
+	MixMessageNodeClient {
 	connection := connect(address, "*.cmix.rip",
 		ServerCertPath, "")
 	return pb.NewMixMessageNodeClient(connection)

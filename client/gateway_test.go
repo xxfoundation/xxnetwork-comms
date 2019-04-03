@@ -15,6 +15,8 @@ import (
 
 // Smoke test SendGetMessage
 func TestSendPutMessage(t *testing.T) {
+	GatewayAddress := getNextGatewayAddress()
+	ServerAddress := getNextServerAddress()
 	gwShutDown := gateway.StartGateway(GatewayAddress,
 		gateway.NewImplementation(), "", "")
 	nodeShutDown := node.StartServer(ServerAddress, node.NewImplementation(),
@@ -22,7 +24,7 @@ func TestSendPutMessage(t *testing.T) {
 	defer gwShutDown()
 	defer nodeShutDown()
 
-	err := SendPutMessage(GatewayAddress, &pb.CmixMessage{})
+	err := SendPutMessage(GatewayAddress, "", "", &pb.CmixMessage{})
 	if err != nil {
 		t.Errorf("PutMessage: Error received: %s", err)
 	}
@@ -30,6 +32,8 @@ func TestSendPutMessage(t *testing.T) {
 
 // Smoke test SendCheckMessages
 func TestSendCheckMessages(t *testing.T) {
+	GatewayAddress := getNextGatewayAddress()
+	ServerAddress := getNextServerAddress()
 	gwShutDown := gateway.StartGateway(GatewayAddress,
 		gateway.NewImplementation(), "", "")
 	nodeShutDown := node.StartServer(ServerAddress, node.NewImplementation(),
@@ -37,7 +41,7 @@ func TestSendCheckMessages(t *testing.T) {
 	defer gwShutDown()
 	defer nodeShutDown()
 
-	_, err := SendCheckMessages(GatewayAddress, &pb.ClientPollMessage{})
+	_, err := SendCheckMessages(GatewayAddress, "", "", &pb.ClientPollMessage{})
 	if err != nil {
 		t.Errorf("CheckMessages: Error received: %s", err)
 	}
@@ -45,6 +49,8 @@ func TestSendCheckMessages(t *testing.T) {
 
 // Smoke test SendGetMessage
 func TestSendGetMessage(t *testing.T) {
+	GatewayAddress := getNextGatewayAddress()
+	ServerAddress := getNextServerAddress()
 	gwShutDown := gateway.StartGateway(GatewayAddress,
 		gateway.NewImplementation(), "", "")
 	nodeShutDown := node.StartServer(ServerAddress, node.NewImplementation(),
@@ -52,7 +58,7 @@ func TestSendGetMessage(t *testing.T) {
 	defer gwShutDown()
 	defer nodeShutDown()
 
-	_, err := SendGetMessage(GatewayAddress, &pb.ClientPollMessage{})
+	_, err := SendGetMessage(GatewayAddress, "", "", &pb.ClientPollMessage{})
 	if err != nil {
 		t.Errorf("GetMessage: Error received: %s", err)
 	}
@@ -60,6 +66,8 @@ func TestSendGetMessage(t *testing.T) {
 
 // Smoke test SendRequestNonceMessage
 func TestSendRequestNonceMessage(t *testing.T) {
+	GatewayAddress := getNextGatewayAddress()
+	ServerAddress := getNextServerAddress()
 	gwShutDown := gateway.StartGateway(GatewayAddress,
 		gateway.NewImplementation(), "", "")
 	nodeShutDown := node.StartServer(ServerAddress, node.NewImplementation(),
@@ -67,7 +75,8 @@ func TestSendRequestNonceMessage(t *testing.T) {
 	defer gwShutDown()
 	defer nodeShutDown()
 
-	_, err := SendRequestNonceMessage(GatewayAddress, &pb.RequestNonceMessage{})
+	_, err := SendRequestNonceMessage(GatewayAddress, "", "",
+		&pb.RequestNonceMessage{})
 	if err != nil {
 		t.Errorf("SendRequestNonceMessage: Error received: %s", err)
 	}
@@ -75,6 +84,8 @@ func TestSendRequestNonceMessage(t *testing.T) {
 
 // Smoke test SendConfirmNonceMessage
 func TestSendConfirmNonceMessage(t *testing.T) {
+	GatewayAddress := getNextGatewayAddress()
+	ServerAddress := getNextServerAddress()
 	gwShutDown := gateway.StartGateway(GatewayAddress,
 		gateway.NewImplementation(), "", "")
 	nodeShutDown := node.StartServer(ServerAddress, node.NewImplementation(),
@@ -82,7 +93,8 @@ func TestSendConfirmNonceMessage(t *testing.T) {
 	defer gwShutDown()
 	defer nodeShutDown()
 
-	_, err := SendConfirmNonceMessage(GatewayAddress, &pb.ConfirmNonceMessage{})
+	_, err := SendConfirmNonceMessage(GatewayAddress, "", "",
+		&pb.ConfirmNonceMessage{})
 	if err != nil {
 		t.Errorf("SendConfirmNonceMessage: Error received: %s", err)
 	}

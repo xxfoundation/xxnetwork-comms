@@ -15,9 +15,10 @@ import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 )
 
-func SendPhase(addr string, message *pb.CmixMessage) (*pb.Ack, error) {
+func SendPhase(addr string, serverCertPath string,
+	message *pb.CmixMessage) (*pb.Ack, error) {
 	// Attempt to connect to addr
-	c := connect.ConnectToNode(addr)
+	c := connect.ConnectToNode(addr, serverCertPath)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
