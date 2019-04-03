@@ -8,7 +8,11 @@ package gateway
 
 import (
 	"fmt"
+	"gitlab.com/elixxir/comms/mixmessages"
+	"gitlab.com/elixxir/comms/node"
+	"gitlab.com/elixxir/comms/testkeys"
 	"sync"
+	"testing"
 )
 
 var serverPortLock sync.Mutex
@@ -33,4 +37,18 @@ func getNextGatewayAddress() string {
 		gatewayPortLock.Unlock()
 	}()
 	return fmt.Sprintf("localhost:%d", gatewayPort)
+}
+
+// Tests whether the gateway can be connected to and run an RPC with TLS enabled
+func TestTLS(t *testing.T) {
+	GatewayAddress := getNextServerAddress()
+	shutdown := StartGateway(GatewayAddress, NewImplementation(),
+		testkeys.GetGatewayCertPath(), testkeys.GetGatewayKeyPath())
+	// Reset TLS-related global variables
+	defer shutdown()
+	err := node.SendReceiveBatch(GatewayAddress, testkeys.GetGatewayCertPath(),
+		"", []*mixmessages.CmixMessage{})
+	if err != nil {
+		t.Error(err)
+	}
 }

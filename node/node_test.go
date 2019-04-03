@@ -14,9 +14,6 @@ import (
 	"testing"
 )
 
-var serverAddressLock sync.Mutex
-var ServerAddress = ""
-
 var serverPortLock sync.Mutex
 var serverPort = 5000
 
@@ -31,9 +28,7 @@ func getNextServerAddress() string {
 
 // Tests whether the server can be connected to and run an RPC with TLS enabled
 func TestTLS(t *testing.T) {
-	serverAddressLock.Lock()
-	defer serverAddressLock.Unlock()
-	ServerAddress = getNextServerAddress()
+	ServerAddress := getNextServerAddress()
 	shutdown := StartServer(ServerAddress, NewImplementation(),
 		testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath())
 	// Reset TLS-related global variables
