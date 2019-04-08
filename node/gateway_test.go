@@ -44,7 +44,7 @@ func startDummyGW() {
 func TestSendReceiveBatch(t *testing.T) {
 	go startDummyGW()
 
-	x := make([]*pb.CmixMessage, 0)
+	x := make([]*pb.CmixBatch, 0)
 	err := SendReceiveBatch(GatewayAddress,  "", "",x)
 	if err != nil {
 		t.Errorf("PutMessage: Error received: %s", err)
@@ -66,13 +66,13 @@ func (s *TestInterfaceGW) CheckMessages(ctx context.Context, msg *pb.ClientPollM
 
 // Handle a GetMessage event
 func (s *TestInterfaceGW) GetMessage(ctx context.Context, msg *pb.ClientPollMessage) (
-	*pb.CmixMessage, error) {
-	returnMsg := &pb.CmixMessage{}
+	*pb.CmixBatch, error) {
+	returnMsg := &pb.CmixBatch{}
 	return returnMsg, nil
 }
 
 // Handle a PutMessage event
-func (s *TestInterfaceGW) PutMessage(ctx context.Context, msg *pb.CmixMessage) (*pb.Ack,
+func (s *TestInterfaceGW) PutMessage(ctx context.Context, msg *pb.CmixBatch) (*pb.Ack,
 	error) {
 	return &pb.Ack{}, nil
 }

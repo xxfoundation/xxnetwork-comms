@@ -20,9 +20,9 @@ type Handler interface {
 	// Return any MessageIDs in the buffer for this UserID
 	CheckMessages(userID *id.User, messageID string) ([]string, bool)
 	// Returns the message matching the given parameters to the client
-	GetMessage(userID *id.User, msgID string) (*pb.CmixMessage, bool)
+	GetMessage(userID *id.User, msgID string) (*pb.CmixBatch, bool)
 	// Upload a message to the cMix Gateway
-	PutMessage(message *pb.CmixMessage) bool
+	PutMessage(message *pb.CmixBatch) bool
 	// Receives a batch of messages from a server
 	ReceiveBatch(messages *pb.OutputMessages)
 
@@ -38,9 +38,9 @@ type implementationFunctions struct {
 	// Return any MessageIDs in the buffer for this UserID
 	CheckMessages func(userID *id.User, messageID string) ([]string, bool)
 	// Returns the message matching the given parameters to the client
-	GetMessage func(userID *id.User, msgID string) (*pb.CmixMessage, bool)
+	GetMessage func(userID *id.User, msgID string) (*pb.CmixBatch, bool)
 	// Upload a message to the cMix Gateway
-	PutMessage func(message *pb.CmixMessage) bool
+	PutMessage func(message *pb.CmixBatch) bool
 	// Receives a batch of messages from a server
 	ReceiveBatch func(messages *pb.OutputMessages)
 
@@ -71,12 +71,12 @@ func NewImplementation() Handler {
 				warn(um)
 				return nil, false
 			},
-			GetMessage: func(userID *id.User, msgID string) (*pb.CmixMessage,
+			GetMessage: func(userID *id.User, msgID string) (*pb.CmixBatch,
 				bool) {
 				warn(um)
-				return &pb.CmixMessage{}, false
+				return &pb.CmixBatch{}, false
 			},
-			PutMessage: func(message *pb.CmixMessage) bool {
+			PutMessage: func(message *pb.CmixBatch) bool {
 				warn(um)
 				return false
 			},
@@ -104,12 +104,12 @@ func (s *Implementation) CheckMessages(userID *id.User, messageID string) (
 
 // Returns the message matching the given parameters to the client
 func (s *Implementation) GetMessage(userID *id.User, msgID string) (
-	*pb.CmixMessage, bool) {
+	*pb.CmixBatch, bool) {
 	return s.Functions.GetMessage(userID, msgID)
 }
 
 // Upload a message to the cMix Gateway
-func (s *Implementation) PutMessage(message *pb.CmixMessage) bool {
+func (s *Implementation) PutMessage(message *pb.CmixBatch) bool {
 	return s.Functions.PutMessage(message)
 }
 

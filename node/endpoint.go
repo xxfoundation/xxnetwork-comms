@@ -38,14 +38,14 @@ func (s *server) ServerMetrics(ctx context.Context, msg *pb.ServerMetricsMessage
 
 // Handle a NewRound event
 func (s *server) NewRound(ctx context.Context,
-	msg *pb.CmixMessage) (*pb.Ack, error) {
+	msg *pb.CmixBatch) (*pb.Ack, error) {
 	// Call the server handler to start a new round
 	serverHandler.NewRound(msg.RoundID)
 	return &pb.Ack{}, nil
 }
 
 // Handle a Phase event
-func (s *server) Phase(ctx context.Context, msg *pb.CmixMessage) (*pb.Ack, error) {
+func (s *server) Phase(ctx context.Context, msg *pb.CmixBatch) (*pb.Ack, error) {
 	// Call the server handler with the msg
 	serverHandler.Phase(msg)
 	return &pb.Ack{}, nil

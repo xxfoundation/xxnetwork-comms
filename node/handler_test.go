@@ -22,4 +22,4 @@ func (m TestInterface) ServerMetrics(message *pb.ServerMetricsMessage) {}
 
 func (m TestInterface) StartRound(messages *pb.InputMessages) {}
 
-func (m TestInterface) Phase(message *pb.CmixMessage) {}
+func (m TestInterface) Phase(message *pb.CmixBatch) {}

@@ -16,7 +16,7 @@ import (
 
 // Sends a batch of messages from the gateway to a server
 func SendBatch(addr string, serverCertPath string, messages []*pb.
-	CmixMessage) error {
+	CmixBatch) error {
 	c := connect.ConnectToNode(addr, serverCertPath)
 	ctx, cancel := connect.DefaultContext()
 

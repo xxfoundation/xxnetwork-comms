@@ -16,7 +16,7 @@ import (
 )
 
 func SendPhase(addr string, serverCertPath string,
-	message *pb.CmixMessage) (*pb.Ack, error) {
+	message *pb.CmixBatch) (*pb.Ack, error) {
 	// Attempt to connect to addr
 	c := connect.ConnectToNode(addr, serverCertPath)
 	ctx, cancel := connect.DefaultContext()

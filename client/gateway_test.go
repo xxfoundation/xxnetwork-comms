@@ -24,7 +24,7 @@ func TestSendPutMessage(t *testing.T) {
 	defer gwShutDown()
 	defer nodeShutDown()
 
-	err := SendPutMessage(GatewayAddress, "", "", &pb.CmixMessage{})
+	err := SendPutMessage(GatewayAddress, "", "", &pb.CmixBatch{})
 	if err != nil {
 		t.Errorf("PutMessage: Error received: %s", err)
 	}

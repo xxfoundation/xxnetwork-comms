@@ -18,7 +18,7 @@ import (
 // Send a message to the gateway
 func SendPutMessage(addr string, gatewayCertPath string,
 	gatewayCertString string, message *pb.
-	CmixMessage) error {
+	CmixBatch) error {
 	// Attempt to connect to addr
 	c := connect.ConnectToGateway(addr, gatewayCertPath, gatewayCertString)
 	ctx, cancel := connect.DefaultContext()
@@ -56,7 +56,7 @@ func SendCheckMessages(addr string, gatewayCertPath string,
 // Request a message with a specific ID from the gateway
 func SendGetMessage(addr string, gatewayCertPath string,
 	gatewayCertString string, message *pb.ClientPollMessage) (*pb.
-	CmixMessage, error) {
+	CmixBatch, error) {
 	// Attempt to connect to addr
 	c := connect.ConnectToGateway(addr, gatewayCertPath, gatewayCertString)
 	ctx, cancel := connect.DefaultContext()

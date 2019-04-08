@@ -49,7 +49,7 @@ func TestSendNewRound(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	ShutDown := StartServer(ServerAddress, NewImplementation(), "", "")
 	defer ShutDown()
-	_, err := SendNewRound(ServerAddress, "", &pb.CmixMessage{})
+	_, err := SendNewRound(ServerAddress, "", &pb.CmixBatch{})
 	if err != nil {
 		t.Errorf("NewRound: Error received: %s", err)
 	}
@@ -60,7 +60,7 @@ func TestSendPhase(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	ShutDown := StartServer(ServerAddress, NewImplementation(), "", "")
 	defer ShutDown()
-	_, err := SendPhase(ServerAddress, "", &pb.CmixMessage{})
+	_, err := SendPhase(ServerAddress, "", &pb.CmixBatch{})
 	if err != nil {
 		t.Errorf("Phase: Error received: %s", err)
 	}

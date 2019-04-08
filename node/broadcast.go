@@ -67,7 +67,7 @@ func SendAskOnline(addr string, serverCertPath string, message *pb.Ping) (*pb.
 	return result, err
 }
 
-func SendNewRound(addr string, serverCertPath string, message *pb.CmixMessage) (
+func SendNewRound(addr string, serverCertPath string, message *pb.CmixBatch) (
 	*pb.Ack, error) {
 	c := connect.ConnectToNode(addr, serverCertPath)
 

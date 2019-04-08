@@ -28,18 +28,18 @@ func (s *gateway) CheckMessages(ctx context.Context, msg *pb.ClientPollMessage) 
 
 // Sends a message matching the given parameters to a client
 func (s *gateway) GetMessage(ctx context.Context, msg *pb.ClientPollMessage) (
-	*pb.CmixMessage, error) {
+	*pb.CmixBatch, error) {
 	userID := new(id.User).SetBytes(msg.UserID)
 	returnMsg, ok := gatewayHandler.GetMessage(userID, msg.MessageID)
 	if !ok {
 		// Return an empty message if no results
-		returnMsg = &pb.CmixMessage{}
+		returnMsg = &pb.CmixBatch{}
 	}
 	return returnMsg, nil
 }
 
 // Receives a single message from a client
-func (s *gateway) PutMessage(ctx context.Context, msg *pb.CmixMessage) (*pb.Ack,
+func (s *gateway) PutMessage(ctx context.Context, msg *pb.CmixBatch) (*pb.Ack,
 	error) {
 	gatewayHandler.PutMessage(msg)
 	return &pb.Ack{}, nil

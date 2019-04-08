@@ -28,7 +28,7 @@ type ServerHandler interface {
 	GetRoundBufferInfo() (int, error)
 
 	// Server Interface for all Internode Comms
-	Phase(message *mixmessages.CmixMessage)
+	Phase(message *mixmessages.CmixBatch)
 
 	// Server interface for RequestNonceMessage
 	RequestNonce(salt, Y, P, Q, G,
@@ -52,7 +52,7 @@ type implementationFunctions struct {
 	GetRoundBufferInfo func() (int, error)
 
 	// Server Interface for the Internode Messages
-	Phase func(message *mixmessages.CmixMessage)
+	Phase func(message *mixmessages.CmixBatch)
 
 	// Server interface for RequestNonceMessage
 	RequestNonce func(salt, Y, P, Q, G,
@@ -84,7 +84,7 @@ func NewImplementation() *Implementation {
 			RoundtripPing: func(pingMsg *mixmessages.TimePing) { warn(um) },
 			ServerMetrics: func(metMsg *mixmessages.ServerMetricsMessage) { warn(um) },
 			NewRound:      func(RoundID string) { warn(um) },
-			Phase:         func(m *mixmessages.CmixMessage) { warn(um) },
+			Phase:         func(m *mixmessages.CmixBatch) { warn(um) },
 			StartRound:    func(message *mixmessages.InputMessages) { warn(um) },
 			GetRoundBufferInfo: func() (int, error) {
 				warn(um)
@@ -122,7 +122,7 @@ func (s *Implementation) NewRound(RoundID string) {
 }
 
 // Server Interface for the phase messages
-func (s *Implementation) Phase(m *mixmessages.CmixMessage) {
+func (s *Implementation) Phase(m *mixmessages.CmixBatch) {
 	s.Functions.Phase(m)
 }
 
