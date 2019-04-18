@@ -59,7 +59,7 @@ message ServerMetricsMessage {
 
 // The message for Init Round
 message RoundIDMessage {
-    string RoundID = 1;
+    uint64 RoundID = 1;
 }
 
 // RoundInfo contains the # of precomputations ready for messages, among other
@@ -189,7 +189,7 @@ message Ack {
 }
 
 message CmixBatch {
-    string RoundID = 1;
+    uint64 RoundID = 1;
     int32 ForPhase = 2;
     repeated CmixSlot slots = 4;
 }

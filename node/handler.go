@@ -21,7 +21,7 @@ type ServerHandler interface {
 	ServerMetrics(*mixmessages.ServerMetricsMessage)
 
 	// Server Interface for starting New Rounds
-	NewRound(RoundID string)
+	NewRound(RoundID uint64)
 	// Server interface for Starting a new round
 	StartRound(message *mixmessages.InputMessages)
 	// GetRoundBufferInfo returns # of available precomputations
@@ -45,7 +45,7 @@ type implementationFunctions struct {
 	ServerMetrics func(*mixmessages.ServerMetricsMessage)
 
 	// Server Interface for starting New Rounds
-	NewRound func(RoundID string)
+	NewRound func(RoundID uint64)
 	// Server interface for Starting a new round
 	StartRound func(message *mixmessages.InputMessages)
 	// GetRoundBufferInfo returns # of available precomputations completed
@@ -83,7 +83,7 @@ func NewImplementation() *Implementation {
 		Functions: implementationFunctions{
 			RoundtripPing: func(pingMsg *mixmessages.TimePing) { warn(um) },
 			ServerMetrics: func(metMsg *mixmessages.ServerMetricsMessage) { warn(um) },
-			NewRound:      func(RoundID string) { warn(um) },
+			NewRound:      func(RoundID uint64) { warn(um) },
 			Phase:         func(m *mixmessages.CmixBatch) { warn(um) },
 			StartRound:    func(message *mixmessages.InputMessages) { warn(um) },
 			GetRoundBufferInfo: func() (int, error) {
@@ -117,7 +117,7 @@ func (s *Implementation) ServerMetrics(
 }
 
 // Server Interface for starting New Rounds
-func (s *Implementation) NewRound(RoundID string) {
+func (s *Implementation) NewRound(RoundID uint64) {
 	s.Functions.NewRound(RoundID)
 }
 
