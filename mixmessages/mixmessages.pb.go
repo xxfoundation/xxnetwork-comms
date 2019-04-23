@@ -328,39 +328,39 @@ func (m *IDList) GetIDs() []string {
 }
 
 // Input messages are a list of messages run as a batch
-type CmixInput struct {
-	Messages             []*CmixBatch `protobuf:"bytes,1,rep,name=Messages,proto3" json:"Messages,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}     `json:"-"`
-	XXX_unrecognized     []byte       `json:"-"`
-	XXX_sizecache        int32        `json:"-"`
+type Input struct {
+	Messages             []*Batch `protobuf:"bytes,1,rep,name=Messages,proto3" json:"Messages,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *CmixInput) Reset()         { *m = CmixInput{} }
-func (m *CmixInput) String() string { return proto.CompactTextString(m) }
-func (*CmixInput) ProtoMessage()    {}
-func (*CmixInput) Descriptor() ([]byte, []int) {
+func (m *Input) Reset()         { *m = Input{} }
+func (m *Input) String() string { return proto.CompactTextString(m) }
+func (*Input) ProtoMessage()    {}
+func (*Input) Descriptor() ([]byte, []int) {
 	return fileDescriptor_f858aeec3eb2fbf5, []int{7}
 }
 
-func (m *CmixInput) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_CmixInput.Unmarshal(m, b)
+func (m *Input) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Input.Unmarshal(m, b)
 }
-func (m *CmixInput) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_CmixInput.Marshal(b, m, deterministic)
+func (m *Input) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Input.Marshal(b, m, deterministic)
 }
-func (m *CmixInput) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_CmixInput.Merge(m, src)
+func (m *Input) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Input.Merge(m, src)
 }
-func (m *CmixInput) XXX_Size() int {
-	return xxx_messageInfo_CmixInput.Size(m)
+func (m *Input) XXX_Size() int {
+	return xxx_messageInfo_Input.Size(m)
 }
-func (m *CmixInput) XXX_DiscardUnknown() {
-	xxx_messageInfo_CmixInput.DiscardUnknown(m)
+func (m *Input) XXX_DiscardUnknown() {
+	xxx_messageInfo_Input.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_CmixInput proto.InternalMessageInfo
+var xxx_messageInfo_Input proto.InternalMessageInfo
 
-func (m *CmixInput) GetMessages() []*CmixBatch {
+func (m *Input) GetMessages() []*Batch {
 	if m != nil {
 		return m.Messages
 	}
@@ -368,39 +368,39 @@ func (m *CmixInput) GetMessages() []*CmixBatch {
 }
 
 // Output messages are a list of messages run as a batch
-type CmixOutput struct {
-	Messages             []*CmixBatch `protobuf:"bytes,1,rep,name=Messages,proto3" json:"Messages,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}     `json:"-"`
-	XXX_unrecognized     []byte       `json:"-"`
-	XXX_sizecache        int32        `json:"-"`
+type Output struct {
+	Messages             []*Batch `protobuf:"bytes,1,rep,name=Messages,proto3" json:"Messages,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *CmixOutput) Reset()         { *m = CmixOutput{} }
-func (m *CmixOutput) String() string { return proto.CompactTextString(m) }
-func (*CmixOutput) ProtoMessage()    {}
-func (*CmixOutput) Descriptor() ([]byte, []int) {
+func (m *Output) Reset()         { *m = Output{} }
+func (m *Output) String() string { return proto.CompactTextString(m) }
+func (*Output) ProtoMessage()    {}
+func (*Output) Descriptor() ([]byte, []int) {
 	return fileDescriptor_f858aeec3eb2fbf5, []int{8}
 }
 
-func (m *CmixOutput) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_CmixOutput.Unmarshal(m, b)
+func (m *Output) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Output.Unmarshal(m, b)
 }
-func (m *CmixOutput) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_CmixOutput.Marshal(b, m, deterministic)
+func (m *Output) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Output.Marshal(b, m, deterministic)
 }
-func (m *CmixOutput) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_CmixOutput.Merge(m, src)
+func (m *Output) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Output.Merge(m, src)
 }
-func (m *CmixOutput) XXX_Size() int {
-	return xxx_messageInfo_CmixOutput.Size(m)
+func (m *Output) XXX_Size() int {
+	return xxx_messageInfo_Output.Size(m)
 }
-func (m *CmixOutput) XXX_DiscardUnknown() {
-	xxx_messageInfo_CmixOutput.DiscardUnknown(m)
+func (m *Output) XXX_DiscardUnknown() {
+	xxx_messageInfo_Output.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_CmixOutput proto.InternalMessageInfo
+var xxx_messageInfo_Output proto.InternalMessageInfo
 
-func (m *CmixOutput) GetMessages() []*CmixBatch {
+func (m *Output) GetMessages() []*Batch {
 	if m != nil {
 		return m.Messages
 	}
@@ -624,7 +624,7 @@ func (m *UserRegistrationConfirmation) GetError() string {
 	return ""
 }
 
-// Client -> Gateway -> Server message to request nonce
+// NonceRequest message to request nonce from client to server
 type NonceRequest struct {
 	Salt                 []byte        `protobuf:"bytes,1,opt,name=Salt,proto3" json:"Salt,omitempty"`
 	Client               *DSAPublicKey `protobuf:"bytes,2,opt,name=Client,proto3" json:"Client,omitempty"`
@@ -680,7 +680,7 @@ func (m *NonceRequest) GetClientSignedByServer() *DSASignature {
 	return nil
 }
 
-// Server -> Gateway -> Client response to RequestNonceMessage
+// Nonce message to reply to client from server
 type Nonce struct {
 	Nonce                []byte   `protobuf:"bytes,1,opt,name=Nonce,proto3" json:"Nonce,omitempty"`
 	Error                string   `protobuf:"bytes,2,opt,name=Error,proto3" json:"Error,omitempty"`
@@ -728,7 +728,7 @@ func (m *Nonce) GetError() string {
 	return ""
 }
 
-// Server -> Gateway -> Client response to ConfirmNonceMessage
+// RegistrationConfirmation returning proof of registration
 type RegistrationConfirmation struct {
 	ClientSignedByServer *DSASignature `protobuf:"bytes,1,opt,name=ClientSignedByServer,proto3" json:"ClientSignedByServer,omitempty"`
 	Server               *DSAPublicKey `protobuf:"bytes,2,opt,name=Server,proto3" json:"Server,omitempty"`
@@ -784,7 +784,7 @@ func (m *RegistrationConfirmation) GetError() string {
 	return ""
 }
 
-// Generic Ack message containing an Error field
+// Ack generic message containing an Error field
 type Ack struct {
 	Error                string   `protobuf:"bytes,1,opt,name=Error,proto3" json:"Error,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -824,62 +824,62 @@ func (m *Ack) GetError() string {
 	return ""
 }
 
-type CmixBatch struct {
-	Round                *RoundInfo  `protobuf:"bytes,1,opt,name=Round,proto3" json:"Round,omitempty"`
-	ForPhase             int32       `protobuf:"varint,2,opt,name=ForPhase,proto3" json:"ForPhase,omitempty"`
-	Slots                []*CmixSlot `protobuf:"bytes,3,rep,name=slots,proto3" json:"slots,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}    `json:"-"`
-	XXX_unrecognized     []byte      `json:"-"`
-	XXX_sizecache        int32       `json:"-"`
+type Batch struct {
+	Round                *RoundInfo `protobuf:"bytes,1,opt,name=Round,proto3" json:"Round,omitempty"`
+	ForPhase             int32      `protobuf:"varint,2,opt,name=ForPhase,proto3" json:"ForPhase,omitempty"`
+	Slots                []*Slot    `protobuf:"bytes,3,rep,name=slots,proto3" json:"slots,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}   `json:"-"`
+	XXX_unrecognized     []byte     `json:"-"`
+	XXX_sizecache        int32      `json:"-"`
 }
 
-func (m *CmixBatch) Reset()         { *m = CmixBatch{} }
-func (m *CmixBatch) String() string { return proto.CompactTextString(m) }
-func (*CmixBatch) ProtoMessage()    {}
-func (*CmixBatch) Descriptor() ([]byte, []int) {
+func (m *Batch) Reset()         { *m = Batch{} }
+func (m *Batch) String() string { return proto.CompactTextString(m) }
+func (*Batch) ProtoMessage()    {}
+func (*Batch) Descriptor() ([]byte, []int) {
 	return fileDescriptor_f858aeec3eb2fbf5, []int{17}
 }
 
-func (m *CmixBatch) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_CmixBatch.Unmarshal(m, b)
+func (m *Batch) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Batch.Unmarshal(m, b)
 }
-func (m *CmixBatch) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_CmixBatch.Marshal(b, m, deterministic)
+func (m *Batch) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Batch.Marshal(b, m, deterministic)
 }
-func (m *CmixBatch) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_CmixBatch.Merge(m, src)
+func (m *Batch) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Batch.Merge(m, src)
 }
-func (m *CmixBatch) XXX_Size() int {
-	return xxx_messageInfo_CmixBatch.Size(m)
+func (m *Batch) XXX_Size() int {
+	return xxx_messageInfo_Batch.Size(m)
 }
-func (m *CmixBatch) XXX_DiscardUnknown() {
-	xxx_messageInfo_CmixBatch.DiscardUnknown(m)
+func (m *Batch) XXX_DiscardUnknown() {
+	xxx_messageInfo_Batch.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_CmixBatch proto.InternalMessageInfo
+var xxx_messageInfo_Batch proto.InternalMessageInfo
 
-func (m *CmixBatch) GetRound() *RoundInfo {
+func (m *Batch) GetRound() *RoundInfo {
 	if m != nil {
 		return m.Round
 	}
 	return nil
 }
 
-func (m *CmixBatch) GetForPhase() int32 {
+func (m *Batch) GetForPhase() int32 {
 	if m != nil {
 		return m.ForPhase
 	}
 	return 0
 }
 
-func (m *CmixBatch) GetSlots() []*CmixSlot {
+func (m *Batch) GetSlots() []*Slot {
 	if m != nil {
 		return m.Slots
 	}
 	return nil
 }
 
-type CmixSlot struct {
+type Slot struct {
 	// Precomputation fields
 	EncryptedMessageKeys            []byte `protobuf:"bytes,1,opt,name=EncryptedMessageKeys,proto3" json:"EncryptedMessageKeys,omitempty"`
 	EncryptedAssociatedDataKeys     []byte `protobuf:"bytes,2,opt,name=EncryptedAssociatedDataKeys,proto3" json:"EncryptedAssociatedDataKeys,omitempty"`
@@ -897,95 +897,95 @@ type CmixSlot struct {
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *CmixSlot) Reset()         { *m = CmixSlot{} }
-func (m *CmixSlot) String() string { return proto.CompactTextString(m) }
-func (*CmixSlot) ProtoMessage()    {}
-func (*CmixSlot) Descriptor() ([]byte, []int) {
+func (m *Slot) Reset()         { *m = Slot{} }
+func (m *Slot) String() string { return proto.CompactTextString(m) }
+func (*Slot) ProtoMessage()    {}
+func (*Slot) Descriptor() ([]byte, []int) {
 	return fileDescriptor_f858aeec3eb2fbf5, []int{18}
 }
 
-func (m *CmixSlot) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_CmixSlot.Unmarshal(m, b)
+func (m *Slot) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Slot.Unmarshal(m, b)
 }
-func (m *CmixSlot) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_CmixSlot.Marshal(b, m, deterministic)
+func (m *Slot) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Slot.Marshal(b, m, deterministic)
 }
-func (m *CmixSlot) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_CmixSlot.Merge(m, src)
+func (m *Slot) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Slot.Merge(m, src)
 }
-func (m *CmixSlot) XXX_Size() int {
-	return xxx_messageInfo_CmixSlot.Size(m)
+func (m *Slot) XXX_Size() int {
+	return xxx_messageInfo_Slot.Size(m)
 }
-func (m *CmixSlot) XXX_DiscardUnknown() {
-	xxx_messageInfo_CmixSlot.DiscardUnknown(m)
+func (m *Slot) XXX_DiscardUnknown() {
+	xxx_messageInfo_Slot.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_CmixSlot proto.InternalMessageInfo
+var xxx_messageInfo_Slot proto.InternalMessageInfo
 
-func (m *CmixSlot) GetEncryptedMessageKeys() []byte {
+func (m *Slot) GetEncryptedMessageKeys() []byte {
 	if m != nil {
 		return m.EncryptedMessageKeys
 	}
 	return nil
 }
 
-func (m *CmixSlot) GetEncryptedAssociatedDataKeys() []byte {
+func (m *Slot) GetEncryptedAssociatedDataKeys() []byte {
 	if m != nil {
 		return m.EncryptedAssociatedDataKeys
 	}
 	return nil
 }
 
-func (m *CmixSlot) GetPartialMessageCypherText() []byte {
+func (m *Slot) GetPartialMessageCypherText() []byte {
 	if m != nil {
 		return m.PartialMessageCypherText
 	}
 	return nil
 }
 
-func (m *CmixSlot) GetPartialAssociatedDataCypherText() []byte {
+func (m *Slot) GetPartialAssociatedDataCypherText() []byte {
 	if m != nil {
 		return m.PartialAssociatedDataCypherText
 	}
 	return nil
 }
 
-func (m *CmixSlot) GetPartialRoundPublicCypherKey() []byte {
+func (m *Slot) GetPartialRoundPublicCypherKey() []byte {
 	if m != nil {
 		return m.PartialRoundPublicCypherKey
 	}
 	return nil
 }
 
-func (m *CmixSlot) GetSenderID() []byte {
+func (m *Slot) GetSenderID() []byte {
 	if m != nil {
 		return m.SenderID
 	}
 	return nil
 }
 
-func (m *CmixSlot) GetMessagePayload() []byte {
+func (m *Slot) GetMessagePayload() []byte {
 	if m != nil {
 		return m.MessagePayload
 	}
 	return nil
 }
 
-func (m *CmixSlot) GetAssociatedData() []byte {
+func (m *Slot) GetAssociatedData() []byte {
 	if m != nil {
 		return m.AssociatedData
 	}
 	return nil
 }
 
-func (m *CmixSlot) GetSalt() []byte {
+func (m *Slot) GetSalt() []byte {
 	if m != nil {
 		return m.Salt
 	}
 	return nil
 }
 
-func (m *CmixSlot) GetKMACs() [][]byte {
+func (m *Slot) GetKMACs() [][]byte {
 	if m != nil {
 		return m.KMACs
 	}
@@ -1000,8 +1000,8 @@ func init() {
 	proto.RegisterType((*RoundBufferInfo)(nil), "mixmessages.RoundBufferInfo")
 	proto.RegisterType((*ClientRequest)(nil), "mixmessages.ClientRequest")
 	proto.RegisterType((*IDList)(nil), "mixmessages.IDList")
-	proto.RegisterType((*CmixInput)(nil), "mixmessages.CmixInput")
-	proto.RegisterType((*CmixOutput)(nil), "mixmessages.CmixOutput")
+	proto.RegisterType((*Input)(nil), "mixmessages.Input")
+	proto.RegisterType((*Output)(nil), "mixmessages.Output")
 	proto.RegisterType((*DSAPublicKey)(nil), "mixmessages.DSAPublicKey")
 	proto.RegisterType((*DSASignature)(nil), "mixmessages.DSASignature")
 	proto.RegisterType((*UserRegistration)(nil), "mixmessages.UserRegistration")
@@ -1010,81 +1010,80 @@ func init() {
 	proto.RegisterType((*Nonce)(nil), "mixmessages.Nonce")
 	proto.RegisterType((*RegistrationConfirmation)(nil), "mixmessages.RegistrationConfirmation")
 	proto.RegisterType((*Ack)(nil), "mixmessages.Ack")
-	proto.RegisterType((*CmixBatch)(nil), "mixmessages.CmixBatch")
-	proto.RegisterType((*CmixSlot)(nil), "mixmessages.CmixSlot")
+	proto.RegisterType((*Batch)(nil), "mixmessages.Batch")
+	proto.RegisterType((*Slot)(nil), "mixmessages.Slot")
 }
 
 func init() { proto.RegisterFile("mixmessages.proto", fileDescriptor_f858aeec3eb2fbf5) }
 
 var fileDescriptor_f858aeec3eb2fbf5 = []byte{
-	// 1059 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x57, 0xcd, 0x6e, 0xdb, 0x46,
-	0x10, 0x36, 0x4d, 0x49, 0xb1, 0xc6, 0x92, 0x6b, 0x6f, 0xdc, 0x94, 0x95, 0x53, 0x54, 0x20, 0xda,
-	0xc2, 0xfd, 0x41, 0x80, 0x28, 0x40, 0x51, 0x24, 0x45, 0x13, 0x59, 0x4a, 0x14, 0xc1, 0x91, 0xa3,
-	0x2c, 0xed, 0x83, 0x7b, 0x63, 0xa8, 0xb1, 0xb5, 0xb5, 0x44, 0x2a, 0xcb, 0x55, 0x62, 0xf5, 0xd8,
-	0xbe, 0x4a, 0x81, 0xde, 0xfb, 0x3e, 0xed, 0xb3, 0x14, 0xfb, 0x43, 0x99, 0x94, 0x29, 0x05, 0x71,
-	0x81, 0xde, 0x38, 0x33, 0xdf, 0xcc, 0xce, 0xff, 0x2e, 0x61, 0x67, 0xcc, 0x2e, 0xc7, 0x18, 0xc7,
-	0xfe, 0x39, 0xc6, 0xf7, 0x26, 0x3c, 0x12, 0x11, 0xd9, 0x4c, 0xb1, 0xdc, 0x12, 0x14, 0xfa, 0x2c,
-	0x3c, 0x77, 0xeb, 0xb0, 0x71, 0xcc, 0xc6, 0x28, 0xbf, 0xc9, 0x2e, 0x14, 0xe5, 0x77, 0xec, 0x58,
-	0x75, 0x7b, 0xdf, 0xa6, 0x9a, 0x70, 0x7f, 0xb7, 0xa0, 0xea, 0x21, 0x7f, 0x8b, 0xbc, 0x87, 0x82,
-	0xb3, 0x20, 0x26, 0x35, 0xd8, 0xe8, 0xe1, 0xf8, 0x44, 0x1a, 0x52, 0xd0, 0x2a, 0x9d, 0xd3, 0xa4,
-	0x0e, 0x9b, 0xc7, 0x43, 0x8e, 0xfe, 0x40, 0x8b, 0xd7, 0x95, 0x38, 0xcd, 0x92, 0xda, 0xad, 0xc9,
-	0x54, 0x8b, 0x6d, 0xad, 0x9d, 0xd0, 0xc4, 0x81, 0x5b, 0x27, 0x13, 0x8f, 0x85, 0x01, 0x3a, 0x05,
-	0xe5, 0x43, 0x42, 0xba, 0x7b, 0x50, 0xa6, 0xd1, 0x34, 0x1c, 0x74, 0xc3, 0xb3, 0x88, 0x6c, 0xc1,
-	0x7a, 0xb7, 0xed, 0x58, 0x75, 0x6b, 0xbf, 0x40, 0xd7, 0xbb, 0x6d, 0xf7, 0x11, 0x7c, 0xa4, 0x84,
-	0x07, 0xd3, 0xb3, 0x33, 0xe4, 0x0a, 0xb2, 0x9f, 0x61, 0x79, 0xec, 0x57, 0x54, 0xf8, 0x2a, 0x5d,
-	0x64, 0xbb, 0x3d, 0xa8, 0xb6, 0x46, 0x0c, 0x43, 0x41, 0xf1, 0xcd, 0x14, 0x63, 0x41, 0xee, 0x40,
-	0xe9, 0x24, 0x46, 0x6e, 0x4e, 0xa8, 0x50, 0x43, 0x91, 0x2f, 0xa0, 0xfa, 0xc2, 0x8f, 0x45, 0x4f,
-	0xa7, 0xb0, 0xdb, 0x76, 0xd6, 0xeb, 0xd6, 0x7e, 0x99, 0x66, 0x99, 0x6e, 0x0d, 0x4a, 0xdd, 0xf6,
-	0x0b, 0x16, 0x0b, 0xb2, 0x0d, 0x76, 0xb7, 0xad, 0x93, 0x59, 0xa6, 0xf2, 0xd3, 0x7d, 0x0c, 0xe5,
-	0xd6, 0x98, 0x5d, 0x76, 0xc3, 0xc9, 0x54, 0x90, 0x86, 0xcc, 0xa2, 0xae, 0x86, 0xc2, 0x6c, 0x36,
-	0xee, 0xdc, 0x4b, 0x17, 0x4d, 0x22, 0x0f, 0x7c, 0x11, 0x0c, 0xe9, 0x1c, 0xe7, 0x3e, 0x01, 0x90,
-	0xec, 0x97, 0x53, 0x71, 0x53, 0x0b, 0xcf, 0xa0, 0xd2, 0xf6, 0x9a, 0xfd, 0xe9, 0xeb, 0x11, 0x0b,
-	0x0e, 0x71, 0x46, 0x2a, 0x60, 0x9d, 0x9a, 0x38, 0xad, 0x53, 0x49, 0xf5, 0x55, 0x58, 0x15, 0x6a,
-	0xf5, 0x25, 0xf5, 0xca, 0xb1, 0x35, 0xf5, 0x4a, 0x52, 0x1d, 0xa7, 0xa0, 0xa9, 0x8e, 0xfb, 0x93,
-	0xb2, 0xe3, 0xb1, 0xf3, 0xd0, 0x17, 0x53, 0x8e, 0x84, 0x40, 0xe1, 0xb9, 0x1f, 0x0f, 0x8d, 0x29,
-	0xf5, 0x2d, 0x35, 0x68, 0x62, 0x8d, 0x4a, 0xca, 0x4b, 0xac, 0x79, 0xee, 0x1b, 0xd8, 0x96, 0x69,
-	0xa5, 0x78, 0xce, 0x62, 0xc1, 0x7d, 0xc1, 0xa2, 0x90, 0x7c, 0x03, 0xdb, 0x69, 0xba, 0x15, 0x0d,
-	0x74, 0xd1, 0xca, 0xf4, 0x1a, 0x9f, 0xdc, 0x87, 0x92, 0xae, 0x9a, 0x3a, 0x60, 0xb3, 0xf1, 0x69,
-	0x26, 0xf2, 0x74, 0x88, 0xd4, 0x00, 0x65, 0x23, 0xdf, 0x5d, 0x3c, 0xb3, 0x15, 0x85, 0x67, 0x8c,
-	0x8f, 0xf5, 0xf9, 0x3d, 0xd8, 0xd5, 0x50, 0x19, 0x16, 0x0e, 0x0e, 0x66, 0xba, 0xed, 0x95, 0x0f,
-	0x39, 0x27, 0xcc, 0x83, 0xa7, 0xb9, 0x6a, 0x72, 0x9c, 0x9e, 0x72, 0x1e, 0x71, 0xd3, 0x27, 0x9a,
-	0x70, 0xff, 0xb0, 0xa0, 0x72, 0x14, 0x85, 0x01, 0x26, 0xed, 0x46, 0xa0, 0xe0, 0xf9, 0x23, 0x91,
-	0x64, 0x4e, 0x7e, 0xdf, 0x20, 0xba, 0xa5, 0xce, 0xdb, 0x37, 0x72, 0xde, 0x7d, 0x00, 0x45, 0xe5,
-	0xa5, 0x8c, 0x42, 0x7d, 0x18, 0xff, 0xae, 0xb8, 0x39, 0xb1, 0xfd, 0x65, 0x81, 0xf3, 0x7f, 0x65,
-	0xf7, 0x3e, 0x94, 0x8c, 0x81, 0xf7, 0xa7, 0x68, 0xb1, 0x20, 0x76, 0xda, 0xe9, 0x3d, 0xb0, 0x9b,
-	0xc1, 0xc5, 0x95, 0xd0, 0x4a, 0x0b, 0x7f, 0xb3, 0xf4, 0xc8, 0xaa, 0x31, 0x22, 0xdf, 0x41, 0x51,
-	0x6d, 0x0f, 0xe3, 0x73, 0x76, 0xda, 0xe6, 0xeb, 0x89, 0x6a, 0x90, 0x5c, 0x74, 0xcf, 0x22, 0xde,
-	0x1f, 0xfa, 0x31, 0x2a, 0x1f, 0x8b, 0x74, 0x4e, 0x93, 0x6f, 0xa1, 0x18, 0x8f, 0x22, 0x11, 0xab,
-	0x0d, 0xb8, 0xd9, 0xf8, 0xf8, 0xda, 0xdc, 0x7a, 0xa3, 0x48, 0x50, 0x8d, 0x71, 0xff, 0xb1, 0x61,
-	0x23, 0xe1, 0x91, 0x06, 0xec, 0x3e, 0x0d, 0x03, 0x3e, 0x9b, 0x08, 0x1c, 0x98, 0xa9, 0x3e, 0xc4,
-	0x59, 0x6c, 0xca, 0x93, 0x2b, 0x23, 0x4f, 0x60, 0x6f, 0xce, 0x6f, 0xc6, 0x71, 0x14, 0x30, 0x5f,
-	0xe0, 0xa0, 0xed, 0x0b, 0x5f, 0xa9, 0xea, 0x11, 0x5d, 0x05, 0x21, 0x0f, 0xc1, 0xe9, 0xfb, 0x5c,
-	0x30, 0x7f, 0x64, 0xec, 0xb6, 0x66, 0x93, 0x21, 0xf2, 0x63, 0xbc, 0x14, 0x66, 0xa6, 0x97, 0xca,
-	0xc9, 0x73, 0xf8, 0xdc, 0xc8, 0xb2, 0x86, 0x53, 0x26, 0xf4, 0x5a, 0x79, 0x1f, 0x4c, 0xc6, 0x61,
-	0x20, 0x2a, 0xc3, 0xba, 0xc2, 0x5a, 0x7e, 0x88, 0x33, 0xa7, 0xa8, 0xe3, 0x58, 0x01, 0x91, 0x35,
-	0xf1, 0x30, 0x1c, 0xa8, 0xed, 0x5e, 0x52, 0xf0, 0x39, 0x4d, 0xbe, 0x82, 0x2d, 0xe3, 0x7c, 0xdf,
-	0x9f, 0x8d, 0x22, 0x7f, 0xe0, 0xdc, 0x52, 0x88, 0x05, 0xae, 0xc4, 0x65, 0x3d, 0x74, 0x36, 0x34,
-	0x2e, 0xcb, 0x9d, 0x0f, 0x76, 0x39, 0x35, 0xd8, 0xbb, 0x50, 0x3c, 0xec, 0x35, 0x5b, 0xb1, 0x03,
-	0x75, 0x5b, 0x4e, 0x93, 0x22, 0x1a, 0x7f, 0x17, 0xe0, 0x56, 0x8f, 0x5d, 0x1e, 0xc9, 0xc5, 0xd6,
-	0x80, 0x72, 0x33, 0xbe, 0x78, 0x19, 0x8e, 0x58, 0x88, 0x64, 0x27, 0xd3, 0x17, 0xf2, 0x92, 0xae,
-	0x6d, 0x67, 0x58, 0xcd, 0xe0, 0xc2, 0x5d, 0x23, 0x0f, 0xa1, 0xaa, 0xa2, 0x15, 0x9c, 0x4d, 0xd4,
-	0x4d, 0x9e, 0xed, 0xa7, 0xe4, 0x82, 0xcf, 0xd5, 0x3d, 0x80, 0xed, 0x0e, 0x8a, 0x85, 0x0b, 0x3e,
-	0x83, 0xcb, 0xc8, 0x72, 0x6d, 0xfc, 0x08, 0x5b, 0x2d, 0x8e, 0xbe, 0xc0, 0x23, 0x7c, 0xa7, 0x7b,
-	0x7f, 0xc9, 0x45, 0x94, 0xab, 0xfd, 0x03, 0x80, 0x27, 0x7c, 0x2e, 0x96, 0x69, 0xaa, 0xeb, 0x32,
-	0x57, 0xf3, 0x7b, 0xd8, 0xa0, 0xd3, 0x50, 0x4f, 0xd4, 0x87, 0x9c, 0x48, 0x81, 0x74, 0x50, 0x2c,
-	0x3e, 0x19, 0xee, 0x5e, 0x1f, 0xe7, 0x2b, 0x69, 0x6d, 0xa5, 0xd4, 0x5d, 0x23, 0x8f, 0xa1, 0x62,
-	0x36, 0xba, 0xde, 0x90, 0xd9, 0x7d, 0x94, 0xde, 0xf8, 0x35, 0x72, 0x5d, 0xe4, 0xae, 0x91, 0x53,
-	0xb8, 0x6d, 0xf6, 0x65, 0xe6, 0x52, 0x5c, 0xbe, 0x18, 0x6b, 0x5f, 0x66, 0x5d, 0x5a, 0xb2, 0x78,
-	0xdd, 0xb5, 0xc6, 0x9f, 0x36, 0xec, 0xf4, 0xd8, 0xa5, 0xe9, 0xe3, 0x8e, 0x2f, 0xf0, 0x9d, 0x3f,
-	0x23, 0x07, 0x50, 0x6d, 0x0d, 0x31, 0xb8, 0x48, 0xde, 0x06, 0x0b, 0x65, 0xcf, 0x3c, 0x8a, 0x6a,
-	0xb7, 0x33, 0x32, 0xfd, 0xc2, 0x51, 0xdd, 0x03, 0x1d, 0x4c, 0x5e, 0x3f, 0x2b, 0x0d, 0x2c, 0xa9,
-	0x8f, 0xae, 0x7f, 0x7f, 0x3a, 0xb7, 0xf1, 0x21, 0x75, 0x7c, 0x24, 0x73, 0x1e, 0x20, 0x7b, 0x8b,
-	0x7a, 0x3f, 0x7f, 0x72, 0x4d, 0x57, 0xbf, 0x94, 0x72, 0x95, 0xff, 0x73, 0xc1, 0x28, 0x54, 0x4c,
-	0x9e, 0xf3, 0x0c, 0xdc, 0xac, 0x52, 0xbf, 0x48, 0xa7, 0x52, 0xd5, 0xff, 0x39, 0xa1, 0x91, 0xcb,
-	0xa7, 0x0b, 0xf9, 0x2c, 0x63, 0x68, 0xf1, 0x35, 0x53, 0xfb, 0x7a, 0xa5, 0x38, 0x7b, 0xd6, 0xeb,
-	0x92, 0xfa, 0x2d, 0x78, 0xf0, 0x6f, 0x00, 0x00, 0x00, 0xff, 0xff, 0x99, 0x39, 0x11, 0x7e, 0x2b,
-	0x0c, 0x00, 0x00,
+	// 1044 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x56, 0xdd, 0x6e, 0xdb, 0x36,
+	0x14, 0x8e, 0x22, 0xdb, 0x89, 0x4f, 0xec, 0x2c, 0x65, 0xb3, 0x42, 0x73, 0x3a, 0xcc, 0x10, 0xf6,
+	0x93, 0x0d, 0x43, 0x80, 0xba, 0x03, 0x5a, 0x74, 0x40, 0x37, 0xc7, 0x6e, 0x5d, 0x23, 0x75, 0xea,
+	0x52, 0xc9, 0x45, 0x76, 0xc7, 0xca, 0x27, 0xb1, 0x16, 0x47, 0x72, 0x29, 0xaa, 0xad, 0x7b, 0xbb,
+	0x27, 0xd8, 0x3b, 0xec, 0x09, 0xf6, 0x20, 0x7b, 0x80, 0x3d, 0xcd, 0x40, 0x52, 0x72, 0x44, 0x47,
+	0x71, 0x8b, 0x0c, 0xe8, 0x1d, 0xbf, 0xf3, 0xc7, 0xf3, 0xc3, 0x73, 0x78, 0xe0, 0xd6, 0x45, 0xf0,
+	0xee, 0x02, 0xe3, 0x98, 0x9d, 0x61, 0xbc, 0x37, 0xe5, 0x91, 0x88, 0xc8, 0x46, 0x8e, 0xe4, 0x56,
+	0xa0, 0x34, 0x0c, 0xc2, 0x33, 0xb7, 0x09, 0xeb, 0x47, 0xc1, 0x05, 0xca, 0x33, 0xd9, 0x86, 0xb2,
+	0x3c, 0xc7, 0x8e, 0xd5, 0xb4, 0x77, 0x6d, 0xaa, 0x81, 0xfb, 0x87, 0x05, 0x75, 0x0f, 0xf9, 0x1b,
+	0xe4, 0x03, 0x14, 0x3c, 0xf0, 0x63, 0xd2, 0x80, 0xf5, 0x01, 0x5e, 0x1c, 0x4b, 0x43, 0x4a, 0xb4,
+	0x4e, 0xe7, 0x98, 0x34, 0x61, 0xe3, 0x68, 0xcc, 0x91, 0x8d, 0x34, 0x7b, 0x55, 0xb1, 0xf3, 0x24,
+	0xa9, 0xdd, 0x99, 0x26, 0x9a, 0x6d, 0x6b, 0xed, 0x0c, 0x13, 0x07, 0xd6, 0x8e, 0xa7, 0x5e, 0x10,
+	0xfa, 0xe8, 0x94, 0x94, 0x0f, 0x19, 0x74, 0x77, 0xa0, 0x4a, 0xa3, 0x24, 0x1c, 0xf5, 0xc3, 0xd3,
+	0x88, 0x6c, 0xc2, 0x6a, 0xbf, 0xeb, 0x58, 0x4d, 0x6b, 0xb7, 0x44, 0x57, 0xfb, 0x5d, 0xf7, 0x67,
+	0xf8, 0x4c, 0x31, 0xf7, 0x93, 0xd3, 0x53, 0xe4, 0x4a, 0x64, 0xd7, 0x20, 0x79, 0xc1, 0x7b, 0x54,
+	0xf2, 0x75, 0xba, 0x48, 0x76, 0x07, 0x50, 0xef, 0x4c, 0x02, 0x0c, 0x05, 0xc5, 0xd7, 0x09, 0xc6,
+	0x82, 0xdc, 0x81, 0xca, 0x71, 0x8c, 0x3c, 0xbd, 0xa1, 0x46, 0x53, 0x44, 0xbe, 0x86, 0xfa, 0x73,
+	0x16, 0x8b, 0x81, 0x4e, 0x61, 0xbf, 0xeb, 0xac, 0x36, 0xad, 0xdd, 0x2a, 0x35, 0x89, 0x6e, 0x03,
+	0x2a, 0xfd, 0xee, 0xf3, 0x20, 0x16, 0x64, 0x0b, 0xec, 0x7e, 0x57, 0x27, 0xb3, 0x4a, 0xe5, 0xd1,
+	0x7d, 0x00, 0xe5, 0x7e, 0x38, 0x4d, 0x04, 0xd9, 0x93, 0x19, 0xd4, 0x95, 0x50, 0xfc, 0x8d, 0x16,
+	0xd9, 0xcb, 0x17, 0x6c, 0x9f, 0x09, 0x7f, 0x4c, 0xe7, 0x32, 0xee, 0x43, 0xa8, 0xbc, 0x48, 0xc4,
+	0x4d, 0x34, 0x9f, 0x42, 0xad, 0xeb, 0xb5, 0x87, 0xc9, 0xab, 0x49, 0xe0, 0x1f, 0xe0, 0x8c, 0xd4,
+	0xc0, 0x3a, 0x49, 0xe3, 0xb2, 0x4e, 0x24, 0x1a, 0xaa, 0x30, 0x6a, 0xd4, 0x1a, 0x4a, 0xf4, 0xd2,
+	0xb1, 0x35, 0x7a, 0x29, 0x51, 0xcf, 0x29, 0x69, 0xd4, 0x73, 0x1f, 0x2b, 0x3b, 0x5e, 0x70, 0x16,
+	0x32, 0x91, 0x70, 0x24, 0x04, 0x4a, 0xcf, 0x58, 0x3c, 0x4e, 0x4d, 0xa9, 0xb3, 0xd4, 0xa0, 0x99,
+	0x35, 0x2a, 0x91, 0x97, 0x59, 0xf3, 0xdc, 0xd7, 0xb0, 0x25, 0xd3, 0x48, 0xf1, 0x2c, 0x88, 0x05,
+	0x67, 0x22, 0x88, 0x42, 0xf2, 0x03, 0x6c, 0xe5, 0x71, 0x27, 0x1a, 0xe9, 0x22, 0x55, 0xe9, 0x15,
+	0x3a, 0xb9, 0x07, 0x15, 0x5d, 0x25, 0x75, 0xc1, 0x46, 0xeb, 0x0b, 0x23, 0xea, 0x7c, 0x88, 0x34,
+	0x15, 0x94, 0x0f, 0xf7, 0xee, 0xe2, 0x9d, 0x9d, 0x28, 0x3c, 0x0d, 0xf8, 0x85, 0xbe, 0x7f, 0x00,
+	0xdb, 0x5a, 0x54, 0x86, 0x85, 0xa3, 0xfd, 0x99, 0x7e, 0xe6, 0xca, 0x87, 0x82, 0x1b, 0xe6, 0xc1,
+	0xd3, 0x42, 0x35, 0xd9, 0x3e, 0x4f, 0x38, 0x8f, 0x78, 0xfa, 0x2e, 0x34, 0x70, 0xff, 0xb2, 0xa0,
+	0x76, 0x18, 0x85, 0x3e, 0x66, 0xcf, 0x8b, 0x40, 0xc9, 0x63, 0x13, 0x91, 0x65, 0x4e, 0x9e, 0x6f,
+	0x10, 0xdd, 0xb5, 0xce, 0xdb, 0x37, 0x72, 0xde, 0xbd, 0x0f, 0x65, 0xe5, 0xa5, 0x8c, 0x42, 0x1d,
+	0x52, 0xff, 0x2e, 0xa9, 0x05, 0xb1, 0xfd, 0x6d, 0x81, 0xf3, 0xa9, 0xb2, 0x7b, 0x0f, 0x2a, 0xa9,
+	0x81, 0x0f, 0xa7, 0x68, 0xb1, 0x20, 0x76, 0xde, 0xe9, 0x1d, 0xb0, 0xdb, 0xfe, 0xf9, 0x25, 0xd3,
+	0xca, 0x33, 0xdf, 0x43, 0x59, 0x75, 0x10, 0xf9, 0x11, 0xca, 0x6a, 0x50, 0xa4, 0xee, 0xde, 0x31,
+	0x6e, 0x9b, 0x4f, 0x22, 0xaa, 0x85, 0xe4, 0x4c, 0x7b, 0x1a, 0xf1, 0xe1, 0x98, 0xc5, 0xa8, 0xdc,
+	0x2b, 0xd3, 0x39, 0x26, 0xdf, 0x41, 0x39, 0x9e, 0x44, 0x22, 0x56, 0xc3, 0x6e, 0xa3, 0x75, 0xcb,
+	0xb0, 0xe4, 0x4d, 0x22, 0x41, 0x35, 0xdf, 0xfd, 0xd7, 0x86, 0x92, 0xc4, 0xa4, 0x05, 0xdb, 0x4f,
+	0x42, 0x9f, 0xcf, 0xa6, 0x02, 0x47, 0x69, 0x23, 0x1f, 0xe0, 0x2c, 0x4e, 0x2b, 0x52, 0xc8, 0x23,
+	0xbf, 0xc2, 0xce, 0x9c, 0xde, 0x8e, 0xe3, 0xc8, 0x0f, 0x98, 0xc0, 0x51, 0x97, 0x09, 0xa6, 0x54,
+	0x75, 0x57, 0x2e, 0x13, 0x21, 0x8f, 0xc0, 0x19, 0x32, 0x2e, 0x02, 0x36, 0x49, 0xed, 0x76, 0x66,
+	0xd3, 0x31, 0xf2, 0x23, 0x7c, 0x27, 0xd2, 0x36, 0xbe, 0x96, 0x4f, 0x9e, 0xc1, 0x57, 0x29, 0xcf,
+	0x34, 0x9c, 0x33, 0xa1, 0x27, 0xc9, 0x87, 0xc4, 0x64, 0x1c, 0xa9, 0x88, 0xca, 0xac, 0x2e, 0xaa,
+	0xe6, 0x1f, 0xe0, 0xcc, 0x29, 0xeb, 0x38, 0x96, 0x88, 0xc8, 0x5a, 0x78, 0x18, 0x8e, 0xd4, 0x00,
+	0xaf, 0x28, 0xf1, 0x39, 0x26, 0xdf, 0xc2, 0x66, 0xea, 0xfc, 0x90, 0xcd, 0x26, 0x11, 0x1b, 0x39,
+	0x6b, 0x4a, 0x62, 0x81, 0x2a, 0xe5, 0x4c, 0x0f, 0x9d, 0x75, 0x2d, 0x67, 0x52, 0xe7, 0xbd, 0x5c,
+	0xcd, 0xf5, 0xf2, 0x36, 0x94, 0x0f, 0x06, 0xed, 0x4e, 0xec, 0x40, 0xd3, 0x96, 0x0d, 0xa4, 0x40,
+	0xeb, 0x9f, 0x12, 0x94, 0x0e, 0xe5, 0x20, 0x6b, 0x41, 0xb5, 0x1d, 0x9f, 0xbf, 0x08, 0x27, 0x41,
+	0x88, 0xc4, 0x7c, 0x0c, 0xf2, 0x13, 0x6e, 0x6c, 0x19, 0xa4, 0xb6, 0x7f, 0xee, 0xae, 0x90, 0x47,
+	0x50, 0x57, 0xa1, 0x0a, 0x1e, 0x4c, 0xd5, 0x4f, 0xfd, 0xb9, 0x21, 0x94, 0x7d, 0xe0, 0x85, 0xba,
+	0xfb, 0xb0, 0xd5, 0x43, 0xb1, 0xf0, 0x81, 0x9b, 0x6f, 0x30, 0xcf, 0x2b, 0xb4, 0xf1, 0x10, 0x36,
+	0x3b, 0x1c, 0x99, 0xc0, 0x43, 0x7c, 0xab, 0x1f, 0x7c, 0xc1, 0xa7, 0x53, 0xa8, 0xf9, 0x13, 0x80,
+	0x27, 0x18, 0x17, 0x45, 0x5a, 0xea, 0x2b, 0x2c, 0xd4, 0x6a, 0xc1, 0x3a, 0x4d, 0x42, 0xdd, 0x3e,
+	0x1f, 0x7b, 0x13, 0x05, 0xd2, 0x43, 0xb1, 0xb8, 0x06, 0xdc, 0xbd, 0xda, 0xb7, 0x97, 0xdc, 0xc6,
+	0x52, 0xae, 0xbb, 0x42, 0x7e, 0x81, 0x5a, 0x3a, 0xb5, 0xf5, 0x14, 0x34, 0x67, 0x4e, 0x7e, 0xaa,
+	0x37, 0xc8, 0x55, 0x96, 0xbb, 0x42, 0x4e, 0xe0, 0x76, 0x3a, 0x13, 0x8d, 0x8f, 0xef, 0xfa, 0xe1,
+	0xd7, 0xf8, 0xc6, 0x74, 0xe9, 0x9a, 0xe1, 0xea, 0xae, 0xb4, 0xfe, 0xb4, 0x61, 0xad, 0xc7, 0x04,
+	0xbe, 0x65, 0x33, 0xb2, 0x0f, 0xf5, 0xce, 0x18, 0xfd, 0xf3, 0xec, 0xd7, 0x5f, 0x28, 0xb0, 0xb1,
+	0xde, 0x34, 0x6e, 0x9b, 0x45, 0x50, 0xbb, 0x8a, 0xbb, 0x42, 0x1e, 0x03, 0xf4, 0x30, 0xdb, 0x63,
+	0x96, 0x1a, 0x28, 0xa8, 0x88, 0xae, 0xf4, 0x30, 0x99, 0xeb, 0x7f, 0x6c, 0xd5, 0x1e, 0xc8, 0x0c,
+	0xfb, 0x18, 0xbc, 0x41, 0x3d, 0x76, 0x4d, 0xe7, 0xf4, 0xce, 0x53, 0xa8, 0xf8, 0xbf, 0x4b, 0x43,
+	0xa1, 0x96, 0x66, 0xb4, 0xc8, 0xc0, 0xcd, 0x6a, 0xf2, 0xbb, 0x74, 0x2a, 0x57, 0xe7, 0xdf, 0x32,
+	0x8c, 0x5c, 0x2e, 0x22, 0xe4, 0x4b, 0xc3, 0xd0, 0xe2, 0x6e, 0xd2, 0xf8, 0x7e, 0x29, 0xdb, 0xbc,
+	0xeb, 0x55, 0x45, 0x2d, 0xf5, 0xf7, 0xff, 0x0b, 0x00, 0x00, 0xff, 0xff, 0x8e, 0x8d, 0x46, 0x1e,
+	0xe9, 0x0b, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -1095,10 +1094,10 @@ var _ grpc.ClientConn
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion4
 
-// MixNodeClient is the client API for MixNode service.
+// NodeClient is the client API for Node service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
-type MixNodeClient interface {
+type NodeClient interface {
 	// Handles AskOnline
 	AskOnline(ctx context.Context, in *Ping, opts ...grpc.CallOption) (*Ack, error)
 	// Handles RoundtripPing
@@ -1106,11 +1105,11 @@ type MixNodeClient interface {
 	// GetServerMetrics returns server metrics
 	GetServerMetrics(ctx context.Context, in *ServerMetrics, opts ...grpc.CallOption) (*Ack, error)
 	// CreatesNewRound makes a new round with a certain ID
-	CreateNewRound(ctx context.Context, in *CmixBatch, opts ...grpc.CallOption) (*Ack, error)
+	CreateNewRound(ctx context.Context, in *Batch, opts ...grpc.CallOption) (*Ack, error)
 	// StartRound begins a round with these messages (if len(msgs) == batch size)
-	StartRound(ctx context.Context, in *CmixInput, opts ...grpc.CallOption) (*Ack, error)
+	StartRound(ctx context.Context, in *Input, opts ...grpc.CallOption) (*Ack, error)
 	// RunPhase a cMix phase on another node
-	RunPhase(ctx context.Context, in *CmixBatch, opts ...grpc.CallOption) (*Ack, error)
+	RunPhase(ctx context.Context, in *Batch, opts ...grpc.CallOption) (*Ack, error)
 	// GetRoundBufferInfo returns the # of rounds ready for messages
 	GetRoundBufferInfo(ctx context.Context, in *RoundBufferInfo, opts ...grpc.CallOption) (*RoundBufferInfo, error)
 	// RequestNonce generates a nonce for user registration
@@ -1119,97 +1118,97 @@ type MixNodeClient interface {
 	ConfirmRegistration(ctx context.Context, in *DSASignature, opts ...grpc.CallOption) (*RegistrationConfirmation, error)
 }
 
-type mixNodeClient struct {
+type nodeClient struct {
 	cc *grpc.ClientConn
 }
 
-func NewMixNodeClient(cc *grpc.ClientConn) MixNodeClient {
-	return &mixNodeClient{cc}
+func NewNodeClient(cc *grpc.ClientConn) NodeClient {
+	return &nodeClient{cc}
 }
 
-func (c *mixNodeClient) AskOnline(ctx context.Context, in *Ping, opts ...grpc.CallOption) (*Ack, error) {
+func (c *nodeClient) AskOnline(ctx context.Context, in *Ping, opts ...grpc.CallOption) (*Ack, error) {
 	out := new(Ack)
-	err := c.cc.Invoke(ctx, "/mixmessages.MixNode/AskOnline", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/mixmessages.Node/AskOnline", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *mixNodeClient) RoundtripPing(ctx context.Context, in *TimePing, opts ...grpc.CallOption) (*Ack, error) {
+func (c *nodeClient) RoundtripPing(ctx context.Context, in *TimePing, opts ...grpc.CallOption) (*Ack, error) {
 	out := new(Ack)
-	err := c.cc.Invoke(ctx, "/mixmessages.MixNode/RoundtripPing", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/mixmessages.Node/RoundtripPing", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *mixNodeClient) GetServerMetrics(ctx context.Context, in *ServerMetrics, opts ...grpc.CallOption) (*Ack, error) {
+func (c *nodeClient) GetServerMetrics(ctx context.Context, in *ServerMetrics, opts ...grpc.CallOption) (*Ack, error) {
 	out := new(Ack)
-	err := c.cc.Invoke(ctx, "/mixmessages.MixNode/GetServerMetrics", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/mixmessages.Node/GetServerMetrics", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *mixNodeClient) CreateNewRound(ctx context.Context, in *CmixBatch, opts ...grpc.CallOption) (*Ack, error) {
+func (c *nodeClient) CreateNewRound(ctx context.Context, in *Batch, opts ...grpc.CallOption) (*Ack, error) {
 	out := new(Ack)
-	err := c.cc.Invoke(ctx, "/mixmessages.MixNode/CreateNewRound", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/mixmessages.Node/CreateNewRound", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *mixNodeClient) StartRound(ctx context.Context, in *CmixInput, opts ...grpc.CallOption) (*Ack, error) {
+func (c *nodeClient) StartRound(ctx context.Context, in *Input, opts ...grpc.CallOption) (*Ack, error) {
 	out := new(Ack)
-	err := c.cc.Invoke(ctx, "/mixmessages.MixNode/StartRound", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/mixmessages.Node/StartRound", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *mixNodeClient) RunPhase(ctx context.Context, in *CmixBatch, opts ...grpc.CallOption) (*Ack, error) {
+func (c *nodeClient) RunPhase(ctx context.Context, in *Batch, opts ...grpc.CallOption) (*Ack, error) {
 	out := new(Ack)
-	err := c.cc.Invoke(ctx, "/mixmessages.MixNode/RunPhase", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/mixmessages.Node/RunPhase", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *mixNodeClient) GetRoundBufferInfo(ctx context.Context, in *RoundBufferInfo, opts ...grpc.CallOption) (*RoundBufferInfo, error) {
+func (c *nodeClient) GetRoundBufferInfo(ctx context.Context, in *RoundBufferInfo, opts ...grpc.CallOption) (*RoundBufferInfo, error) {
 	out := new(RoundBufferInfo)
-	err := c.cc.Invoke(ctx, "/mixmessages.MixNode/GetRoundBufferInfo", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/mixmessages.Node/GetRoundBufferInfo", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *mixNodeClient) RequestNonce(ctx context.Context, in *NonceRequest, opts ...grpc.CallOption) (*Nonce, error) {
+func (c *nodeClient) RequestNonce(ctx context.Context, in *NonceRequest, opts ...grpc.CallOption) (*Nonce, error) {
 	out := new(Nonce)
-	err := c.cc.Invoke(ctx, "/mixmessages.MixNode/RequestNonce", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/mixmessages.Node/RequestNonce", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *mixNodeClient) ConfirmRegistration(ctx context.Context, in *DSASignature, opts ...grpc.CallOption) (*RegistrationConfirmation, error) {
+func (c *nodeClient) ConfirmRegistration(ctx context.Context, in *DSASignature, opts ...grpc.CallOption) (*RegistrationConfirmation, error) {
 	out := new(RegistrationConfirmation)
-	err := c.cc.Invoke(ctx, "/mixmessages.MixNode/ConfirmRegistration", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/mixmessages.Node/ConfirmRegistration", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// MixNodeServer is the server API for MixNode service.
-type MixNodeServer interface {
+// NodeServer is the server API for Node service.
+type NodeServer interface {
 	// Handles AskOnline
 	AskOnline(context.Context, *Ping) (*Ack, error)
 	// Handles RoundtripPing
@@ -1217,11 +1216,11 @@ type MixNodeServer interface {
 	// GetServerMetrics returns server metrics
 	GetServerMetrics(context.Context, *ServerMetrics) (*Ack, error)
 	// CreatesNewRound makes a new round with a certain ID
-	CreateNewRound(context.Context, *CmixBatch) (*Ack, error)
+	CreateNewRound(context.Context, *Batch) (*Ack, error)
 	// StartRound begins a round with these messages (if len(msgs) == batch size)
-	StartRound(context.Context, *CmixInput) (*Ack, error)
+	StartRound(context.Context, *Input) (*Ack, error)
 	// RunPhase a cMix phase on another node
-	RunPhase(context.Context, *CmixBatch) (*Ack, error)
+	RunPhase(context.Context, *Batch) (*Ack, error)
 	// GetRoundBufferInfo returns the # of rounds ready for messages
 	GetRoundBufferInfo(context.Context, *RoundBufferInfo) (*RoundBufferInfo, error)
 	// RequestNonce generates a nonce for user registration
@@ -1230,452 +1229,452 @@ type MixNodeServer interface {
 	ConfirmRegistration(context.Context, *DSASignature) (*RegistrationConfirmation, error)
 }
 
-func RegisterMixNodeServer(s *grpc.Server, srv MixNodeServer) {
-	s.RegisterService(&_MixNode_serviceDesc, srv)
+func RegisterNodeServer(s *grpc.Server, srv NodeServer) {
+	s.RegisterService(&_Node_serviceDesc, srv)
 }
 
-func _MixNode_AskOnline_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Node_AskOnline_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Ping)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MixNodeServer).AskOnline(ctx, in)
+		return srv.(NodeServer).AskOnline(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/mixmessages.MixNode/AskOnline",
+		FullMethod: "/mixmessages.Node/AskOnline",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MixNodeServer).AskOnline(ctx, req.(*Ping))
+		return srv.(NodeServer).AskOnline(ctx, req.(*Ping))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _MixNode_RoundtripPing_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Node_RoundtripPing_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(TimePing)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MixNodeServer).RoundtripPing(ctx, in)
+		return srv.(NodeServer).RoundtripPing(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/mixmessages.MixNode/RoundtripPing",
+		FullMethod: "/mixmessages.Node/RoundtripPing",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MixNodeServer).RoundtripPing(ctx, req.(*TimePing))
+		return srv.(NodeServer).RoundtripPing(ctx, req.(*TimePing))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _MixNode_GetServerMetrics_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Node_GetServerMetrics_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ServerMetrics)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MixNodeServer).GetServerMetrics(ctx, in)
+		return srv.(NodeServer).GetServerMetrics(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/mixmessages.MixNode/GetServerMetrics",
+		FullMethod: "/mixmessages.Node/GetServerMetrics",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MixNodeServer).GetServerMetrics(ctx, req.(*ServerMetrics))
+		return srv.(NodeServer).GetServerMetrics(ctx, req.(*ServerMetrics))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _MixNode_CreateNewRound_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CmixBatch)
+func _Node_CreateNewRound_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Batch)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MixNodeServer).CreateNewRound(ctx, in)
+		return srv.(NodeServer).CreateNewRound(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/mixmessages.MixNode/CreateNewRound",
+		FullMethod: "/mixmessages.Node/CreateNewRound",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MixNodeServer).CreateNewRound(ctx, req.(*CmixBatch))
+		return srv.(NodeServer).CreateNewRound(ctx, req.(*Batch))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _MixNode_StartRound_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CmixInput)
+func _Node_StartRound_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Input)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MixNodeServer).StartRound(ctx, in)
+		return srv.(NodeServer).StartRound(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/mixmessages.MixNode/StartRound",
+		FullMethod: "/mixmessages.Node/StartRound",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MixNodeServer).StartRound(ctx, req.(*CmixInput))
+		return srv.(NodeServer).StartRound(ctx, req.(*Input))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _MixNode_RunPhase_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CmixBatch)
+func _Node_RunPhase_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Batch)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MixNodeServer).RunPhase(ctx, in)
+		return srv.(NodeServer).RunPhase(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/mixmessages.MixNode/RunPhase",
+		FullMethod: "/mixmessages.Node/RunPhase",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MixNodeServer).RunPhase(ctx, req.(*CmixBatch))
+		return srv.(NodeServer).RunPhase(ctx, req.(*Batch))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _MixNode_GetRoundBufferInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Node_GetRoundBufferInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RoundBufferInfo)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MixNodeServer).GetRoundBufferInfo(ctx, in)
+		return srv.(NodeServer).GetRoundBufferInfo(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/mixmessages.MixNode/GetRoundBufferInfo",
+		FullMethod: "/mixmessages.Node/GetRoundBufferInfo",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MixNodeServer).GetRoundBufferInfo(ctx, req.(*RoundBufferInfo))
+		return srv.(NodeServer).GetRoundBufferInfo(ctx, req.(*RoundBufferInfo))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _MixNode_RequestNonce_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Node_RequestNonce_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(NonceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MixNodeServer).RequestNonce(ctx, in)
+		return srv.(NodeServer).RequestNonce(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/mixmessages.MixNode/RequestNonce",
+		FullMethod: "/mixmessages.Node/RequestNonce",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MixNodeServer).RequestNonce(ctx, req.(*NonceRequest))
+		return srv.(NodeServer).RequestNonce(ctx, req.(*NonceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _MixNode_ConfirmRegistration_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Node_ConfirmRegistration_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DSASignature)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MixNodeServer).ConfirmRegistration(ctx, in)
+		return srv.(NodeServer).ConfirmRegistration(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/mixmessages.MixNode/ConfirmRegistration",
+		FullMethod: "/mixmessages.Node/ConfirmRegistration",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MixNodeServer).ConfirmRegistration(ctx, req.(*DSASignature))
+		return srv.(NodeServer).ConfirmRegistration(ctx, req.(*DSASignature))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-var _MixNode_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "mixmessages.MixNode",
-	HandlerType: (*MixNodeServer)(nil),
+var _Node_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "mixmessages.Node",
+	HandlerType: (*NodeServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "AskOnline",
-			Handler:    _MixNode_AskOnline_Handler,
+			Handler:    _Node_AskOnline_Handler,
 		},
 		{
 			MethodName: "RoundtripPing",
-			Handler:    _MixNode_RoundtripPing_Handler,
+			Handler:    _Node_RoundtripPing_Handler,
 		},
 		{
 			MethodName: "GetServerMetrics",
-			Handler:    _MixNode_GetServerMetrics_Handler,
+			Handler:    _Node_GetServerMetrics_Handler,
 		},
 		{
 			MethodName: "CreateNewRound",
-			Handler:    _MixNode_CreateNewRound_Handler,
+			Handler:    _Node_CreateNewRound_Handler,
 		},
 		{
 			MethodName: "StartRound",
-			Handler:    _MixNode_StartRound_Handler,
+			Handler:    _Node_StartRound_Handler,
 		},
 		{
 			MethodName: "RunPhase",
-			Handler:    _MixNode_RunPhase_Handler,
+			Handler:    _Node_RunPhase_Handler,
 		},
 		{
 			MethodName: "GetRoundBufferInfo",
-			Handler:    _MixNode_GetRoundBufferInfo_Handler,
+			Handler:    _Node_GetRoundBufferInfo_Handler,
 		},
 		{
 			MethodName: "RequestNonce",
-			Handler:    _MixNode_RequestNonce_Handler,
+			Handler:    _Node_RequestNonce_Handler,
 		},
 		{
 			MethodName: "ConfirmRegistration",
-			Handler:    _MixNode_ConfirmRegistration_Handler,
+			Handler:    _Node_ConfirmRegistration_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "mixmessages.proto",
 }
 
-// MixMessageGatewayClient is the client API for MixMessageGateway service.
+// GatewayClient is the client API for Gateway service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
-type MixMessageGatewayClient interface {
+type GatewayClient interface {
 	// Request a list of MessageIDs from the gateway for the given UserID
 	CheckMessages(ctx context.Context, in *ClientRequest, opts ...grpc.CallOption) (*IDList, error)
-	// GetMessage a CmixBatch from the gateway for the given message information
-	GetMessage(ctx context.Context, in *ClientRequest, opts ...grpc.CallOption) (*CmixBatch, error)
+	// GetMessage a Batch from the gateway for the given message information
+	GetMessage(ctx context.Context, in *ClientRequest, opts ...grpc.CallOption) (*Batch, error)
 	// PutMessage on the cMix Gateway
-	PutMessage(ctx context.Context, in *CmixBatch, opts ...grpc.CallOption) (*Ack, error)
+	PutMessage(ctx context.Context, in *Batch, opts ...grpc.CallOption) (*Ack, error)
 	// ReceiveBatch of messages from the server
-	ReceiveBatch(ctx context.Context, in *CmixOutput, opts ...grpc.CallOption) (*Ack, error)
+	ReceiveBatch(ctx context.Context, in *Output, opts ...grpc.CallOption) (*Ack, error)
 	// RequestNonce returns a Nonce to the user
 	RequestNonce(ctx context.Context, in *NonceRequest, opts ...grpc.CallOption) (*Nonce, error)
 	// ConfirmNonce takes a client signed nonce for Registration Nonce Confirmation
 	ConfirmNonce(ctx context.Context, in *DSASignature, opts ...grpc.CallOption) (*RegistrationConfirmation, error)
 }
 
-type mixMessageGatewayClient struct {
+type gatewayClient struct {
 	cc *grpc.ClientConn
 }
 
-func NewMixMessageGatewayClient(cc *grpc.ClientConn) MixMessageGatewayClient {
-	return &mixMessageGatewayClient{cc}
+func NewGatewayClient(cc *grpc.ClientConn) GatewayClient {
+	return &gatewayClient{cc}
 }
 
-func (c *mixMessageGatewayClient) CheckMessages(ctx context.Context, in *ClientRequest, opts ...grpc.CallOption) (*IDList, error) {
+func (c *gatewayClient) CheckMessages(ctx context.Context, in *ClientRequest, opts ...grpc.CallOption) (*IDList, error) {
 	out := new(IDList)
-	err := c.cc.Invoke(ctx, "/mixmessages.MixMessageGateway/CheckMessages", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/mixmessages.Gateway/CheckMessages", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *mixMessageGatewayClient) GetMessage(ctx context.Context, in *ClientRequest, opts ...grpc.CallOption) (*CmixBatch, error) {
-	out := new(CmixBatch)
-	err := c.cc.Invoke(ctx, "/mixmessages.MixMessageGateway/GetMessage", in, out, opts...)
+func (c *gatewayClient) GetMessage(ctx context.Context, in *ClientRequest, opts ...grpc.CallOption) (*Batch, error) {
+	out := new(Batch)
+	err := c.cc.Invoke(ctx, "/mixmessages.Gateway/GetMessage", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *mixMessageGatewayClient) PutMessage(ctx context.Context, in *CmixBatch, opts ...grpc.CallOption) (*Ack, error) {
+func (c *gatewayClient) PutMessage(ctx context.Context, in *Batch, opts ...grpc.CallOption) (*Ack, error) {
 	out := new(Ack)
-	err := c.cc.Invoke(ctx, "/mixmessages.MixMessageGateway/PutMessage", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/mixmessages.Gateway/PutMessage", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *mixMessageGatewayClient) ReceiveBatch(ctx context.Context, in *CmixOutput, opts ...grpc.CallOption) (*Ack, error) {
+func (c *gatewayClient) ReceiveBatch(ctx context.Context, in *Output, opts ...grpc.CallOption) (*Ack, error) {
 	out := new(Ack)
-	err := c.cc.Invoke(ctx, "/mixmessages.MixMessageGateway/ReceiveBatch", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/mixmessages.Gateway/ReceiveBatch", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *mixMessageGatewayClient) RequestNonce(ctx context.Context, in *NonceRequest, opts ...grpc.CallOption) (*Nonce, error) {
+func (c *gatewayClient) RequestNonce(ctx context.Context, in *NonceRequest, opts ...grpc.CallOption) (*Nonce, error) {
 	out := new(Nonce)
-	err := c.cc.Invoke(ctx, "/mixmessages.MixMessageGateway/RequestNonce", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/mixmessages.Gateway/RequestNonce", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *mixMessageGatewayClient) ConfirmNonce(ctx context.Context, in *DSASignature, opts ...grpc.CallOption) (*RegistrationConfirmation, error) {
+func (c *gatewayClient) ConfirmNonce(ctx context.Context, in *DSASignature, opts ...grpc.CallOption) (*RegistrationConfirmation, error) {
 	out := new(RegistrationConfirmation)
-	err := c.cc.Invoke(ctx, "/mixmessages.MixMessageGateway/ConfirmNonce", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/mixmessages.Gateway/ConfirmNonce", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// MixMessageGatewayServer is the server API for MixMessageGateway service.
-type MixMessageGatewayServer interface {
+// GatewayServer is the server API for Gateway service.
+type GatewayServer interface {
 	// Request a list of MessageIDs from the gateway for the given UserID
 	CheckMessages(context.Context, *ClientRequest) (*IDList, error)
-	// GetMessage a CmixBatch from the gateway for the given message information
-	GetMessage(context.Context, *ClientRequest) (*CmixBatch, error)
+	// GetMessage a Batch from the gateway for the given message information
+	GetMessage(context.Context, *ClientRequest) (*Batch, error)
 	// PutMessage on the cMix Gateway
-	PutMessage(context.Context, *CmixBatch) (*Ack, error)
+	PutMessage(context.Context, *Batch) (*Ack, error)
 	// ReceiveBatch of messages from the server
-	ReceiveBatch(context.Context, *CmixOutput) (*Ack, error)
+	ReceiveBatch(context.Context, *Output) (*Ack, error)
 	// RequestNonce returns a Nonce to the user
 	RequestNonce(context.Context, *NonceRequest) (*Nonce, error)
 	// ConfirmNonce takes a client signed nonce for Registration Nonce Confirmation
 	ConfirmNonce(context.Context, *DSASignature) (*RegistrationConfirmation, error)
 }
 
-func RegisterMixMessageGatewayServer(s *grpc.Server, srv MixMessageGatewayServer) {
-	s.RegisterService(&_MixMessageGateway_serviceDesc, srv)
+func RegisterGatewayServer(s *grpc.Server, srv GatewayServer) {
+	s.RegisterService(&_Gateway_serviceDesc, srv)
 }
 
-func _MixMessageGateway_CheckMessages_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Gateway_CheckMessages_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ClientRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MixMessageGatewayServer).CheckMessages(ctx, in)
+		return srv.(GatewayServer).CheckMessages(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/mixmessages.MixMessageGateway/CheckMessages",
+		FullMethod: "/mixmessages.Gateway/CheckMessages",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MixMessageGatewayServer).CheckMessages(ctx, req.(*ClientRequest))
+		return srv.(GatewayServer).CheckMessages(ctx, req.(*ClientRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _MixMessageGateway_GetMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Gateway_GetMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ClientRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MixMessageGatewayServer).GetMessage(ctx, in)
+		return srv.(GatewayServer).GetMessage(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/mixmessages.MixMessageGateway/GetMessage",
+		FullMethod: "/mixmessages.Gateway/GetMessage",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MixMessageGatewayServer).GetMessage(ctx, req.(*ClientRequest))
+		return srv.(GatewayServer).GetMessage(ctx, req.(*ClientRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _MixMessageGateway_PutMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CmixBatch)
+func _Gateway_PutMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Batch)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MixMessageGatewayServer).PutMessage(ctx, in)
+		return srv.(GatewayServer).PutMessage(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/mixmessages.MixMessageGateway/PutMessage",
+		FullMethod: "/mixmessages.Gateway/PutMessage",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MixMessageGatewayServer).PutMessage(ctx, req.(*CmixBatch))
+		return srv.(GatewayServer).PutMessage(ctx, req.(*Batch))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _MixMessageGateway_ReceiveBatch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CmixOutput)
+func _Gateway_ReceiveBatch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Output)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MixMessageGatewayServer).ReceiveBatch(ctx, in)
+		return srv.(GatewayServer).ReceiveBatch(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/mixmessages.MixMessageGateway/ReceiveBatch",
+		FullMethod: "/mixmessages.Gateway/ReceiveBatch",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MixMessageGatewayServer).ReceiveBatch(ctx, req.(*CmixOutput))
+		return srv.(GatewayServer).ReceiveBatch(ctx, req.(*Output))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _MixMessageGateway_RequestNonce_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Gateway_RequestNonce_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(NonceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MixMessageGatewayServer).RequestNonce(ctx, in)
+		return srv.(GatewayServer).RequestNonce(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/mixmessages.MixMessageGateway/RequestNonce",
+		FullMethod: "/mixmessages.Gateway/RequestNonce",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MixMessageGatewayServer).RequestNonce(ctx, req.(*NonceRequest))
+		return srv.(GatewayServer).RequestNonce(ctx, req.(*NonceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _MixMessageGateway_ConfirmNonce_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Gateway_ConfirmNonce_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DSASignature)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MixMessageGatewayServer).ConfirmNonce(ctx, in)
+		return srv.(GatewayServer).ConfirmNonce(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/mixmessages.MixMessageGateway/ConfirmNonce",
+		FullMethod: "/mixmessages.Gateway/ConfirmNonce",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MixMessageGatewayServer).ConfirmNonce(ctx, req.(*DSASignature))
+		return srv.(GatewayServer).ConfirmNonce(ctx, req.(*DSASignature))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-var _MixMessageGateway_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "mixmessages.MixMessageGateway",
-	HandlerType: (*MixMessageGatewayServer)(nil),
+var _Gateway_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "mixmessages.Gateway",
+	HandlerType: (*GatewayServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "CheckMessages",
-			Handler:    _MixMessageGateway_CheckMessages_Handler,
+			Handler:    _Gateway_CheckMessages_Handler,
 		},
 		{
 			MethodName: "GetMessage",
-			Handler:    _MixMessageGateway_GetMessage_Handler,
+			Handler:    _Gateway_GetMessage_Handler,
 		},
 		{
 			MethodName: "PutMessage",
-			Handler:    _MixMessageGateway_PutMessage_Handler,
+			Handler:    _Gateway_PutMessage_Handler,
 		},
 		{
 			MethodName: "ReceiveBatch",
-			Handler:    _MixMessageGateway_ReceiveBatch_Handler,
+			Handler:    _Gateway_ReceiveBatch_Handler,
 		},
 		{
 			MethodName: "RequestNonce",
-			Handler:    _MixMessageGateway_RequestNonce_Handler,
+			Handler:    _Gateway_RequestNonce_Handler,
 		},
 		{
 			MethodName: "ConfirmNonce",
-			Handler:    _MixMessageGateway_ConfirmNonce_Handler,
+			Handler:    _Gateway_ConfirmNonce_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

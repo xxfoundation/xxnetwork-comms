@@ -10,7 +10,7 @@ package mixmessages;
 
 // SERVER MESSAGE SERVICE ------------------------------------------------------
 
-service MixNode {
+service Node {
     // Handles AskOnline
     rpc AskOnline (Ping) returns (Ack) {
     }
@@ -23,15 +23,15 @@ service MixNode {
     }
 
     // CreatesNewRound makes a new round with a certain ID
-    rpc CreateNewRound (CmixBatch) returns (Ack) {
+    rpc CreateNewRound (Batch) returns (Ack) {
     }
 
     // StartRound begins a round with these messages (if len(msgs) == batch size)
-    rpc StartRound (CmixInput) returns (Ack) {
+    rpc StartRound (Input) returns (Ack) {
     }
 
     // RunPhase a cMix phase on another node
-    rpc RunPhase (CmixBatch) returns (Ack) {
+    rpc RunPhase (Batch) returns (Ack) {
     }
 
     // GetRoundBufferInfo returns the # of rounds ready for messages
@@ -77,21 +77,21 @@ message RoundBufferInfo {
 
 // GATEWAY MESSAGE SERVICE -----------------------------------------------------
 
-service MixMessageGateway {
+service Gateway {
     // Request a list of MessageIDs from the gateway for the given UserID
     rpc CheckMessages (ClientRequest) returns (IDList) {
     }
 
-    // GetMessage a CmixBatch from the gateway for the given message information
-    rpc GetMessage (ClientRequest) returns (CmixBatch) {
+    // GetMessage a Batch from the gateway for the given message information
+    rpc GetMessage (ClientRequest) returns (Batch) {
     }
 
     // PutMessage on the cMix Gateway
-    rpc PutMessage (CmixBatch) returns (Ack) {
+    rpc PutMessage (Batch) returns (Ack) {
     }
 
     // ReceiveBatch of messages from the server
-    rpc ReceiveBatch (CmixOutput) returns (Ack) {
+    rpc ReceiveBatch (Output) returns (Ack) {
     }
 
     // RequestNonce returns a Nonce to the user
@@ -115,13 +115,13 @@ message IDList {
 }
 
 // Input messages are a list of messages run as a batch
-message CmixInput {
-    repeated CmixBatch Messages = 1;
+message Input {
+    repeated Batch Messages = 1;
 }
 
 // Output messages are a list of messages run as a batch
-message CmixOutput {
-    repeated CmixBatch Messages = 1;
+message Output {
+    repeated Batch Messages = 1;
 }
 
 // REGISTRATION MESSAGE SERVICE ------------------------------------------------
@@ -161,20 +161,20 @@ message UserRegistrationConfirmation {
     string Error = 2;
 }
 
-// Client -> Gateway -> Server message to request nonce
+// NonceRequest message to request nonce from client to server
 message NonceRequest {
     bytes Salt = 1;
     DSAPublicKey Client = 2;
     DSASignature ClientSignedByServer = 3;
 }
 
-// Server -> Gateway -> Client response to RequestNonceMessage
+// Nonce message to reply to client from server
 message Nonce {
     bytes Nonce = 1;
     string Error = 2;
 }
 
-// Server -> Gateway -> Client response to ConfirmNonceMessage
+// RegistrationConfirmation returning proof of registration
 message RegistrationConfirmation {
     DSASignature ClientSignedByServer = 1;
     DSAPublicKey Server = 2;
@@ -183,18 +183,18 @@ message RegistrationConfirmation {
 
 // GENERAL USE MESSAGES --------------------------------------------------------
 
-// Generic Ack message containing an Error field
+// Ack generic message containing an Error field
 message Ack {
     string Error = 1;
 }
 
-message CmixBatch {
+message Batch {
     RoundInfo Round = 1;
     int32 ForPhase = 2;
-    repeated CmixSlot slots = 3;
+    repeated Slot slots = 3;
 }
 
-message CmixSlot {
+message Slot {
     // Precomputation fields
     bytes EncryptedMessageKeys = 1;
     bytes EncryptedAssociatedDataKeys = 2;
