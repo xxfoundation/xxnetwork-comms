@@ -36,6 +36,9 @@ type ServerHandler interface {
 	// Server interface for ConfirmNonceMessage
 	ConfirmRegistration(hash, R, S []byte) ([]byte,
 		[]byte, []byte, []byte, []byte, []byte, []byte, error)
+
+	// FinishPrecomputation interface to finalize message and AD precomps
+	FinishPrecomputation(roundID uint64, slots []*mixmessages.Slot) error
 }
 
 type implementationFunctions struct {
@@ -60,6 +63,10 @@ type implementationFunctions struct {
 	// Server interface for ConfirmNonceMessage
 	ConfirmRegistration func(hash, R, S []byte) ([]byte,
 		[]byte, []byte, []byte, []byte, []byte, []byte, error)
+
+	// FinishPrecomputation interface to finalize message and AD precomps
+	FinishPrecomputation func(roundID uint64,
+		slots []*mixmessages.Slot) error
 }
 
 // Implementation allows users of the client library to set the
@@ -110,6 +117,11 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return nil, nil, nil, nil, nil, nil, nil, nil
 			},
+			FinishPrecomputation: func(roundID uint64,
+				slots []*mixmessages.Slot) error {
+				warn(um)
+				return nil
+			},
 		},
 	}
 }
@@ -155,4 +167,10 @@ func (s *Implementation) RequestNonce(salt, Y, P, Q, G,
 func (s *Implementation) ConfirmRegistration(hash, R, S []byte) ([]byte,
 	[]byte, []byte, []byte, []byte, []byte, []byte, error) {
 	return s.Functions.ConfirmRegistration(hash, R, S)
+}
+
+// FinishPrecomputation interface to finalize message and AD precomps
+func (s *Implementation) FinishPrecomputation(roundID uint64,
+	slots []*mixmessages.Slot) error {
+	return s.Functions.FinishPrecomputation(roundID, slots)
 }
