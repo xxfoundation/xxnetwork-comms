@@ -30,7 +30,7 @@ service Node {
     rpc StartRound (Input) returns (Ack) {
     }
 
-    // RunPhase a cMix phase on another node
+    // RunPhase runs a cMix phase on another node
     rpc RunPhase (Batch) returns (Ack) {
     }
 
@@ -44,6 +44,10 @@ service Node {
 
     // ConfirmRegistration uses a nonce confirmation to finalize user registration
     rpc ConfirmRegistration (DSASignature) returns (RegistrationConfirmation) {
+    }
+
+    // SharePublicCypherKey sets the public cypher key for a round on other nodes
+    rpc SharePublicCypherKey (PublicCypherKey) returns (Ack) {
     }
 }
 
@@ -73,6 +77,11 @@ message RoundInfo {
 // information
 message RoundBufferInfo {
     uint32 RoundBufferSize = 1;
+}
+
+message PublicCypherKey {
+    RoundInfo Round = 1;
+    bytes Key = 2;
 }
 
 // GATEWAY MESSAGE SERVICE -----------------------------------------------------

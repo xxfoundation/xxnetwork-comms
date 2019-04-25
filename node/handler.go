@@ -29,6 +29,8 @@ type ServerHandler interface {
 
 	// Server Interface for all Internode Comms
 	RunPhase(message *mixmessages.Batch)
+	// Server interface for share broadcast
+	SharePublicCypherKey(message *mixmessages.PublicCypherKey)
 
 	// Server interface for RequestNonceMessage
 	RequestNonce(salt, Y, P, Q, G,
@@ -53,6 +55,8 @@ type implementationFunctions struct {
 
 	// Server Interface for the Internode Messages
 	RunPhase func(message *mixmessages.Batch)
+	// Server interface for share broadcast
+	SharePublicCypherKey func(message *mixmessages.PublicCypherKey)
 
 	// Server interface for RequestNonceMessage
 	RequestNonce func(salt, Y, P, Q, G,
@@ -90,6 +94,9 @@ func NewImplementation() *Implementation {
 			CreateNewRound: func(RoundID uint64) { warn(um) },
 			RunPhase: func(m *mixmessages.Batch) {
 				warn(um)
+			},
+			SharePublicCypherKey: func(message *mixmessages.PublicCypherKey) {
+                warn(um)
 			},
 			StartRound: func(message *mixmessages.Input) {
 				warn(um)
@@ -133,6 +140,12 @@ func (s *Implementation) CreateNewRound(RoundID uint64) {
 // Server Interface for the phase messages
 func (s *Implementation) RunPhase(m *mixmessages.Batch) {
 	s.Functions.RunPhase(m)
+}
+
+// Server Interface for the share message
+func (s *Implementation) SharePublicCypherKey(message *mixmessages.
+	PublicCypherKey) {
+	s.Functions.SharePublicCypherKey(message)
 }
 
 // Server interface for Starting a new round

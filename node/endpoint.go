@@ -51,6 +51,14 @@ func (s *server) RunPhase(ctx context.Context, msg *pb.Batch) (*pb.Ack, error) {
 	return &pb.Ack{}, nil
 }
 
+// Handle a SharePublicCypherKey message
+func (s *server) SharePublicCypherKey(ctx context.Context,
+	msg *pb.PublicCypherKey) (*pb.Ack, error) {
+	// Call the server handler that receives the key share
+	serverHandler.SharePublicCypherKey(msg)
+	return &pb.Ack{}, nil
+}
+
 // Handle a StartRound event
 func (s *server) StartRound(ctx context.Context,
 	msg *pb.Input) (*pb.Ack, error) {

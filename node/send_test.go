@@ -65,3 +65,14 @@ func TestSendPhase(t *testing.T) {
 		t.Errorf("Phase: Error received: %s", err)
 	}
 }
+
+// Smoke test SendSharePublicCypherKey
+func TestSendSharePublicCypherKey(t *testing.T) {
+	ServerAddress := getNextServerAddress()
+	ShutDown := StartServer(ServerAddress, NewImplementation(), "", "")
+	defer ShutDown()
+	_, err := SendSharePublicCypherKey(ServerAddress, "", &pb.PublicCypherKey{})
+	if err != nil {
+		t.Errorf("Phase: Error received: %s", err)
+	}
+}
