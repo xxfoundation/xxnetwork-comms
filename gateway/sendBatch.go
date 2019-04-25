@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright © 2018 Privategrity Corporation                                   /
+// Copyright © 2019 Privategrity Corporation                                   /
 //                                                                             /
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
@@ -23,7 +23,7 @@ func SendBatch(addr string, serverCertPath string, messages []*pb.
 	// Create an InputMessage
 	msgs := &pb.Input{Messages: messages}
 
-	_, err := c.StartRound(ctx, msgs)
+	_, err := c.StartRealtime(ctx, msgs)
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
