@@ -24,7 +24,7 @@ func TestSendPutMessage(t *testing.T) {
 	defer gwShutDown()
 	defer nodeShutDown()
 
-	err := SendPutMessage(GatewayAddress, "", "", &pb.CmixBatch{})
+	err := SendPutMessage(GatewayAddress, "", "", &pb.Batch{})
 	if err != nil {
 		t.Errorf("PutMessage: Error received: %s", err)
 	}
@@ -41,7 +41,7 @@ func TestSendCheckMessages(t *testing.T) {
 	defer gwShutDown()
 	defer nodeShutDown()
 
-	_, err := SendCheckMessages(GatewayAddress, "", "", &pb.ClientPollMessage{})
+	_, err := SendCheckMessages(GatewayAddress, "", "", &pb.ClientRequest{})
 	if err != nil {
 		t.Errorf("CheckMessages: Error received: %s", err)
 	}
@@ -58,7 +58,7 @@ func TestSendGetMessage(t *testing.T) {
 	defer gwShutDown()
 	defer nodeShutDown()
 
-	_, err := SendGetMessage(GatewayAddress, "", "", &pb.ClientPollMessage{})
+	_, err := SendGetMessage(GatewayAddress, "", "", &pb.ClientRequest{})
 	if err != nil {
 		t.Errorf("GetMessage: Error received: %s", err)
 	}
@@ -76,7 +76,7 @@ func TestSendRequestNonceMessage(t *testing.T) {
 	defer nodeShutDown()
 
 	_, err := SendRequestNonceMessage(GatewayAddress, "", "",
-		&pb.RequestNonceMessage{})
+		&pb.NonceRequest{})
 	if err != nil {
 		t.Errorf("SendRequestNonceMessage: Error received: %s", err)
 	}
@@ -94,7 +94,7 @@ func TestSendConfirmNonceMessage(t *testing.T) {
 	defer nodeShutDown()
 
 	_, err := SendConfirmNonceMessage(GatewayAddress, "", "",
-		&pb.ConfirmNonceMessage{})
+		&pb.DSASignature{})
 	if err != nil {
 		t.Errorf("SendConfirmNonceMessage: Error received: %s", err)
 	}

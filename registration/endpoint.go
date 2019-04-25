@@ -13,13 +13,15 @@ import (
 	"golang.org/x/net/context"
 )
 
-// Handle a RegisterUser event
-func (s *server) RegisterUser(ctx context.Context, msg *pb.RegisterUserMessage) (
-	*pb.ConfirmRegisterUserMessage, error) {
+// RegisterUser event handler which registers a user with the platform
+func (s *server) RegisterUser(ctx context.Context, msg *pb.UserRegistration) (
+	*pb.UserRegistrationConfirmation, error) {
 
 	// Obtain the signed key by passing to registration server
+	pubKey := msg.GetClient()
 	hash, R, S, err := registrationHandler.RegisterUser(msg.
-		GetRegistrationCode(), msg.GetY(), msg.GetP(), msg.GetQ(), msg.GetG())
+		GetRegistrationCode(), pubKey.GetY(), pubKey.GetP(),
+		pubKey.GetQ(), pubKey.GetG())
 
 	// Obtain the error message, if any
 	errMsg := ""
@@ -28,10 +30,12 @@ func (s *server) RegisterUser(ctx context.Context, msg *pb.RegisterUserMessage) 
 	}
 
 	// Return the confirmation message
-	return &pb.ConfirmRegisterUserMessage{
-		Hash:  hash,
-		R:     R,
-		S:     S,
+	return &pb.UserRegistrationConfirmation{
+		ClientSignedByServer: &pb.DSASignature{
+			Hash: hash,
+			R:    R,
+			S:    S,
+		},
 		Error: errMsg,
 	}, err
 }

@@ -20,7 +20,7 @@ func TestSendRegistrationMessage(t *testing.T) {
 	defer rgShutDown()
 
 	_, err := SendRegistrationMessage(GatewayAddress, "", "",
-		&pb.RegisterUserMessage{})
+		&pb.UserRegistration{})
 	if err != nil {
 		t.Errorf("RegistrationMessage: Error received: %s", err)
 	}

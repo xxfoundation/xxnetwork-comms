@@ -81,7 +81,7 @@ func StartGateway(localServer string, handler Handler,
 			}
 		}()
 
-		pb.RegisterMixMessageGatewayServer(gatewayServer.gs, &gatewayServer)
+		pb.RegisterGatewayServer(gatewayServer.gs, &gatewayServer)
 
 		// Register reflection service on gRPC server.
 		// This blocks for the lifetime of the listener.

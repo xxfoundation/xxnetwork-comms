@@ -18,23 +18,23 @@ type ServerHandler interface {
 	// Server Interface for round trip ping
 	RoundtripPing(*mixmessages.TimePing)
 	// Server Interface for ServerMetrics Messages
-	ServerMetrics(*mixmessages.ServerMetricsMessage)
+	GetServerMetrics(*mixmessages.ServerMetrics)
 
 	// Server Interface for starting New Rounds
-	NewRound(RoundID uint64)
+	CreateNewRound(RoundID uint64)
 	// Server interface for Starting a new round
-	StartRound(message *mixmessages.InputMessages)
+	StartRound(message *mixmessages.Input)
 	// GetRoundBufferInfo returns # of available precomputations
 	GetRoundBufferInfo() (int, error)
 
 	// Server Interface for all Internode Comms
-	Phase(message *mixmessages.CmixBatch)
+	RunPhase(message *mixmessages.Batch)
 
 	// Server interface for RequestNonceMessage
 	RequestNonce(salt, Y, P, Q, G,
 		hash, R, S []byte) ([]byte, error)
 	// Server interface for ConfirmNonceMessage
-	ConfirmNonce(hash, R, S []byte) ([]byte,
+	ConfirmRegistration(hash, R, S []byte) ([]byte,
 		[]byte, []byte, []byte, []byte, []byte, []byte, error)
 }
 
@@ -42,23 +42,23 @@ type implementationFunctions struct {
 	// Server Interface for roundtrip ping
 	RoundtripPing func(*mixmessages.TimePing)
 	// Server Interface for ServerMetrics Messages
-	ServerMetrics func(*mixmessages.ServerMetricsMessage)
+	GetServerMetrics func(*mixmessages.ServerMetrics)
 
 	// Server Interface for starting New Rounds
-	NewRound func(RoundID uint64)
+	CreateNewRound func(RoundID uint64)
 	// Server interface for Starting a new round
-	StartRound func(message *mixmessages.InputMessages)
+	StartRound func(message *mixmessages.Input)
 	// GetRoundBufferInfo returns # of available precomputations completed
 	GetRoundBufferInfo func() (int, error)
 
 	// Server Interface for the Internode Messages
-	Phase func(message *mixmessages.CmixBatch)
+	RunPhase func(message *mixmessages.Batch)
 
 	// Server interface for RequestNonceMessage
 	RequestNonce func(salt, Y, P, Q, G,
 		hash, R, S []byte) ([]byte, error)
 	// Server interface for ConfirmNonceMessage
-	ConfirmNonce func(hash, R, S []byte) ([]byte,
+	ConfirmRegistration func(hash, R, S []byte) ([]byte,
 		[]byte, []byte, []byte, []byte, []byte, []byte, error)
 }
 
@@ -81,11 +81,19 @@ func NewImplementation() *Implementation {
 	}
 	return &Implementation{
 		Functions: implementationFunctions{
-			RoundtripPing: func(pingMsg *mixmessages.TimePing) { warn(um) },
-			ServerMetrics: func(metMsg *mixmessages.ServerMetricsMessage) { warn(um) },
-			NewRound:      func(RoundID uint64) { warn(um) },
-			Phase:         func(m *mixmessages.CmixBatch) { warn(um) },
-			StartRound:    func(message *mixmessages.InputMessages) { warn(um) },
+			RoundtripPing: func(p *mixmessages.TimePing) {
+				warn(um)
+			},
+			GetServerMetrics: func(m *mixmessages.ServerMetrics) {
+				warn(um)
+			},
+			CreateNewRound: func(RoundID uint64) { warn(um) },
+			RunPhase: func(m *mixmessages.Batch) {
+				warn(um)
+			},
+			StartRound: func(message *mixmessages.Input) {
+				warn(um)
+			},
 			GetRoundBufferInfo: func() (int, error) {
 				warn(um)
 				return 0, nil
@@ -96,8 +104,9 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return nil, nil
 			},
-			ConfirmNonce: func(hash, R, S []byte) ([]byte,
-				[]byte, []byte, []byte, []byte, []byte, []byte, error) {
+			ConfirmRegistration: func(hash, R, S []byte) (
+				[]byte, []byte, []byte, []byte, []byte,
+				[]byte, []byte, error) {
 				warn(um)
 				return nil, nil, nil, nil, nil, nil, nil, nil
 			},
@@ -111,23 +120,23 @@ func (s *Implementation) RoundtripPing(pingMsg *mixmessages.TimePing) {
 }
 
 // Server Interface for ServerMetrics Messages
-func (s *Implementation) ServerMetrics(
-	metricsMsg *mixmessages.ServerMetricsMessage) {
-	s.Functions.ServerMetrics(metricsMsg)
+func (s *Implementation) GetServerMetrics(
+	metricsMsg *mixmessages.ServerMetrics) {
+	s.Functions.GetServerMetrics(metricsMsg)
 }
 
 // Server Interface for starting New Rounds
-func (s *Implementation) NewRound(RoundID uint64) {
-	s.Functions.NewRound(RoundID)
+func (s *Implementation) CreateNewRound(RoundID uint64) {
+	s.Functions.CreateNewRound(RoundID)
 }
 
 // Server Interface for the phase messages
-func (s *Implementation) Phase(m *mixmessages.CmixBatch) {
-	s.Functions.Phase(m)
+func (s *Implementation) RunPhase(m *mixmessages.Batch) {
+	s.Functions.RunPhase(m)
 }
 
 // Server interface for Starting a new round
-func (s *Implementation) StartRound(message *mixmessages.InputMessages) {
+func (s *Implementation) StartRound(message *mixmessages.Input) {
 	s.Functions.StartRound(message)
 }
 
@@ -143,7 +152,7 @@ func (s *Implementation) RequestNonce(salt, Y, P, Q, G,
 }
 
 // Server interface for ConfirmNonceMessage
-func (s *Implementation) ConfirmNonce(hash, R, S []byte) ([]byte,
+func (s *Implementation) ConfirmRegistration(hash, R, S []byte) ([]byte,
 	[]byte, []byte, []byte, []byte, []byte, []byte, error) {
-	return s.Functions.ConfirmNonce(hash, R, S)
+	return s.Functions.ConfirmRegistration(hash, R, S)
 }

@@ -16,8 +16,9 @@ import (
 
 // Send a RegisterUserMessage to the RegistrationServer
 func SendRegistrationMessage(addr string,
-	regCertPath string, regCertString string, message *pb.RegisterUserMessage) (
-	*pb.ConfirmRegisterUserMessage, error) {
+	regCertPath string, regCertString string,
+	message *pb.UserRegistration) (*pb.UserRegistrationConfirmation,
+	error) {
 	// Attempt to connect to addr
 	c := connect.ConnectToRegistration(addr, regCertPath, regCertString)
 	ctx, cancel := connect.DefaultContext()

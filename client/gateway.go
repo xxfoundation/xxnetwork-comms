@@ -18,7 +18,7 @@ import (
 // Send a message to the gateway
 func SendPutMessage(addr string, gatewayCertPath string,
 	gatewayCertString string, message *pb.
-	CmixBatch) error {
+		Batch) error {
 	// Attempt to connect to addr
 	c := connect.ConnectToGateway(addr, gatewayCertPath, gatewayCertString)
 	ctx, cancel := connect.DefaultContext()
@@ -36,8 +36,8 @@ func SendPutMessage(addr string, gatewayCertPath string,
 
 // Request MessageIDs of new messages in the buffer from the gateway
 func SendCheckMessages(addr string, gatewayCertPath string,
-	gatewayCertString string, message *pb.ClientPollMessage) (*pb.
-	ClientMessages, error) {
+	gatewayCertString string, message *pb.ClientRequest) (*pb.
+	IDList, error) {
 	// Attempt to connect to addr
 	c := connect.ConnectToGateway(addr, gatewayCertPath, gatewayCertString)
 	ctx, cancel := connect.DefaultContext()
@@ -55,8 +55,8 @@ func SendCheckMessages(addr string, gatewayCertPath string,
 
 // Request a message with a specific ID from the gateway
 func SendGetMessage(addr string, gatewayCertPath string,
-	gatewayCertString string, message *pb.ClientPollMessage) (*pb.
-	CmixBatch, error) {
+	gatewayCertString string, message *pb.ClientRequest) (*pb.
+	Batch, error) {
 	// Attempt to connect to addr
 	c := connect.ConnectToGateway(addr, gatewayCertPath, gatewayCertString)
 	ctx, cancel := connect.DefaultContext()
@@ -74,8 +74,8 @@ func SendGetMessage(addr string, gatewayCertPath string,
 
 // Send a RequestNonceMessage to the gateway
 func SendRequestNonceMessage(addr string, gatewayCertPath string,
-	gatewayCertString string, message *pb.RequestNonceMessage) (
-	*pb.NonceMessage, error) {
+	gatewayCertString string, message *pb.NonceRequest) (
+	*pb.Nonce, error) {
 
 	// Attempt to connect to addr
 	c := connect.ConnectToGateway(addr, gatewayCertPath, gatewayCertString)
@@ -103,7 +103,7 @@ func SendRequestNonceMessage(addr string, gatewayCertPath string,
 
 // Send a ConfirmNonceMessage to the gateway
 func SendConfirmNonceMessage(addr string, gatewayCertPath string,
-	gatewayCertString string, message *pb.ConfirmNonceMessage) (
+	gatewayCertString string, message *pb.DSASignature) (
 	*pb.RegistrationConfirmation, error) {
 
 	// Attempt to connect to addr
