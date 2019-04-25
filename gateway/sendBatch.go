@@ -16,12 +16,12 @@ import (
 
 // Sends a batch of messages from the gateway to a server
 func SendBatch(addr string, serverCertPath string, messages []*pb.
-	CmixBatch) error {
+	Batch) error {
 	c := connect.ConnectToNode(addr, serverCertPath)
 	ctx, cancel := connect.DefaultContext()
 
 	// Create an InputMessage
-	msgs := &pb.InputMessages{Messages: messages}
+	msgs := &pb.Input{Messages: messages}
 
 	_, err := c.StartRound(ctx, msgs)
 
@@ -41,7 +41,7 @@ func GetRoundBufferInfo(addr string, serverCertPath string) (int, error) {
 	c := connect.ConnectToNode(addr, serverCertPath)
 	ctx, cancel := connect.DefaultContext()
 
-	msg := &pb.Ping{}
+	msg := &pb.RoundBufferInfo{}
 	bufSize := int(0)
 	bufInfo, err := c.GetRoundBufferInfo(ctx, msg)
 	// Make sure there are no errors with sending the message

@@ -22,7 +22,7 @@ func TestSendBatch(t *testing.T) {
 	defer gwShutDown()
 	defer nodeShutDown()
 
-	msgs := []*pb.CmixBatch{{}}
+	msgs := []*pb.Batch{{}}
 	err := SendBatch(ServerAddress, "", msgs)
 	if err != nil {
 		t.Errorf("SendBatch: Error received: %s", err)

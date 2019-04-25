@@ -42,19 +42,17 @@ func ConnectToRegistration(address string,
 
 // Connect to a gateway with a given address string
 func ConnectToGateway(address string,
-	GatewayCertPath string, GatewayCertString string) pb.
-	MixMessageGatewayClient {
+	GatewayCertPath string, GatewayCertString string) pb.GatewayClient {
 	connection := connect(address, "gateway*.cmix.rip",
 		GatewayCertPath, GatewayCertString)
-	return pb.NewMixMessageGatewayClient(connection)
+	return pb.NewGatewayClient(connection)
 }
 
 // Connect to a node with a given address string
-func ConnectToNode(address string, ServerCertPath string) pb.
-	MixMessageNodeClient {
+func ConnectToNode(address string, ServerCertPath string) pb.NodeClient {
 	connection := connect(address, "*.cmix.rip",
 		ServerCertPath, "")
-	return pb.NewMixMessageNodeClient(connection)
+	return pb.NewNodeClient(connection)
 }
 
 // Is a connection in the map and alive?

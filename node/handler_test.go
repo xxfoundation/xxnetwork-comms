@@ -18,8 +18,8 @@ func (m TestInterface) NewRound(roundId string) {}
 
 func (m TestInterface) RoundtripPing(message *pb.TimePing) {}
 
-func (m TestInterface) ServerMetrics(message *pb.ServerMetricsMessage) {}
+func (m TestInterface) GetServerMetrics(message *pb.ServerMetrics) {}
 
-func (m TestInterface) StartRound(messages *pb.InputMessages) {}
+func (m TestInterface) StartRound(messages *pb.Input) {}
 
-func (m TestInterface) Phase(message *pb.CmixBatch) {}
+func (m TestInterface) RunPhase(message *pb.Batch) {}

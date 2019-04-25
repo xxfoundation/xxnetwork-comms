@@ -16,13 +16,13 @@ import (
 )
 
 func SendPhase(addr string, serverCertPath string,
-	message *pb.CmixBatch) (*pb.Ack, error) {
+	message *pb.Batch) (*pb.Ack, error) {
 	// Attempt to connect to addr
 	c := connect.ConnectToNode(addr, serverCertPath)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
-	result, err := c.Phase(ctx, message,
+	result, err := c.RunPhase(ctx, message,
 		grpc_retry.WithMax(connect.MAX_RETRIES))
 
 	// Make sure there are no errors with sending the message

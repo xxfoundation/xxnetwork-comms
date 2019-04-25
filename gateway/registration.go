@@ -16,8 +16,8 @@ import (
 
 // Send a RequestNonceMessage to the server
 func SendRequestNonceMessage(addr string,
-	serverCertPath string, message *pb.RequestNonceMessage) (
-	*pb.NonceMessage, error) {
+	serverCertPath string, message *pb.NonceRequest) (
+	*pb.Nonce, error) {
 
 	// Attempt to connect to addr
 	c := connect.ConnectToNode(addr, serverCertPath)
@@ -38,7 +38,7 @@ func SendRequestNonceMessage(addr string,
 
 // Send a ConfirmNonceMessage to the server
 func SendConfirmNonceMessage(addr string,
-	serverCertPath string, message *pb.ConfirmNonceMessage) (
+	serverCertPath string, message *pb.DSASignature) (
 	*pb.RegistrationConfirmation, error) {
 
 	// Attempt to connect to addr
@@ -46,7 +46,7 @@ func SendConfirmNonceMessage(addr string,
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
-	response, err := c.ConfirmNonce(ctx, message)
+	response, err := c.ConfirmRegistration(ctx, message)
 
 	// Handle comms errors
 	if err != nil {

@@ -34,7 +34,7 @@ func TestTLS(t *testing.T) {
 	// for the reg server and the reg client, but succeeds when using the node
 	// certs/paths for both. I don't know why it happens, but it's a bit spooky.
 	_, err := client.SendRegistrationMessage(RegAddress,
-		testkeys.GetNodeCertPath(),"", &pb.RegisterUserMessage{})
+		testkeys.GetNodeCertPath(), "", &pb.UserRegistration{})
 	if err != nil {
 		t.Errorf("RegistrationMessage: Error received: %s", err)
 	}

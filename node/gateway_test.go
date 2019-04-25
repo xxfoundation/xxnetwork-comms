@@ -30,7 +30,7 @@ func startDummyGW() {
 	defer lis.Close()
 
 	mixmessageServer := TestInterfaceGW{gs: grpc.NewServer()}
-	pb.RegisterMixMessageGatewayServer(mixmessageServer.gs, &mixmessageServer)
+	pb.RegisterGatewayServer(mixmessageServer.gs, &mixmessageServer)
 
 	// Register reflection service on gRPC server.
 	// This blocks for the lifetime of the listener.
@@ -44,8 +44,8 @@ func startDummyGW() {
 func TestSendReceiveBatch(t *testing.T) {
 	go startDummyGW()
 
-	x := make([]*pb.CmixBatch, 0)
-	err := SendReceiveBatch(GatewayAddress,  "", "",x)
+	x := make([]*pb.Batch, 0)
+	err := SendReceiveBatch(GatewayAddress, "", "", x)
 	if err != nil {
 		t.Errorf("PutMessage: Error received: %s", err)
 	}
@@ -58,39 +58,39 @@ type TestInterfaceGW struct {
 }
 
 // Handle a CheckMessages event
-func (s *TestInterfaceGW) CheckMessages(ctx context.Context, msg *pb.ClientPollMessage) (
-	*pb.ClientMessages, error) {
-	returnMsg := &pb.ClientMessages{}
+func (s *TestInterfaceGW) CheckMessages(ctx context.Context, msg *pb.ClientRequest) (
+	*pb.IDList, error) {
+	returnMsg := &pb.IDList{}
 	return returnMsg, nil
 }
 
 // Handle a GetMessage event
-func (s *TestInterfaceGW) GetMessage(ctx context.Context, msg *pb.ClientPollMessage) (
-	*pb.CmixBatch, error) {
-	returnMsg := &pb.CmixBatch{}
+func (s *TestInterfaceGW) GetMessage(ctx context.Context, msg *pb.ClientRequest) (
+	*pb.Batch, error) {
+	returnMsg := &pb.Batch{}
 	return returnMsg, nil
 }
 
 // Handle a PutMessage event
-func (s *TestInterfaceGW) PutMessage(ctx context.Context, msg *pb.CmixBatch) (*pb.Ack,
+func (s *TestInterfaceGW) PutMessage(ctx context.Context, msg *pb.Batch) (*pb.Ack,
 	error) {
 	return &pb.Ack{}, nil
 }
 
 // Handle a PutMessage event
-func (s *TestInterfaceGW) ReceiveBatch(ctx context.Context, msg *pb.OutputMessages) (*pb.Ack,
+func (s *TestInterfaceGW) ReceiveBatch(ctx context.Context, msg *pb.Output) (*pb.Ack,
 	error) {
 	return &pb.Ack{}, nil
 }
 
 // Pass-through for Registration Nonce Communication
 func (s *TestInterfaceGW) RequestNonce(ctx context.Context,
-	msg *pb.RequestNonceMessage) (*pb.NonceMessage, error) {
-	return &pb.NonceMessage{}, nil
+	msg *pb.NonceRequest) (*pb.Nonce, error) {
+	return &pb.Nonce{}, nil
 }
 
 // Pass-through for Registration Nonce Confirmation
 func (s *TestInterfaceGW) ConfirmNonce(ctx context.Context,
-	msg *pb.ConfirmNonceMessage) (*pb.RegistrationConfirmation, error) {
+	msg *pb.DSASignature) (*pb.RegistrationConfirmation, error) {
 	return &pb.RegistrationConfirmation{}, nil
 }

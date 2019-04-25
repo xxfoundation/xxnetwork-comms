@@ -47,7 +47,7 @@ func TestTLS(t *testing.T) {
 	// Reset TLS-related global variables
 	defer shutdown()
 	err := node.SendReceiveBatch(GatewayAddress, testkeys.GetGatewayCertPath(),
-		"", []*mixmessages.CmixBatch{})
+		"", []*mixmessages.Batch{})
 	if err != nil {
 		t.Error(err)
 	}

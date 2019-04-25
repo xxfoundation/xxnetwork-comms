@@ -3,13 +3,12 @@
 
 package mixmessages
 
-import proto "github.com/golang/protobuf/proto"
-import fmt "fmt"
-import math "math"
-
 import (
-	context "golang.org/x/net/context"
+	context "context"
+	fmt "fmt"
+	proto "github.com/golang/protobuf/proto"
 	grpc "google.golang.org/grpc"
+	math "math"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -21,7 +20,7 @@ var _ = math.Inf
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 // The request message asking if server is online
 type Ping struct {
@@ -34,16 +33,17 @@ func (m *Ping) Reset()         { *m = Ping{} }
 func (m *Ping) String() string { return proto.CompactTextString(m) }
 func (*Ping) ProtoMessage()    {}
 func (*Ping) Descriptor() ([]byte, []int) {
-	return fileDescriptor_mixmessages_279a5149a8d122ef, []int{0}
+	return fileDescriptor_f858aeec3eb2fbf5, []int{0}
 }
+
 func (m *Ping) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Ping.Unmarshal(m, b)
 }
 func (m *Ping) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_Ping.Marshal(b, m, deterministic)
 }
-func (dst *Ping) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Ping.Merge(dst, src)
+func (m *Ping) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Ping.Merge(m, src)
 }
 func (m *Ping) XXX_Size() int {
 	return xxx_messageInfo_Ping.Size(m)
@@ -66,16 +66,17 @@ func (m *TimePing) Reset()         { *m = TimePing{} }
 func (m *TimePing) String() string { return proto.CompactTextString(m) }
 func (*TimePing) ProtoMessage()    {}
 func (*TimePing) Descriptor() ([]byte, []int) {
-	return fileDescriptor_mixmessages_279a5149a8d122ef, []int{1}
+	return fileDescriptor_f858aeec3eb2fbf5, []int{1}
 }
+
 func (m *TimePing) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_TimePing.Unmarshal(m, b)
 }
 func (m *TimePing) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_TimePing.Marshal(b, m, deterministic)
 }
-func (dst *TimePing) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_TimePing.Merge(dst, src)
+func (m *TimePing) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TimePing.Merge(m, src)
 }
 func (m *TimePing) XXX_Size() int {
 	return xxx_messageInfo_TimePing.Size(m)
@@ -94,7 +95,7 @@ func (m *TimePing) GetTimes() []int64 {
 }
 
 // The message containing the server metrics from all visited nodes
-type ServerMetricsMessage struct {
+type ServerMetrics struct {
 	MemUsage             []uint32 `protobuf:"varint,1,rep,packed,name=MemUsage,proto3" json:"MemUsage,omitempty"`
 	ThreadUsage          []uint32 `protobuf:"varint,2,rep,packed,name=ThreadUsage,proto3" json:"ThreadUsage,omitempty"`
 	CpuUsage             []uint32 `protobuf:"varint,3,rep,packed,name=CpuUsage,proto3" json:"CpuUsage,omitempty"`
@@ -104,52 +105,53 @@ type ServerMetricsMessage struct {
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *ServerMetricsMessage) Reset()         { *m = ServerMetricsMessage{} }
-func (m *ServerMetricsMessage) String() string { return proto.CompactTextString(m) }
-func (*ServerMetricsMessage) ProtoMessage()    {}
-func (*ServerMetricsMessage) Descriptor() ([]byte, []int) {
-	return fileDescriptor_mixmessages_279a5149a8d122ef, []int{2}
-}
-func (m *ServerMetricsMessage) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_ServerMetricsMessage.Unmarshal(m, b)
-}
-func (m *ServerMetricsMessage) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_ServerMetricsMessage.Marshal(b, m, deterministic)
-}
-func (dst *ServerMetricsMessage) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ServerMetricsMessage.Merge(dst, src)
-}
-func (m *ServerMetricsMessage) XXX_Size() int {
-	return xxx_messageInfo_ServerMetricsMessage.Size(m)
-}
-func (m *ServerMetricsMessage) XXX_DiscardUnknown() {
-	xxx_messageInfo_ServerMetricsMessage.DiscardUnknown(m)
+func (m *ServerMetrics) Reset()         { *m = ServerMetrics{} }
+func (m *ServerMetrics) String() string { return proto.CompactTextString(m) }
+func (*ServerMetrics) ProtoMessage()    {}
+func (*ServerMetrics) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f858aeec3eb2fbf5, []int{2}
 }
 
-var xxx_messageInfo_ServerMetricsMessage proto.InternalMessageInfo
+func (m *ServerMetrics) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ServerMetrics.Unmarshal(m, b)
+}
+func (m *ServerMetrics) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ServerMetrics.Marshal(b, m, deterministic)
+}
+func (m *ServerMetrics) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ServerMetrics.Merge(m, src)
+}
+func (m *ServerMetrics) XXX_Size() int {
+	return xxx_messageInfo_ServerMetrics.Size(m)
+}
+func (m *ServerMetrics) XXX_DiscardUnknown() {
+	xxx_messageInfo_ServerMetrics.DiscardUnknown(m)
+}
 
-func (m *ServerMetricsMessage) GetMemUsage() []uint32 {
+var xxx_messageInfo_ServerMetrics proto.InternalMessageInfo
+
+func (m *ServerMetrics) GetMemUsage() []uint32 {
 	if m != nil {
 		return m.MemUsage
 	}
 	return nil
 }
 
-func (m *ServerMetricsMessage) GetThreadUsage() []uint32 {
+func (m *ServerMetrics) GetThreadUsage() []uint32 {
 	if m != nil {
 		return m.ThreadUsage
 	}
 	return nil
 }
 
-func (m *ServerMetricsMessage) GetCpuUsage() []uint32 {
+func (m *ServerMetrics) GetCpuUsage() []uint32 {
 	if m != nil {
 		return m.CpuUsage
 	}
 	return nil
 }
 
-func (m *ServerMetricsMessage) GetUpSince() []int64 {
+func (m *ServerMetrics) GetUpSince() []int64 {
 	if m != nil {
 		return m.UpSince
 	}
@@ -157,40 +159,41 @@ func (m *ServerMetricsMessage) GetUpSince() []int64 {
 }
 
 // The message for Init Round
-type RoundIDMessage struct {
-	RoundID              uint64   `protobuf:"varint,1,opt,name=RoundID,proto3" json:"RoundID,omitempty"`
+type RoundInfo struct {
+	ID                   uint64   `protobuf:"varint,1,opt,name=ID,proto3" json:"ID,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *RoundIDMessage) Reset()         { *m = RoundIDMessage{} }
-func (m *RoundIDMessage) String() string { return proto.CompactTextString(m) }
-func (*RoundIDMessage) ProtoMessage()    {}
-func (*RoundIDMessage) Descriptor() ([]byte, []int) {
-	return fileDescriptor_mixmessages_279a5149a8d122ef, []int{3}
-}
-func (m *RoundIDMessage) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_RoundIDMessage.Unmarshal(m, b)
-}
-func (m *RoundIDMessage) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_RoundIDMessage.Marshal(b, m, deterministic)
-}
-func (dst *RoundIDMessage) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_RoundIDMessage.Merge(dst, src)
-}
-func (m *RoundIDMessage) XXX_Size() int {
-	return xxx_messageInfo_RoundIDMessage.Size(m)
-}
-func (m *RoundIDMessage) XXX_DiscardUnknown() {
-	xxx_messageInfo_RoundIDMessage.DiscardUnknown(m)
+func (m *RoundInfo) Reset()         { *m = RoundInfo{} }
+func (m *RoundInfo) String() string { return proto.CompactTextString(m) }
+func (*RoundInfo) ProtoMessage()    {}
+func (*RoundInfo) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f858aeec3eb2fbf5, []int{3}
 }
 
-var xxx_messageInfo_RoundIDMessage proto.InternalMessageInfo
+func (m *RoundInfo) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_RoundInfo.Unmarshal(m, b)
+}
+func (m *RoundInfo) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_RoundInfo.Marshal(b, m, deterministic)
+}
+func (m *RoundInfo) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RoundInfo.Merge(m, src)
+}
+func (m *RoundInfo) XXX_Size() int {
+	return xxx_messageInfo_RoundInfo.Size(m)
+}
+func (m *RoundInfo) XXX_DiscardUnknown() {
+	xxx_messageInfo_RoundInfo.DiscardUnknown(m)
+}
 
-func (m *RoundIDMessage) GetRoundID() uint64 {
+var xxx_messageInfo_RoundInfo proto.InternalMessageInfo
+
+func (m *RoundInfo) GetID() uint64 {
 	if m != nil {
-		return m.RoundID
+		return m.ID
 	}
 	return 0
 }
@@ -208,16 +211,17 @@ func (m *RoundBufferInfo) Reset()         { *m = RoundBufferInfo{} }
 func (m *RoundBufferInfo) String() string { return proto.CompactTextString(m) }
 func (*RoundBufferInfo) ProtoMessage()    {}
 func (*RoundBufferInfo) Descriptor() ([]byte, []int) {
-	return fileDescriptor_mixmessages_279a5149a8d122ef, []int{4}
+	return fileDescriptor_f858aeec3eb2fbf5, []int{4}
 }
+
 func (m *RoundBufferInfo) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RoundBufferInfo.Unmarshal(m, b)
 }
 func (m *RoundBufferInfo) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_RoundBufferInfo.Marshal(b, m, deterministic)
 }
-func (dst *RoundBufferInfo) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_RoundBufferInfo.Merge(dst, src)
+func (m *RoundBufferInfo) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RoundBufferInfo.Merge(m, src)
 }
 func (m *RoundBufferInfo) XXX_Size() int {
 	return xxx_messageInfo_RoundBufferInfo.Size(m)
@@ -235,125 +239,128 @@ func (m *RoundBufferInfo) GetRoundBufferSize() uint32 {
 	return 0
 }
 
-// The message for clients to poll new CMIX messages
-type ClientPollMessage struct {
+// ClientRequest message for clients to poll new CMIX messages
+type ClientRequest struct {
 	UserID               []byte   `protobuf:"bytes,1,opt,name=UserID,proto3" json:"UserID,omitempty"`
-	MessageID            string   `protobuf:"bytes,2,opt,name=MessageID,proto3" json:"MessageID,omitempty"`
+	LastMessageID        string   `protobuf:"bytes,2,opt,name=LastMessageID,proto3" json:"LastMessageID,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *ClientPollMessage) Reset()         { *m = ClientPollMessage{} }
-func (m *ClientPollMessage) String() string { return proto.CompactTextString(m) }
-func (*ClientPollMessage) ProtoMessage()    {}
-func (*ClientPollMessage) Descriptor() ([]byte, []int) {
-	return fileDescriptor_mixmessages_279a5149a8d122ef, []int{5}
-}
-func (m *ClientPollMessage) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_ClientPollMessage.Unmarshal(m, b)
-}
-func (m *ClientPollMessage) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_ClientPollMessage.Marshal(b, m, deterministic)
-}
-func (dst *ClientPollMessage) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ClientPollMessage.Merge(dst, src)
-}
-func (m *ClientPollMessage) XXX_Size() int {
-	return xxx_messageInfo_ClientPollMessage.Size(m)
-}
-func (m *ClientPollMessage) XXX_DiscardUnknown() {
-	xxx_messageInfo_ClientPollMessage.DiscardUnknown(m)
+func (m *ClientRequest) Reset()         { *m = ClientRequest{} }
+func (m *ClientRequest) String() string { return proto.CompactTextString(m) }
+func (*ClientRequest) ProtoMessage()    {}
+func (*ClientRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f858aeec3eb2fbf5, []int{5}
 }
 
-var xxx_messageInfo_ClientPollMessage proto.InternalMessageInfo
+func (m *ClientRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ClientRequest.Unmarshal(m, b)
+}
+func (m *ClientRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ClientRequest.Marshal(b, m, deterministic)
+}
+func (m *ClientRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ClientRequest.Merge(m, src)
+}
+func (m *ClientRequest) XXX_Size() int {
+	return xxx_messageInfo_ClientRequest.Size(m)
+}
+func (m *ClientRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ClientRequest.DiscardUnknown(m)
+}
 
-func (m *ClientPollMessage) GetUserID() []byte {
+var xxx_messageInfo_ClientRequest proto.InternalMessageInfo
+
+func (m *ClientRequest) GetUserID() []byte {
 	if m != nil {
 		return m.UserID
 	}
 	return nil
 }
 
-func (m *ClientPollMessage) GetMessageID() string {
+func (m *ClientRequest) GetLastMessageID() string {
 	if m != nil {
-		return m.MessageID
+		return m.LastMessageID
 	}
 	return ""
 }
 
 // The message for clients to poll the gateway for Message IDs
-type ClientMessages struct {
-	MessageIDs           []string `protobuf:"bytes,1,rep,name=MessageIDs,proto3" json:"MessageIDs,omitempty"`
+type IDList struct {
+	IDs                  []string `protobuf:"bytes,1,rep,name=IDs,proto3" json:"IDs,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *ClientMessages) Reset()         { *m = ClientMessages{} }
-func (m *ClientMessages) String() string { return proto.CompactTextString(m) }
-func (*ClientMessages) ProtoMessage()    {}
-func (*ClientMessages) Descriptor() ([]byte, []int) {
-	return fileDescriptor_mixmessages_279a5149a8d122ef, []int{6}
-}
-func (m *ClientMessages) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_ClientMessages.Unmarshal(m, b)
-}
-func (m *ClientMessages) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_ClientMessages.Marshal(b, m, deterministic)
-}
-func (dst *ClientMessages) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ClientMessages.Merge(dst, src)
-}
-func (m *ClientMessages) XXX_Size() int {
-	return xxx_messageInfo_ClientMessages.Size(m)
-}
-func (m *ClientMessages) XXX_DiscardUnknown() {
-	xxx_messageInfo_ClientMessages.DiscardUnknown(m)
+func (m *IDList) Reset()         { *m = IDList{} }
+func (m *IDList) String() string { return proto.CompactTextString(m) }
+func (*IDList) ProtoMessage()    {}
+func (*IDList) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f858aeec3eb2fbf5, []int{6}
 }
 
-var xxx_messageInfo_ClientMessages proto.InternalMessageInfo
+func (m *IDList) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_IDList.Unmarshal(m, b)
+}
+func (m *IDList) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_IDList.Marshal(b, m, deterministic)
+}
+func (m *IDList) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_IDList.Merge(m, src)
+}
+func (m *IDList) XXX_Size() int {
+	return xxx_messageInfo_IDList.Size(m)
+}
+func (m *IDList) XXX_DiscardUnknown() {
+	xxx_messageInfo_IDList.DiscardUnknown(m)
+}
 
-func (m *ClientMessages) GetMessageIDs() []string {
+var xxx_messageInfo_IDList proto.InternalMessageInfo
+
+func (m *IDList) GetIDs() []string {
 	if m != nil {
-		return m.MessageIDs
+		return m.IDs
 	}
 	return nil
 }
 
 // Input messages are a list of messages run as a batch
-type InputMessages struct {
-	Messages             []*CmixBatch `protobuf:"bytes,1,rep,name=Messages,proto3" json:"Messages,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}     `json:"-"`
-	XXX_unrecognized     []byte       `json:"-"`
-	XXX_sizecache        int32        `json:"-"`
+type Input struct {
+	Messages             []*Batch `protobuf:"bytes,1,rep,name=Messages,proto3" json:"Messages,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *InputMessages) Reset()         { *m = InputMessages{} }
-func (m *InputMessages) String() string { return proto.CompactTextString(m) }
-func (*InputMessages) ProtoMessage()    {}
-func (*InputMessages) Descriptor() ([]byte, []int) {
-	return fileDescriptor_mixmessages_279a5149a8d122ef, []int{7}
-}
-func (m *InputMessages) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_InputMessages.Unmarshal(m, b)
-}
-func (m *InputMessages) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_InputMessages.Marshal(b, m, deterministic)
-}
-func (dst *InputMessages) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_InputMessages.Merge(dst, src)
-}
-func (m *InputMessages) XXX_Size() int {
-	return xxx_messageInfo_InputMessages.Size(m)
-}
-func (m *InputMessages) XXX_DiscardUnknown() {
-	xxx_messageInfo_InputMessages.DiscardUnknown(m)
+func (m *Input) Reset()         { *m = Input{} }
+func (m *Input) String() string { return proto.CompactTextString(m) }
+func (*Input) ProtoMessage()    {}
+func (*Input) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f858aeec3eb2fbf5, []int{7}
 }
 
-var xxx_messageInfo_InputMessages proto.InternalMessageInfo
+func (m *Input) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Input.Unmarshal(m, b)
+}
+func (m *Input) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Input.Marshal(b, m, deterministic)
+}
+func (m *Input) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Input.Merge(m, src)
+}
+func (m *Input) XXX_Size() int {
+	return xxx_messageInfo_Input.Size(m)
+}
+func (m *Input) XXX_DiscardUnknown() {
+	xxx_messageInfo_Input.DiscardUnknown(m)
+}
 
-func (m *InputMessages) GetMessages() []*CmixBatch {
+var xxx_messageInfo_Input proto.InternalMessageInfo
+
+func (m *Input) GetMessages() []*Batch {
 	if m != nil {
 		return m.Messages
 	}
@@ -361,279 +368,320 @@ func (m *InputMessages) GetMessages() []*CmixBatch {
 }
 
 // Output messages are a list of messages run as a batch
-type OutputMessages struct {
-	Messages             []*CmixBatch `protobuf:"bytes,1,rep,name=Messages,proto3" json:"Messages,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}     `json:"-"`
-	XXX_unrecognized     []byte       `json:"-"`
-	XXX_sizecache        int32        `json:"-"`
+type Output struct {
+	Messages             []*Batch `protobuf:"bytes,1,rep,name=Messages,proto3" json:"Messages,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *OutputMessages) Reset()         { *m = OutputMessages{} }
-func (m *OutputMessages) String() string { return proto.CompactTextString(m) }
-func (*OutputMessages) ProtoMessage()    {}
-func (*OutputMessages) Descriptor() ([]byte, []int) {
-	return fileDescriptor_mixmessages_279a5149a8d122ef, []int{8}
-}
-func (m *OutputMessages) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_OutputMessages.Unmarshal(m, b)
-}
-func (m *OutputMessages) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_OutputMessages.Marshal(b, m, deterministic)
-}
-func (dst *OutputMessages) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_OutputMessages.Merge(dst, src)
-}
-func (m *OutputMessages) XXX_Size() int {
-	return xxx_messageInfo_OutputMessages.Size(m)
-}
-func (m *OutputMessages) XXX_DiscardUnknown() {
-	xxx_messageInfo_OutputMessages.DiscardUnknown(m)
+func (m *Output) Reset()         { *m = Output{} }
+func (m *Output) String() string { return proto.CompactTextString(m) }
+func (*Output) ProtoMessage()    {}
+func (*Output) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f858aeec3eb2fbf5, []int{8}
 }
 
-var xxx_messageInfo_OutputMessages proto.InternalMessageInfo
+func (m *Output) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Output.Unmarshal(m, b)
+}
+func (m *Output) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Output.Marshal(b, m, deterministic)
+}
+func (m *Output) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Output.Merge(m, src)
+}
+func (m *Output) XXX_Size() int {
+	return xxx_messageInfo_Output.Size(m)
+}
+func (m *Output) XXX_DiscardUnknown() {
+	xxx_messageInfo_Output.DiscardUnknown(m)
+}
 
-func (m *OutputMessages) GetMessages() []*CmixBatch {
+var xxx_messageInfo_Output proto.InternalMessageInfo
+
+func (m *Output) GetMessages() []*Batch {
 	if m != nil {
 		return m.Messages
 	}
 	return nil
 }
 
-// Client -> RegistrationServer message to initialize registration process
-type RegisterUserMessage struct {
-	RegistrationCode string `protobuf:"bytes,1,opt,name=RegistrationCode,proto3" json:"RegistrationCode,omitempty"`
-	// Client Public Key
-	Y                    []byte   `protobuf:"bytes,2,opt,name=Y,proto3" json:"Y,omitempty"`
-	P                    []byte   `protobuf:"bytes,3,opt,name=P,proto3" json:"P,omitempty"`
-	Q                    []byte   `protobuf:"bytes,4,opt,name=Q,proto3" json:"Q,omitempty"`
-	G                    []byte   `protobuf:"bytes,5,opt,name=G,proto3" json:"G,omitempty"`
+// DSAPublicKey is a public key for the digital signature algorithm
+type DSAPublicKey struct {
+	Y                    []byte   `protobuf:"bytes,1,opt,name=Y,proto3" json:"Y,omitempty"`
+	P                    []byte   `protobuf:"bytes,2,opt,name=P,proto3" json:"P,omitempty"`
+	Q                    []byte   `protobuf:"bytes,3,opt,name=Q,proto3" json:"Q,omitempty"`
+	G                    []byte   `protobuf:"bytes,4,opt,name=G,proto3" json:"G,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *RegisterUserMessage) Reset()         { *m = RegisterUserMessage{} }
-func (m *RegisterUserMessage) String() string { return proto.CompactTextString(m) }
-func (*RegisterUserMessage) ProtoMessage()    {}
-func (*RegisterUserMessage) Descriptor() ([]byte, []int) {
-	return fileDescriptor_mixmessages_279a5149a8d122ef, []int{9}
-}
-func (m *RegisterUserMessage) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_RegisterUserMessage.Unmarshal(m, b)
-}
-func (m *RegisterUserMessage) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_RegisterUserMessage.Marshal(b, m, deterministic)
-}
-func (dst *RegisterUserMessage) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_RegisterUserMessage.Merge(dst, src)
-}
-func (m *RegisterUserMessage) XXX_Size() int {
-	return xxx_messageInfo_RegisterUserMessage.Size(m)
-}
-func (m *RegisterUserMessage) XXX_DiscardUnknown() {
-	xxx_messageInfo_RegisterUserMessage.DiscardUnknown(m)
+func (m *DSAPublicKey) Reset()         { *m = DSAPublicKey{} }
+func (m *DSAPublicKey) String() string { return proto.CompactTextString(m) }
+func (*DSAPublicKey) ProtoMessage()    {}
+func (*DSAPublicKey) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f858aeec3eb2fbf5, []int{9}
 }
 
-var xxx_messageInfo_RegisterUserMessage proto.InternalMessageInfo
+func (m *DSAPublicKey) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_DSAPublicKey.Unmarshal(m, b)
+}
+func (m *DSAPublicKey) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_DSAPublicKey.Marshal(b, m, deterministic)
+}
+func (m *DSAPublicKey) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DSAPublicKey.Merge(m, src)
+}
+func (m *DSAPublicKey) XXX_Size() int {
+	return xxx_messageInfo_DSAPublicKey.Size(m)
+}
+func (m *DSAPublicKey) XXX_DiscardUnknown() {
+	xxx_messageInfo_DSAPublicKey.DiscardUnknown(m)
+}
 
-func (m *RegisterUserMessage) GetRegistrationCode() string {
+var xxx_messageInfo_DSAPublicKey proto.InternalMessageInfo
+
+func (m *DSAPublicKey) GetY() []byte {
+	if m != nil {
+		return m.Y
+	}
+	return nil
+}
+
+func (m *DSAPublicKey) GetP() []byte {
+	if m != nil {
+		return m.P
+	}
+	return nil
+}
+
+func (m *DSAPublicKey) GetQ() []byte {
+	if m != nil {
+		return m.Q
+	}
+	return nil
+}
+
+func (m *DSAPublicKey) GetG() []byte {
+	if m != nil {
+		return m.G
+	}
+	return nil
+}
+
+// DSASignature is a digital signature for the digital signature algorithm
+type DSASignature struct {
+	Hash                 []byte   `protobuf:"bytes,1,opt,name=Hash,proto3" json:"Hash,omitempty"`
+	R                    []byte   `protobuf:"bytes,2,opt,name=R,proto3" json:"R,omitempty"`
+	S                    []byte   `protobuf:"bytes,3,opt,name=S,proto3" json:"S,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *DSASignature) Reset()         { *m = DSASignature{} }
+func (m *DSASignature) String() string { return proto.CompactTextString(m) }
+func (*DSASignature) ProtoMessage()    {}
+func (*DSASignature) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f858aeec3eb2fbf5, []int{10}
+}
+
+func (m *DSASignature) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_DSASignature.Unmarshal(m, b)
+}
+func (m *DSASignature) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_DSASignature.Marshal(b, m, deterministic)
+}
+func (m *DSASignature) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DSASignature.Merge(m, src)
+}
+func (m *DSASignature) XXX_Size() int {
+	return xxx_messageInfo_DSASignature.Size(m)
+}
+func (m *DSASignature) XXX_DiscardUnknown() {
+	xxx_messageInfo_DSASignature.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DSASignature proto.InternalMessageInfo
+
+func (m *DSASignature) GetHash() []byte {
+	if m != nil {
+		return m.Hash
+	}
+	return nil
+}
+
+func (m *DSASignature) GetR() []byte {
+	if m != nil {
+		return m.R
+	}
+	return nil
+}
+
+func (m *DSASignature) GetS() []byte {
+	if m != nil {
+		return m.S
+	}
+	return nil
+}
+
+// UserRegistration message to initialize registration process
+type UserRegistration struct {
+	RegistrationCode     string        `protobuf:"bytes,1,opt,name=RegistrationCode,proto3" json:"RegistrationCode,omitempty"`
+	Client               *DSAPublicKey `protobuf:"bytes,2,opt,name=Client,proto3" json:"Client,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}      `json:"-"`
+	XXX_unrecognized     []byte        `json:"-"`
+	XXX_sizecache        int32         `json:"-"`
+}
+
+func (m *UserRegistration) Reset()         { *m = UserRegistration{} }
+func (m *UserRegistration) String() string { return proto.CompactTextString(m) }
+func (*UserRegistration) ProtoMessage()    {}
+func (*UserRegistration) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f858aeec3eb2fbf5, []int{11}
+}
+
+func (m *UserRegistration) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_UserRegistration.Unmarshal(m, b)
+}
+func (m *UserRegistration) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_UserRegistration.Marshal(b, m, deterministic)
+}
+func (m *UserRegistration) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UserRegistration.Merge(m, src)
+}
+func (m *UserRegistration) XXX_Size() int {
+	return xxx_messageInfo_UserRegistration.Size(m)
+}
+func (m *UserRegistration) XXX_DiscardUnknown() {
+	xxx_messageInfo_UserRegistration.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_UserRegistration proto.InternalMessageInfo
+
+func (m *UserRegistration) GetRegistrationCode() string {
 	if m != nil {
 		return m.RegistrationCode
 	}
 	return ""
 }
 
-func (m *RegisterUserMessage) GetY() []byte {
+func (m *UserRegistration) GetClient() *DSAPublicKey {
 	if m != nil {
-		return m.Y
+		return m.Client
 	}
 	return nil
 }
 
-func (m *RegisterUserMessage) GetP() []byte {
-	if m != nil {
-		return m.P
-	}
-	return nil
-}
-
-func (m *RegisterUserMessage) GetQ() []byte {
-	if m != nil {
-		return m.Q
-	}
-	return nil
-}
-
-func (m *RegisterUserMessage) GetG() []byte {
-	if m != nil {
-		return m.G
-	}
-	return nil
-}
-
-// RegistrationServer -> Client response to RegisterUserMessage
-type ConfirmRegisterUserMessage struct {
+// UserRegistrationConfirmation to confirm registration with users
+type UserRegistrationConfirmation struct {
 	// RegistrationServer-Signed Client Public Key
-	Hash                 []byte   `protobuf:"bytes,1,opt,name=Hash,proto3" json:"Hash,omitempty"`
-	R                    []byte   `protobuf:"bytes,2,opt,name=R,proto3" json:"R,omitempty"`
-	S                    []byte   `protobuf:"bytes,3,opt,name=S,proto3" json:"S,omitempty"`
-	Error                string   `protobuf:"bytes,4,opt,name=Error,proto3" json:"Error,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
+	ClientSignedByServer *DSASignature `protobuf:"bytes,1,opt,name=ClientSignedByServer,proto3" json:"ClientSignedByServer,omitempty"`
+	Error                string        `protobuf:"bytes,2,opt,name=Error,proto3" json:"Error,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}      `json:"-"`
+	XXX_unrecognized     []byte        `json:"-"`
+	XXX_sizecache        int32         `json:"-"`
 }
 
-func (m *ConfirmRegisterUserMessage) Reset()         { *m = ConfirmRegisterUserMessage{} }
-func (m *ConfirmRegisterUserMessage) String() string { return proto.CompactTextString(m) }
-func (*ConfirmRegisterUserMessage) ProtoMessage()    {}
-func (*ConfirmRegisterUserMessage) Descriptor() ([]byte, []int) {
-	return fileDescriptor_mixmessages_279a5149a8d122ef, []int{10}
-}
-func (m *ConfirmRegisterUserMessage) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_ConfirmRegisterUserMessage.Unmarshal(m, b)
-}
-func (m *ConfirmRegisterUserMessage) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_ConfirmRegisterUserMessage.Marshal(b, m, deterministic)
-}
-func (dst *ConfirmRegisterUserMessage) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ConfirmRegisterUserMessage.Merge(dst, src)
-}
-func (m *ConfirmRegisterUserMessage) XXX_Size() int {
-	return xxx_messageInfo_ConfirmRegisterUserMessage.Size(m)
-}
-func (m *ConfirmRegisterUserMessage) XXX_DiscardUnknown() {
-	xxx_messageInfo_ConfirmRegisterUserMessage.DiscardUnknown(m)
+func (m *UserRegistrationConfirmation) Reset()         { *m = UserRegistrationConfirmation{} }
+func (m *UserRegistrationConfirmation) String() string { return proto.CompactTextString(m) }
+func (*UserRegistrationConfirmation) ProtoMessage()    {}
+func (*UserRegistrationConfirmation) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f858aeec3eb2fbf5, []int{12}
 }
 
-var xxx_messageInfo_ConfirmRegisterUserMessage proto.InternalMessageInfo
+func (m *UserRegistrationConfirmation) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_UserRegistrationConfirmation.Unmarshal(m, b)
+}
+func (m *UserRegistrationConfirmation) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_UserRegistrationConfirmation.Marshal(b, m, deterministic)
+}
+func (m *UserRegistrationConfirmation) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UserRegistrationConfirmation.Merge(m, src)
+}
+func (m *UserRegistrationConfirmation) XXX_Size() int {
+	return xxx_messageInfo_UserRegistrationConfirmation.Size(m)
+}
+func (m *UserRegistrationConfirmation) XXX_DiscardUnknown() {
+	xxx_messageInfo_UserRegistrationConfirmation.DiscardUnknown(m)
+}
 
-func (m *ConfirmRegisterUserMessage) GetHash() []byte {
+var xxx_messageInfo_UserRegistrationConfirmation proto.InternalMessageInfo
+
+func (m *UserRegistrationConfirmation) GetClientSignedByServer() *DSASignature {
 	if m != nil {
-		return m.Hash
+		return m.ClientSignedByServer
 	}
 	return nil
 }
 
-func (m *ConfirmRegisterUserMessage) GetR() []byte {
-	if m != nil {
-		return m.R
-	}
-	return nil
-}
-
-func (m *ConfirmRegisterUserMessage) GetS() []byte {
-	if m != nil {
-		return m.S
-	}
-	return nil
-}
-
-func (m *ConfirmRegisterUserMessage) GetError() string {
+func (m *UserRegistrationConfirmation) GetError() string {
 	if m != nil {
 		return m.Error
 	}
 	return ""
 }
 
-// Client -> Gateway -> Server message to request nonce
-type RequestNonceMessage struct {
-	Salt []byte `protobuf:"bytes,1,opt,name=Salt,proto3" json:"Salt,omitempty"`
-	// Client Public Key
-	Y []byte `protobuf:"bytes,2,opt,name=Y,proto3" json:"Y,omitempty"`
-	P []byte `protobuf:"bytes,3,opt,name=P,proto3" json:"P,omitempty"`
-	Q []byte `protobuf:"bytes,4,opt,name=Q,proto3" json:"Q,omitempty"`
-	G []byte `protobuf:"bytes,5,opt,name=G,proto3" json:"G,omitempty"`
-	// RegistrationServer-Signed Client Public Key
-	Hash                 []byte   `protobuf:"bytes,6,opt,name=Hash,proto3" json:"Hash,omitempty"`
-	R                    []byte   `protobuf:"bytes,7,opt,name=R,proto3" json:"R,omitempty"`
-	S                    []byte   `protobuf:"bytes,8,opt,name=S,proto3" json:"S,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
+// NonceRequest message to request nonce from client to server
+type NonceRequest struct {
+	Salt                 []byte        `protobuf:"bytes,1,opt,name=Salt,proto3" json:"Salt,omitempty"`
+	Client               *DSAPublicKey `protobuf:"bytes,2,opt,name=Client,proto3" json:"Client,omitempty"`
+	ClientSignedByServer *DSASignature `protobuf:"bytes,3,opt,name=ClientSignedByServer,proto3" json:"ClientSignedByServer,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}      `json:"-"`
+	XXX_unrecognized     []byte        `json:"-"`
+	XXX_sizecache        int32         `json:"-"`
 }
 
-func (m *RequestNonceMessage) Reset()         { *m = RequestNonceMessage{} }
-func (m *RequestNonceMessage) String() string { return proto.CompactTextString(m) }
-func (*RequestNonceMessage) ProtoMessage()    {}
-func (*RequestNonceMessage) Descriptor() ([]byte, []int) {
-	return fileDescriptor_mixmessages_279a5149a8d122ef, []int{11}
-}
-func (m *RequestNonceMessage) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_RequestNonceMessage.Unmarshal(m, b)
-}
-func (m *RequestNonceMessage) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_RequestNonceMessage.Marshal(b, m, deterministic)
-}
-func (dst *RequestNonceMessage) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_RequestNonceMessage.Merge(dst, src)
-}
-func (m *RequestNonceMessage) XXX_Size() int {
-	return xxx_messageInfo_RequestNonceMessage.Size(m)
-}
-func (m *RequestNonceMessage) XXX_DiscardUnknown() {
-	xxx_messageInfo_RequestNonceMessage.DiscardUnknown(m)
+func (m *NonceRequest) Reset()         { *m = NonceRequest{} }
+func (m *NonceRequest) String() string { return proto.CompactTextString(m) }
+func (*NonceRequest) ProtoMessage()    {}
+func (*NonceRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f858aeec3eb2fbf5, []int{13}
 }
 
-var xxx_messageInfo_RequestNonceMessage proto.InternalMessageInfo
+func (m *NonceRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_NonceRequest.Unmarshal(m, b)
+}
+func (m *NonceRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_NonceRequest.Marshal(b, m, deterministic)
+}
+func (m *NonceRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_NonceRequest.Merge(m, src)
+}
+func (m *NonceRequest) XXX_Size() int {
+	return xxx_messageInfo_NonceRequest.Size(m)
+}
+func (m *NonceRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_NonceRequest.DiscardUnknown(m)
+}
 
-func (m *RequestNonceMessage) GetSalt() []byte {
+var xxx_messageInfo_NonceRequest proto.InternalMessageInfo
+
+func (m *NonceRequest) GetSalt() []byte {
 	if m != nil {
 		return m.Salt
 	}
 	return nil
 }
 
-func (m *RequestNonceMessage) GetY() []byte {
+func (m *NonceRequest) GetClient() *DSAPublicKey {
 	if m != nil {
-		return m.Y
+		return m.Client
 	}
 	return nil
 }
 
-func (m *RequestNonceMessage) GetP() []byte {
+func (m *NonceRequest) GetClientSignedByServer() *DSASignature {
 	if m != nil {
-		return m.P
+		return m.ClientSignedByServer
 	}
 	return nil
 }
 
-func (m *RequestNonceMessage) GetQ() []byte {
-	if m != nil {
-		return m.Q
-	}
-	return nil
-}
-
-func (m *RequestNonceMessage) GetG() []byte {
-	if m != nil {
-		return m.G
-	}
-	return nil
-}
-
-func (m *RequestNonceMessage) GetHash() []byte {
-	if m != nil {
-		return m.Hash
-	}
-	return nil
-}
-
-func (m *RequestNonceMessage) GetR() []byte {
-	if m != nil {
-		return m.R
-	}
-	return nil
-}
-
-func (m *RequestNonceMessage) GetS() []byte {
-	if m != nil {
-		return m.S
-	}
-	return nil
-}
-
-// Server -> Gateway -> Client response to RequestNonceMessage
-type NonceMessage struct {
+// Nonce message to reply to client from server
+type Nonce struct {
 	Nonce                []byte   `protobuf:"bytes,1,opt,name=Nonce,proto3" json:"Nonce,omitempty"`
 	Error                string   `protobuf:"bytes,2,opt,name=Error,proto3" json:"Error,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -641,131 +689,70 @@ type NonceMessage struct {
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *NonceMessage) Reset()         { *m = NonceMessage{} }
-func (m *NonceMessage) String() string { return proto.CompactTextString(m) }
-func (*NonceMessage) ProtoMessage()    {}
-func (*NonceMessage) Descriptor() ([]byte, []int) {
-	return fileDescriptor_mixmessages_279a5149a8d122ef, []int{12}
-}
-func (m *NonceMessage) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_NonceMessage.Unmarshal(m, b)
-}
-func (m *NonceMessage) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_NonceMessage.Marshal(b, m, deterministic)
-}
-func (dst *NonceMessage) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_NonceMessage.Merge(dst, src)
-}
-func (m *NonceMessage) XXX_Size() int {
-	return xxx_messageInfo_NonceMessage.Size(m)
-}
-func (m *NonceMessage) XXX_DiscardUnknown() {
-	xxx_messageInfo_NonceMessage.DiscardUnknown(m)
+func (m *Nonce) Reset()         { *m = Nonce{} }
+func (m *Nonce) String() string { return proto.CompactTextString(m) }
+func (*Nonce) ProtoMessage()    {}
+func (*Nonce) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f858aeec3eb2fbf5, []int{14}
 }
 
-var xxx_messageInfo_NonceMessage proto.InternalMessageInfo
+func (m *Nonce) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Nonce.Unmarshal(m, b)
+}
+func (m *Nonce) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Nonce.Marshal(b, m, deterministic)
+}
+func (m *Nonce) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Nonce.Merge(m, src)
+}
+func (m *Nonce) XXX_Size() int {
+	return xxx_messageInfo_Nonce.Size(m)
+}
+func (m *Nonce) XXX_DiscardUnknown() {
+	xxx_messageInfo_Nonce.DiscardUnknown(m)
+}
 
-func (m *NonceMessage) GetNonce() []byte {
+var xxx_messageInfo_Nonce proto.InternalMessageInfo
+
+func (m *Nonce) GetNonce() []byte {
 	if m != nil {
 		return m.Nonce
 	}
 	return nil
 }
 
-func (m *NonceMessage) GetError() string {
+func (m *Nonce) GetError() string {
 	if m != nil {
 		return m.Error
 	}
 	return ""
 }
 
-// Client -> Gateway -> Server message to confirm nonce
-type ConfirmNonceMessage struct {
-	// Client-Signed Nonce
-	Hash                 []byte   `protobuf:"bytes,1,opt,name=Hash,proto3" json:"Hash,omitempty"`
-	R                    []byte   `protobuf:"bytes,2,opt,name=R,proto3" json:"R,omitempty"`
-	S                    []byte   `protobuf:"bytes,3,opt,name=S,proto3" json:"S,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *ConfirmNonceMessage) Reset()         { *m = ConfirmNonceMessage{} }
-func (m *ConfirmNonceMessage) String() string { return proto.CompactTextString(m) }
-func (*ConfirmNonceMessage) ProtoMessage()    {}
-func (*ConfirmNonceMessage) Descriptor() ([]byte, []int) {
-	return fileDescriptor_mixmessages_279a5149a8d122ef, []int{13}
-}
-func (m *ConfirmNonceMessage) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_ConfirmNonceMessage.Unmarshal(m, b)
-}
-func (m *ConfirmNonceMessage) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_ConfirmNonceMessage.Marshal(b, m, deterministic)
-}
-func (dst *ConfirmNonceMessage) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ConfirmNonceMessage.Merge(dst, src)
-}
-func (m *ConfirmNonceMessage) XXX_Size() int {
-	return xxx_messageInfo_ConfirmNonceMessage.Size(m)
-}
-func (m *ConfirmNonceMessage) XXX_DiscardUnknown() {
-	xxx_messageInfo_ConfirmNonceMessage.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_ConfirmNonceMessage proto.InternalMessageInfo
-
-func (m *ConfirmNonceMessage) GetHash() []byte {
-	if m != nil {
-		return m.Hash
-	}
-	return nil
-}
-
-func (m *ConfirmNonceMessage) GetR() []byte {
-	if m != nil {
-		return m.R
-	}
-	return nil
-}
-
-func (m *ConfirmNonceMessage) GetS() []byte {
-	if m != nil {
-		return m.S
-	}
-	return nil
-}
-
-// Server -> Gateway -> Client response to ConfirmNonceMessage
+// RegistrationConfirmation returning proof of registration
 type RegistrationConfirmation struct {
-	// Server-Signed Client Public Key
-	Hash []byte `protobuf:"bytes,1,opt,name=Hash,proto3" json:"Hash,omitempty"`
-	R    []byte `protobuf:"bytes,2,opt,name=R,proto3" json:"R,omitempty"`
-	S    []byte `protobuf:"bytes,3,opt,name=S,proto3" json:"S,omitempty"`
-	// Server Public Key
-	Y                    []byte   `protobuf:"bytes,4,opt,name=Y,proto3" json:"Y,omitempty"`
-	P                    []byte   `protobuf:"bytes,5,opt,name=P,proto3" json:"P,omitempty"`
-	Q                    []byte   `protobuf:"bytes,6,opt,name=Q,proto3" json:"Q,omitempty"`
-	G                    []byte   `protobuf:"bytes,7,opt,name=G,proto3" json:"G,omitempty"`
-	Error                string   `protobuf:"bytes,8,opt,name=Error,proto3" json:"Error,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
+	ClientSignedByServer *DSASignature `protobuf:"bytes,1,opt,name=ClientSignedByServer,proto3" json:"ClientSignedByServer,omitempty"`
+	Server               *DSAPublicKey `protobuf:"bytes,2,opt,name=Server,proto3" json:"Server,omitempty"`
+	Error                string        `protobuf:"bytes,3,opt,name=Error,proto3" json:"Error,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}      `json:"-"`
+	XXX_unrecognized     []byte        `json:"-"`
+	XXX_sizecache        int32         `json:"-"`
 }
 
 func (m *RegistrationConfirmation) Reset()         { *m = RegistrationConfirmation{} }
 func (m *RegistrationConfirmation) String() string { return proto.CompactTextString(m) }
 func (*RegistrationConfirmation) ProtoMessage()    {}
 func (*RegistrationConfirmation) Descriptor() ([]byte, []int) {
-	return fileDescriptor_mixmessages_279a5149a8d122ef, []int{14}
+	return fileDescriptor_f858aeec3eb2fbf5, []int{15}
 }
+
 func (m *RegistrationConfirmation) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RegistrationConfirmation.Unmarshal(m, b)
 }
 func (m *RegistrationConfirmation) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_RegistrationConfirmation.Marshal(b, m, deterministic)
 }
-func (dst *RegistrationConfirmation) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_RegistrationConfirmation.Merge(dst, src)
+func (m *RegistrationConfirmation) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RegistrationConfirmation.Merge(m, src)
 }
 func (m *RegistrationConfirmation) XXX_Size() int {
 	return xxx_messageInfo_RegistrationConfirmation.Size(m)
@@ -776,51 +763,16 @@ func (m *RegistrationConfirmation) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_RegistrationConfirmation proto.InternalMessageInfo
 
-func (m *RegistrationConfirmation) GetHash() []byte {
+func (m *RegistrationConfirmation) GetClientSignedByServer() *DSASignature {
 	if m != nil {
-		return m.Hash
+		return m.ClientSignedByServer
 	}
 	return nil
 }
 
-func (m *RegistrationConfirmation) GetR() []byte {
+func (m *RegistrationConfirmation) GetServer() *DSAPublicKey {
 	if m != nil {
-		return m.R
-	}
-	return nil
-}
-
-func (m *RegistrationConfirmation) GetS() []byte {
-	if m != nil {
-		return m.S
-	}
-	return nil
-}
-
-func (m *RegistrationConfirmation) GetY() []byte {
-	if m != nil {
-		return m.Y
-	}
-	return nil
-}
-
-func (m *RegistrationConfirmation) GetP() []byte {
-	if m != nil {
-		return m.P
-	}
-	return nil
-}
-
-func (m *RegistrationConfirmation) GetQ() []byte {
-	if m != nil {
-		return m.Q
-	}
-	return nil
-}
-
-func (m *RegistrationConfirmation) GetG() []byte {
-	if m != nil {
-		return m.G
+		return m.Server
 	}
 	return nil
 }
@@ -832,7 +784,7 @@ func (m *RegistrationConfirmation) GetError() string {
 	return ""
 }
 
-// Generic Ack message containing an Error field
+// Ack generic message containing an Error field
 type Ack struct {
 	Error                string   `protobuf:"bytes,1,opt,name=Error,proto3" json:"Error,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -844,16 +796,17 @@ func (m *Ack) Reset()         { *m = Ack{} }
 func (m *Ack) String() string { return proto.CompactTextString(m) }
 func (*Ack) ProtoMessage()    {}
 func (*Ack) Descriptor() ([]byte, []int) {
-	return fileDescriptor_mixmessages_279a5149a8d122ef, []int{15}
+	return fileDescriptor_f858aeec3eb2fbf5, []int{16}
 }
+
 func (m *Ack) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Ack.Unmarshal(m, b)
 }
 func (m *Ack) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_Ack.Marshal(b, m, deterministic)
 }
-func (dst *Ack) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Ack.Merge(dst, src)
+func (m *Ack) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Ack.Merge(m, src)
 }
 func (m *Ack) XXX_Size() int {
 	return xxx_messageInfo_Ack.Size(m)
@@ -871,166 +824,168 @@ func (m *Ack) GetError() string {
 	return ""
 }
 
-type CmixBatch struct {
-	RoundID              uint64      `protobuf:"varint,1,opt,name=RoundID,proto3" json:"RoundID,omitempty"`
-	ForPhase             int32       `protobuf:"varint,2,opt,name=ForPhase,proto3" json:"ForPhase,omitempty"`
-	Slots                []*CmixSlot `protobuf:"bytes,4,rep,name=slots,proto3" json:"slots,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}    `json:"-"`
-	XXX_unrecognized     []byte      `json:"-"`
-	XXX_sizecache        int32       `json:"-"`
+type Batch struct {
+	Round                *RoundInfo `protobuf:"bytes,1,opt,name=Round,proto3" json:"Round,omitempty"`
+	ForPhase             int32      `protobuf:"varint,2,opt,name=ForPhase,proto3" json:"ForPhase,omitempty"`
+	Slots                []*Slot    `protobuf:"bytes,3,rep,name=slots,proto3" json:"slots,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}   `json:"-"`
+	XXX_unrecognized     []byte     `json:"-"`
+	XXX_sizecache        int32      `json:"-"`
 }
 
-func (m *CmixBatch) Reset()         { *m = CmixBatch{} }
-func (m *CmixBatch) String() string { return proto.CompactTextString(m) }
-func (*CmixBatch) ProtoMessage()    {}
-func (*CmixBatch) Descriptor() ([]byte, []int) {
-	return fileDescriptor_mixmessages_279a5149a8d122ef, []int{16}
-}
-func (m *CmixBatch) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_CmixBatch.Unmarshal(m, b)
-}
-func (m *CmixBatch) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_CmixBatch.Marshal(b, m, deterministic)
-}
-func (dst *CmixBatch) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_CmixBatch.Merge(dst, src)
-}
-func (m *CmixBatch) XXX_Size() int {
-	return xxx_messageInfo_CmixBatch.Size(m)
-}
-func (m *CmixBatch) XXX_DiscardUnknown() {
-	xxx_messageInfo_CmixBatch.DiscardUnknown(m)
+func (m *Batch) Reset()         { *m = Batch{} }
+func (m *Batch) String() string { return proto.CompactTextString(m) }
+func (*Batch) ProtoMessage()    {}
+func (*Batch) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f858aeec3eb2fbf5, []int{17}
 }
 
-var xxx_messageInfo_CmixBatch proto.InternalMessageInfo
+func (m *Batch) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Batch.Unmarshal(m, b)
+}
+func (m *Batch) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Batch.Marshal(b, m, deterministic)
+}
+func (m *Batch) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Batch.Merge(m, src)
+}
+func (m *Batch) XXX_Size() int {
+	return xxx_messageInfo_Batch.Size(m)
+}
+func (m *Batch) XXX_DiscardUnknown() {
+	xxx_messageInfo_Batch.DiscardUnknown(m)
+}
 
-func (m *CmixBatch) GetRoundID() uint64 {
+var xxx_messageInfo_Batch proto.InternalMessageInfo
+
+func (m *Batch) GetRound() *RoundInfo {
 	if m != nil {
-		return m.RoundID
+		return m.Round
 	}
-	return 0
+	return nil
 }
 
-func (m *CmixBatch) GetForPhase() int32 {
+func (m *Batch) GetForPhase() int32 {
 	if m != nil {
 		return m.ForPhase
 	}
 	return 0
 }
 
-func (m *CmixBatch) GetSlots() []*CmixSlot {
+func (m *Batch) GetSlots() []*Slot {
 	if m != nil {
 		return m.Slots
 	}
 	return nil
 }
 
-type CmixSlot struct {
+type Slot struct {
 	// Precomputation fields
-	EncryptedMessageKeys            []byte `protobuf:"bytes,2,opt,name=EncryptedMessageKeys,proto3" json:"EncryptedMessageKeys,omitempty"`
-	EncryptedAssociatedDataKeys     []byte `protobuf:"bytes,3,opt,name=EncryptedAssociatedDataKeys,proto3" json:"EncryptedAssociatedDataKeys,omitempty"`
-	PartialMessageCypherText        []byte `protobuf:"bytes,4,opt,name=PartialMessageCypherText,proto3" json:"PartialMessageCypherText,omitempty"`
-	PartialAssociatedDataCypherText []byte `protobuf:"bytes,5,opt,name=PartialAssociatedDataCypherText,proto3" json:"PartialAssociatedDataCypherText,omitempty"`
-	PartialRoundPublicCypherKey     []byte `protobuf:"bytes,6,opt,name=PartialRoundPublicCypherKey,proto3" json:"PartialRoundPublicCypherKey,omitempty"`
+	EncryptedMessageKeys            []byte `protobuf:"bytes,1,opt,name=EncryptedMessageKeys,proto3" json:"EncryptedMessageKeys,omitempty"`
+	EncryptedAssociatedDataKeys     []byte `protobuf:"bytes,2,opt,name=EncryptedAssociatedDataKeys,proto3" json:"EncryptedAssociatedDataKeys,omitempty"`
+	PartialMessageCypherText        []byte `protobuf:"bytes,3,opt,name=PartialMessageCypherText,proto3" json:"PartialMessageCypherText,omitempty"`
+	PartialAssociatedDataCypherText []byte `protobuf:"bytes,4,opt,name=PartialAssociatedDataCypherText,proto3" json:"PartialAssociatedDataCypherText,omitempty"`
+	PartialRoundPublicCypherKey     []byte `protobuf:"bytes,5,opt,name=PartialRoundPublicCypherKey,proto3" json:"PartialRoundPublicCypherKey,omitempty"`
 	// Realtime/client fields
-	SenderID             []byte   `protobuf:"bytes,7,opt,name=SenderID,proto3" json:"SenderID,omitempty"`
-	MessagePayload       []byte   `protobuf:"bytes,8,opt,name=MessagePayload,proto3" json:"MessagePayload,omitempty"`
-	AssociatedData       []byte   `protobuf:"bytes,9,opt,name=AssociatedData,proto3" json:"AssociatedData,omitempty"`
-	Salt                 []byte   `protobuf:"bytes,10,opt,name=Salt,proto3" json:"Salt,omitempty"`
-	KMACs                [][]byte `protobuf:"bytes,11,rep,name=KMACs,proto3" json:"KMACs,omitempty"`
+	SenderID             []byte   `protobuf:"bytes,6,opt,name=SenderID,proto3" json:"SenderID,omitempty"`
+	MessagePayload       []byte   `protobuf:"bytes,7,opt,name=MessagePayload,proto3" json:"MessagePayload,omitempty"`
+	AssociatedData       []byte   `protobuf:"bytes,8,opt,name=AssociatedData,proto3" json:"AssociatedData,omitempty"`
+	Salt                 []byte   `protobuf:"bytes,9,opt,name=Salt,proto3" json:"Salt,omitempty"`
+	KMACs                [][]byte `protobuf:"bytes,10,rep,name=KMACs,proto3" json:"KMACs,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *CmixSlot) Reset()         { *m = CmixSlot{} }
-func (m *CmixSlot) String() string { return proto.CompactTextString(m) }
-func (*CmixSlot) ProtoMessage()    {}
-func (*CmixSlot) Descriptor() ([]byte, []int) {
-	return fileDescriptor_mixmessages_279a5149a8d122ef, []int{17}
-}
-func (m *CmixSlot) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_CmixSlot.Unmarshal(m, b)
-}
-func (m *CmixSlot) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_CmixSlot.Marshal(b, m, deterministic)
-}
-func (dst *CmixSlot) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_CmixSlot.Merge(dst, src)
-}
-func (m *CmixSlot) XXX_Size() int {
-	return xxx_messageInfo_CmixSlot.Size(m)
-}
-func (m *CmixSlot) XXX_DiscardUnknown() {
-	xxx_messageInfo_CmixSlot.DiscardUnknown(m)
+func (m *Slot) Reset()         { *m = Slot{} }
+func (m *Slot) String() string { return proto.CompactTextString(m) }
+func (*Slot) ProtoMessage()    {}
+func (*Slot) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f858aeec3eb2fbf5, []int{18}
 }
 
-var xxx_messageInfo_CmixSlot proto.InternalMessageInfo
+func (m *Slot) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Slot.Unmarshal(m, b)
+}
+func (m *Slot) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Slot.Marshal(b, m, deterministic)
+}
+func (m *Slot) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Slot.Merge(m, src)
+}
+func (m *Slot) XXX_Size() int {
+	return xxx_messageInfo_Slot.Size(m)
+}
+func (m *Slot) XXX_DiscardUnknown() {
+	xxx_messageInfo_Slot.DiscardUnknown(m)
+}
 
-func (m *CmixSlot) GetEncryptedMessageKeys() []byte {
+var xxx_messageInfo_Slot proto.InternalMessageInfo
+
+func (m *Slot) GetEncryptedMessageKeys() []byte {
 	if m != nil {
 		return m.EncryptedMessageKeys
 	}
 	return nil
 }
 
-func (m *CmixSlot) GetEncryptedAssociatedDataKeys() []byte {
+func (m *Slot) GetEncryptedAssociatedDataKeys() []byte {
 	if m != nil {
 		return m.EncryptedAssociatedDataKeys
 	}
 	return nil
 }
 
-func (m *CmixSlot) GetPartialMessageCypherText() []byte {
+func (m *Slot) GetPartialMessageCypherText() []byte {
 	if m != nil {
 		return m.PartialMessageCypherText
 	}
 	return nil
 }
 
-func (m *CmixSlot) GetPartialAssociatedDataCypherText() []byte {
+func (m *Slot) GetPartialAssociatedDataCypherText() []byte {
 	if m != nil {
 		return m.PartialAssociatedDataCypherText
 	}
 	return nil
 }
 
-func (m *CmixSlot) GetPartialRoundPublicCypherKey() []byte {
+func (m *Slot) GetPartialRoundPublicCypherKey() []byte {
 	if m != nil {
 		return m.PartialRoundPublicCypherKey
 	}
 	return nil
 }
 
-func (m *CmixSlot) GetSenderID() []byte {
+func (m *Slot) GetSenderID() []byte {
 	if m != nil {
 		return m.SenderID
 	}
 	return nil
 }
 
-func (m *CmixSlot) GetMessagePayload() []byte {
+func (m *Slot) GetMessagePayload() []byte {
 	if m != nil {
 		return m.MessagePayload
 	}
 	return nil
 }
 
-func (m *CmixSlot) GetAssociatedData() []byte {
+func (m *Slot) GetAssociatedData() []byte {
 	if m != nil {
 		return m.AssociatedData
 	}
 	return nil
 }
 
-func (m *CmixSlot) GetSalt() []byte {
+func (m *Slot) GetSalt() []byte {
 	if m != nil {
 		return m.Salt
 	}
 	return nil
 }
 
-func (m *CmixSlot) GetKMACs() [][]byte {
+func (m *Slot) GetKMACs() [][]byte {
 	if m != nil {
 		return m.KMACs
 	}
@@ -1040,22 +995,95 @@ func (m *CmixSlot) GetKMACs() [][]byte {
 func init() {
 	proto.RegisterType((*Ping)(nil), "mixmessages.Ping")
 	proto.RegisterType((*TimePing)(nil), "mixmessages.TimePing")
-	proto.RegisterType((*ServerMetricsMessage)(nil), "mixmessages.ServerMetricsMessage")
-	proto.RegisterType((*RoundIDMessage)(nil), "mixmessages.RoundIDMessage")
+	proto.RegisterType((*ServerMetrics)(nil), "mixmessages.ServerMetrics")
+	proto.RegisterType((*RoundInfo)(nil), "mixmessages.RoundInfo")
 	proto.RegisterType((*RoundBufferInfo)(nil), "mixmessages.RoundBufferInfo")
-	proto.RegisterType((*ClientPollMessage)(nil), "mixmessages.ClientPollMessage")
-	proto.RegisterType((*ClientMessages)(nil), "mixmessages.ClientMessages")
-	proto.RegisterType((*InputMessages)(nil), "mixmessages.InputMessages")
-	proto.RegisterType((*OutputMessages)(nil), "mixmessages.OutputMessages")
-	proto.RegisterType((*RegisterUserMessage)(nil), "mixmessages.RegisterUserMessage")
-	proto.RegisterType((*ConfirmRegisterUserMessage)(nil), "mixmessages.ConfirmRegisterUserMessage")
-	proto.RegisterType((*RequestNonceMessage)(nil), "mixmessages.RequestNonceMessage")
-	proto.RegisterType((*NonceMessage)(nil), "mixmessages.NonceMessage")
-	proto.RegisterType((*ConfirmNonceMessage)(nil), "mixmessages.ConfirmNonceMessage")
+	proto.RegisterType((*ClientRequest)(nil), "mixmessages.ClientRequest")
+	proto.RegisterType((*IDList)(nil), "mixmessages.IDList")
+	proto.RegisterType((*Input)(nil), "mixmessages.Input")
+	proto.RegisterType((*Output)(nil), "mixmessages.Output")
+	proto.RegisterType((*DSAPublicKey)(nil), "mixmessages.DSAPublicKey")
+	proto.RegisterType((*DSASignature)(nil), "mixmessages.DSASignature")
+	proto.RegisterType((*UserRegistration)(nil), "mixmessages.UserRegistration")
+	proto.RegisterType((*UserRegistrationConfirmation)(nil), "mixmessages.UserRegistrationConfirmation")
+	proto.RegisterType((*NonceRequest)(nil), "mixmessages.NonceRequest")
+	proto.RegisterType((*Nonce)(nil), "mixmessages.Nonce")
 	proto.RegisterType((*RegistrationConfirmation)(nil), "mixmessages.RegistrationConfirmation")
 	proto.RegisterType((*Ack)(nil), "mixmessages.Ack")
-	proto.RegisterType((*CmixBatch)(nil), "mixmessages.CmixBatch")
-	proto.RegisterType((*CmixSlot)(nil), "mixmessages.CmixSlot")
+	proto.RegisterType((*Batch)(nil), "mixmessages.Batch")
+	proto.RegisterType((*Slot)(nil), "mixmessages.Slot")
+}
+
+func init() { proto.RegisterFile("mixmessages.proto", fileDescriptor_f858aeec3eb2fbf5) }
+
+var fileDescriptor_f858aeec3eb2fbf5 = []byte{
+	// 1044 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x56, 0xdd, 0x6e, 0xdb, 0x36,
+	0x14, 0x8e, 0x22, 0xdb, 0x89, 0x4f, 0xec, 0x2c, 0x65, 0xb3, 0x42, 0x73, 0x3a, 0xcc, 0x10, 0xf6,
+	0x93, 0x0d, 0x43, 0x80, 0xba, 0x03, 0x5a, 0x74, 0x40, 0x37, 0xc7, 0x6e, 0x5d, 0x23, 0x75, 0xea,
+	0x52, 0xc9, 0x45, 0x76, 0xc7, 0xca, 0x27, 0xb1, 0x16, 0x47, 0x72, 0x29, 0xaa, 0xad, 0x7b, 0xbb,
+	0x27, 0xd8, 0x3b, 0xec, 0x09, 0xf6, 0x20, 0x7b, 0x80, 0x3d, 0xcd, 0x40, 0x52, 0x72, 0x44, 0x47,
+	0x71, 0x8b, 0x0c, 0xe8, 0x1d, 0xbf, 0xf3, 0xc7, 0xf3, 0xc3, 0x73, 0x78, 0xe0, 0xd6, 0x45, 0xf0,
+	0xee, 0x02, 0xe3, 0x98, 0x9d, 0x61, 0xbc, 0x37, 0xe5, 0x91, 0x88, 0xc8, 0x46, 0x8e, 0xe4, 0x56,
+	0xa0, 0x34, 0x0c, 0xc2, 0x33, 0xb7, 0x09, 0xeb, 0x47, 0xc1, 0x05, 0xca, 0x33, 0xd9, 0x86, 0xb2,
+	0x3c, 0xc7, 0x8e, 0xd5, 0xb4, 0x77, 0x6d, 0xaa, 0x81, 0xfb, 0x87, 0x05, 0x75, 0x0f, 0xf9, 0x1b,
+	0xe4, 0x03, 0x14, 0x3c, 0xf0, 0x63, 0xd2, 0x80, 0xf5, 0x01, 0x5e, 0x1c, 0x4b, 0x43, 0x4a, 0xb4,
+	0x4e, 0xe7, 0x98, 0x34, 0x61, 0xe3, 0x68, 0xcc, 0x91, 0x8d, 0x34, 0x7b, 0x55, 0xb1, 0xf3, 0x24,
+	0xa9, 0xdd, 0x99, 0x26, 0x9a, 0x6d, 0x6b, 0xed, 0x0c, 0x13, 0x07, 0xd6, 0x8e, 0xa7, 0x5e, 0x10,
+	0xfa, 0xe8, 0x94, 0x94, 0x0f, 0x19, 0x74, 0x77, 0xa0, 0x4a, 0xa3, 0x24, 0x1c, 0xf5, 0xc3, 0xd3,
+	0x88, 0x6c, 0xc2, 0x6a, 0xbf, 0xeb, 0x58, 0x4d, 0x6b, 0xb7, 0x44, 0x57, 0xfb, 0x5d, 0xf7, 0x67,
+	0xf8, 0x4c, 0x31, 0xf7, 0x93, 0xd3, 0x53, 0xe4, 0x4a, 0x64, 0xd7, 0x20, 0x79, 0xc1, 0x7b, 0x54,
+	0xf2, 0x75, 0xba, 0x48, 0x76, 0x07, 0x50, 0xef, 0x4c, 0x02, 0x0c, 0x05, 0xc5, 0xd7, 0x09, 0xc6,
+	0x82, 0xdc, 0x81, 0xca, 0x71, 0x8c, 0x3c, 0xbd, 0xa1, 0x46, 0x53, 0x44, 0xbe, 0x86, 0xfa, 0x73,
+	0x16, 0x8b, 0x81, 0x4e, 0x61, 0xbf, 0xeb, 0xac, 0x36, 0xad, 0xdd, 0x2a, 0x35, 0x89, 0x6e, 0x03,
+	0x2a, 0xfd, 0xee, 0xf3, 0x20, 0x16, 0x64, 0x0b, 0xec, 0x7e, 0x57, 0x27, 0xb3, 0x4a, 0xe5, 0xd1,
+	0x7d, 0x00, 0xe5, 0x7e, 0x38, 0x4d, 0x04, 0xd9, 0x93, 0x19, 0xd4, 0x95, 0x50, 0xfc, 0x8d, 0x16,
+	0xd9, 0xcb, 0x17, 0x6c, 0x9f, 0x09, 0x7f, 0x4c, 0xe7, 0x32, 0xee, 0x43, 0xa8, 0xbc, 0x48, 0xc4,
+	0x4d, 0x34, 0x9f, 0x42, 0xad, 0xeb, 0xb5, 0x87, 0xc9, 0xab, 0x49, 0xe0, 0x1f, 0xe0, 0x8c, 0xd4,
+	0xc0, 0x3a, 0x49, 0xe3, 0xb2, 0x4e, 0x24, 0x1a, 0xaa, 0x30, 0x6a, 0xd4, 0x1a, 0x4a, 0xf4, 0xd2,
+	0xb1, 0x35, 0x7a, 0x29, 0x51, 0xcf, 0x29, 0x69, 0xd4, 0x73, 0x1f, 0x2b, 0x3b, 0x5e, 0x70, 0x16,
+	0x32, 0x91, 0x70, 0x24, 0x04, 0x4a, 0xcf, 0x58, 0x3c, 0x4e, 0x4d, 0xa9, 0xb3, 0xd4, 0xa0, 0x99,
+	0x35, 0x2a, 0x91, 0x97, 0x59, 0xf3, 0xdc, 0xd7, 0xb0, 0x25, 0xd3, 0x48, 0xf1, 0x2c, 0x88, 0x05,
+	0x67, 0x22, 0x88, 0x42, 0xf2, 0x03, 0x6c, 0xe5, 0x71, 0x27, 0x1a, 0xe9, 0x22, 0x55, 0xe9, 0x15,
+	0x3a, 0xb9, 0x07, 0x15, 0x5d, 0x25, 0x75, 0xc1, 0x46, 0xeb, 0x0b, 0x23, 0xea, 0x7c, 0x88, 0x34,
+	0x15, 0x94, 0x0f, 0xf7, 0xee, 0xe2, 0x9d, 0x9d, 0x28, 0x3c, 0x0d, 0xf8, 0x85, 0xbe, 0x7f, 0x00,
+	0xdb, 0x5a, 0x54, 0x86, 0x85, 0xa3, 0xfd, 0x99, 0x7e, 0xe6, 0xca, 0x87, 0x82, 0x1b, 0xe6, 0xc1,
+	0xd3, 0x42, 0x35, 0xd9, 0x3e, 0x4f, 0x38, 0x8f, 0x78, 0xfa, 0x2e, 0x34, 0x70, 0xff, 0xb2, 0xa0,
+	0x76, 0x18, 0x85, 0x3e, 0x66, 0xcf, 0x8b, 0x40, 0xc9, 0x63, 0x13, 0x91, 0x65, 0x4e, 0x9e, 0x6f,
+	0x10, 0xdd, 0xb5, 0xce, 0xdb, 0x37, 0x72, 0xde, 0xbd, 0x0f, 0x65, 0xe5, 0xa5, 0x8c, 0x42, 0x1d,
+	0x52, 0xff, 0x2e, 0xa9, 0x05, 0xb1, 0xfd, 0x6d, 0x81, 0xf3, 0xa9, 0xb2, 0x7b, 0x0f, 0x2a, 0xa9,
+	0x81, 0x0f, 0xa7, 0x68, 0xb1, 0x20, 0x76, 0xde, 0xe9, 0x1d, 0xb0, 0xdb, 0xfe, 0xf9, 0x25, 0xd3,
+	0xca, 0x33, 0xdf, 0x43, 0x59, 0x75, 0x10, 0xf9, 0x11, 0xca, 0x6a, 0x50, 0xa4, 0xee, 0xde, 0x31,
+	0x6e, 0x9b, 0x4f, 0x22, 0xaa, 0x85, 0xe4, 0x4c, 0x7b, 0x1a, 0xf1, 0xe1, 0x98, 0xc5, 0xa8, 0xdc,
+	0x2b, 0xd3, 0x39, 0x26, 0xdf, 0x41, 0x39, 0x9e, 0x44, 0x22, 0x56, 0xc3, 0x6e, 0xa3, 0x75, 0xcb,
+	0xb0, 0xe4, 0x4d, 0x22, 0x41, 0x35, 0xdf, 0xfd, 0xd7, 0x86, 0x92, 0xc4, 0xa4, 0x05, 0xdb, 0x4f,
+	0x42, 0x9f, 0xcf, 0xa6, 0x02, 0x47, 0x69, 0x23, 0x1f, 0xe0, 0x2c, 0x4e, 0x2b, 0x52, 0xc8, 0x23,
+	0xbf, 0xc2, 0xce, 0x9c, 0xde, 0x8e, 0xe3, 0xc8, 0x0f, 0x98, 0xc0, 0x51, 0x97, 0x09, 0xa6, 0x54,
+	0x75, 0x57, 0x2e, 0x13, 0x21, 0x8f, 0xc0, 0x19, 0x32, 0x2e, 0x02, 0x36, 0x49, 0xed, 0x76, 0x66,
+	0xd3, 0x31, 0xf2, 0x23, 0x7c, 0x27, 0xd2, 0x36, 0xbe, 0x96, 0x4f, 0x9e, 0xc1, 0x57, 0x29, 0xcf,
+	0x34, 0x9c, 0x33, 0xa1, 0x27, 0xc9, 0x87, 0xc4, 0x64, 0x1c, 0xa9, 0x88, 0xca, 0xac, 0x2e, 0xaa,
+	0xe6, 0x1f, 0xe0, 0xcc, 0x29, 0xeb, 0x38, 0x96, 0x88, 0xc8, 0x5a, 0x78, 0x18, 0x8e, 0xd4, 0x00,
+	0xaf, 0x28, 0xf1, 0x39, 0x26, 0xdf, 0xc2, 0x66, 0xea, 0xfc, 0x90, 0xcd, 0x26, 0x11, 0x1b, 0x39,
+	0x6b, 0x4a, 0x62, 0x81, 0x2a, 0xe5, 0x4c, 0x0f, 0x9d, 0x75, 0x2d, 0x67, 0x52, 0xe7, 0xbd, 0x5c,
+	0xcd, 0xf5, 0xf2, 0x36, 0x94, 0x0f, 0x06, 0xed, 0x4e, 0xec, 0x40, 0xd3, 0x96, 0x0d, 0xa4, 0x40,
+	0xeb, 0x9f, 0x12, 0x94, 0x0e, 0xe5, 0x20, 0x6b, 0x41, 0xb5, 0x1d, 0x9f, 0xbf, 0x08, 0x27, 0x41,
+	0x88, 0xc4, 0x7c, 0x0c, 0xf2, 0x13, 0x6e, 0x6c, 0x19, 0xa4, 0xb6, 0x7f, 0xee, 0xae, 0x90, 0x47,
+	0x50, 0x57, 0xa1, 0x0a, 0x1e, 0x4c, 0xd5, 0x4f, 0xfd, 0xb9, 0x21, 0x94, 0x7d, 0xe0, 0x85, 0xba,
+	0xfb, 0xb0, 0xd5, 0x43, 0xb1, 0xf0, 0x81, 0x9b, 0x6f, 0x30, 0xcf, 0x2b, 0xb4, 0xf1, 0x10, 0x36,
+	0x3b, 0x1c, 0x99, 0xc0, 0x43, 0x7c, 0xab, 0x1f, 0x7c, 0xc1, 0xa7, 0x53, 0xa8, 0xf9, 0x13, 0x80,
+	0x27, 0x18, 0x17, 0x45, 0x5a, 0xea, 0x2b, 0x2c, 0xd4, 0x6a, 0xc1, 0x3a, 0x4d, 0x42, 0xdd, 0x3e,
+	0x1f, 0x7b, 0x13, 0x05, 0xd2, 0x43, 0xb1, 0xb8, 0x06, 0xdc, 0xbd, 0xda, 0xb7, 0x97, 0xdc, 0xc6,
+	0x52, 0xae, 0xbb, 0x42, 0x7e, 0x81, 0x5a, 0x3a, 0xb5, 0xf5, 0x14, 0x34, 0x67, 0x4e, 0x7e, 0xaa,
+	0x37, 0xc8, 0x55, 0x96, 0xbb, 0x42, 0x4e, 0xe0, 0x76, 0x3a, 0x13, 0x8d, 0x8f, 0xef, 0xfa, 0xe1,
+	0xd7, 0xf8, 0xc6, 0x74, 0xe9, 0x9a, 0xe1, 0xea, 0xae, 0xb4, 0xfe, 0xb4, 0x61, 0xad, 0xc7, 0x04,
+	0xbe, 0x65, 0x33, 0xb2, 0x0f, 0xf5, 0xce, 0x18, 0xfd, 0xf3, 0xec, 0xd7, 0x5f, 0x28, 0xb0, 0xb1,
+	0xde, 0x34, 0x6e, 0x9b, 0x45, 0x50, 0xbb, 0x8a, 0xbb, 0x42, 0x1e, 0x03, 0xf4, 0x30, 0xdb, 0x63,
+	0x96, 0x1a, 0x28, 0xa8, 0x88, 0xae, 0xf4, 0x30, 0x99, 0xeb, 0x7f, 0x6c, 0xd5, 0x1e, 0xc8, 0x0c,
+	0xfb, 0x18, 0xbc, 0x41, 0x3d, 0x76, 0x4d, 0xe7, 0xf4, 0xce, 0x53, 0xa8, 0xf8, 0xbf, 0x4b, 0x43,
+	0xa1, 0x96, 0x66, 0xb4, 0xc8, 0xc0, 0xcd, 0x6a, 0xf2, 0xbb, 0x74, 0x2a, 0x57, 0xe7, 0xdf, 0x32,
+	0x8c, 0x5c, 0x2e, 0x22, 0xe4, 0x4b, 0xc3, 0xd0, 0xe2, 0x6e, 0xd2, 0xf8, 0x7e, 0x29, 0xdb, 0xbc,
+	0xeb, 0x55, 0x45, 0x2d, 0xf5, 0xf7, 0xff, 0x0b, 0x00, 0x00, 0xff, 0xff, 0x8e, 0x8d, 0x46, 0x1e,
+	0xe9, 0x0b, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -1066,587 +1094,587 @@ var _ grpc.ClientConn
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion4
 
-// MixMessageNodeClient is the client API for MixMessageNode service.
+// NodeClient is the client API for Node service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
-type MixMessageNodeClient interface {
+type NodeClient interface {
 	// Handles AskOnline
 	AskOnline(ctx context.Context, in *Ping, opts ...grpc.CallOption) (*Ack, error)
 	// Handles RoundtripPing
 	RoundtripPing(ctx context.Context, in *TimePing, opts ...grpc.CallOption) (*Ack, error)
-	// Handles ServerMetrics
-	ServerMetrics(ctx context.Context, in *ServerMetricsMessage, opts ...grpc.CallOption) (*Ack, error)
-	// Creates a new round with a certain ID
-	NewRound(ctx context.Context, in *CmixBatch, opts ...grpc.CallOption) (*Ack, error)
-	// Starts a new round with these messages (if len(msgs) == batch size)
-	StartRound(ctx context.Context, in *InputMessages, opts ...grpc.CallOption) (*Ack, error)
-	// Runs a cMix phase on another node
-	Phase(ctx context.Context, in *CmixBatch, opts ...grpc.CallOption) (*Ack, error)
+	// GetServerMetrics returns server metrics
+	GetServerMetrics(ctx context.Context, in *ServerMetrics, opts ...grpc.CallOption) (*Ack, error)
+	// CreatesNewRound makes a new round with a certain ID
+	CreateNewRound(ctx context.Context, in *Batch, opts ...grpc.CallOption) (*Ack, error)
+	// StartRound begins a round with these messages (if len(msgs) == batch size)
+	StartRound(ctx context.Context, in *Input, opts ...grpc.CallOption) (*Ack, error)
+	// RunPhase a cMix phase on another node
+	RunPhase(ctx context.Context, in *Batch, opts ...grpc.CallOption) (*Ack, error)
 	// GetRoundBufferInfo returns the # of rounds ready for messages
-	GetRoundBufferInfo(ctx context.Context, in *Ping, opts ...grpc.CallOption) (*RoundBufferInfo, error)
-	// Handles Registration Nonce Communication
-	RequestNonce(ctx context.Context, in *RequestNonceMessage, opts ...grpc.CallOption) (*NonceMessage, error)
-	// Handles Registration Nonce Confirmation
-	ConfirmNonce(ctx context.Context, in *ConfirmNonceMessage, opts ...grpc.CallOption) (*RegistrationConfirmation, error)
+	GetRoundBufferInfo(ctx context.Context, in *RoundBufferInfo, opts ...grpc.CallOption) (*RoundBufferInfo, error)
+	// RequestNonce generates a nonce for user registration
+	RequestNonce(ctx context.Context, in *NonceRequest, opts ...grpc.CallOption) (*Nonce, error)
+	// ConfirmRegistration uses a nonce confirmation to finalize user registration
+	ConfirmRegistration(ctx context.Context, in *DSASignature, opts ...grpc.CallOption) (*RegistrationConfirmation, error)
 }
 
-type mixMessageNodeClient struct {
+type nodeClient struct {
 	cc *grpc.ClientConn
 }
 
-func NewMixMessageNodeClient(cc *grpc.ClientConn) MixMessageNodeClient {
-	return &mixMessageNodeClient{cc}
+func NewNodeClient(cc *grpc.ClientConn) NodeClient {
+	return &nodeClient{cc}
 }
 
-func (c *mixMessageNodeClient) AskOnline(ctx context.Context, in *Ping, opts ...grpc.CallOption) (*Ack, error) {
+func (c *nodeClient) AskOnline(ctx context.Context, in *Ping, opts ...grpc.CallOption) (*Ack, error) {
 	out := new(Ack)
-	err := c.cc.Invoke(ctx, "/mixmessages.MixMessageNode/AskOnline", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/mixmessages.Node/AskOnline", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *mixMessageNodeClient) RoundtripPing(ctx context.Context, in *TimePing, opts ...grpc.CallOption) (*Ack, error) {
+func (c *nodeClient) RoundtripPing(ctx context.Context, in *TimePing, opts ...grpc.CallOption) (*Ack, error) {
 	out := new(Ack)
-	err := c.cc.Invoke(ctx, "/mixmessages.MixMessageNode/RoundtripPing", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/mixmessages.Node/RoundtripPing", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *mixMessageNodeClient) ServerMetrics(ctx context.Context, in *ServerMetricsMessage, opts ...grpc.CallOption) (*Ack, error) {
+func (c *nodeClient) GetServerMetrics(ctx context.Context, in *ServerMetrics, opts ...grpc.CallOption) (*Ack, error) {
 	out := new(Ack)
-	err := c.cc.Invoke(ctx, "/mixmessages.MixMessageNode/ServerMetrics", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/mixmessages.Node/GetServerMetrics", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *mixMessageNodeClient) NewRound(ctx context.Context, in *CmixBatch, opts ...grpc.CallOption) (*Ack, error) {
+func (c *nodeClient) CreateNewRound(ctx context.Context, in *Batch, opts ...grpc.CallOption) (*Ack, error) {
 	out := new(Ack)
-	err := c.cc.Invoke(ctx, "/mixmessages.MixMessageNode/NewRound", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/mixmessages.Node/CreateNewRound", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *mixMessageNodeClient) StartRound(ctx context.Context, in *InputMessages, opts ...grpc.CallOption) (*Ack, error) {
+func (c *nodeClient) StartRound(ctx context.Context, in *Input, opts ...grpc.CallOption) (*Ack, error) {
 	out := new(Ack)
-	err := c.cc.Invoke(ctx, "/mixmessages.MixMessageNode/StartRound", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/mixmessages.Node/StartRound", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *mixMessageNodeClient) Phase(ctx context.Context, in *CmixBatch, opts ...grpc.CallOption) (*Ack, error) {
+func (c *nodeClient) RunPhase(ctx context.Context, in *Batch, opts ...grpc.CallOption) (*Ack, error) {
 	out := new(Ack)
-	err := c.cc.Invoke(ctx, "/mixmessages.MixMessageNode/Phase", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/mixmessages.Node/RunPhase", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *mixMessageNodeClient) GetRoundBufferInfo(ctx context.Context, in *Ping, opts ...grpc.CallOption) (*RoundBufferInfo, error) {
+func (c *nodeClient) GetRoundBufferInfo(ctx context.Context, in *RoundBufferInfo, opts ...grpc.CallOption) (*RoundBufferInfo, error) {
 	out := new(RoundBufferInfo)
-	err := c.cc.Invoke(ctx, "/mixmessages.MixMessageNode/GetRoundBufferInfo", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/mixmessages.Node/GetRoundBufferInfo", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *mixMessageNodeClient) RequestNonce(ctx context.Context, in *RequestNonceMessage, opts ...grpc.CallOption) (*NonceMessage, error) {
-	out := new(NonceMessage)
-	err := c.cc.Invoke(ctx, "/mixmessages.MixMessageNode/RequestNonce", in, out, opts...)
+func (c *nodeClient) RequestNonce(ctx context.Context, in *NonceRequest, opts ...grpc.CallOption) (*Nonce, error) {
+	out := new(Nonce)
+	err := c.cc.Invoke(ctx, "/mixmessages.Node/RequestNonce", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *mixMessageNodeClient) ConfirmNonce(ctx context.Context, in *ConfirmNonceMessage, opts ...grpc.CallOption) (*RegistrationConfirmation, error) {
+func (c *nodeClient) ConfirmRegistration(ctx context.Context, in *DSASignature, opts ...grpc.CallOption) (*RegistrationConfirmation, error) {
 	out := new(RegistrationConfirmation)
-	err := c.cc.Invoke(ctx, "/mixmessages.MixMessageNode/ConfirmNonce", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/mixmessages.Node/ConfirmRegistration", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// MixMessageNodeServer is the server API for MixMessageNode service.
-type MixMessageNodeServer interface {
+// NodeServer is the server API for Node service.
+type NodeServer interface {
 	// Handles AskOnline
 	AskOnline(context.Context, *Ping) (*Ack, error)
 	// Handles RoundtripPing
 	RoundtripPing(context.Context, *TimePing) (*Ack, error)
-	// Handles ServerMetrics
-	ServerMetrics(context.Context, *ServerMetricsMessage) (*Ack, error)
-	// Creates a new round with a certain ID
-	NewRound(context.Context, *CmixBatch) (*Ack, error)
-	// Starts a new round with these messages (if len(msgs) == batch size)
-	StartRound(context.Context, *InputMessages) (*Ack, error)
-	// Runs a cMix phase on another node
-	Phase(context.Context, *CmixBatch) (*Ack, error)
+	// GetServerMetrics returns server metrics
+	GetServerMetrics(context.Context, *ServerMetrics) (*Ack, error)
+	// CreatesNewRound makes a new round with a certain ID
+	CreateNewRound(context.Context, *Batch) (*Ack, error)
+	// StartRound begins a round with these messages (if len(msgs) == batch size)
+	StartRound(context.Context, *Input) (*Ack, error)
+	// RunPhase a cMix phase on another node
+	RunPhase(context.Context, *Batch) (*Ack, error)
 	// GetRoundBufferInfo returns the # of rounds ready for messages
-	GetRoundBufferInfo(context.Context, *Ping) (*RoundBufferInfo, error)
-	// Handles Registration Nonce Communication
-	RequestNonce(context.Context, *RequestNonceMessage) (*NonceMessage, error)
-	// Handles Registration Nonce Confirmation
-	ConfirmNonce(context.Context, *ConfirmNonceMessage) (*RegistrationConfirmation, error)
+	GetRoundBufferInfo(context.Context, *RoundBufferInfo) (*RoundBufferInfo, error)
+	// RequestNonce generates a nonce for user registration
+	RequestNonce(context.Context, *NonceRequest) (*Nonce, error)
+	// ConfirmRegistration uses a nonce confirmation to finalize user registration
+	ConfirmRegistration(context.Context, *DSASignature) (*RegistrationConfirmation, error)
 }
 
-func RegisterMixMessageNodeServer(s *grpc.Server, srv MixMessageNodeServer) {
-	s.RegisterService(&_MixMessageNode_serviceDesc, srv)
+func RegisterNodeServer(s *grpc.Server, srv NodeServer) {
+	s.RegisterService(&_Node_serviceDesc, srv)
 }
 
-func _MixMessageNode_AskOnline_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Node_AskOnline_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Ping)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MixMessageNodeServer).AskOnline(ctx, in)
+		return srv.(NodeServer).AskOnline(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/mixmessages.MixMessageNode/AskOnline",
+		FullMethod: "/mixmessages.Node/AskOnline",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MixMessageNodeServer).AskOnline(ctx, req.(*Ping))
+		return srv.(NodeServer).AskOnline(ctx, req.(*Ping))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _MixMessageNode_RoundtripPing_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Node_RoundtripPing_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(TimePing)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MixMessageNodeServer).RoundtripPing(ctx, in)
+		return srv.(NodeServer).RoundtripPing(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/mixmessages.MixMessageNode/RoundtripPing",
+		FullMethod: "/mixmessages.Node/RoundtripPing",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MixMessageNodeServer).RoundtripPing(ctx, req.(*TimePing))
+		return srv.(NodeServer).RoundtripPing(ctx, req.(*TimePing))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _MixMessageNode_ServerMetrics_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ServerMetricsMessage)
+func _Node_GetServerMetrics_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ServerMetrics)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MixMessageNodeServer).ServerMetrics(ctx, in)
+		return srv.(NodeServer).GetServerMetrics(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/mixmessages.MixMessageNode/ServerMetrics",
+		FullMethod: "/mixmessages.Node/GetServerMetrics",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MixMessageNodeServer).ServerMetrics(ctx, req.(*ServerMetricsMessage))
+		return srv.(NodeServer).GetServerMetrics(ctx, req.(*ServerMetrics))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _MixMessageNode_NewRound_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CmixBatch)
+func _Node_CreateNewRound_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Batch)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MixMessageNodeServer).NewRound(ctx, in)
+		return srv.(NodeServer).CreateNewRound(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/mixmessages.MixMessageNode/NewRound",
+		FullMethod: "/mixmessages.Node/CreateNewRound",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MixMessageNodeServer).NewRound(ctx, req.(*CmixBatch))
+		return srv.(NodeServer).CreateNewRound(ctx, req.(*Batch))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _MixMessageNode_StartRound_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(InputMessages)
+func _Node_StartRound_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Input)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MixMessageNodeServer).StartRound(ctx, in)
+		return srv.(NodeServer).StartRound(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/mixmessages.MixMessageNode/StartRound",
+		FullMethod: "/mixmessages.Node/StartRound",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MixMessageNodeServer).StartRound(ctx, req.(*InputMessages))
+		return srv.(NodeServer).StartRound(ctx, req.(*Input))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _MixMessageNode_Phase_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CmixBatch)
+func _Node_RunPhase_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Batch)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MixMessageNodeServer).Phase(ctx, in)
+		return srv.(NodeServer).RunPhase(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/mixmessages.MixMessageNode/Phase",
+		FullMethod: "/mixmessages.Node/RunPhase",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MixMessageNodeServer).Phase(ctx, req.(*CmixBatch))
+		return srv.(NodeServer).RunPhase(ctx, req.(*Batch))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _MixMessageNode_GetRoundBufferInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Ping)
+func _Node_GetRoundBufferInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RoundBufferInfo)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MixMessageNodeServer).GetRoundBufferInfo(ctx, in)
+		return srv.(NodeServer).GetRoundBufferInfo(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/mixmessages.MixMessageNode/GetRoundBufferInfo",
+		FullMethod: "/mixmessages.Node/GetRoundBufferInfo",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MixMessageNodeServer).GetRoundBufferInfo(ctx, req.(*Ping))
+		return srv.(NodeServer).GetRoundBufferInfo(ctx, req.(*RoundBufferInfo))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _MixMessageNode_RequestNonce_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RequestNonceMessage)
+func _Node_RequestNonce_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(NonceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MixMessageNodeServer).RequestNonce(ctx, in)
+		return srv.(NodeServer).RequestNonce(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/mixmessages.MixMessageNode/RequestNonce",
+		FullMethod: "/mixmessages.Node/RequestNonce",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MixMessageNodeServer).RequestNonce(ctx, req.(*RequestNonceMessage))
+		return srv.(NodeServer).RequestNonce(ctx, req.(*NonceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _MixMessageNode_ConfirmNonce_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ConfirmNonceMessage)
+func _Node_ConfirmRegistration_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DSASignature)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MixMessageNodeServer).ConfirmNonce(ctx, in)
+		return srv.(NodeServer).ConfirmRegistration(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/mixmessages.MixMessageNode/ConfirmNonce",
+		FullMethod: "/mixmessages.Node/ConfirmRegistration",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MixMessageNodeServer).ConfirmNonce(ctx, req.(*ConfirmNonceMessage))
+		return srv.(NodeServer).ConfirmRegistration(ctx, req.(*DSASignature))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-var _MixMessageNode_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "mixmessages.MixMessageNode",
-	HandlerType: (*MixMessageNodeServer)(nil),
+var _Node_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "mixmessages.Node",
+	HandlerType: (*NodeServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "AskOnline",
-			Handler:    _MixMessageNode_AskOnline_Handler,
+			Handler:    _Node_AskOnline_Handler,
 		},
 		{
 			MethodName: "RoundtripPing",
-			Handler:    _MixMessageNode_RoundtripPing_Handler,
+			Handler:    _Node_RoundtripPing_Handler,
 		},
 		{
-			MethodName: "ServerMetrics",
-			Handler:    _MixMessageNode_ServerMetrics_Handler,
+			MethodName: "GetServerMetrics",
+			Handler:    _Node_GetServerMetrics_Handler,
 		},
 		{
-			MethodName: "NewRound",
-			Handler:    _MixMessageNode_NewRound_Handler,
+			MethodName: "CreateNewRound",
+			Handler:    _Node_CreateNewRound_Handler,
 		},
 		{
 			MethodName: "StartRound",
-			Handler:    _MixMessageNode_StartRound_Handler,
+			Handler:    _Node_StartRound_Handler,
 		},
 		{
-			MethodName: "Phase",
-			Handler:    _MixMessageNode_Phase_Handler,
+			MethodName: "RunPhase",
+			Handler:    _Node_RunPhase_Handler,
 		},
 		{
 			MethodName: "GetRoundBufferInfo",
-			Handler:    _MixMessageNode_GetRoundBufferInfo_Handler,
+			Handler:    _Node_GetRoundBufferInfo_Handler,
 		},
 		{
 			MethodName: "RequestNonce",
-			Handler:    _MixMessageNode_RequestNonce_Handler,
+			Handler:    _Node_RequestNonce_Handler,
 		},
 		{
-			MethodName: "ConfirmNonce",
-			Handler:    _MixMessageNode_ConfirmNonce_Handler,
+			MethodName: "ConfirmRegistration",
+			Handler:    _Node_ConfirmRegistration_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "mixmessages.proto",
 }
 
-// MixMessageGatewayClient is the client API for MixMessageGateway service.
+// GatewayClient is the client API for Gateway service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
-type MixMessageGatewayClient interface {
+type GatewayClient interface {
 	// Request a list of MessageIDs from the gateway for the given UserID
-	CheckMessages(ctx context.Context, in *ClientPollMessage, opts ...grpc.CallOption) (*ClientMessages, error)
-	// Request a CmixBatch from the gateway for the given message information
-	GetMessage(ctx context.Context, in *ClientPollMessage, opts ...grpc.CallOption) (*CmixBatch, error)
-	// Put a message on the cMix Gateway
-	PutMessage(ctx context.Context, in *CmixBatch, opts ...grpc.CallOption) (*Ack, error)
-	// Receives a batch of messages from the server
-	ReceiveBatch(ctx context.Context, in *OutputMessages, opts ...grpc.CallOption) (*Ack, error)
-	// Pass-through for Registration Nonce Communication
-	RequestNonce(ctx context.Context, in *RequestNonceMessage, opts ...grpc.CallOption) (*NonceMessage, error)
-	// Pass-through for Registration Nonce Confirmation
-	ConfirmNonce(ctx context.Context, in *ConfirmNonceMessage, opts ...grpc.CallOption) (*RegistrationConfirmation, error)
+	CheckMessages(ctx context.Context, in *ClientRequest, opts ...grpc.CallOption) (*IDList, error)
+	// GetMessage a Batch from the gateway for the given message information
+	GetMessage(ctx context.Context, in *ClientRequest, opts ...grpc.CallOption) (*Batch, error)
+	// PutMessage on the cMix Gateway
+	PutMessage(ctx context.Context, in *Batch, opts ...grpc.CallOption) (*Ack, error)
+	// ReceiveBatch of messages from the server
+	ReceiveBatch(ctx context.Context, in *Output, opts ...grpc.CallOption) (*Ack, error)
+	// RequestNonce returns a Nonce to the user
+	RequestNonce(ctx context.Context, in *NonceRequest, opts ...grpc.CallOption) (*Nonce, error)
+	// ConfirmNonce takes a client signed nonce for Registration Nonce Confirmation
+	ConfirmNonce(ctx context.Context, in *DSASignature, opts ...grpc.CallOption) (*RegistrationConfirmation, error)
 }
 
-type mixMessageGatewayClient struct {
+type gatewayClient struct {
 	cc *grpc.ClientConn
 }
 
-func NewMixMessageGatewayClient(cc *grpc.ClientConn) MixMessageGatewayClient {
-	return &mixMessageGatewayClient{cc}
+func NewGatewayClient(cc *grpc.ClientConn) GatewayClient {
+	return &gatewayClient{cc}
 }
 
-func (c *mixMessageGatewayClient) CheckMessages(ctx context.Context, in *ClientPollMessage, opts ...grpc.CallOption) (*ClientMessages, error) {
-	out := new(ClientMessages)
-	err := c.cc.Invoke(ctx, "/mixmessages.MixMessageGateway/CheckMessages", in, out, opts...)
+func (c *gatewayClient) CheckMessages(ctx context.Context, in *ClientRequest, opts ...grpc.CallOption) (*IDList, error) {
+	out := new(IDList)
+	err := c.cc.Invoke(ctx, "/mixmessages.Gateway/CheckMessages", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *mixMessageGatewayClient) GetMessage(ctx context.Context, in *ClientPollMessage, opts ...grpc.CallOption) (*CmixBatch, error) {
-	out := new(CmixBatch)
-	err := c.cc.Invoke(ctx, "/mixmessages.MixMessageGateway/GetMessage", in, out, opts...)
+func (c *gatewayClient) GetMessage(ctx context.Context, in *ClientRequest, opts ...grpc.CallOption) (*Batch, error) {
+	out := new(Batch)
+	err := c.cc.Invoke(ctx, "/mixmessages.Gateway/GetMessage", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *mixMessageGatewayClient) PutMessage(ctx context.Context, in *CmixBatch, opts ...grpc.CallOption) (*Ack, error) {
+func (c *gatewayClient) PutMessage(ctx context.Context, in *Batch, opts ...grpc.CallOption) (*Ack, error) {
 	out := new(Ack)
-	err := c.cc.Invoke(ctx, "/mixmessages.MixMessageGateway/PutMessage", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/mixmessages.Gateway/PutMessage", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *mixMessageGatewayClient) ReceiveBatch(ctx context.Context, in *OutputMessages, opts ...grpc.CallOption) (*Ack, error) {
+func (c *gatewayClient) ReceiveBatch(ctx context.Context, in *Output, opts ...grpc.CallOption) (*Ack, error) {
 	out := new(Ack)
-	err := c.cc.Invoke(ctx, "/mixmessages.MixMessageGateway/ReceiveBatch", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/mixmessages.Gateway/ReceiveBatch", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *mixMessageGatewayClient) RequestNonce(ctx context.Context, in *RequestNonceMessage, opts ...grpc.CallOption) (*NonceMessage, error) {
-	out := new(NonceMessage)
-	err := c.cc.Invoke(ctx, "/mixmessages.MixMessageGateway/RequestNonce", in, out, opts...)
+func (c *gatewayClient) RequestNonce(ctx context.Context, in *NonceRequest, opts ...grpc.CallOption) (*Nonce, error) {
+	out := new(Nonce)
+	err := c.cc.Invoke(ctx, "/mixmessages.Gateway/RequestNonce", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *mixMessageGatewayClient) ConfirmNonce(ctx context.Context, in *ConfirmNonceMessage, opts ...grpc.CallOption) (*RegistrationConfirmation, error) {
+func (c *gatewayClient) ConfirmNonce(ctx context.Context, in *DSASignature, opts ...grpc.CallOption) (*RegistrationConfirmation, error) {
 	out := new(RegistrationConfirmation)
-	err := c.cc.Invoke(ctx, "/mixmessages.MixMessageGateway/ConfirmNonce", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/mixmessages.Gateway/ConfirmNonce", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// MixMessageGatewayServer is the server API for MixMessageGateway service.
-type MixMessageGatewayServer interface {
+// GatewayServer is the server API for Gateway service.
+type GatewayServer interface {
 	// Request a list of MessageIDs from the gateway for the given UserID
-	CheckMessages(context.Context, *ClientPollMessage) (*ClientMessages, error)
-	// Request a CmixBatch from the gateway for the given message information
-	GetMessage(context.Context, *ClientPollMessage) (*CmixBatch, error)
-	// Put a message on the cMix Gateway
-	PutMessage(context.Context, *CmixBatch) (*Ack, error)
-	// Receives a batch of messages from the server
-	ReceiveBatch(context.Context, *OutputMessages) (*Ack, error)
-	// Pass-through for Registration Nonce Communication
-	RequestNonce(context.Context, *RequestNonceMessage) (*NonceMessage, error)
-	// Pass-through for Registration Nonce Confirmation
-	ConfirmNonce(context.Context, *ConfirmNonceMessage) (*RegistrationConfirmation, error)
+	CheckMessages(context.Context, *ClientRequest) (*IDList, error)
+	// GetMessage a Batch from the gateway for the given message information
+	GetMessage(context.Context, *ClientRequest) (*Batch, error)
+	// PutMessage on the cMix Gateway
+	PutMessage(context.Context, *Batch) (*Ack, error)
+	// ReceiveBatch of messages from the server
+	ReceiveBatch(context.Context, *Output) (*Ack, error)
+	// RequestNonce returns a Nonce to the user
+	RequestNonce(context.Context, *NonceRequest) (*Nonce, error)
+	// ConfirmNonce takes a client signed nonce for Registration Nonce Confirmation
+	ConfirmNonce(context.Context, *DSASignature) (*RegistrationConfirmation, error)
 }
 
-func RegisterMixMessageGatewayServer(s *grpc.Server, srv MixMessageGatewayServer) {
-	s.RegisterService(&_MixMessageGateway_serviceDesc, srv)
+func RegisterGatewayServer(s *grpc.Server, srv GatewayServer) {
+	s.RegisterService(&_Gateway_serviceDesc, srv)
 }
 
-func _MixMessageGateway_CheckMessages_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ClientPollMessage)
+func _Gateway_CheckMessages_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ClientRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MixMessageGatewayServer).CheckMessages(ctx, in)
+		return srv.(GatewayServer).CheckMessages(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/mixmessages.MixMessageGateway/CheckMessages",
+		FullMethod: "/mixmessages.Gateway/CheckMessages",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MixMessageGatewayServer).CheckMessages(ctx, req.(*ClientPollMessage))
+		return srv.(GatewayServer).CheckMessages(ctx, req.(*ClientRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _MixMessageGateway_GetMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ClientPollMessage)
+func _Gateway_GetMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ClientRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MixMessageGatewayServer).GetMessage(ctx, in)
+		return srv.(GatewayServer).GetMessage(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/mixmessages.MixMessageGateway/GetMessage",
+		FullMethod: "/mixmessages.Gateway/GetMessage",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MixMessageGatewayServer).GetMessage(ctx, req.(*ClientPollMessage))
+		return srv.(GatewayServer).GetMessage(ctx, req.(*ClientRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _MixMessageGateway_PutMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CmixBatch)
+func _Gateway_PutMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Batch)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MixMessageGatewayServer).PutMessage(ctx, in)
+		return srv.(GatewayServer).PutMessage(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/mixmessages.MixMessageGateway/PutMessage",
+		FullMethod: "/mixmessages.Gateway/PutMessage",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MixMessageGatewayServer).PutMessage(ctx, req.(*CmixBatch))
+		return srv.(GatewayServer).PutMessage(ctx, req.(*Batch))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _MixMessageGateway_ReceiveBatch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(OutputMessages)
+func _Gateway_ReceiveBatch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Output)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MixMessageGatewayServer).ReceiveBatch(ctx, in)
+		return srv.(GatewayServer).ReceiveBatch(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/mixmessages.MixMessageGateway/ReceiveBatch",
+		FullMethod: "/mixmessages.Gateway/ReceiveBatch",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MixMessageGatewayServer).ReceiveBatch(ctx, req.(*OutputMessages))
+		return srv.(GatewayServer).ReceiveBatch(ctx, req.(*Output))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _MixMessageGateway_RequestNonce_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RequestNonceMessage)
+func _Gateway_RequestNonce_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(NonceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MixMessageGatewayServer).RequestNonce(ctx, in)
+		return srv.(GatewayServer).RequestNonce(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/mixmessages.MixMessageGateway/RequestNonce",
+		FullMethod: "/mixmessages.Gateway/RequestNonce",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MixMessageGatewayServer).RequestNonce(ctx, req.(*RequestNonceMessage))
+		return srv.(GatewayServer).RequestNonce(ctx, req.(*NonceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _MixMessageGateway_ConfirmNonce_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ConfirmNonceMessage)
+func _Gateway_ConfirmNonce_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DSASignature)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MixMessageGatewayServer).ConfirmNonce(ctx, in)
+		return srv.(GatewayServer).ConfirmNonce(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/mixmessages.MixMessageGateway/ConfirmNonce",
+		FullMethod: "/mixmessages.Gateway/ConfirmNonce",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MixMessageGatewayServer).ConfirmNonce(ctx, req.(*ConfirmNonceMessage))
+		return srv.(GatewayServer).ConfirmNonce(ctx, req.(*DSASignature))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-var _MixMessageGateway_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "mixmessages.MixMessageGateway",
-	HandlerType: (*MixMessageGatewayServer)(nil),
+var _Gateway_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "mixmessages.Gateway",
+	HandlerType: (*GatewayServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "CheckMessages",
-			Handler:    _MixMessageGateway_CheckMessages_Handler,
+			Handler:    _Gateway_CheckMessages_Handler,
 		},
 		{
 			MethodName: "GetMessage",
-			Handler:    _MixMessageGateway_GetMessage_Handler,
+			Handler:    _Gateway_GetMessage_Handler,
 		},
 		{
 			MethodName: "PutMessage",
-			Handler:    _MixMessageGateway_PutMessage_Handler,
+			Handler:    _Gateway_PutMessage_Handler,
 		},
 		{
 			MethodName: "ReceiveBatch",
-			Handler:    _MixMessageGateway_ReceiveBatch_Handler,
+			Handler:    _Gateway_ReceiveBatch_Handler,
 		},
 		{
 			MethodName: "RequestNonce",
-			Handler:    _MixMessageGateway_RequestNonce_Handler,
+			Handler:    _Gateway_RequestNonce_Handler,
 		},
 		{
 			MethodName: "ConfirmNonce",
-			Handler:    _MixMessageGateway_ConfirmNonce_Handler,
+			Handler:    _Gateway_ConfirmNonce_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -1658,7 +1686,7 @@ var _MixMessageGateway_serviceDesc = grpc.ServiceDesc{
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type RegistrationClient interface {
 	// Client & RegistrationServer Communication
-	RegisterUser(ctx context.Context, in *RegisterUserMessage, opts ...grpc.CallOption) (*ConfirmRegisterUserMessage, error)
+	RegisterUser(ctx context.Context, in *UserRegistration, opts ...grpc.CallOption) (*UserRegistrationConfirmation, error)
 }
 
 type registrationClient struct {
@@ -1669,8 +1697,8 @@ func NewRegistrationClient(cc *grpc.ClientConn) RegistrationClient {
 	return &registrationClient{cc}
 }
 
-func (c *registrationClient) RegisterUser(ctx context.Context, in *RegisterUserMessage, opts ...grpc.CallOption) (*ConfirmRegisterUserMessage, error) {
-	out := new(ConfirmRegisterUserMessage)
+func (c *registrationClient) RegisterUser(ctx context.Context, in *UserRegistration, opts ...grpc.CallOption) (*UserRegistrationConfirmation, error) {
+	out := new(UserRegistrationConfirmation)
 	err := c.cc.Invoke(ctx, "/mixmessages.Registration/RegisterUser", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -1681,7 +1709,7 @@ func (c *registrationClient) RegisterUser(ctx context.Context, in *RegisterUserM
 // RegistrationServer is the server API for Registration service.
 type RegistrationServer interface {
 	// Client & RegistrationServer Communication
-	RegisterUser(context.Context, *RegisterUserMessage) (*ConfirmRegisterUserMessage, error)
+	RegisterUser(context.Context, *UserRegistration) (*UserRegistrationConfirmation, error)
 }
 
 func RegisterRegistrationServer(s *grpc.Server, srv RegistrationServer) {
@@ -1689,7 +1717,7 @@ func RegisterRegistrationServer(s *grpc.Server, srv RegistrationServer) {
 }
 
 func _Registration_RegisterUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RegisterUserMessage)
+	in := new(UserRegistration)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -1701,7 +1729,7 @@ func _Registration_RegisterUser_Handler(srv interface{}, ctx context.Context, de
 		FullMethod: "/mixmessages.Registration/RegisterUser",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RegistrationServer).RegisterUser(ctx, req.(*RegisterUserMessage))
+		return srv.(RegistrationServer).RegisterUser(ctx, req.(*UserRegistration))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1717,73 +1745,4 @@ var _Registration_serviceDesc = grpc.ServiceDesc{
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "mixmessages.proto",
-}
-
-func init() { proto.RegisterFile("mixmessages.proto", fileDescriptor_mixmessages_279a5149a8d122ef) }
-
-var fileDescriptor_mixmessages_279a5149a8d122ef = []byte{
-	// 998 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xd4, 0x56, 0xdd, 0x6e, 0x1b, 0x45,
-	0x14, 0xf6, 0xd6, 0x3f, 0xb1, 0x8f, 0x7f, 0x68, 0xa6, 0xa6, 0x5a, 0x9c, 0x0a, 0xcc, 0x48, 0x40,
-	0x54, 0xa4, 0x0a, 0xb9, 0x12, 0x42, 0x01, 0x09, 0x5c, 0x27, 0x75, 0xad, 0xc8, 0xa9, 0xbb, 0x4e,
-	0x2e, 0x22, 0xae, 0x36, 0xeb, 0x49, 0x3c, 0xb2, 0xbd, 0x6b, 0x66, 0xc6, 0x6d, 0xcc, 0x23, 0x70,
-	0xc7, 0x1d, 0x8f, 0xc5, 0x13, 0x70, 0xc9, 0x73, 0xa0, 0xf9, 0xd9, 0xf5, 0x8e, 0xbd, 0x69, 0x15,
-	0xb8, 0xe2, 0x6e, 0xbe, 0xf3, 0x37, 0xe7, 0x7c, 0x67, 0xe6, 0xcc, 0xc0, 0xfe, 0x82, 0xde, 0x2e,
-	0x08, 0xe7, 0xfe, 0x0d, 0xe1, 0xcf, 0x96, 0x2c, 0x12, 0x11, 0xaa, 0xa6, 0x44, 0xb8, 0x04, 0x85,
-	0x11, 0x0d, 0x6f, 0x70, 0x1b, 0xca, 0xe7, 0x74, 0x41, 0xe4, 0x1a, 0x35, 0xa1, 0x28, 0xd7, 0xdc,
-	0x75, 0xda, 0xf9, 0xc3, 0xbc, 0xa7, 0x01, 0xfe, 0xcd, 0x81, 0xe6, 0x98, 0xb0, 0xb7, 0x84, 0x0d,
-	0x89, 0x60, 0x34, 0xe0, 0x43, 0x1d, 0x03, 0xb5, 0xa0, 0x3c, 0x24, 0x8b, 0x0b, 0xb9, 0x56, 0x1e,
-	0x75, 0x2f, 0xc1, 0xa8, 0x0d, 0xd5, 0xf3, 0x29, 0x23, 0xfe, 0x44, 0xab, 0x1f, 0x28, 0x75, 0x5a,
-	0x24, 0xbd, 0x7b, 0xcb, 0x95, 0x56, 0xe7, 0xb5, 0x77, 0x8c, 0x91, 0x0b, 0x7b, 0x17, 0xcb, 0x31,
-	0x0d, 0x03, 0xe2, 0x16, 0x54, 0x2a, 0x31, 0xc4, 0x4f, 0xa1, 0xe1, 0x45, 0xab, 0x70, 0x32, 0x38,
-	0x8e, 0xb3, 0x70, 0x61, 0xcf, 0x48, 0x5c, 0xa7, 0xed, 0x1c, 0x16, 0xbc, 0x18, 0xe2, 0xef, 0xe1,
-	0x23, 0xb5, 0x7c, 0xb1, 0xba, 0xbe, 0x26, 0x6c, 0x10, 0x5e, 0x47, 0xe8, 0xd0, 0x12, 0x8d, 0xe9,
-	0xaf, 0x44, 0x39, 0xd5, 0xbd, 0x6d, 0x31, 0x1e, 0xc0, 0x7e, 0x6f, 0x4e, 0x49, 0x28, 0x46, 0xd1,
-	0x7c, 0x1e, 0xef, 0xf5, 0x18, 0x4a, 0x17, 0x9c, 0x30, 0xb3, 0x55, 0xcd, 0x33, 0x08, 0x3d, 0x81,
-	0x8a, 0x31, 0x19, 0x1c, 0xbb, 0x0f, 0xda, 0xce, 0x61, 0xc5, 0xdb, 0x08, 0xf0, 0x37, 0xd0, 0xd0,
-	0xa1, 0x8c, 0x88, 0xa3, 0x4f, 0x01, 0x12, 0xb5, 0x66, 0xbb, 0xe2, 0xa5, 0x24, 0xb8, 0x07, 0xf5,
-	0x41, 0xb8, 0x5c, 0x6d, 0x1c, 0x3a, 0x92, 0x6a, 0xbd, 0x56, 0xe6, 0xd5, 0xce, 0xe3, 0x67, 0xe9,
-	0x06, 0xf7, 0x16, 0xf4, 0xf6, 0x85, 0x2f, 0x82, 0xa9, 0x97, 0xd8, 0xe1, 0x63, 0x68, 0xbc, 0x5e,
-	0x89, 0xff, 0x1a, 0x65, 0x0d, 0x8f, 0x3c, 0x72, 0x43, 0xb9, 0x20, 0x4c, 0x16, 0x1b, 0x33, 0xf1,
-	0x14, 0x1e, 0x6a, 0x31, 0xf3, 0x05, 0x8d, 0xc2, 0x5e, 0x34, 0xd1, 0x4c, 0x56, 0xbc, 0x1d, 0x39,
-	0xaa, 0x81, 0x73, 0xa9, 0x58, 0xa9, 0x79, 0xce, 0xa5, 0x44, 0x23, 0x37, 0xaf, 0xd1, 0x48, 0xa2,
-	0x37, 0x6e, 0x41, 0xa3, 0x37, 0x12, 0xf5, 0xdd, 0xa2, 0x46, 0x7d, 0x7c, 0x05, 0xad, 0x5e, 0x14,
-	0x5e, 0x53, 0xb6, 0xc8, 0xca, 0x00, 0x41, 0xe1, 0x95, 0xcf, 0xa7, 0xa6, 0x13, 0x6a, 0x2d, 0xfd,
-	0xbd, 0x78, 0x27, 0x4f, 0xa2, 0x71, 0xbc, 0xd3, 0x58, 0x1e, 0xee, 0x13, 0xc6, 0x22, 0xa6, 0x76,
-	0xab, 0x78, 0x1a, 0xe0, 0xdf, 0x1d, 0x59, 0xdf, 0x2f, 0x2b, 0xc2, 0xc5, 0x59, 0x14, 0x06, 0x24,
-	0x15, 0x7d, 0xec, 0xcf, 0x45, 0x1c, 0x5d, 0xae, 0xff, 0x6d, 0x1d, 0x49, 0xa6, 0xa5, 0xed, 0x4c,
-	0xf7, 0xac, 0x4c, 0xcb, 0x26, 0x53, 0x7c, 0x04, 0x35, 0x2b, 0x97, 0x26, 0x14, 0x15, 0x36, 0xc9,
-	0x68, 0xb0, 0xa9, 0xe7, 0x41, 0xba, 0x9e, 0x13, 0x78, 0x64, 0x38, 0xdb, 0x2e, 0xe7, 0x3e, 0x64,
-	0xe1, 0x3f, 0x1c, 0x70, 0xed, 0x3e, 0xaa, 0x98, 0x6a, 0x7d, 0x6f, 0xe6, 0x15, 0x6f, 0x05, 0x8b,
-	0xb7, 0xa2, 0xc5, 0x5b, 0xc9, 0xe2, 0x6d, 0x2f, 0xe6, 0x2d, 0xa9, 0xb0, 0x9c, 0xae, 0xf0, 0x00,
-	0xf2, 0xdd, 0x60, 0xb6, 0x51, 0x3a, 0x69, 0x65, 0x08, 0x95, 0xe4, 0x10, 0xdf, 0x3d, 0x19, 0xe4,
-	0xec, 0x79, 0x19, 0xb1, 0xd1, 0xd4, 0xe7, 0x44, 0x25, 0x5d, 0xf4, 0x12, 0x8c, 0xbe, 0x86, 0x22,
-	0x9f, 0x47, 0x82, 0xab, 0xc9, 0x53, 0xed, 0x7c, 0xbc, 0x73, 0x43, 0xc6, 0xf3, 0x48, 0x78, 0xda,
-	0x06, 0xff, 0x95, 0x87, 0x72, 0x2c, 0x43, 0x1d, 0x68, 0x9e, 0x84, 0x01, 0x5b, 0x2f, 0x05, 0x99,
-	0x18, 0xe2, 0x4f, 0xc9, 0x9a, 0x1b, 0x5a, 0x32, 0x75, 0xe8, 0x27, 0x38, 0x48, 0xe4, 0x5d, 0xce,
-	0xa3, 0x80, 0xfa, 0x82, 0x4c, 0x8e, 0x7d, 0xe1, 0x2b, 0x57, 0xcd, 0xe1, 0xfb, 0x4c, 0xd0, 0x11,
-	0xb8, 0x23, 0x9f, 0x09, 0xea, 0xc7, 0x53, 0xaa, 0xb7, 0x5e, 0x4e, 0x09, 0x3b, 0x27, 0xb7, 0xc2,
-	0x90, 0x7e, 0xa7, 0x1e, 0xbd, 0x82, 0xcf, 0x8c, 0xce, 0x0e, 0x9c, 0x0a, 0xa1, 0x3b, 0xf5, 0x21,
-	0x33, 0x59, 0x87, 0x31, 0x51, 0x1c, 0x8f, 0x56, 0x57, 0x73, 0x1a, 0x68, 0xfd, 0x29, 0x59, 0x9b,
-	0x0e, 0xbf, 0xcf, 0x44, 0xf6, 0x64, 0x4c, 0xc2, 0x89, 0x9a, 0xae, 0xfa, 0x08, 0x24, 0x18, 0x7d,
-	0x09, 0x0d, 0x93, 0xfc, 0xc8, 0x5f, 0xcf, 0x23, 0x7f, 0x62, 0x2e, 0xcb, 0x96, 0x54, 0xda, 0xd9,
-	0x19, 0xba, 0x15, 0x6d, 0x67, 0x4b, 0x93, 0xdb, 0x0d, 0xa9, 0xdb, 0xdd, 0x84, 0xe2, 0xe9, 0xb0,
-	0xdb, 0xe3, 0x6e, 0xb5, 0x9d, 0x97, 0xb7, 0x4c, 0x81, 0xce, 0xdf, 0x05, 0x68, 0x0c, 0xe9, 0xad,
-	0xd9, 0xe7, 0x4c, 0x8e, 0xb3, 0x0e, 0x54, 0xba, 0x7c, 0xf6, 0x3a, 0x9c, 0xd3, 0x90, 0xa0, 0x7d,
-	0xeb, 0x78, 0xc8, 0x57, 0xb4, 0xf5, 0xd0, 0x12, 0x75, 0x83, 0x19, 0xce, 0xa1, 0x23, 0xa8, 0xab,
-	0xa2, 0x05, 0xa3, 0x4b, 0xf5, 0xd4, 0xda, 0xc7, 0x2a, 0x7e, 0x81, 0x33, 0x7d, 0x5f, 0x42, 0xdd,
-	0x7a, 0x7e, 0xd1, 0xe7, 0x96, 0x51, 0xd6, 0xd3, 0x9c, 0x19, 0xe7, 0x5b, 0x28, 0x9f, 0x91, 0x77,
-	0x2a, 0x0d, 0x74, 0xc7, 0xdc, 0xcf, 0xf4, 0xfb, 0x01, 0x60, 0x2c, 0x7c, 0x26, 0xb4, 0x67, 0xcb,
-	0xb2, 0xb0, 0x5e, 0xa9, 0x4c, 0xef, 0xe7, 0x50, 0xd4, 0xf7, 0xea, 0x3e, 0x5b, 0xf6, 0x01, 0xf5,
-	0x89, 0xd8, 0x7e, 0xbc, 0x33, 0xb8, 0x7e, 0x62, 0x89, 0xb6, 0x1c, 0x70, 0x0e, 0x0d, 0xa1, 0x96,
-	0x9e, 0xee, 0xa8, 0x6d, 0xdb, 0xef, 0x0e, 0xfe, 0xd6, 0x27, 0x96, 0x45, 0x5a, 0x85, 0x73, 0xe8,
-	0x12, 0x6a, 0xe9, 0xe9, 0xba, 0x15, 0x2e, 0x63, 0xf0, 0xb6, 0xbe, 0xd8, 0xda, 0x30, 0x7b, 0xa4,
-	0xe2, 0x5c, 0xe7, 0xcf, 0x3c, 0xec, 0x6f, 0x0e, 0x5a, 0xdf, 0x17, 0xe4, 0x9d, 0xbf, 0x46, 0x67,
-	0x50, 0xef, 0x4d, 0x49, 0x30, 0xdb, 0xfc, 0x1c, 0xec, 0x1d, 0xb7, 0x7f, 0x28, 0xad, 0x83, 0x0c,
-	0x7d, 0xf2, 0x96, 0xcb, 0xb3, 0x04, 0x7d, 0x12, 0x0b, 0x3e, 0x18, 0xec, 0x8e, 0x96, 0xe1, 0x1c,
-	0xfa, 0x0e, 0x60, 0x94, 0x34, 0xfe, 0x5e, 0xad, 0xfd, 0x51, 0x76, 0x24, 0x20, 0xf4, 0x2d, 0xd1,
-	0x43, 0xda, 0x4e, 0xd8, 0xfe, 0xb0, 0x64, 0x06, 0xf8, 0xff, 0xb4, 0x74, 0x26, 0x33, 0xdd, 0x68,
-	0xd1, 0xcf, 0x31, 0xd6, 0x1f, 0x99, 0x9d, 0xcc, 0x77, 0xfe, 0x38, 0xad, 0xaf, 0xb2, 0x92, 0xc9,
-	0x30, 0xc4, 0xb9, 0xab, 0x92, 0xfa, 0xe3, 0x3f, 0xff, 0x27, 0x00, 0x00, 0xff, 0xff, 0x7b, 0x08,
-	0x71, 0xb7, 0xf8, 0x0b, 0x00, 0x00,
 }

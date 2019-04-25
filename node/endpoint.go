@@ -30,36 +30,37 @@ func (s *server) RoundtripPing(ctx context.Context, msg *pb.TimePing) (
 }
 
 // Handle a broadcasted ServerMetric event
-func (s *server) ServerMetrics(ctx context.Context, msg *pb.ServerMetricsMessage) (
+func (s *server) GetServerMetrics(ctx context.Context, msg *pb.ServerMetrics) (
 	*pb.Ack, error) {
-	serverHandler.ServerMetrics(msg)
+	serverHandler.GetServerMetrics(msg)
 	return &pb.Ack{}, nil
 }
 
 // Handle a NewRound event
-func (s *server) NewRound(ctx context.Context,
-	msg *pb.CmixBatch) (*pb.Ack, error) {
+func (s *server) CreateNewRound(ctx context.Context,
+	msg *pb.Batch) (*pb.Ack, error) {
 	// Call the server handler to start a new round
-	serverHandler.NewRound(msg.RoundID)
+	serverHandler.CreateNewRound(msg.GetRound().GetID())
 	return &pb.Ack{}, nil
 }
 
 // Handle a Phase event
-func (s *server) Phase(ctx context.Context, msg *pb.CmixBatch) (*pb.Ack, error) {
+func (s *server) RunPhase(ctx context.Context, msg *pb.Batch) (*pb.Ack, error) {
 	// Call the server handler with the msg
-	serverHandler.Phase(msg)
+	serverHandler.RunPhase(msg)
 	return &pb.Ack{}, nil
 }
 
 // Handle a StartRound event
 func (s *server) StartRound(ctx context.Context,
-	msg *pb.InputMessages) (*pb.Ack, error) {
+	msg *pb.Input) (*pb.Ack, error) {
 	serverHandler.StartRound(msg)
 	return &pb.Ack{}, nil
 }
 
 // GetBufferInfo returns buffer size (number of completed precomputations)
-func (s *server) GetRoundBufferInfo(ctx context.Context, msg *pb.Ping) (
+func (s *server) GetRoundBufferInfo(ctx context.Context,
+	msg *pb.RoundBufferInfo) (
 	*pb.RoundBufferInfo, error) {
 	bufSize, err := serverHandler.GetRoundBufferInfo()
 	if bufSize < 0 {
@@ -71,12 +72,14 @@ func (s *server) GetRoundBufferInfo(ctx context.Context, msg *pb.Ping) (
 
 // Handles Registration Nonce Communication
 func (s *server) RequestNonce(ctx context.Context,
-	msg *pb.RequestNonceMessage) (*pb.NonceMessage, error) {
+	msg *pb.NonceRequest) (*pb.Nonce, error) {
+	pk := msg.GetClient()
+	sig := msg.GetClientSignedByServer()
 
 	// Obtain the nonce by passing to server
 	nonce, err := serverHandler.RequestNonce(msg.GetSalt(),
-		msg.GetY(), msg.GetP(), msg.GetQ(),
-		msg.GetG(), msg.GetHash(), msg.GetR(), msg.GetS())
+		pk.GetY(), pk.GetP(), pk.GetQ(),
+		pk.GetG(), sig.GetHash(), sig.GetR(), sig.GetS())
 
 	// Obtain the error message, if any
 	errMsg := ""
@@ -85,18 +88,19 @@ func (s *server) RequestNonce(ctx context.Context,
 	}
 
 	// Return the NonceMessage
-	return &pb.NonceMessage{
+	return &pb.Nonce{
 		Nonce: nonce,
 		Error: errMsg,
 	}, err
 }
 
 // Handles Registration Nonce Confirmation
-func (s *server) ConfirmNonce(ctx context.Context,
-	msg *pb.ConfirmNonceMessage) (*pb.RegistrationConfirmation, error) {
+func (s *server) ConfirmRegistration(ctx context.Context,
+	msg *pb.DSASignature) (*pb.RegistrationConfirmation, error) {
 
 	// Obtain signed client public key by passing to server
-	hash, R, S, Y, P, Q, G, err := serverHandler.ConfirmNonce(msg.GetHash(),
+	hash, R, S, Y, P, Q, G, err := serverHandler.ConfirmRegistration(
+		msg.GetHash(),
 		msg.GetR(), msg.GetS())
 
 	// Obtain the error message, if any
@@ -107,13 +111,17 @@ func (s *server) ConfirmNonce(ctx context.Context,
 
 	// Return the RegistrationConfirmation
 	return &pb.RegistrationConfirmation{
-		Hash:  hash,
-		R:     R,
-		S:     S,
-		Y:     Y,
-		P:     P,
-		Q:     Q,
-		G:     G,
+		ClientSignedByServer: &pb.DSASignature{
+			Hash: hash,
+			R:    R,
+			S:    S,
+		},
+		Server: &pb.DSAPublicKey{
+			Y: Y,
+			P: P,
+			Q: Q,
+			G: G,
+		},
 		Error: errMsg,
 	}, err
 }

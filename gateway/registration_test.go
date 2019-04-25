@@ -22,7 +22,7 @@ func TestSendRequestNonceMessage(t *testing.T) {
 	defer gwShutDown()
 	defer nodeShutDown()
 
-	_, err := SendRequestNonceMessage(ServerAddress,  "", &pb.RequestNonceMessage{})
+	_, err := SendRequestNonceMessage(ServerAddress, "", &pb.NonceRequest{})
 	if err != nil {
 		t.Errorf("SendRequestNonceMessage: Error received: %s", err)
 	}
@@ -38,7 +38,7 @@ func TestSendConfirmNonceMessage(t *testing.T) {
 	defer gwShutDown()
 	defer nodeShutDown()
 
-	_, err := SendConfirmNonceMessage(ServerAddress, "", &pb.ConfirmNonceMessage{})
+	_, err := SendConfirmNonceMessage(ServerAddress, "", &pb.DSASignature{})
 	if err != nil {
 		t.Errorf("SendConfirmNonceMessage: Error received: %s", err)
 	}

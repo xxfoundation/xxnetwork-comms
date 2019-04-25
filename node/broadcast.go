@@ -16,14 +16,14 @@ import (
 	"golang.org/x/net/context"
 )
 
-func SendServerMetrics(addr string, serverCertPath string, message *pb.
-	ServerMetricsMessage) (*pb.Ack, error) {
+func SendServerMetrics(addr string, serverCertPath string,
+	message *pb.ServerMetrics) (*pb.Ack, error) {
 	// Attempt to connect to addr
 	c := connect.ConnectToNode(addr, serverCertPath)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
-	result, err := c.ServerMetrics(ctx, message)
+	result, err := c.GetServerMetrics(ctx, message)
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
@@ -50,14 +50,15 @@ func SendRoundtripPing(addr string, serverCertPath string,
 	return result, err
 }
 
-func SendAskOnline(addr string, serverCertPath string, message *pb.Ping) (*pb.
-	Ack, error) {
+func SendAskOnline(addr string, serverCertPath string, message *pb.Ping) (
+	*pb.Ack, error) {
 	// Attempt to connect to addr
 	c := connect.ConnectToNode(addr, serverCertPath)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
-	result, err := c.AskOnline(ctx, message, grpc_retry.WithMax(connect.MAX_RETRIES))
+	result, err := c.AskOnline(ctx, message,
+		grpc_retry.WithMax(connect.MAX_RETRIES))
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
@@ -67,12 +68,13 @@ func SendAskOnline(addr string, serverCertPath string, message *pb.Ping) (*pb.
 	return result, err
 }
 
-func SendNewRound(addr string, serverCertPath string, message *pb.CmixBatch) (
+func SendNewRound(addr string, serverCertPath string, message *pb.Batch) (
 	*pb.Ack, error) {
 	c := connect.ConnectToNode(addr, serverCertPath)
 
 	// Send the message
-	result, err := c.NewRound(context.Background(), message, grpc_retry.WithMax(connect.MAX_RETRIES))
+	result, err := c.CreateNewRound(context.Background(), message,
+		grpc_retry.WithMax(connect.MAX_RETRIES))
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
