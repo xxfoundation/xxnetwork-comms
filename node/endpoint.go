@@ -51,10 +51,10 @@ func (s *server) RunPhase(ctx context.Context, msg *pb.Batch) (*pb.Ack, error) {
 	return &pb.Ack{}, nil
 }
 
-// Handle a StartRound event
-func (s *server) StartRound(ctx context.Context,
+// Handle a StartRealtime event
+func (s *server) StartRealtime(ctx context.Context,
 	msg *pb.Input) (*pb.Ack, error) {
-	serverHandler.StartRound(msg)
+	serverHandler.StartRealtime(msg)
 	return &pb.Ack{}, nil
 }
 

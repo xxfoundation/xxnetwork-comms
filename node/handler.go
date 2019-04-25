@@ -22,8 +22,8 @@ type ServerHandler interface {
 
 	// Server Interface for starting New Rounds
 	CreateNewRound(RoundID uint64)
-	// Server interface for Starting a new round
-	StartRound(message *mixmessages.Input)
+	// Server interface for Starting starting realtime
+	StartRealtime(message *mixmessages.Input)
 	// GetRoundBufferInfo returns # of available precomputations
 	GetRoundBufferInfo() (int, error)
 
@@ -49,8 +49,8 @@ type implementationFunctions struct {
 
 	// Server Interface for starting New Rounds
 	CreateNewRound func(RoundID uint64)
-	// Server interface for Starting a new round
-	StartRound func(message *mixmessages.Input)
+	// Server interface for Starting the realtime phase
+	StartRealtime func(message *mixmessages.Input)
 	// GetRoundBufferInfo returns # of available precomputations completed
 	GetRoundBufferInfo func() (int, error)
 
@@ -98,7 +98,7 @@ func NewImplementation() *Implementation {
 			RunPhase: func(m *mixmessages.Batch) {
 				warn(um)
 			},
-			StartRound: func(message *mixmessages.Input) {
+			StartRealtime: func(message *mixmessages.Input) {
 				warn(um)
 			},
 			GetRoundBufferInfo: func() (int, error) {
@@ -148,8 +148,8 @@ func (s *Implementation) RunPhase(m *mixmessages.Batch) {
 }
 
 // Server interface for Starting a new round
-func (s *Implementation) StartRound(message *mixmessages.Input) {
-	s.Functions.StartRound(message)
+func (s *Implementation) StartRealtime(message *mixmessages.Input) {
+	s.Functions.StartRealtime(message)
 }
 
 // GetRoundBufferInfo returns # of completed precomputations
