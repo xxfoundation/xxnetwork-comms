@@ -82,3 +82,27 @@ func SendNewRound(addr string, serverCertPath string, message *pb.Batch) (
 	}
 	return result, err
 }
+
+// SendFinishPrecomputation sends the final message and AD precomputations to
+// other nodes.
+func SendFinishPrecomputation(addr string, serverCertPath string,
+	roundID uint64, slots []*pb.Slot) (*pb.Ack, error) {
+	c := connect.ConnectToNode(addr, serverCertPath)
+
+	// Send the message
+	result, err := c.FinishPrecomputation(context.Background(),
+		&pb.Batch{
+			Round: &pb.RoundInfo{
+				ID: roundID,
+			},
+			Slots: slots,
+		},
+		grpc_retry.WithMax(connect.MAX_RETRIES))
+
+	// Make sure there are no errors with sending the message
+	if err != nil {
+		jww.ERROR.Printf("FinishPrecomputation: Error received: %s",
+			err)
+	}
+	return result, err
+}

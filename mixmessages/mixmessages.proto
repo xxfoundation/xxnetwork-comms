@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright © 2018 Privategrity Corporation                                   /
+// Copyright © 2019 Privategrity Corporation                                   /
 //                                                                             /
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
@@ -44,6 +44,11 @@ service Node {
 
     // ConfirmRegistration uses a nonce confirmation to finalize user registration
     rpc ConfirmRegistration (DSASignature) returns (RegistrationConfirmation) {
+    }
+
+    // FinishPrecomputation finalizes the precomputation results with each node from the last node
+    // sending the final Message and AD precomputations
+    rpc FinishPrecomputation (Batch) returns (Ack) {
     }
 }
 
