@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright © 2018 Privategrity Corporation                                   /
+// Copyright © 2019 Privategrity Corporation                                   /
 //                                                                             /
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
@@ -48,6 +48,11 @@ service Node {
 
     // SharePublicCypherKey sets the public cypher key for a round on other nodes
     rpc SharePublicCypherKey (PublicCypherKey) returns (Ack) {
+    }
+
+    // FinishPrecomputation finalizes the precomputation results with each node from the last node
+    // sending the final Message and AD precomputations
+    rpc FinishPrecomputation (Batch) returns (Ack) {
     }
 }
 

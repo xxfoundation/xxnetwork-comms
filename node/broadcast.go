@@ -100,3 +100,29 @@ func SendSharePublicCypherKey(addr string, serverCertPath string,
 	cancel()
 	return result, err
 }
+
+// SendFinishPrecomputation sends the final message and AD precomputations to
+// other nodes.
+func SendFinishPrecomputation(addr string, serverCertPath string,
+	roundID uint64, slots []*pb.Slot) (*pb.Ack, error) {
+	c := connect.ConnectToNode(addr, serverCertPath)
+	ctx, cancel := connect.DefaultContext()
+
+	// Send the message
+	result, err := c.FinishPrecomputation(ctx,
+		&pb.Batch{
+			Round: &pb.RoundInfo{
+				ID: roundID,
+			},
+			Slots: slots,
+		},
+		grpc_retry.WithMax(connect.MAX_RETRIES))
+
+	// Make sure there are no errors with sending the message
+	if err != nil {
+		jww.ERROR.Printf("FinishPrecomputation: Error received: %s",
+			err)
+	}
+	cancel()
+	return result, err
+}

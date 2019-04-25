@@ -73,6 +73,18 @@ func TestSendSharePublicCypherKey(t *testing.T) {
 	defer ShutDown()
 	_, err := SendSharePublicCypherKey(ServerAddress, "", &pb.PublicCypherKey{})
 	if err != nil {
-		t.Errorf("Phase: Error received: %s", err)
+		t.Errorf("Share: Error received: %s", err)
+	}
+}
+
+// TestFinishPrecomputation Smoke test
+func TestSendFinishPrecomputation(t *testing.T) {
+	ServerAddress := getNextServerAddress()
+	ShutDown := StartServer(ServerAddress, NewImplementation(), "", "")
+	defer ShutDown()
+	slots := make([]*pb.Slot, 0)
+	_, err := SendFinishPrecomputation(ServerAddress, "", 0, slots)
+	if err != nil {
+		t.Errorf("FinishPrecomputation: Error received: %s", err)
 	}
 }
