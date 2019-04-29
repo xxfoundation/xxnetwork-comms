@@ -28,7 +28,9 @@ type ServerHandler interface {
 	GetRoundBufferInfo() (int, error)
 
 	// Server Interface for all Internode Comms
-	RunPhase(message *mixmessages.Batch)
+	PostPhase(message *mixmessages.Batch)
+	// Server interface for share broadcast
+	PostRoundPublicKey(message *mixmessages.RoundPublicKey)
 
 	// Server interface for RequestNonceMessage
 	RequestNonce(salt, Y, P, Q, G,
@@ -55,7 +57,9 @@ type implementationFunctions struct {
 	GetRoundBufferInfo func() (int, error)
 
 	// Server Interface for the Internode Messages
-	RunPhase func(message *mixmessages.Batch)
+	PostPhase func(message *mixmessages.Batch)
+	// Server interface for share broadcast
+	PostRoundPublicKey func(message *mixmessages.RoundPublicKey)
 
 	// Server interface for RequestNonceMessage
 	RequestNonce func(salt, Y, P, Q, G,
@@ -95,7 +99,10 @@ func NewImplementation() *Implementation {
 				warn(um)
 			},
 			CreateNewRound: func(RoundID uint64) { warn(um) },
-			RunPhase: func(m *mixmessages.Batch) {
+			PostPhase: func(m *mixmessages.Batch) {
+				warn(um)
+			},
+			PostRoundPublicKey: func(message *mixmessages.RoundPublicKey) {
 				warn(um)
 			},
 			StartRealtime: func(message *mixmessages.Input) {
@@ -143,8 +150,14 @@ func (s *Implementation) CreateNewRound(RoundID uint64) {
 }
 
 // Server Interface for the phase messages
-func (s *Implementation) RunPhase(m *mixmessages.Batch) {
-	s.Functions.RunPhase(m)
+func (s *Implementation) PostPhase(m *mixmessages.Batch) {
+	s.Functions.PostPhase(m)
+}
+
+// Server Interface for the share message
+func (s *Implementation) PostRoundPublicKey(message *mixmessages.
+	RoundPublicKey) {
+	s.Functions.PostRoundPublicKey(message)
 }
 
 // Server interface for Starting a new round

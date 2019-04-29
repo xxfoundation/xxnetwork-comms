@@ -31,8 +31,8 @@ service Node {
     rpc StartRealtime (Input) returns (Ack) {
     }
 
-    // RunPhase a cMix phase on another node
-    rpc RunPhase (Batch) returns (Ack) {
+    // PostPhase runs a cMix phase on another node
+    rpc PostPhase (Batch) returns (Ack) {
     }
 
     // GetRoundBufferInfo returns the # of rounds ready for messages
@@ -45,6 +45,10 @@ service Node {
 
     // ConfirmRegistration uses a nonce confirmation to finalize user registration
     rpc ConfirmRegistration (DSASignature) returns (RegistrationConfirmation) {
+    }
+
+    // PostRoundPublicKey sets the public cypher key for a round on other nodes
+    rpc PostRoundPublicKey (RoundPublicKey) returns (Ack) {
     }
 
     // FinishPrecomputation finalizes the precomputation results with each node from the last node
@@ -79,6 +83,11 @@ message RoundInfo {
 // information
 message RoundBufferInfo {
     uint32 RoundBufferSize = 1;
+}
+
+message RoundPublicKey {
+    RoundInfo Round = 1;
+    bytes Key = 2;
 }
 
 // GATEWAY MESSAGE SERVICE -----------------------------------------------------

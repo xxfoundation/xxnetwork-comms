@@ -56,13 +56,24 @@ func TestSendNewRound(t *testing.T) {
 }
 
 // Smoke test SendPhase
-func TestSendPhase(t *testing.T) {
+func TestSendPostPhase(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	ShutDown := StartServer(ServerAddress, NewImplementation(), "", "")
 	defer ShutDown()
-	_, err := SendPhase(ServerAddress, "", &pb.Batch{})
+	_, err := SendPostPhase(ServerAddress, "", &pb.Batch{})
 	if err != nil {
 		t.Errorf("Phase: Error received: %s", err)
+	}
+}
+
+// Smoke test SendPostRoundPublicKey
+func TestSendPostRoundPublicKey(t *testing.T) {
+	ServerAddress := getNextServerAddress()
+	ShutDown := StartServer(ServerAddress, NewImplementation(), "", "")
+	defer ShutDown()
+	_, err := SendPostRoundPublicKey(ServerAddress, "", &pb.RoundPublicKey{})
+	if err != nil {
+		t.Errorf("PostRoundPublicKey: Error received: %s", err)
 	}
 }
 
@@ -74,6 +85,6 @@ func TestSendFinishPrecomputation(t *testing.T) {
 	slots := make([]*pb.Slot, 0)
 	_, err := SendFinishPrecomputation(ServerAddress, "", 0, slots)
 	if err != nil {
-		t.Errorf("Phase: Error received: %s", err)
+		t.Errorf("FinishPrecomputation: Error received: %s", err)
 	}
 }
