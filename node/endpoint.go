@@ -45,24 +45,25 @@ func (s *server) CreateNewRound(ctx context.Context,
 }
 
 // Handle a Phase event
-func (s *server) RunPhase(ctx context.Context, msg *pb.Batch) (*pb.Ack, error) {
+func (s *server) PostPhase(ctx context.Context, msg *pb.Batch) (*pb.Ack,
+	error) {
 	// Call the server handler with the msg
-	serverHandler.RunPhase(msg)
+	serverHandler.PostPhase(msg)
 	return &pb.Ack{}, nil
 }
 
-// Handle a SharePublicCypherKey message
-func (s *server) SharePublicCypherKey(ctx context.Context,
-	msg *pb.PublicCypherKey) (*pb.Ack, error) {
+// Handle a PostRoundPublicKey message
+func (s *server) PostRoundPublicKey(ctx context.Context,
+	msg *pb.RoundPublicKey) (*pb.Ack, error) {
 	// Call the server handler that receives the key share
-	serverHandler.SharePublicCypherKey(msg)
+	serverHandler.PostRoundPublicKey(msg)
 	return &pb.Ack{}, nil
 }
 
-// Handle a StartRound event
-func (s *server) StartRound(ctx context.Context,
+// Handle a StartRealtime event
+func (s *server) StartRealtime(ctx context.Context,
 	msg *pb.Input) (*pb.Ack, error) {
-	serverHandler.StartRound(msg)
+	serverHandler.StartRealtime(msg)
 	return &pb.Ack{}, nil
 }
 

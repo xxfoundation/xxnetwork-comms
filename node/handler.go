@@ -22,15 +22,15 @@ type ServerHandler interface {
 
 	// Server Interface for starting New Rounds
 	CreateNewRound(RoundID uint64)
-	// Server interface for Starting a new round
-	StartRound(message *mixmessages.Input)
+	// Server interface for Starting starting realtime
+	StartRealtime(message *mixmessages.Input)
 	// GetRoundBufferInfo returns # of available precomputations
 	GetRoundBufferInfo() (int, error)
 
 	// Server Interface for all Internode Comms
-	RunPhase(message *mixmessages.Batch)
+	PostPhase(message *mixmessages.Batch)
 	// Server interface for share broadcast
-	SharePublicCypherKey(message *mixmessages.PublicCypherKey)
+	PostRoundPublicKey(message *mixmessages.RoundPublicKey)
 
 	// Server interface for RequestNonceMessage
 	RequestNonce(salt, Y, P, Q, G,
@@ -51,15 +51,15 @@ type implementationFunctions struct {
 
 	// Server Interface for starting New Rounds
 	CreateNewRound func(RoundID uint64)
-	// Server interface for Starting a new round
-	StartRound func(message *mixmessages.Input)
+	// Server interface for Starting the realtime phase
+	StartRealtime func(message *mixmessages.Input)
 	// GetRoundBufferInfo returns # of available precomputations completed
 	GetRoundBufferInfo func() (int, error)
 
 	// Server Interface for the Internode Messages
-	RunPhase func(message *mixmessages.Batch)
+	PostPhase func(message *mixmessages.Batch)
 	// Server interface for share broadcast
-	SharePublicCypherKey func(message *mixmessages.PublicCypherKey)
+	PostRoundPublicKey func(message *mixmessages.RoundPublicKey)
 
 	// Server interface for RequestNonceMessage
 	RequestNonce func(salt, Y, P, Q, G,
@@ -99,13 +99,13 @@ func NewImplementation() *Implementation {
 				warn(um)
 			},
 			CreateNewRound: func(RoundID uint64) { warn(um) },
-			RunPhase: func(m *mixmessages.Batch) {
+			PostPhase: func(m *mixmessages.Batch) {
 				warn(um)
 			},
-			SharePublicCypherKey: func(message *mixmessages.PublicCypherKey) {
-                warn(um)
+			PostRoundPublicKey: func(message *mixmessages.RoundPublicKey) {
+				warn(um)
 			},
-			StartRound: func(message *mixmessages.Input) {
+			StartRealtime: func(message *mixmessages.Input) {
 				warn(um)
 			},
 			GetRoundBufferInfo: func() (int, error) {
@@ -161,8 +161,8 @@ func (s *Implementation) SharePublicCypherKey(message *mixmessages.
 }
 
 // Server interface for Starting a new round
-func (s *Implementation) StartRound(message *mixmessages.Input) {
-	s.Functions.StartRound(message)
+func (s *Implementation) StartRealtime(message *mixmessages.Input) {
+	s.Functions.StartRealtime(message)
 }
 
 // GetRoundBufferInfo returns # of completed precomputations

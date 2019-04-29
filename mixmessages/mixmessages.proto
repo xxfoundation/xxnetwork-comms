@@ -26,8 +26,9 @@ service Node {
     rpc CreateNewRound (Batch) returns (Ack) {
     }
 
-    // StartRound begins a round with these messages (if len(msgs) == batch size)
-    rpc StartRound (Input) returns (Ack) {
+    // StartRealtime starts the realtime phase with the input of
+    // batch messages (if len(msgs) == batch size)
+    rpc StartRealtime (Input) returns (Ack) {
     }
 
     // PostPhase runs a cMix phase on another node
