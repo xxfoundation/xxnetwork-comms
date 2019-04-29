@@ -30,8 +30,8 @@ service Node {
     rpc StartRound (Input) returns (Ack) {
     }
 
-    // RunPhase runs a cMix phase on another node
-    rpc RunPhase (Batch) returns (Ack) {
+    // PostPhase runs a cMix phase on another node
+    rpc PostPhase (Batch) returns (Ack) {
     }
 
     // GetRoundBufferInfo returns the # of rounds ready for messages
@@ -46,8 +46,8 @@ service Node {
     rpc ConfirmRegistration (DSASignature) returns (RegistrationConfirmation) {
     }
 
-    // SharePublicCypherKey sets the public cypher key for a round on other nodes
-    rpc SharePublicCypherKey (PublicCypherKey) returns (Ack) {
+    // PostRoundPublicKey sets the public cypher key for a round on other nodes
+    rpc PostRoundPublicKey (RoundPublicKey) returns (Ack) {
     }
 
     // FinishPrecomputation finalizes the precomputation results with each node from the last node
@@ -84,7 +84,7 @@ message RoundBufferInfo {
     uint32 RoundBufferSize = 1;
 }
 
-message PublicCypherKey {
+message RoundPublicKey {
     RoundInfo Round = 1;
     bytes Key = 2;
 }
