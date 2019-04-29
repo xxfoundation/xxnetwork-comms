@@ -22,7 +22,7 @@ func (m TestInterface) GetServerMetrics(message *pb.ServerMetrics) {}
 
 func (m TestInterface) StartRealtime(messages *pb.Input) {}
 
-func (m TestInterface) RunPhase(message *pb.Batch) {}
+func (m TestInterface) PostPhase(message *pb.Batch) {}
 
 func (m TestInterface) FinishPrecomputation(roundID uint64,
 	slots []*pb.Slot) error {

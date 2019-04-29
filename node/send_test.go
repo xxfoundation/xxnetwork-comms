@@ -56,24 +56,24 @@ func TestSendNewRound(t *testing.T) {
 }
 
 // Smoke test SendPhase
-func TestSendPhase(t *testing.T) {
+func TestSendPostPhase(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	ShutDown := StartServer(ServerAddress, NewImplementation(), "", "")
 	defer ShutDown()
-	_, err := SendPhase(ServerAddress, "", &pb.Batch{})
+	_, err := SendPostPhase(ServerAddress, "", &pb.Batch{})
 	if err != nil {
 		t.Errorf("Phase: Error received: %s", err)
 	}
 }
 
-// Smoke test SendSharePublicCypherKey
-func TestSendSharePublicCypherKey(t *testing.T) {
+// Smoke test SendPostRoundPublicKey
+func TestSendPostRoundPublicKey(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	ShutDown := StartServer(ServerAddress, NewImplementation(), "", "")
 	defer ShutDown()
-	_, err := SendSharePublicCypherKey(ServerAddress, "", &pb.RoundPublicKey{})
+	_, err := SendPostRoundPublicKey(ServerAddress, "", &pb.RoundPublicKey{})
 	if err != nil {
-		t.Errorf("Share: Error received: %s", err)
+		t.Errorf("PostRoundPublicKey: Error received: %s", err)
 	}
 }
 

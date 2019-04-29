@@ -84,7 +84,7 @@ func SendNewRound(addr string, serverCertPath string, message *pb.Batch) (
 	return result, err
 }
 
-func SendSharePublicCypherKey(addr string, serverCertPath string,
+func SendPostRoundPublicKey(addr string, serverCertPath string,
 	message *pb.RoundPublicKey) (*pb.Ack, error) {
 	c := connect.ConnectToNode(addr, serverCertPath)
 	ctx, cancel := connect.DefaultContext()
@@ -95,7 +95,7 @@ func SendSharePublicCypherKey(addr string, serverCertPath string,
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
-		jww.ERROR.Printf("SharePublicCypherKey: Error received: %s", err)
+		jww.ERROR.Printf("SendPostRoundPublicKey: Error received: %s", err)
 	}
 	cancel()
 	return result, err
