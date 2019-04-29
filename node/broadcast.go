@@ -85,12 +85,12 @@ func SendNewRound(addr string, serverCertPath string, message *pb.Batch) (
 }
 
 func SendSharePublicCypherKey(addr string, serverCertPath string,
-	message *pb.PublicCypherKey) (*pb.Ack, error) {
+	message *pb.RoundPublicKey) (*pb.Ack, error) {
 	c := connect.ConnectToNode(addr, serverCertPath)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
-	result, err := c.SharePublicCypherKey(ctx, message,
+	result, err := c.PostRoundPublicKey(ctx, message,
 		grpc_retry.WithMax(connect.MAX_RETRIES))
 
 	// Make sure there are no errors with sending the message

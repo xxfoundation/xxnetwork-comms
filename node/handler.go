@@ -150,14 +150,14 @@ func (s *Implementation) CreateNewRound(RoundID uint64) {
 }
 
 // Server Interface for the phase messages
-func (s *Implementation) RunPhase(m *mixmessages.Batch) {
-	s.Functions.RunPhase(m)
+func (s *Implementation) PostPhase(m *mixmessages.Batch) {
+	s.Functions.PostPhase(m)
 }
 
 // Server Interface for the share message
-func (s *Implementation) SharePublicCypherKey(message *mixmessages.
-	PublicCypherKey) {
-	s.Functions.SharePublicCypherKey(message)
+func (s *Implementation) PostRoundPublicKey(message *mixmessages.
+	RoundPublicKey) {
+	s.Functions.PostRoundPublicKey(message)
 }
 
 // Server interface for Starting a new round

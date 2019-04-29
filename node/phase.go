@@ -22,7 +22,7 @@ func SendPhase(addr string, serverCertPath string,
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
-	result, err := c.RunPhase(ctx, message,
+	result, err := c.PostPhase(ctx, message,
 		grpc_retry.WithMax(connect.MAX_RETRIES))
 
 	// Make sure there are no errors with sending the message

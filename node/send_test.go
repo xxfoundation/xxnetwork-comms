@@ -71,7 +71,7 @@ func TestSendSharePublicCypherKey(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	ShutDown := StartServer(ServerAddress, NewImplementation(), "", "")
 	defer ShutDown()
-	_, err := SendSharePublicCypherKey(ServerAddress, "", &pb.PublicCypherKey{})
+	_, err := SendSharePublicCypherKey(ServerAddress, "", &pb.RoundPublicKey{})
 	if err != nil {
 		t.Errorf("Share: Error received: %s", err)
 	}
