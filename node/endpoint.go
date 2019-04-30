@@ -135,11 +135,11 @@ func (s *server) ConfirmRegistration(ctx context.Context,
 	}, err
 }
 
-// FinishPrecomputation sends final Message and AD precomputations.
-func (s *server) FinishPrecomputation(ctx context.Context,
+// PostPrecompResult sends final Message and AD precomputations.
+func (s *server) PostPrecompResult(ctx context.Context,
 	msg *pb.Batch) (*pb.Ack, error) {
 	// Call the server handler to start a new round
-	err := serverHandler.FinishPrecomputation(msg.GetRound().GetID(),
+	err := serverHandler.PostPrecompResult(msg.GetRound().GetID(),
 		msg.GetSlots())
 	return &pb.Ack{}, err
 }
