@@ -28,6 +28,21 @@ func TestSendPutMessage(t *testing.T) {
 	}
 }
 
+// Fail test SendGetMessage
+func TestSendPutMessage_Failure(t *testing.T) {
+	gwShutDown := gateway.StartGateway(GatewayAddress,
+		gateway.NewImplementation(), "", "")
+	nodeShutDown := node.StartServer(ServerAddress, node.NewImplementation(),
+		"", "")
+	defer gwShutDown()
+	defer nodeShutDown()
+
+	err := SendPutMessage(ServerAddress, &pb.CmixMessage{})
+	if err == nil {
+		t.Errorf("PutMessage: Expected error!")
+	}
+}
+
 // Smoke test SendCheckMessages
 func TestSendCheckMessages(t *testing.T) {
 	gwShutDown := gateway.StartGateway(GatewayAddress,
@@ -40,6 +55,21 @@ func TestSendCheckMessages(t *testing.T) {
 	_, err := SendCheckMessages(GatewayAddress, &pb.ClientPollMessage{})
 	if err != nil {
 		t.Errorf("CheckMessages: Error received: %s", err)
+	}
+}
+
+// Fail test SendCheckMessages
+func TestSendCheckMessages_Failure(t *testing.T) {
+	gwShutDown := gateway.StartGateway(GatewayAddress,
+		gateway.NewImplementation(), "", "")
+	nodeShutDown := node.StartServer(ServerAddress, node.NewImplementation(),
+		"", "")
+	defer gwShutDown()
+	defer nodeShutDown()
+
+	_, err := SendCheckMessages(ServerAddress, &pb.ClientPollMessage{})
+	if err == nil {
+		t.Errorf("CheckMessages: Expected error!")
 	}
 }
 
@@ -58,6 +88,21 @@ func TestSendGetMessage(t *testing.T) {
 	}
 }
 
+// Fail test SendGetMessage
+func TestSendGetMessage_Failure(t *testing.T) {
+	gwShutDown := gateway.StartGateway(GatewayAddress,
+		gateway.NewImplementation(), "", "")
+	nodeShutDown := node.StartServer(ServerAddress, node.NewImplementation(),
+		"", "")
+	defer gwShutDown()
+	defer nodeShutDown()
+
+	_, err := SendGetMessage(ServerAddress, &pb.ClientPollMessage{})
+	if err == nil {
+		t.Errorf("GetMessage: Expected error!")
+	}
+}
+
 // Smoke test SendRequestNonceMessage
 func TestSendRequestNonceMessage(t *testing.T) {
 	gwShutDown := gateway.StartGateway(GatewayAddress,
@@ -73,6 +118,21 @@ func TestSendRequestNonceMessage(t *testing.T) {
 	}
 }
 
+// Fail test SendRequestNonceMessage
+func TestSendRequestNonceMessage_Failure(t *testing.T) {
+	gwShutDown := gateway.StartGateway(GatewayAddress,
+		gateway.NewImplementation(), "", "")
+	nodeShutDown := node.StartServer(ServerAddress, node.NewImplementation(),
+		"", "")
+	defer gwShutDown()
+	defer nodeShutDown()
+
+	_, err := SendRequestNonceMessage(ServerAddress, &pb.RequestNonceMessage{})
+	if err != nil {
+		t.Errorf("SendRequestNonceMessage: Expected error!")
+	}
+}
+
 // Smoke test SendConfirmNonceMessage
 func TestSendConfirmNonceMessage(t *testing.T) {
 	gwShutDown := gateway.StartGateway(GatewayAddress,
@@ -85,5 +145,20 @@ func TestSendConfirmNonceMessage(t *testing.T) {
 	_, err := SendConfirmNonceMessage(GatewayAddress, &pb.ConfirmNonceMessage{})
 	if err != nil {
 		t.Errorf("SendConfirmNonceMessage: Error received: %s", err)
+	}
+}
+
+// Fail test SendConfirmNonceMessage
+func TestSendConfirmNonceMessage_Failure(t *testing.T) {
+	gwShutDown := gateway.StartGateway(GatewayAddress,
+		gateway.NewImplementation(), "", "")
+	nodeShutDown := node.StartServer(ServerAddress, node.NewImplementation(),
+		"", "")
+	defer gwShutDown()
+	defer nodeShutDown()
+
+	_, err := SendConfirmNonceMessage(ServerAddress, &pb.ConfirmNonceMessage{})
+	if err != nil {
+		t.Errorf("SendConfirmNonceMessage: Expected error!")
 	}
 }
