@@ -10,6 +10,7 @@ package node
 
 import (
 	"github.com/grpc-ecosystem/go-grpc-middleware/retry"
+	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
@@ -19,13 +20,16 @@ func SendRealtimePermute(addr string, message *pb.RealtimePermuteMessage) (*pb.A
 	// Attempt to connect to addr
 	c := connect.ConnectToNode(addr)
 	ctx, cancel := connect.DefaultContext()
+
 	// Send the message
 	result, err := c.RealtimePermute(ctx, message, grpc_retry.WithMax(connect.MAX_RETRIES))
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
-		jww.ERROR.Printf("RealtimePermute: Error received: %s", err)
+		err = errors.New(err.Error())
+		jww.ERROR.Printf("RealtimePermute: Error received: %+v", err)
 	}
+
 	cancel()
 	return result, err
 }
@@ -34,13 +38,16 @@ func SendRealtimeDecrypt(addr string, message *pb.RealtimeDecryptMessage) (*pb.A
 	// Attempt to connect to addr
 	c := connect.ConnectToNode(addr)
 	ctx, cancel := connect.DefaultContext()
+
 	// Send the message
 	result, err := c.RealtimeDecrypt(ctx, message, grpc_retry.WithMax(connect.MAX_RETRIES))
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
-		jww.ERROR.Printf("RealtimeDecrypt: Error received: %s", err)
+		err = errors.New(err.Error())
+		jww.ERROR.Printf("RealtimeDecrypt: Error received: %+v", err)
 	}
+
 	cancel()
 	return result, err
 }
@@ -49,13 +56,16 @@ func SendRealtimeEncrypt(addr string, message *pb.RealtimeEncryptMessage) (*pb.A
 	// Attempt to connect to addr
 	c := connect.ConnectToNode(addr)
 	ctx, cancel := connect.DefaultContext()
+
 	// Send the message
 	result, err := c.RealtimeEncrypt(ctx, message, grpc_retry.WithMax(connect.MAX_RETRIES))
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
-		jww.ERROR.Printf("RealtimeEncrypt: Error received: %s", err)
+		err = errors.New(err.Error())
+		jww.ERROR.Printf("RealtimeEncrypt: Error received: %+v", err)
 	}
+
 	cancel()
 	return result, err
 }

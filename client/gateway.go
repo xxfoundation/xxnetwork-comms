@@ -9,7 +9,7 @@
 package client
 
 import (
-	"errors"
+	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
@@ -26,8 +26,10 @@ func SendPutMessage(addr string, message *pb.CmixMessage) error {
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
-		jww.ERROR.Printf("PutMessage: Error received: %s", err)
+		err = errors.New(err.Error())
+		jww.ERROR.Printf("PutMessage: Error received: %+v", err)
 	}
+
 	cancel()
 	return err
 }
@@ -44,8 +46,10 @@ func SendCheckMessages(addr string, message *pb.ClientPollMessage) (*pb.
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
-		jww.ERROR.Printf("CheckMessages: Error received: %s", err)
+		err = errors.New(err.Error())
+		jww.ERROR.Printf("CheckMessages: Error received: %+v", err)
 	}
+
 	cancel()
 	return result, err
 }
@@ -62,8 +66,10 @@ func SendGetMessage(addr string, message *pb.ClientPollMessage) (*pb.
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
-		jww.ERROR.Printf("GetMessage: Error received: %s", err)
+		err = errors.New(err.Error())
+		jww.ERROR.Printf("GetMessage: Error received: %+v", err)
 	}
+
 	cancel()
 	return result, err
 }
@@ -81,7 +87,8 @@ func SendRequestNonceMessage(addr string, message *pb.RequestNonceMessage) (
 
 	// Handle comms errors
 	if err != nil {
-		jww.ERROR.Printf("RequestNonceMessage: Error received: %s", err)
+		err = errors.New(err.Error())
+		jww.ERROR.Printf("RequestNonceMessage: Error received: %+v", err)
 	}
 
 	// Handle logic errors
@@ -109,7 +116,8 @@ func SendConfirmNonceMessage(addr string, message *pb.ConfirmNonceMessage) (
 
 	// Handle comms errors
 	if err != nil {
-		jww.ERROR.Printf("ConfirmNonceMessage: Error received: %s", err)
+		err = errors.New(err.Error())
+		jww.ERROR.Printf("ConfirmNonceMessage: Error received: %+v", err)
 	}
 
 	// Handle logic errors

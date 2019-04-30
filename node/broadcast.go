@@ -10,6 +10,7 @@ package node
 
 import (
 	"github.com/grpc-ecosystem/go-grpc-middleware/retry"
+	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
@@ -26,8 +27,10 @@ func SetPublicKey(addr string, message *pb.PublicKeyMessage) (*pb.Ack, error) {
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
-		jww.ERROR.Printf("SetPublicKey: Error received: %s", err)
+		err = errors.New(err.Error())
+		jww.ERROR.Printf("SetPublicKey: Error received: %+v", err)
 	}
+
 	cancel()
 	return result, err
 }
@@ -42,8 +45,10 @@ func SendServerMetrics(addr string, message *pb.ServerMetricsMessage) (*pb.Ack, 
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
-		jww.ERROR.Printf("ServerMetrics: Error received: %s", err)
+		err = errors.New(err.Error())
+		jww.ERROR.Printf("ServerMetrics: Error received: %+v", err)
 	}
+
 	cancel()
 	return result, err
 }
@@ -58,7 +63,8 @@ func SendRoundtripPing(addr string, message *pb.TimePing) (*pb.Ack, error) {
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
-		jww.ERROR.Printf("RoundtripPing: Error received: %s", err)
+		err = errors.New(err.Error())
+		jww.ERROR.Printf("RoundtripPing: Error received: %+v", err)
 	}
 	cancel()
 	return result, err
@@ -74,7 +80,8 @@ func SendAskOnline(addr string, message *pb.Ping) (*pb.Ack, error) {
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
-		jww.ERROR.Printf("AskOnline: Error received: %s", err)
+		err = errors.New(err.Error())
+		jww.ERROR.Printf("AskOnline: Error received: %+v", err)
 	}
 	cancel()
 	return result, err
@@ -88,7 +95,8 @@ func SendNewRound(addr string, message *pb.InitRound) (*pb.Ack, error) {
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
-		jww.ERROR.Printf("NewRound: Error received: %s", err)
+		err = errors.New(err.Error())
+		jww.ERROR.Printf("NewRound: Error received: %+v", err)
 	}
 	return result, err
 }

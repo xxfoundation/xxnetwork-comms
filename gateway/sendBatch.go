@@ -9,6 +9,7 @@
 package gateway
 
 import (
+	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
@@ -26,8 +27,10 @@ func SendBatch(addr string, messages []*pb.CmixMessage) error {
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
-		jww.ERROR.Printf("SendBatch: Error received: %s", err)
+		err = errors.New(err.Error())
+		jww.ERROR.Printf("SendBatch: Error received: %+v", err)
 	}
+
 	cancel()
 	return err
 }
@@ -43,13 +46,15 @@ func GetRoundBufferInfo(addr string) (int, error) {
 	msg := &pb.Ping{}
 	bufSize := int(0)
 	bufInfo, err := c.GetRoundBufferInfo(ctx, msg)
+
 	// Make sure there are no errors with sending the message
 	if err != nil {
-		jww.ERROR.Printf("GetRoundBufferInfo: Error received: %s", err)
+		err = errors.New(err.Error())
+		jww.ERROR.Printf("GetRoundBufferInfo: Error received: %+v", err)
 	} else {
 		bufSize = int(bufInfo.RoundBufferSize)
 	}
-	cancel()
 
+	cancel()
 	return bufSize, err
 }

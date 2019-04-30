@@ -10,6 +10,7 @@ package node
 
 import (
 	"github.com/grpc-ecosystem/go-grpc-middleware/retry"
+	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
@@ -26,8 +27,10 @@ func SendPrecompShare(addr string, message *pb.PrecompShareMessage) (*pb.Ack, er
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
-		jww.ERROR.Printf("PrecompShare: Error received: %s", err)
+		err = errors.New(err.Error())
+		jww.ERROR.Printf("PrecompShare: Error received: %+v", err)
 	}
+
 	cancel()
 	return result, err
 }
@@ -37,14 +40,17 @@ func SendPrecompShareInit(addr string, message *pb.PrecompShareInitMessage) (
 	// Attempt to connect to addr
 	c := connect.ConnectToNode(addr)
 	ctx, cancel := connect.DefaultContext()
+
 	// Send the message
 	result, err := c.PrecompShareInit(ctx, message,
 		grpc_retry.WithMax(connect.MAX_RETRIES))
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
-		jww.ERROR.Printf("PrecompShareInit: Error received: %s", err)
+		err = errors.New(err.Error())
+		jww.ERROR.Printf("PrecompShareInit: Error received: %+v", err)
 	}
+
 	cancel()
 	return result, err
 }
@@ -54,14 +60,17 @@ func SendPrecompShareCompare(addr string,
 	// Attempt to connect to addr
 	c := connect.ConnectToNode(addr)
 	ctx, cancel := connect.DefaultContext()
+
 	// Send the message
 	result, err := c.PrecompShareCompare(ctx, message,
 		grpc_retry.WithMax(connect.MAX_RETRIES))
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
-		jww.ERROR.Printf("PrecompShareCompare: Error received: %s", err)
+		err = errors.New(err.Error())
+		jww.ERROR.Printf("PrecompShareCompare: Error received: %+v", err)
 	}
+
 	cancel()
 	return result, err
 }
@@ -72,14 +81,17 @@ func SendPrecompShareConfirm(addr string,
 	// Attempt to connect to addr
 	c := connect.ConnectToNode(addr)
 	ctx, cancel := connect.DefaultContext()
+
 	// Send the message
 	result, err := c.PrecompShareConfirm(ctx, message,
 		grpc_retry.WithMax(connect.MAX_RETRIES))
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
-		jww.ERROR.Printf("PrecompShareConfirm: Error received: %s", err)
+		err = errors.New(err.Error())
+		jww.ERROR.Printf("PrecompShareConfirm: Error received: %+v", err)
 	}
+
 	cancel()
 	return result, err
 }
@@ -88,14 +100,17 @@ func SendPrecompDecrypt(addr string, message *pb.PrecompDecryptMessage) (*pb.Ack
 	// Attempt to connect to addr
 	c := connect.ConnectToNode(addr)
 	ctx, cancel := connect.DefaultContext()
+
 	// Send the message
 	result, err := c.PrecompDecrypt(ctx, message,
 		grpc_retry.WithMax(connect.MAX_RETRIES))
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
-		jww.ERROR.Printf("PrecompDecrypt: Error received: %s", err)
+		err = errors.New(err.Error())
+		jww.ERROR.Printf("PrecompDecrypt: Error received: %+v", err)
 	}
+
 	cancel()
 	return result, err
 }
@@ -105,14 +120,17 @@ func SendPrecompEncrypt(addr string, message *pb.PrecompEncryptMessage) (
 	// Attempt to connect to addr
 	c := connect.ConnectToNode(addr)
 	ctx, cancel := connect.DefaultContext()
+
 	// Send the message
 	result, err := c.PrecompEncrypt(ctx, message,
 		grpc_retry.WithMax(connect.MAX_RETRIES))
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
-		jww.ERROR.Printf("PrecompEncrypt: Error received: %s", err)
+		err = errors.New(err.Error())
+		jww.ERROR.Printf("PrecompEncrypt: Error received: %+v", err)
 	}
+
 	cancel()
 	return result, err
 }
@@ -121,14 +139,17 @@ func SendPrecompPermute(addr string, message *pb.PrecompPermuteMessage) (*pb.Ack
 	// Attempt to connect to addr
 	c := connect.ConnectToNode(addr)
 	ctx, cancel := connect.DefaultContext()
+
 	// Send the message
 	result, err := c.PrecompPermute(ctx, message,
 		grpc_retry.WithMax(connect.MAX_RETRIES))
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
-		jww.ERROR.Printf("PrecompPermute: Error received: %s", err)
+		err = errors.New(err.Error())
+		jww.ERROR.Printf("PrecompPermute: Error received: %+v", err)
 	}
+
 	cancel()
 	return result, err
 }
@@ -137,13 +158,17 @@ func SendPrecompReveal(addr string, message *pb.PrecompRevealMessage) (*pb.Ack, 
 	// Attempt to connect to addr
 	c := connect.ConnectToNode(addr)
 	ctx, cancel := connect.DefaultContext()
+
 	// Send the message
 	result, err := c.PrecompReveal(ctx, message,
 		grpc_retry.WithMax(connect.MAX_RETRIES))
+
 	// Make sure there are no errors with sending the message
 	if err != nil {
-		jww.ERROR.Printf("PrecompReveal: Error received: %s", err)
+		err = errors.New(err.Error())
+		jww.ERROR.Printf("PrecompReveal: Error received: %+v", err)
 	}
+
 	cancel()
 	return result, err
 }

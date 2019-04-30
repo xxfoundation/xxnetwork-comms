@@ -10,6 +10,7 @@ package connect
 
 import (
 	"crypto/x509"
+	"github.com/pkg/errors"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/connectivity"
@@ -125,7 +126,8 @@ func connect(address, serverName,
 				// Generate credentials from path
 				creds, err = credentials.NewClientTLSFromFile(certPath, serverName)
 				if err != nil {
-					jww.FATAL.Panicf("Could not load TLS keys: %s", err)
+					jww.FATAL.Panicf("Could not load TLS keys: %+v",
+						errors.New(err.Error()))
 				}
 			} else if certString != "" {
 				// Create cert pool
@@ -148,7 +150,8 @@ func connect(address, serverName,
 			connections[address] = connection
 			cancel()
 		} else {
-			jww.ERROR.Printf("Connection to %s failed: %v\n", address, err)
+			jww.ERROR.Printf("Connection to %s failed: %+v\n", address,
+				errors.New(err.Error()))
 		}
 	}
 
@@ -168,8 +171,8 @@ func Disconnect(address string) {
 	if present {
 		err := connection.Close()
 		if err != nil {
-			jww.ERROR.Printf("Unable to close connection to %s: %v", address,
-				err)
+			jww.ERROR.Printf("Unable to close connection to %s: %+v", address,
+				errors.New(err.Error()))
 		}
 		delete(connections, address)
 	}
