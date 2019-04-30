@@ -25,18 +25,3 @@ func TestSendRegistrationMessage(t *testing.T) {
 		t.Errorf("RegistrationMessage: Error received: %s", err)
 	}
 }
-
-// Fail test SendRegistrationMessage
-func TestSendRegistrationMessage_Failure(t *testing.T) {
-	rgShutDown := registration.StartRegistrationServer(RegistrationAddress,
-		registration.NewImplementation(), "", "")
-	nodeShutDown := node.StartServer(ServerAddress, node.NewImplementation(),
-		"", "")
-	defer rgShutDown()
-	defer nodeShutDown()
-
-	_, err := SendRegistrationMessage(ServerAddress, &pb.RegisterUserMessage{})
-	if err == nil {
-		t.Errorf("RegistrationMessage: Expected error!")
-	}
-}
