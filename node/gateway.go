@@ -9,6 +9,7 @@
 package node
 
 import (
+	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
@@ -22,13 +23,14 @@ func SendReceiveBatch(addr string, gatewayCertPath string,
 	ctx, cancel := connect.DefaultContext()
 
 	outputMessages := pb.Output{Messages: message}
-
 	_, err := c.ReceiveBatch(ctx, &outputMessages)
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
-		jww.ERROR.Printf("ReceiveBatch(): Error received: %s", err)
+		err = errors.New(err.Error())
+		jww.ERROR.Printf("ReceiveBatch(): Error received: %+v", err)
 	}
+
 	cancel()
 	return err
 }
