@@ -49,7 +49,7 @@ func TestSendNewRound(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	ShutDown := StartServer(ServerAddress, NewImplementation(), "", "")
 	defer ShutDown()
-	_, err := SendNewRound(ServerAddress, "", &pb.Batch{})
+	_, err := SendNewRound(ServerAddress, "", &pb.RoundInfo{})
 	if err != nil {
 		t.Errorf("NewRound: Error received: %s", err)
 	}

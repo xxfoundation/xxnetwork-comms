@@ -23,7 +23,7 @@ service Node {
     }
 
     // CreatesNewRound makes a new round with a certain ID
-    rpc CreateNewRound (Batch) returns (Ack) {
+    rpc CreateNewRound (RoundInfo) returns (Ack) {
     }
 
     // StartRealtime starts the realtime phase with the input of

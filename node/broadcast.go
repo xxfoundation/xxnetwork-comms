@@ -67,7 +67,7 @@ func SendAskOnline(addr string, serverCertPath string, message *pb.Ping) (
 	return result, err
 }
 
-func SendNewRound(addr string, serverCertPath string, message *pb.Batch) (
+func SendNewRound(addr string, serverCertPath string, message *pb.RoundInfo) (
 	*pb.Ack, error) {
 	c := connect.ConnectToNode(addr, serverCertPath)
 	ctx, cancel := connect.DefaultContext()
