@@ -111,15 +111,15 @@ func SendPostRoundPublicKey(addr string, serverCertPath string,
 	return result, err
 }
 
-// SendFinishPrecomputation sends the final message and AD precomputations to
+// SendPostPrecompResult sends the final message and AD precomputations to
 // other nodes.
-func SendFinishPrecomputation(addr string, serverCertPath string,
+func SendPostPrecompResult(addr string, serverCertPath string,
 	roundID uint64, slots []*pb.Slot) (*pb.Ack, error) {
 	c := connect.ConnectToNode(addr, serverCertPath)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
-	result, err := c.FinishPrecomputation(ctx,
+	result, err := c.PostPrecompResult(ctx,
 		&pb.Batch{
 			Round: &pb.RoundInfo{
 				ID: roundID,
@@ -131,7 +131,7 @@ func SendFinishPrecomputation(addr string, serverCertPath string,
 	// Make sure there are no errors with sending the message
 	if err != nil {
 		err = errors.New(err.Error())
-		jww.ERROR.Printf("FinishPrecomputation: Error received: %+v",
+		jww.ERROR.Printf("PostPrecompResult: Error received: %+v",
 			err)
 	}
 

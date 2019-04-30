@@ -39,8 +39,8 @@ type ServerHandler interface {
 	ConfirmRegistration(hash, R, S []byte) ([]byte,
 		[]byte, []byte, []byte, []byte, []byte, []byte, error)
 
-	// FinishPrecomputation interface to finalize message and AD precomps
-	FinishPrecomputation(roundID uint64, slots []*mixmessages.Slot) error
+	// PostPrecompResult interface to finalize message and AD precomps
+	PostPrecompResult(roundID uint64, slots []*mixmessages.Slot) error
 }
 
 type implementationFunctions struct {
@@ -68,8 +68,8 @@ type implementationFunctions struct {
 	ConfirmRegistration func(hash, R, S []byte) ([]byte,
 		[]byte, []byte, []byte, []byte, []byte, []byte, error)
 
-	// FinishPrecomputation interface to finalize message and AD precomps
-	FinishPrecomputation func(roundID uint64,
+	// PostPrecompResult interface to finalize message and AD precomps
+	PostPrecompResult func(roundID uint64,
 		slots []*mixmessages.Slot) error
 }
 
@@ -124,7 +124,7 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return nil, nil, nil, nil, nil, nil, nil, nil
 			},
-			FinishPrecomputation: func(roundID uint64,
+			PostPrecompResult: func(roundID uint64,
 				slots []*mixmessages.Slot) error {
 				warn(um)
 				return nil
@@ -182,8 +182,8 @@ func (s *Implementation) ConfirmRegistration(hash, R, S []byte) ([]byte,
 	return s.Functions.ConfirmRegistration(hash, R, S)
 }
 
-// FinishPrecomputation interface to finalize message and AD precomps
-func (s *Implementation) FinishPrecomputation(roundID uint64,
+// PostPrecompResult interface to finalize message and AD precomps
+func (s *Implementation) PostPrecompResult(roundID uint64,
 	slots []*mixmessages.Slot) error {
-	return s.Functions.FinishPrecomputation(roundID, slots)
+	return s.Functions.PostPrecompResult(roundID, slots)
 }

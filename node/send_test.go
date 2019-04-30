@@ -77,14 +77,14 @@ func TestSendPostRoundPublicKey(t *testing.T) {
 	}
 }
 
-// TestFinishPrecomputation Smoke test
-func TestSendFinishPrecomputation(t *testing.T) {
+// TestPostPrecompResult Smoke test
+func TestSendPostPrecompResult(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	ShutDown := StartServer(ServerAddress, NewImplementation(), "", "")
 	defer ShutDown()
 	slots := make([]*pb.Slot, 0)
-	_, err := SendFinishPrecomputation(ServerAddress, "", 0, slots)
+	_, err := SendPostPrecompResult(ServerAddress, "", 0, slots)
 	if err != nil {
-		t.Errorf("FinishPrecomputation: Error received: %s", err)
+		t.Errorf("PostPrecompResult: Error received: %s", err)
 	}
 }

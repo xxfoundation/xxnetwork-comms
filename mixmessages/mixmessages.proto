@@ -51,9 +51,9 @@ service Node {
     rpc PostRoundPublicKey (RoundPublicKey) returns (Ack) {
     }
 
-    // FinishPrecomputation finalizes the precomputation results with each node from the last node
+    // PostPrecompResult finalizes the precomputation results with each node from the last node
     // sending the final Message and AD precomputations
-    rpc FinishPrecomputation (Batch) returns (Ack) {
+    rpc PostPrecompResult (Batch) returns (Ack) {
     }
 }
 
