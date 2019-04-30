@@ -38,9 +38,9 @@ func (s *server) GetServerMetrics(ctx context.Context, msg *pb.ServerMetrics) (
 
 // Handle a NewRound event
 func (s *server) CreateNewRound(ctx context.Context,
-	msg *pb.Batch) (*pb.Ack, error) {
+	msg *pb.RoundInfo) (*pb.Ack, error) {
 	// Call the server handler to start a new round
-	serverHandler.CreateNewRound(msg.GetRound().GetID())
+	serverHandler.CreateNewRound(msg)
 	return &pb.Ack{}, nil
 }
 
