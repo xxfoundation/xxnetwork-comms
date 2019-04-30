@@ -139,7 +139,7 @@ func (s *server) ConfirmRegistration(ctx context.Context,
 func (s *server) FinishPrecomputation(ctx context.Context,
 	msg *pb.Batch) (*pb.Ack, error) {
 	// Call the server handler to start a new round
-	serverHandler.FinishPrecomputation(msg.GetRound().GetID(),
+	err := serverHandler.FinishPrecomputation(msg.GetRound().GetID(),
 		msg.GetSlots())
-	return &pb.Ack{}, nil
+	return &pb.Ack{}, err
 }

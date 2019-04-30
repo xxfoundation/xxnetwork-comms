@@ -23,7 +23,7 @@ func getNextServerAddress() string {
 		serverPort++
 		serverPortLock.Unlock()
 	}()
-	return fmt.Sprintf("localhost:%d", serverPort)
+	return fmt.Sprintf("0.0.0.0:%d", serverPort)
 }
 
 // Tests whether the server can be connected to and run an RPC with TLS enabled
