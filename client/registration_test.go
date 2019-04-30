@@ -15,14 +15,14 @@ import (
 
 // Smoke test SendRegistrationMessage
 func TestSendRegistrationMessage(t *testing.T) {
-	rgShutDown := registration.StartRegistrationServer(GatewayAddress,
+	rgShutDown := registration.StartRegistrationServer(RegistrationAddress,
 		registration.NewImplementation(), "", "")
 	nodeShutDown := node.StartServer(ServerAddress, node.NewImplementation(),
 		"", "")
 	defer rgShutDown()
 	defer nodeShutDown()
 
-	_, err := SendRegistrationMessage(GatewayAddress, &pb.RegisterUserMessage{})
+	_, err := SendRegistrationMessage(RegistrationAddress, &pb.RegisterUserMessage{})
 	if err != nil {
 		t.Errorf("RegistrationMessage: Error received: %s", err)
 	}
