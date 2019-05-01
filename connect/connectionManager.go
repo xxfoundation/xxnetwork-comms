@@ -22,36 +22,95 @@ import (
 	"gitlab.com/elixxir/comms/utils"
 )
 
-// A map of string addresses to open connections
-var connections map[string]*grpc.ClientConn
+// Stores information used to connect to a server
+type ConnectionInfo struct {
+	Address string
+	// You can also get the server name from Creds if you need it
+	Creds credentials.TransportCredentials
+}
 
-// A lock used to control access to the connections map above
-var connectionsLock sync.Mutex
+// Create credentials from a PEM string
+// Intended for mobile clients that can't reasonably use a file
+func NewCredentialsFromPEM(serverName string, certificate string) credentials.TransportCredentials {
+	// Create cert pool
+	pool := x509.NewCertPool()
+	// Append the cert string
+	if !pool.AppendCertsFromPEM([]byte(certificate)) {
+		jww.FATAL.Panicf("Failed to parse certificate string!")
+	}
+	// Generate credentials from pool
+	return credentials.NewClientTLSFromCert(pool, serverName)
+}
+
+// Create credentials from a filename
+// Generally, prefer using this
+func NewCredentialsFromFile(serverName string, filePath string) credentials.
+	TransportCredentials {
+	// Convert to fully qualified path
+	filePath = utils.GetFullPath(filePath)
+	// Generate credentials from path
+	result, err := credentials.NewClientTLSFromFile(filePath, serverName)
+	if err != nil {
+		jww.FATAL.Panicf("Could not load TLS keys: %s", err)
+	}
+	return result
+}
+
+type ConnectionManager struct {
+	// A map of string addresses to open connections
+	connections map[string]*grpc.ClientConn
+	// TODO should this also store the credentials?
+	connectionsLock sync.Mutex
+}
 
 // Default maximum number of retries
 const MAX_RETRIES = 5
 
+func makeCreds(serverName, certPath, certPEM string) credentials.
+	TransportCredentials{
+    if certPath != "" {
+    	return NewCredentialsFromFile(serverName, certPath)
+	} else if certPEM != "" {
+		return NewCredentialsFromPEM(serverName, certPEM)
+	} else {
+		return nil
+	}
+}
+
 // Connect to the registration server with a given address string
-func ConnectToRegistration(address string,
+// TODO This should take a ConnectionInfo
+func (m *ConnectionManager) ConnectToRegistration(address string,
 	RegistrationCertPath string, RegistrationCertString string) pb.
 	RegistrationClient {
-	connection := connect(address, "registration*.cmix.rip",
-		RegistrationCertPath, RegistrationCertString)
+	creds := makeCreds("registration*.cmix.rip", RegistrationCertPath, RegistrationCertString)
+	connection := m.connect(&ConnectionInfo{
+		Address: address,
+		Creds:   creds,
+	})
 	return pb.NewRegistrationClient(connection)
 }
 
 // Connect to a gateway with a given address string
-func ConnectToGateway(address string,
+// TODO This should take a ConnectionInfo
+func (m *ConnectionManager) ConnectToGateway(address string,
 	GatewayCertPath string, GatewayCertString string) pb.GatewayClient {
-	connection := connect(address, "gateway*.cmix.rip",
-		GatewayCertPath, GatewayCertString)
+	creds := makeCreds("gateway*.cmix.rip", GatewayCertPath, GatewayCertString)
+	connection := m.connect(&ConnectionInfo{
+		Address:address,
+		Creds:creds,
+	})
 	return pb.NewGatewayClient(connection)
 }
 
 // Connect to a node with a given address string
-func ConnectToNode(address string, ServerCertPath string) pb.NodeClient {
-	connection := connect(address, "*.cmix.rip",
-		ServerCertPath, "")
+// TODO This should take a ConnectionInfo
+func (m *ConnectionManager) ConnectToNode(address string,
+	ServerCertPath string) pb.NodeClient {
+	creds := NewCredentialsFromFile("*.cmix.rip", ServerCertPath)
+	connection := m.connect(&ConnectionInfo{
+		Address: address,
+		Creds:   creds,
+	})
 	return pb.NewNodeClient(connection)
 }
 
@@ -69,93 +128,69 @@ func isConnectionGood(address string, connections map[string]*grpc.ClientConn) b
 
 // Connect creates a connection, or returns a pre-existing connection based on
 // a given address string.
-func connect(address, serverName,
-	certPath, certString string) *grpc.ClientConn {
+func (m *ConnectionManager) connect(info *ConnectionInfo) *grpc.ClientConn {
 
 	// Create top level vars
 	var connection *grpc.ClientConn
 	var err error
 	connection = nil
 	err = nil
-	connectionsLock.Lock() // TODO: Really we want to lock on the key,
+	m.connectionsLock.Lock() // TODO: Really we want to lock on the key,
 
-	if connections == nil { // TODO: Do we need an init, or is this sufficient?
-		connections = make(map[string]*grpc.ClientConn)
+	if m.connections == nil { // TODO: Do we need an init, or is this sufficient?
+		m.connections = make(map[string]*grpc.ClientConn)
 	}
 
 	maxRetries := 10
 	// Create a new connection if we are not present or disconnecting/disconnected
 	for numRetries := 0; numRetries < maxRetries && !isConnectionGood(
-		address, connections); numRetries++ {
+		info.Address, m.connections); numRetries++ {
 
-		jww.DEBUG.Printf("Trying to connect to %v", address)
+		jww.DEBUG.Printf("Trying to connect to %v", info.Address)
 		ctx, cancel := context.WithTimeout(context.Background(),
 			100000*time.Millisecond)
 
-		// If TLS was NOT specified
-		if certPath == "" && certString == "" {
-			// Create the GRPC client without TLS
-			connection, err = grpc.DialContext(ctx, address,
-				grpc.WithInsecure(), grpc.WithBlock())
-		} else {
-			// Create the TLS credentials
-			var creds credentials.TransportCredentials
-
-			if certPath != "" {
-				// Convert to fully qualified path
-				certPath = utils.GetFullPath(certPath)
-				// Generate credentials from path
-				creds, err = credentials.NewClientTLSFromFile(certPath, serverName)
-				if err != nil {
-					jww.FATAL.Panicf("Could not load TLS keys: %s", err)
-				}
-			} else if certString != "" {
-				// Create cert pool
-				pool := x509.NewCertPool()
-				// Append the cert string
-				if !pool.AppendCertsFromPEM([]byte(certString)) {
-					jww.FATAL.Panicf("Failed to parse certificate string!")
-				}
-				// Generate credentials from pool
-				creds = credentials.NewClientTLSFromCert(pool, serverName)
-			}
-
+		if info.Creds != nil {
 			// Create the GRPC client with TLS
-			connection, err = grpc.DialContext(ctx, address,
-				grpc.WithTransportCredentials(creds), grpc.WithBlock())
-
+			connection, err = grpc.DialContext(ctx, info.Address,
+				grpc.WithTransportCredentials(info.Creds), grpc.WithBlock())
+		} else {
+			// Create the GRPC client without TLS
+			connection, err = grpc.DialContext(ctx, info.Address,
+				grpc.WithInsecure(), grpc.WithBlock())
 		}
 
 		if err == nil {
-			connections[address] = connection
+			m.connections[info.Address] = connection
 			cancel()
 		} else {
-			jww.ERROR.Printf("Connection to %s failed: %v\n", address, err)
+			jww.ERROR.Printf("Connection to %s failed: %v\n", info.Address, err)
 		}
 	}
 
-	if !isConnectionGood(address, connections) {
-		jww.FATAL.Panicf("Last try to connect to %s failed. Giving up", address)
+	if !isConnectionGood(info.Address, m.connections) {
+		jww.FATAL.Panicf("Last try to connect to %s failed. Giving up",
+			info.Address)
 	}
 
-	connectionsLock.Unlock()
+	m.connectionsLock.Unlock()
 
-	return connections[address]
+	return m.connections[info.Address]
 }
 
 // Disconnect closes client connections and removes them from the connection map
-func Disconnect(address string) {
-	connectionsLock.Lock()
-	connection, present := connections[address]
+func (m *ConnectionManager) Disconnect(address string) {
+	m.connectionsLock.Lock()
+	connection, present := m.connections[address]
 	if present {
 		err := connection.Close()
 		if err != nil {
 			jww.ERROR.Printf("Unable to close connection to %s: %v", address,
 				err)
 		}
-		delete(connections, address)
+		delete(m.connections, address)
 	}
-	connectionsLock.Unlock()
+	m.connectionsLock.Unlock()
 }
 
 // DefaultContexts creates a context object with the default context
