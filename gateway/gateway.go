@@ -9,6 +9,7 @@
 package gateway
 
 import (
+	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/utils"
@@ -46,17 +47,20 @@ func StartGateway(localServer string, handler Handler,
 	// Listen on the given address
 	lis, err := net.Listen("tcp", localServer)
 	if err != nil {
-		jww.FATAL.Panicf("Failed to listen: %v", err)
+		err = errors.New(err.Error())
+		jww.FATAL.Panicf("Failed to listen: %+v", err)
 	}
 
 	// If TLS was specified
 	if certPath != "" && keyPath != "" {
+
 		// Create the TLS credentials
 		certPath = utils.GetFullPath(certPath)
 		keyPath = utils.GetFullPath(keyPath)
 		creds, err := credentials.NewServerTLSFromFile(certPath, keyPath)
 		if err != nil {
-			jww.FATAL.Panicf("Could not load TLS keys: %s", err)
+			err = errors.New(err.Error())
+			jww.FATAL.Panicf("Could not load TLS keys: %+v", err)
 		}
 
 		// Create the GRPC server with TLS
@@ -64,11 +68,14 @@ func StartGateway(localServer string, handler Handler,
 		grpcServer = grpc.NewServer(grpc.Creds(creds),
 			grpc.MaxConcurrentStreams(math.MaxUint32),
 			grpc.MaxRecvMsgSize(33554432)) // 32 MiB
+
 	} else {
+
 		// Create the GRPC server without TLS
 		jww.INFO.Printf("Starting gateway with TLS disabled...")
 		grpcServer = grpc.NewServer(grpc.MaxConcurrentStreams(math.MaxUint32),
 			grpc.MaxRecvMsgSize(33554432)) // 32 MiB
+
 	}
 	gatewayServer := gateway{gs: grpcServer}
 
@@ -77,7 +84,8 @@ func StartGateway(localServer string, handler Handler,
 		defer func() {
 			err := lis.Close()
 			if err != nil {
-				jww.WARN.Printf("Unable to close listening port: %s", err.Error())
+				err = errors.New(err.Error())
+				jww.WARN.Printf("Unable to close listening port: %+v", err)
 			}
 		}()
 
@@ -87,7 +95,8 @@ func StartGateway(localServer string, handler Handler,
 		// This blocks for the lifetime of the listener.
 		reflection.Register(gatewayServer.gs)
 		if err := gatewayServer.gs.Serve(lis); err != nil {
-			jww.FATAL.Panicf("Failed to serve: %v", err)
+			err = errors.New(err.Error())
+			jww.FATAL.Panicf("Failed to serve: %+v", err)
 		}
 	}()
 

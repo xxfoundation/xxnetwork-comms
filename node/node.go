@@ -9,6 +9,7 @@
 package node
 
 import (
+	"github.com/pkg/errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -47,7 +48,8 @@ func StartServer(localServer string, handler ServerHandler,
 	// Listen on the given address
 	lis, err := net.Listen("tcp", localServer)
 	if err != nil {
-		jww.FATAL.Panicf("Failed to listen: %v", err)
+		err = errors.New(err.Error())
+		jww.FATAL.Panicf("Failed to listen: %+v", err)
 	}
 
 	// If TLS was specified
@@ -57,7 +59,8 @@ func StartServer(localServer string, handler ServerHandler,
 		keyPath = utils.GetFullPath(keyPath)
 		creds, err := credentials.NewServerTLSFromFile(certPath, keyPath)
 		if err != nil {
-			jww.FATAL.Panicf("Could not load TLS keys: %s", err)
+			err = errors.New(err.Error())
+			jww.FATAL.Panicf("Could not load TLS keys: %+v", err)
 		}
 
 		// Create the GRPC server with TLS
@@ -78,7 +81,8 @@ func StartServer(localServer string, handler ServerHandler,
 		defer func() {
 			err := lis.Close()
 			if err != nil {
-				jww.WARN.Printf("Unable to close listening port: %s", err.Error())
+				err = errors.New(err.Error())
+				jww.WARN.Printf("Unable to close listening port: %+v", err)
 			}
 		}()
 
@@ -87,7 +91,8 @@ func StartServer(localServer string, handler ServerHandler,
 		// Register reflection service on gRPC server.
 		reflection.Register(mixmessageServer.gs)
 		if err := mixmessageServer.gs.Serve(lis); err != nil {
-			jww.FATAL.Panicf("failed to serve: %v", err)
+			err = errors.New(err.Error())
+			jww.FATAL.Panicf("Failed to serve: %+v", err)
 		}
 	}()
 

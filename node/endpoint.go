@@ -38,9 +38,9 @@ func (s *server) GetServerMetrics(ctx context.Context, msg *pb.ServerMetrics) (
 
 // Handle a NewRound event
 func (s *server) CreateNewRound(ctx context.Context,
-	msg *pb.Batch) (*pb.Ack, error) {
+	msg *pb.RoundInfo) (*pb.Ack, error) {
 	// Call the server handler to start a new round
-	serverHandler.CreateNewRound(msg.GetRound().GetID())
+	serverHandler.CreateNewRound(msg)
 	return &pb.Ack{}, nil
 }
 
@@ -135,11 +135,11 @@ func (s *server) ConfirmRegistration(ctx context.Context,
 	}, err
 }
 
-// FinishPrecomputation sends final Message and AD precomputations.
-func (s *server) FinishPrecomputation(ctx context.Context,
+// PostPrecompResult sends final Message and AD precomputations.
+func (s *server) PostPrecompResult(ctx context.Context,
 	msg *pb.Batch) (*pb.Ack, error) {
 	// Call the server handler to start a new round
-	serverHandler.FinishPrecomputation(msg.GetRound().GetID(),
+	err := serverHandler.PostPrecompResult(msg.GetRound().GetID(),
 		msg.GetSlots())
-	return &pb.Ack{}, nil
+	return &pb.Ack{}, err
 }

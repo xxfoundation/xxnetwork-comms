@@ -10,6 +10,7 @@ package node
 
 import (
 	"github.com/grpc-ecosystem/go-grpc-middleware/retry"
+	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
@@ -26,8 +27,10 @@ func SendServerMetrics(addr string, serverCertPath string,
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
-		jww.ERROR.Printf("ServerMetrics: Error received: %s", err)
+		err = errors.New(err.Error())
+		jww.ERROR.Printf("ServerMetrics: Error received: %+v", err)
 	}
+
 	cancel()
 	return result, err
 }
@@ -43,8 +46,10 @@ func SendRoundtripPing(addr string, serverCertPath string,
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
-		jww.ERROR.Printf("RoundtripPing: Error received: %s", err)
+		err = errors.New(err.Error())
+		jww.ERROR.Printf("RoundtripPing: Error received: %+v", err)
 	}
+
 	cancel()
 	return result, err
 }
@@ -61,13 +66,15 @@ func SendAskOnline(addr string, serverCertPath string, message *pb.Ping) (
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
-		jww.ERROR.Printf("AskOnline: Error received: %s", err)
+		err = errors.New(err.Error())
+		jww.ERROR.Printf("AskOnline: Error received: %+v", err)
 	}
+
 	cancel()
 	return result, err
 }
 
-func SendNewRound(addr string, serverCertPath string, message *pb.Batch) (
+func SendNewRound(addr string, serverCertPath string, message *pb.RoundInfo) (
 	*pb.Ack, error) {
 	c := connect.ConnectToNode(addr, serverCertPath)
 	ctx, cancel := connect.DefaultContext()
@@ -78,8 +85,9 @@ func SendNewRound(addr string, serverCertPath string, message *pb.Batch) (
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
-		jww.ERROR.Printf("NewRound: Error received: %s", err)
+		jww.ERROR.Printf("NewRound: Error received: %+v", err)
 	}
+
 	cancel()
 	return result, err
 }
@@ -95,21 +103,23 @@ func SendPostRoundPublicKey(addr string, serverCertPath string,
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
-		jww.ERROR.Printf("SendPostRoundPublicKey: Error received: %s", err)
+		err = errors.New(err.Error())
+		jww.ERROR.Printf("SendPostRoundPublicKey: Error received: %+v", err)
 	}
+
 	cancel()
 	return result, err
 }
 
-// SendFinishPrecomputation sends the final message and AD precomputations to
+// SendPostPrecompResult sends the final message and AD precomputations to
 // other nodes.
-func SendFinishPrecomputation(addr string, serverCertPath string,
+func SendPostPrecompResult(addr string, serverCertPath string,
 	roundID uint64, slots []*pb.Slot) (*pb.Ack, error) {
 	c := connect.ConnectToNode(addr, serverCertPath)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
-	result, err := c.FinishPrecomputation(ctx,
+	result, err := c.PostPrecompResult(ctx,
 		&pb.Batch{
 			Round: &pb.RoundInfo{
 				ID: roundID,
@@ -120,9 +130,11 @@ func SendFinishPrecomputation(addr string, serverCertPath string,
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
-		jww.ERROR.Printf("FinishPrecomputation: Error received: %s",
+		err = errors.New(err.Error())
+		jww.ERROR.Printf("PostPrecompResult: Error received: %+v",
 			err)
 	}
+
 	cancel()
 	return result, err
 }

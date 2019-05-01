@@ -21,7 +21,7 @@ type ServerHandler interface {
 	GetServerMetrics(*mixmessages.ServerMetrics)
 
 	// Server Interface for starting New Rounds
-	CreateNewRound(RoundID uint64)
+	CreateNewRound(message *mixmessages.RoundInfo)
 	// Server interface for Starting starting realtime
 	StartRealtime(message *mixmessages.Input)
 	// GetRoundBufferInfo returns # of available precomputations
@@ -39,8 +39,8 @@ type ServerHandler interface {
 	ConfirmRegistration(hash, R, S []byte) ([]byte,
 		[]byte, []byte, []byte, []byte, []byte, []byte, error)
 
-	// FinishPrecomputation interface to finalize message and AD precomps
-	FinishPrecomputation(roundID uint64, slots []*mixmessages.Slot) error
+	// PostPrecompResult interface to finalize message and AD precomps
+	PostPrecompResult(roundID uint64, slots []*mixmessages.Slot) error
 }
 
 type implementationFunctions struct {
@@ -50,7 +50,7 @@ type implementationFunctions struct {
 	GetServerMetrics func(*mixmessages.ServerMetrics)
 
 	// Server Interface for starting New Rounds
-	CreateNewRound func(RoundID uint64)
+	CreateNewRound func(message *mixmessages.RoundInfo)
 	// Server interface for Starting the realtime phase
 	StartRealtime func(message *mixmessages.Input)
 	// GetRoundBufferInfo returns # of available precomputations completed
@@ -68,8 +68,8 @@ type implementationFunctions struct {
 	ConfirmRegistration func(hash, R, S []byte) ([]byte,
 		[]byte, []byte, []byte, []byte, []byte, []byte, error)
 
-	// FinishPrecomputation interface to finalize message and AD precomps
-	FinishPrecomputation func(roundID uint64,
+	// PostPrecompResult interface to finalize message and AD precomps
+	PostPrecompResult func(roundID uint64,
 		slots []*mixmessages.Slot) error
 }
 
@@ -98,7 +98,7 @@ func NewImplementation() *Implementation {
 			GetServerMetrics: func(m *mixmessages.ServerMetrics) {
 				warn(um)
 			},
-			CreateNewRound: func(RoundID uint64) { warn(um) },
+			CreateNewRound: func(m *mixmessages.RoundInfo) { warn(um) },
 			PostPhase: func(m *mixmessages.Batch) {
 				warn(um)
 			},
@@ -124,7 +124,7 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return nil, nil, nil, nil, nil, nil, nil, nil
 			},
-			FinishPrecomputation: func(roundID uint64,
+			PostPrecompResult: func(roundID uint64,
 				slots []*mixmessages.Slot) error {
 				warn(um)
 				return nil
@@ -145,8 +145,8 @@ func (s *Implementation) GetServerMetrics(
 }
 
 // Server Interface for starting New Rounds
-func (s *Implementation) CreateNewRound(RoundID uint64) {
-	s.Functions.CreateNewRound(RoundID)
+func (s *Implementation) CreateNewRound(msg *mixmessages.RoundInfo) {
+	s.Functions.CreateNewRound(msg)
 }
 
 // Server Interface for the phase messages
@@ -182,8 +182,8 @@ func (s *Implementation) ConfirmRegistration(hash, R, S []byte) ([]byte,
 	return s.Functions.ConfirmRegistration(hash, R, S)
 }
 
-// FinishPrecomputation interface to finalize message and AD precomps
-func (s *Implementation) FinishPrecomputation(roundID uint64,
+// PostPrecompResult interface to finalize message and AD precomps
+func (s *Implementation) PostPrecompResult(roundID uint64,
 	slots []*mixmessages.Slot) error {
-	return s.Functions.FinishPrecomputation(roundID, slots)
+	return s.Functions.PostPrecompResult(roundID, slots)
 }

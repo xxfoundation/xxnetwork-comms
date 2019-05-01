@@ -9,6 +9,7 @@
 package registration
 
 import (
+	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/utils"
@@ -46,7 +47,8 @@ func StartRegistrationServer(localServer string, handler Handler,
 	// Listen on the given address
 	lis, err := net.Listen("tcp", localServer)
 	if err != nil {
-		jww.FATAL.Panicf("Failed to listen: %v", err)
+		err = errors.New(err.Error())
+		jww.FATAL.Panicf("Failed to listen: %+v", err)
 	}
 
 	// If TLS was specified
@@ -56,7 +58,8 @@ func StartRegistrationServer(localServer string, handler Handler,
 		keyPath = utils.GetFullPath(keyPath)
 		creds, err := credentials.NewServerTLSFromFile(certPath, keyPath)
 		if err != nil {
-			jww.FATAL.Panicf("Could not load TLS keys: %s", err)
+			err = errors.New(err.Error())
+			jww.FATAL.Panicf("Could not load TLS keys: %+v", err)
 		}
 
 		// Create the GRPC server with TLS
@@ -77,7 +80,8 @@ func StartRegistrationServer(localServer string, handler Handler,
 		defer func() {
 			err := lis.Close()
 			if err != nil {
-				jww.WARN.Printf("Unable to close listening port: %s", err.Error())
+				err = errors.New(err.Error())
+				jww.WARN.Printf("Unable to close listening port: %+v", err)
 			}
 		}()
 
@@ -86,7 +90,8 @@ func StartRegistrationServer(localServer string, handler Handler,
 		// Register reflection service on gRPC server.
 		reflection.Register(registrationServer.gs)
 		if err := registrationServer.gs.Serve(lis); err != nil {
-			jww.FATAL.Panicf("failed to serve: %v", err)
+			err = errors.New(err.Error())
+			jww.FATAL.Panicf("Failed to serve: %+v", err)
 		}
 	}()
 

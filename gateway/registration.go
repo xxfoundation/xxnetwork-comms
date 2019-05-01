@@ -9,6 +9,7 @@
 package gateway
 
 import (
+	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
@@ -28,7 +29,8 @@ func SendRequestNonceMessage(addr string,
 
 	// Handle comms errors
 	if err != nil {
-		jww.ERROR.Printf("RequestNonceMessage: Error received: %s", err)
+		err = errors.New(err.Error())
+		jww.ERROR.Printf("RequestNonceMessage: Error received: %+v", err)
 	}
 
 	// Return the NonceMessage
@@ -50,7 +52,8 @@ func SendConfirmNonceMessage(addr string,
 
 	// Handle comms errors
 	if err != nil {
-		jww.ERROR.Printf("ConfirmNonceMessage: Error received: %s", err)
+		err = errors.New(err.Error())
+		jww.ERROR.Printf("ConfirmNonceMessage: Error received: %+v", err)
 	}
 
 	// Return the RegistrationConfirmation

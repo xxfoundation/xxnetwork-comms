@@ -9,6 +9,7 @@
 package registration
 
 import (
+	"github.com/pkg/errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"golang.org/x/net/context"
 )
@@ -27,6 +28,7 @@ func (s *server) RegisterUser(ctx context.Context, msg *pb.UserRegistration) (
 	errMsg := ""
 	if err != nil {
 		errMsg = err.Error()
+		err = errors.New(err.Error())
 	}
 
 	// Return the confirmation message

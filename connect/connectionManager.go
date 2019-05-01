@@ -10,6 +10,7 @@ package connect
 
 import (
 	"crypto/x509"
+	"github.com/pkg/errors"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/connectivity"
@@ -51,7 +52,7 @@ func NewCredentialsFromFile(serverName string, filePath string) credentials.
 	// Generate credentials from path
 	result, err := credentials.NewClientTLSFromFile(filePath, serverName)
 	if err != nil {
-		jww.FATAL.Panicf("Could not load TLS keys: %s", err)
+		jww.FATAL.Panicf("Could not load TLS keys: %s", errors.New(err))
 	}
 	return result
 }
@@ -69,7 +70,7 @@ const MAX_RETRIES = 5
 func makeCreds(serverName, certPath, certPEM string) credentials.
 	TransportCredentials{
     if certPath != "" {
-    	return NewCredentialsFromFile(serverName, certPath)
+		return NewCredentialsFromFile(serverName, certPath)
 	} else if certPEM != "" {
 		return NewCredentialsFromPEM(serverName, certPEM)
 	} else {
@@ -164,7 +165,8 @@ func (m *ConnectionManager) connect(info *ConnectionInfo) *grpc.ClientConn {
 			m.connections[info.Address] = connection
 			cancel()
 		} else {
-			jww.ERROR.Printf("Connection to %s failed: %v\n", info.Address, err)
+			jww.ERROR.Printf("Connection to %s failed: %+v\n", info.Address,
+				errors.New(err.Error()))
 		}
 	}
 
@@ -185,8 +187,8 @@ func (m *ConnectionManager) Disconnect(address string) {
 	if present {
 		err := connection.Close()
 		if err != nil {
-			jww.ERROR.Printf("Unable to close connection to %s: %v", address,
-				err)
+			jww.ERROR.Printf("Unable to close connection to %s: %+v", address,
+				errors.New(err.Error()))
 		}
 		delete(m.connections, address)
 	}

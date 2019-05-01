@@ -22,7 +22,7 @@ func getNextServerAddress() string {
 		serverPort++
 		serverPortLock.Unlock()
 	}()
-	return fmt.Sprintf("localhost:%d", serverPort)
+	return fmt.Sprintf("0.0.0.0:%d", serverPort)
 }
 
 var gatewayPortLock sync.Mutex
@@ -34,5 +34,5 @@ func getNextGatewayAddress() string {
 		gatewayPort++
 		gatewayPortLock.Unlock()
 	}()
-	return fmt.Sprintf("localhost:%d", gatewayPort)
+	return fmt.Sprintf("0.0.0.0:%d", gatewayPort)
 }
