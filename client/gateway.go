@@ -17,8 +17,7 @@ import (
 
 // Send a message to the gateway
 func SendPutMessage(addr string, gatewayCertPath string,
-	gatewayCertString string, message *pb.
-		Batch) error {
+	gatewayCertString string, message *pb.Slot) error {
 	// Attempt to connect to addr
 	c := connect.ConnectToGateway(addr, gatewayCertPath, gatewayCertString)
 	ctx, cancel := connect.DefaultContext()

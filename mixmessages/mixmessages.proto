@@ -26,9 +26,8 @@ service Node {
     rpc CreateNewRound (RoundInfo) returns (Ack) {
     }
 
-    // StartRealtime starts the realtime phase with the input of
-    // batch messages (if len(msgs) == batch size)
-    rpc StartRealtime (Input) returns (Ack) {
+    // PostNewBatch sends a batch to be processed in the server's realtime
+    rpc PostNewBatch (Batch) returns (Ack) {
     }
 
     // FinishRealtime broadcasts when realtime is complete
@@ -106,11 +105,11 @@ service Gateway {
     }
 
     // PutMessage on the cMix Gateway
-    rpc PutMessage (Batch) returns (Ack) {
+    rpc PutMessage (Slot) returns (Ack) {
     }
 
     // ReceiveBatch of messages from the server
-    rpc ReceiveBatch (Output) returns (Ack) {
+    rpc ReceiveBatch (Batch) returns (Ack) {
     }
 
     // RequestNonce returns a Nonce to the user
@@ -131,16 +130,6 @@ message ClientRequest {
 // The message for clients to poll the gateway for Message IDs
 message IDList {
     repeated string IDs = 1;
-}
-
-// Input messages are a list of messages run as a batch
-message Input {
-    repeated Batch Messages = 1;
-}
-
-// Output messages are a list of messages run as a batch
-message Output {
-    repeated Batch Messages = 1;
 }
 
 // REGISTRATION MESSAGE SERVICE ------------------------------------------------
@@ -227,4 +216,3 @@ message Slot {
     bytes Salt = 9;           // Salt to identify message key
     repeated bytes KMACs = 10; // Individual Key MAC for each node in network
 }
-

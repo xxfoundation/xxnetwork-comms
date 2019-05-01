@@ -15,15 +15,15 @@ import (
 )
 
 type ServerHandler interface {
-	// Server Interface for round trip ping
+	// Server interface for round trip ping
 	RoundtripPing(*mixmessages.TimePing)
-	// Server Interface for ServerMetrics Messages
+	// Server interface for ServerMetrics Messages
 	GetServerMetrics(*mixmessages.ServerMetrics)
 
-	// Server Interface for starting New Rounds
+	// Server interface for starting New Rounds
 	CreateNewRound(message *mixmessages.RoundInfo)
-	// Server interface for Starting starting realtime
-	StartRealtime(message *mixmessages.Input)
+	// Server interface for sending a new batch
+	PostNewBatch(message *mixmessages.Batch)
 	// Server interface for broadcasting when realtime is complete
 	FinishRealtime() error
 	// GetRoundBufferInfo returns # of available precomputations
@@ -53,8 +53,8 @@ type implementationFunctions struct {
 
 	// Server Interface for starting New Rounds
 	CreateNewRound func(message *mixmessages.RoundInfo)
-	// Server interface for Starting the realtime phase
-	StartRealtime func(message *mixmessages.Input)
+	// Server interface for sending a new batch
+	PostNewBatch func(message *mixmessages.Batch)
 	// Server interface for finishing the realtime phase
 	FinishRealtime func() error
 	// GetRoundBufferInfo returns # of available precomputations completed
@@ -109,7 +109,7 @@ func NewImplementation() *Implementation {
 			PostRoundPublicKey: func(message *mixmessages.RoundPublicKey) {
 				warn(um)
 			},
-			StartRealtime: func(message *mixmessages.Input) {
+			PostNewBatch: func(message *mixmessages.Batch) {
 				warn(um)
 			},
 			FinishRealtime: func() error {
@@ -157,6 +157,10 @@ func (s *Implementation) CreateNewRound(msg *mixmessages.RoundInfo) {
 	s.Functions.CreateNewRound(msg)
 }
 
+func (s *Implementation) PostNewBatch(msg *mixmessages.Batch) {
+	s.Functions.PostNewBatch(msg)
+}
+
 // Server Interface for the phase messages
 func (s *Implementation) PostPhase(m *mixmessages.Batch) {
 	s.Functions.PostPhase(m)
@@ -166,11 +170,6 @@ func (s *Implementation) PostPhase(m *mixmessages.Batch) {
 func (s *Implementation) PostRoundPublicKey(message *mixmessages.
 	RoundPublicKey) {
 	s.Functions.PostRoundPublicKey(message)
-}
-
-// Server interface for Starting a new round
-func (s *Implementation) StartRealtime(message *mixmessages.Input) {
-	s.Functions.StartRealtime(message)
 }
 
 // GetRoundBufferInfo returns # of completed precomputations

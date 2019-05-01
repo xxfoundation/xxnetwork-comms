@@ -17,13 +17,12 @@ import (
 
 // SendReceiveBatch sends a batch to the gateway
 func SendReceiveBatch(addr string, gatewayCertPath string,
-	gatewayCertString string, message []*pb.Batch) error {
+	gatewayCertString string, message *pb.Batch) error {
 	// Attempt to connect to addr
 	c := connect.ConnectToGateway(addr, gatewayCertPath, gatewayCertString)
 	ctx, cancel := connect.DefaultContext()
 
-	outputMessages := pb.Output{Messages: message}
-	_, err := c.ReceiveBatch(ctx, &outputMessages)
+	_, err := c.ReceiveBatch(ctx, message)
 
 	// Make sure there are no errors with sending the message
 	if err != nil {

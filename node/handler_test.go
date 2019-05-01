@@ -20,8 +20,6 @@ func (m TestInterface) RoundtripPing(message *pb.TimePing) {}
 
 func (m TestInterface) GetServerMetrics(message *pb.ServerMetrics) {}
 
-func (m TestInterface) StartRealtime(messages *pb.Input) {}
-
 func (m TestInterface) PostPhase(message *pb.Batch) {}
 
 func (m TestInterface) PostPrecompResult(roundID uint64,

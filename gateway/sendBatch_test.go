@@ -12,8 +12,8 @@ import (
 	"testing"
 )
 
-// Smoke test SendCheckMessages
-func TestSendBatch(t *testing.T) {
+// Smoke test PostNewBatch
+func TestPostNewBatch(t *testing.T) {
 	GatewayAddress := getNextGatewayAddress()
 	ServerAddress := getNextServerAddress()
 	gwShutDown := StartGateway(GatewayAddress, NewImplementation(), "", "")
@@ -22,10 +22,10 @@ func TestSendBatch(t *testing.T) {
 	defer gwShutDown()
 	defer nodeShutDown()
 
-	msgs := []*pb.Batch{{}}
-	err := SendBatch(ServerAddress, "", msgs)
+	msgs := &pb.Batch{}
+	err := PostNewBatch(ServerAddress, "", msgs)
 	if err != nil {
-		t.Errorf("SendBatch: Error received: %s", err)
+		t.Errorf("PostNewBatch: Error received: %s", err)
 	}
 }
 

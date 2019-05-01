@@ -39,14 +39,14 @@ func (s *gateway) GetMessage(ctx context.Context, msg *pb.ClientRequest) (
 }
 
 // Receives a single message from a client
-func (s *gateway) PutMessage(ctx context.Context, msg *pb.Batch) (*pb.Ack,
+func (s *gateway) PutMessage(ctx context.Context, msg *pb.Slot) (*pb.Ack,
 	error) {
 	gatewayHandler.PutMessage(msg)
 	return &pb.Ack{}, nil
 }
 
 // Receives a batch of messages from a server
-func (s *gateway) ReceiveBatch(ctx context.Context, msg *pb.Output) (*pb.Ack,
+func (s *gateway) ReceiveBatch(ctx context.Context, msg *pb.Batch) (*pb.Ack,
 	error) {
 	gatewayHandler.ReceiveBatch(msg)
 	return &pb.Ack{}, nil

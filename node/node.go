@@ -25,7 +25,7 @@ import (
 // Callback interface provided by the Server repository to StartServer
 var serverHandler ServerHandler
 
-// Server object containing a GRPC server
+// Server object containing a gRPC server
 type server struct {
 	gs *grpc.Server
 }
