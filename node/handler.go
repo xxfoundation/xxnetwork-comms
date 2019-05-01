@@ -24,6 +24,8 @@ type ServerHandler interface {
 	CreateNewRound(message *mixmessages.RoundInfo)
 	// Server interface for Starting starting realtime
 	StartRealtime(message *mixmessages.Input)
+	// Server interface for broadcasting when realtime is complete
+	FinishRealtime() error
 	// GetRoundBufferInfo returns # of available precomputations
 	GetRoundBufferInfo() (int, error)
 
@@ -53,6 +55,8 @@ type implementationFunctions struct {
 	CreateNewRound func(message *mixmessages.RoundInfo)
 	// Server interface for Starting the realtime phase
 	StartRealtime func(message *mixmessages.Input)
+	// Server interface for finishing the realtime phase
+	FinishRealtime func() error
 	// GetRoundBufferInfo returns # of available precomputations completed
 	GetRoundBufferInfo func() (int, error)
 
@@ -107,6 +111,10 @@ func NewImplementation() *Implementation {
 			},
 			StartRealtime: func(message *mixmessages.Input) {
 				warn(um)
+			},
+			FinishRealtime: func() error {
+				warn(um)
+				return nil
 			},
 			GetRoundBufferInfo: func() (int, error) {
 				warn(um)
@@ -186,4 +194,8 @@ func (s *Implementation) ConfirmRegistration(hash, R, S []byte) ([]byte,
 func (s *Implementation) PostPrecompResult(roundID uint64,
 	slots []*mixmessages.Slot) error {
 	return s.Functions.PostPrecompResult(roundID, slots)
+}
+
+func (s *Implementation) FinishRealtime() error {
+	return s.Functions.FinishRealtime()
 }

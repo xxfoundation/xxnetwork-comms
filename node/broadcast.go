@@ -74,6 +74,23 @@ func SendAskOnline(addr string, serverCertPath string, message *pb.Ping) (
 	return result, err
 }
 
+func SendFinishRealtime(addr string, serverCertPath string) (*pb.Ack, error) {
+	c := connect.ConnectToNode(addr, serverCertPath)
+	ctx, cancel := connect.DefaultContext()
+
+	// Send the message
+	result, err := c.FinishRealtime(ctx, &pb.Ping{},
+		grpc_retry.WithMax(connect.MAX_RETRIES))
+
+	// Make sure there are no errors with sending the message
+	if err != nil {
+		jww.ERROR.Printf("FinishRealtime: Error received: %+v", err)
+	}
+
+	cancel()
+	return result, err
+}
+
 func SendNewRound(addr string, serverCertPath string, message *pb.RoundInfo) (
 	*pb.Ack, error) {
 	c := connect.ConnectToNode(addr, serverCertPath)
