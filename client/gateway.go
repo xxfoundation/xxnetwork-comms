@@ -9,6 +9,7 @@
 package client
 
 import (
+	"fmt"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
@@ -16,15 +17,15 @@ import (
 )
 
 // Send a message to the gateway
-func SendPutMessage(addr string, gatewayCertPath string,
+func (c *Client) SendPutMessage(id fmt.Stringer,
 	gatewayCertString string, message *pb.
 		Batch) error {
 	// Attempt to connect to addr
-	c := connect.ConnectToGateway(addr, gatewayCertPath, gatewayCertString)
+	connection := c.ConnectToGateway(id, nil)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
-	_, err := c.PutMessage(ctx, message)
+	_, err := connection.PutMessage(ctx, message)
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
@@ -37,15 +38,15 @@ func SendPutMessage(addr string, gatewayCertPath string,
 }
 
 // Request MessageIDs of new messages in the buffer from the gateway
-func SendCheckMessages(addr string, gatewayCertPath string,
-	gatewayCertString string, message *pb.ClientRequest) (*pb.
+func (c *Client) SendCheckMessages(id fmt.Stringer,
+	message *pb.ClientRequest) (*pb.
 	IDList, error) {
 	// Attempt to connect to addr
-	c := connect.ConnectToGateway(addr, gatewayCertPath, gatewayCertString)
+	connection := c.ConnectToGateway(id, nil)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
-	result, err := c.CheckMessages(ctx, message)
+	result, err := connection.CheckMessages(ctx, message)
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
@@ -58,15 +59,15 @@ func SendCheckMessages(addr string, gatewayCertPath string,
 }
 
 // Request a message with a specific ID from the gateway
-func SendGetMessage(addr string, gatewayCertPath string,
-	gatewayCertString string, message *pb.ClientRequest) (*pb.
+func (c *Client) SendGetMessage(id fmt.Stringer,
+	message *pb.ClientRequest) (*pb.
 	Batch, error) {
 	// Attempt to connect to addr
-	c := connect.ConnectToGateway(addr, gatewayCertPath, gatewayCertString)
+	connection := c.ConnectToGateway(id, nil)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
-	result, err := c.GetMessage(ctx, message)
+	result, err := connection.GetMessage(ctx, message)
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
@@ -79,16 +80,15 @@ func SendGetMessage(addr string, gatewayCertPath string,
 }
 
 // Send a RequestNonceMessage to the gateway
-func SendRequestNonceMessage(addr string, gatewayCertPath string,
-	gatewayCertString string, message *pb.NonceRequest) (
-	*pb.Nonce, error) {
+func (c *Client) SendRequestNonceMessage(id fmt.Stringer,
+	message *pb.NonceRequest) (*pb.Nonce, error) {
 
 	// Attempt to connect to addr
-	c := connect.ConnectToGateway(addr, gatewayCertPath, gatewayCertString)
+	connection := c.ConnectToGateway(id, nil)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
-	response, err := c.RequestNonce(ctx, message)
+	response, err := connection.RequestNonce(ctx, message)
 
 	// Handle comms errors
 	if err != nil {
@@ -109,16 +109,15 @@ func SendRequestNonceMessage(addr string, gatewayCertPath string,
 }
 
 // Send a ConfirmNonceMessage to the gateway
-func SendConfirmNonceMessage(addr string, gatewayCertPath string,
-	gatewayCertString string, message *pb.DSASignature) (
-	*pb.RegistrationConfirmation, error) {
+func (c *Client) SendConfirmNonceMessage(id fmt.Stringer,
+	message *pb.DSASignature) (*pb.RegistrationConfirmation, error) {
 
 	// Attempt to connect to addr
-	c := connect.ConnectToGateway(addr, gatewayCertPath, gatewayCertString)
+	connection := c.ConnectToGateway(id, nil)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
-	response, err := c.ConfirmNonce(ctx, message)
+	response, err := connection.ConfirmNonce(ctx, message)
 
 	// Handle comms errors
 	if err != nil {

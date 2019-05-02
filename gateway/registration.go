@@ -22,7 +22,7 @@ func (g *Gateway) SendRequestNonceMessage(id fmt.Stringer,
 	*pb.Nonce, error) {
 
 	// Attempt to connect to addr
-	c := g.manager.ConnectToNode(id, nil)
+	c := g.ConnectToNode(id, nil)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
@@ -45,7 +45,7 @@ func (g *Gateway) SendConfirmNonceMessage(id fmt.Stringer,
 	*pb.RegistrationConfirmation, error) {
 
 	// Attempt to connect to addr
-	c := g.manager.ConnectToNode(id, nil)
+	c := g.ConnectToNode(id, nil)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message

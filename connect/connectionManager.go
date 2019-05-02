@@ -126,6 +126,7 @@ func (m *ConnectionManager) connect(id string, info *ConnectionInfo) *grpc.
 	m.connectionsLock.Lock() // TODO: Really we want to lock on the key,
 	existingInfo, ok := m.connections[id]
 	if ok && isConnectionGood(existingInfo.Connection) {
+		return existingInfo.Connection
 	}
 
 	// Create top level vars

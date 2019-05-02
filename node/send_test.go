@@ -14,9 +14,10 @@ import (
 // Smoke test SendAskOnline
 func TestSendAskOnline(t *testing.T) {
 	ServerAddress := getNextServerAddress()
-	ShutDown := StartServer(ServerAddress, NewImplementation(), "", "")
-	defer ShutDown()
-	_, err := SendAskOnline(ServerAddress, "", &pb.Ping{})
+	server := StartServer(ServerAddress, NewImplementation(), "", "")
+	connID := MockID("connection35")
+	defer server.Shutdown()
+	_, err := server.SendAskOnline(connID, &pb.Ping{})
 	if err != nil {
 		t.Errorf("AskOnline: Error received: %s", err)
 	}
@@ -25,9 +26,10 @@ func TestSendAskOnline(t *testing.T) {
 // Smoke test SendRoundtripPing
 func TestSendRoundtripPing(t *testing.T) {
 	ServerAddress := getNextServerAddress()
-	ShutDown := StartServer(ServerAddress, NewImplementation(), "", "")
-	defer ShutDown()
-	_, err := SendRoundtripPing(ServerAddress, "", &pb.TimePing{})
+	server := StartServer(ServerAddress, NewImplementation(), "", "")
+	connID := MockID("connection35")
+	defer server.Shutdown()
+	_, err := server.SendRoundtripPing(connID, &pb.TimePing{})
 	if err != nil {
 		t.Errorf("RoundtripPing: Error received: %s", err)
 	}
@@ -36,9 +38,10 @@ func TestSendRoundtripPing(t *testing.T) {
 // Smoke test SendServerMetrics
 func TestSendServerMetrics(t *testing.T) {
 	ServerAddress := getNextServerAddress()
-	ShutDown := StartServer(ServerAddress, NewImplementation(), "", "")
-	defer ShutDown()
-	_, err := SendServerMetrics(ServerAddress, "", &pb.ServerMetrics{})
+	server := StartServer(ServerAddress, NewImplementation(), "", "")
+	connID := MockID("connection35")
+	defer server.Shutdown()
+	_, err := server.SendServerMetrics(connID, &pb.ServerMetrics{})
 	if err != nil {
 		t.Errorf("ServerMetrics: Error received: %s", err)
 	}
@@ -47,9 +50,10 @@ func TestSendServerMetrics(t *testing.T) {
 // Smoke test SendNewRound
 func TestSendNewRound(t *testing.T) {
 	ServerAddress := getNextServerAddress()
-	ShutDown := StartServer(ServerAddress, NewImplementation(), "", "")
-	defer ShutDown()
-	_, err := SendNewRound(ServerAddress, "", &pb.RoundInfo{})
+	server := StartServer(ServerAddress, NewImplementation(), "", "")
+	connID := MockID("connection35")
+	defer server.Shutdown()
+	_, err := server.SendNewRound(connID, &pb.RoundInfo{})
 	if err != nil {
 		t.Errorf("NewRound: Error received: %s", err)
 	}
@@ -58,9 +62,10 @@ func TestSendNewRound(t *testing.T) {
 // Smoke test SendPhase
 func TestSendPostPhase(t *testing.T) {
 	ServerAddress := getNextServerAddress()
-	ShutDown := StartServer(ServerAddress, NewImplementation(), "", "")
-	defer ShutDown()
-	_, err := SendPostPhase(ServerAddress, "", &pb.Batch{})
+	server := StartServer(ServerAddress, NewImplementation(), "", "")
+	connID := MockID("connection35")
+	defer server.Shutdown()
+	_, err := server.SendPostPhase(connID, &pb.Batch{})
 	if err != nil {
 		t.Errorf("Phase: Error received: %s", err)
 	}
@@ -69,9 +74,10 @@ func TestSendPostPhase(t *testing.T) {
 // Smoke test SendPostRoundPublicKey
 func TestSendPostRoundPublicKey(t *testing.T) {
 	ServerAddress := getNextServerAddress()
-	ShutDown := StartServer(ServerAddress, NewImplementation(), "", "")
-	defer ShutDown()
-	_, err := SendPostRoundPublicKey(ServerAddress, "", &pb.RoundPublicKey{})
+	server := StartServer(ServerAddress, NewImplementation(), "", "")
+	connID := MockID("connection35")
+	defer server.Shutdown()
+	_, err := server.SendPostRoundPublicKey(connID, &pb.RoundPublicKey{})
 	if err != nil {
 		t.Errorf("PostRoundPublicKey: Error received: %s", err)
 	}
@@ -80,10 +86,11 @@ func TestSendPostRoundPublicKey(t *testing.T) {
 // TestPostPrecompResult Smoke test
 func TestSendPostPrecompResult(t *testing.T) {
 	ServerAddress := getNextServerAddress()
-	ShutDown := StartServer(ServerAddress, NewImplementation(), "", "")
-	defer ShutDown()
+	server := StartServer(ServerAddress, NewImplementation(), "", "")
+	defer server.Shutdown()
+	connID := MockID("connection35")
 	slots := make([]*pb.Slot, 0)
-	_, err := SendPostPrecompResult(ServerAddress, "", 0, slots)
+	_, err := server.SendPostPrecompResult(connID, 0, slots)
 	if err != nil {
 		t.Errorf("PostPrecompResult: Error received: %s", err)
 	}

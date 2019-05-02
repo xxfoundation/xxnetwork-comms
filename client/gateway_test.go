@@ -7,24 +7,30 @@
 package client
 
 import (
+	"gitlab.com/elixxir/comms/connect"
 	"gitlab.com/elixxir/comms/gateway"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/node"
 	"testing"
 )
 
+type MockID string
+func (m MockID) String() string {
+	return string(m)
+}
+
 // Smoke test SendGetMessage
 func TestSendPutMessage(t *testing.T) {
 	GatewayAddress := getNextGatewayAddress()
 	ServerAddress := getNextServerAddress()
-	gwShutDown := gateway.StartGateway(GatewayAddress,
+	gw := gateway.StartGateway(GatewayAddress,
 		gateway.NewImplementation(), "", "")
-	nodeShutDown := node.StartServer(ServerAddress, node.NewImplementation(),
+	server := node.StartServer(ServerAddress, node.NewImplementation(),
 		"", "")
-	defer gwShutDown()
-	defer nodeShutDown()
+	defer gw.Shutdown()
+	defer server.Shutdown()
 
-	err := SendPutMessage(GatewayAddress, "", "", &pb.Batch{})
+	err := server.SendPutMessage(GatewayAddress, "", "", &pb.Batch{})
 	if err != nil {
 		t.Errorf("PutMessage: Error received: %s", err)
 	}
@@ -32,16 +38,20 @@ func TestSendPutMessage(t *testing.T) {
 
 // Smoke test SendCheckMessages
 func TestSendCheckMessages(t *testing.T) {
-	GatewayAddress := getNextGatewayAddress()
-	ServerAddress := getNextServerAddress()
-	gwShutDown := gateway.StartGateway(GatewayAddress,
+	gatewayAddress := getNextGatewayAddress()
+	clientAddress := getNextServerAddress()
+	gw := gateway.StartGateway(GatewayAddress,
 		gateway.NewImplementation(), "", "")
-	nodeShutDown := node.StartServer(ServerAddress, node.NewImplementation(),
+	c := StartClient(clientAddress, newImplementation()
 		"", "")
-	defer gwShutDown()
-	defer nodeShutDown()
+	connectionID := MockID("connection76")
+	c.ConnectToGateway(connectionID, &connect.ConnectionInfo{
+		Address: GatewayAddress,
+	})
+	defer gw.Shutdown()
+	defer c.Shutdown()
 
-	_, err := SendCheckMessages(GatewayAddress, "", "", &pb.ClientRequest{})
+	_, err := c.SendCheckMessages(connectionID, &pb.ClientRequest{})
 	if err != nil {
 		t.Errorf("CheckMessages: Error received: %s", err)
 	}

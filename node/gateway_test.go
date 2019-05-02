@@ -6,16 +6,7 @@
 
 package node
 
-import (
-	jww "github.com/spf13/jwalterweatherman"
-	pb "gitlab.com/elixxir/comms/mixmessages"
-	"golang.org/x/net/context"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
-	"net"
-	"testing"
-)
-
+/*
 var GatewayAddress = "localhost:5557"
 
 func startDummyGW() {
@@ -94,3 +85,5 @@ func (s *TestInterfaceGW) ConfirmNonce(ctx context.Context,
 	msg *pb.DSASignature) (*pb.RegistrationConfirmation, error) {
 	return &pb.RegistrationConfirmation{}, nil
 }
+
+ */

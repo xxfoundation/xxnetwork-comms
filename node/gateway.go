@@ -19,7 +19,7 @@ import (
 // SendReceiveBatch sends a batch to the gateway
 func (s *Server) SendReceiveBatch(id fmt.Stringer, message []*pb.Batch) error {
 	// Attempt to connect to addr
-	c := s.manager.ConnectToGateway(id, nil)
+	c := s.ConnectToGateway(id, nil)
 	ctx, cancel := connect.DefaultContext()
 
 	outputMessages := pb.Output{Messages: message}

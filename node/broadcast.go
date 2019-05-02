@@ -20,7 +20,7 @@ import (
 func (s *Server) SendServerMetrics(id fmt.Stringer,
 	message *pb.ServerMetrics) (*pb.Ack, error) {
 	// Attempt to connect to addr
-	c := s.manager.ConnectToNode(id, nil)
+	c := s.ConnectToNode(id, nil)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
@@ -39,7 +39,7 @@ func (s *Server) SendServerMetrics(id fmt.Stringer,
 func (s *Server) SendRoundtripPing(id fmt.Stringer,
 	message *pb.TimePing) (*pb.Ack, error) {
 	// Attempt to connect to addr
-	c := s.manager.ConnectToNode(id, nil)
+	c := s.ConnectToNode(id, nil)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
@@ -58,7 +58,7 @@ func (s *Server) SendRoundtripPing(id fmt.Stringer,
 func (s *Server) SendAskOnline(id fmt.Stringer, message *pb.Ping) (
 	*pb.Ack, error) {
 	// Attempt to connect to addr
-	c := s.manager.ConnectToNode(id, nil)
+	c := s.ConnectToNode(id, nil)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
@@ -77,7 +77,7 @@ func (s *Server) SendAskOnline(id fmt.Stringer, message *pb.Ping) (
 
 func (s *Server) SendNewRound(id fmt.Stringer, message *pb.RoundInfo) (
 	*pb.Ack, error) {
-	c := s.manager.ConnectToNode(id, nil)
+	c := s.ConnectToNode(id, nil)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
@@ -95,7 +95,7 @@ func (s *Server) SendNewRound(id fmt.Stringer, message *pb.RoundInfo) (
 
 func (s *Server) SendPostRoundPublicKey(id fmt.Stringer,
 	message *pb.RoundPublicKey) (*pb.Ack, error) {
-	c := s.manager.ConnectToNode(id, nil)
+	c := s.ConnectToNode(id, nil)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
@@ -116,7 +116,7 @@ func (s *Server) SendPostRoundPublicKey(id fmt.Stringer,
 // other nodes.
 func (s *Server) SendPostPrecompResult(id fmt.Stringer,
 	roundID uint64, slots []*pb.Slot) (*pb.Ack, error) {
-	c := s.manager.ConnectToNode(id, nil)
+	c := s.ConnectToNode(id, nil)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message

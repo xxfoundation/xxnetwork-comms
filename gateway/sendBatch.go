@@ -19,7 +19,7 @@ import (
 // Sends a batch of messages from the gateway to a server
 func (g *Gateway) SendBatch(nodeID fmt.Stringer, messages []*pb.
 	Batch) error {
-	c := g.manager.ConnectToNode(nodeID, nil)
+	c := g.ConnectToNode(nodeID, nil)
 	ctx, cancel := connect.DefaultContext()
 
 	// Create an InputMessage
@@ -43,7 +43,7 @@ func (g *Gateway) SendBatch(nodeID fmt.Stringer, messages []*pb.
 // This allows the caller to continuously poll without spinning too much.
 func (g *Gateway) GetRoundBufferInfo(nodeID fmt.Stringer) (int,
 	error) {
-	c := g.manager.ConnectToNode(nodeID, nil)
+	c := g.ConnectToNode(nodeID, nil)
 	ctx, cancel := connect.DefaultContext()
 
 	msg := &pb.RoundBufferInfo{}

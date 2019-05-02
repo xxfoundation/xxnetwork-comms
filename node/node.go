@@ -28,7 +28,7 @@ var serverHandler ServerHandler
 
 // Server object containing a GRPC server
 type Server struct {
-	manager connect.ConnectionManager
+	connect.ConnectionManager
 	gs      *grpc.Server
 }
 
