@@ -44,6 +44,21 @@ func TestSendRoundtripPing(t *testing.T) {
 	}
 }
 
+// Smoke test SendFinishRealtime
+func TestSendFinishRealtime(t *testing.T) {
+	ServerAddress := getNextServerAddress()
+	server := StartServer(ServerAddress, NewImplementation(), "", "")
+	connID := MockID("node2node")
+	server.ConnectToNode(connID, &connect.ConnectionInfo{
+		Address: ServerAddress,
+	})
+	defer server.Shutdown()
+	_, err := server.SendFinishRealtime(connID)
+	if err != nil {
+		t.Errorf("FinishRealtime: Error received: %s", err)
+	}
+}
+
 // Smoke test SendServerMetrics
 func TestSendServerMetrics(t *testing.T) {
 	ServerAddress := getNextServerAddress()

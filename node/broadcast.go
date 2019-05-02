@@ -75,6 +75,23 @@ func (s *Server) SendAskOnline(id fmt.Stringer, message *pb.Ping) (
 	return result, err
 }
 
+func (s *Server) SendFinishRealtime(id fmt.Stringer) (*pb.Ack, error) {
+	c := s.ConnectToNode(id, nil)
+	ctx, cancel := connect.DefaultContext()
+
+	// Send the message
+	result, err := c.FinishRealtime(ctx, &pb.Ping{},
+		grpc_retry.WithMax(connect.MAX_RETRIES))
+
+	// Make sure there are no errors with sending the message
+	if err != nil {
+		jww.ERROR.Printf("FinishRealtime: Error received: %+v", err)
+	}
+
+	cancel()
+	return result, err
+}
+
 func (s *Server) SendNewRound(id fmt.Stringer, message *pb.RoundInfo) (
 	*pb.Ack, error) {
 	c := s.ConnectToNode(id, nil)

@@ -31,6 +31,10 @@ service Node {
     rpc StartRealtime (Input) returns (Ack) {
     }
 
+    // FinishRealtime broadcasts when realtime is complete
+    rpc FinishRealtime (Ping) returns (Ack) {
+    }
+
     // PostPhase runs a cMix phase on another node
     rpc PostPhase (Batch) returns (Ack) {
     }

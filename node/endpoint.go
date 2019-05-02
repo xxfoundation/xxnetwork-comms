@@ -143,3 +143,11 @@ func (s *Server) PostPrecompResult(ctx context.Context,
 		msg.GetSlots())
 	return &pb.Ack{}, err
 }
+
+// FinishRealtime broadcasts to all nodes when the realtime is completed
+func (s *Server) FinishRealtime(ctx context.Context, msg *pb.Ping) (*pb.Ack, error) {
+	// Call the server handler to finish realtime
+	err := serverHandler.FinishRealtime()
+
+	return &pb.Ack{}, err
+}
