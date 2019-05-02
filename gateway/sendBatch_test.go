@@ -7,6 +7,7 @@
 package gateway
 
 import (
+	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/node"
 	"testing"
@@ -21,9 +22,11 @@ func TestSendBatch(t *testing.T) {
 		"", "")
 	defer gateway.Shutdown()
 	defer server.Shutdown()
+	connID := MockID("gatewayToServer")
+	gateway.ConnectToNode(connID, &connect.ConnectionInfo{Address: ServerAddress})
 
 	msgs := []*pb.Batch{{}}
-	err := gateway.SendBatch(MockID("5"), msgs)
+	err := gateway.SendBatch(connID, msgs)
 	if err != nil {
 		t.Errorf("SendBatch: Error received: %s", err)
 	}
@@ -38,12 +41,14 @@ func TestGetRoundBufferInfo(t *testing.T) {
 		"", "")
 	defer gateway.Shutdown()
 	defer server.Shutdown()
+	connID := MockID("gatewayToServer")
+	gateway.ConnectToNode(connID, &connect.ConnectionInfo{Address: ServerAddress})
 
-	bufSize, err := server.SendGetRoundBufferInfo(MockID("5"))
+	bufSize, err := gateway.GetRoundBufferInfo(connID)
 	if err != nil {
 		t.Errorf("GetRoundBufferInfo: Error received: %s", err)
 	}
-	if bufSize.RoundBufferSize != 0 {
+	if bufSize != 0 {
 		t.Errorf("GetRoundBufferInfo: Unexpected buffer size.")
 	}
 }

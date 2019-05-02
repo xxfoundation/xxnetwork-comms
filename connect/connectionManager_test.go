@@ -39,11 +39,11 @@ func TestConnectionManager_Disconnect(t *testing.T) {
 	id := "pear"
 	var manager ConnectionManager
 
-	connect(id, &ConnectionInfo{
+	manager.connect(id, &ConnectionInfo{
 		Address: address,
 	})
 
-	_, inMap := connections[id]
+	_, inMap := manager.connections[id]
 
 	if !inMap {
 		t.Errorf("Connect Function didn't add connection to map")
@@ -51,9 +51,9 @@ func TestConnectionManager_Disconnect(t *testing.T) {
 		pass++
 	}
 
-	Disconnect(id)
+	manager.Disconnect(id)
 
-	_, present := connections[address]
+	_, present := manager.connections[address]
 
 	if present {
 		t.Errorf("Disconnect Function not working properly")

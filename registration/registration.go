@@ -11,6 +11,7 @@ package registration
 import (
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
+	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/utils"
 	"google.golang.org/grpc"
@@ -26,6 +27,7 @@ var registrationHandler Handler
 
 // Server object containing a GRPC server
 type Server struct {
+	connect.ConnectionManager
 	gs *grpc.Server
 }
 

@@ -7,6 +7,7 @@
 package node
 
 import (
+	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"testing"
 )
@@ -16,6 +17,10 @@ func TestSendAskOnline(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	server := StartServer(ServerAddress, NewImplementation(), "", "")
 	connID := MockID("connection35")
+	// Connect the server to itself
+	server.ConnectToNode(connID, &connect.ConnectionInfo{
+		Address: ServerAddress,
+	})
 	defer server.Shutdown()
 	_, err := server.SendAskOnline(connID, &pb.Ping{})
 	if err != nil {
@@ -28,6 +33,10 @@ func TestSendRoundtripPing(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	server := StartServer(ServerAddress, NewImplementation(), "", "")
 	connID := MockID("connection35")
+	// Connect the server to itself
+	server.ConnectToNode(connID, &connect.ConnectionInfo{
+		Address: ServerAddress,
+	})
 	defer server.Shutdown()
 	_, err := server.SendRoundtripPing(connID, &pb.TimePing{})
 	if err != nil {
@@ -40,6 +49,10 @@ func TestSendServerMetrics(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	server := StartServer(ServerAddress, NewImplementation(), "", "")
 	connID := MockID("connection35")
+	// Connect the server to itself
+	server.ConnectToNode(connID, &connect.ConnectionInfo{
+		Address: ServerAddress,
+	})
 	defer server.Shutdown()
 	_, err := server.SendServerMetrics(connID, &pb.ServerMetrics{})
 	if err != nil {
@@ -52,6 +65,10 @@ func TestSendNewRound(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	server := StartServer(ServerAddress, NewImplementation(), "", "")
 	connID := MockID("connection35")
+	// Connect the server to itself
+	server.ConnectToNode(connID, &connect.ConnectionInfo{
+		Address: ServerAddress,
+	})
 	defer server.Shutdown()
 	_, err := server.SendNewRound(connID, &pb.RoundInfo{})
 	if err != nil {
@@ -64,6 +81,10 @@ func TestSendPostPhase(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	server := StartServer(ServerAddress, NewImplementation(), "", "")
 	connID := MockID("connection35")
+	// Connect the server to itself
+	server.ConnectToNode(connID, &connect.ConnectionInfo{
+		Address: ServerAddress,
+	})
 	defer server.Shutdown()
 	_, err := server.SendPostPhase(connID, &pb.Batch{})
 	if err != nil {
@@ -76,6 +97,10 @@ func TestSendPostRoundPublicKey(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	server := StartServer(ServerAddress, NewImplementation(), "", "")
 	connID := MockID("connection35")
+	// Connect the server to itself
+	server.ConnectToNode(connID, &connect.ConnectionInfo{
+		Address: ServerAddress,
+	})
 	defer server.Shutdown()
 	_, err := server.SendPostRoundPublicKey(connID, &pb.RoundPublicKey{})
 	if err != nil {
@@ -89,6 +114,10 @@ func TestSendPostPrecompResult(t *testing.T) {
 	server := StartServer(ServerAddress, NewImplementation(), "", "")
 	defer server.Shutdown()
 	connID := MockID("connection35")
+	// Connect the server to itself
+	server.ConnectToNode(connID, &connect.ConnectionInfo{
+		Address: ServerAddress,
+	})
 	slots := make([]*pb.Slot, 0)
 	_, err := server.SendPostPrecompResult(connID, 0, slots)
 	if err != nil {

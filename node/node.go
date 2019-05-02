@@ -29,7 +29,7 @@ var serverHandler ServerHandler
 // Server object containing a GRPC server
 type Server struct {
 	connect.ConnectionManager
-	gs      *grpc.Server
+	gs *grpc.Server
 }
 
 // Performs a graceful shutdown of the server
@@ -73,7 +73,7 @@ func StartServer(localServer string, handler ServerHandler,
 			grpc.MaxRecvMsgSize(math.MaxInt32))
 	} else {
 		// Create the GRPC server without TLS
-		jww.INFO.Printf("Starting server with TLS disabled...")
+		jww.WARN.Printf("Starting server with TLS disabled...")
 		grpcServer = grpc.NewServer(grpc.MaxConcurrentStreams(math.MaxUint32),
 			grpc.MaxRecvMsgSize(math.MaxInt32))
 	}

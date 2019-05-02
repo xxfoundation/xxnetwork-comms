@@ -34,7 +34,7 @@ type ConnectionInfo struct {
 
 // Create credentials from a PEM string
 // Intended for mobile clients that can't reasonably use a file
-func NewCredentialsFromPEM(serverName string, certificate string) credentials.TransportCredentials {
+func NewCredentialsFromPEM(certificate string, serverNameOverride string) credentials.TransportCredentials {
 	// Create cert pool
 	pool := x509.NewCertPool()
 	// Append the cert string
@@ -42,17 +42,18 @@ func NewCredentialsFromPEM(serverName string, certificate string) credentials.Tr
 		jww.FATAL.Panicf("Failed to parse certificate string!")
 	}
 	// Generate credentials from pool
-	return credentials.NewClientTLSFromCert(pool, serverName)
+	return credentials.NewClientTLSFromCert(pool, serverNameOverride)
 }
 
 // Create credentials from a filename
 // Generally, prefer using this
-func NewCredentialsFromFile(serverName string, filePath string) credentials.
-	TransportCredentials {
+// The second parameter, serverNameOverride, should just be an empty string in
+// production
+func NewCredentialsFromFile(filePath string, serverNameOverride string) credentials.TransportCredentials {
 	// Convert to fully qualified path
 	filePath = utils.GetFullPath(filePath)
 	// Generate credentials from path
-	result, err := credentials.NewClientTLSFromFile(filePath, serverName)
+	result, err := credentials.NewClientTLSFromFile(filePath, serverNameOverride)
 	if err != nil {
 		jww.FATAL.Panicf("Could not load TLS keys: %s", errors.New(err.Error()))
 	}
@@ -69,11 +70,12 @@ type ConnectionManager struct {
 const MAX_RETRIES = 5
 
 // Convenience method to make a TransportCredentials for connecting
-func MakeCreds(serverName, certPath, certPEM string) credentials.TransportCredentials {
+func MakeCreds(certPath, certPEM string,
+	serverNameOverride string) credentials.TransportCredentials {
 	if certPath != "" {
-		return NewCredentialsFromFile(serverName, certPath)
+		return NewCredentialsFromFile(certPath, serverNameOverride)
 	} else if certPEM != "" {
-		return NewCredentialsFromPEM(serverName, certPEM)
+		return NewCredentialsFromPEM(certPEM, serverNameOverride)
 	} else {
 		return nil
 	}
@@ -127,6 +129,8 @@ func (m *ConnectionManager) connect(id string, info *ConnectionInfo) *grpc.
 	existingInfo, ok := m.connections[id]
 	if ok && isConnectionGood(existingInfo.Connection) {
 		return existingInfo.Connection
+	} else if !ok && info == nil {
+		panic("No connection exists for that ID")
 	}
 
 	// Create top level vars

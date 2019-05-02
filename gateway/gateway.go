@@ -28,8 +28,8 @@ var gatewayHandler Handler
 // Gateway object contains a GRPC server and a connection manager for outgoing
 // connections
 type Gateway struct {
-	manager connect.ConnectionManager
-	gs      *grpc.Server
+	connect.ConnectionManager
+	gs *grpc.Server
 }
 
 // Performs a graceful shutdown of the gateway
@@ -82,8 +82,7 @@ func StartGateway(localServer string, handler Handler,
 
 	}
 	gatewayServer := Gateway{
-		manager: connect.ConnectionManager{},
-		gs:      grpcServer,
+		gs: grpcServer,
 	}
 
 	go func() {

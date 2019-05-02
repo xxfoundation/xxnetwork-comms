@@ -18,8 +18,7 @@ import (
 
 // Send a message to the gateway
 func (c *Client) SendPutMessage(id fmt.Stringer,
-	gatewayCertString string, message *pb.
-		Batch) error {
+	message *pb.Batch) error {
 	// Attempt to connect to addr
 	connection := c.ConnectToGateway(id, nil)
 	ctx, cancel := connect.DefaultContext()
@@ -39,8 +38,7 @@ func (c *Client) SendPutMessage(id fmt.Stringer,
 
 // Request MessageIDs of new messages in the buffer from the gateway
 func (c *Client) SendCheckMessages(id fmt.Stringer,
-	message *pb.ClientRequest) (*pb.
-	IDList, error) {
+	message *pb.ClientRequest) (*pb.IDList, error) {
 	// Attempt to connect to addr
 	connection := c.ConnectToGateway(id, nil)
 	ctx, cancel := connect.DefaultContext()
@@ -60,8 +58,7 @@ func (c *Client) SendCheckMessages(id fmt.Stringer,
 
 // Request a message with a specific ID from the gateway
 func (c *Client) SendGetMessage(id fmt.Stringer,
-	message *pb.ClientRequest) (*pb.
-	Batch, error) {
+	message *pb.ClientRequest) (*pb.Batch, error) {
 	// Attempt to connect to addr
 	connection := c.ConnectToGateway(id, nil)
 	ctx, cancel := connect.DefaultContext()

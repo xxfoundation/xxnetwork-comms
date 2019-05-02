@@ -10,7 +10,6 @@ import (
 	"gitlab.com/elixxir/comms/connect"
 	"gitlab.com/elixxir/comms/gateway"
 	pb "gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/elixxir/comms/node"
 	"testing"
 )
 
@@ -21,16 +20,17 @@ func (m MockID) String() string {
 
 // Smoke test SendGetMessage
 func TestSendPutMessage(t *testing.T) {
-	GatewayAddress := getNextGatewayAddress()
-	ServerAddress := getNextServerAddress()
-	gw := gateway.StartGateway(GatewayAddress,
+	gatewayAddress := getNextGatewayAddress()
+	gw := gateway.StartGateway(gatewayAddress,
 		gateway.NewImplementation(), "", "")
-	server := node.StartServer(ServerAddress, node.NewImplementation(),
-		"", "")
 	defer gw.Shutdown()
-	defer server.Shutdown()
+	var c Client
+	id := MockID("clientToGateway")
+	c.ConnectToGateway(id, &connect.ConnectionInfo{
+		Address:gatewayAddress,
+	})
 
-	err := server.SendPutMessage(GatewayAddress, "", "", &pb.Batch{})
+	err := c.SendPutMessage(id, &pb.Batch{})
 	if err != nil {
 		t.Errorf("PutMessage: Error received: %s", err)
 	}
@@ -39,17 +39,14 @@ func TestSendPutMessage(t *testing.T) {
 // Smoke test SendCheckMessages
 func TestSendCheckMessages(t *testing.T) {
 	gatewayAddress := getNextGatewayAddress()
-	clientAddress := getNextServerAddress()
-	gw := gateway.StartGateway(GatewayAddress,
+	gw := gateway.StartGateway(gatewayAddress,
 		gateway.NewImplementation(), "", "")
-	c := StartClient(clientAddress, newImplementation()
-		"", "")
-	connectionID := MockID("connection76")
+	connectionID := MockID("clientToGateway")
+	var c Client
 	c.ConnectToGateway(connectionID, &connect.ConnectionInfo{
-		Address: GatewayAddress,
+		Address: gatewayAddress,
 	})
 	defer gw.Shutdown()
-	defer c.Shutdown()
 
 	_, err := c.SendCheckMessages(connectionID, &pb.ClientRequest{})
 	if err != nil {
@@ -59,16 +56,17 @@ func TestSendCheckMessages(t *testing.T) {
 
 // Smoke test SendGetMessage
 func TestSendGetMessage(t *testing.T) {
-	GatewayAddress := getNextGatewayAddress()
-	ServerAddress := getNextServerAddress()
-	gwShutDown := gateway.StartGateway(GatewayAddress,
+	gatewayAddress := getNextGatewayAddress()
+	gw := gateway.StartGateway(gatewayAddress,
 		gateway.NewImplementation(), "", "")
-	nodeShutDown := node.StartServer(ServerAddress, node.NewImplementation(),
-		"", "")
-	defer gwShutDown()
-	defer nodeShutDown()
+	connectionID := MockID("clientToGateway")
+	var c Client
+	c.ConnectToGateway(connectionID, &connect.ConnectionInfo{
+		Address: gatewayAddress,
+	})
+	defer gw.Shutdown()
 
-	_, err := SendGetMessage(GatewayAddress, "", "", &pb.ClientRequest{})
+	_, err := c.SendGetMessage(connectionID, &pb.ClientRequest{})
 	if err != nil {
 		t.Errorf("GetMessage: Error received: %s", err)
 	}
@@ -76,17 +74,17 @@ func TestSendGetMessage(t *testing.T) {
 
 // Smoke test SendRequestNonceMessage
 func TestSendRequestNonceMessage(t *testing.T) {
-	GatewayAddress := getNextGatewayAddress()
-	ServerAddress := getNextServerAddress()
-	gwShutDown := gateway.StartGateway(GatewayAddress,
+	gatewayAddress := getNextGatewayAddress()
+	gw := gateway.StartGateway(gatewayAddress,
 		gateway.NewImplementation(), "", "")
-	nodeShutDown := node.StartServer(ServerAddress, node.NewImplementation(),
-		"", "")
-	defer gwShutDown()
-	defer nodeShutDown()
+	defer gw.Shutdown()
+	connectionID := MockID("clientToGateway")
+	var c Client
+	c.ConnectToGateway(connectionID, &connect.ConnectionInfo{
+		Address: gatewayAddress,
+	})
 
-	_, err := SendRequestNonceMessage(GatewayAddress, "", "",
-		&pb.NonceRequest{})
+	_, err := c.SendRequestNonceMessage(connectionID, &pb.NonceRequest{})
 	if err != nil {
 		t.Errorf("SendRequestNonceMessage: Error received: %s", err)
 	}
@@ -94,17 +92,17 @@ func TestSendRequestNonceMessage(t *testing.T) {
 
 // Smoke test SendConfirmNonceMessage
 func TestSendConfirmNonceMessage(t *testing.T) {
-	GatewayAddress := getNextGatewayAddress()
-	ServerAddress := getNextServerAddress()
-	gwShutDown := gateway.StartGateway(GatewayAddress,
+	gatewayAddress := getNextGatewayAddress()
+	gw := gateway.StartGateway(gatewayAddress,
 		gateway.NewImplementation(), "", "")
-	nodeShutDown := node.StartServer(ServerAddress, node.NewImplementation(),
-		"", "")
-	defer gwShutDown()
-	defer nodeShutDown()
+	defer gw.Shutdown()
+	connectionID := MockID("clientToGateway")
+	var c Client
+	c.ConnectToGateway(connectionID, &connect.ConnectionInfo{
+		Address: gatewayAddress,
+	})
 
-	_, err := SendConfirmNonceMessage(GatewayAddress, "", "",
-		&pb.DSASignature{})
+	_, err := c.SendConfirmNonceMessage(connectionID, &pb.DSASignature{})
 	if err != nil {
 		t.Errorf("SendConfirmNonceMessage: Error received: %s", err)
 	}

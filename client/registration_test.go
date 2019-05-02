@@ -7,6 +7,7 @@
 package client
 
 import (
+	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/registration"
 	"testing"
@@ -15,12 +16,14 @@ import (
 // Smoke test SendRegistrationMessage
 func TestSendRegistrationMessage(t *testing.T) {
 	GatewayAddress := getNextGatewayAddress()
-	rgShutDown := registration.StartRegistrationServer(GatewayAddress,
+	rg := registration.StartRegistrationServer(GatewayAddress,
 		registration.NewImplementation(), "", "")
-	defer rgShutDown()
+	defer rg.Shutdown()
+	connID := MockID("clientToRegistration")
+	var c Client
+	c.ConnectToRegistration(connID, &connect.ConnectionInfo{Address: GatewayAddress})
 
-	_, err := SendRegistrationMessage(GatewayAddress, "", "",
-		&pb.UserRegistration{})
+	_, err := c.SendRegistrationMessage(connID, &pb.UserRegistration{})
 	if err != nil {
 		t.Errorf("RegistrationMessage: Error received: %s", err)
 	}

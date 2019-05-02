@@ -3,6 +3,7 @@ package registration
 import (
 	"fmt"
 	"gitlab.com/elixxir/comms/client"
+	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/testkeys"
 	"sync"
@@ -21,20 +22,31 @@ func getNextServerAddress() string {
 	return fmt.Sprintf("localhost:%d", serverPort)
 }
 
+type MockID string
+func (m MockID) String() string {
+	return string(m)
+}
+
 // Tests whether the server can be connected to and run an RPC with TLS enabled
 func TestTLS(t *testing.T) {
 	RegAddress := getNextServerAddress()
-	rgShutDown := StartRegistrationServer(RegAddress,
+	rg := StartRegistrationServer(RegAddress,
 		NewImplementation(),
 		testkeys.GetNodeCertPath(),
 		testkeys.GetNodeKeyPath())
-	defer rgShutDown()
+	// Well, client shouldn't have a server type because it's not a server
+	// It's a client
+	// So, we need some way to add a connection to the manager for the client
+	defer rg.Shutdown()
+	var c client.Client
+	connID := MockID("clientToRegistration")
+	c.ConnectToRegistration(connID, &connect.ConnectionInfo{
+		Address:    RegAddress,
+		Creds:      connect.NewCredentialsFromFile(testkeys.GetNodeCertPath(
+			), "*.cmix.rip"),
+	})
 
-	// Note: This line takes forever when using the gateway certs/paths both
-	// for the reg server and the reg client, but succeeds when using the node
-	// certs/paths for both. I don't know why it happens, but it's a bit spooky.
-	_, err := client.SendRegistrationMessage(RegAddress,
-		testkeys.GetNodeCertPath(), "", &pb.UserRegistration{})
+	_, err := c.SendRegistrationMessage(connID, &pb.UserRegistration{})
 	if err != nil {
 		t.Errorf("RegistrationMessage: Error received: %s", err)
 	}
