@@ -10,6 +10,7 @@ package node
 
 import (
 	"github.com/pkg/errors"
+	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -26,12 +27,14 @@ import (
 var serverHandler ServerHandler
 
 // Server object containing a GRPC server
-type server struct {
-	gs *grpc.Server
+type Server struct {
+	manager connect.ConnectionManager
+	gs      *grpc.Server
 }
 
 // Performs a graceful shutdown of the server
-func (s *server) ShutDown() {
+func (s *Server) Shutdown() {
+	// TODO Close all connections in the manager?
 	s.gs.GracefulStop()
 	time.Sleep(time.Millisecond * 500)
 }
@@ -40,7 +43,7 @@ func (s *server) ShutDown() {
 // and a callback interface for server operations
 // with given path to public and private key for TLS connection
 func StartServer(localServer string, handler ServerHandler,
-	certPath, keyPath string) func() {
+	certPath, keyPath string) *Server {
 	var grpcServer *grpc.Server
 	// Set the serverHandler
 	serverHandler = handler
@@ -74,7 +77,7 @@ func StartServer(localServer string, handler ServerHandler,
 		grpcServer = grpc.NewServer(grpc.MaxConcurrentStreams(math.MaxUint32),
 			grpc.MaxRecvMsgSize(math.MaxInt32))
 	}
-	mixmessageServer := server{gs: grpcServer}
+	mixmessageServer := Server{gs: grpcServer}
 
 	go func() {
 		// Make the port close when the gateway dies
@@ -96,5 +99,5 @@ func StartServer(localServer string, handler ServerHandler,
 		}
 	}()
 
-	return mixmessageServer.ShutDown
+	return &mixmessageServer
 }

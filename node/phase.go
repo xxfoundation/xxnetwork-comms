@@ -9,6 +9,7 @@
 package node
 
 import (
+	"fmt"
 	"github.com/grpc-ecosystem/go-grpc-middleware/retry"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
@@ -16,10 +17,10 @@ import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 )
 
-func SendPostPhase(addr string, serverCertPath string,
+func (s *Server) SendPostPhase(id fmt.Stringer,
 	message *pb.Batch) (*pb.Ack, error) {
 	// Attempt to connect to addr
-	c := connect.ConnectToNode(addr, serverCertPath)
+	c := s.manager.ConnectToNode(id, nil)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message

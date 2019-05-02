@@ -11,6 +11,7 @@ package gateway
 import (
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
+	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/utils"
 	"google.golang.org/grpc"
@@ -24,13 +25,16 @@ import (
 // Callback interface provided by the Gateway repository to StartGateway
 var gatewayHandler Handler
 
-// Gateway object containing a GRPC server
-type gateway struct {
-	gs *grpc.Server
+// Gateway object contains a GRPC server and a connection manager for outgoing
+// connections
+type Gateway struct {
+	manager connect.ConnectionManager
+	gs      *grpc.Server
 }
 
 // Performs a graceful shutdown of the gateway
-func (s *gateway) ShutDown() {
+// TODO Close all connections in the manager
+func (s *Gateway) Shutdown() {
 	s.gs.GracefulStop()
 	time.Sleep(time.Millisecond * 500)
 }
@@ -39,7 +43,7 @@ func (s *gateway) ShutDown() {
 // and a callback interface for gateway operations
 // with given path to public and private key for TLS connection
 func StartGateway(localServer string, handler Handler,
-	certPath, keyPath string) func() {
+	certPath, keyPath string) *Gateway {
 	var grpcServer *grpc.Server
 	// Set the gatewayHandler
 	gatewayHandler = handler
@@ -77,7 +81,10 @@ func StartGateway(localServer string, handler Handler,
 			grpc.MaxRecvMsgSize(33554432)) // 32 MiB
 
 	}
-	gatewayServer := gateway{gs: grpcServer}
+	gatewayServer := Gateway{
+		manager: connect.ConnectionManager{},
+		gs:      grpcServer,
+	}
 
 	go func() {
 		//Make the port close when the gateway dies
@@ -100,5 +107,5 @@ func StartGateway(localServer string, handler Handler,
 		}
 	}()
 
-	return gatewayServer.ShutDown
+	return &gatewayServer
 }

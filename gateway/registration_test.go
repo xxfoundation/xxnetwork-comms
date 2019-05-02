@@ -16,13 +16,13 @@ import (
 func TestSendRequestNonceMessage(t *testing.T) {
 	GatewayAddress := getNextGatewayAddress()
 	ServerAddress := getNextServerAddress()
-	gwShutDown := StartGateway(GatewayAddress, NewImplementation(), "", "")
-	nodeShutDown := node.StartServer(ServerAddress, node.NewImplementation(),
+	gateway := StartGateway(GatewayAddress, NewImplementation(), "", "")
+	server := node.StartServer(ServerAddress, node.NewImplementation(),
 		"", "")
-	defer gwShutDown()
-	defer nodeShutDown()
+	defer gateway.Shutdown()
+	defer server.Shutdown()
 
-	_, err := SendRequestNonceMessage(ServerAddress, "", &pb.NonceRequest{})
+	_, err := gateway.SendRequestNonceMessage(MockID("5"), &pb.NonceRequest{})
 	if err != nil {
 		t.Errorf("SendRequestNonceMessage: Error received: %s", err)
 	}
@@ -32,13 +32,13 @@ func TestSendRequestNonceMessage(t *testing.T) {
 func TestSendConfirmNonceMessage(t *testing.T) {
 	GatewayAddress := getNextGatewayAddress()
 	ServerAddress := getNextServerAddress()
-	gwShutDown := StartGateway(GatewayAddress, NewImplementation(), "", "")
-	nodeShutDown := node.StartServer(ServerAddress, node.NewImplementation(),
+	gateway := StartGateway(GatewayAddress, NewImplementation(), "", "")
+	server := node.StartServer(ServerAddress, node.NewImplementation(),
 		"", "")
-	defer gwShutDown()
-	defer nodeShutDown()
+	defer gateway.Shutdown()
+	defer server.Shutdown()
 
-	_, err := SendConfirmNonceMessage(ServerAddress, "", &pb.DSASignature{})
+	_, err := gateway.SendConfirmNonceMessage(MockID("5"), &pb.DSASignature{})
 	if err != nil {
 		t.Errorf("SendConfirmNonceMessage: Error received: %s", err)
 	}

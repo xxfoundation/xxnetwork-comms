@@ -12,18 +12,18 @@ import (
 	"testing"
 )
 
-// Smoke test SendCheckMessages
+// Smoke test SendBatch
 func TestSendBatch(t *testing.T) {
 	GatewayAddress := getNextGatewayAddress()
 	ServerAddress := getNextServerAddress()
-	gwShutDown := StartGateway(GatewayAddress, NewImplementation(), "", "")
-	nodeShutDown := node.StartServer(ServerAddress, node.NewImplementation(),
+	gateway := StartGateway(GatewayAddress, NewImplementation(), "", "")
+	server := node.StartServer(ServerAddress, node.NewImplementation(),
 		"", "")
-	defer gwShutDown()
-	defer nodeShutDown()
+	defer gateway.Shutdown()
+	defer server.Shutdown()
 
 	msgs := []*pb.Batch{{}}
-	err := SendBatch(ServerAddress, "", msgs)
+	err := gateway.SendBatch(MockID("5"), msgs)
 	if err != nil {
 		t.Errorf("SendBatch: Error received: %s", err)
 	}
@@ -33,17 +33,17 @@ func TestSendBatch(t *testing.T) {
 func TestGetRoundBufferInfo(t *testing.T) {
 	GatewayAddress := getNextGatewayAddress()
 	ServerAddress := getNextServerAddress()
-	gwShutDown := StartGateway(GatewayAddress, NewImplementation(), "", "")
-	nodeShutDown := node.StartServer(ServerAddress, node.NewImplementation(),
+	gateway := StartGateway(GatewayAddress, NewImplementation(), "", "")
+	server := node.StartServer(ServerAddress, node.NewImplementation(),
 		"", "")
-	defer gwShutDown()
-	defer nodeShutDown()
+	defer gateway.Shutdown()
+	defer server.Shutdown()
 
-	bufSize, err := GetRoundBufferInfo(ServerAddress, "")
+	bufSize, err := server.SendGetRoundBufferInfo(MockID("5"))
 	if err != nil {
 		t.Errorf("GetRoundBufferInfo: Error received: %s", err)
 	}
-	if bufSize != 0 {
+	if bufSize.RoundBufferSize != 0 {
 		t.Errorf("GetRoundBufferInfo: Unexpected buffer size.")
 	}
 }

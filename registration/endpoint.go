@@ -15,7 +15,7 @@ import (
 )
 
 // RegisterUser event handler which registers a user with the platform
-func (s *server) RegisterUser(ctx context.Context, msg *pb.UserRegistration) (
+func (s *Server) RegisterUser(ctx context.Context, msg *pb.UserRegistration) (
 	*pb.UserRegistrationConfirmation, error) {
 
 	// Obtain the signed key by passing to registration server

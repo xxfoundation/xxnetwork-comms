@@ -54,7 +54,7 @@ func NewCredentialsFromFile(serverName string, filePath string) credentials.
 	// Generate credentials from path
 	result, err := credentials.NewClientTLSFromFile(filePath, serverName)
 	if err != nil {
-		jww.FATAL.Panicf("Could not load TLS keys: %s", errors.New(err))
+		jww.FATAL.Panicf("Could not load TLS keys: %s", errors.New(err.Error()))
 	}
 	return result
 }
@@ -68,7 +68,8 @@ type ConnectionManager struct {
 // Default maximum number of retries
 const MAX_RETRIES = 5
 
-func makeCreds(serverName, certPath, certPEM string) credentials.TransportCredentials {
+// Convenience method to make a TransportCredentials for connecting
+func MakeCreds(serverName, certPath, certPEM string) credentials.TransportCredentials {
 	if certPath != "" {
 		return NewCredentialsFromFile(serverName, certPath)
 	} else if certPEM != "" {
@@ -78,43 +79,29 @@ func makeCreds(serverName, certPath, certPEM string) credentials.TransportCreden
 	}
 }
 
-// Connect to the registration server with a given address string
-// TODO This should take a ConnectionInfo
+// Connect to a certain registration server
+// connectionInfo can be nil if the connection already exists for this id
 func (m *ConnectionManager) ConnectToRegistration(id fmt.Stringer,
-	address string, RegistrationCertPath string, RegistrationCertString string) pb.
-	RegistrationClient {
-	creds := makeCreds("registration*.cmix.rip", RegistrationCertPath, RegistrationCertString)
-	connection := m.connect(id.String(),
-		&ConnectionInfo{
-			Address: address,
-			Creds:   creds,
-		})
+	info *ConnectionInfo) pb.RegistrationClient {
+	connection := m.connect(id.String(), info)
 	return pb.NewRegistrationClient(connection)
 }
 
-// Connect to a gateway with a given address string
-// TODO This should take a ConnectionInfo
-func (m *ConnectionManager) ConnectToGateway(id fmt.Stringer, address string,
-	GatewayCertPath string, GatewayCertString string) pb.GatewayClient {
-	creds := makeCreds("gateway*.cmix.rip", GatewayCertPath, GatewayCertString)
-	connection := m.connect(id.String(),
-		&ConnectionInfo{
-			Address: address,
-			Creds:   creds,
-		})
+// Connect to a certain gateway
+// connectionInfo can be nil if the connection already exists for this id
+func (m *ConnectionManager) ConnectToGateway(id fmt.Stringer,
+	info *ConnectionInfo) pb.GatewayClient {
+	connection := m.connect(id.String(), info)
 	return pb.NewGatewayClient(connection)
 }
 
-// Connect to a node with a given address string
-// TODO This should take a ConnectionInfo
-func (m *ConnectionManager) ConnectToNode(id fmt.Stringer, address string,
-	ServerCertPath string) pb.NodeClient {
-	creds := NewCredentialsFromFile("*.cmix.rip", ServerCertPath)
-	connection := m.connect(id.String(),
-		&ConnectionInfo{
-			Address: address,
-			Creds:   creds,
-		})
+// Connect to a certain node
+// connectionInfo can be nil if the connection already exists for this id
+// Should this return an error if the connection doesn't exist and the
+// connection info is nil?
+func (m *ConnectionManager) ConnectToNode(id fmt.Stringer,
+	info *ConnectionInfo) pb.NodeClient {
+	connection := m.connect(id.String(), info)
 	return pb.NewNodeClient(connection)
 }
 
@@ -130,12 +117,15 @@ func isConnectionGood(connection *grpc.ClientConn) bool {
 
 // Connect creates a connection, or returns a pre-existing connection based on
 // a given address string.
+// Connect should reconnect if the existing connection is non-nil,
+// but the connection is no longer alive
+// STILL UNDER CONSTRUCTION
 func (m *ConnectionManager) connect(id string, info *ConnectionInfo) *grpc.
 	ClientConn {
 	// Check if a connection already exists
 	m.connectionsLock.Lock() // TODO: Really we want to lock on the key,
-    existingInfo, ok := m.connections[id]
-    if ok && isConnectionGood(existingInfo.Connection) {
+	existingInfo, ok := m.connections[id]
+	if ok && isConnectionGood(existingInfo.Connection) {
 	}
 
 	// Create top level vars
@@ -187,20 +177,20 @@ func (m *ConnectionManager) connect(id string, info *ConnectionInfo) *grpc.
 
 	m.connectionsLock.Unlock()
 
-	return m.connections[info.Address].Connection
+	return m.connections[id].Connection
 }
 
 // Disconnect closes client connections and removes them from the connection map
-func (m *ConnectionManager) Disconnect(address string) {
+func (m *ConnectionManager) Disconnect(id string) {
 	m.connectionsLock.Lock()
-	connection, present := m.connections[address]
+	connection, present := m.connections[id]
 	if present {
 		err := connection.Connection.Close()
 		if err != nil {
-			jww.ERROR.Printf("Unable to close connection to %s: %+v", address,
+			jww.ERROR.Printf("Unable to close connection to %s: %+v", id,
 				errors.New(err.Error()))
 		}
-		delete(m.connections, address)
+		delete(m.connections, id)
 	}
 	m.connectionsLock.Unlock()
 }

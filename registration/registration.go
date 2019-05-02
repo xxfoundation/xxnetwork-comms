@@ -25,12 +25,12 @@ import (
 var registrationHandler Handler
 
 // Server object containing a GRPC server
-type server struct {
+type Server struct {
 	gs *grpc.Server
 }
 
 // Performs a graceful shutdown of the server
-func (s *server) ShutDown() {
+func (s *Server) Shutdown() {
 	s.gs.GracefulStop()
 	time.Sleep(time.Millisecond * 500)
 }
@@ -39,7 +39,7 @@ func (s *server) ShutDown() {
 // and a callback interface for server operations
 // with given path to public and private key for TLS connection
 func StartRegistrationServer(localServer string, handler Handler,
-	certPath, keyPath string) func() {
+	certPath, keyPath string) *Server {
 	var grpcServer *grpc.Server
 	// Set the serverHandler
 	registrationHandler = handler
@@ -73,7 +73,7 @@ func StartRegistrationServer(localServer string, handler Handler,
 		grpcServer = grpc.NewServer(grpc.MaxConcurrentStreams(math.MaxUint32),
 			grpc.MaxRecvMsgSize(math.MaxInt32))
 	}
-	registrationServer := server{gs: grpcServer}
+	registrationServer := Server{gs: grpcServer}
 
 	go func() {
 		// Make the port close when the gateway dies
@@ -95,5 +95,5 @@ func StartRegistrationServer(localServer string, handler Handler,
 		}
 	}()
 
-	return registrationServer.ShutDown
+	return &registrationServer
 }
