@@ -17,7 +17,7 @@ import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 )
 
-func (s *Server) SendServerMetrics(id fmt.Stringer,
+func (s *NodeComms) SendServerMetrics(id fmt.Stringer,
 	message *pb.ServerMetrics) (*pb.Ack, error) {
 	// Attempt to connect to addr
 	c := s.ConnectToNode(id, nil)
@@ -36,7 +36,7 @@ func (s *Server) SendServerMetrics(id fmt.Stringer,
 	return result, err
 }
 
-func (s *Server) SendRoundtripPing(id fmt.Stringer,
+func (s *NodeComms) SendRoundtripPing(id fmt.Stringer,
 	message *pb.TimePing) (*pb.Ack, error) {
 	// Attempt to connect to addr
 	c := s.ConnectToNode(id, nil)
@@ -55,7 +55,7 @@ func (s *Server) SendRoundtripPing(id fmt.Stringer,
 	return result, err
 }
 
-func (s *Server) SendAskOnline(id fmt.Stringer, message *pb.Ping) (
+func (s *NodeComms) SendAskOnline(id fmt.Stringer, message *pb.Ping) (
 	*pb.Ack, error) {
 	// Attempt to connect to addr
 	c := s.ConnectToNode(id, nil)
@@ -75,7 +75,7 @@ func (s *Server) SendAskOnline(id fmt.Stringer, message *pb.Ping) (
 	return result, err
 }
 
-func (s *Server) SendFinishRealtime(id fmt.Stringer) (*pb.Ack, error) {
+func (s *NodeComms) SendFinishRealtime(id fmt.Stringer) (*pb.Ack, error) {
 	c := s.ConnectToNode(id, nil)
 	ctx, cancel := connect.DefaultContext()
 
@@ -92,7 +92,7 @@ func (s *Server) SendFinishRealtime(id fmt.Stringer) (*pb.Ack, error) {
 	return result, err
 }
 
-func (s *Server) SendNewRound(id fmt.Stringer, message *pb.RoundInfo) (
+func (s *NodeComms) SendNewRound(id fmt.Stringer, message *pb.RoundInfo) (
 	*pb.Ack, error) {
 	c := s.ConnectToNode(id, nil)
 	ctx, cancel := connect.DefaultContext()
@@ -110,7 +110,7 @@ func (s *Server) SendNewRound(id fmt.Stringer, message *pb.RoundInfo) (
 	return result, err
 }
 
-func (s *Server) SendPostRoundPublicKey(id fmt.Stringer,
+func (s *NodeComms) SendPostRoundPublicKey(id fmt.Stringer,
 	message *pb.RoundPublicKey) (*pb.Ack, error) {
 	c := s.ConnectToNode(id, nil)
 	ctx, cancel := connect.DefaultContext()
@@ -131,7 +131,7 @@ func (s *Server) SendPostRoundPublicKey(id fmt.Stringer,
 
 // SendPostPrecompResult sends the final message and AD precomputations to
 // other nodes.
-func (s *Server) SendPostPrecompResult(id fmt.Stringer,
+func (s *NodeComms) SendPostPrecompResult(id fmt.Stringer,
 	roundID uint64, slots []*pb.Slot) (*pb.Ack, error) {
 	c := s.ConnectToNode(id, nil)
 	ctx, cancel := connect.DefaultContext()

@@ -39,7 +39,7 @@ func TestTLS(t *testing.T) {
 	// It's a client
 	// So, we need some way to add a connection to the manager for the client
 	defer rg.Shutdown()
-	var c client.Client
+	var c client.ClientComms
 	connID := MockID("clientToRegistration")
 	c.ConnectToRegistration(connID, &connect.ConnectionInfo{
 		Address: RegAddress,

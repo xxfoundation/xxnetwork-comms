@@ -15,7 +15,7 @@ import (
 )
 
 // Sends new MessageIDs in the buffer to a client
-func (s *Gateway) CheckMessages(ctx context.Context, msg *pb.ClientRequest) (
+func (s *GatewayComms) CheckMessages(ctx context.Context, msg *pb.ClientRequest) (
 	*pb.IDList, error) {
 	userID := new(id.User).SetBytes(msg.UserID)
 	msgIds, ok := gatewayHandler.CheckMessages(userID, msg.LastMessageID)
@@ -27,7 +27,7 @@ func (s *Gateway) CheckMessages(ctx context.Context, msg *pb.ClientRequest) (
 }
 
 // Sends a message matching the given parameters to a client
-func (s *Gateway) GetMessage(ctx context.Context, msg *pb.ClientRequest) (
+func (s *GatewayComms) GetMessage(ctx context.Context, msg *pb.ClientRequest) (
 	*pb.Batch, error) {
 	userID := new(id.User).SetBytes(msg.UserID)
 	returnMsg, ok := gatewayHandler.GetMessage(userID, msg.LastMessageID)
@@ -39,27 +39,27 @@ func (s *Gateway) GetMessage(ctx context.Context, msg *pb.ClientRequest) (
 }
 
 // Receives a single message from a client
-func (s *Gateway) PutMessage(ctx context.Context, msg *pb.Batch) (*pb.Ack,
+func (s *GatewayComms) PutMessage(ctx context.Context, msg *pb.Batch) (*pb.Ack,
 	error) {
 	gatewayHandler.PutMessage(msg)
 	return &pb.Ack{}, nil
 }
 
 // Receives a batch of messages from a server
-func (s *Gateway) ReceiveBatch(ctx context.Context, msg *pb.Output) (*pb.Ack,
+func (s *GatewayComms) ReceiveBatch(ctx context.Context, msg *pb.Output) (*pb.Ack,
 	error) {
 	gatewayHandler.ReceiveBatch(msg)
 	return &pb.Ack{}, nil
 }
 
 // Pass-through for Registration Nonce Communication
-func (s *Gateway) RequestNonce(ctx context.Context,
+func (s *GatewayComms) RequestNonce(ctx context.Context,
 	msg *pb.NonceRequest) (*pb.Nonce, error) {
 	return gatewayHandler.RequestNonce(msg)
 }
 
 // Pass-through for Registration Nonce Confirmation
-func (s *Gateway) ConfirmNonce(ctx context.Context,
+func (s *GatewayComms) ConfirmNonce(ctx context.Context,
 	msg *pb.DSASignature) (*pb.RegistrationConfirmation, error) {
 	return gatewayHandler.ConfirmNonce(msg)
 }

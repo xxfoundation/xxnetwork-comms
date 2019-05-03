@@ -21,7 +21,7 @@ var GatewayAddress = "localhost:5557"
 func TestSendReceiveBatch(t *testing.T) {
 	gw := gateway.StartGateway(":5557",
 		gateway.NewImplementation(), "", "")
-	s := StartServer(":5558", NewImplementation(), "", "")
+	s := StartNode(":5558", NewImplementation(), "", "")
 	defer gw.Shutdown()
 	defer s.Shutdown()
 

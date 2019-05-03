@@ -17,7 +17,7 @@ import (
 )
 
 // Sends a batch of messages from the gateway to a server
-func (g *Gateway) SendBatch(nodeID fmt.Stringer, messages []*pb.
+func (g *GatewayComms) SendBatch(nodeID fmt.Stringer, messages []*pb.
 	Batch) error {
 	c := g.ConnectToNode(nodeID, nil)
 	ctx, cancel := connect.DefaultContext()
@@ -41,7 +41,7 @@ func (g *Gateway) SendBatch(nodeID fmt.Stringer, messages []*pb.
 // many rounds have gone through precomputation.
 // Note that this function should block if the buffer size is 0
 // This allows the caller to continuously poll without spinning too much.
-func (g *Gateway) GetRoundBufferInfo(nodeID fmt.Stringer) (int,
+func (g *GatewayComms) GetRoundBufferInfo(nodeID fmt.Stringer) (int,
 	error) {
 	c := g.ConnectToNode(nodeID, nil)
 	ctx, cancel := connect.DefaultContext()

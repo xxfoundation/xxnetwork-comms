@@ -53,7 +53,7 @@ func TestTLS(t *testing.T) {
 		testkeys.GetGatewayCertPath(), testkeys.GetGatewayKeyPath())
 	defer gateway.Shutdown()
 	ServerAddress := getNextServerAddress()
-	server := node.StartServer(ServerAddress, node.NewImplementation(),
+	server := node.StartNode(ServerAddress, node.NewImplementation(),
 		testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath())
 	defer server.Shutdown()
 	connID := MockID("gatewayToServer")

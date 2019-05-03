@@ -17,7 +17,7 @@ import (
 )
 
 // Send a message to the gateway
-func (c *Client) SendPutMessage(id fmt.Stringer,
+func (c *ClientComms) SendPutMessage(id fmt.Stringer,
 	message *pb.Batch) error {
 	// Attempt to connect to addr
 	connection := c.ConnectToGateway(id, nil)
@@ -37,7 +37,7 @@ func (c *Client) SendPutMessage(id fmt.Stringer,
 }
 
 // Request MessageIDs of new messages in the buffer from the gateway
-func (c *Client) SendCheckMessages(id fmt.Stringer,
+func (c *ClientComms) SendCheckMessages(id fmt.Stringer,
 	message *pb.ClientRequest) (*pb.IDList, error) {
 	// Attempt to connect to addr
 	connection := c.ConnectToGateway(id, nil)
@@ -57,7 +57,7 @@ func (c *Client) SendCheckMessages(id fmt.Stringer,
 }
 
 // Request a message with a specific ID from the gateway
-func (c *Client) SendGetMessage(id fmt.Stringer,
+func (c *ClientComms) SendGetMessage(id fmt.Stringer,
 	message *pb.ClientRequest) (*pb.Batch, error) {
 	// Attempt to connect to addr
 	connection := c.ConnectToGateway(id, nil)
@@ -77,7 +77,7 @@ func (c *Client) SendGetMessage(id fmt.Stringer,
 }
 
 // Send a RequestNonceMessage to the gateway
-func (c *Client) SendRequestNonceMessage(id fmt.Stringer,
+func (c *ClientComms) SendRequestNonceMessage(id fmt.Stringer,
 	message *pb.NonceRequest) (*pb.Nonce, error) {
 
 	// Attempt to connect to addr
@@ -106,7 +106,7 @@ func (c *Client) SendRequestNonceMessage(id fmt.Stringer,
 }
 
 // Send a ConfirmNonceMessage to the gateway
-func (c *Client) SendConfirmNonceMessage(id fmt.Stringer,
+func (c *ClientComms) SendConfirmNonceMessage(id fmt.Stringer,
 	message *pb.DSASignature) (*pb.RegistrationConfirmation, error) {
 
 	// Attempt to connect to addr

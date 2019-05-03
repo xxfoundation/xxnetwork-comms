@@ -37,10 +37,10 @@ func getNextServerAddress() string {
 // Tests whether the server can be connected to and run an RPC with TLS enabled
 func TestTLS(t *testing.T) {
 	serverAddress := getNextServerAddress()
-	server := StartServer(serverAddress, NewImplementation(),
+	server := StartNode(serverAddress, NewImplementation(),
 		testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath())
 	serverAddress2 := getNextServerAddress()
-	server2 := StartServer(serverAddress2, NewImplementation(),
+	server2 := StartNode(serverAddress2, NewImplementation(),
 		testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath())
 	creds := connect.NewCredentialsFromFile(testkeys.GetNodeCertPath(),
 		"*.cmix.rip")

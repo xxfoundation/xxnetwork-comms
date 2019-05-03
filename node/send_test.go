@@ -15,7 +15,7 @@ import (
 // Smoke test SendAskOnline
 func TestSendAskOnline(t *testing.T) {
 	ServerAddress := getNextServerAddress()
-	server := StartServer(ServerAddress, NewImplementation(), "", "")
+	server := StartNode(ServerAddress, NewImplementation(), "", "")
 	connID := MockID("connection35")
 	// Connect the server to itself
 	server.ConnectToNode(connID, &connect.ConnectionInfo{
@@ -31,7 +31,7 @@ func TestSendAskOnline(t *testing.T) {
 // Smoke test SendRoundtripPing
 func TestSendRoundtripPing(t *testing.T) {
 	ServerAddress := getNextServerAddress()
-	server := StartServer(ServerAddress, NewImplementation(), "", "")
+	server := StartNode(ServerAddress, NewImplementation(), "", "")
 	connID := MockID("connection35")
 	// Connect the server to itself
 	server.ConnectToNode(connID, &connect.ConnectionInfo{
@@ -47,7 +47,7 @@ func TestSendRoundtripPing(t *testing.T) {
 // Smoke test SendFinishRealtime
 func TestSendFinishRealtime(t *testing.T) {
 	ServerAddress := getNextServerAddress()
-	server := StartServer(ServerAddress, NewImplementation(), "", "")
+	server := StartNode(ServerAddress, NewImplementation(), "", "")
 	connID := MockID("node2node")
 	server.ConnectToNode(connID, &connect.ConnectionInfo{
 		Address: ServerAddress,
@@ -62,7 +62,7 @@ func TestSendFinishRealtime(t *testing.T) {
 // Smoke test SendServerMetrics
 func TestSendServerMetrics(t *testing.T) {
 	ServerAddress := getNextServerAddress()
-	server := StartServer(ServerAddress, NewImplementation(), "", "")
+	server := StartNode(ServerAddress, NewImplementation(), "", "")
 	connID := MockID("connection35")
 	// Connect the server to itself
 	server.ConnectToNode(connID, &connect.ConnectionInfo{
@@ -78,7 +78,7 @@ func TestSendServerMetrics(t *testing.T) {
 // Smoke test SendNewRound
 func TestSendNewRound(t *testing.T) {
 	ServerAddress := getNextServerAddress()
-	server := StartServer(ServerAddress, NewImplementation(), "", "")
+	server := StartNode(ServerAddress, NewImplementation(), "", "")
 	connID := MockID("connection35")
 	// Connect the server to itself
 	server.ConnectToNode(connID, &connect.ConnectionInfo{
@@ -94,7 +94,7 @@ func TestSendNewRound(t *testing.T) {
 // Smoke test SendPhase
 func TestSendPostPhase(t *testing.T) {
 	ServerAddress := getNextServerAddress()
-	server := StartServer(ServerAddress, NewImplementation(), "", "")
+	server := StartNode(ServerAddress, NewImplementation(), "", "")
 	connID := MockID("connection35")
 	// Connect the server to itself
 	server.ConnectToNode(connID, &connect.ConnectionInfo{
@@ -110,7 +110,7 @@ func TestSendPostPhase(t *testing.T) {
 // Smoke test SendPostRoundPublicKey
 func TestSendPostRoundPublicKey(t *testing.T) {
 	ServerAddress := getNextServerAddress()
-	server := StartServer(ServerAddress, NewImplementation(), "", "")
+	server := StartNode(ServerAddress, NewImplementation(), "", "")
 	connID := MockID("connection35")
 	// Connect the server to itself
 	server.ConnectToNode(connID, &connect.ConnectionInfo{
@@ -126,7 +126,7 @@ func TestSendPostRoundPublicKey(t *testing.T) {
 // TestPostPrecompResult Smoke test
 func TestSendPostPrecompResult(t *testing.T) {
 	ServerAddress := getNextServerAddress()
-	server := StartServer(ServerAddress, NewImplementation(), "", "")
+	server := StartNode(ServerAddress, NewImplementation(), "", "")
 	defer server.Shutdown()
 	connID := MockID("connection35")
 	// Connect the server to itself

@@ -17,7 +17,7 @@ import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 )
 
-func (s *Server) SendPostPhase(id fmt.Stringer,
+func (s *NodeComms) SendPostPhase(id fmt.Stringer,
 	message *pb.Batch) (*pb.Ack, error) {
 	// Attempt to connect to addr
 	c := s.ConnectToNode(id, nil)

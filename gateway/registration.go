@@ -17,7 +17,7 @@ import (
 )
 
 // Send a RequestNonceMessage to the server
-func (g *Gateway) SendRequestNonceMessage(id fmt.Stringer,
+func (g *GatewayComms) SendRequestNonceMessage(id fmt.Stringer,
 	message *pb.NonceRequest) (
 	*pb.Nonce, error) {
 
@@ -40,7 +40,7 @@ func (g *Gateway) SendRequestNonceMessage(id fmt.Stringer,
 }
 
 // Send a ConfirmNonceMessage to the server
-func (g *Gateway) SendConfirmNonceMessage(id fmt.Stringer,
+func (g *GatewayComms) SendConfirmNonceMessage(id fmt.Stringer,
 	message *pb.DSASignature) (
 	*pb.RegistrationConfirmation, error) {
 

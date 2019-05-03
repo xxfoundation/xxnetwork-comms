@@ -25,7 +25,7 @@ func TestSendPutMessage(t *testing.T) {
 	gw := gateway.StartGateway(gatewayAddress,
 		gateway.NewImplementation(), "", "")
 	defer gw.Shutdown()
-	var c Client
+	var c ClientComms
 	id := MockID("clientToGateway")
 	c.ConnectToGateway(id, &connect.ConnectionInfo{
 		Address: gatewayAddress,
@@ -43,7 +43,7 @@ func TestSendCheckMessages(t *testing.T) {
 	gw := gateway.StartGateway(gatewayAddress,
 		gateway.NewImplementation(), "", "")
 	connectionID := MockID("clientToGateway")
-	var c Client
+	var c ClientComms
 	c.ConnectToGateway(connectionID, &connect.ConnectionInfo{
 		Address: gatewayAddress,
 	})
@@ -61,7 +61,7 @@ func TestSendGetMessage(t *testing.T) {
 	gw := gateway.StartGateway(gatewayAddress,
 		gateway.NewImplementation(), "", "")
 	connectionID := MockID("clientToGateway")
-	var c Client
+	var c ClientComms
 	c.ConnectToGateway(connectionID, &connect.ConnectionInfo{
 		Address: gatewayAddress,
 	})
@@ -80,7 +80,7 @@ func TestSendRequestNonceMessage(t *testing.T) {
 		gateway.NewImplementation(), "", "")
 	defer gw.Shutdown()
 	connectionID := MockID("clientToGateway")
-	var c Client
+	var c ClientComms
 	c.ConnectToGateway(connectionID, &connect.ConnectionInfo{
 		Address: gatewayAddress,
 	})
@@ -98,7 +98,7 @@ func TestSendConfirmNonceMessage(t *testing.T) {
 		gateway.NewImplementation(), "", "")
 	defer gw.Shutdown()
 	connectionID := MockID("clientToGateway")
-	var c Client
+	var c ClientComms
 	c.ConnectToGateway(connectionID, &connect.ConnectionInfo{
 		Address: gatewayAddress,
 	})

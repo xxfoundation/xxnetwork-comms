@@ -17,27 +17,27 @@ import (
 )
 
 // Handle a Broadcasted Ask Online event
-func (s *Server) AskOnline(ctx context.Context, msg *pb.Ping) (
+func (s *NodeComms) AskOnline(ctx context.Context, msg *pb.Ping) (
 	*pb.Ack, error) {
 	return &pb.Ack{}, nil
 }
 
 // Handle a Roundtrip ping event
-func (s *Server) RoundtripPing(ctx context.Context, msg *pb.TimePing) (
+func (s *NodeComms) RoundtripPing(ctx context.Context, msg *pb.TimePing) (
 	*pb.Ack, error) {
 	serverHandler.RoundtripPing(msg)
 	return &pb.Ack{}, nil
 }
 
 // Handle a broadcasted ServerMetric event
-func (s *Server) GetServerMetrics(ctx context.Context, msg *pb.ServerMetrics) (
+func (s *NodeComms) GetServerMetrics(ctx context.Context, msg *pb.ServerMetrics) (
 	*pb.Ack, error) {
 	serverHandler.GetServerMetrics(msg)
 	return &pb.Ack{}, nil
 }
 
 // Handle a NewRound event
-func (s *Server) CreateNewRound(ctx context.Context,
+func (s *NodeComms) CreateNewRound(ctx context.Context,
 	msg *pb.RoundInfo) (*pb.Ack, error) {
 	// Call the server handler to start a new round
 	serverHandler.CreateNewRound(msg)
@@ -45,7 +45,7 @@ func (s *Server) CreateNewRound(ctx context.Context,
 }
 
 // Handle a Phase event
-func (s *Server) PostPhase(ctx context.Context, msg *pb.Batch) (*pb.Ack,
+func (s *NodeComms) PostPhase(ctx context.Context, msg *pb.Batch) (*pb.Ack,
 	error) {
 	// Call the server handler with the msg
 	serverHandler.PostPhase(msg)
@@ -53,7 +53,7 @@ func (s *Server) PostPhase(ctx context.Context, msg *pb.Batch) (*pb.Ack,
 }
 
 // Handle a PostRoundPublicKey message
-func (s *Server) PostRoundPublicKey(ctx context.Context,
+func (s *NodeComms) PostRoundPublicKey(ctx context.Context,
 	msg *pb.RoundPublicKey) (*pb.Ack, error) {
 	// Call the server handler that receives the key share
 	serverHandler.PostRoundPublicKey(msg)
@@ -61,14 +61,14 @@ func (s *Server) PostRoundPublicKey(ctx context.Context,
 }
 
 // Handle a StartRealtime event
-func (s *Server) StartRealtime(ctx context.Context,
+func (s *NodeComms) StartRealtime(ctx context.Context,
 	msg *pb.Input) (*pb.Ack, error) {
 	serverHandler.StartRealtime(msg)
 	return &pb.Ack{}, nil
 }
 
 // GetBufferInfo returns buffer size (number of completed precomputations)
-func (s *Server) GetRoundBufferInfo(ctx context.Context,
+func (s *NodeComms) GetRoundBufferInfo(ctx context.Context,
 	msg *pb.RoundBufferInfo) (
 	*pb.RoundBufferInfo, error) {
 	bufSize, err := serverHandler.GetRoundBufferInfo()
@@ -80,7 +80,7 @@ func (s *Server) GetRoundBufferInfo(ctx context.Context,
 }
 
 // Handles Registration Nonce Communication
-func (s *Server) RequestNonce(ctx context.Context,
+func (s *NodeComms) RequestNonce(ctx context.Context,
 	msg *pb.NonceRequest) (*pb.Nonce, error) {
 	pk := msg.GetClient()
 	sig := msg.GetClientSignedByServer()
@@ -104,7 +104,7 @@ func (s *Server) RequestNonce(ctx context.Context,
 }
 
 // Handles Registration Nonce Confirmation
-func (s *Server) ConfirmRegistration(ctx context.Context,
+func (s *NodeComms) ConfirmRegistration(ctx context.Context,
 	msg *pb.DSASignature) (*pb.RegistrationConfirmation, error) {
 
 	// Obtain signed client public key by passing to server
@@ -136,7 +136,7 @@ func (s *Server) ConfirmRegistration(ctx context.Context,
 }
 
 // PostPrecompResult sends final Message and AD precomputations.
-func (s *Server) PostPrecompResult(ctx context.Context,
+func (s *NodeComms) PostPrecompResult(ctx context.Context,
 	msg *pb.Batch) (*pb.Ack, error) {
 	// Call the server handler to start a new round
 	err := serverHandler.PostPrecompResult(msg.GetRound().GetID(),
@@ -145,7 +145,7 @@ func (s *Server) PostPrecompResult(ctx context.Context,
 }
 
 // FinishRealtime broadcasts to all nodes when the realtime is completed
-func (s *Server) FinishRealtime(ctx context.Context, msg *pb.Ping) (*pb.Ack, error) {
+func (s *NodeComms) FinishRealtime(ctx context.Context, msg *pb.Ping) (*pb.Ack, error) {
 	// Call the server handler to finish realtime
 	err := serverHandler.FinishRealtime()
 
