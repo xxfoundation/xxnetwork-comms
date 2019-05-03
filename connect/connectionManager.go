@@ -207,33 +207,33 @@ func (m *ConnectionManager) String() string {
 	defer m.connectionsLock.Unlock()
 
 	// Sort connection IDs to print in a consistent order
-    keys := make([]string, len(m.connections))
-    i := 0
-    for key := range m.connections {
-        keys[i] = key
-        i++
+	keys := make([]string, len(m.connections))
+	i := 0
+	for key := range m.connections {
+		keys[i] = key
+		i++
 	}
-    sort.Strings(keys)
+	sort.Strings(keys)
 
-    // Print each connection's information
-    var result bytes.Buffer
-    for _, key := range keys {
-    	// Populate fields without ever dereferencing nil
-    	connection := m.connections[key]
-    	if connection != nil {
-    		addr := connection.Address
-    		actualConnection := connection.Connection
-    		creds := connection.Creds
+	// Print each connection's information
+	var result bytes.Buffer
+	for _, key := range keys {
+		// Populate fields without ever dereferencing nil
+		connection := m.connections[key]
+		if connection != nil {
+			addr := connection.Address
+			actualConnection := connection.Connection
+			creds := connection.Creds
 
-    		var state connectivity.State
+			var state connectivity.State
 			if actualConnection != nil {
 				state = actualConnection.GetState()
 			}
 
-            serverName := "<nil>"
+			serverName := "<nil>"
 			protocolVersion := "<nil>"
-    		securityVersion := "<nil>"
-    		securityProtocol := "<nil>"
+			securityVersion := "<nil>"
+			securityProtocol := "<nil>"
 			if creds != nil {
 				serverName = creds.Info().ServerName
 				securityVersion = creds.Info().SecurityVersion
@@ -241,15 +241,15 @@ func (m *ConnectionManager) String() string {
 				securityProtocol = creds.Info().SecurityProtocol
 			}
 			result.WriteString(fmt.Sprintf(
-				"[%v] Addr: %v\tState: %v\tTLS ServerName: %v\t" +
-					"TLS ProtocolVersion: %v\tTLS SecurityVersion: %v\t" +
+				"[%v] Addr: %v\tState: %v\tTLS ServerName: %v\t"+
+					"TLS ProtocolVersion: %v\tTLS SecurityVersion: %v\t"+
 					"TLS SecurityProtocol: %v\n",
 				key, addr, state, serverName, protocolVersion,
 				securityVersion, securityProtocol))
 		}
 	}
 
-    return result.String()
+	return result.String()
 }
 
 // DefaultContexts creates a context object with the default context

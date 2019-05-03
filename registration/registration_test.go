@@ -23,6 +23,7 @@ func getNextServerAddress() string {
 }
 
 type MockID string
+
 func (m MockID) String() string {
 	return string(m)
 }
@@ -41,9 +42,8 @@ func TestTLS(t *testing.T) {
 	var c client.Client
 	connID := MockID("clientToRegistration")
 	c.ConnectToRegistration(connID, &connect.ConnectionInfo{
-		Address:    RegAddress,
-		Creds:      connect.NewCredentialsFromFile(testkeys.GetNodeCertPath(
-			), "*.cmix.rip"),
+		Address: RegAddress,
+		Creds:   connect.NewCredentialsFromFile(testkeys.GetNodeCertPath(), "*.cmix.rip"),
 	})
 
 	_, err := c.SendRegistrationMessage(connID, &pb.UserRegistration{})

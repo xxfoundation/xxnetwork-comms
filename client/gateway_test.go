@@ -14,6 +14,7 @@ import (
 )
 
 type MockID string
+
 func (m MockID) String() string {
 	return string(m)
 }
@@ -27,7 +28,7 @@ func TestSendPutMessage(t *testing.T) {
 	var c Client
 	id := MockID("clientToGateway")
 	c.ConnectToGateway(id, &connect.ConnectionInfo{
-		Address:gatewayAddress,
+		Address: gatewayAddress,
 	})
 
 	err := c.SendPutMessage(id, &pb.Batch{})
