@@ -9,6 +9,7 @@
 package gateway
 
 import (
+	"fmt"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
@@ -16,9 +17,9 @@ import (
 )
 
 // Sends a batch of messages from the gateway to a server
-func SendBatch(addr string, serverCertPath string, messages []*pb.
+func (g *GatewayComms) SendBatch(nodeID fmt.Stringer, messages []*pb.
 	Batch) error {
-	c := connect.ConnectToNode(addr, serverCertPath)
+	c := g.ConnectToNode(nodeID, nil)
 	ctx, cancel := connect.DefaultContext()
 
 	// Create an InputMessage
@@ -40,8 +41,9 @@ func SendBatch(addr string, serverCertPath string, messages []*pb.
 // many rounds have gone through precomputation.
 // Note that this function should block if the buffer size is 0
 // This allows the caller to continuously poll without spinning too much.
-func GetRoundBufferInfo(addr string, serverCertPath string) (int, error) {
-	c := connect.ConnectToNode(addr, serverCertPath)
+func (g *GatewayComms) GetRoundBufferInfo(nodeID fmt.Stringer) (int,
+	error) {
+	c := g.ConnectToNode(nodeID, nil)
 	ctx, cancel := connect.DefaultContext()
 
 	msg := &pb.RoundBufferInfo{}

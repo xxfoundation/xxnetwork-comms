@@ -7,23 +7,26 @@
 package gateway
 
 import (
+	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/node"
 	"testing"
 )
 
-// Smoke test SendCheckMessages
+// Smoke test SendBatch
 func TestSendBatch(t *testing.T) {
 	GatewayAddress := getNextGatewayAddress()
 	ServerAddress := getNextServerAddress()
-	gwShutDown := StartGateway(GatewayAddress, NewImplementation(), "", "")
-	nodeShutDown := node.StartServer(ServerAddress, node.NewImplementation(),
+	gateway := StartGateway(GatewayAddress, NewImplementation(), "", "")
+	server := node.StartNode(ServerAddress, node.NewImplementation(),
 		"", "")
-	defer gwShutDown()
-	defer nodeShutDown()
+	defer gateway.Shutdown()
+	defer server.Shutdown()
+	connID := MockID("gatewayToServer")
+	gateway.ConnectToNode(connID, &connect.ConnectionInfo{Address: ServerAddress})
 
 	msgs := []*pb.Batch{{}}
-	err := SendBatch(ServerAddress, "", msgs)
+	err := gateway.SendBatch(connID, msgs)
 	if err != nil {
 		t.Errorf("SendBatch: Error received: %s", err)
 	}
@@ -33,13 +36,15 @@ func TestSendBatch(t *testing.T) {
 func TestGetRoundBufferInfo(t *testing.T) {
 	GatewayAddress := getNextGatewayAddress()
 	ServerAddress := getNextServerAddress()
-	gwShutDown := StartGateway(GatewayAddress, NewImplementation(), "", "")
-	nodeShutDown := node.StartServer(ServerAddress, node.NewImplementation(),
+	gateway := StartGateway(GatewayAddress, NewImplementation(), "", "")
+	server := node.StartNode(ServerAddress, node.NewImplementation(),
 		"", "")
-	defer gwShutDown()
-	defer nodeShutDown()
+	defer gateway.Shutdown()
+	defer server.Shutdown()
+	connID := MockID("gatewayToServer")
+	gateway.ConnectToNode(connID, &connect.ConnectionInfo{Address: ServerAddress})
 
-	bufSize, err := GetRoundBufferInfo(ServerAddress, "")
+	bufSize, err := gateway.GetRoundBufferInfo(connID)
 	if err != nil {
 		t.Errorf("GetRoundBufferInfo: Error received: %s", err)
 	}

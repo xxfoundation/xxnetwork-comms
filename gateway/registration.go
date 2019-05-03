@@ -9,6 +9,7 @@
 package gateway
 
 import (
+	"fmt"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
@@ -16,12 +17,12 @@ import (
 )
 
 // Send a RequestNonceMessage to the server
-func SendRequestNonceMessage(addr string,
-	serverCertPath string, message *pb.NonceRequest) (
+func (g *GatewayComms) SendRequestNonceMessage(id fmt.Stringer,
+	message *pb.NonceRequest) (
 	*pb.Nonce, error) {
 
 	// Attempt to connect to addr
-	c := connect.ConnectToNode(addr, serverCertPath)
+	c := g.ConnectToNode(id, nil)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
@@ -39,12 +40,12 @@ func SendRequestNonceMessage(addr string,
 }
 
 // Send a ConfirmNonceMessage to the server
-func SendConfirmNonceMessage(addr string,
-	serverCertPath string, message *pb.DSASignature) (
+func (g *GatewayComms) SendConfirmNonceMessage(id fmt.Stringer,
+	message *pb.DSASignature) (
 	*pb.RegistrationConfirmation, error) {
 
 	// Attempt to connect to addr
-	c := connect.ConnectToNode(addr, serverCertPath)
+	c := g.ConnectToNode(id, nil)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message

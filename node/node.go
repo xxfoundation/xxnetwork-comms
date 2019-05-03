@@ -10,6 +10,7 @@ package node
 
 import (
 	"github.com/pkg/errors"
+	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -22,16 +23,18 @@ import (
 	"time"
 )
 
-// Callback interface provided by the Server repository to StartServer
+// Callback interface provided by the Server repository to StartNode
 var serverHandler ServerHandler
 
 // Server object containing a GRPC server
-type server struct {
+type NodeComms struct {
+	connect.ConnectionManager
 	gs *grpc.Server
 }
 
 // Performs a graceful shutdown of the server
-func (s *server) ShutDown() {
+func (s *NodeComms) Shutdown() {
+	// TODO Close all connections in the manager?
 	s.gs.GracefulStop()
 	time.Sleep(time.Millisecond * 500)
 }
@@ -39,8 +42,8 @@ func (s *server) ShutDown() {
 // Starts a new server on the address:port specified by localServer
 // and a callback interface for server operations
 // with given path to public and private key for TLS connection
-func StartServer(localServer string, handler ServerHandler,
-	certPath, keyPath string) func() {
+func StartNode(localServer string, handler ServerHandler,
+	certPath, keyPath string) *NodeComms {
 	var grpcServer *grpc.Server
 	// Set the serverHandler
 	serverHandler = handler
@@ -70,11 +73,11 @@ func StartServer(localServer string, handler ServerHandler,
 			grpc.MaxRecvMsgSize(math.MaxInt32))
 	} else {
 		// Create the GRPC server without TLS
-		jww.INFO.Printf("Starting server with TLS disabled...")
+		jww.WARN.Printf("Starting server with TLS disabled...")
 		grpcServer = grpc.NewServer(grpc.MaxConcurrentStreams(math.MaxUint32),
 			grpc.MaxRecvMsgSize(math.MaxInt32))
 	}
-	mixmessageServer := server{gs: grpcServer}
+	mixmessageServer := NodeComms{gs: grpcServer}
 
 	go func() {
 		// Make the port close when the gateway dies
@@ -96,5 +99,5 @@ func StartServer(localServer string, handler ServerHandler,
 		}
 	}()
 
-	return mixmessageServer.ShutDown
+	return &mixmessageServer
 }

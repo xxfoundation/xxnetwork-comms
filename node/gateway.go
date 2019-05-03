@@ -9,6 +9,7 @@
 package node
 
 import (
+	"fmt"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
@@ -16,10 +17,9 @@ import (
 )
 
 // SendReceiveBatch sends a batch to the gateway
-func SendReceiveBatch(addr string, gatewayCertPath string,
-	gatewayCertString string, message []*pb.Batch) error {
+func (s *NodeComms) SendReceiveBatch(id fmt.Stringer, message []*pb.Batch) error {
 	// Attempt to connect to addr
-	c := connect.ConnectToGateway(addr, gatewayCertPath, gatewayCertString)
+	c := s.ConnectToGateway(id, nil)
 	ctx, cancel := connect.DefaultContext()
 
 	outputMessages := pb.Output{Messages: message}

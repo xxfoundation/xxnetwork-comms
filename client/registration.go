@@ -9,6 +9,7 @@
 package client
 
 import (
+	"fmt"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
@@ -16,16 +17,14 @@ import (
 )
 
 // Send a RegisterUserMessage to the RegistrationServer
-func SendRegistrationMessage(addr string,
-	regCertPath string, regCertString string,
-	message *pb.UserRegistration) (*pb.UserRegistrationConfirmation,
-	error) {
+func (c *ClientComms) SendRegistrationMessage(id fmt.Stringer,
+	message *pb.UserRegistration) (*pb.UserRegistrationConfirmation, error) {
 	// Attempt to connect to addr
-	c := connect.ConnectToRegistration(addr, regCertPath, regCertString)
+	connection := c.ConnectToRegistration(id, nil)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
-	response, err := c.RegisterUser(ctx, message)
+	response, err := connection.RegisterUser(ctx, message)
 
 	// Make sure there are no errors with sending the message
 	if err != nil {

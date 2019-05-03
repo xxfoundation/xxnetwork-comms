@@ -9,6 +9,7 @@
 package node
 
 import (
+	"fmt"
 	"github.com/grpc-ecosystem/go-grpc-middleware/retry"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
@@ -16,10 +17,10 @@ import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 )
 
-func SendServerMetrics(addr string, serverCertPath string,
+func (s *NodeComms) SendServerMetrics(id fmt.Stringer,
 	message *pb.ServerMetrics) (*pb.Ack, error) {
 	// Attempt to connect to addr
-	c := connect.ConnectToNode(addr, serverCertPath)
+	c := s.ConnectToNode(id, nil)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
@@ -35,10 +36,10 @@ func SendServerMetrics(addr string, serverCertPath string,
 	return result, err
 }
 
-func SendRoundtripPing(addr string, serverCertPath string,
+func (s *NodeComms) SendRoundtripPing(id fmt.Stringer,
 	message *pb.TimePing) (*pb.Ack, error) {
 	// Attempt to connect to addr
-	c := connect.ConnectToNode(addr, serverCertPath)
+	c := s.ConnectToNode(id, nil)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
@@ -54,10 +55,10 @@ func SendRoundtripPing(addr string, serverCertPath string,
 	return result, err
 }
 
-func SendAskOnline(addr string, serverCertPath string, message *pb.Ping) (
+func (s *NodeComms) SendAskOnline(id fmt.Stringer, message *pb.Ping) (
 	*pb.Ack, error) {
 	// Attempt to connect to addr
-	c := connect.ConnectToNode(addr, serverCertPath)
+	c := s.ConnectToNode(id, nil)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
@@ -74,8 +75,8 @@ func SendAskOnline(addr string, serverCertPath string, message *pb.Ping) (
 	return result, err
 }
 
-func SendFinishRealtime(addr string, serverCertPath string) (*pb.Ack, error) {
-	c := connect.ConnectToNode(addr, serverCertPath)
+func (s *NodeComms) SendFinishRealtime(id fmt.Stringer) (*pb.Ack, error) {
+	c := s.ConnectToNode(id, nil)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
@@ -91,9 +92,9 @@ func SendFinishRealtime(addr string, serverCertPath string) (*pb.Ack, error) {
 	return result, err
 }
 
-func SendNewRound(addr string, serverCertPath string, message *pb.RoundInfo) (
+func (s *NodeComms) SendNewRound(id fmt.Stringer, message *pb.RoundInfo) (
 	*pb.Ack, error) {
-	c := connect.ConnectToNode(addr, serverCertPath)
+	c := s.ConnectToNode(id, nil)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
@@ -109,9 +110,9 @@ func SendNewRound(addr string, serverCertPath string, message *pb.RoundInfo) (
 	return result, err
 }
 
-func SendPostRoundPublicKey(addr string, serverCertPath string,
+func (s *NodeComms) SendPostRoundPublicKey(id fmt.Stringer,
 	message *pb.RoundPublicKey) (*pb.Ack, error) {
-	c := connect.ConnectToNode(addr, serverCertPath)
+	c := s.ConnectToNode(id, nil)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
@@ -130,9 +131,9 @@ func SendPostRoundPublicKey(addr string, serverCertPath string,
 
 // SendPostPrecompResult sends the final message and AD precomputations to
 // other nodes.
-func SendPostPrecompResult(addr string, serverCertPath string,
+func (s *NodeComms) SendPostPrecompResult(id fmt.Stringer,
 	roundID uint64, slots []*pb.Slot) (*pb.Ack, error) {
-	c := connect.ConnectToNode(addr, serverCertPath)
+	c := s.ConnectToNode(id, nil)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
