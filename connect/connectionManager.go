@@ -230,10 +230,10 @@ func (m *ConnectionManager) String() string {
 				state = actualConnection.GetState()
 			}
 
-			var serverName string
-			var protocolVersion string
-    		var securityVersion string
-    		var securityProtocol string
+            serverName := "<nil>"
+			protocolVersion := "<nil>"
+    		securityVersion := "<nil>"
+    		securityProtocol := "<nil>"
 			if creds != nil {
 				serverName = creds.Info().ServerName
 				securityVersion = creds.Info().SecurityVersion
