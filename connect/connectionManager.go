@@ -9,6 +9,7 @@
 package connect
 
 import (
+	"bytes"
 	"crypto/x509"
 	"fmt"
 	"github.com/pkg/errors"
@@ -16,6 +17,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/credentials"
+	"sort"
 	"sync"
 	"time"
 
@@ -126,6 +128,7 @@ func (m *ConnectionManager) connect(id string, info *ConnectionInfo) *grpc.
 	ClientConn {
 	// Check if a connection already exists
 	m.connectionsLock.Lock() // TODO: Really we want to lock on the key,
+	defer m.connectionsLock.Unlock()
 	existingInfo, ok := m.connections[id]
 	if ok && isConnectionGood(existingInfo.Connection) {
 		return existingInfo.Connection
@@ -180,8 +183,6 @@ func (m *ConnectionManager) connect(id string, info *ConnectionInfo) *grpc.
 		m.connections[id] = info
 	}
 
-	m.connectionsLock.Unlock()
-
 	return m.connections[id].Connection
 }
 
@@ -198,6 +199,57 @@ func (m *ConnectionManager) Disconnect(id string) {
 		delete(m.connections, id)
 	}
 	m.connectionsLock.Unlock()
+}
+
+// implements Stringer for debug printing
+func (m *ConnectionManager) String() string {
+	m.connectionsLock.Lock()
+	defer m.connectionsLock.Unlock()
+
+	// Sort connection IDs to print in a consistent order
+    keys := make([]string, len(m.connections))
+    i := 0
+    for key := range m.connections {
+        keys[i] = key
+        i++
+	}
+    sort.Strings(keys)
+
+    // Print each connection's information
+    var result bytes.Buffer
+    for _, key := range keys {
+    	// Populate fields without ever dereferencing nil
+    	connection := m.connections[key]
+    	if connection != nil {
+    		addr := connection.Address
+    		actualConnection := connection.Connection
+    		creds := connection.Creds
+
+    		var state connectivity.State
+			if actualConnection != nil {
+				state = actualConnection.GetState()
+			}
+
+			var serverName string
+			var protocolVersion string
+    		var securityVersion string
+    		var securityProtocol string
+			if creds != nil {
+				serverName = creds.Info().ServerName
+				securityVersion = creds.Info().SecurityVersion
+				protocolVersion = creds.Info().ProtocolVersion
+				securityProtocol = creds.Info().SecurityProtocol
+			}
+			result.WriteString(fmt.Sprintf(
+				"[%v] Addr: %v\tState: %v\tTLS ServerName: %v\t" +
+					"TLS ProtocolVersion: %v\tTLS SecurityVersion: %v\t" +
+					"TLS SecurityProtocol: %v\n",
+				key, addr, state, serverName, protocolVersion,
+				securityVersion, securityProtocol))
+		}
+	}
+
+    return result.String()
 }
 
 // DefaultContexts creates a context object with the default context
