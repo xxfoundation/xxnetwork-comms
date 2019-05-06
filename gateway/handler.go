@@ -20,7 +20,7 @@ type Handler interface {
 	// Return any MessageIDs in the buffer for this UserID
 	CheckMessages(userID *id.User, messageID string) ([]string, bool)
 	// Returns the message matching the given parameters to the client
-	GetMessage(userID *id.User, msgID string) (*pb.Batch, bool)
+	GetMessage(userID *id.User, msgID string) (*pb.Slot, bool)
 	// Upload a message to the cMix Gateway
 	PutMessage(message *pb.Slot) bool
 	// Receives a batch of messages from a server
@@ -38,7 +38,7 @@ type implementationFunctions struct {
 	// Return any MessageIDs in the buffer for this UserID
 	CheckMessages func(userID *id.User, messageID string) ([]string, bool)
 	// Returns the message matching the given parameters to the client
-	GetMessage func(userID *id.User, msgID string) (*pb.Batch, bool)
+	GetMessage func(userID *id.User, msgID string) (*pb.Slot, bool)
 	// Upload a message to the cMix Gateway
 	PutMessage func(message *pb.Slot) bool
 	// Receives a batch of messages from a server
@@ -66,29 +66,26 @@ func NewImplementation() Handler {
 	}
 	return Handler(&Implementation{
 		Functions: implementationFunctions{
-			CheckMessages: func(userID *id.User, messageID string) (
-				[]string, bool) {
+			CheckMessages: func(userID *id.User, messageID string) ([]string, bool) {
 				warn(um)
 				return nil, false
 			},
-			GetMessage: func(userID *id.User, msgID string) (
-				*pb.Batch, bool) {
+			GetMessage: func(userID *id.User, msgID string) (*pb.Slot, bool) {
 				warn(um)
-				return &pb.Batch{}, false
+				return &pb.Slot{}, false
 			},
 			PutMessage: func(message *pb.Slot) bool {
 				warn(um)
 				return false
 			},
-			ReceiveBatch: func(messages *pb.Batch) { warn(um) },
-
-			RequestNonce: func(message *pb.NonceRequest) (*pb.
-				Nonce, error) {
+			ReceiveBatch: func(messages *pb.Batch) {
+				warn(um)
+			},
+			RequestNonce: func(message *pb.NonceRequest) (*pb.Nonce, error) {
 				warn(um)
 				return new(pb.Nonce), nil
 			},
-			ConfirmNonce: func(message *pb.DSASignature) (*pb.
-				RegistrationConfirmation, error) {
+			ConfirmNonce: func(message *pb.DSASignature) (*pb.RegistrationConfirmation, error) {
 				warn(um)
 				return new(pb.RegistrationConfirmation), nil
 			},
@@ -104,7 +101,7 @@ func (s *Implementation) CheckMessages(userID *id.User, messageID string) (
 
 // Returns the message matching the given parameters to the client
 func (s *Implementation) GetMessage(userID *id.User, msgID string) (
-	*pb.Batch, bool) {
+	*pb.Slot, bool) {
 	return s.Functions.GetMessage(userID, msgID)
 }
 

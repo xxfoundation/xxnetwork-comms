@@ -101,7 +101,7 @@ service Gateway {
     }
 
     // GetMessage a Batch from the gateway for the given message information
-    rpc GetMessage (ClientRequest) returns (Batch) {
+    rpc GetMessage (ClientRequest) returns (Slot) {
     }
 
     // PutMessage on the cMix Gateway

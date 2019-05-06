@@ -28,12 +28,12 @@ func (g *GatewayComms) CheckMessages(ctx context.Context, msg *pb.ClientRequest)
 
 // Sends a message matching the given parameters to a client
 func (g *GatewayComms) GetMessage(ctx context.Context, msg *pb.ClientRequest) (
-	*pb.Batch, error) {
+	*pb.Slot, error) {
 	userID := new(id.User).SetBytes(msg.UserID)
 	returnMsg, ok := gatewayHandler.GetMessage(userID, msg.LastMessageID)
 	if !ok {
 		// Return an empty message if no results
-		returnMsg = &pb.Batch{}
+		returnMsg = &pb.Slot{}
 	}
 	return returnMsg, nil
 }
