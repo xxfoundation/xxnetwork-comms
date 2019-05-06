@@ -17,13 +17,12 @@ import (
 )
 
 // SendReceiveBatch sends a batch to the gateway
-func (s *NodeComms) SendReceiveBatch(id fmt.Stringer, message []*pb.Batch) error {
+func (s *NodeComms) SendReceiveBatch(id fmt.Stringer, message *pb.Batch) error {
 	// Attempt to connect to addr
 	c := s.ConnectToGateway(id, nil)
 	ctx, cancel := connect.DefaultContext()
 
-	outputMessages := pb.Output{Messages: message}
-	_, err := c.ReceiveBatch(ctx, &outputMessages)
+	_, err := c.ReceiveBatch(ctx, message)
 
 	// Make sure there are no errors with sending the message
 	if err != nil {

@@ -18,7 +18,7 @@ import (
 
 // Send a message to the gateway
 func (c *ClientComms) SendPutMessage(id fmt.Stringer,
-	message *pb.Batch) error {
+	message *pb.Slot) error {
 	// Attempt to connect to addr
 	connection := c.ConnectToGateway(id, nil)
 	ctx, cancel := connect.DefaultContext()

@@ -25,12 +25,11 @@ func TestSendReceiveBatch(t *testing.T) {
 	defer gw.Shutdown()
 	defer s.Shutdown()
 
-	x := make([]*pb.Batch, 0)
 	connID := MockID("mothership")
 	s.ConnectToGateway(connID, &connect.ConnectionInfo{
 		Address: ":5557",
 	})
-	err := s.SendReceiveBatch(connID, x)
+	err := s.SendReceiveBatch(connID, &pb.Batch{})
 	if err != nil {
 		t.Errorf("PutMessage: Error received: %s", err)
 	}
@@ -57,13 +56,13 @@ func (s *TestInterfaceGW) GetMessage(ctx context.Context, msg *pb.ClientRequest)
 }
 
 // Handle a PutMessage event
-func (s *TestInterfaceGW) PutMessage(ctx context.Context, msg *pb.Batch) (*pb.Ack,
+func (s *TestInterfaceGW) PutMessage(ctx context.Context, msg *pb.Slot) (*pb.Ack,
 	error) {
 	return &pb.Ack{}, nil
 }
 
 // Handle a PutMessage event
-func (s *TestInterfaceGW) ReceiveBatch(ctx context.Context, msg *pb.Output) (*pb.Ack,
+func (s *TestInterfaceGW) ReceiveBatch(ctx context.Context, msg *pb.Batch) (*pb.Ack,
 	error) {
 	return &pb.Ack{}, nil
 }

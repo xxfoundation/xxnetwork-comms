@@ -13,8 +13,8 @@ import (
 	"testing"
 )
 
-// Smoke test SendBatch
-func TestSendBatch(t *testing.T) {
+// Smoke test PostNewBatch
+func TestPostNewBatch(t *testing.T) {
 	GatewayAddress := getNextGatewayAddress()
 	ServerAddress := getNextServerAddress()
 	gateway := StartGateway(GatewayAddress, NewImplementation(), "", "")
@@ -25,10 +25,10 @@ func TestSendBatch(t *testing.T) {
 	connID := MockID("gatewayToServer")
 	gateway.ConnectToNode(connID, &connect.ConnectionInfo{Address: ServerAddress})
 
-	msgs := []*pb.Batch{{}}
-	err := gateway.SendBatch(connID, msgs)
+	msgs := &pb.Batch{}
+	err := gateway.PostNewBatch(connID, msgs)
 	if err != nil {
-		t.Errorf("SendBatch: Error received: %s", err)
+		t.Errorf("PostNewBatch: Error received: %s", err)
 	}
 }
 

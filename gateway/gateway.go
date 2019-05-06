@@ -25,7 +25,7 @@ import (
 // Callback interface provided by the Gateway repository to StartGateway
 var gatewayHandler Handler
 
-// Gateway object contains a GRPC server and a connection manager for outgoing
+// Gateway object contains a gRPC server and a connection manager for outgoing
 // connections
 type GatewayComms struct {
 	connect.ConnectionManager
@@ -34,8 +34,8 @@ type GatewayComms struct {
 
 // Performs a graceful shutdown of the gateway
 // TODO Close all connections in the manager
-func (s *GatewayComms) Shutdown() {
-	s.gs.GracefulStop()
+func (g *GatewayComms) Shutdown() {
+	g.gs.GracefulStop()
 	time.Sleep(time.Millisecond * 500)
 }
 
@@ -61,13 +61,13 @@ func StartGateway(localServer string, handler Handler,
 		// Create the TLS credentials
 		certPath = utils.GetFullPath(certPath)
 		keyPath = utils.GetFullPath(keyPath)
-		creds, err := credentials.NewServerTLSFromFile(certPath, keyPath)
-		if err != nil {
-			err = errors.New(err.Error())
+		creds, err2 := credentials.NewServerTLSFromFile(certPath, keyPath)
+		if err2 != nil {
+			err = errors.New(err2.Error())
 			jww.FATAL.Panicf("Could not load TLS keys: %+v", err)
 		}
 
-		// Create the GRPC server with TLS
+		// Create the gRPC server with TLS
 		jww.INFO.Printf("Starting gateway with TLS...")
 		grpcServer = grpc.NewServer(grpc.Creds(creds),
 			grpc.MaxConcurrentStreams(math.MaxUint32),
@@ -75,7 +75,7 @@ func StartGateway(localServer string, handler Handler,
 
 	} else {
 
-		// Create the GRPC server without TLS
+		// Create the gRPC server without TLS
 		jww.INFO.Printf("Starting gateway with TLS disabled...")
 		grpcServer = grpc.NewServer(grpc.MaxConcurrentStreams(math.MaxUint32),
 			grpc.MaxRecvMsgSize(33554432)) // 32 MiB
@@ -88,7 +88,7 @@ func StartGateway(localServer string, handler Handler,
 	go func() {
 		//Make the port close when the gateway dies
 		defer func() {
-			err := lis.Close()
+			err = lis.Close()
 			if err != nil {
 				err = errors.New(err.Error())
 				jww.WARN.Printf("Unable to close listening port: %+v", err)
@@ -100,7 +100,7 @@ func StartGateway(localServer string, handler Handler,
 		// Register reflection service on gRPC server.
 		// This blocks for the lifetime of the listener.
 		reflection.Register(gatewayServer.gs)
-		if err := gatewayServer.gs.Serve(lis); err != nil {
+		if err = gatewayServer.gs.Serve(lis); err != nil {
 			err = errors.New(err.Error())
 			jww.FATAL.Panicf("Failed to serve: %+v", err)
 		}

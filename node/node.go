@@ -26,7 +26,7 @@ import (
 // Callback interface provided by the Server repository to StartNode
 var serverHandler ServerHandler
 
-// Server object containing a GRPC server
+// Server object containing a gRPC server
 type NodeComms struct {
 	connect.ConnectionManager
 	gs *grpc.Server
@@ -60,19 +60,19 @@ func StartNode(localServer string, handler ServerHandler,
 		// Create the TLS credentials
 		certPath = utils.GetFullPath(certPath)
 		keyPath = utils.GetFullPath(keyPath)
-		creds, err := credentials.NewServerTLSFromFile(certPath, keyPath)
-		if err != nil {
-			err = errors.New(err.Error())
+		creds, err2 := credentials.NewServerTLSFromFile(certPath, keyPath)
+		if err2 != nil {
+			err = errors.New(err2.Error())
 			jww.FATAL.Panicf("Could not load TLS keys: %+v", err)
 		}
 
-		// Create the GRPC server with TLS
+		// Create the gRPC server with TLS
 		jww.INFO.Printf("Starting server with TLS...")
 		grpcServer = grpc.NewServer(grpc.Creds(creds),
 			grpc.MaxConcurrentStreams(math.MaxUint32),
 			grpc.MaxRecvMsgSize(math.MaxInt32))
 	} else {
-		// Create the GRPC server without TLS
+		// Create the gRPC server without TLS
 		jww.WARN.Printf("Starting server with TLS disabled...")
 		grpcServer = grpc.NewServer(grpc.MaxConcurrentStreams(math.MaxUint32),
 			grpc.MaxRecvMsgSize(math.MaxInt32))
@@ -82,7 +82,7 @@ func StartNode(localServer string, handler ServerHandler,
 	go func() {
 		// Make the port close when the gateway dies
 		defer func() {
-			err := lis.Close()
+			err = lis.Close()
 			if err != nil {
 				err = errors.New(err.Error())
 				jww.WARN.Printf("Unable to close listening port: %+v", err)
@@ -93,7 +93,7 @@ func StartNode(localServer string, handler ServerHandler,
 
 		// Register reflection service on gRPC server.
 		reflection.Register(mixmessageServer.gs)
-		if err := mixmessageServer.gs.Serve(lis); err != nil {
+		if err = mixmessageServer.gs.Serve(lis); err != nil {
 			err = errors.New(err.Error())
 			jww.FATAL.Panicf("Failed to serve: %+v", err)
 		}

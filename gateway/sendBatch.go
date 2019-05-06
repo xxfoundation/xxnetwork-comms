@@ -17,20 +17,16 @@ import (
 )
 
 // Sends a batch of messages from the gateway to a server
-func (g *GatewayComms) SendBatch(nodeID fmt.Stringer, messages []*pb.
-	Batch) error {
+func (g *GatewayComms) PostNewBatch(nodeID fmt.Stringer, messages *pb.Batch) error {
 	c := g.ConnectToNode(nodeID, nil)
 	ctx, cancel := connect.DefaultContext()
 
-	// Create an InputMessage
-	msgs := &pb.Input{Messages: messages}
-
-	_, err := c.StartRealtime(ctx, msgs)
+	_, err := c.PostNewBatch(ctx, messages)
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
 		err = errors.New(err.Error())
-		jww.ERROR.Printf("SendBatch: Error received: %+v", err)
+		jww.ERROR.Printf("PostNewBatch: Error received: %+v", err)
 	}
 
 	cancel()

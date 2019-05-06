@@ -133,7 +133,7 @@ func (m *ConnectionManager) connect(id string, info *ConnectionInfo) *grpc.
 	if ok && isConnectionGood(existingInfo.Connection) {
 		return existingInfo.Connection
 	} else if !ok && info == nil {
-		panic("No connection exists for that ID")
+		panic("No connection exists for the ID \"" + id + "\"")
 	}
 
 	// Create top level vars
@@ -155,11 +155,11 @@ func (m *ConnectionManager) connect(id string, info *ConnectionInfo) *grpc.
 			100000*time.Millisecond)
 
 		if info.Creds != nil {
-			// Create the GRPC client with TLS
+			// Create the gRPC client with TLS
 			connection, err = grpc.DialContext(ctx, info.Address,
 				grpc.WithTransportCredentials(info.Creds), grpc.WithBlock())
 		} else {
-			// Create the GRPC client without TLS
+			// Create the gRPC client without TLS
 			connection, err = grpc.DialContext(ctx, info.Address,
 				grpc.WithInsecure(), grpc.WithBlock())
 		}

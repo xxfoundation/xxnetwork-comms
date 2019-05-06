@@ -25,7 +25,7 @@ import (
 // Callback interface provided by the Server repository to StartServer
 var registrationHandler Handler
 
-// Server object containing a GRPC server
+// Server object containing a gRPC server
 type RegistrationComms struct {
 	connect.ConnectionManager
 	gs *grpc.Server
@@ -58,19 +58,19 @@ func StartRegistrationServer(localServer string, handler Handler,
 		// Create the TLS credentials
 		certPath = utils.GetFullPath(certPath)
 		keyPath = utils.GetFullPath(keyPath)
-		creds, err := credentials.NewServerTLSFromFile(certPath, keyPath)
-		if err != nil {
-			err = errors.New(err.Error())
+		creds, err2 := credentials.NewServerTLSFromFile(certPath, keyPath)
+		if err2 != nil {
+			err = errors.New(err2.Error())
 			jww.FATAL.Panicf("Could not load TLS keys: %+v", err)
 		}
 
-		// Create the GRPC server with TLS
+		// Create the gRPC server with TLS
 		jww.INFO.Printf("Starting server with TLS...")
 		grpcServer = grpc.NewServer(grpc.Creds(creds),
 			grpc.MaxConcurrentStreams(math.MaxUint32),
 			grpc.MaxRecvMsgSize(math.MaxInt32))
 	} else {
-		// Create the GRPC server without TLS
+		// Create the gRPC server without TLS
 		jww.INFO.Printf("Starting server with TLS disabled...")
 		grpcServer = grpc.NewServer(grpc.MaxConcurrentStreams(math.MaxUint32),
 			grpc.MaxRecvMsgSize(math.MaxInt32))
@@ -80,7 +80,7 @@ func StartRegistrationServer(localServer string, handler Handler,
 	go func() {
 		// Make the port close when the gateway dies
 		defer func() {
-			err := lis.Close()
+			err = lis.Close()
 			if err != nil {
 				err = errors.New(err.Error())
 				jww.WARN.Printf("Unable to close listening port: %+v", err)
@@ -91,7 +91,7 @@ func StartRegistrationServer(localServer string, handler Handler,
 
 		// Register reflection service on gRPC server.
 		reflection.Register(registrationServer.gs)
-		if err := registrationServer.gs.Serve(lis); err != nil {
+		if err = registrationServer.gs.Serve(lis); err != nil {
 			err = errors.New(err.Error())
 			jww.FATAL.Panicf("Failed to serve: %+v", err)
 		}

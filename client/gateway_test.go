@@ -31,7 +31,7 @@ func TestSendPutMessage(t *testing.T) {
 		Address: gatewayAddress,
 	})
 
-	err := c.SendPutMessage(id, &pb.Batch{})
+	err := c.SendPutMessage(id, &pb.Slot{})
 	if err != nil {
 		t.Errorf("PutMessage: Error received: %s", err)
 	}

@@ -22,9 +22,9 @@ type Handler interface {
 	// Returns the message matching the given parameters to the client
 	GetMessage(userID *id.User, msgID string) (*pb.Batch, bool)
 	// Upload a message to the cMix Gateway
-	PutMessage(message *pb.Batch) bool
+	PutMessage(message *pb.Slot) bool
 	// Receives a batch of messages from a server
-	ReceiveBatch(messages *pb.Output)
+	ReceiveBatch(messages *pb.Batch)
 
 	// Pass-through for Registration Nonce Communication
 	RequestNonce(message *pb.NonceRequest) (*pb.Nonce, error)
@@ -40,9 +40,9 @@ type implementationFunctions struct {
 	// Returns the message matching the given parameters to the client
 	GetMessage func(userID *id.User, msgID string) (*pb.Batch, bool)
 	// Upload a message to the cMix Gateway
-	PutMessage func(message *pb.Batch) bool
+	PutMessage func(message *pb.Slot) bool
 	// Receives a batch of messages from a server
-	ReceiveBatch func(messages *pb.Output)
+	ReceiveBatch func(messages *pb.Batch)
 
 	// Pass-through for Registration Nonce Communication
 	RequestNonce func(message *pb.NonceRequest) (*pb.Nonce, error)
@@ -76,11 +76,11 @@ func NewImplementation() Handler {
 				warn(um)
 				return &pb.Batch{}, false
 			},
-			PutMessage: func(message *pb.Batch) bool {
+			PutMessage: func(message *pb.Slot) bool {
 				warn(um)
 				return false
 			},
-			ReceiveBatch: func(messages *pb.Output) { warn(um) },
+			ReceiveBatch: func(messages *pb.Batch) { warn(um) },
 
 			RequestNonce: func(message *pb.NonceRequest) (*pb.
 				Nonce, error) {
@@ -109,12 +109,12 @@ func (s *Implementation) GetMessage(userID *id.User, msgID string) (
 }
 
 // Upload a message to the cMix Gateway
-func (s *Implementation) PutMessage(message *pb.Batch) bool {
+func (s *Implementation) PutMessage(message *pb.Slot) bool {
 	return s.Functions.PutMessage(message)
 }
 
 // Receives a batch of messages from a server
-func (s *Implementation) ReceiveBatch(messages *pb.Output) {
+func (s *Implementation) ReceiveBatch(messages *pb.Batch) {
 	s.Functions.ReceiveBatch(messages)
 }
 

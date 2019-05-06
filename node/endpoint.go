@@ -4,7 +4,7 @@
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
 
-// Contains server GRPC endpoints
+// Contains server gRPC endpoints
 
 package node
 
@@ -44,6 +44,14 @@ func (s *NodeComms) CreateNewRound(ctx context.Context,
 	return &pb.Ack{}, nil
 }
 
+// PostNewBatch polls the first node and sends a batch when it is ready
+func (s *NodeComms) PostNewBatch(ctx context.Context, msg *pb.Batch) (*pb.Ack, error) {
+	// Call the server handler to post a new batch
+	serverHandler.PostNewBatch(msg)
+
+	return &pb.Ack{}, nil
+}
+
 // Handle a Phase event
 func (s *NodeComms) PostPhase(ctx context.Context, msg *pb.Batch) (*pb.Ack,
 	error) {
@@ -61,9 +69,9 @@ func (s *NodeComms) PostRoundPublicKey(ctx context.Context,
 }
 
 // Handle a StartRealtime event
-func (s *NodeComms) StartRealtime(ctx context.Context,
-	msg *pb.Input) (*pb.Ack, error) {
-	serverHandler.StartRealtime(msg)
+func (s *NodeComms) StartRealtime(ctx context.Context, msg *pb.Batch) (
+	*pb.Ack, error) {
+	serverHandler.PostNewBatch(msg)
 	return &pb.Ack{}, nil
 }
 

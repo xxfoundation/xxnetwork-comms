@@ -73,8 +73,8 @@ func TestConnectionManager_String(t *testing.T) {
 		Address: "fake address",
 	}
 	t.Log(cm)
-	// A mocked connection created without the grpc factory methods will cause
-	// a panic, but there's no way to check if the field grpc uses isn't nil,
+	// A mocked connection created without the gRPC factory methods will cause
+	// a panic, but there's no way to check if the field gRPC uses isn't nil,
 	// or to set that field up, because it's not exported
 	/* cm.connections["incorrectlyCreatedConnection"] = &ConnectionInfo{
 		Address: "real address",

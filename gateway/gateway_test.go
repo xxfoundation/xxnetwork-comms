@@ -61,9 +61,10 @@ func TestTLS(t *testing.T) {
 		&connect.ConnectionInfo{
 			Address: ServerAddress,
 			Creds: connect.NewCredentialsFromFile(testkeys.GetNodeCertPath(),
-				"*.cmix.rip")})
+				"*.cmix.rip"),
+		})
 
-	err := gateway.SendBatch(connID, []*mixmessages.Batch{})
+	err := gateway.PostNewBatch(connID, &mixmessages.Batch{})
 	if err != nil {
 		t.Error(err)
 	}

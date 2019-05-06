@@ -4,7 +4,7 @@
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
 
-// Contains registration server GRPC endpoints
+// Contains registration server gRPC endpoints
 
 package registration
 
