@@ -58,7 +58,7 @@ func (c *ClientComms) SendCheckMessages(id fmt.Stringer,
 
 // Request a message with a specific ID from the gateway
 func (c *ClientComms) SendGetMessage(id fmt.Stringer,
-	message *pb.ClientRequest) (*pb.Batch, error) {
+	message *pb.ClientRequest) (*pb.Slot, error) {
 	// Attempt to connect to addr
 	connection := c.ConnectToGateway(id, nil)
 	ctx, cancel := connect.DefaultContext()
