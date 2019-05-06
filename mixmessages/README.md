@@ -1,4 +1,4 @@
-GRPC - Adding New Cryptop Message Types
+gRPC - Adding New Cryptop Message Types
 ----
 
 **Note**: This guide is specifically intended for adding new `node` 
@@ -58,7 +58,7 @@ message Pong {}
 #### Step 2: Regenerate mixmessages.pb.go
 
 Run the following command in the base project directory
-(assuming you've set GRPC up correctly per the main README):
+(assuming you've set gRPC up correctly per the main README):
 
 `protoc -I mixmessages/ mixmessages/mixmessages.proto --go_out=plugins=grpc:mixmessages`
 
@@ -86,7 +86,7 @@ like above. We will create this interface method in Step 5.
 #### Step 4: Add SendMessage function for your rpc in node package
 
 Create a new file in `node` package for your `rpc`. The purpose of this
-is to be able to send a message from the `server` repository without any dependencies on grpc.
+is to be able to send a message from the `server` repository without any dependencies on gRPC.
 You may copy one of the other files in this package and modify the message input and return types.
 Additionally, make sure you call your endpoint from Step 3 in the method body as follows:
 

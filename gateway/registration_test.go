@@ -7,6 +7,7 @@
 package gateway
 
 import (
+	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/node"
 	"testing"
@@ -16,13 +17,15 @@ import (
 func TestSendRequestNonceMessage(t *testing.T) {
 	GatewayAddress := getNextGatewayAddress()
 	ServerAddress := getNextServerAddress()
-	gwShutDown := StartGateway(GatewayAddress, NewImplementation(), "", "")
-	nodeShutDown := node.StartServer(ServerAddress, node.NewImplementation(),
+	gateway := StartGateway(GatewayAddress, NewImplementation(), "", "")
+	server := node.StartNode(ServerAddress, node.NewImplementation(),
 		"", "")
-	defer gwShutDown()
-	defer nodeShutDown()
+	defer gateway.Shutdown()
+	defer server.Shutdown()
+	connID := MockID("gatewayToServer")
+	gateway.ConnectToNode(connID, &connect.ConnectionInfo{Address: ServerAddress})
 
-	_, err := SendRequestNonceMessage(ServerAddress, "", &pb.NonceRequest{})
+	_, err := gateway.SendRequestNonceMessage(connID, &pb.NonceRequest{})
 	if err != nil {
 		t.Errorf("SendRequestNonceMessage: Error received: %s", err)
 	}
@@ -32,13 +35,15 @@ func TestSendRequestNonceMessage(t *testing.T) {
 func TestSendConfirmNonceMessage(t *testing.T) {
 	GatewayAddress := getNextGatewayAddress()
 	ServerAddress := getNextServerAddress()
-	gwShutDown := StartGateway(GatewayAddress, NewImplementation(), "", "")
-	nodeShutDown := node.StartServer(ServerAddress, node.NewImplementation(),
+	gateway := StartGateway(GatewayAddress, NewImplementation(), "", "")
+	server := node.StartNode(ServerAddress, node.NewImplementation(),
 		"", "")
-	defer gwShutDown()
-	defer nodeShutDown()
+	defer gateway.Shutdown()
+	defer server.Shutdown()
+	connID := MockID("gatewayToServer")
+	gateway.ConnectToNode(connID, &connect.ConnectionInfo{Address: ServerAddress})
 
-	_, err := SendConfirmNonceMessage(ServerAddress, "", &pb.DSASignature{})
+	_, err := gateway.SendConfirmNonceMessage(connID, &pb.DSASignature{})
 	if err != nil {
 		t.Errorf("SendConfirmNonceMessage: Error received: %s", err)
 	}

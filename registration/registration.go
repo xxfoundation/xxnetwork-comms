@@ -11,6 +11,7 @@ package registration
 import (
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
+	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/utils"
 	"google.golang.org/grpc"
@@ -24,13 +25,14 @@ import (
 // Callback interface provided by the Server repository to StartServer
 var registrationHandler Handler
 
-// Server object containing a GRPC server
-type server struct {
+// Server object containing a gRPC server
+type RegistrationComms struct {
+	connect.ConnectionManager
 	gs *grpc.Server
 }
 
 // Performs a graceful shutdown of the server
-func (s *server) ShutDown() {
+func (s *RegistrationComms) Shutdown() {
 	s.gs.GracefulStop()
 	time.Sleep(time.Millisecond * 500)
 }
@@ -39,7 +41,7 @@ func (s *server) ShutDown() {
 // and a callback interface for server operations
 // with given path to public and private key for TLS connection
 func StartRegistrationServer(localServer string, handler Handler,
-	certPath, keyPath string) func() {
+	certPath, keyPath string) *RegistrationComms {
 	var grpcServer *grpc.Server
 	// Set the serverHandler
 	registrationHandler = handler
@@ -56,29 +58,29 @@ func StartRegistrationServer(localServer string, handler Handler,
 		// Create the TLS credentials
 		certPath = utils.GetFullPath(certPath)
 		keyPath = utils.GetFullPath(keyPath)
-		creds, err := credentials.NewServerTLSFromFile(certPath, keyPath)
-		if err != nil {
-			err = errors.New(err.Error())
+		creds, err2 := credentials.NewServerTLSFromFile(certPath, keyPath)
+		if err2 != nil {
+			err = errors.New(err2.Error())
 			jww.FATAL.Panicf("Could not load TLS keys: %+v", err)
 		}
 
-		// Create the GRPC server with TLS
+		// Create the gRPC server with TLS
 		jww.INFO.Printf("Starting server with TLS...")
 		grpcServer = grpc.NewServer(grpc.Creds(creds),
 			grpc.MaxConcurrentStreams(math.MaxUint32),
 			grpc.MaxRecvMsgSize(math.MaxInt32))
 	} else {
-		// Create the GRPC server without TLS
+		// Create the gRPC server without TLS
 		jww.INFO.Printf("Starting server with TLS disabled...")
 		grpcServer = grpc.NewServer(grpc.MaxConcurrentStreams(math.MaxUint32),
 			grpc.MaxRecvMsgSize(math.MaxInt32))
 	}
-	registrationServer := server{gs: grpcServer}
+	registrationServer := RegistrationComms{gs: grpcServer}
 
 	go func() {
 		// Make the port close when the gateway dies
 		defer func() {
-			err := lis.Close()
+			err = lis.Close()
 			if err != nil {
 				err = errors.New(err.Error())
 				jww.WARN.Printf("Unable to close listening port: %+v", err)
@@ -89,11 +91,11 @@ func StartRegistrationServer(localServer string, handler Handler,
 
 		// Register reflection service on gRPC server.
 		reflection.Register(registrationServer.gs)
-		if err := registrationServer.gs.Serve(lis); err != nil {
+		if err = registrationServer.gs.Serve(lis); err != nil {
 			err = errors.New(err.Error())
 			jww.FATAL.Panicf("Failed to serve: %+v", err)
 		}
 	}()
 
-	return registrationServer.ShutDown
+	return &registrationServer
 }

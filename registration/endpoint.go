@@ -4,7 +4,7 @@
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
 
-// Contains registration server GRPC endpoints
+// Contains registration server gRPC endpoints
 
 package registration
 
@@ -15,7 +15,7 @@ import (
 )
 
 // RegisterUser event handler which registers a user with the platform
-func (s *server) RegisterUser(ctx context.Context, msg *pb.UserRegistration) (
+func (s *RegistrationComms) RegisterUser(ctx context.Context, msg *pb.UserRegistration) (
 	*pb.UserRegistrationConfirmation, error) {
 
 	// Obtain the signed key by passing to registration server

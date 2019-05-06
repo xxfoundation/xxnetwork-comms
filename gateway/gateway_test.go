@@ -8,6 +8,7 @@ package gateway
 
 import (
 	"fmt"
+	"gitlab.com/elixxir/comms/connect"
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/node"
 	"gitlab.com/elixxir/comms/testkeys"
@@ -17,6 +18,12 @@ import (
 
 var serverPortLock sync.Mutex
 var serverPort = 5500
+
+type MockID string
+
+func (m MockID) String() string {
+	return string(m)
+}
 
 func getNextServerAddress() string {
 	serverPortLock.Lock()
@@ -41,13 +48,23 @@ func getNextGatewayAddress() string {
 
 // Tests whether the gateway can be connected to and run an RPC with TLS enabled
 func TestTLS(t *testing.T) {
-	GatewayAddress := getNextServerAddress()
-	shutdown := StartGateway(GatewayAddress, NewImplementation(),
+	GatewayAddress := getNextGatewayAddress()
+	gateway := StartGateway(GatewayAddress, NewImplementation(),
 		testkeys.GetGatewayCertPath(), testkeys.GetGatewayKeyPath())
-	// Reset TLS-related global variables
-	defer shutdown()
-	err := node.SendReceiveBatch(GatewayAddress, testkeys.GetGatewayCertPath(),
-		"", &mixmessages.Batch{})
+	defer gateway.Shutdown()
+	ServerAddress := getNextServerAddress()
+	server := node.StartNode(ServerAddress, node.NewImplementation(),
+		testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath())
+	defer server.Shutdown()
+	connID := MockID("gatewayToServer")
+	gateway.ConnectToNode(connID,
+		&connect.ConnectionInfo{
+			Address: ServerAddress,
+			Creds: connect.NewCredentialsFromFile(testkeys.GetNodeCertPath(),
+				"*.cmix.rip"),
+		})
+
+	err := gateway.PostNewBatch(connID, &mixmessages.Batch{})
 	if err != nil {
 		t.Error(err)
 	}

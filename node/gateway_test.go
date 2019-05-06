@@ -7,44 +7,29 @@
 package node
 
 import (
-	jww "github.com/spf13/jwalterweatherman"
+	"context"
+	"gitlab.com/elixxir/comms/connect"
+	"gitlab.com/elixxir/comms/gateway"
 	pb "gitlab.com/elixxir/comms/mixmessages"
-	"golang.org/x/net/context"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
-	"net"
 	"testing"
 )
 
 var GatewayAddress = "localhost:5557"
 
-func startDummyGW() {
-	// Listen on the given address
-	lis, err := net.Listen("tcp", GatewayAddress)
-
-	if err != nil {
-		jww.FATAL.Panicf("failed to listen: %v", err)
-	}
-
-	//Make the port close when the gateway dies
-	defer lis.Close()
-
-	mixmessageServer := TestInterfaceGW{gs: grpc.NewServer()}
-	pb.RegisterGatewayServer(mixmessageServer.gs, &mixmessageServer)
-
-	// Register reflection service on gRPC server.
-	// This blocks for the lifetime of the listener.
-	reflection.Register(mixmessageServer.gs)
-	if err := mixmessageServer.gs.Serve(lis); err != nil {
-		jww.FATAL.Panicf("failed to serve: %v", err)
-	}
-}
-
 // Smoke test SendReceiveBatch
 func TestSendReceiveBatch(t *testing.T) {
-	go startDummyGW()
+	gw := gateway.StartGateway(":5557",
+		gateway.NewImplementation(), "", "")
+	s := StartNode(":5558", NewImplementation(), "", "")
+	defer gw.Shutdown()
+	defer s.Shutdown()
 
-	err := SendReceiveBatch(GatewayAddress, "", "", &pb.Batch{})
+	connID := MockID("mothership")
+	s.ConnectToGateway(connID, &connect.ConnectionInfo{
+		Address: ":5557",
+	})
+	err := s.SendReceiveBatch(connID, &pb.Batch{})
 	if err != nil {
 		t.Errorf("PutMessage: Error received: %s", err)
 	}

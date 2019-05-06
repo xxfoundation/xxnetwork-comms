@@ -23,33 +23,37 @@ func TestMain(m *testing.M) {
 		grpc.MaxRecvMsgSize(33554432))
 
 	go func() {
-		defer lis.Close()
-		grpcServer.Serve(lis)
+		defer func() { _ = lis.Close() }()
+		_ = grpcServer.Serve(lis)
 	}()
 	os.Exit(m.Run())
 }
 
 // Function to test the Disconnect
 // Checks if conn established in Connect() is deleted.
-func TestDisconnect(t *testing.T) {
+func TestConnectionManager_Disconnect(t *testing.T) {
 
 	test := 2
 	pass := 0
 	address := SERVER_ADDRESS
+	id := "pear"
+	var manager ConnectionManager
 
-	connect(address, "", "", "")
+	manager.connect(id, &ConnectionInfo{
+		Address: address,
+	})
 
-	_, alive := connections[address]
+	_, inMap := manager.connections[id]
 
-	if !alive {
-		t.Errorf("Connect Function did not working properly")
+	if !inMap {
+		t.Errorf("Connect Function didn't add connection to map")
 	} else {
 		pass++
 	}
 
-	Disconnect(address)
+	manager.Disconnect(id)
 
-	_, present := connections[address]
+	_, present := manager.connections[address]
 
 	if present {
 		t.Errorf("Disconnect Function not working properly")
@@ -58,4 +62,22 @@ func TestDisconnect(t *testing.T) {
 	}
 
 	println("Connection Manager Test: ", pass, "out of", test, "tests passed.")
+}
+
+func TestConnectionManager_String(t *testing.T) {
+	cm := &ConnectionManager{connections: make(map[string]*ConnectionInfo)}
+	t.Log(cm)
+	cm.connections["infoNil"] = nil
+	t.Log(cm)
+	cm.connections["fieldsNil"] = &ConnectionInfo{
+		Address: "fake address",
+	}
+	t.Log(cm)
+	// A mocked connection created without the gRPC factory methods will cause
+	// a panic, but there's no way to check if the field gRPC uses isn't nil,
+	// or to set that field up, because it's not exported
+	/* cm.connections["incorrectlyCreatedConnection"] = &ConnectionInfo{
+		Address: "real address",
+		Connection: &grpc.ClientConn{},
+	} */
 }
