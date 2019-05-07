@@ -58,6 +58,10 @@ service Node {
     // sending the final Message and AD precomputations
     rpc PostPrecompResult (Batch) returns (Ack) {
     }
+
+    // The gateway calls GetCompletedBatch to get any finished batch from a node
+    rpc GetCompletedBatch (Ping) returns (Batch) {
+    }
 }
 
 // The request message asking if server is online
@@ -106,10 +110,6 @@ service Gateway {
 
     // PutMessage on the cMix Gateway
     rpc PutMessage (Slot) returns (Ack) {
-    }
-
-    // ReceiveBatch of messages from the server
-    rpc ReceiveBatch (Batch) returns (Ack) {
     }
 
     // RequestNonce returns a Nonce to the user

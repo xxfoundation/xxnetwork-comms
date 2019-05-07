@@ -24,6 +24,9 @@ import (
 )
 
 // Callback interface provided by the Server repository to StartNode
+// FIXME(sb) This ought to be part of the NodeComms struct, probably
+//  The whole way that this all gets set up leaves something to be desired right
+//  now. It doesn't really make a whole lot of sense.
 var serverHandler ServerHandler
 
 // Server object containing a gRPC server

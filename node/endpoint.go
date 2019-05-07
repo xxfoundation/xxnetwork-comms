@@ -159,3 +159,10 @@ func (s *NodeComms) FinishRealtime(ctx context.Context, msg *pb.Ping) (*pb.Ack, 
 
 	return &pb.Ack{}, err
 }
+
+// GetCompletedBatch should return a completed batch that the calling gateway
+// hasn't gotten before
+func (s *NodeComms) GetCompletedBatch(ctx context.Context,
+	msg *pb.Ping) (*pb.Batch, error) {
+	return serverHandler.GetCompletedBatch()
+}
