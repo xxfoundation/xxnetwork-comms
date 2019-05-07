@@ -142,6 +142,10 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return nil
 			},
+			GetCompletedBatch: func() (batch *mixmessages.Batch, e error) {
+                warn(um)
+                return &mixmessages.Batch{}, nil
+			},
 		},
 	}
 }

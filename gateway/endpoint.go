@@ -45,13 +45,6 @@ func (g *GatewayComms) PutMessage(ctx context.Context, msg *pb.Slot) (*pb.Ack,
 	return &pb.Ack{}, nil
 }
 
-// Receives a batch of messages from a server
-func (g *GatewayComms) ReceiveBatch(ctx context.Context, msg *pb.Batch) (*pb.Ack,
-	error) {
-	gatewayHandler.ReceiveBatch(msg)
-	return &pb.Ack{}, nil
-}
-
 // Pass-through for Registration Nonce Communication
 func (g *GatewayComms) RequestNonce(ctx context.Context,
 	msg *pb.NonceRequest) (*pb.Nonce, error) {
