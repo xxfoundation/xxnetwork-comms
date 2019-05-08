@@ -23,9 +23,6 @@ type Handler interface {
 	GetMessage(userID *id.User, msgID string) (*pb.Slot, bool)
 	// Upload a message to the cMix Gateway
 	PutMessage(message *pb.Slot) bool
-	// Receives a batch of messages from a server
-	ReceiveBatch(messages *pb.Batch)
-
 	// Pass-through for Registration Nonce Communication
 	RequestNonce(message *pb.NonceRequest) (*pb.Nonce, error)
 	// Pass-through for Registration Nonce Confirmation
@@ -41,9 +38,6 @@ type implementationFunctions struct {
 	GetMessage func(userID *id.User, msgID string) (*pb.Slot, bool)
 	// Upload a message to the cMix Gateway
 	PutMessage func(message *pb.Slot) bool
-	// Receives a batch of messages from a server
-	ReceiveBatch func(messages *pb.Batch)
-
 	// Pass-through for Registration Nonce Communication
 	RequestNonce func(message *pb.NonceRequest) (*pb.Nonce, error)
 	// Pass-through for Registration Nonce Confirmation
@@ -78,9 +72,6 @@ func NewImplementation() Handler {
 				warn(um)
 				return false
 			},
-			ReceiveBatch: func(messages *pb.Batch) {
-				warn(um)
-			},
 			RequestNonce: func(message *pb.NonceRequest) (*pb.Nonce, error) {
 				warn(um)
 				return new(pb.Nonce), nil
@@ -108,11 +99,6 @@ func (s *Implementation) GetMessage(userID *id.User, msgID string) (
 // Upload a message to the cMix Gateway
 func (s *Implementation) PutMessage(message *pb.Slot) bool {
 	return s.Functions.PutMessage(message)
-}
-
-// Receives a batch of messages from a server
-func (s *Implementation) ReceiveBatch(messages *pb.Batch) {
-	s.Functions.ReceiveBatch(messages)
 }
 
 // Pass-through for Registration Nonce Communication

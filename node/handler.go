@@ -43,6 +43,9 @@ type ServerHandler interface {
 
 	// PostPrecompResult interface to finalize message and AD precomps
 	PostPrecompResult(roundID uint64, slots []*mixmessages.Slot) error
+
+	// GetCompletedBatch: gateway uses completed batch from the server
+	GetCompletedBatch() (*mixmessages.Batch, error)
 }
 
 type implementationFunctions struct {
@@ -75,6 +78,8 @@ type implementationFunctions struct {
 	// PostPrecompResult interface to finalize message and AD precomps
 	PostPrecompResult func(roundID uint64,
 		slots []*mixmessages.Slot) error
+
+	GetCompletedBatch func() (*mixmessages.Batch, error)
 }
 
 // Implementation allows users of the client library to set the
@@ -137,6 +142,10 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return nil
 			},
+			GetCompletedBatch: func() (batch *mixmessages.Batch, e error) {
+                warn(um)
+                return &mixmessages.Batch{}, nil
+			},
 		},
 	}
 }
@@ -197,4 +206,9 @@ func (s *Implementation) PostPrecompResult(roundID uint64,
 
 func (s *Implementation) FinishRealtime() error {
 	return s.Functions.FinishRealtime()
+}
+
+// Implementation of the interface using the function in the struct
+func (s *Implementation) GetCompletedBatch() (*mixmessages.Batch, error) {
+    return s.Functions.GetCompletedBatch()
 }

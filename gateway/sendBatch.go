@@ -57,3 +57,20 @@ func (g *GatewayComms) GetRoundBufferInfo(nodeID fmt.Stringer) (int,
 	cancel()
 	return bufSize, err
 }
+
+// Gateway polls server for processed batches
+func (g *GatewayComms) GetCompletedBatch(nodeID fmt.Stringer) (*pb.Batch,
+	error) {
+	c := g.ConnectToNode(nodeID, nil)
+	ctx, cancel := connect.DefaultContext()
+
+	msg := &pb.Ping{}
+	batch, err := c.GetCompletedBatch(ctx, msg)
+	if err != nil {
+		err = errors.New(err.Error())
+		jww.ERROR.Printf("GetCompletedBatch: Error received: %+v", err)
+	}
+
+	cancel()
+	return batch, err
+}
