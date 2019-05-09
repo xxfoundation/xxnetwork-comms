@@ -22,14 +22,12 @@ import (
 	"time"
 )
 
-// Callback interface provided by the Gateway repository to StartGateway
-var gatewayHandler Handler
-
 // Gateway object contains a gRPC server and a connection manager for outgoing
 // connections
 type GatewayComms struct {
 	connect.ConnectionManager
-	gs *grpc.Server
+	gs      *grpc.Server
+	handler Handler
 }
 
 // Performs a graceful shutdown of the gateway
@@ -45,8 +43,6 @@ func (g *GatewayComms) Shutdown() {
 func StartGateway(localServer string, handler Handler,
 	certPath, keyPath string) *GatewayComms {
 	var grpcServer *grpc.Server
-	// Set the gatewayHandler
-	gatewayHandler = handler
 
 	// Listen on the given address
 	lis, err := net.Listen("tcp", localServer)
@@ -82,7 +78,8 @@ func StartGateway(localServer string, handler Handler,
 
 	}
 	gatewayServer := GatewayComms{
-		gs: grpcServer,
+		gs:      grpcServer,
+		handler: handler,
 	}
 
 	go func() {

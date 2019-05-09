@@ -23,16 +23,11 @@ import (
 	"time"
 )
 
-// Callback interface provided by the Server repository to StartNode
-// FIXME(sb) This ought to be part of the NodeComms struct, probably
-//  The whole way that this all gets set up leaves something to be desired right
-//  now. It doesn't really make a whole lot of sense.
-var serverHandler ServerHandler
-
 // Server object containing a gRPC server
 type NodeComms struct {
 	connect.ConnectionManager
-	gs *grpc.Server
+	gs      *grpc.Server
+	handler ServerHandler
 }
 
 // Performs a graceful shutdown of the server
@@ -48,8 +43,6 @@ func (s *NodeComms) Shutdown() {
 func StartNode(localServer string, handler ServerHandler,
 	certPath, keyPath string) *NodeComms {
 	var grpcServer *grpc.Server
-	// Set the serverHandler
-	serverHandler = handler
 
 	// Listen on the given address
 	lis, err := net.Listen("tcp", localServer)
@@ -80,7 +73,7 @@ func StartNode(localServer string, handler ServerHandler,
 		grpcServer = grpc.NewServer(grpc.MaxConcurrentStreams(math.MaxUint32),
 			grpc.MaxRecvMsgSize(math.MaxInt32))
 	}
-	mixmessageServer := NodeComms{gs: grpcServer}
+	mixmessageServer := NodeComms{gs: grpcServer, handler: handler}
 
 	go func() {
 		// Make the port close when the gateway dies

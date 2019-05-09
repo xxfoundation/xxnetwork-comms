@@ -20,7 +20,7 @@ func (s *RegistrationComms) RegisterUser(ctx context.Context, msg *pb.UserRegist
 
 	// Obtain the signed key by passing to registration server
 	pubKey := msg.GetClient()
-	hash, R, S, err := registrationHandler.RegisterUser(msg.
+	hash, R, S, err := s.handler.RegisterUser(msg.
 		GetRegistrationCode(), pubKey.GetY(), pubKey.GetP(),
 		pubKey.GetQ(), pubKey.GetG())
 
