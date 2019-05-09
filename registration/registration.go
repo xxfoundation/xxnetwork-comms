@@ -22,13 +22,11 @@ import (
 	"time"
 )
 
-// Callback interface provided by the Server repository to StartServer
-var registrationHandler Handler
-
 // Server object containing a gRPC server
 type RegistrationComms struct {
 	connect.ConnectionManager
-	gs *grpc.Server
+	gs      *grpc.Server
+	handler Handler
 }
 
 // Performs a graceful shutdown of the server
@@ -43,8 +41,6 @@ func (s *RegistrationComms) Shutdown() {
 func StartRegistrationServer(localServer string, handler Handler,
 	certPath, keyPath string) *RegistrationComms {
 	var grpcServer *grpc.Server
-	// Set the serverHandler
-	registrationHandler = handler
 
 	// Listen on the given address
 	lis, err := net.Listen("tcp", localServer)
@@ -75,7 +71,7 @@ func StartRegistrationServer(localServer string, handler Handler,
 		grpcServer = grpc.NewServer(grpc.MaxConcurrentStreams(math.MaxUint32),
 			grpc.MaxRecvMsgSize(math.MaxInt32))
 	}
-	registrationServer := RegistrationComms{gs: grpcServer}
+	registrationServer := RegistrationComms{gs: grpcServer, handler: handler}
 
 	go func() {
 		// Make the port close when the gateway dies
