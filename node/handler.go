@@ -25,7 +25,7 @@ type ServerHandler interface {
 	// Server interface for sending a new batch
 	PostNewBatch(message *mixmessages.Batch)
 	// Server interface for broadcasting when realtime is complete
-	FinishRealtime() error
+	FinishRealtime(message *mixmessages.RoundInfo) error
 	// GetRoundBufferInfo returns # of available precomputations
 	GetRoundBufferInfo() (int, error)
 
@@ -59,7 +59,7 @@ type implementationFunctions struct {
 	// Server interface for sending a new batch
 	PostNewBatch func(message *mixmessages.Batch)
 	// Server interface for finishing the realtime phase
-	FinishRealtime func() error
+	FinishRealtime func(message *mixmessages.RoundInfo) error
 	// GetRoundBufferInfo returns # of available precomputations completed
 	GetRoundBufferInfo func() (int, error)
 
@@ -117,7 +117,7 @@ func NewImplementation() *Implementation {
 			PostNewBatch: func(message *mixmessages.Batch) {
 				warn(um)
 			},
-			FinishRealtime: func() error {
+			FinishRealtime: func(message *mixmessages.RoundInfo) error {
 				warn(um)
 				return nil
 			},
@@ -204,8 +204,8 @@ func (s *Implementation) PostPrecompResult(roundID uint64,
 	return s.Functions.PostPrecompResult(roundID, slots)
 }
 
-func (s *Implementation) FinishRealtime() error {
-	return s.Functions.FinishRealtime()
+func (s *Implementation) FinishRealtime(message *mixmessages.RoundInfo) error {
+	return s.Functions.FinishRealtime(message)
 }
 
 // Implementation of the interface using the function in the struct

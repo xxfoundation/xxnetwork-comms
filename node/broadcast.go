@@ -75,12 +75,13 @@ func (s *NodeComms) SendAskOnline(id fmt.Stringer, message *pb.Ping) (
 	return result, err
 }
 
-func (s *NodeComms) SendFinishRealtime(id fmt.Stringer) (*pb.Ack, error) {
+func (s *NodeComms) SendFinishRealtime(id fmt.Stringer,
+	message *pb.RoundInfo) (*pb.Ack, error) {
 	c := s.ConnectToNode(id, nil)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
-	result, err := c.FinishRealtime(ctx, &pb.Ping{},
+	result, err := c.FinishRealtime(ctx, message,
 		grpc_retry.WithMax(connect.MAX_RETRIES))
 
 	// Make sure there are no errors with sending the message
