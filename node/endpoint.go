@@ -153,9 +153,9 @@ func (s *NodeComms) PostPrecompResult(ctx context.Context,
 }
 
 // FinishRealtime broadcasts to all nodes when the realtime is completed
-func (s *NodeComms) FinishRealtime(ctx context.Context, msg *pb.Ping) (*pb.Ack, error) {
+func (s *NodeComms) FinishRealtime(ctx context.Context, msg *pb.RoundInfo) (*pb.Ack, error) {
 	// Call the server handler to finish realtime
-	err := s.handler.FinishRealtime()
+	err := s.handler.FinishRealtime(msg)
 
 	return &pb.Ack{}, err
 }
