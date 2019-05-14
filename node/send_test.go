@@ -53,7 +53,7 @@ func TestSendFinishRealtime(t *testing.T) {
 		Address: ServerAddress,
 	})
 	defer server.Shutdown()
-	_, err := server.SendFinishRealtime(connID)
+	_, err := server.SendFinishRealtime(connID, &pb.RoundInfo{ID: 0})
 	if err != nil {
 		t.Errorf("FinishRealtime: Error received: %s", err)
 	}
