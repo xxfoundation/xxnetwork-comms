@@ -17,7 +17,7 @@ import (
 // Sends new MessageIDs in the buffer to a client
 func (g *GatewayComms) CheckMessages(ctx context.Context, msg *pb.ClientRequest) (
 	*pb.IDList, error) {
-	userID := new(id.User).SetBytes(msg.UserID)
+	userID := id.NewUserFromBytes(msg.UserID)
 	msgIds, ok := g.handler.CheckMessages(userID, msg.LastMessageID)
 	returnMsg := &pb.IDList{}
 	if ok {
@@ -29,7 +29,7 @@ func (g *GatewayComms) CheckMessages(ctx context.Context, msg *pb.ClientRequest)
 // Sends a message matching the given parameters to a client
 func (g *GatewayComms) GetMessage(ctx context.Context, msg *pb.ClientRequest) (
 	*pb.Slot, error) {
-	userID := new(id.User).SetBytes(msg.UserID)
+	userID := id.NewUserFromBytes(msg.UserID)
 	returnMsg, ok := g.handler.GetMessage(userID, msg.LastMessageID)
 	if !ok {
 		// Return an empty message if no results
