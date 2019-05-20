@@ -20,7 +20,7 @@ import (
 func (c *ClientComms) SendPutMessage(id fmt.Stringer,
 	message *pb.Slot) error {
 	// Attempt to connect to addr
-	connection := c.ConnectToGateway(id, nil)
+	connection := c.GetGatewayConnection(id)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
@@ -40,7 +40,7 @@ func (c *ClientComms) SendPutMessage(id fmt.Stringer,
 func (c *ClientComms) SendCheckMessages(id fmt.Stringer,
 	message *pb.ClientRequest) (*pb.IDList, error) {
 	// Attempt to connect to addr
-	connection := c.ConnectToGateway(id, nil)
+	connection := c.GetGatewayConnection(id)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
@@ -60,7 +60,7 @@ func (c *ClientComms) SendCheckMessages(id fmt.Stringer,
 func (c *ClientComms) SendGetMessage(id fmt.Stringer,
 	message *pb.ClientRequest) (*pb.Slot, error) {
 	// Attempt to connect to addr
-	connection := c.ConnectToGateway(id, nil)
+	connection := c.GetGatewayConnection(id)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
@@ -81,7 +81,7 @@ func (c *ClientComms) SendRequestNonceMessage(id fmt.Stringer,
 	message *pb.NonceRequest) (*pb.Nonce, error) {
 
 	// Attempt to connect to addr
-	connection := c.ConnectToGateway(id, nil)
+	connection := c.GetGatewayConnection(id)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
@@ -110,7 +110,7 @@ func (c *ClientComms) SendConfirmNonceMessage(id fmt.Stringer,
 	message *pb.DSASignature) (*pb.RegistrationConfirmation, error) {
 
 	// Attempt to connect to addr
-	connection := c.ConnectToGateway(id, nil)
+	connection := c.GetGatewayConnection(id)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message

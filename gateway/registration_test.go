@@ -7,7 +7,6 @@
 package gateway
 
 import (
-	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/node"
 	"testing"
@@ -23,7 +22,7 @@ func TestSendRequestNonceMessage(t *testing.T) {
 	defer gateway.Shutdown()
 	defer server.Shutdown()
 	connID := MockID("gatewayToServer")
-	gateway.ConnectToNode(connID, &connect.ConnectionInfo{Address: ServerAddress})
+	gateway.ConnectToNode(connID, ServerAddress, nil)
 
 	_, err := gateway.SendRequestNonceMessage(connID, &pb.NonceRequest{})
 	if err != nil {
@@ -41,7 +40,7 @@ func TestSendConfirmNonceMessage(t *testing.T) {
 	defer gateway.Shutdown()
 	defer server.Shutdown()
 	connID := MockID("gatewayToServer")
-	gateway.ConnectToNode(connID, &connect.ConnectionInfo{Address: ServerAddress})
+	gateway.ConnectToNode(connID, ServerAddress, nil)
 
 	_, err := gateway.SendConfirmNonceMessage(connID, &pb.DSASignature{})
 	if err != nil {

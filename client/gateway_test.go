@@ -7,7 +7,6 @@
 package client
 
 import (
-	"gitlab.com/elixxir/comms/connect"
 	"gitlab.com/elixxir/comms/gateway"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"testing"
@@ -27,9 +26,7 @@ func TestSendPutMessage(t *testing.T) {
 	defer gw.Shutdown()
 	var c ClientComms
 	id := MockID("clientToGateway")
-	c.ConnectToGateway(id, &connect.ConnectionInfo{
-		Address: gatewayAddress,
-	})
+	c.ConnectToGateway(id, gatewayAddress, nil)
 
 	err := c.SendPutMessage(id, &pb.Slot{})
 	if err != nil {
@@ -44,9 +41,7 @@ func TestSendCheckMessages(t *testing.T) {
 		gateway.NewImplementation(), "", "")
 	connectionID := MockID("clientToGateway")
 	var c ClientComms
-	c.ConnectToGateway(connectionID, &connect.ConnectionInfo{
-		Address: gatewayAddress,
-	})
+	c.ConnectToGateway(connectionID, gatewayAddress, nil)
 	defer gw.Shutdown()
 
 	_, err := c.SendCheckMessages(connectionID, &pb.ClientRequest{})
@@ -62,9 +57,7 @@ func TestSendGetMessage(t *testing.T) {
 		gateway.NewImplementation(), "", "")
 	connectionID := MockID("clientToGateway")
 	var c ClientComms
-	c.ConnectToGateway(connectionID, &connect.ConnectionInfo{
-		Address: gatewayAddress,
-	})
+	c.ConnectToGateway(connectionID, gatewayAddress, nil)
 	defer gw.Shutdown()
 
 	_, err := c.SendGetMessage(connectionID, &pb.ClientRequest{})
@@ -81,9 +74,7 @@ func TestSendRequestNonceMessage(t *testing.T) {
 	defer gw.Shutdown()
 	connectionID := MockID("clientToGateway")
 	var c ClientComms
-	c.ConnectToGateway(connectionID, &connect.ConnectionInfo{
-		Address: gatewayAddress,
-	})
+	c.ConnectToGateway(connectionID, gatewayAddress, nil)
 
 	_, err := c.SendRequestNonceMessage(connectionID, &pb.NonceRequest{})
 	if err != nil {
@@ -99,9 +90,7 @@ func TestSendConfirmNonceMessage(t *testing.T) {
 	defer gw.Shutdown()
 	connectionID := MockID("clientToGateway")
 	var c ClientComms
-	c.ConnectToGateway(connectionID, &connect.ConnectionInfo{
-		Address: gatewayAddress,
-	})
+	c.ConnectToGateway(connectionID, gatewayAddress, nil)
 
 	_, err := c.SendConfirmNonceMessage(connectionID, &pb.DSASignature{})
 	if err != nil {

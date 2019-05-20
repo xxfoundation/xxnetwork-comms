@@ -20,7 +20,7 @@ import (
 func (c *ClientComms) SendRegistrationMessage(id fmt.Stringer,
 	message *pb.UserRegistration) (*pb.UserRegistrationConfirmation, error) {
 	// Attempt to connect to addr
-	connection := c.ConnectToRegistration(id, nil)
+	connection := c.GetRegistrationConnection(id)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message

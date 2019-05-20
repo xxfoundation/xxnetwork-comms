@@ -58,11 +58,9 @@ func TestTLS(t *testing.T) {
 	defer server.Shutdown()
 	connID := MockID("gatewayToServer")
 	gateway.ConnectToNode(connID,
-		&connect.ConnectionInfo{
-			Address: ServerAddress,
-			Creds: connect.NewCredentialsFromFile(testkeys.GetNodeCertPath(),
-				"*.cmix.rip"),
-		})
+		ServerAddress,
+		connect.NewCredentialsFromFile(testkeys.GetNodeCertPath(),
+			"*.cmix.rip"))
 
 	err := gateway.PostNewBatch(connID, &mixmessages.Batch{})
 	if err != nil {
