@@ -20,7 +20,7 @@ import (
 func (s *NodeComms) SendPostPhase(id fmt.Stringer,
 	message *pb.Batch) (*pb.Ack, error) {
 	// Attempt to connect to addr
-	c := s.ConnectToNode(id, nil)
+	c := s.GetNodeConnection(id)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message

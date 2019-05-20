@@ -143,8 +143,8 @@ func NewImplementation() *Implementation {
 				return nil
 			},
 			GetCompletedBatch: func() (batch *mixmessages.Batch, e error) {
-                warn(um)
-                return &mixmessages.Batch{}, nil
+				warn(um)
+				return &mixmessages.Batch{}, nil
 			},
 		},
 	}
@@ -210,5 +210,5 @@ func (s *Implementation) FinishRealtime(message *mixmessages.RoundInfo) error {
 
 // Implementation of the interface using the function in the struct
 func (s *Implementation) GetCompletedBatch() (*mixmessages.Batch, error) {
-    return s.Functions.GetCompletedBatch()
+	return s.Functions.GetCompletedBatch()
 }

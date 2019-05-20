@@ -30,14 +30,10 @@ func TestConnectionManager_String(t *testing.T) {
 	defer server2.Shutdown()
 	cm := &connect.ConnectionManager{}
 	// A real connection will be printed correctly, though
-	cm.ConnectToNode(MockID("credsNil"), &connect.ConnectionInfo{
-		Address: ":5658",
-	})
+	cm.ConnectToNode(MockID("credsNil"), ":5658", nil)
 	t.Log(cm)
-	cm.ConnectToNode(MockID("goodCreds"), &connect.ConnectionInfo{
-		Address: ":5659",
-		Creds: connect.NewCredentialsFromFile(testkeys.GetNodeCertPath(),
-			"*.cmix.rip"),
-	})
+	cm.ConnectToNode(MockID("goodCreds"), ":5659",
+		connect.NewCredentialsFromFile(testkeys.GetNodeCertPath(),
+			"*.cmix.rip"))
 	t.Log(cm)
 }

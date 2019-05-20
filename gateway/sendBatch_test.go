@@ -7,7 +7,6 @@
 package gateway
 
 import (
-	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/node"
 	"testing"
@@ -23,7 +22,7 @@ func TestPostNewBatch(t *testing.T) {
 	defer gateway.Shutdown()
 	defer server.Shutdown()
 	connID := MockID("gatewayToServer")
-	gateway.ConnectToNode(connID, &connect.ConnectionInfo{Address: ServerAddress})
+	gateway.ConnectToNode(connID, ServerAddress, nil)
 
 	msgs := &pb.Batch{}
 	err := gateway.PostNewBatch(connID, msgs)
@@ -42,7 +41,7 @@ func TestGetRoundBufferInfo(t *testing.T) {
 	defer gateway.Shutdown()
 	defer server.Shutdown()
 	connID := MockID("gatewayToServer")
-	gateway.ConnectToNode(connID, &connect.ConnectionInfo{Address: ServerAddress})
+	gateway.ConnectToNode(connID, ServerAddress, nil)
 
 	bufSize, err := gateway.GetRoundBufferInfo(connID)
 	if err != nil {
@@ -63,7 +62,7 @@ func TestGetCompletedBatch(t *testing.T) {
 	defer gateway.Shutdown()
 	defer server.Shutdown()
 	connID := MockID("gatewayToServer")
-	gateway.ConnectToNode(connID, &connect.ConnectionInfo{Address: ServerAddress})
+	gateway.ConnectToNode(connID, ServerAddress, nil)
 
 	batch, err := gateway.GetCompletedBatch(connID)
 	if err != nil {

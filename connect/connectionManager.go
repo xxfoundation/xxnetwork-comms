@@ -86,17 +86,27 @@ func MakeCreds(certPath, certPEM string,
 // Connect to a certain registration server
 // connectionInfo can be nil if the connection already exists for this id
 func (m *ConnectionManager) ConnectToRegistration(id fmt.Stringer,
-	info *ConnectionInfo) pb.RegistrationClient {
-	connection := m.connect(id.String(), info)
-	return pb.NewRegistrationClient(connection)
+	addr string, tls credentials.TransportCredentials) {
+	m.connect(id.String(), addr, tls)
+}
+
+func (m *ConnectionManager) GetRegistrationConnection(id fmt.Stringer) pb.
+	RegistrationClient {
+	conn := m.get(id)
+	return pb.NewRegistrationClient(conn)
 }
 
 // Connect to a certain gateway
 // connectionInfo can be nil if the connection already exists for this id
 func (m *ConnectionManager) ConnectToGateway(id fmt.Stringer,
-	info *ConnectionInfo) pb.GatewayClient {
-	connection := m.connect(id.String(), info)
-	return pb.NewGatewayClient(connection)
+	addr string, tls credentials.TransportCredentials) {
+	m.connect(id.String(), addr, tls)
+}
+
+func (m *ConnectionManager) GetGatewayConnection(id fmt.Stringer) pb.
+	GatewayClient {
+	conn := m.get(id)
+	return pb.NewGatewayClient(conn)
 }
 
 // Connect to a certain node
@@ -104,9 +114,13 @@ func (m *ConnectionManager) ConnectToGateway(id fmt.Stringer,
 // Should this return an error if the connection doesn't exist and the
 // connection info is nil?
 func (m *ConnectionManager) ConnectToNode(id fmt.Stringer,
-	info *ConnectionInfo) pb.NodeClient {
-	connection := m.connect(id.String(), info)
-	return pb.NewNodeClient(connection)
+	addr string, tls credentials.TransportCredentials) {
+	m.connect(id.String(), addr, tls)
+}
+
+func (m *ConnectionManager) GetNodeConnection(id fmt.Stringer) pb.NodeClient {
+	conn := m.get(id)
+	return pb.NewNodeClient(conn)
 }
 
 // Returns true if the connection is non-nil and alive
@@ -119,22 +133,24 @@ func isConnectionGood(connection *grpc.ClientConn) bool {
 		state == connectivity.Ready
 }
 
-// Connect creates a connection, or returns a pre-existing connection based on
-// a given address string.
-// Connect should reconnect if the existing connection is non-nil,
-// but the connection is no longer alive
-// STILL UNDER CONSTRUCTION
-func (m *ConnectionManager) connect(id string, info *ConnectionInfo) *grpc.
-	ClientConn {
-	// Check if a connection already exists
+// Get creates an existing connection
+func (m *ConnectionManager) get(id fmt.Stringer) *grpc.ClientConn {
+	m.connectionsLock.Lock()
+	// TODO Retry/reconnect here based on current connection state?
+	//  I think this could be made more robust to handle TransientFailure
+	conn, ok := m.connections[id.String()]
+	if !ok {
+		panic("No connection exists for the ID \"" + id.String() + "\"")
+	}
+	m.connectionsLock.Unlock()
+	return conn.Connection
+}
+
+// Connect creates a connection
+func (m *ConnectionManager) connect(id string, addr string,
+	tls credentials.TransportCredentials) {
 	m.connectionsLock.Lock() // TODO: Really we want to lock on the key,
 	defer m.connectionsLock.Unlock()
-	existingInfo, ok := m.connections[id]
-	if ok && isConnectionGood(existingInfo.Connection) {
-		return existingInfo.Connection
-	} else if !ok && info == nil {
-		panic("No connection exists for the ID \"" + id + "\"")
-	}
 
 	// Create top level vars
 	var connection *grpc.ClientConn
@@ -142,7 +158,7 @@ func (m *ConnectionManager) connect(id string, info *ConnectionInfo) *grpc.
 	connection = nil
 	err = nil
 
-	if m.connections == nil { // TODO: Do we need an init, or is this sufficient?
+	if m.connections == nil {
 		m.connections = make(map[string]*ConnectionInfo)
 	}
 
@@ -150,17 +166,18 @@ func (m *ConnectionManager) connect(id string, info *ConnectionInfo) *grpc.
 	// Create a new connection if we are not present or disconnecting/disconnected
 	for numRetries := 0; numRetries < maxRetries && !isConnectionGood(connection); numRetries++ {
 
-		jww.DEBUG.Printf("Trying to connect to %v", info.Address)
+		jww.DEBUG.Printf("Trying to connect to %v", addr)
 		ctx, cancel := context.WithTimeout(context.Background(),
 			100000*time.Millisecond)
 
-		if info.Creds != nil {
+		if tls != nil {
 			// Create the gRPC client with TLS
-			connection, err = grpc.DialContext(ctx, info.Address,
-				grpc.WithTransportCredentials(info.Creds), grpc.WithBlock())
+			connection, err = grpc.DialContext(ctx, addr,
+				grpc.WithTransportCredentials(tls), grpc.WithBlock())
 		} else {
 			// Create the gRPC client without TLS
-			connection, err = grpc.DialContext(ctx, info.Address,
+			jww.WARN.Printf("Warning: Connecting to %v without TLS!", addr)
+			connection, err = grpc.DialContext(ctx, addr,
 				grpc.WithInsecure(), grpc.WithBlock())
 		}
 
@@ -168,22 +185,22 @@ func (m *ConnectionManager) connect(id string, info *ConnectionInfo) *grpc.
 			// Connection succeeded; clean up context and exit the loop
 			cancel()
 		} else {
-			jww.ERROR.Printf("Connection to %s failed: %+v\n", info.Address,
+			jww.ERROR.Printf("Connection to %s failed: %+v\n", addr,
 				errors.New(err.Error()))
 		}
 	}
 
 	if !isConnectionGood(connection) {
-		jww.FATAL.Panicf("Last try to connect to %s failed. Giving up",
-			info.Address)
+		jww.FATAL.Panicf("Last try to connect to %s failed. Giving up", addr)
 	} else {
-		// Connection succeeded, so add it to the ConnectionInfo and record
-		// the ConnectionInfo in the map
-		info.Connection = connection
-		m.connections[id] = info
+		// Connection succeeded, so add it to the map along with any information
+		// needed for reconnection
+		m.connections[id] = &ConnectionInfo{
+			Address:    addr,
+			Creds:      tls,
+			Connection: connection,
+		}
 	}
-
-	return m.connections[id].Connection
 }
 
 // Disconnect closes client connections and removes them from the connection map

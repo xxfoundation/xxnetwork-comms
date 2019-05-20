@@ -41,10 +41,9 @@ func TestTLS(t *testing.T) {
 	defer rg.Shutdown()
 	var c client.ClientComms
 	connID := MockID("clientToRegistration")
-	c.ConnectToRegistration(connID, &connect.ConnectionInfo{
-		Address: RegAddress,
-		Creds:   connect.NewCredentialsFromFile(testkeys.GetNodeCertPath(), "*.cmix.rip"),
-	})
+	c.ConnectToRegistration(connID,
+		RegAddress,
+		connect.NewCredentialsFromFile(testkeys.GetNodeCertPath(), "*.cmix.rip"))
 
 	_, err := c.SendRegistrationMessage(connID, &pb.UserRegistration{})
 	if err != nil {

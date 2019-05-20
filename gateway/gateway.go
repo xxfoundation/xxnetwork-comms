@@ -72,7 +72,7 @@ func StartGateway(localServer string, handler Handler,
 	} else {
 
 		// Create the gRPC server without TLS
-		jww.INFO.Printf("Starting gateway with TLS disabled...")
+		jww.WARN.Printf("Starting gateway with TLS disabled...")
 		grpcServer = grpc.NewServer(grpc.MaxConcurrentStreams(math.MaxUint32),
 			grpc.MaxRecvMsgSize(33554432)) // 32 MiB
 

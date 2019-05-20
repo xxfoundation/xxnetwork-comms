@@ -20,7 +20,7 @@ import (
 func (s *NodeComms) SendServerMetrics(id fmt.Stringer,
 	message *pb.ServerMetrics) (*pb.Ack, error) {
 	// Attempt to connect to addr
-	c := s.ConnectToNode(id, nil)
+	c := s.GetNodeConnection(id)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
@@ -39,7 +39,7 @@ func (s *NodeComms) SendServerMetrics(id fmt.Stringer,
 func (s *NodeComms) SendRoundtripPing(id fmt.Stringer,
 	message *pb.TimePing) (*pb.Ack, error) {
 	// Attempt to connect to addr
-	c := s.ConnectToNode(id, nil)
+	c := s.GetNodeConnection(id)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
@@ -58,7 +58,7 @@ func (s *NodeComms) SendRoundtripPing(id fmt.Stringer,
 func (s *NodeComms) SendAskOnline(id fmt.Stringer, message *pb.Ping) (
 	*pb.Ack, error) {
 	// Attempt to connect to addr
-	c := s.ConnectToNode(id, nil)
+	c := s.GetNodeConnection(id)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
@@ -77,7 +77,7 @@ func (s *NodeComms) SendAskOnline(id fmt.Stringer, message *pb.Ping) (
 
 func (s *NodeComms) SendFinishRealtime(id fmt.Stringer,
 	message *pb.RoundInfo) (*pb.Ack, error) {
-	c := s.ConnectToNode(id, nil)
+	c := s.GetNodeConnection(id)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
@@ -95,7 +95,7 @@ func (s *NodeComms) SendFinishRealtime(id fmt.Stringer,
 
 func (s *NodeComms) SendNewRound(id fmt.Stringer, message *pb.RoundInfo) (
 	*pb.Ack, error) {
-	c := s.ConnectToNode(id, nil)
+	c := s.GetNodeConnection(id)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
@@ -113,7 +113,7 @@ func (s *NodeComms) SendNewRound(id fmt.Stringer, message *pb.RoundInfo) (
 
 func (s *NodeComms) SendPostRoundPublicKey(id fmt.Stringer,
 	message *pb.RoundPublicKey) (*pb.Ack, error) {
-	c := s.ConnectToNode(id, nil)
+	c := s.GetNodeConnection(id)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
@@ -134,7 +134,7 @@ func (s *NodeComms) SendPostRoundPublicKey(id fmt.Stringer,
 // other nodes.
 func (s *NodeComms) SendPostPrecompResult(id fmt.Stringer,
 	roundID uint64, slots []*pb.Slot) (*pb.Ack, error) {
-	c := s.ConnectToNode(id, nil)
+	c := s.GetNodeConnection(id)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message

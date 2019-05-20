@@ -7,7 +7,6 @@
 package client
 
 import (
-	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/registration"
 	"testing"
@@ -21,7 +20,7 @@ func TestSendRegistrationMessage(t *testing.T) {
 	defer rg.Shutdown()
 	connID := MockID("clientToRegistration")
 	var c ClientComms
-	c.ConnectToRegistration(connID, &connect.ConnectionInfo{Address: GatewayAddress})
+	c.ConnectToRegistration(connID, GatewayAddress, nil)
 
 	_, err := c.SendRegistrationMessage(connID, &pb.UserRegistration{})
 	if err != nil {

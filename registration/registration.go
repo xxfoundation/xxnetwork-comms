@@ -67,7 +67,7 @@ func StartRegistrationServer(localServer string, handler Handler,
 			grpc.MaxRecvMsgSize(math.MaxInt32))
 	} else {
 		// Create the gRPC server without TLS
-		jww.INFO.Printf("Starting server with TLS disabled...")
+		jww.WARN.Printf("Starting server with TLS disabled...")
 		grpcServer = grpc.NewServer(grpc.MaxConcurrentStreams(math.MaxUint32),
 			grpc.MaxRecvMsgSize(math.MaxInt32))
 	}
