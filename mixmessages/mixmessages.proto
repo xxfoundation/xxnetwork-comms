@@ -71,6 +71,8 @@ message Ping {
 // The request message asking server to add their time
 message TimePing {
     repeated int64 Times = 1;
+    // RoundInfo is needed since network topology depends on the round
+    RoundInfo Round = 2;
 }
 
 // The message containing the server metrics from all visited nodes
@@ -79,6 +81,8 @@ message ServerMetrics {
     repeated uint32 ThreadUsage = 2;
     repeated uint32 CpuUsage = 3;
     repeated int64 UpSince = 4;
+    // RoundInfo is needed since network topology depends on the round
+    RoundInfo Round = 5;
 }
 
 // The message for Init Round
