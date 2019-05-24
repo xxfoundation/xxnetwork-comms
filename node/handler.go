@@ -23,7 +23,7 @@ type ServerHandler interface {
 	// Server interface for starting New Rounds
 	CreateNewRound(message *mixmessages.RoundInfo)
 	// Server interface for sending a new batch
-	PostNewBatch(message *mixmessages.Batch)
+	PostNewBatch(message *mixmessages.Batch) error
 	// Server interface for broadcasting when realtime is complete
 	FinishRealtime(message *mixmessages.RoundInfo) error
 	// GetRoundBufferInfo returns # of available precomputations
@@ -57,7 +57,7 @@ type implementationFunctions struct {
 	// Server Interface for starting New Rounds
 	CreateNewRound func(message *mixmessages.RoundInfo)
 	// Server interface for sending a new batch
-	PostNewBatch func(message *mixmessages.Batch)
+	PostNewBatch func(message *mixmessages.Batch) error
 	// Server interface for finishing the realtime phase
 	FinishRealtime func(message *mixmessages.RoundInfo) error
 	// GetRoundBufferInfo returns # of available precomputations completed
@@ -114,8 +114,9 @@ func NewImplementation() *Implementation {
 			PostRoundPublicKey: func(message *mixmessages.RoundPublicKey) {
 				warn(um)
 			},
-			PostNewBatch: func(message *mixmessages.Batch) {
+			PostNewBatch: func(message *mixmessages.Batch) error {
 				warn(um)
+				return nil
 			},
 			FinishRealtime: func(message *mixmessages.RoundInfo) error {
 				warn(um)
@@ -166,8 +167,8 @@ func (s *Implementation) CreateNewRound(msg *mixmessages.RoundInfo) {
 	s.Functions.CreateNewRound(msg)
 }
 
-func (s *Implementation) PostNewBatch(msg *mixmessages.Batch) {
-	s.Functions.PostNewBatch(msg)
+func (s *Implementation) PostNewBatch(msg *mixmessages.Batch) error {
+	return s.Functions.PostNewBatch(msg)
 }
 
 // Server Interface for the phase messages
