@@ -68,13 +68,6 @@ func (s *NodeComms) PostRoundPublicKey(ctx context.Context,
 	return &pb.Ack{}, nil
 }
 
-// Handle a StartRealtime event
-func (s *NodeComms) StartRealtime(ctx context.Context, msg *pb.Batch) (
-	*pb.Ack, error) {
-	err := s.handler.PostNewBatch(msg)
-	return &pb.Ack{}, err
-}
-
 // GetBufferInfo returns buffer size (number of completed precomputations)
 func (s *NodeComms) GetRoundBufferInfo(ctx context.Context,
 	msg *pb.RoundBufferInfo) (
