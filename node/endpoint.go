@@ -47,9 +47,9 @@ func (s *NodeComms) CreateNewRound(ctx context.Context,
 // PostNewBatch polls the first node and sends a batch when it is ready
 func (s *NodeComms) PostNewBatch(ctx context.Context, msg *pb.Batch) (*pb.Ack, error) {
 	// Call the server handler to post a new batch
-	s.handler.PostNewBatch(msg)
+	err := s.handler.PostNewBatch(msg)
 
-	return &pb.Ack{}, nil
+	return &pb.Ack{}, err
 }
 
 // Handle a Phase event
@@ -71,8 +71,8 @@ func (s *NodeComms) PostRoundPublicKey(ctx context.Context,
 // Handle a StartRealtime event
 func (s *NodeComms) StartRealtime(ctx context.Context, msg *pb.Batch) (
 	*pb.Ack, error) {
-	s.handler.PostNewBatch(msg)
-	return &pb.Ack{}, nil
+	err := s.handler.PostNewBatch(msg)
+	return &pb.Ack{}, err
 }
 
 // GetBufferInfo returns buffer size (number of completed precomputations)
