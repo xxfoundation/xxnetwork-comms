@@ -47,9 +47,9 @@ func (s *NodeComms) CreateNewRound(ctx context.Context,
 // PostNewBatch polls the first node and sends a batch when it is ready
 func (s *NodeComms) PostNewBatch(ctx context.Context, msg *pb.Batch) (*pb.Ack, error) {
 	// Call the server handler to post a new batch
-	s.handler.PostNewBatch(msg)
+	err := s.handler.PostNewBatch(msg)
 
-	return &pb.Ack{}, nil
+	return &pb.Ack{}, err
 }
 
 // Handle a Phase event
@@ -65,13 +65,6 @@ func (s *NodeComms) PostRoundPublicKey(ctx context.Context,
 	msg *pb.RoundPublicKey) (*pb.Ack, error) {
 	// Call the server handler that receives the key share
 	s.handler.PostRoundPublicKey(msg)
-	return &pb.Ack{}, nil
-}
-
-// Handle a StartRealtime event
-func (s *NodeComms) StartRealtime(ctx context.Context, msg *pb.Batch) (
-	*pb.Ack, error) {
-	s.handler.PostNewBatch(msg)
 	return &pb.Ack{}, nil
 }
 
