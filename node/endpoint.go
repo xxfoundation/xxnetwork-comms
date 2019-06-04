@@ -40,8 +40,7 @@ func (s *NodeComms) GetServerMetrics(ctx context.Context, msg *pb.ServerMetrics)
 func (s *NodeComms) CreateNewRound(ctx context.Context,
 	msg *pb.RoundInfo) (*pb.Ack, error) {
 	// Call the server handler to start a new round
-	s.handler.CreateNewRound(msg)
-	return &pb.Ack{}, nil
+	return &pb.Ack{}, s.handler.CreateNewRound(msg)
 }
 
 // PostNewBatch polls the first node and sends a batch when it is ready

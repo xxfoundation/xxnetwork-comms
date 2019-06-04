@@ -21,7 +21,7 @@ type ServerHandler interface {
 	GetServerMetrics(*mixmessages.ServerMetrics)
 
 	// Server interface for starting New Rounds
-	CreateNewRound(message *mixmessages.RoundInfo)
+	CreateNewRound(message *mixmessages.RoundInfo) error
 	// Server interface for sending a new batch
 	PostNewBatch(message *mixmessages.Batch) error
 	// Server interface for broadcasting when realtime is complete
@@ -55,7 +55,7 @@ type implementationFunctions struct {
 	GetServerMetrics func(*mixmessages.ServerMetrics)
 
 	// Server Interface for starting New Rounds
-	CreateNewRound func(message *mixmessages.RoundInfo)
+	CreateNewRound func(message *mixmessages.RoundInfo) error
 	// Server interface for sending a new batch
 	PostNewBatch func(message *mixmessages.Batch) error
 	// Server interface for finishing the realtime phase
@@ -107,7 +107,10 @@ func NewImplementation() *Implementation {
 			GetServerMetrics: func(m *mixmessages.ServerMetrics) {
 				warn(um)
 			},
-			CreateNewRound: func(m *mixmessages.RoundInfo) { warn(um) },
+			CreateNewRound: func(m *mixmessages.RoundInfo) error {
+				warn(um)
+				return nil
+			},
 			PostPhase: func(m *mixmessages.Batch) {
 				warn(um)
 			},
@@ -163,8 +166,8 @@ func (s *Implementation) GetServerMetrics(
 }
 
 // Server Interface for starting New Rounds
-func (s *Implementation) CreateNewRound(msg *mixmessages.RoundInfo) {
-	s.Functions.CreateNewRound(msg)
+func (s *Implementation) CreateNewRound(msg *mixmessages.RoundInfo) error {
+	return s.Functions.CreateNewRound(msg)
 }
 
 func (s *Implementation) PostNewBatch(msg *mixmessages.Batch) error {
@@ -178,7 +181,7 @@ func (s *Implementation) PostPhase(m *mixmessages.Batch) {
 
 // Server Interface for the share message
 func (s *Implementation) PostRoundPublicKey(message *mixmessages.
-	RoundPublicKey) {
+RoundPublicKey) {
 	s.Functions.PostRoundPublicKey(message)
 }
 
