@@ -31,6 +31,9 @@ type ServerHandler interface {
 
 	// Server Interface for all Internode Comms
 	PostPhase(message *mixmessages.Batch)
+
+	StreamPostPhase(server mixmessages.Node_StreamPostPhaseServer) error
+
 	// Server interface for share broadcast
 	PostRoundPublicKey(message *mixmessages.RoundPublicKey)
 
@@ -65,6 +68,10 @@ type implementationFunctions struct {
 
 	// Server Interface for the Internode Messages
 	PostPhase func(message *mixmessages.Batch)
+
+	// Server interface for internode streaming messages
+	StreamPostPhase func(message mixmessages.Node_StreamPostPhaseServer) error
+
 	// Server interface for share broadcast
 	PostRoundPublicKey func(message *mixmessages.RoundPublicKey)
 
@@ -113,6 +120,10 @@ func NewImplementation() *Implementation {
 			},
 			PostPhase: func(m *mixmessages.Batch) {
 				warn(um)
+			},
+			StreamPostPhase: func(message mixmessages.Node_StreamPostPhaseServer) error {
+				warn(um)
+				return nil
 			},
 			PostRoundPublicKey: func(message *mixmessages.RoundPublicKey) {
 				warn(um)
@@ -179,9 +190,14 @@ func (s *Implementation) PostPhase(m *mixmessages.Batch) {
 	s.Functions.PostPhase(m)
 }
 
+// Server Interface for streaming phase messages
+func (s *Implementation) StreamPostPhase(m mixmessages.Node_StreamPostPhaseServer) error {
+	return s.Functions.StreamPostPhase(m)
+}
+
 // Server Interface for the share message
 func (s *Implementation) PostRoundPublicKey(message *mixmessages.
-RoundPublicKey) {
+	RoundPublicKey) {
 	s.Functions.PostRoundPublicKey(message)
 }
 

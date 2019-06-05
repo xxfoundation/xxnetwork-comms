@@ -277,3 +277,11 @@ func DefaultContext() (context.Context, context.CancelFunc) {
 		10000*time.Millisecond)
 	return ctx, cancel
 }
+
+// StreamingContext creates a context object with the default context
+// for all client streaming messages. This is primarily used to
+// allow a cancel option for clients and is suitable for unary streaming.
+func StreamingContext() (context.Context, context.CancelFunc) {
+	ctx, cancel := context.WithCancel(context.Background())
+	return ctx, cancel
+}

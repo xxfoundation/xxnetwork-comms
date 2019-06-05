@@ -38,6 +38,11 @@ service Node {
     rpc PostPhase (Batch) returns (Ack) {
     }
 
+    // StreamPostPhase runs a cMix phase on another node
+    // by using unary streaming of slots
+    rpc StreamPostPhase (stream Slot) returns (Ack) {
+    }
+
     // GetRoundBufferInfo returns the # of rounds ready for messages
     rpc GetRoundBufferInfo (RoundBufferInfo) returns (RoundBufferInfo) {
     }
@@ -204,6 +209,11 @@ message Batch {
     RoundInfo Round = 1;
     int32 ForPhase = 2;
     repeated Slot slots = 3;
+}
+
+message BatchInfo {
+    RoundInfo Round = 1;
+    int32 ForPhase = 2;
 }
 
 message Slot {
