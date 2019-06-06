@@ -7,6 +7,7 @@
 package node
 
 import (
+	"context"
 	"errors"
 	"github.com/golang/protobuf/proto"
 	"gitlab.com/elixxir/comms/connect"
@@ -18,6 +19,11 @@ import (
 	"testing"
 )
 
+// Creates a sender and receiver server for post phase
+// unary streaming test.  The test creates a header,
+// sends some slots and blocks until an ack is received
+// The receive stores the slots and header data into a
+// received batch to compare with expected values of batch.
 func TestPhase_StreamPostPhase(t *testing.T) {
 
 	// Init server receiver
@@ -126,6 +132,38 @@ func TestPhase_StreamPostPhase(t *testing.T) {
 	cancel()
 }
 
+// GetPostPhaseStream should error when context canceled before call
+func TestGetPostPhaseStream_ErrorsWhenContextCanceld(t *testing.T) {
+	// Init server receiver
+	servReceiverAddress := getNextServerAddress()
+	_ = StartNode(servReceiverAddress, NewImplementation(),
+		testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath())
+
+	// Init server sender
+	servSenderAddress := getNextServerAddress()
+	serverStreamSender := StartNode(servSenderAddress, NewImplementation(),
+		testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath())
+
+	// Get credentials and connect to node
+	creds := connect.NewCredentialsFromFile(testkeys.GetNodeCertPath(),
+		"*.cmix.rip")
+
+	senderToReceiverID := MockID("sender2receiver")
+
+	serverStreamSender.ConnectToNode(senderToReceiverID, servReceiverAddress, creds)
+
+	// Create cancelable context and cancel it
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	// Attempt to get teh streaming client and validate
+	// it returns an error due to canceld context
+	_, err := serverStreamSender.GetPostPhaseStream(senderToReceiverID, ctx)
+	if err == nil {
+		t.Errorf("Getting streaming client without connection should error")
+	}
+}
+
 var receivedBatch mixmessages.Batch
 
 func mockStreamPostPhase(stream mixmessages.Node_StreamPostPhaseServer) error {
@@ -143,14 +181,10 @@ func mockStreamPostPhase(stream mixmessages.Node_StreamPostPhaseServer) error {
 		return err
 	}
 
-	// Create batch using batch info header
-	receivedBatch = mixmessages.Batch{
-		Round:    batchInfo.Round,
-		ForPhase: batchInfo.ForPhase,
-		Slots:    make([]*mixmessages.Slot, 3),
-	}
-
-	// Send a chunk per received slot until EOF
+	// Receive all slots and on EOF store all data
+	// into a global received batch variable then
+	// send ack back to client.
+	var slots []*mixmessages.Slot
 	index := uint32(0)
 	for {
 		slot, err := stream.Recv()
@@ -160,6 +194,15 @@ func mockStreamPostPhase(stream mixmessages.Node_StreamPostPhaseServer) error {
 			ack := mixmessages.Ack{
 				Error: "",
 			}
+
+			// Create batch using batch info header
+			// and temporary slot buffer contents
+			receivedBatch = mixmessages.Batch{
+				Round:    batchInfo.Round,
+				ForPhase: batchInfo.ForPhase,
+				Slots:    slots,
+			}
+
 			err = stream.SendAndClose(&ack)
 			return err
 		}
@@ -169,12 +212,17 @@ func mockStreamPostPhase(stream mixmessages.Node_StreamPostPhaseServer) error {
 			return err
 		}
 
-		// Store slot received into received batch
-		receivedBatch.Slots[index] = slot
+		// Store slot received into temporary buffer
+		slots = append(slots, slot)
+
+		//receivedBatch.Slots[index] = slot
 		index++
 	}
+
 }
 
+// createSlots is a helper function to generate slot
+// messages uses for testing
 func createSlots(numSlots int) []mixmessages.Slot {
 
 	slots := make([]mixmessages.Slot, numSlots)
