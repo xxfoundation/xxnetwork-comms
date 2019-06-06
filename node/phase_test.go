@@ -10,7 +10,7 @@ import (
 	"gitlab.com/elixxir/comms/connect"
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/testkeys"
-	"google.golang.org/grpc/metadata"
+	"io"
 	"testing"
 )
 
@@ -18,7 +18,11 @@ func TestPhase_StreamPostPhase(t *testing.T) {
 
 	// Init server receiver
 	servReceiverAddress := getNextServerAddress()
-	serverStreamReceiver := StartNode(servReceiverAddress, NewImplementation(),
+	receiverImpl := NewImplementation()
+	receiverImpl.Functions.StreamPostPhase = func(server mixmessages.Node_StreamPostPhaseServer) error {
+		return mockStreamPostPhase(server)
+	}
+	serverStreamReceiver := StartNode(servReceiverAddress, receiverImpl,
 		testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath())
 
 	// Init server sender
@@ -26,14 +30,17 @@ func TestPhase_StreamPostPhase(t *testing.T) {
 	serverStreamSender := StartNode(servSenderAddress, NewImplementation(),
 		testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath())
 
-	// Get credentials and connenct to node
+	// Get credentials and connect to node
 	creds := connect.NewCredentialsFromFile(testkeys.GetNodeCertPath(),
 		"*.cmix.rip")
 
-	connectionID := MockID("server2toserver")
+	senderToReceiverID := MockID("sender2receiver")
+	receiverToSenderID := MockID("receiver2tosender")
 	// It might make more sense to call the RPC on the connection object
 	// that's returned from this
-	serverStreamSender.ConnectToNode(connectionID, servReceiverAddress, creds)
+	serverStreamSender.ConnectToNode(senderToReceiverID, servReceiverAddress, creds)
+	serverStreamSender.ConnectToNode(receiverToSenderID, servSenderAddress, creds)
+
 	// Reset TLS-related global variables
 	defer serverStreamReceiver.Shutdown()
 	defer serverStreamSender.Shutdown()
@@ -41,58 +48,84 @@ func TestPhase_StreamPostPhase(t *testing.T) {
 	// Create streaming context so you can close stream later
 	ctx, cancel := connect.StreamingContext()
 
-	// Create round info to be used in batch info
-	roundInfo := mixmessages.RoundInfo{
-		ID: uint64(10),
-	}
-
-	// Create header which contains the batch info
-	batchInfo := mixmessages.BatchInfo{
-		Round:    &roundInfo,
-		ForPhase: 3,
-	}
-
-	// Create a new context with some metadata
-	ctx = metadata.AppendToOutgoingContext(ctx,
-		"BatchInfo", batchInfo.String())
+	//// Create round info to be used in batch info
+	//roundInfo := mixmessages.RoundInfo{
+	//	ID: uint64(10),
+	//}
+	//
+	//// Create header which contains the batch info
+	//batchInfo := mixmessages.BatchInfo{
+	//	Round:    &roundInfo,
+	//	ForPhase: 3,
+	//}
+	//
+	//// Create a new context with some metadata
+	//ctx = metadata.AppendToOutgoingContext(ctx,
+	//	"BatchInfo", batchInfo.String())
 
 	// Get stream client for post phase
-	_, _ = serverStreamSender.GetPostPhaseStream(connectionID, ctx)
+	streamClient, err := serverStreamSender.GetPostPhaseStream(senderToReceiverID, ctx)
 
-	//slots := createSlots(3)
-	//
-	//go func(slots []mixmessages.Slot) {
-	//	for i, slot := range slots {
-	//		err = streamClient.Send(&slot)
-	//		if err != nil {
-	//			t.Errorf("Unable to send slot %v %v", i, err)
-	//		}
-	//	}
-	//	//_, err := streamClient.CloseAndRecv()
-	//	//// todo: check ack error?
-	//	//if err != nil {
-	//	//	t.Errorf("Unable to close stream%v", err)
-	//	//}
-	//
-	//}(slots)
+	if err != nil {
+		t.Errorf("Unable to get streamling clinet %v", err)
+	}
 
-	// TODO: Check if server receiver gets all 3 slots and header
+	slots := createSlots(3)
 
-	// Wait until
-	//<-ctx.Done()
-	//<-streamClient.Context().Done()
-	//_, err = streamClient.CloseAndRecv()
-	//// todo: check ack error?
-	//if err != nil {
-	//	t.Errorf("Unable to close stream%v", err)
-	//}
-	//
-	//err = ctx.Err()
-	//if err != nil {
-	//	t.Errorf("Error when sending slots")
-	//}
+	// The server will send the slot messages and wait for ack
+	go func(slots []mixmessages.Slot) {
+		for i, slot := range slots {
+			err := streamClient.Send(&slot)
+			if err != nil {
+				t.Errorf("Unable to send slot %v %v", i, err)
+			}
+		}
+		ack, err := streamClient.CloseAndRecv()
+		if err != nil {
+			t.Errorf("Failed to close and receive stream")
+		}
 
+		if ack != nil && ack.Error != "" {
+			t.Errorf("Remote Server Error: %s", ack.Error)
+		}
+
+	}(slots)
+
+	// Block until stream client context is cleaned up
+	<-streamClient.Context().Done()
+
+	// Clean up sender context
 	cancel()
+}
+
+var receivedBatch mixmessages.Batch
+
+func mockStreamPostPhase(server mixmessages.Node_StreamPostPhaseServer) error {
+	receivedBatch = mixmessages.Batch{
+		Slots: make([]*mixmessages.Slot, 3),
+	}
+
+	// Send a chunk per received slot until EOF
+	index := uint32(0)
+	for {
+		slot, err := server.Recv()
+		// If we are at end of receiving
+		// send ack and finish
+		if err == io.EOF {
+			ack := mixmessages.Ack{}
+			err = server.SendAndClose(&ack)
+			return err
+		}
+
+		// If we have another error, return err
+		if err != nil {
+			return err
+		}
+
+		// Store slot received into received batch
+		receivedBatch.Slots[index] = slot
+		index++
+	}
 }
 
 func createSlots(numSlots int) []mixmessages.Slot {
