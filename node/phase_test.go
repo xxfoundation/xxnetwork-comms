@@ -24,7 +24,7 @@ import (
 // sends some slots and blocks until an ack is received
 // The receive stores the slots and header data into a
 // received batch to compare with expected values of batch.
-func TestPhase_StreamPostPhase(t *testing.T) {
+func TestPhase_StreamPostPhaseSendReceive(t *testing.T) {
 
 	// Init server receiver
 	servReceiverAddress := getNextServerAddress()
