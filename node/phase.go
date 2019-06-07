@@ -16,6 +16,7 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
+	"google.golang.org/grpc/metadata"
 )
 
 func (s *NodeComms) SendPostPhase(id fmt.Stringer,
@@ -36,6 +37,21 @@ func (s *NodeComms) SendPostPhase(id fmt.Stringer,
 
 	cancel()
 	return result, err
+}
+
+// GetPostPhaseStreamContext is given batchInfo PostPhase header
+// and creates a streaming context, adds the header to the context
+// and returns the context with the header and a cancel func
+func GetPostPhaseStreamContext(batchInfo pb.BatchInfo) (context.Context, context.CancelFunc) {
+
+	// Create streaming context so you can close stream later
+	ctx, cancel := connect.StreamingContext()
+
+	// Create a new context with some metadata
+	// using the batch info batchInfo
+	ctx = metadata.AppendToOutgoingContext(ctx, "batchinfo", batchInfo.String())
+
+	return ctx, cancel
 }
 
 // GetPostPhaseStream uses an id and streaming context to retrieve

@@ -55,9 +55,6 @@ func TestPhase_StreamPostPhaseSendReceive(t *testing.T) {
 	defer serverStreamReceiver.Shutdown()
 	defer serverStreamSender.Shutdown()
 
-	// Create streaming context so you can close stream later
-	ctx, cancel := connect.StreamingContext()
-
 	// Create round info to be used in batch info
 	roundId := uint64(10)
 	roundInfo := mixmessages.RoundInfo{
@@ -71,10 +68,7 @@ func TestPhase_StreamPostPhaseSendReceive(t *testing.T) {
 		ForPhase: forPhase,
 	}
 
-	// Create a new context with some metadata
-	// using the batch info header
-	//headerBuffer, err := proto.Marshal(&batchInfo)
-	ctx = metadata.AppendToOutgoingContext(ctx, "batchinfo", batchInfo.String())
+	ctx, cancel := GetPostPhaseStreamContext(batchInfo)
 
 	// Get stream client for post phase
 	streamClient, err := serverStreamSender.GetPostPhaseStream(senderToReceiverID, ctx)
