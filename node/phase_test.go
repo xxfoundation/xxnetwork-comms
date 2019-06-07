@@ -8,12 +8,9 @@ package node
 
 import (
 	"context"
-	"errors"
-	"github.com/golang/protobuf/proto"
 	"gitlab.com/elixxir/comms/connect"
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/testkeys"
-	"google.golang.org/grpc/metadata"
 	"io"
 	"reflect"
 	"testing"
@@ -163,15 +160,7 @@ var receivedBatch mixmessages.Batch
 
 func mockStreamPostPhase(stream mixmessages.Node_StreamPostPhaseServer) error {
 
-	// Unmarshal header into batch info
-	batchInfo := mixmessages.BatchInfo{}
-	md, ok := metadata.FromIncomingContext(stream.Context())
-
-	if !ok {
-		return errors.New("unable to retrieve meta data / header %v")
-	}
-
-	err := proto.UnmarshalText(md.Get("batchinfo")[0], &batchInfo)
+	batchInfo, err := GetPostPhaseStreamHeader(stream)
 	if err != nil {
 		return err
 	}

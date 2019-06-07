@@ -11,6 +11,7 @@ package node
 import (
 	"context"
 	"fmt"
+	"github.com/golang/protobuf/proto"
 	"github.com/grpc-ecosystem/go-grpc-middleware/retry"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
@@ -75,4 +76,28 @@ func (nodeComms *NodeComms) GetPostPhaseStream(id fmt.Stringer, ctx context.Cont
 	}
 
 	return streamClient, nil
+}
+
+
+// GetPostPhaseStreamHeader gets the header
+// in the metadata from the server stream
+// and returns it with an error if it fails.
+func GetPostPhaseStreamHeader(stream pb.Node_StreamPostPhaseServer) (*pb.BatchInfo, error) {
+
+	// Unmarshal header into batch info
+	batchInfo := pb.BatchInfo{}
+
+	md, ok := metadata.FromIncomingContext(stream.Context())
+
+	if !ok {
+		return nil, errors.New("unable to retrieve meta data / header %v")
+	}
+
+	err := proto.UnmarshalText(md.Get("batchinfo")[0], &batchInfo)
+	if err != nil {
+		return nil, err
+	}
+
+	return &batchInfo, nil
+
 }
