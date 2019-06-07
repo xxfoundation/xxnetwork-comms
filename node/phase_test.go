@@ -68,9 +68,10 @@ func TestPhase_StreamPostPhaseSendReceive(t *testing.T) {
 		ForPhase: forPhase,
 	}
 
-	ctx, cancel := GetPostPhaseStreamContext(batchInfo)
+	// Get stream client context and cancel func
+	ctx, cancel := serverStreamSender.GetPostPhaseStreamContext(batchInfo)
 
-	// Get stream client for post phase
+	// Get stream client for post phase using context
 	streamClient, err := serverStreamSender.GetPostPhaseStream(senderToReceiverID, ctx)
 
 	if err != nil {

@@ -42,7 +42,7 @@ func (s *NodeComms) SendPostPhase(id fmt.Stringer,
 // GetPostPhaseStreamContext is given batchInfo PostPhase header
 // and creates a streaming context, adds the header to the context
 // and returns the context with the header and a cancel func
-func GetPostPhaseStreamContext(batchInfo pb.BatchInfo) (context.Context, context.CancelFunc) {
+func (nodeComms *NodeComms) GetPostPhaseStreamContext(batchInfo pb.BatchInfo) (context.Context, context.CancelFunc) {
 
 	// Create streaming context so you can close stream later
 	ctx, cancel := connect.StreamingContext()
