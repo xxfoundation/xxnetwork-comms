@@ -72,7 +72,7 @@ func TestPhase_StreamPostPhaseSendReceive(t *testing.T) {
 	streamClient, err := serverStreamSender.GetPostPhaseStream(senderToReceiverID, ctx)
 
 	if err != nil {
-		t.Errorf("Unable to get streamling clinet %v", err)
+		t.Errorf("Unable to get streaming client %v", err)
 	}
 
 	// Generate indexed slots
@@ -125,7 +125,7 @@ func TestPhase_StreamPostPhaseSendReceive(t *testing.T) {
 }
 
 // GetPostPhaseStream should error when context canceled before call
-func TestGetPostPhaseStream_ErrorsWhenContextCanceld(t *testing.T) {
+func TestGetPostPhaseStream_ErrorsWhenContextCanceled(t *testing.T) {
 	// Init server receiver
 	servReceiverAddress := getNextServerAddress()
 	_ = StartNode(servReceiverAddress, NewImplementation(),
@@ -148,8 +148,8 @@ func TestGetPostPhaseStream_ErrorsWhenContextCanceld(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
 
-	// Attempt to get teh streaming client and validate
-	// it returns an error due to canceld context
+	// Attempt to get the streaming client and validate
+	// it returns an error due to canceled context
 	_, err := serverStreamSender.GetPostPhaseStream(senderToReceiverID, ctx)
 	if err == nil {
 		t.Errorf("Getting streaming client without connection should error")
@@ -159,11 +159,6 @@ func TestGetPostPhaseStream_ErrorsWhenContextCanceld(t *testing.T) {
 var receivedBatch mixmessages.Batch
 
 func mockStreamPostPhase(stream mixmessages.Node_StreamPostPhaseServer) error {
-
-	batchInfo, err := GetPostPhaseStreamHeader(stream)
-	if err != nil {
-		return err
-	}
 
 	// Receive all slots and on EOF store all data
 	// into a global received batch variable then
@@ -177,6 +172,12 @@ func mockStreamPostPhase(stream mixmessages.Node_StreamPostPhaseServer) error {
 		if err == io.EOF {
 			ack := mixmessages.Ack{
 				Error: "",
+			}
+
+			// Get header from stream
+			batchInfo, err := GetPostPhaseStreamHeader(stream)
+			if err != nil {
+				return err
 			}
 
 			// Create batch using batch info header
@@ -199,7 +200,6 @@ func mockStreamPostPhase(stream mixmessages.Node_StreamPostPhaseServer) error {
 		// Store slot received into temporary buffer
 		slots = append(slots, slot)
 
-		//receivedBatch.Slots[index] = slot
 		index++
 	}
 
