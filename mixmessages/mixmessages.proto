@@ -214,6 +214,7 @@ message Batch {
 message BatchInfo {
     RoundInfo Round = 1;
     int32 ForPhase = 2;
+    uint32 BatchSize = 3;
 }
 
 message Slot {

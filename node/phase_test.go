@@ -58,9 +58,11 @@ func TestPhase_StreamPostPhaseSendReceive(t *testing.T) {
 		ID: roundId,
 	}
 	forPhase := int32(3)
+	batchSize := uint32(3)
 	batchInfo := mixmessages.BatchInfo{
-		Round:    &roundInfo,
-		ForPhase: forPhase,
+		Round:     &roundInfo,
+		ForPhase:  forPhase,
+		BatchSize: batchSize,
 	}
 
 	streamClient, cancel, err := serverStreamSender.GetPostPhaseStreamClient(senderToReceiverID, batchInfo)
@@ -70,8 +72,7 @@ func TestPhase_StreamPostPhaseSendReceive(t *testing.T) {
 	}
 
 	// Generate indexed slots
-	numSlots := 3
-	slots := createSlots(numSlots)
+	slots := createSlots(batchSize)
 
 	// The server will send the slot messages and wait for ack
 	// and close on receiving it.
@@ -138,15 +139,12 @@ func TestGetPostPhaseStream_ErrorsWhenContextCanceled(t *testing.T) {
 
 	serverStreamSender.ConnectToNode(senderToReceiverID, servReceiverAddress, creds)
 
-	// Create cancelable context and cancel it
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
 
-	// Attempt to get the streaming client and validate
-	// it returns an error due to canceled context
 	_, err := serverStreamSender.getPostPhaseStream(senderToReceiverID, ctx)
 	if err == nil {
-		t.Errorf("Getting streaming client without connection should error")
+		t.Errorf("Getting streaming client after canceling context should error")
 	}
 }
 
@@ -154,11 +152,16 @@ var receivedBatch mixmessages.Batch
 
 func mockStreamPostPhase(stream mixmessages.Node_StreamPostPhaseServer) error {
 
+	// Get header from stream
+	batchInfo, err := GetPostPhaseStreamHeader(stream)
+	if err != nil {
+		return err
+	}
+
 	// Receive all slots and on EOF store all data
 	// into a global received batch variable then
 	// send ack back to client.
 	var slots []*mixmessages.Slot
-	index := uint32(0)
 	for {
 		slot, err := stream.Recv()
 		// If we are at end of receiving
@@ -167,13 +170,6 @@ func mockStreamPostPhase(stream mixmessages.Node_StreamPostPhaseServer) error {
 			ack := mixmessages.Ack{
 				Error: "",
 			}
-
-			// Get header from stream
-			batchInfo, err := GetPostPhaseStreamHeader(stream)
-			if err != nil {
-				return err
-			}
-
 			// Create batch using batch info header
 			// and temporary slot buffer contents
 			receivedBatch = mixmessages.Batch{
@@ -183,6 +179,7 @@ func mockStreamPostPhase(stream mixmessages.Node_StreamPostPhaseServer) error {
 			}
 
 			err = stream.SendAndClose(&ack)
+
 			return err
 		}
 
@@ -193,20 +190,19 @@ func mockStreamPostPhase(stream mixmessages.Node_StreamPostPhaseServer) error {
 
 		// Store slot received into temporary buffer
 		slots = append(slots, slot)
-
-		index++
 	}
 
 }
 
 // createSlots is a helper function to generate slot
 // messages uses for testing
-func createSlots(numSlots int) []mixmessages.Slot {
+func createSlots(numSlots uint32) []mixmessages.Slot {
 
 	slots := make([]mixmessages.Slot, numSlots)
 
-	for i := 0; i < numSlots; i++ {
+	for i := uint32(0); i < numSlots; i++ {
 		slots[i] = mixmessages.Slot{
+			Index:          i,
 			MessagePayload: []byte{0x01},
 			SenderID:       []byte{0x02},
 		}
