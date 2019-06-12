@@ -44,9 +44,9 @@ func (s *NodeComms) SendPostPhase(id fmt.Stringer,
 // using a header and returns the stream and the cancel context
 // if there are no connection errors
 func (nodeComms *NodeComms) GetPostPhaseStreamClient(id fmt.Stringer,
-	batchInfo pb.BatchInfo) (pb.Node_StreamPostPhaseClient, context.CancelFunc, error) {
+	header pb.BatchInfo) (pb.Node_StreamPostPhaseClient, context.CancelFunc, error) {
 
-	ctx, cancel := nodeComms.getPostPhaseStreamContext(batchInfo)
+	ctx, cancel := nodeComms.getPostPhaseStreamContext(header)
 
 	streamClient, err := nodeComms.getPostPhaseStream(id, ctx)
 
