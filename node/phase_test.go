@@ -52,24 +52,18 @@ func TestPhase_StreamPostPhaseSendReceive(t *testing.T) {
 	defer serverStreamReceiver.Shutdown()
 	defer serverStreamSender.Shutdown()
 
-	// Create round info to be used in batch info
+	// Create header
 	roundId := uint64(10)
 	roundInfo := mixmessages.RoundInfo{
 		ID: roundId,
 	}
-
-	// Create header which contains the batch info
 	forPhase := int32(3)
 	batchInfo := mixmessages.BatchInfo{
 		Round:    &roundInfo,
 		ForPhase: forPhase,
 	}
 
-	// Get stream client context and cancel func
-	ctx, cancel := serverStreamSender.GetPostPhaseStreamContext(batchInfo)
-
-	// Get stream client for post phase using context
-	streamClient, err := serverStreamSender.GetPostPhaseStream(senderToReceiverID, ctx)
+	streamClient, cancel, err := serverStreamSender.GetPostPhaseStreamClient(senderToReceiverID, batchInfo)
 
 	if err != nil {
 		t.Errorf("Unable to get streaming client %v", err)
@@ -124,7 +118,7 @@ func TestPhase_StreamPostPhaseSendReceive(t *testing.T) {
 	cancel()
 }
 
-// GetPostPhaseStream should error when context canceled before call
+// getPostPhaseStream should error when context canceled before call
 func TestGetPostPhaseStream_ErrorsWhenContextCanceled(t *testing.T) {
 	// Init server receiver
 	servReceiverAddress := getNextServerAddress()
@@ -150,7 +144,7 @@ func TestGetPostPhaseStream_ErrorsWhenContextCanceled(t *testing.T) {
 
 	// Attempt to get the streaming client and validate
 	// it returns an error due to canceled context
-	_, err := serverStreamSender.GetPostPhaseStream(senderToReceiverID, ctx)
+	_, err := serverStreamSender.getPostPhaseStream(senderToReceiverID, ctx)
 	if err == nil {
 		t.Errorf("Getting streaming client without connection should error")
 	}

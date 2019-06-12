@@ -40,10 +40,28 @@ func (s *NodeComms) SendPostPhase(id fmt.Stringer,
 	return result, err
 }
 
-// GetPostPhaseStreamContext is given batchInfo PostPhase header
+// GetPostPhaseStreamClient gets the streaming client
+// using a header and returns the stream and the cancel context
+// if there are no connection errors
+func (nodeComms *NodeComms) GetPostPhaseStreamClient(id fmt.Stringer,
+	batchInfo pb.BatchInfo) (pb.Node_StreamPostPhaseClient, context.CancelFunc, error) {
+
+	ctx, cancel := nodeComms.getPostPhaseStreamContext(batchInfo)
+
+	streamClient, err := nodeComms.getPostPhaseStream(id, ctx)
+
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return streamClient, cancel, nil
+
+}
+
+// getPostPhaseStreamContext is given batchInfo PostPhase header
 // and creates a streaming context, adds the header to the context
 // and returns the context with the header and a cancel func
-func (nodeComms *NodeComms) GetPostPhaseStreamContext(batchInfo pb.BatchInfo) (context.Context, context.CancelFunc) {
+func (nodeComms *NodeComms) getPostPhaseStreamContext(batchInfo pb.BatchInfo) (context.Context, context.CancelFunc) {
 
 	// Create streaming context so you can close stream later
 	ctx, cancel := connect.StreamingContext()
@@ -55,10 +73,10 @@ func (nodeComms *NodeComms) GetPostPhaseStreamContext(batchInfo pb.BatchInfo) (c
 	return ctx, cancel
 }
 
-// GetPostPhaseStream uses an id and streaming context to retrieve
+// getPostPhaseStream uses an id and streaming context to retrieve
 // a Node_StreamPostPhaseClient object otherwise it returns
 // an error if the connection is unavailable
-func (nodeComms *NodeComms) GetPostPhaseStream(id fmt.Stringer, ctx context.Context) (
+func (nodeComms *NodeComms) getPostPhaseStream(id fmt.Stringer, ctx context.Context) (
 	pb.Node_StreamPostPhaseClient, error) {
 
 	// Attempt to connect to addr
@@ -71,13 +89,12 @@ func (nodeComms *NodeComms) GetPostPhaseStream(id fmt.Stringer, ctx context.Cont
 	// Make sure there are no errors with getting the stream client
 	if err != nil {
 		err = errors.New(err.Error())
-		jww.ERROR.Printf("GetPostPhaseStream: Error received: %+v", err)
+		jww.ERROR.Printf("getPostPhaseStream: Error received: %+v", err)
 		return nil, err
 	}
 
 	return streamClient, nil
 }
-
 
 // GetPostPhaseStreamHeader gets the header
 // in the metadata from the server stream
