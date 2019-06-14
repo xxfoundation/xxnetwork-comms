@@ -866,6 +866,7 @@ func (m *Batch) GetSlots() []*Slot {
 	return nil
 }
 
+// Used as part of header for streaming post phase
 type BatchInfo struct {
 	Round                *RoundInfo `protobuf:"bytes,1,opt,name=Round,proto3" json:"Round,omitempty"`
 	ForPhase             int32      `protobuf:"varint,2,opt,name=ForPhase,proto3" json:"ForPhase,omitempty"`
@@ -922,6 +923,7 @@ func (m *BatchInfo) GetBatchSize() uint32 {
 }
 
 type Slot struct {
+	// Index in batch this slot belongs in
 	Index uint32 `protobuf:"varint,1,opt,name=Index,proto3" json:"Index,omitempty"`
 	// Precomputation fields
 	EncryptedMessageKeys            []byte `protobuf:"bytes,2,opt,name=EncryptedMessageKeys,proto3" json:"EncryptedMessageKeys,omitempty"`

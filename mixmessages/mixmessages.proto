@@ -211,6 +211,7 @@ message Batch {
     repeated Slot slots = 3;
 }
 
+// Used as part of header for streaming post phase
 message BatchInfo {
     RoundInfo Round = 1;
     int32 ForPhase = 2;
@@ -218,6 +219,7 @@ message BatchInfo {
 }
 
 message Slot {
+    // Index in batch this slot belongs in
     uint32 Index = 1;
 
     // Precomputation fields
