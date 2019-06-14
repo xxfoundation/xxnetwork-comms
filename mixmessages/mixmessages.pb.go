@@ -3,13 +3,14 @@
 
 package mixmessages
 
-import proto "github.com/golang/protobuf/proto"
-import fmt "fmt"
-import math "math"
-
 import (
-	context "golang.org/x/net/context"
+	context "context"
+	fmt "fmt"
+	proto "github.com/golang/protobuf/proto"
 	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
+	math "math"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -21,7 +22,7 @@ var _ = math.Inf
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 // The request message asking if server is online
 type Ping struct {
@@ -34,16 +35,17 @@ func (m *Ping) Reset()         { *m = Ping{} }
 func (m *Ping) String() string { return proto.CompactTextString(m) }
 func (*Ping) ProtoMessage()    {}
 func (*Ping) Descriptor() ([]byte, []int) {
-	return fileDescriptor_mixmessages_86a649a78bc8809e, []int{0}
+	return fileDescriptor_f858aeec3eb2fbf5, []int{0}
 }
+
 func (m *Ping) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Ping.Unmarshal(m, b)
 }
 func (m *Ping) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_Ping.Marshal(b, m, deterministic)
 }
-func (dst *Ping) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Ping.Merge(dst, src)
+func (m *Ping) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Ping.Merge(m, src)
 }
 func (m *Ping) XXX_Size() int {
 	return xxx_messageInfo_Ping.Size(m)
@@ -68,16 +70,17 @@ func (m *TimePing) Reset()         { *m = TimePing{} }
 func (m *TimePing) String() string { return proto.CompactTextString(m) }
 func (*TimePing) ProtoMessage()    {}
 func (*TimePing) Descriptor() ([]byte, []int) {
-	return fileDescriptor_mixmessages_86a649a78bc8809e, []int{1}
+	return fileDescriptor_f858aeec3eb2fbf5, []int{1}
 }
+
 func (m *TimePing) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_TimePing.Unmarshal(m, b)
 }
 func (m *TimePing) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_TimePing.Marshal(b, m, deterministic)
 }
-func (dst *TimePing) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_TimePing.Merge(dst, src)
+func (m *TimePing) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TimePing.Merge(m, src)
 }
 func (m *TimePing) XXX_Size() int {
 	return xxx_messageInfo_TimePing.Size(m)
@@ -119,16 +122,17 @@ func (m *ServerMetrics) Reset()         { *m = ServerMetrics{} }
 func (m *ServerMetrics) String() string { return proto.CompactTextString(m) }
 func (*ServerMetrics) ProtoMessage()    {}
 func (*ServerMetrics) Descriptor() ([]byte, []int) {
-	return fileDescriptor_mixmessages_86a649a78bc8809e, []int{2}
+	return fileDescriptor_f858aeec3eb2fbf5, []int{2}
 }
+
 func (m *ServerMetrics) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ServerMetrics.Unmarshal(m, b)
 }
 func (m *ServerMetrics) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_ServerMetrics.Marshal(b, m, deterministic)
 }
-func (dst *ServerMetrics) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ServerMetrics.Merge(dst, src)
+func (m *ServerMetrics) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ServerMetrics.Merge(m, src)
 }
 func (m *ServerMetrics) XXX_Size() int {
 	return xxx_messageInfo_ServerMetrics.Size(m)
@@ -186,16 +190,17 @@ func (m *RoundInfo) Reset()         { *m = RoundInfo{} }
 func (m *RoundInfo) String() string { return proto.CompactTextString(m) }
 func (*RoundInfo) ProtoMessage()    {}
 func (*RoundInfo) Descriptor() ([]byte, []int) {
-	return fileDescriptor_mixmessages_86a649a78bc8809e, []int{3}
+	return fileDescriptor_f858aeec3eb2fbf5, []int{3}
 }
+
 func (m *RoundInfo) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RoundInfo.Unmarshal(m, b)
 }
 func (m *RoundInfo) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_RoundInfo.Marshal(b, m, deterministic)
 }
-func (dst *RoundInfo) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_RoundInfo.Merge(dst, src)
+func (m *RoundInfo) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RoundInfo.Merge(m, src)
 }
 func (m *RoundInfo) XXX_Size() int {
 	return xxx_messageInfo_RoundInfo.Size(m)
@@ -226,16 +231,17 @@ func (m *RoundBufferInfo) Reset()         { *m = RoundBufferInfo{} }
 func (m *RoundBufferInfo) String() string { return proto.CompactTextString(m) }
 func (*RoundBufferInfo) ProtoMessage()    {}
 func (*RoundBufferInfo) Descriptor() ([]byte, []int) {
-	return fileDescriptor_mixmessages_86a649a78bc8809e, []int{4}
+	return fileDescriptor_f858aeec3eb2fbf5, []int{4}
 }
+
 func (m *RoundBufferInfo) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RoundBufferInfo.Unmarshal(m, b)
 }
 func (m *RoundBufferInfo) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_RoundBufferInfo.Marshal(b, m, deterministic)
 }
-func (dst *RoundBufferInfo) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_RoundBufferInfo.Merge(dst, src)
+func (m *RoundBufferInfo) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RoundBufferInfo.Merge(m, src)
 }
 func (m *RoundBufferInfo) XXX_Size() int {
 	return xxx_messageInfo_RoundBufferInfo.Size(m)
@@ -265,16 +271,17 @@ func (m *RoundPublicKey) Reset()         { *m = RoundPublicKey{} }
 func (m *RoundPublicKey) String() string { return proto.CompactTextString(m) }
 func (*RoundPublicKey) ProtoMessage()    {}
 func (*RoundPublicKey) Descriptor() ([]byte, []int) {
-	return fileDescriptor_mixmessages_86a649a78bc8809e, []int{5}
+	return fileDescriptor_f858aeec3eb2fbf5, []int{5}
 }
+
 func (m *RoundPublicKey) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RoundPublicKey.Unmarshal(m, b)
 }
 func (m *RoundPublicKey) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_RoundPublicKey.Marshal(b, m, deterministic)
 }
-func (dst *RoundPublicKey) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_RoundPublicKey.Merge(dst, src)
+func (m *RoundPublicKey) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RoundPublicKey.Merge(m, src)
 }
 func (m *RoundPublicKey) XXX_Size() int {
 	return xxx_messageInfo_RoundPublicKey.Size(m)
@@ -312,16 +319,17 @@ func (m *ClientRequest) Reset()         { *m = ClientRequest{} }
 func (m *ClientRequest) String() string { return proto.CompactTextString(m) }
 func (*ClientRequest) ProtoMessage()    {}
 func (*ClientRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_mixmessages_86a649a78bc8809e, []int{6}
+	return fileDescriptor_f858aeec3eb2fbf5, []int{6}
 }
+
 func (m *ClientRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ClientRequest.Unmarshal(m, b)
 }
 func (m *ClientRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_ClientRequest.Marshal(b, m, deterministic)
 }
-func (dst *ClientRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ClientRequest.Merge(dst, src)
+func (m *ClientRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ClientRequest.Merge(m, src)
 }
 func (m *ClientRequest) XXX_Size() int {
 	return xxx_messageInfo_ClientRequest.Size(m)
@@ -358,16 +366,17 @@ func (m *IDList) Reset()         { *m = IDList{} }
 func (m *IDList) String() string { return proto.CompactTextString(m) }
 func (*IDList) ProtoMessage()    {}
 func (*IDList) Descriptor() ([]byte, []int) {
-	return fileDescriptor_mixmessages_86a649a78bc8809e, []int{7}
+	return fileDescriptor_f858aeec3eb2fbf5, []int{7}
 }
+
 func (m *IDList) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_IDList.Unmarshal(m, b)
 }
 func (m *IDList) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_IDList.Marshal(b, m, deterministic)
 }
-func (dst *IDList) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_IDList.Merge(dst, src)
+func (m *IDList) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_IDList.Merge(m, src)
 }
 func (m *IDList) XXX_Size() int {
 	return xxx_messageInfo_IDList.Size(m)
@@ -400,16 +409,17 @@ func (m *DSAPublicKey) Reset()         { *m = DSAPublicKey{} }
 func (m *DSAPublicKey) String() string { return proto.CompactTextString(m) }
 func (*DSAPublicKey) ProtoMessage()    {}
 func (*DSAPublicKey) Descriptor() ([]byte, []int) {
-	return fileDescriptor_mixmessages_86a649a78bc8809e, []int{8}
+	return fileDescriptor_f858aeec3eb2fbf5, []int{8}
 }
+
 func (m *DSAPublicKey) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DSAPublicKey.Unmarshal(m, b)
 }
 func (m *DSAPublicKey) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_DSAPublicKey.Marshal(b, m, deterministic)
 }
-func (dst *DSAPublicKey) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_DSAPublicKey.Merge(dst, src)
+func (m *DSAPublicKey) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DSAPublicKey.Merge(m, src)
 }
 func (m *DSAPublicKey) XXX_Size() int {
 	return xxx_messageInfo_DSAPublicKey.Size(m)
@@ -462,16 +472,17 @@ func (m *DSASignature) Reset()         { *m = DSASignature{} }
 func (m *DSASignature) String() string { return proto.CompactTextString(m) }
 func (*DSASignature) ProtoMessage()    {}
 func (*DSASignature) Descriptor() ([]byte, []int) {
-	return fileDescriptor_mixmessages_86a649a78bc8809e, []int{9}
+	return fileDescriptor_f858aeec3eb2fbf5, []int{9}
 }
+
 func (m *DSASignature) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DSASignature.Unmarshal(m, b)
 }
 func (m *DSASignature) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_DSASignature.Marshal(b, m, deterministic)
 }
-func (dst *DSASignature) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_DSASignature.Merge(dst, src)
+func (m *DSASignature) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DSASignature.Merge(m, src)
 }
 func (m *DSASignature) XXX_Size() int {
 	return xxx_messageInfo_DSASignature.Size(m)
@@ -516,16 +527,17 @@ func (m *UserRegistration) Reset()         { *m = UserRegistration{} }
 func (m *UserRegistration) String() string { return proto.CompactTextString(m) }
 func (*UserRegistration) ProtoMessage()    {}
 func (*UserRegistration) Descriptor() ([]byte, []int) {
-	return fileDescriptor_mixmessages_86a649a78bc8809e, []int{10}
+	return fileDescriptor_f858aeec3eb2fbf5, []int{10}
 }
+
 func (m *UserRegistration) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_UserRegistration.Unmarshal(m, b)
 }
 func (m *UserRegistration) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_UserRegistration.Marshal(b, m, deterministic)
 }
-func (dst *UserRegistration) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_UserRegistration.Merge(dst, src)
+func (m *UserRegistration) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UserRegistration.Merge(m, src)
 }
 func (m *UserRegistration) XXX_Size() int {
 	return xxx_messageInfo_UserRegistration.Size(m)
@@ -564,16 +576,17 @@ func (m *UserRegistrationConfirmation) Reset()         { *m = UserRegistrationCo
 func (m *UserRegistrationConfirmation) String() string { return proto.CompactTextString(m) }
 func (*UserRegistrationConfirmation) ProtoMessage()    {}
 func (*UserRegistrationConfirmation) Descriptor() ([]byte, []int) {
-	return fileDescriptor_mixmessages_86a649a78bc8809e, []int{11}
+	return fileDescriptor_f858aeec3eb2fbf5, []int{11}
 }
+
 func (m *UserRegistrationConfirmation) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_UserRegistrationConfirmation.Unmarshal(m, b)
 }
 func (m *UserRegistrationConfirmation) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_UserRegistrationConfirmation.Marshal(b, m, deterministic)
 }
-func (dst *UserRegistrationConfirmation) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_UserRegistrationConfirmation.Merge(dst, src)
+func (m *UserRegistrationConfirmation) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UserRegistrationConfirmation.Merge(m, src)
 }
 func (m *UserRegistrationConfirmation) XXX_Size() int {
 	return xxx_messageInfo_UserRegistrationConfirmation.Size(m)
@@ -612,16 +625,17 @@ func (m *NonceRequest) Reset()         { *m = NonceRequest{} }
 func (m *NonceRequest) String() string { return proto.CompactTextString(m) }
 func (*NonceRequest) ProtoMessage()    {}
 func (*NonceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_mixmessages_86a649a78bc8809e, []int{12}
+	return fileDescriptor_f858aeec3eb2fbf5, []int{12}
 }
+
 func (m *NonceRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_NonceRequest.Unmarshal(m, b)
 }
 func (m *NonceRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_NonceRequest.Marshal(b, m, deterministic)
 }
-func (dst *NonceRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_NonceRequest.Merge(dst, src)
+func (m *NonceRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_NonceRequest.Merge(m, src)
 }
 func (m *NonceRequest) XXX_Size() int {
 	return xxx_messageInfo_NonceRequest.Size(m)
@@ -666,16 +680,17 @@ func (m *Nonce) Reset()         { *m = Nonce{} }
 func (m *Nonce) String() string { return proto.CompactTextString(m) }
 func (*Nonce) ProtoMessage()    {}
 func (*Nonce) Descriptor() ([]byte, []int) {
-	return fileDescriptor_mixmessages_86a649a78bc8809e, []int{13}
+	return fileDescriptor_f858aeec3eb2fbf5, []int{13}
 }
+
 func (m *Nonce) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Nonce.Unmarshal(m, b)
 }
 func (m *Nonce) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_Nonce.Marshal(b, m, deterministic)
 }
-func (dst *Nonce) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Nonce.Merge(dst, src)
+func (m *Nonce) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Nonce.Merge(m, src)
 }
 func (m *Nonce) XXX_Size() int {
 	return xxx_messageInfo_Nonce.Size(m)
@@ -714,16 +729,17 @@ func (m *RegistrationConfirmation) Reset()         { *m = RegistrationConfirmati
 func (m *RegistrationConfirmation) String() string { return proto.CompactTextString(m) }
 func (*RegistrationConfirmation) ProtoMessage()    {}
 func (*RegistrationConfirmation) Descriptor() ([]byte, []int) {
-	return fileDescriptor_mixmessages_86a649a78bc8809e, []int{14}
+	return fileDescriptor_f858aeec3eb2fbf5, []int{14}
 }
+
 func (m *RegistrationConfirmation) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RegistrationConfirmation.Unmarshal(m, b)
 }
 func (m *RegistrationConfirmation) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_RegistrationConfirmation.Marshal(b, m, deterministic)
 }
-func (dst *RegistrationConfirmation) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_RegistrationConfirmation.Merge(dst, src)
+func (m *RegistrationConfirmation) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RegistrationConfirmation.Merge(m, src)
 }
 func (m *RegistrationConfirmation) XXX_Size() int {
 	return xxx_messageInfo_RegistrationConfirmation.Size(m)
@@ -767,16 +783,17 @@ func (m *Ack) Reset()         { *m = Ack{} }
 func (m *Ack) String() string { return proto.CompactTextString(m) }
 func (*Ack) ProtoMessage()    {}
 func (*Ack) Descriptor() ([]byte, []int) {
-	return fileDescriptor_mixmessages_86a649a78bc8809e, []int{15}
+	return fileDescriptor_f858aeec3eb2fbf5, []int{15}
 }
+
 func (m *Ack) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Ack.Unmarshal(m, b)
 }
 func (m *Ack) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_Ack.Marshal(b, m, deterministic)
 }
-func (dst *Ack) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Ack.Merge(dst, src)
+func (m *Ack) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Ack.Merge(m, src)
 }
 func (m *Ack) XXX_Size() int {
 	return xxx_messageInfo_Ack.Size(m)
@@ -807,16 +824,17 @@ func (m *Batch) Reset()         { *m = Batch{} }
 func (m *Batch) String() string { return proto.CompactTextString(m) }
 func (*Batch) ProtoMessage()    {}
 func (*Batch) Descriptor() ([]byte, []int) {
-	return fileDescriptor_mixmessages_86a649a78bc8809e, []int{16}
+	return fileDescriptor_f858aeec3eb2fbf5, []int{16}
 }
+
 func (m *Batch) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Batch.Unmarshal(m, b)
 }
 func (m *Batch) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_Batch.Marshal(b, m, deterministic)
 }
-func (dst *Batch) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Batch.Merge(dst, src)
+func (m *Batch) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Batch.Merge(m, src)
 }
 func (m *Batch) XXX_Size() int {
 	return xxx_messageInfo_Batch.Size(m)
@@ -848,19 +866,77 @@ func (m *Batch) GetSlots() []*Slot {
 	return nil
 }
 
+// Used as part of header for streaming post phase
+type BatchInfo struct {
+	Round                *RoundInfo `protobuf:"bytes,1,opt,name=Round,proto3" json:"Round,omitempty"`
+	ForPhase             int32      `protobuf:"varint,2,opt,name=ForPhase,proto3" json:"ForPhase,omitempty"`
+	BatchSize            uint32     `protobuf:"varint,3,opt,name=BatchSize,proto3" json:"BatchSize,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}   `json:"-"`
+	XXX_unrecognized     []byte     `json:"-"`
+	XXX_sizecache        int32      `json:"-"`
+}
+
+func (m *BatchInfo) Reset()         { *m = BatchInfo{} }
+func (m *BatchInfo) String() string { return proto.CompactTextString(m) }
+func (*BatchInfo) ProtoMessage()    {}
+func (*BatchInfo) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f858aeec3eb2fbf5, []int{17}
+}
+
+func (m *BatchInfo) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_BatchInfo.Unmarshal(m, b)
+}
+func (m *BatchInfo) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_BatchInfo.Marshal(b, m, deterministic)
+}
+func (m *BatchInfo) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_BatchInfo.Merge(m, src)
+}
+func (m *BatchInfo) XXX_Size() int {
+	return xxx_messageInfo_BatchInfo.Size(m)
+}
+func (m *BatchInfo) XXX_DiscardUnknown() {
+	xxx_messageInfo_BatchInfo.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_BatchInfo proto.InternalMessageInfo
+
+func (m *BatchInfo) GetRound() *RoundInfo {
+	if m != nil {
+		return m.Round
+	}
+	return nil
+}
+
+func (m *BatchInfo) GetForPhase() int32 {
+	if m != nil {
+		return m.ForPhase
+	}
+	return 0
+}
+
+func (m *BatchInfo) GetBatchSize() uint32 {
+	if m != nil {
+		return m.BatchSize
+	}
+	return 0
+}
+
 type Slot struct {
+	// Index in batch this slot belongs in
+	Index uint32 `protobuf:"varint,1,opt,name=Index,proto3" json:"Index,omitempty"`
 	// Precomputation fields
-	EncryptedMessageKeys            []byte `protobuf:"bytes,1,opt,name=EncryptedMessageKeys,proto3" json:"EncryptedMessageKeys,omitempty"`
-	EncryptedAssociatedDataKeys     []byte `protobuf:"bytes,2,opt,name=EncryptedAssociatedDataKeys,proto3" json:"EncryptedAssociatedDataKeys,omitempty"`
-	PartialMessageCypherText        []byte `protobuf:"bytes,3,opt,name=PartialMessageCypherText,proto3" json:"PartialMessageCypherText,omitempty"`
-	PartialAssociatedDataCypherText []byte `protobuf:"bytes,4,opt,name=PartialAssociatedDataCypherText,proto3" json:"PartialAssociatedDataCypherText,omitempty"`
-	PartialRoundPublicCypherKey     []byte `protobuf:"bytes,5,opt,name=PartialRoundPublicCypherKey,proto3" json:"PartialRoundPublicCypherKey,omitempty"`
+	EncryptedMessageKeys            []byte `protobuf:"bytes,2,opt,name=EncryptedMessageKeys,proto3" json:"EncryptedMessageKeys,omitempty"`
+	EncryptedAssociatedDataKeys     []byte `protobuf:"bytes,3,opt,name=EncryptedAssociatedDataKeys,proto3" json:"EncryptedAssociatedDataKeys,omitempty"`
+	PartialMessageCypherText        []byte `protobuf:"bytes,4,opt,name=PartialMessageCypherText,proto3" json:"PartialMessageCypherText,omitempty"`
+	PartialAssociatedDataCypherText []byte `protobuf:"bytes,5,opt,name=PartialAssociatedDataCypherText,proto3" json:"PartialAssociatedDataCypherText,omitempty"`
+	PartialRoundPublicCypherKey     []byte `protobuf:"bytes,6,opt,name=PartialRoundPublicCypherKey,proto3" json:"PartialRoundPublicCypherKey,omitempty"`
 	// Realtime/client fields
-	SenderID             []byte   `protobuf:"bytes,6,opt,name=SenderID,proto3" json:"SenderID,omitempty"`
-	MessagePayload       []byte   `protobuf:"bytes,7,opt,name=MessagePayload,proto3" json:"MessagePayload,omitempty"`
-	AssociatedData       []byte   `protobuf:"bytes,8,opt,name=AssociatedData,proto3" json:"AssociatedData,omitempty"`
-	Salt                 []byte   `protobuf:"bytes,9,opt,name=Salt,proto3" json:"Salt,omitempty"`
-	KMACs                [][]byte `protobuf:"bytes,10,rep,name=KMACs,proto3" json:"KMACs,omitempty"`
+	SenderID             []byte   `protobuf:"bytes,7,opt,name=SenderID,proto3" json:"SenderID,omitempty"`
+	MessagePayload       []byte   `protobuf:"bytes,8,opt,name=MessagePayload,proto3" json:"MessagePayload,omitempty"`
+	AssociatedData       []byte   `protobuf:"bytes,9,opt,name=AssociatedData,proto3" json:"AssociatedData,omitempty"`
+	Salt                 []byte   `protobuf:"bytes,10,opt,name=Salt,proto3" json:"Salt,omitempty"`
+	KMACs                [][]byte `protobuf:"bytes,11,rep,name=KMACs,proto3" json:"KMACs,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -870,16 +946,17 @@ func (m *Slot) Reset()         { *m = Slot{} }
 func (m *Slot) String() string { return proto.CompactTextString(m) }
 func (*Slot) ProtoMessage()    {}
 func (*Slot) Descriptor() ([]byte, []int) {
-	return fileDescriptor_mixmessages_86a649a78bc8809e, []int{17}
+	return fileDescriptor_f858aeec3eb2fbf5, []int{18}
 }
+
 func (m *Slot) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Slot.Unmarshal(m, b)
 }
 func (m *Slot) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_Slot.Marshal(b, m, deterministic)
 }
-func (dst *Slot) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Slot.Merge(dst, src)
+func (m *Slot) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Slot.Merge(m, src)
 }
 func (m *Slot) XXX_Size() int {
 	return xxx_messageInfo_Slot.Size(m)
@@ -889,6 +966,13 @@ func (m *Slot) XXX_DiscardUnknown() {
 }
 
 var xxx_messageInfo_Slot proto.InternalMessageInfo
+
+func (m *Slot) GetIndex() uint32 {
+	if m != nil {
+		return m.Index
+	}
+	return 0
+}
 
 func (m *Slot) GetEncryptedMessageKeys() []byte {
 	if m != nil {
@@ -978,7 +1062,86 @@ func init() {
 	proto.RegisterType((*RegistrationConfirmation)(nil), "mixmessages.RegistrationConfirmation")
 	proto.RegisterType((*Ack)(nil), "mixmessages.Ack")
 	proto.RegisterType((*Batch)(nil), "mixmessages.Batch")
+	proto.RegisterType((*BatchInfo)(nil), "mixmessages.BatchInfo")
 	proto.RegisterType((*Slot)(nil), "mixmessages.Slot")
+}
+
+func init() { proto.RegisterFile("mixmessages.proto", fileDescriptor_f858aeec3eb2fbf5) }
+
+var fileDescriptor_f858aeec3eb2fbf5 = []byte{
+	// 1140 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x57, 0xdb, 0x52, 0x1b, 0x47,
+	0x10, 0xd5, 0xa2, 0x0b, 0xa8, 0x91, 0x30, 0x8c, 0x89, 0x6b, 0x23, 0x9c, 0x0a, 0xb5, 0x95, 0x0b,
+	0x49, 0xa5, 0x5c, 0x65, 0xb9, 0x2a, 0x0f, 0x76, 0x6e, 0x42, 0x02, 0x59, 0x85, 0x45, 0xe4, 0x11,
+	0x3c, 0x90, 0xb7, 0xf5, 0xaa, 0x41, 0x1b, 0x56, 0xbb, 0xf2, 0xcc, 0x28, 0x20, 0xbf, 0xe6, 0x0b,
+	0xf2, 0x0f, 0xf9, 0x81, 0xe4, 0x63, 0xf2, 0x1d, 0xf9, 0x84, 0xd4, 0x5c, 0x24, 0xed, 0x4a, 0x2b,
+	0x0c, 0x24, 0x95, 0xb7, 0xe9, 0xcb, 0x9c, 0x3e, 0x3d, 0xd3, 0xd3, 0xdb, 0x0b, 0x5b, 0x03, 0xff,
+	0x7a, 0x80, 0x9c, 0xbb, 0x17, 0xc8, 0x9f, 0x0c, 0x59, 0x24, 0x22, 0xb2, 0x1e, 0x53, 0x39, 0x05,
+	0xc8, 0x75, 0xfc, 0xf0, 0xc2, 0x39, 0x86, 0xb5, 0x13, 0x7f, 0x80, 0x72, 0x4d, 0xb6, 0x21, 0x2f,
+	0xd7, 0xdc, 0xb6, 0x76, 0xb3, 0x7b, 0x59, 0xaa, 0x05, 0xf2, 0x15, 0xe4, 0x69, 0x34, 0x0a, 0x7b,
+	0xf6, 0xca, 0xae, 0xb5, 0xb7, 0x5e, 0x7d, 0xf4, 0x24, 0x8e, 0xac, 0x2c, 0xad, 0xf0, 0x3c, 0xa2,
+	0xda, 0xc9, 0xf9, 0xc3, 0x82, 0x72, 0x17, 0xd9, 0x2f, 0xc8, 0xda, 0x28, 0x98, 0xef, 0x71, 0x52,
+	0x81, 0xb5, 0x36, 0x0e, 0x4e, 0xa5, 0xbf, 0x02, 0x2e, 0xd3, 0xa9, 0x4c, 0x76, 0x61, 0xfd, 0xa4,
+	0xcf, 0xd0, 0xed, 0x69, 0xf3, 0x8a, 0x32, 0xc7, 0x55, 0x72, 0x77, 0x7d, 0x38, 0xd2, 0xe6, 0xac,
+	0xde, 0x3d, 0x91, 0x89, 0x0d, 0xab, 0xa7, 0xc3, 0xae, 0x1f, 0x7a, 0x68, 0xe7, 0x14, 0xe3, 0x89,
+	0x38, 0xe3, 0x9c, 0xbf, 0x0d, 0xe7, 0x1d, 0x28, 0x4e, 0x75, 0x64, 0x03, 0x56, 0x5a, 0x0d, 0xdb,
+	0xda, 0xb5, 0xf6, 0x72, 0x74, 0xa5, 0xd5, 0x70, 0x5e, 0xc0, 0x03, 0x65, 0xdc, 0x1f, 0x9d, 0x9f,
+	0x23, 0x53, 0x2e, 0x7b, 0x09, 0x55, 0xd7, 0x7f, 0x87, 0xca, 0xbf, 0x4c, 0xe7, 0xd5, 0x4e, 0x07,
+	0x36, 0x94, 0xaa, 0x33, 0x7a, 0x13, 0xf8, 0xde, 0x11, 0x8e, 0x67, 0xcc, 0xac, 0x5b, 0x30, 0x23,
+	0x9b, 0x90, 0x3d, 0xc2, 0xb1, 0x3a, 0xf9, 0x12, 0x95, 0x4b, 0xa7, 0x0d, 0xe5, 0x7a, 0xe0, 0x63,
+	0x28, 0x28, 0xbe, 0x1d, 0x21, 0x17, 0xe4, 0x11, 0x14, 0x4e, 0x39, 0x32, 0xc3, 0xb9, 0x44, 0x8d,
+	0x44, 0x3e, 0x81, 0xf2, 0x2b, 0x97, 0x8b, 0xb6, 0xc6, 0x6e, 0x35, 0x14, 0x48, 0x91, 0x26, 0x95,
+	0x4e, 0x05, 0x0a, 0xad, 0xc6, 0x2b, 0x9f, 0x0b, 0x19, 0xaa, 0xd5, 0xd0, 0x57, 0x5f, 0xa4, 0x72,
+	0xe9, 0x1c, 0x42, 0xa9, 0xd1, 0xad, 0xcd, 0xa8, 0x97, 0xc0, 0x3a, 0x33, 0x41, 0xac, 0x33, 0x29,
+	0x75, 0x0c, 0x31, 0xab, 0x23, 0xa5, 0xd7, 0x76, 0x56, 0x4b, 0xaf, 0xa5, 0xd4, 0xb4, 0x73, 0x5a,
+	0x6a, 0x3a, 0xdf, 0x29, 0x9c, 0xae, 0x7f, 0x11, 0xba, 0x62, 0xc4, 0x90, 0x10, 0xc8, 0xbd, 0x74,
+	0x79, 0xdf, 0x40, 0xa9, 0xb5, 0xdc, 0x41, 0x27, 0x68, 0x54, 0x4a, 0xdd, 0x09, 0x5a, 0xd7, 0x79,
+	0x0b, 0x9b, 0x32, 0x27, 0x8a, 0x17, 0x3e, 0x17, 0xcc, 0x15, 0x7e, 0x14, 0x92, 0x2f, 0x61, 0x33,
+	0x2e, 0xd7, 0xa3, 0x9e, 0xbe, 0x83, 0x22, 0x5d, 0xd0, 0x93, 0xa7, 0x50, 0xd0, 0x47, 0x66, 0x2a,
+	0xf8, 0xc3, 0xc4, 0x99, 0xc7, 0x53, 0xa4, 0xc6, 0xd1, 0xf9, 0xd5, 0x82, 0xc7, 0xf3, 0x31, 0xeb,
+	0x51, 0x78, 0xee, 0xb3, 0x81, 0x8e, 0xdf, 0x86, 0x6d, 0xed, 0x2a, 0xd3, 0xc2, 0xde, 0xfe, 0x58,
+	0xd7, 0xbc, 0xb9, 0xd5, 0x85, 0x08, 0xd3, 0xe4, 0x69, 0xea, 0x36, 0xf9, 0xf2, 0x0e, 0x18, 0x8b,
+	0x98, 0xb9, 0x24, 0x2d, 0x38, 0xbf, 0x5b, 0x50, 0x3a, 0x8e, 0x42, 0x0f, 0x27, 0x77, 0x4d, 0x20,
+	0xd7, 0x75, 0x03, 0x31, 0x39, 0x39, 0xb9, 0xbe, 0x47, 0x76, 0x4b, 0xc9, 0x67, 0xef, 0x45, 0xde,
+	0x79, 0x06, 0x79, 0xc5, 0x52, 0x66, 0xa1, 0x16, 0x86, 0xdf, 0x4c, 0x9b, 0x92, 0xdb, 0x9f, 0x16,
+	0xd8, 0xff, 0xd7, 0xe9, 0x3e, 0x85, 0x82, 0x01, 0x78, 0xff, 0x11, 0xcd, 0x5f, 0x48, 0x36, 0x4e,
+	0x7a, 0x07, 0xb2, 0x35, 0xef, 0x72, 0x66, 0xb4, 0xe2, 0xc6, 0x77, 0x90, 0xdf, 0x77, 0x85, 0xd7,
+	0xbf, 0xe3, 0x13, 0xaf, 0xc0, 0xda, 0x61, 0xc4, 0x3a, 0x7d, 0x97, 0xa3, 0xa2, 0x97, 0xa7, 0x53,
+	0x99, 0x7c, 0x0e, 0x79, 0x1e, 0x44, 0x82, 0xab, 0xce, 0xb7, 0x5e, 0xdd, 0x4a, 0x20, 0x75, 0x83,
+	0x48, 0x50, 0x6d, 0x77, 0x38, 0x14, 0x55, 0x6c, 0xd5, 0x9e, 0xfe, 0xbb, 0xf8, 0x8f, 0x0d, 0xac,
+	0x6a, 0x71, 0x59, 0xd5, 0xe2, 0x66, 0x0a, 0xe7, 0xef, 0x2c, 0xe4, 0x24, 0x09, 0x79, 0x1e, 0xad,
+	0xb0, 0x87, 0xd7, 0xa6, 0x0b, 0x6a, 0x81, 0x54, 0x61, 0xfb, 0x20, 0xf4, 0xd8, 0x78, 0x28, 0xb0,
+	0x67, 0x1a, 0xce, 0x11, 0x8e, 0xb9, 0x79, 0xe5, 0xa9, 0x36, 0xf2, 0x03, 0xec, 0x4c, 0xf5, 0x35,
+	0xce, 0x23, 0xcf, 0x77, 0x05, 0xf6, 0x1a, 0xae, 0x70, 0xd5, 0x56, 0xdd, 0x12, 0x6e, 0x72, 0x21,
+	0xcf, 0xc1, 0xee, 0xb8, 0x4c, 0xf8, 0x6e, 0x60, 0x70, 0xeb, 0xe3, 0x61, 0x1f, 0xd9, 0x09, 0x5e,
+	0x0b, 0xd3, 0x91, 0x96, 0xda, 0xc9, 0x4b, 0xf8, 0xd8, 0xd8, 0x92, 0xc0, 0x31, 0x88, 0xbc, 0x82,
+	0x78, 0x9f, 0x9b, 0xcc, 0xc3, 0xb8, 0xc4, 0xda, 0xbf, 0xb6, 0xcb, 0x7e, 0x5e, 0xd0, 0x79, 0xdc,
+	0xe0, 0x22, 0xaf, 0xa5, 0x8b, 0x61, 0x4f, 0x35, 0xf6, 0x55, 0xe5, 0x3e, 0x95, 0xc9, 0x67, 0xb0,
+	0x61, 0xc8, 0x77, 0xdc, 0x71, 0x10, 0xb9, 0x3d, 0x7b, 0x4d, 0x79, 0xcc, 0x69, 0xa5, 0x5f, 0x92,
+	0xa1, 0x5d, 0xd4, 0x7e, 0x49, 0xed, 0xb4, 0xad, 0x40, 0xac, 0xad, 0x6c, 0x43, 0xfe, 0xa8, 0x5d,
+	0xab, 0x73, 0x7b, 0x7d, 0x37, 0x2b, 0xdf, 0xb2, 0x12, 0xaa, 0xbf, 0xad, 0x42, 0xee, 0x58, 0xf6,
+	0xd4, 0x2a, 0x14, 0x6b, 0xfc, 0xf2, 0xc7, 0x30, 0xf0, 0x43, 0x24, 0xc9, 0xba, 0x94, 0xa3, 0x44,
+	0x65, 0x33, 0xa1, 0xaa, 0x79, 0x97, 0x4e, 0x86, 0x3c, 0x87, 0xb2, 0x4a, 0x55, 0x30, 0x7f, 0xa8,
+	0xe6, 0x8d, 0x0f, 0x12, 0x4e, 0x93, 0x31, 0x24, 0x75, 0xef, 0x3e, 0x6c, 0x36, 0x51, 0xcc, 0x0d,
+	0x16, 0xc9, 0xe7, 0x10, 0xb7, 0xa5, 0x62, 0x7c, 0x03, 0x1b, 0x75, 0x86, 0xae, 0xc0, 0x63, 0xbc,
+	0xd2, 0xb5, 0xbf, 0xe4, 0x69, 0xa4, 0xee, 0xfe, 0x1a, 0x4a, 0x9d, 0x88, 0x8b, 0x63, 0xbc, 0xd2,
+	0xaf, 0x9c, 0x24, 0x7c, 0x94, 0x6e, 0x59, 0xd4, 0x43, 0x3f, 0xf4, 0x79, 0x9f, 0xa2, 0x1b, 0x08,
+	0x7f, 0x80, 0x77, 0x8a, 0xfa, 0x0c, 0x8a, 0x32, 0xaa, 0x7e, 0x8e, 0xb7, 0x0d, 0xf9, 0x1c, 0x1e,
+	0x74, 0x05, 0x43, 0x77, 0x30, 0xdb, 0xba, 0xd8, 0x3a, 0xd2, 0x76, 0xee, 0x59, 0x84, 0x02, 0x69,
+	0xa2, 0x98, 0x9f, 0x78, 0x1e, 0x2f, 0x52, 0x9e, 0x59, 0x2b, 0x37, 0x5a, 0x9d, 0x0c, 0xf9, 0x1e,
+	0x4a, 0xe6, 0x0b, 0xa6, 0xbf, 0x08, 0xc9, 0xfe, 0x1b, 0xff, 0xc2, 0x55, 0xc8, 0xa2, 0xc9, 0xc9,
+	0x90, 0x33, 0x78, 0x68, 0xbe, 0x0f, 0x89, 0x21, 0x60, 0xf9, 0x87, 0xa0, 0xf2, 0x69, 0x92, 0xd2,
+	0x92, 0x0f, 0x8d, 0x93, 0x21, 0x07, 0x40, 0xe4, 0x29, 0xcd, 0x4d, 0x69, 0x3b, 0x8b, 0x19, 0x4d,
+	0x8d, 0xa9, 0x47, 0xfe, 0x02, 0xb6, 0xd4, 0x61, 0x33, 0xf4, 0xa2, 0xc1, 0x90, 0x22, 0x1f, 0x05,
+	0xe2, 0x0e, 0x25, 0xb2, 0xd5, 0x44, 0x51, 0x8f, 0x06, 0xc3, 0x00, 0x05, 0xf6, 0x74, 0x7d, 0xa5,
+	0x3c, 0xaa, 0x14, 0x3c, 0x27, 0x53, 0xfd, 0x6b, 0x05, 0x56, 0x9b, 0xae, 0xc0, 0x2b, 0x77, 0x4c,
+	0xf6, 0xa1, 0x5c, 0xef, 0xa3, 0x77, 0x69, 0x1a, 0xc1, 0xfc, 0x1b, 0x49, 0x4c, 0x8e, 0x95, 0x87,
+	0x09, 0x9b, 0x1e, 0x03, 0x9d, 0x0c, 0xf9, 0x16, 0xa0, 0x89, 0x93, 0x11, 0xf1, 0x46, 0x80, 0xc5,
+	0xa2, 0x52, 0x15, 0x0b, 0x9d, 0xd1, 0x74, 0xfb, 0xed, 0xea, 0xee, 0xdf, 0x57, 0x08, 0x85, 0x92,
+	0xb9, 0xd8, 0x34, 0x80, 0x7b, 0x95, 0x46, 0xf5, 0x67, 0x49, 0x2a, 0x56, 0x6e, 0x3f, 0x4d, 0x64,
+	0x64, 0x72, 0x36, 0x24, 0x1f, 0x25, 0x80, 0xe6, 0xc7, 0xc5, 0xca, 0x17, 0x37, 0x9a, 0x93, 0xb1,
+	0xde, 0x14, 0xd4, 0x2f, 0xda, 0xb3, 0x7f, 0x02, 0x00, 0x00, 0xff, 0xff, 0x05, 0x2a, 0x32, 0x87,
+	0xb7, 0x0d, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -1007,6 +1170,9 @@ type NodeClient interface {
 	FinishRealtime(ctx context.Context, in *RoundInfo, opts ...grpc.CallOption) (*Ack, error)
 	// PostPhase runs a cMix phase on another node
 	PostPhase(ctx context.Context, in *Batch, opts ...grpc.CallOption) (*Ack, error)
+	// StreamPostPhase runs a cMix phase on another node
+	// by using unary streaming of slots
+	StreamPostPhase(ctx context.Context, opts ...grpc.CallOption) (Node_StreamPostPhaseClient, error)
 	// GetRoundBufferInfo returns the # of rounds ready for messages
 	GetRoundBufferInfo(ctx context.Context, in *RoundBufferInfo, opts ...grpc.CallOption) (*RoundBufferInfo, error)
 	// RequestNonce generates a nonce for user registration
@@ -1093,6 +1259,40 @@ func (c *nodeClient) PostPhase(ctx context.Context, in *Batch, opts ...grpc.Call
 	return out, nil
 }
 
+func (c *nodeClient) StreamPostPhase(ctx context.Context, opts ...grpc.CallOption) (Node_StreamPostPhaseClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_Node_serviceDesc.Streams[0], "/mixmessages.Node/StreamPostPhase", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &nodeStreamPostPhaseClient{stream}
+	return x, nil
+}
+
+type Node_StreamPostPhaseClient interface {
+	Send(*Slot) error
+	CloseAndRecv() (*Ack, error)
+	grpc.ClientStream
+}
+
+type nodeStreamPostPhaseClient struct {
+	grpc.ClientStream
+}
+
+func (x *nodeStreamPostPhaseClient) Send(m *Slot) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *nodeStreamPostPhaseClient) CloseAndRecv() (*Ack, error) {
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	m := new(Ack)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 func (c *nodeClient) GetRoundBufferInfo(ctx context.Context, in *RoundBufferInfo, opts ...grpc.CallOption) (*RoundBufferInfo, error) {
 	out := new(RoundBufferInfo)
 	err := c.cc.Invoke(ctx, "/mixmessages.Node/GetRoundBufferInfo", in, out, opts...)
@@ -1163,6 +1363,9 @@ type NodeServer interface {
 	FinishRealtime(context.Context, *RoundInfo) (*Ack, error)
 	// PostPhase runs a cMix phase on another node
 	PostPhase(context.Context, *Batch) (*Ack, error)
+	// StreamPostPhase runs a cMix phase on another node
+	// by using unary streaming of slots
+	StreamPostPhase(Node_StreamPostPhaseServer) error
 	// GetRoundBufferInfo returns the # of rounds ready for messages
 	GetRoundBufferInfo(context.Context, *RoundBufferInfo) (*RoundBufferInfo, error)
 	// RequestNonce generates a nonce for user registration
@@ -1176,6 +1379,53 @@ type NodeServer interface {
 	PostPrecompResult(context.Context, *Batch) (*Ack, error)
 	// The gateway calls GetCompletedBatch to get any finished batch from a node
 	GetCompletedBatch(context.Context, *Ping) (*Batch, error)
+}
+
+// UnimplementedNodeServer can be embedded to have forward compatible implementations.
+type UnimplementedNodeServer struct {
+}
+
+func (*UnimplementedNodeServer) AskOnline(ctx context.Context, req *Ping) (*Ack, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AskOnline not implemented")
+}
+func (*UnimplementedNodeServer) RoundtripPing(ctx context.Context, req *TimePing) (*Ack, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RoundtripPing not implemented")
+}
+func (*UnimplementedNodeServer) GetServerMetrics(ctx context.Context, req *ServerMetrics) (*Ack, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetServerMetrics not implemented")
+}
+func (*UnimplementedNodeServer) CreateNewRound(ctx context.Context, req *RoundInfo) (*Ack, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateNewRound not implemented")
+}
+func (*UnimplementedNodeServer) PostNewBatch(ctx context.Context, req *Batch) (*Ack, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PostNewBatch not implemented")
+}
+func (*UnimplementedNodeServer) FinishRealtime(ctx context.Context, req *RoundInfo) (*Ack, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FinishRealtime not implemented")
+}
+func (*UnimplementedNodeServer) PostPhase(ctx context.Context, req *Batch) (*Ack, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PostPhase not implemented")
+}
+func (*UnimplementedNodeServer) StreamPostPhase(srv Node_StreamPostPhaseServer) error {
+	return status.Errorf(codes.Unimplemented, "method StreamPostPhase not implemented")
+}
+func (*UnimplementedNodeServer) GetRoundBufferInfo(ctx context.Context, req *RoundBufferInfo) (*RoundBufferInfo, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetRoundBufferInfo not implemented")
+}
+func (*UnimplementedNodeServer) RequestNonce(ctx context.Context, req *NonceRequest) (*Nonce, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RequestNonce not implemented")
+}
+func (*UnimplementedNodeServer) ConfirmRegistration(ctx context.Context, req *DSASignature) (*RegistrationConfirmation, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ConfirmRegistration not implemented")
+}
+func (*UnimplementedNodeServer) PostRoundPublicKey(ctx context.Context, req *RoundPublicKey) (*Ack, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PostRoundPublicKey not implemented")
+}
+func (*UnimplementedNodeServer) PostPrecompResult(ctx context.Context, req *Batch) (*Ack, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PostPrecompResult not implemented")
+}
+func (*UnimplementedNodeServer) GetCompletedBatch(ctx context.Context, req *Ping) (*Batch, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCompletedBatch not implemented")
 }
 
 func RegisterNodeServer(s *grpc.Server, srv NodeServer) {
@@ -1306,6 +1556,32 @@ func _Node_PostPhase_Handler(srv interface{}, ctx context.Context, dec func(inte
 		return srv.(NodeServer).PostPhase(ctx, req.(*Batch))
 	}
 	return interceptor(ctx, in, info, handler)
+}
+
+func _Node_StreamPostPhase_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(NodeServer).StreamPostPhase(&nodeStreamPostPhaseServer{stream})
+}
+
+type Node_StreamPostPhaseServer interface {
+	SendAndClose(*Ack) error
+	Recv() (*Slot, error)
+	grpc.ServerStream
+}
+
+type nodeStreamPostPhaseServer struct {
+	grpc.ServerStream
+}
+
+func (x *nodeStreamPostPhaseServer) SendAndClose(m *Ack) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *nodeStreamPostPhaseServer) Recv() (*Slot, error) {
+	m := new(Slot)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
 }
 
 func _Node_GetRoundBufferInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -1473,7 +1749,13 @@ var _Node_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Node_GetCompletedBatch_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "StreamPostPhase",
+			Handler:       _Node_StreamPostPhase_Handler,
+			ClientStreams: true,
+		},
+	},
 	Metadata: "mixmessages.proto",
 }
 
@@ -1558,6 +1840,26 @@ type GatewayServer interface {
 	RequestNonce(context.Context, *NonceRequest) (*Nonce, error)
 	// ConfirmNonce takes a client signed nonce for Registration Nonce Confirmation
 	ConfirmNonce(context.Context, *DSASignature) (*RegistrationConfirmation, error)
+}
+
+// UnimplementedGatewayServer can be embedded to have forward compatible implementations.
+type UnimplementedGatewayServer struct {
+}
+
+func (*UnimplementedGatewayServer) CheckMessages(ctx context.Context, req *ClientRequest) (*IDList, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckMessages not implemented")
+}
+func (*UnimplementedGatewayServer) GetMessage(ctx context.Context, req *ClientRequest) (*Slot, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMessage not implemented")
+}
+func (*UnimplementedGatewayServer) PutMessage(ctx context.Context, req *Slot) (*Ack, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PutMessage not implemented")
+}
+func (*UnimplementedGatewayServer) RequestNonce(ctx context.Context, req *NonceRequest) (*Nonce, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RequestNonce not implemented")
+}
+func (*UnimplementedGatewayServer) ConfirmNonce(ctx context.Context, req *DSASignature) (*RegistrationConfirmation, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ConfirmNonce not implemented")
 }
 
 func RegisterGatewayServer(s *grpc.Server, srv GatewayServer) {
@@ -1714,6 +2016,14 @@ type RegistrationServer interface {
 	RegisterUser(context.Context, *UserRegistration) (*UserRegistrationConfirmation, error)
 }
 
+// UnimplementedRegistrationServer can be embedded to have forward compatible implementations.
+type UnimplementedRegistrationServer struct {
+}
+
+func (*UnimplementedRegistrationServer) RegisterUser(ctx context.Context, req *UserRegistration) (*UserRegistrationConfirmation, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RegisterUser not implemented")
+}
+
 func RegisterRegistrationServer(s *grpc.Server, srv RegistrationServer) {
 	s.RegisterService(&_Registration_serviceDesc, srv)
 }
@@ -1747,79 +2057,4 @@ var _Registration_serviceDesc = grpc.ServiceDesc{
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "mixmessages.proto",
-}
-
-func init() { proto.RegisterFile("mixmessages.proto", fileDescriptor_mixmessages_86a649a78bc8809e) }
-
-var fileDescriptor_mixmessages_86a649a78bc8809e = []byte{
-	// 1089 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x57, 0x5b, 0x73, 0xda, 0x46,
-	0x14, 0x46, 0xe6, 0x12, 0x73, 0x0c, 0xae, 0xbd, 0x71, 0x33, 0x2a, 0x4e, 0xa7, 0x1e, 0x4d, 0x2f,
-	0x6e, 0xa7, 0x93, 0x99, 0xe0, 0x99, 0x3e, 0x24, 0xbd, 0x61, 0xb0, 0x09, 0xe3, 0xe0, 0x92, 0xc5,
-	0x7e, 0x70, 0xdf, 0x14, 0x71, 0x6c, 0x54, 0x0b, 0x89, 0xec, 0x2e, 0x75, 0xc8, 0x6b, 0xff, 0x4a,
-	0xff, 0x40, 0xfb, 0x5f, 0xda, 0x87, 0xfe, 0x9a, 0xce, 0x5e, 0x00, 0x09, 0x04, 0xb1, 0xdd, 0x99,
-	0xbe, 0xed, 0x39, 0xdf, 0xd9, 0x73, 0x3f, 0x47, 0x2b, 0xd8, 0x1e, 0xf8, 0x6f, 0x07, 0xc8, 0xb9,
-	0x7b, 0x85, 0xfc, 0xc9, 0x90, 0x45, 0x22, 0x22, 0x1b, 0x31, 0x96, 0x53, 0x80, 0x5c, 0xc7, 0x0f,
-	0xaf, 0x9c, 0x53, 0x58, 0x3f, 0xf3, 0x07, 0x28, 0xcf, 0x64, 0x07, 0xf2, 0xf2, 0xcc, 0x6d, 0x6b,
-	0x2f, 0xbb, 0x9f, 0xa5, 0x9a, 0x20, 0x5f, 0x43, 0x9e, 0x46, 0xa3, 0xb0, 0x67, 0xaf, 0xed, 0x59,
-	0xfb, 0x1b, 0xd5, 0x47, 0x4f, 0xe2, 0x9a, 0x15, 0xd2, 0x0a, 0x2f, 0x23, 0xaa, 0x85, 0x9c, 0x3f,
-	0x2c, 0x28, 0x77, 0x91, 0xfd, 0x8a, 0xac, 0x8d, 0x82, 0xf9, 0x1e, 0x27, 0x15, 0x58, 0x6f, 0xe3,
-	0xe0, 0x5c, 0xca, 0x2b, 0xc5, 0x65, 0x3a, 0xa5, 0xc9, 0x1e, 0x6c, 0x9c, 0xf5, 0x19, 0xba, 0x3d,
-	0x0d, 0xaf, 0x29, 0x38, 0xce, 0x92, 0xb7, 0xeb, 0xc3, 0x91, 0x86, 0xb3, 0xfa, 0xf6, 0x84, 0x26,
-	0x36, 0x3c, 0x38, 0x1f, 0x76, 0xfd, 0xd0, 0x43, 0x3b, 0xa7, 0x3c, 0x9e, 0x90, 0x33, 0x9f, 0xf3,
-	0xb7, 0xf1, 0x79, 0x17, 0x8a, 0x53, 0x1e, 0xd9, 0x84, 0xb5, 0x56, 0xc3, 0xb6, 0xf6, 0xac, 0xfd,
-	0x1c, 0x5d, 0x6b, 0x35, 0x9c, 0xe7, 0xf0, 0x81, 0x02, 0x0f, 0x47, 0x97, 0x97, 0xc8, 0x94, 0xc8,
-	0x7e, 0x82, 0xd5, 0xf5, 0xdf, 0xa1, 0x92, 0x2f, 0xd3, 0x79, 0xb6, 0xd3, 0x81, 0x4d, 0xc5, 0xea,
-	0x8c, 0x5e, 0x07, 0xbe, 0x77, 0x82, 0xe3, 0x99, 0x67, 0xd6, 0x2d, 0x3c, 0x23, 0x5b, 0x90, 0x3d,
-	0xc1, 0xb1, 0xca, 0x7c, 0x89, 0xca, 0xa3, 0xd3, 0x86, 0x72, 0x3d, 0xf0, 0x31, 0x14, 0x14, 0xdf,
-	0x8c, 0x90, 0x0b, 0xf2, 0x08, 0x0a, 0xe7, 0x1c, 0x99, 0xf1, 0xb9, 0x44, 0x0d, 0x45, 0x3e, 0x85,
-	0xf2, 0x4b, 0x97, 0x8b, 0xb6, 0xd6, 0xdd, 0x6a, 0x28, 0x25, 0x45, 0x9a, 0x64, 0x3a, 0x15, 0x28,
-	0xb4, 0x1a, 0x2f, 0x7d, 0x2e, 0xa4, 0xa9, 0x56, 0x43, 0x97, 0xbe, 0x48, 0xe5, 0xd1, 0x39, 0x86,
-	0x52, 0xa3, 0x5b, 0x9b, 0xb9, 0x5e, 0x02, 0xeb, 0xc2, 0x18, 0xb1, 0x2e, 0x24, 0xd5, 0x31, 0x8e,
-	0x59, 0x1d, 0x49, 0xbd, 0xb2, 0xb3, 0x9a, 0x7a, 0x25, 0xa9, 0xa6, 0x9d, 0xd3, 0x54, 0xd3, 0xf9,
-	0x5e, 0xe9, 0xe9, 0xfa, 0x57, 0xa1, 0x2b, 0x46, 0x0c, 0x09, 0x81, 0xdc, 0x0b, 0x97, 0xf7, 0x8d,
-	0x2a, 0x75, 0x96, 0x37, 0xe8, 0x44, 0x1b, 0x95, 0x54, 0x77, 0xa2, 0xad, 0xeb, 0xbc, 0x81, 0x2d,
-	0x19, 0x13, 0xc5, 0x2b, 0x9f, 0x0b, 0xe6, 0x0a, 0x3f, 0x0a, 0xc9, 0x57, 0xb0, 0x15, 0xa7, 0xeb,
-	0x51, 0x4f, 0xd7, 0xa0, 0x48, 0x17, 0xf8, 0xe4, 0x29, 0x14, 0x74, 0xca, 0x4c, 0x07, 0x7f, 0x94,
-	0xc8, 0x79, 0x3c, 0x44, 0x6a, 0x04, 0x9d, 0xdf, 0x2c, 0x78, 0x3c, 0x6f, 0xb3, 0x1e, 0x85, 0x97,
-	0x3e, 0x1b, 0x68, 0xfb, 0x6d, 0xd8, 0xd1, 0xa2, 0x32, 0x2c, 0xec, 0x1d, 0x8e, 0x75, 0xcf, 0x9b,
-	0xaa, 0x2e, 0x58, 0x98, 0x06, 0x4f, 0x53, 0xaf, 0xc9, 0xc9, 0x3b, 0x62, 0x2c, 0x62, 0xa6, 0x48,
-	0x9a, 0x70, 0x7e, 0xb7, 0xa0, 0x74, 0x1a, 0x85, 0x1e, 0x4e, 0x6a, 0x4d, 0x20, 0xd7, 0x75, 0x03,
-	0x31, 0xc9, 0x9c, 0x3c, 0xdf, 0x23, 0xba, 0xa5, 0xce, 0x67, 0xef, 0xe5, 0xbc, 0x73, 0x00, 0x79,
-	0xe5, 0xa5, 0x8c, 0x42, 0x1d, 0x8c, 0x7f, 0x33, 0x6e, 0x4a, 0x6c, 0x7f, 0x5a, 0x60, 0xff, 0x5f,
-	0xd9, 0x7d, 0x0a, 0x05, 0xa3, 0xe0, 0xfd, 0x29, 0x9a, 0x2f, 0x48, 0x36, 0xee, 0xf4, 0x2e, 0x64,
-	0x6b, 0xde, 0xf5, 0x0c, 0xb4, 0xe2, 0xe0, 0x3b, 0xc8, 0x1f, 0xba, 0xc2, 0xeb, 0xdf, 0x71, 0xc4,
-	0x2b, 0xb0, 0x7e, 0x1c, 0xb1, 0x4e, 0xdf, 0xe5, 0xa8, 0xdc, 0xcb, 0xd3, 0x29, 0x4d, 0xbe, 0x80,
-	0x3c, 0x0f, 0x22, 0xc1, 0xd5, 0xe6, 0xdb, 0xa8, 0x6e, 0x27, 0x34, 0x75, 0x83, 0x48, 0x50, 0x8d,
-	0x3b, 0xff, 0x64, 0x21, 0x27, 0x69, 0x52, 0x85, 0x9d, 0xa3, 0xd0, 0x63, 0xe3, 0xa1, 0xc0, 0x9e,
-	0x99, 0xf2, 0x13, 0x1c, 0x73, 0x53, 0x91, 0x54, 0x8c, 0xfc, 0x08, 0xbb, 0x53, 0x7e, 0x8d, 0xf3,
-	0xc8, 0xf3, 0x5d, 0x81, 0xbd, 0x86, 0x2b, 0x5c, 0x75, 0x55, 0x4f, 0xe5, 0x2a, 0x11, 0xf2, 0x0c,
-	0xec, 0x8e, 0xcb, 0x84, 0xef, 0x06, 0x46, 0x6f, 0x7d, 0x3c, 0xec, 0x23, 0x3b, 0xc3, 0xb7, 0xc2,
-	0x8c, 0xf1, 0x52, 0x9c, 0xbc, 0x80, 0x4f, 0x0c, 0x96, 0x54, 0x1c, 0x53, 0xa1, 0x37, 0xc9, 0xfb,
-	0xc4, 0x64, 0x1c, 0x46, 0x24, 0xb6, 0x73, 0x35, 0x2e, 0x97, 0x68, 0x5e, 0xc7, 0xb1, 0x42, 0x44,
-	0xd6, 0xa2, 0x8b, 0x61, 0x4f, 0x6d, 0xd3, 0x82, 0x12, 0x9f, 0xd2, 0xe4, 0x73, 0xd8, 0x34, 0xce,
-	0x77, 0xdc, 0x71, 0x10, 0xb9, 0x3d, 0xfb, 0x81, 0x92, 0x98, 0xe3, 0x4a, 0xb9, 0xa4, 0x87, 0xf6,
-	0xba, 0x96, 0x4b, 0x72, 0xa7, 0xb3, 0x5c, 0x8c, 0xcd, 0xf2, 0x0e, 0xe4, 0x4f, 0xda, 0xb5, 0x3a,
-	0xb7, 0x61, 0x2f, 0x2b, 0x07, 0x48, 0x11, 0xd5, 0xbf, 0x0a, 0x90, 0x3b, 0x95, 0x8b, 0xac, 0x0a,
-	0xc5, 0x1a, 0xbf, 0xfe, 0x29, 0x0c, 0xfc, 0x10, 0x49, 0xb2, 0x19, 0xe4, 0xf7, 0xbb, 0xb2, 0x95,
-	0x60, 0xd5, 0xbc, 0x6b, 0x27, 0x43, 0x9e, 0x41, 0x59, 0x85, 0x2a, 0x98, 0x3f, 0x54, 0x1f, 0xf9,
-	0x0f, 0x13, 0x42, 0x93, 0x6f, 0x7f, 0xea, 0xdd, 0x43, 0xd8, 0x6a, 0xa2, 0x98, 0xfb, 0x9a, 0x27,
-	0x7b, 0x30, 0x8e, 0xa5, 0xea, 0xf8, 0x16, 0x36, 0xeb, 0x0c, 0x5d, 0x81, 0xa7, 0x78, 0xa3, 0x1b,
-	0x7e, 0xc9, 0x3c, 0xa4, 0xde, 0xfe, 0x06, 0x4a, 0x9d, 0x88, 0x8b, 0x53, 0xbc, 0xd1, 0xa3, 0x45,
-	0x12, 0x32, 0x8a, 0xb7, 0xcc, 0xea, 0xb1, 0x1f, 0xfa, 0xbc, 0x4f, 0xd1, 0x0d, 0x84, 0x3f, 0xc0,
-	0x3b, 0x59, 0x3d, 0x80, 0xa2, 0xb4, 0xaa, 0x67, 0xf0, 0xb6, 0x26, 0x29, 0x90, 0x26, 0x8a, 0xf9,
-	0xa7, 0xc2, 0xe3, 0x45, 0xb3, 0x33, 0xb4, 0xb2, 0x12, 0x75, 0x32, 0xe4, 0x07, 0x28, 0x99, 0xd5,
-	0xaf, 0x57, 0x69, 0x72, 0x71, 0xc5, 0x3f, 0x0d, 0x15, 0xb2, 0x08, 0x39, 0x19, 0x72, 0x01, 0x0f,
-	0xcd, 0x62, 0x4d, 0x7c, 0x3d, 0x97, 0x6f, 0xd0, 0xca, 0x67, 0x49, 0x97, 0x96, 0x6c, 0x68, 0x27,
-	0x43, 0x8e, 0x80, 0xc8, 0x24, 0xcd, 0x3d, 0x6f, 0x76, 0x17, 0x23, 0x9a, 0x82, 0xa9, 0x69, 0x7b,
-	0x0e, 0xdb, 0x2a, 0xd7, 0x0c, 0xbd, 0x68, 0x30, 0xa4, 0xc8, 0x47, 0x81, 0xb8, 0x43, 0x99, 0xb7,
-	0x9b, 0x28, 0xea, 0xd1, 0x60, 0x18, 0xa0, 0xc0, 0x9e, 0xee, 0x91, 0x94, 0xc1, 0x48, 0xd1, 0xe7,
-	0x64, 0xaa, 0x7f, 0xaf, 0xc1, 0x83, 0xa6, 0x2b, 0xf0, 0xc6, 0x1d, 0x93, 0x43, 0x28, 0xd7, 0xfb,
-	0xe8, 0x5d, 0x9b, 0x61, 0x9e, 0xef, 0xf3, 0xc4, 0x93, 0xab, 0xf2, 0x30, 0x81, 0xe9, 0xf7, 0x93,
-	0x93, 0x21, 0xdf, 0x01, 0x34, 0x71, 0xf2, 0xb6, 0x5a, 0xa9, 0x60, 0x71, 0x91, 0xab, 0xae, 0x83,
-	0xce, 0x68, 0x7a, 0x7d, 0x51, 0x24, 0x35, 0x03, 0xff, 0xb9, 0x43, 0x28, 0x94, 0x4c, 0x61, 0xd3,
-	0x14, 0xdc, 0xab, 0x35, 0xaa, 0xbf, 0x48, 0xa7, 0x62, 0xed, 0xf6, 0xf3, 0x84, 0x46, 0x26, 0x1f,
-	0x55, 0xe4, 0xe3, 0x84, 0xa2, 0xf9, 0x77, 0x56, 0xe5, 0xcb, 0x95, 0x70, 0xd2, 0xd6, 0xeb, 0x82,
-	0xfa, 0xb7, 0x39, 0xf8, 0x37, 0x00, 0x00, 0xff, 0xff, 0x3b, 0xf8, 0x59, 0x64, 0xf0, 0x0c, 0x00,
-	0x00,
 }

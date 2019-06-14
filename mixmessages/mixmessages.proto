@@ -38,6 +38,11 @@ service Node {
     rpc PostPhase (Batch) returns (Ack) {
     }
 
+    // StreamPostPhase runs a cMix phase on another node
+    // by using unary streaming of slots
+    rpc StreamPostPhase (stream Slot) returns (Ack) {
+    }
+
     // GetRoundBufferInfo returns the # of rounds ready for messages
     rpc GetRoundBufferInfo (RoundBufferInfo) returns (RoundBufferInfo) {
     }
@@ -206,17 +211,28 @@ message Batch {
     repeated Slot slots = 3;
 }
 
+// Used as part of header for streaming post phase
+message BatchInfo {
+    RoundInfo Round = 1;
+    int32 ForPhase = 2;
+    uint32 BatchSize = 3;
+}
+
 message Slot {
+    // Index in batch this slot belongs in
+    uint32 Index = 1;
+
     // Precomputation fields
-    bytes EncryptedMessageKeys = 1;
-    bytes EncryptedAssociatedDataKeys = 2;
-    bytes PartialMessageCypherText = 3;
-    bytes PartialAssociatedDataCypherText = 4;
-    bytes PartialRoundPublicCypherKey = 5;
+    bytes EncryptedMessageKeys = 2;
+    bytes EncryptedAssociatedDataKeys = 3;
+    bytes PartialMessageCypherText = 4;
+    bytes PartialAssociatedDataCypherText = 5;
+    bytes PartialRoundPublicCypherKey = 6;
+
     // Realtime/client fields
-    bytes SenderID = 6;        // 256 bit Sender Id
-    bytes MessagePayload = 7;  // Len(Prime) bit length Encrypted Payload
-    bytes AssociatedData = 8;  // Len(Prime) bit length associated data
-    bytes Salt = 9;           // Salt to identify message key
-    repeated bytes KMACs = 10; // Individual Key MAC for each node in network
+    bytes SenderID = 7;        // 256 bit Sender Id
+    bytes MessagePayload = 8;  // Len(Prime) bit length Encrypted Payload
+    bytes AssociatedData = 9;  // Len(Prime) bit length associated data
+    bytes Salt = 10;           // Salt to identify message key
+    repeated bytes KMACs = 11; // Individual Key MAC for each node in network
 }

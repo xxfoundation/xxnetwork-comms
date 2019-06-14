@@ -59,6 +59,11 @@ func (s *NodeComms) PostPhase(ctx context.Context, msg *pb.Batch) (*pb.Ack,
 	return &pb.Ack{}, nil
 }
 
+// Handle a phase event using a stream server
+func (s *NodeComms) StreamPostPhase(server pb.Node_StreamPostPhaseServer) error {
+	return s.handler.StreamPostPhase(server)
+}
+
 // Handle a PostRoundPublicKey message
 func (s *NodeComms) PostRoundPublicKey(ctx context.Context,
 	msg *pb.RoundPublicKey) (*pb.Ack, error) {
