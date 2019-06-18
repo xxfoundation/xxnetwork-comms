@@ -67,6 +67,10 @@ service Node {
     // The gateway calls GetCompletedBatch to get any finished batch from a node
     rpc GetCompletedBatch (Ping) returns (Batch) {
     }
+
+    // Obtains a network topology from the Permissioning Server
+    rpc DownloadTopology (NodeTopology) returns (Ack) {
+    }
 }
 
 // The request message asking if server is online
@@ -101,9 +105,22 @@ message RoundBufferInfo {
     uint32 RoundBufferSize = 1;
 }
 
+//
 message RoundPublicKey {
     RoundInfo Round = 1;
     bytes Key = 2;
+}
+
+// Contains network information about all Nodes
+message NodeTopology {
+    repeated NodeInfo Topology = 1;
+}
+
+// Contains network information about a single Node
+message NodeInfo {
+    string Id = 1;
+    string IpAddress = 2;
+    string TlsCert = 3;
 }
 
 // GATEWAY MESSAGE SERVICE -----------------------------------------------------
