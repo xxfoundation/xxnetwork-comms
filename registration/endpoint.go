@@ -23,7 +23,6 @@ func (s *RegistrationComms) RegisterUser(ctx context.Context, msg *pb.UserRegist
 	hash, R, S, err := s.handler.RegisterUser(msg.
 		GetRegistrationCode(), pubKey.GetY(), pubKey.GetP(),
 		pubKey.GetQ(), pubKey.GetG())
-
 	// Obtain the error message, if any
 	errMsg := ""
 	if err != nil {
@@ -40,4 +39,15 @@ func (s *RegistrationComms) RegisterUser(ctx context.Context, msg *pb.UserRegist
 		},
 		Error: errMsg,
 	}, err
+}
+
+// Handle a node registration event
+func (s *RegistrationComms) RegisterNode(ctx context.Context, msg *pb.NodeRegistration) (
+	*pb.Ack, error) {
+	id := msg.GetNodeId()
+	nodeTLSCert := msg.GetNodeTLSCert()
+	gatewayTLSCert := msg.GetGatewayTLSCert()
+	regCode := msg.GetRegistrationCode()
+	s.handler.RegisterNode(id, nodeTLSCert, gatewayTLSCert, regCode)
+	return &pb.Ack{}, nil
 }

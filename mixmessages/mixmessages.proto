@@ -168,7 +168,8 @@ service Registration {
     }
 
     //Node registration for the permissioning server
-    rpc RegisterNode (NodeRegistration) returns (Ack)
+    rpc RegisterNode (NodeRegistration) returns (Ack){
+    }
 }
 
 // DSAPublicKey is a public key for the digital signature algorithm
@@ -181,7 +182,7 @@ message DSAPublicKey {
 
 // RegisterNode to register a node with needed attributes
 message NodeRegistration {
-      bytes NodeId = 1;
+      bytes ID = 1;
       string NodeTLSCert = 2;
       string GatewayTLSCert = 3;
       string RegistrationCode = 4;
