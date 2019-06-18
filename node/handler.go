@@ -49,6 +49,9 @@ type ServerHandler interface {
 
 	// GetCompletedBatch: gateway uses completed batch from the server
 	GetCompletedBatch() (*mixmessages.Batch, error)
+
+	// DownloadTopology: Obtains network topology from permissioning server
+	DownloadTopology(topology *mixmessages.NodeTopology)
 }
 
 type implementationFunctions struct {
@@ -87,6 +90,9 @@ type implementationFunctions struct {
 		slots []*mixmessages.Slot) error
 
 	GetCompletedBatch func() (*mixmessages.Batch, error)
+
+	// DownloadTopology: Obtains network topology from permissioning server
+	DownloadTopology func(topology *mixmessages.NodeTopology)
 }
 
 // Implementation allows users of the client library to set the
@@ -161,6 +167,9 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return &mixmessages.Batch{}, nil
 			},
+			DownloadTopology: func(topology *mixmessages.NodeTopology) {
+				warn(um)
+			},
 		},
 	}
 }
@@ -231,4 +240,9 @@ func (s *Implementation) FinishRealtime(message *mixmessages.RoundInfo) error {
 // Implementation of the interface using the function in the struct
 func (s *Implementation) GetCompletedBatch() (*mixmessages.Batch, error) {
 	return s.Functions.GetCompletedBatch()
+}
+
+// Obtains network topology from permissioning server
+func (s *Implementation) DownloadTopology(topology *mixmessages.NodeTopology) {
+	s.Functions.DownloadTopology(topology)
 }

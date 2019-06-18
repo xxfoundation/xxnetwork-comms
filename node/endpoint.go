@@ -36,6 +36,13 @@ func (s *NodeComms) GetServerMetrics(ctx context.Context, msg *pb.ServerMetrics)
 	return &pb.Ack{}, nil
 }
 
+// Handle a broadcasted DownloadTopology event
+func (s *NodeComms) DownloadTopology(ctx context.Context,
+	msg *pb.NodeTopology) (*pb.Ack, error) {
+	s.handler.DownloadTopology(msg)
+	return &pb.Ack{}, nil
+}
+
 // Handle a NewRound event
 func (s *NodeComms) CreateNewRound(ctx context.Context,
 	msg *pb.RoundInfo) (*pb.Ack, error) {
