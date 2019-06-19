@@ -48,6 +48,6 @@ func (s *RegistrationComms) RegisterNode(ctx context.Context, msg *pb.NodeRegist
 	nodeTLSCert := msg.GetNodeTLSCert()
 	gatewayTLSCert := msg.GetGatewayTLSCert()
 	regCode := msg.GetRegistrationCode()
-	s.handler.RegisterNode(id, nodeTLSCert, gatewayTLSCert, regCode)
-	return &pb.Ack{}, nil
+	err := s.handler.RegisterNode(id, nodeTLSCert, gatewayTLSCert, regCode)
+	return &pb.Ack{}, err
 }
