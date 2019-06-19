@@ -13,15 +13,15 @@ import (
 
 // Smoke test SendNodeRegistration
 func TestSendNodeRegistration(t *testing.T) {
-	ServerAddress := getNextServerAddress()
-	server := StartNode(ServerAddress, NewImplementation(),
+	RegAddress := getNextServerAddress()
+	server := StartNode(getNextServerAddress(), NewImplementation(),
 		"", "")
-	reg := registration.StartRegistrationServer(getNextServerAddress(),
+	reg := registration.StartRegistrationServer(RegAddress,
 		registration.NewImplementation(), "", "")
 	defer server.Shutdown()
 	defer reg.Shutdown()
-	connID := MockID("permissioningToServer")
-	reg.ConnectToNode(connID, ServerAddress, nil)
+	connID := MockID("serverToPermissioning")
+	server.ConnectToRegistration(connID, RegAddress, nil)
 
 	msgs := &pb.NodeRegistration{}
 	err := server.SendNodeRegistration(connID, msgs)
