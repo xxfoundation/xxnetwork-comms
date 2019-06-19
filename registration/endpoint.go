@@ -44,10 +44,6 @@ func (s *RegistrationComms) RegisterUser(ctx context.Context, msg *pb.UserRegist
 // Handle a node registration event
 func (s *RegistrationComms) RegisterNode(ctx context.Context, msg *pb.NodeRegistration) (
 	*pb.Ack, error) {
-	id := msg.GetNodeId()
-	nodeTLSCert := msg.GetNodeTLSCert()
-	gatewayTLSCert := msg.GetGatewayTLSCert()
-	regCode := msg.GetRegistrationCode()
-	err := s.handler.RegisterNode(id, nodeTLSCert, gatewayTLSCert, regCode)
+	err := s.handler.RegisterNode(msg.GetNodeId(), msg.GetNodeTLSCert(), msg.GetGatewayTLSCert(), msg.GetRegistrationCode())
 	return &pb.Ack{}, err
 }
