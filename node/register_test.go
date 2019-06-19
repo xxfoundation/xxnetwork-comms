@@ -12,7 +12,7 @@ import (
 )
 
 // Smoke test SendNodeRegistration
-func TestSendNodeRegistration(t *testing.T) {
+func TestSendNodeTopology(t *testing.T) {
 	RegAddress := getNextServerAddress()
 	server := StartNode(getNextServerAddress(), NewImplementation(),
 		"", "")
