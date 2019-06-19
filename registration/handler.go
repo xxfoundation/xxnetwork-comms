@@ -18,10 +18,8 @@ type Handler interface {
 	RegisterUser(registrationCode string, Y, P, Q, G []byte) (hash,
 		R, S []byte, err error)
 
-
 	RegisterNode(ID []byte,
-	   NodeTLSCert, GatewayTLSCert, RegistrationCode string) error
-
+		NodeTLSCert, GatewayTLSCert, RegistrationCode string) error
 }
 
 type implementationFunctions struct {
@@ -30,7 +28,7 @@ type implementationFunctions struct {
 		R, S []byte, err error)
 
 	RegisterNode func(ID []byte,
-	NodeTLSCert, GatewayTLSCert, RegistrationCode string) error
+		NodeTLSCert, GatewayTLSCert, RegistrationCode string) error
 }
 
 // Implementation allows users of the client library to set the
@@ -69,8 +67,8 @@ func (s *Implementation) RegisterUser(registrationCode string,
 	return s.Functions.RegisterUser(registrationCode, Y, P, Q, G)
 }
 
-func (s *Implementation) RegisterNode (ID []byte,
-NodeTLSCert, GatewayTLSCert, RegistrationCode string) error {
+func (s *Implementation) RegisterNode(ID []byte,
+	NodeTLSCert, GatewayTLSCert, RegistrationCode string) error {
 	s.Functions.RegisterNode(ID, NodeTLSCert, GatewayTLSCert, RegistrationCode)
 	return nil
 }
