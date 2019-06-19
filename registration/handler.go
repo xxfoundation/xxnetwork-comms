@@ -72,4 +72,5 @@ func (s *Implementation) RegisterUser(registrationCode string,
 func (s *Implementation) RegisterNode (ID []byte,
 NodeTLSCert, GatewayTLSCert, RegistrationCode string) error {
 	s.Functions.RegisterNode(ID, NodeTLSCert, GatewayTLSCert, RegistrationCode)
+	return nil
 }
