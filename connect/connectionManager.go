@@ -118,6 +118,12 @@ func (m *ConnectionManager) ConnectToNode(id fmt.Stringer,
 	m.connect(id.String(), addr, tls)
 }
 
+/*
+func (m *ConnectionManager) ConnectToPermissioning(id fmt.Stringer,
+	addr string, tls credentials.TransportCredentials){
+		
+}*/
+
 func (m *ConnectionManager) GetNodeConnection(id fmt.Stringer) pb.NodeClient {
 	conn := m.get(id)
 	return pb.NewNodeClient(conn)
