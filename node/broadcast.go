@@ -26,7 +26,7 @@ func (s *NodeComms) SendServerMetrics(id fmt.Stringer,
 	// Send the message
 	result, err := c.GetServerMetrics(ctx, message)
 
-	// Make sure there are no errors with sending the message
+	// Make sure there are no errors withCreate a new file in node package sending the message
 	if err != nil {
 		err = errors.New(err.Error())
 		jww.ERROR.Printf("ServerMetrics: Error received: %+v", err)
