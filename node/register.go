@@ -3,7 +3,7 @@
 //                                                                             /
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
-package registration
+package node
 
 import (
 	"errors"
@@ -14,20 +14,20 @@ import (
 )
 
 // Send a message to the gateway
-func (r *RegistrationComms) SendNodeTopology(id fmt.Stringer,
-	message *pb.NodeTopology) error {
+func (r *NodeComms) SendNodeRegistration(id fmt.Stringer,
+	message *pb.NodeRegistration) error {
 
 	// Attempt to connect to addr
-	connection := r.GetNodeConnection(id)
+	connection := r.GetRegistrationConnection(id)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
-	_, err := connection.DownloadTopology(ctx, message)
+	_, err := connection.RegisterNode(ctx, message)
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
 		err = errors.New(err.Error())
-		jww.ERROR.Printf("SendNodeToplogy: Error received: %+v", err)
+		jww.ERROR.Printf("SendNodeRegistration: Error received: %+v", err)
 	}
 
 	cancel()

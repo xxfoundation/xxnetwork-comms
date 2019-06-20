@@ -3,28 +3,28 @@
 //                                                                             /
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
-package registration
+package node
 
 import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/elixxir/comms/node"
+	"gitlab.com/elixxir/comms/registration"
 	"testing"
 )
 
-// Smoke test SendNodeTopology
-func TestSendNodeTopology(t *testing.T) {
-	ServerAddress := getNextServerAddress()
-	server := node.StartNode(ServerAddress, node.NewImplementation(),
+// Smoke test SendNodeRegistration
+func TestSendNodeRegistration(t *testing.T) {
+	RegAddress := getNextServerAddress()
+	server := StartNode(getNextServerAddress(), NewImplementation(),
 		"", "")
-	reg := StartRegistrationServer(getNextServerAddress(),
-		NewImplementation(), "", "")
+	reg := registration.StartRegistrationServer(RegAddress,
+		registration.NewImplementation(), "", "")
 	defer server.Shutdown()
 	defer reg.Shutdown()
-	connID := MockID("permissioningToServer")
-	reg.ConnectToNode(connID, ServerAddress, nil)
+	connID := MockID("serverToPermissioning")
+	server.ConnectToRegistration(connID, RegAddress, nil)
 
-	msgs := &pb.NodeTopology{}
-	err := reg.SendNodeTopology(connID, msgs)
+	msgs := &pb.NodeRegistration{}
+	err := server.SendNodeRegistration(connID, msgs)
 	if err != nil {
 		t.Errorf("SendNodeTopology: Error received: %s", err)
 	}
