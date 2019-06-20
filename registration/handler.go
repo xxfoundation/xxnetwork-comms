@@ -19,7 +19,7 @@ type Handler interface {
 		R, S []byte, err error)
 
 	RegisterNode(ID []byte,
-		NodeTLSCert, GatewayTLSCert, RegistrationCode string) error
+		NodeTLSCert, GatewayTLSCert, RegistrationCode string, Signature []byte) error
 }
 
 type implementationFunctions struct {
