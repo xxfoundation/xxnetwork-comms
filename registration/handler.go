@@ -28,7 +28,7 @@ type implementationFunctions struct {
 		R, S []byte, err error)
 
 	RegisterNode func(ID []byte,
-		NodeTLSCert, GatewayTLSCert, RegistrationCode string) error
+		NodeTLSCert, GatewayTLSCert, RegistrationCode string, Signature []byte) error
 }
 
 // Implementation allows users of the client library to set the
@@ -53,7 +53,7 @@ func NewImplementation() Handler {
 				return nil, nil, nil, nil
 			},
 			RegisterNode: func(ID []byte,
-				NodeTLSCert, GatewayTLSCert, RegistrationCode string) error {
+				NodeTLSCert, GatewayTLSCert, RegistrationCode string, Signature []byte) error {
 				warn(um)
 				return nil
 			},
@@ -68,7 +68,7 @@ func (s *Implementation) RegisterUser(registrationCode string,
 }
 
 func (s *Implementation) RegisterNode(ID []byte,
-	NodeTLSCert, GatewayTLSCert, RegistrationCode string) error {
-	s.Functions.RegisterNode(ID, NodeTLSCert, GatewayTLSCert, RegistrationCode)
+	NodeTLSCert, GatewayTLSCert, RegistrationCode string, Signature []byte) error {
+	s.Functions.RegisterNode(ID, NodeTLSCert, GatewayTLSCert, RegistrationCode, Signature)
 	return nil
 }
