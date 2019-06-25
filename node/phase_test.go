@@ -57,11 +57,11 @@ func TestPhase_StreamPostPhaseSendReceive(t *testing.T) {
 	roundInfo := mixmessages.RoundInfo{
 		ID: roundId,
 	}
-	forPhase := int32(3)
+	fromPhase := int32(3)
 	batchSize := uint32(3)
 	batchInfo := mixmessages.BatchInfo{
 		Round:     &roundInfo,
-		ForPhase:  forPhase,
+		FromPhase: fromPhase,
 		BatchSize: batchSize,
 	}
 
@@ -106,8 +106,8 @@ func TestPhase_StreamPostPhaseSendReceive(t *testing.T) {
 	}
 
 	// Compare for phase
-	if forPhase != receivedBatch.ForPhase {
-		t.Errorf("ForPhase received %v doesn't match expected %v", receivedBatch.ForPhase, forPhase)
+	if fromPhase != receivedBatch.FromPhase {
+		t.Errorf("FromPhase received %v doesn't match expected %v", receivedBatch.FromPhase, fromPhase)
 	}
 
 	// Compare round info
@@ -173,9 +173,9 @@ func mockStreamPostPhase(stream mixmessages.Node_StreamPostPhaseServer) error {
 			// Create batch using batch info header
 			// and temporary slot buffer contents
 			receivedBatch = mixmessages.Batch{
-				Round:    batchInfo.Round,
-				ForPhase: batchInfo.ForPhase,
-				Slots:    slots,
+				Round:     batchInfo.Round,
+				FromPhase: batchInfo.FromPhase,
+				Slots:     slots,
 			}
 
 			err = stream.SendAndClose(&ack)
