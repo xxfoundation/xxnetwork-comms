@@ -238,14 +238,14 @@ message Ack {
 
 message Batch {
     RoundInfo Round = 1;
-    int32 ForPhase = 2;
+    int32 FromPhase = 2;
     repeated Slot slots = 3;
 }
 
 // Used as part of header for streaming post phase
 message BatchInfo {
     RoundInfo Round = 1;
-    int32 ForPhase = 2;
+    int32 FromPhase = 2;
     uint32 BatchSize = 3;
 }
 

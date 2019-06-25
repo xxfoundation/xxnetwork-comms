@@ -121,7 +121,7 @@ func (m *ConnectionManager) ConnectToNode(id fmt.Stringer,
 /*
 func (m *ConnectionManager) ConnectToPermissioning(id fmt.Stringer,
 	addr string, tls credentials.TransportCredentials){
-		
+
 }*/
 
 func (m *ConnectionManager) GetNodeConnection(id fmt.Stringer) pb.NodeClient {
