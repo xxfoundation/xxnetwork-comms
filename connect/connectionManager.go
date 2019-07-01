@@ -36,7 +36,11 @@ type ConnectionInfo struct {
 
 // Create credentials from a PEM string
 // Intended for mobile clients that can't reasonably use a file
-func NewCredentialsFromPEM(certificate string, serverNameOverride string) credentials.TransportCredentials {
+func NewCredentialsFromPEM(certificate string, nameOverride string) credentials.TransportCredentials {
+	if nameOverride == "" {
+		jww.WARN.Printf("Failure to provide name override can result in" +
+			" TLS connection timeouts")
+	}
 	// Create cert pool
 	pool := x509.NewCertPool()
 	// Append the cert string
@@ -44,18 +48,22 @@ func NewCredentialsFromPEM(certificate string, serverNameOverride string) creden
 		jww.FATAL.Panicf("Failed to parse certificate string!")
 	}
 	// Generate credentials from pool
-	return credentials.NewClientTLSFromCert(pool, serverNameOverride)
+	return credentials.NewClientTLSFromCert(pool, nameOverride)
 }
 
 // Create credentials from a filename
 // Generally, prefer using this
 // The second parameter, serverNameOverride, should just be an empty string in
 // production
-func NewCredentialsFromFile(filePath string, serverNameOverride string) credentials.TransportCredentials {
+func NewCredentialsFromFile(filePath string, nameOverride string) credentials.TransportCredentials {
+	if nameOverride == "" {
+		jww.WARN.Printf("Failure to provide name override can result in" +
+			" TLS connection timeouts")
+	}
 	// Convert to fully qualified path
 	filePath = utils.GetFullPath(filePath)
 	// Generate credentials from path
-	result, err := credentials.NewClientTLSFromFile(filePath, serverNameOverride)
+	result, err := credentials.NewClientTLSFromFile(filePath, nameOverride)
 	if err != nil {
 		jww.FATAL.Panicf("Could not load TLS keys: %s", errors.New(err.Error()))
 	}
