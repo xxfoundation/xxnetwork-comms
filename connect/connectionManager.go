@@ -189,6 +189,7 @@ func (m *ConnectionManager) connect(id string, addr string,
 
 		if err == nil {
 			// Connection succeeded; clean up context and exit the loop
+			jww.INFO.Printf("Successfully connected to %v", addr)
 			cancel()
 		} else {
 			jww.ERROR.Printf("Connection to %s failed: %+v\n", addr,
