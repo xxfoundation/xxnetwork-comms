@@ -146,7 +146,7 @@ func (m *ConnectionManager) get(id fmt.Stringer) *grpc.ClientConn {
 	//  I think this could be made more robust to handle TransientFailure
 	conn, ok := m.connections[id.String()]
 	if !ok {
-		panic("No connection exists for the ID \"" + id.String() + "\"")
+		jww.FATAL.Panicf("No connection exists for the ID \"" + id.String() + "\"")
 	}
 	m.connectionsLock.Unlock()
 	return conn.Connection
@@ -182,7 +182,7 @@ func (m *ConnectionManager) connect(id string, addr string,
 				grpc.WithTransportCredentials(tls), grpc.WithBlock())
 		} else {
 			// Create the gRPC client without TLS
-			jww.WARN.Printf("Warning: Connecting to %v without TLS!", addr)
+			jww.WARN.Printf("Connecting to %v without TLS!", addr)
 			connection, err = grpc.DialContext(ctx, addr,
 				grpc.WithInsecure(), grpc.WithBlock())
 		}
