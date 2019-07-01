@@ -201,7 +201,7 @@ func (m *ConnectionManager) connect(id string, addr string,
 	} else {
 		// Connection succeeded, so add it to the map along with any information
 		// needed for reconnection
-		jww.INFO.Printf("Successfully connected to %v", addr)
+		jww.INFO.Printf("Successfully connected to %s at %v", id, addr)
 		m.connectionsLock.Lock()
 		m.connections[id] = &ConnectionInfo{
 			Address:    addr,
