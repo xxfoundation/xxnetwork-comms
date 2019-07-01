@@ -155,14 +155,22 @@ func (m *ConnectionManager) get(id fmt.Stringer) *grpc.ClientConn {
 // Connect creates a connection
 func (m *ConnectionManager) connect(id string, addr string,
 	tls credentials.TransportCredentials) {
-	m.connectionsLock.Lock() // TODO: Really we want to lock on the key,
-	defer m.connectionsLock.Unlock()
 
 	// Create top level vars
 	var connection *grpc.ClientConn
 	var err error
 	connection = nil
 	err = nil
+
+	var securityDial grpc.DialOption
+	if tls != nil {
+		// Create the gRPC client with TLS
+		securityDial = grpc.WithTransportCredentials(tls)
+	} else {
+		// Create the gRPC client without TLS
+		jww.WARN.Printf("Connecting to %v without TLS!", addr)
+		securityDial = grpc.WithInsecure()
+	}
 
 	if m.connections == nil {
 		m.connections = make(map[string]*ConnectionInfo)
@@ -176,25 +184,16 @@ func (m *ConnectionManager) connect(id string, addr string,
 		ctx, cancel := context.WithTimeout(context.Background(),
 			100000*time.Millisecond)
 
-		if tls != nil {
-			// Create the gRPC client with TLS
-			connection, err = grpc.DialContext(ctx, addr,
-				grpc.WithTransportCredentials(tls), grpc.WithBlock())
-		} else {
-			// Create the gRPC client without TLS
-			jww.WARN.Printf("Connecting to %v without TLS!", addr)
-			connection, err = grpc.DialContext(ctx, addr,
-				grpc.WithInsecure(), grpc.WithBlock())
-		}
+		// Create the connection
+		connection, err = grpc.DialContext(ctx, addr,
+			securityDial, grpc.WithBlock())
 
-		if err == nil {
-			// Connection succeeded; clean up context and exit the loop
-			jww.INFO.Printf("Successfully connected to %v", addr)
-			cancel()
-		} else {
+		if err != nil {
 			jww.ERROR.Printf("Connection to %s failed: %+v\n", addr,
 				errors.New(err.Error()))
 		}
+
+		cancel()
 	}
 
 	if !isConnectionGood(connection) {
@@ -202,11 +201,14 @@ func (m *ConnectionManager) connect(id string, addr string,
 	} else {
 		// Connection succeeded, so add it to the map along with any information
 		// needed for reconnection
+		jww.INFO.Printf("Successfully connected to %v", addr)
+		m.connectionsLock.Lock()
 		m.connections[id] = &ConnectionInfo{
 			Address:    addr,
 			Creds:      tls,
 			Connection: connection,
 		}
+		m.connectionsLock.Unlock()
 	}
 }
 
