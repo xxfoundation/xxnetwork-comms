@@ -26,8 +26,9 @@ import (
 // Server object containing a gRPC server
 type NodeComms struct {
 	connect.ConnectionManager
-	gs      *grpc.Server
-	handler ServerHandler
+	gs          *grpc.Server
+	handler     ServerHandler
+	localServer string
 }
 
 // Performs a graceful shutdown of the server
@@ -73,7 +74,7 @@ func StartNode(localServer string, handler ServerHandler,
 		grpcServer = grpc.NewServer(grpc.MaxConcurrentStreams(math.MaxUint32),
 			grpc.MaxRecvMsgSize(math.MaxInt32))
 	}
-	mixmessageServer := NodeComms{gs: grpcServer, handler: handler}
+	mixmessageServer := NodeComms{gs: grpcServer, handler: handler, localServer: localServer}
 
 	go func() {
 		// Make the port close when the gateway dies
@@ -96,4 +97,8 @@ func StartNode(localServer string, handler ServerHandler,
 	}()
 
 	return &mixmessageServer
+}
+
+func (s *NodeComms) String() string {
+	return s.localServer
 }
