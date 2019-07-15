@@ -147,16 +147,6 @@ func isConnectionGood(connection *grpc.ClientConn) bool {
 		state == connectivity.Ready
 }
 
-func (m *ConnectionManager) GetAddress(id string) string {
-	m.connectionsLock.Lock()
-	conn, ok := m.connections[id]
-	if !ok {
-		jww.FATAL.Panicf("No connection exists for the ID \"" + id + "\"")
-	}
-	m.connectionsLock.Unlock()
-	return conn.Address
-}
-
 // Get creates an existing connection
 func (m *ConnectionManager) get(id fmt.Stringer) *grpc.ClientConn {
 	m.connectionsLock.Lock()
