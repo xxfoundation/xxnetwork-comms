@@ -170,3 +170,8 @@ func (s *NodeComms) GetCompletedBatch(ctx context.Context,
 	msg *pb.Ping) (*pb.Batch, error) {
 	return s.handler.GetCompletedBatch()
 }
+
+func (s *NodeComms) GetMeasure(ctx context.Context, msg *pb.RoundInfo) (*pb.RoundMetrics, error) {
+	err := s.handler.GetMeasure(msg)
+	return &pb.RoundMetrics{}, err
+}

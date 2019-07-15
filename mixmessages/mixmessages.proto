@@ -71,6 +71,9 @@ service Node {
     // Obtains a network topology from the Permissioning Server
     rpc DownloadTopology (NodeTopology) returns (Ack) {
     }
+
+    rpc GetMeasure (RoundInfo) returns (RoundMetrics) {
+    }
 }
 
 // The request message asking if server is online
@@ -123,6 +126,10 @@ message NodeInfo {
     string IpAddress = 3;
     string TlsCert = 4;
     bytes Signature = 5;
+}
+
+message RoundMetrics {
+    string RoundMetricJSON = 1;
 }
 
 // GATEWAY MESSAGE SERVICE -----------------------------------------------------

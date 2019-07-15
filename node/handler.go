@@ -29,6 +29,8 @@ type ServerHandler interface {
 	// GetRoundBufferInfo returns # of available precomputations
 	GetRoundBufferInfo() (int, error)
 
+	GetMeasure(message *mixmessages.RoundInfo) error
+
 	// Server Interface for all Internode Comms
 	PostPhase(message *mixmessages.Batch)
 
@@ -68,6 +70,8 @@ type implementationFunctions struct {
 	FinishRealtime func(message *mixmessages.RoundInfo) error
 	// GetRoundBufferInfo returns # of available precomputations completed
 	GetRoundBufferInfo func() (int, error)
+
+	GetMeasure func(message *mixmessages.RoundInfo) error
 
 	// Server Interface for the Internode Messages
 	PostPhase func(message *mixmessages.Batch)
@@ -139,6 +143,10 @@ func NewImplementation() *Implementation {
 				return nil
 			},
 			FinishRealtime: func(message *mixmessages.RoundInfo) error {
+				warn(um)
+				return nil
+			},
+			GetMeasure: func(message *mixmessages.RoundInfo) error {
 				warn(um)
 				return nil
 			},
@@ -235,6 +243,10 @@ func (s *Implementation) PostPrecompResult(roundID uint64,
 
 func (s *Implementation) FinishRealtime(message *mixmessages.RoundInfo) error {
 	return s.Functions.FinishRealtime(message)
+}
+
+func (s *Implementation) GetMeasure(message *mixmessages.RoundInfo) error {
+	return s.Functions.GetMeasure(message)
 }
 
 // Implementation of the interface using the function in the struct
