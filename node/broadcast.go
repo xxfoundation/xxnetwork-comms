@@ -17,44 +17,6 @@ import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 )
 
-func (s *NodeComms) SendServerMetrics(id fmt.Stringer,
-	message *pb.ServerMetrics) (*pb.Ack, error) {
-	// Attempt to connect to addr
-	c := s.GetNodeConnection(id)
-	ctx, cancel := connect.DefaultContext()
-
-	// Send the message
-	result, err := c.GetServerMetrics(ctx, message)
-
-	// Make sure there are no errors with sending the message
-	if err != nil {
-		err = errors.New(err.Error())
-		jww.ERROR.Printf("ServerMetrics: Error received: %+v", err)
-	}
-
-	cancel()
-	return result, err
-}
-
-func (s *NodeComms) SendRoundtripPing(id fmt.Stringer,
-	message *pb.TimePing) (*pb.Ack, error) {
-	// Attempt to connect to addr
-	c := s.GetNodeConnection(id)
-	ctx, cancel := connect.DefaultContext()
-
-	// Send the message
-	result, err := c.RoundtripPing(ctx, message)
-
-	// Make sure there are no errors with sending the message
-	if err != nil {
-		err = errors.New(err.Error())
-		jww.ERROR.Printf("RoundtripPing: Error received: %+v", err)
-	}
-
-	cancel()
-	return result, err
-}
-
 func (s *NodeComms) SendAskOnline(id fmt.Stringer, message *pb.Ping) (
 	*pb.Ack, error) {
 	// Attempt to connect to addr
