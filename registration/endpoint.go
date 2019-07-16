@@ -12,12 +12,12 @@ import (
 	"github.com/pkg/errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"golang.org/x/net/context"
+	"google.golang.org/grpc/peer"
 )
 
 // RegisterUser event handler which registers a user with the platform
 func (s *RegistrationComms) RegisterUser(ctx context.Context, msg *pb.UserRegistration) (
 	*pb.UserRegistrationConfirmation, error) {
-
 	// Obtain the signed key by passing to registration server
 	pubKey := msg.GetClient()
 	hash, R, S, err := s.handler.RegisterUser(msg.
@@ -44,6 +44,8 @@ func (s *RegistrationComms) RegisterUser(ctx context.Context, msg *pb.UserRegist
 // Handle a node registration event
 func (s *RegistrationComms) RegisterNode(ctx context.Context, msg *pb.NodeRegistration) (
 	*pb.Ack, error) {
-	err := s.handler.RegisterNode(msg.GetID(), msg.GetNodeTLSCert(), msg.GetGatewayTLSCert(), msg.GetRegistrationCode())
+	info, _ := peer.FromContext(ctx)
+
+	err := s.handler.RegisterNode(msg.GetID(), msg.GetNodeTLSCert(), msg.GetGatewayTLSCert(), msg.GetRegistrationCode(), info.Addr.String())
 	return &pb.Ack{}, err
 }
