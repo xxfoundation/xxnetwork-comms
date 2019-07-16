@@ -122,7 +122,6 @@ message NodeInfo {
     uint32 Index=2;
     string IpAddress = 3;
     string TlsCert = 4;
-    bytes Signature = 5;
 }
 
 // GATEWAY MESSAGE SERVICE -----------------------------------------------------

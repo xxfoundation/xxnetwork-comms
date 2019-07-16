@@ -14,19 +14,15 @@ import (
 )
 
 type Handler interface {
-	// RegistrationServer interface for RegisterUser Messages
 	RegisterUser(registrationCode string, Y, P, Q, G []byte) (hash,
 		R, S []byte, err error)
-
 	RegisterNode(ID []byte,
 		NodeTLSCert, GatewayTLSCert, RegistrationCode string) error
 }
 
 type implementationFunctions struct {
-	// RegistrationServer interface for RegisterUser Messages
 	RegisterUser func(registrationCode string, Y, P, Q, G []byte) (hash,
 		R, S []byte, err error)
-
 	RegisterNode func(ID []byte,
 		NodeTLSCert, GatewayTLSCert, RegistrationCode string) error
 }
