@@ -97,7 +97,17 @@ func TestSendPostPrecompResult(t *testing.T) {
 
 func TestSendGetMeasure(t *testing.T) {
 	ServerAddress := getNextServerAddress()
-	server := StartNode(ServerAddress, NewImplementation(), "", "")
+
+	// GRPC complains if this doesn't return something nice, so I mocked it
+	impl := NewImplementation()
+	mockMeasure := func(msg *pb.RoundInfo) (*pb.RoundMetrics, error) {
+		mockReturn := pb.RoundMetrics{
+			RoundMetricJSON: "{'actual':'json'}",
+		}
+		return &mockReturn, nil
+	}
+	impl.Functions.GetMeasure = mockMeasure
+	server := StartNode(ServerAddress, impl, "", "")
 	defer server.Shutdown()
 
 	connID := MockID("connection35")
