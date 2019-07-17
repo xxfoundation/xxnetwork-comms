@@ -7,6 +7,7 @@
 package node
 
 import (
+	"github.com/pkg/errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"testing"
 )
@@ -118,5 +119,29 @@ func TestSendGetMeasure(t *testing.T) {
 	_, err := server.SendGetMeasure(connID, &ri)
 	if err != nil {
 		t.Errorf("SendGetMeasure: Error received: %s", err)
+	}
+}
+
+func TestSendGetMeasureError(t *testing.T) {
+	ServerAddress := getNextServerAddress()
+
+	// GRPC complains if this doesn't return something nice, so I mocked it
+	impl := NewImplementation()
+
+	mockMeasureError := func(msg *pb.RoundInfo) (*pb.RoundMetrics, error) {
+		return nil, errors.New("Test error")
+	}
+	impl.Functions.GetMeasure = mockMeasureError
+	server := StartNode(ServerAddress, impl, "", "")
+	defer server.Shutdown()
+
+	connID := MockID("connection35")
+	server.ConnectToNode(connID, ServerAddress, nil)
+	ri := pb.RoundInfo{
+		ID: uint64(3),
+	}
+	_, err := server.SendGetMeasure(connID, &ri)
+	if err == nil {
+		t.Error("Did not receive error response")
 	}
 }
