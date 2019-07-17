@@ -94,3 +94,19 @@ func TestSendPostPrecompResult(t *testing.T) {
 		t.Errorf("PostPrecompResult: Error received: %s", err)
 	}
 }
+
+func TestSendGetMeasure(t *testing.T) {
+	ServerAddress := getNextServerAddress()
+	server := StartNode(ServerAddress, NewImplementation(), "", "")
+	defer server.Shutdown()
+
+	connID := MockID("connection35")
+	server.ConnectToNode(connID, ServerAddress, nil)
+	ri := pb.RoundInfo{
+		ID: uint64(3),
+	}
+	_, err := server.SendGetMeasure(connID, &ri)
+	if err != nil {
+		t.Errorf("SendGetMeasure: Error received: %s", err)
+	}
+}
