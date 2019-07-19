@@ -15,11 +15,6 @@ import (
 )
 
 type ServerHandler interface {
-	// Server interface for round trip ping
-	RoundtripPing(*mixmessages.TimePing)
-	// Server interface for ServerMetrics Messages
-	GetServerMetrics(*mixmessages.ServerMetrics)
-
 	// Server interface for starting New Rounds
 	CreateNewRound(message *mixmessages.RoundInfo) error
 	// Server interface for sending a new batch
@@ -28,6 +23,8 @@ type ServerHandler interface {
 	FinishRealtime(message *mixmessages.RoundInfo) error
 	// GetRoundBufferInfo returns # of available precomputations
 	GetRoundBufferInfo() (int, error)
+
+	GetMeasure(message *mixmessages.RoundInfo) (*mixmessages.RoundMetrics, error)
 
 	// Server Interface for all Internode Comms
 	PostPhase(message *mixmessages.Batch)
@@ -55,11 +52,6 @@ type ServerHandler interface {
 }
 
 type implementationFunctions struct {
-	// Server Interface for roundtrip ping
-	RoundtripPing func(*mixmessages.TimePing)
-	// Server Interface for ServerMetrics Messages
-	GetServerMetrics func(*mixmessages.ServerMetrics)
-
 	// Server Interface for starting New Rounds
 	CreateNewRound func(message *mixmessages.RoundInfo) error
 	// Server interface for sending a new batch
@@ -68,6 +60,8 @@ type implementationFunctions struct {
 	FinishRealtime func(message *mixmessages.RoundInfo) error
 	// GetRoundBufferInfo returns # of available precomputations completed
 	GetRoundBufferInfo func() (int, error)
+
+	GetMeasure func(message *mixmessages.RoundInfo) (*mixmessages.RoundMetrics, error)
 
 	// Server Interface for the Internode Messages
 	PostPhase func(message *mixmessages.Batch)
@@ -114,12 +108,6 @@ func NewImplementation() *Implementation {
 	}
 	return &Implementation{
 		Functions: implementationFunctions{
-			RoundtripPing: func(p *mixmessages.TimePing) {
-				warn(um)
-			},
-			GetServerMetrics: func(m *mixmessages.ServerMetrics) {
-				warn(um)
-			},
 			CreateNewRound: func(m *mixmessages.RoundInfo) error {
 				warn(um)
 				return nil
@@ -141,6 +129,10 @@ func NewImplementation() *Implementation {
 			FinishRealtime: func(message *mixmessages.RoundInfo) error {
 				warn(um)
 				return nil
+			},
+			GetMeasure: func(message *mixmessages.RoundInfo) (*mixmessages.RoundMetrics, error) {
+				warn(um)
+				return nil, nil
 			},
 			GetRoundBufferInfo: func() (int, error) {
 				warn(um)
@@ -172,17 +164,6 @@ func NewImplementation() *Implementation {
 			},
 		},
 	}
-}
-
-// Server Interface for roundtrip ping
-func (s *Implementation) RoundtripPing(pingMsg *mixmessages.TimePing) {
-	s.Functions.RoundtripPing(pingMsg)
-}
-
-// Server Interface for ServerMetrics Messages
-func (s *Implementation) GetServerMetrics(
-	metricsMsg *mixmessages.ServerMetrics) {
-	s.Functions.GetServerMetrics(metricsMsg)
 }
 
 // Server Interface for starting New Rounds
@@ -235,6 +216,10 @@ func (s *Implementation) PostPrecompResult(roundID uint64,
 
 func (s *Implementation) FinishRealtime(message *mixmessages.RoundInfo) error {
 	return s.Functions.FinishRealtime(message)
+}
+
+func (s *Implementation) GetMeasure(message *mixmessages.RoundInfo) (*mixmessages.RoundMetrics, error) {
+	return s.Functions.GetMeasure(message)
 }
 
 // Implementation of the interface using the function in the struct

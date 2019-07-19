@@ -32,10 +32,10 @@ message PrecompDecryptMessage {
   repeated PrecompDecryptSlot Slots = 2;
 }
 ```
-Then, simply add an `rpc` in `service MixMessageNode` specifying what the 
+Then, simply add an `rpc` in `service Node` specifying what the 
 endpoint for your new
 message will be called. You must also specify what message that endpoint will trigger with, and
-what type of message to respond with.
+what type of message to respond with (*Keep in mind, these are examples and actual names may change*)
 
 For example, this rpc is called `PrecompDecrypt`. `PrecompDecryptMessage` messages will end up here, and
 the endpoint will respond with a generic blank `Ack` message (Use `Ack` if you don't need anything back,

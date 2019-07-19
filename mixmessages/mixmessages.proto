@@ -14,13 +14,6 @@ service Node {
     // Handles AskOnline
     rpc AskOnline (Ping) returns (Ack) {
     }
-    // Handles RoundtripPing
-    rpc RoundtripPing (TimePing) returns (Ack) {
-    }
-
-    // GetServerMetrics returns server metrics
-    rpc GetServerMetrics (ServerMetrics) returns (Ack) {
-    }
 
     // CreatesNewRound makes a new round with a certain ID
     rpc CreateNewRound (RoundInfo) returns (Ack) {
@@ -71,27 +64,13 @@ service Node {
     // Obtains a network topology from the Permissioning Server
     rpc DownloadTopology (NodeTopology) returns (Ack) {
     }
+
+    rpc GetMeasure (RoundInfo) returns (RoundMetrics) {
+    }
 }
 
 // The request message asking if server is online
 message Ping {
-}
-
-// The request message asking server to add their time
-message TimePing {
-    repeated int64 Times = 1;
-    // RoundInfo is needed since network topology depends on the round
-    RoundInfo Round = 2;
-}
-
-// The message containing the server metrics from all visited nodes
-message ServerMetrics {
-    repeated uint32 MemUsage = 1;
-    repeated uint32 ThreadUsage = 2;
-    repeated uint32 CpuUsage = 3;
-    repeated int64 UpSince = 4;
-    // RoundInfo is needed since network topology depends on the round
-    RoundInfo Round = 5;
 }
 
 // The message for Init Round
@@ -122,6 +101,10 @@ message NodeInfo {
     uint32 Index=2;
     string IpAddress = 3;
     string TlsCert = 4;
+}
+
+message RoundMetrics {
+    string RoundMetricJSON = 1;
 }
 
 // GATEWAY MESSAGE SERVICE -----------------------------------------------------

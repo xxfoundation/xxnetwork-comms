@@ -22,20 +22,6 @@ func (s *NodeComms) AskOnline(ctx context.Context, msg *pb.Ping) (
 	return &pb.Ack{}, nil
 }
 
-// Handle a Roundtrip ping event
-func (s *NodeComms) RoundtripPing(ctx context.Context, msg *pb.TimePing) (
-	*pb.Ack, error) {
-	s.handler.RoundtripPing(msg)
-	return &pb.Ack{}, nil
-}
-
-// Handle a broadcasted ServerMetric event
-func (s *NodeComms) GetServerMetrics(ctx context.Context, msg *pb.ServerMetrics) (
-	*pb.Ack, error) {
-	s.handler.GetServerMetrics(msg)
-	return &pb.Ack{}, nil
-}
-
 // Handle a broadcasted DownloadTopology event
 func (s *NodeComms) DownloadTopology(ctx context.Context,
 	msg *pb.NodeTopology) (*pb.Ack, error) {
@@ -169,4 +155,9 @@ func (s *NodeComms) FinishRealtime(ctx context.Context, msg *pb.RoundInfo) (*pb.
 func (s *NodeComms) GetCompletedBatch(ctx context.Context,
 	msg *pb.Ping) (*pb.Batch, error) {
 	return s.handler.GetCompletedBatch()
+}
+
+func (s *NodeComms) GetMeasure(ctx context.Context, msg *pb.RoundInfo) (*pb.RoundMetrics, error) {
+	rm, err := s.handler.GetMeasure(msg)
+	return rm, err
 }
