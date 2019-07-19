@@ -71,7 +71,7 @@ service Node {
     }
 
     // Obtains a network topology from the Permissioning Server
-    rpc DownloadTopology (NodeTopology) returns (Ack) {
+    rpc DownloadTopology (SignedMessage) returns (Ack) {
     }
 }
 

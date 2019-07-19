@@ -38,7 +38,7 @@ func (s *NodeComms) GetServerMetrics(ctx context.Context, msg *pb.ServerMetrics)
 
 // Handle a broadcasted DownloadTopology event
 func (s *NodeComms) DownloadTopology(ctx context.Context,
-	msg *pb.NodeTopology) (*pb.Ack, error) {
+	msg *pb.SignedMessage) (*pb.Ack, error) {
 	s.handler.DownloadTopology(msg)
 	return &pb.Ack{}, nil
 }

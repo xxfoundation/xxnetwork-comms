@@ -22,6 +22,9 @@ import (
 	"time"
 )
 
+var GLOBAL_CERT string
+var GLOBAL_KEY string
+
 // Server object containing a gRPC server
 type RegistrationComms struct {
 	connect.ConnectionManager
@@ -54,6 +57,10 @@ func StartRegistrationServer(localServer string, handler Handler,
 		// Create the TLS credentials
 		certPath = utils.GetFullPath(certPath)
 		keyPath = utils.GetFullPath(keyPath)
+
+		GLOBAL_CERT = certPath
+		GLOBAL_KEY = keyPath
+
 		creds, err2 := credentials.NewServerTLSFromFile(certPath, keyPath)
 		if err2 != nil {
 			err = errors.New(err2.Error())

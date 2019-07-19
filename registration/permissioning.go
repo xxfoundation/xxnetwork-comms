@@ -6,12 +6,15 @@
 package registration
 
 import (
+	"crypto/rand"
 	"errors"
 	"fmt"
 	"github.com/golang/protobuf/ptypes"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
+	"gitlab.com/elixxir/crypto/signature/rsa"
+	"io/ioutil"
 )
 
 // Send a message to the gateway
@@ -28,16 +31,46 @@ func (r *RegistrationComms) SendNodeTopology(id fmt.Stringer,
 		jww.ERROR.Printf("ERROR OUT HERE: %+v", err)
 	}
 
-	// Get a signature
+	// Get public key
+	/*
+		certBytes, err := ioutil.ReadFile(GLOBAL_CERT)
+		if err != nil {
+			jww.ERROR.Printf("Failed to read public certificate file at %s: %+v", GLOBAL_CERT, err)
+		}
+
+		cert, err := rsa.LoadPublicKeyFromPem(certBytes)
+		if err != nil {
+			jww.ERROR.Printf("Failed to form public certificate from data at %s: %+v", GLOBAL_CERT, err)
+		}*/
+
+	// Get private key
+	keyBytes, err := ioutil.ReadFile(GLOBAL_KEY)
+	if err != nil {
+		jww.ERROR.Printf("Failed to read private key file at %s: %+v", GLOBAL_KEY, err)
+	}
+
+	key, err := rsa.LoadPrivateKeyFromPem(keyBytes)
+	if err != nil {
+		jww.ERROR.Printf("Failed to form private key file from data at %s: %+v", GLOBAL_KEY, err)
+	}
+
+	// Get hashed data
+	options := rsa.NewDefaultOptions()
+	hash := options.Hash.New()
+	data := []byte(message.String())
+	hashed := hash.Sum(data)[len(data):]
+
+	// Sign the thing
+	signature, err := rsa.Sign(rand.Reader, key, options.Hash, hashed, nil)
 
 	// Form signed message
-	signed := pb.SignedMessage{
+	signedMessage := pb.SignedMessage{
 		Message:   anyMessage,
-		Signature: []byte("test for now"),
+		Signature: signature,
 	}
 
 	// Send the message
-	_, err = connection.DownloadTopology(ctx, message)
+	_, err = connection.DownloadTopology(ctx, &signedMessage)
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
