@@ -29,16 +29,19 @@ func (r *RegistrationComms) SendNodeTopology(id fmt.Stringer,
 	anyMessage, err := ptypes.MarshalAny(message)
 	if err != nil {
 		jww.ERROR.Printf("ERROR OUT HERE: %+v", err)
+		return err
 	}
 
 	keyBytes, err := ioutil.ReadFile(GlobalKeyPath)
 	if err != nil {
 		jww.ERROR.Printf("Failed to read private key file at %s: %+v", GlobalKeyPath, err)
+		return err
 	}
 
 	key, err := rsa.LoadPrivateKeyFromPem(keyBytes)
 	if err != nil {
 		jww.ERROR.Printf("Failed to form private key file from data at %s: %+v", GlobalKeyPath, err)
+		return err
 	}
 
 	// Get hashed data
