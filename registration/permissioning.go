@@ -49,6 +49,9 @@ func (r *RegistrationComms) SendNodeTopology(id fmt.Stringer,
 
 	// Sign the thing
 	signature, err := rsa.Sign(rand.Reader, key, options.Hash, hashed, nil)
+	if err != nil {
+		jww.ERROR.Printf("Failed to form message signature: %+v", err)
+	}
 
 	// Form signed message
 	signedMessage := pb.SignedMessage{
