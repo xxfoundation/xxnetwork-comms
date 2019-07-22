@@ -7,6 +7,7 @@
 package node
 
 import (
+	"github.com/pkg/errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"testing"
 )
@@ -25,20 +26,6 @@ func TestSendAskOnline(t *testing.T) {
 	}
 }
 
-// Smoke test SendRoundtripPing
-func TestSendRoundtripPing(t *testing.T) {
-	ServerAddress := getNextServerAddress()
-	server := StartNode(ServerAddress, NewImplementation(), "", "")
-	connID := MockID("connection35")
-	// Connect the server to itself
-	server.ConnectToNode(connID, ServerAddress, nil)
-	defer server.Shutdown()
-	_, err := server.SendRoundtripPing(connID, &pb.TimePing{})
-	if err != nil {
-		t.Errorf("RoundtripPing: Error received: %s", err)
-	}
-}
-
 // Smoke test SendFinishRealtime
 func TestSendFinishRealtime(t *testing.T) {
 	ServerAddress := getNextServerAddress()
@@ -49,20 +36,6 @@ func TestSendFinishRealtime(t *testing.T) {
 	_, err := server.SendFinishRealtime(connID, &pb.RoundInfo{ID: 0})
 	if err != nil {
 		t.Errorf("FinishRealtime: Error received: %s", err)
-	}
-}
-
-// Smoke test SendServerMetrics
-func TestSendServerMetrics(t *testing.T) {
-	ServerAddress := getNextServerAddress()
-	server := StartNode(ServerAddress, NewImplementation(), "", "")
-	connID := MockID("connection35")
-	// Connect the server to itself
-	server.ConnectToNode(connID, ServerAddress, nil)
-	defer server.Shutdown()
-	_, err := server.SendServerMetrics(connID, &pb.ServerMetrics{})
-	if err != nil {
-		t.Errorf("ServerMetrics: Error received: %s", err)
 	}
 }
 
@@ -120,5 +93,55 @@ func TestSendPostPrecompResult(t *testing.T) {
 	_, err := server.SendPostPrecompResult(connID, 0, slots)
 	if err != nil {
 		t.Errorf("PostPrecompResult: Error received: %s", err)
+	}
+}
+
+func TestSendGetMeasure(t *testing.T) {
+	ServerAddress := getNextServerAddress()
+
+	// GRPC complains if this doesn't return something nice, so I mocked it
+	impl := NewImplementation()
+	mockMeasure := func(msg *pb.RoundInfo) (*pb.RoundMetrics, error) {
+		mockReturn := pb.RoundMetrics{
+			RoundMetricJSON: "{'actual':'json'}",
+		}
+		return &mockReturn, nil
+	}
+	impl.Functions.GetMeasure = mockMeasure
+	server := StartNode(ServerAddress, impl, "", "")
+	defer server.Shutdown()
+
+	connID := MockID("connection35")
+	server.ConnectToNode(connID, ServerAddress, nil)
+	ri := pb.RoundInfo{
+		ID: uint64(3),
+	}
+	_, err := server.SendGetMeasure(connID, &ri)
+	if err != nil {
+		t.Errorf("SendGetMeasure: Error received: %s", err)
+	}
+}
+
+func TestSendGetMeasureError(t *testing.T) {
+	ServerAddress := getNextServerAddress()
+
+	// GRPC complains if this doesn't return something nice, so I mocked it
+	impl := NewImplementation()
+
+	mockMeasureError := func(msg *pb.RoundInfo) (*pb.RoundMetrics, error) {
+		return nil, errors.New("Test error")
+	}
+	impl.Functions.GetMeasure = mockMeasureError
+	server := StartNode(ServerAddress, impl, "", "")
+	defer server.Shutdown()
+
+	connID := MockID("connection35")
+	server.ConnectToNode(connID, ServerAddress, nil)
+	ri := pb.RoundInfo{
+		ID: uint64(3),
+	}
+	_, err := server.SendGetMeasure(connID, &ri)
+	if err == nil {
+		t.Error("Did not receive error response")
 	}
 }
