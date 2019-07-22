@@ -8,6 +8,7 @@ package registration
 import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/node"
+	"gitlab.com/elixxir/comms/testkeys"
 	"testing"
 )
 
@@ -17,7 +18,7 @@ func TestSendNodeTopology(t *testing.T) {
 	server := node.StartNode(ServerAddress, node.NewImplementation(),
 		"", "")
 	reg := StartRegistrationServer(getNextServerAddress(),
-		NewImplementation(), "", "")
+		NewImplementation(), testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath())
 	defer server.Shutdown()
 	defer reg.Shutdown()
 	connID := MockID("permissioningToServer")

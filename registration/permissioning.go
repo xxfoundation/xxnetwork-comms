@@ -31,27 +31,14 @@ func (r *RegistrationComms) SendNodeTopology(id fmt.Stringer,
 		jww.ERROR.Printf("ERROR OUT HERE: %+v", err)
 	}
 
-	// Get public key
-	/*
-		certBytes, err := ioutil.ReadFile(GLOBAL_CERT)
-		if err != nil {
-			jww.ERROR.Printf("Failed to read public certificate file at %s: %+v", GLOBAL_CERT, err)
-		}
-
-		cert, err := rsa.LoadPublicKeyFromPem(certBytes)
-		if err != nil {
-			jww.ERROR.Printf("Failed to form public certificate from data at %s: %+v", GLOBAL_CERT, err)
-		}*/
-
-	// Get private key
-	keyBytes, err := ioutil.ReadFile(GLOBAL_KEY)
+	keyBytes, err := ioutil.ReadFile(GlobalKeyPath)
 	if err != nil {
-		jww.ERROR.Printf("Failed to read private key file at %s: %+v", GLOBAL_KEY, err)
+		jww.ERROR.Printf("Failed to read private key file at %s: %+v", GlobalKeyPath, err)
 	}
 
 	key, err := rsa.LoadPrivateKeyFromPem(keyBytes)
 	if err != nil {
-		jww.ERROR.Printf("Failed to form private key file from data at %s: %+v", GLOBAL_KEY, err)
+		jww.ERROR.Printf("Failed to form private key file from data at %s: %+v", GlobalKeyPath, err)
 	}
 
 	// Get hashed data
