@@ -51,15 +51,13 @@ func StartRegistrationServer(localServer string, handler Handler,
 		jww.FATAL.Panicf("Failed to listen: %+v", err)
 	}
 
-	GlobalKeyPath = ""
+	GlobalKeyPath = utils.GetFullPath(keyPath)
 
 	// If TLS was specified
 	if certPath != "" && keyPath != "" {
 		// Create the TLS credentials
 		certPath = utils.GetFullPath(certPath)
 		keyPath = utils.GetFullPath(keyPath)
-
-		GlobalKeyPath = keyPath
 
 		creds, err2 := credentials.NewServerTLSFromFile(certPath, keyPath)
 		if err2 != nil {
