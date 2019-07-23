@@ -12,6 +12,7 @@ package node
 //       errors that can occur are not accounted for.
 
 import (
+	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"golang.org/x/net/context"
 )
@@ -25,7 +26,15 @@ func (s *NodeComms) AskOnline(ctx context.Context, msg *pb.Ping) (
 // Handle a broadcasted DownloadTopology event
 func (s *NodeComms) DownloadTopology(ctx context.Context,
 	msg *pb.SignedMessage) (*pb.Ack, error) {
-	s.handler.DownloadTopology(msg)
+	// VERIFY AND UNWRAP
+	verified := pb.NodeTopology{}
+	err := s.ConnectionManager.VerifySignature(msg, &verified, nil)
+	if err != nil {
+		jww.ERROR.Printf("Failed to verify message contents: %+v", err)
+		return nil, err
+	}
+
+	s.handler.DownloadTopology(&verified)
 	return &pb.Ack{}, nil
 }
 

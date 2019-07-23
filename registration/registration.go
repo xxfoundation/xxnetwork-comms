@@ -51,13 +51,11 @@ func StartRegistrationServer(localServer string, handler Handler,
 		jww.FATAL.Panicf("Failed to listen: %+v", err)
 	}
 
-	GlobalKeyPath = utils.GetFullPath(keyPath)
-
 	// If TLS was specified
 	if certPath != "" && keyPath != "" {
 		// Create the TLS credentials
-		certPath = utils.GetFullPath(certPath)
 		keyPath = utils.GetFullPath(keyPath)
+		certPath = utils.GetFullPath(certPath)
 
 		creds, err2 := credentials.NewServerTLSFromFile(certPath, keyPath)
 		if err2 != nil {
@@ -77,6 +75,10 @@ func StartRegistrationServer(localServer string, handler Handler,
 			grpc.MaxRecvMsgSize(math.MaxInt32))
 	}
 	registrationServer := RegistrationComms{gs: grpcServer, handler: handler}
+	err = registrationServer.SetPrivateKey(keyPath)
+	if err != nil {
+		jww.ERROR.Printf("Error setting RSA private key: %+v", err)
+	}
 
 	go func() {
 		// Make the port close when the gateway dies

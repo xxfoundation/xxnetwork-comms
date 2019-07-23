@@ -13,10 +13,12 @@ import (
 	"crypto/x509"
 	"fmt"
 	"github.com/pkg/errors"
+	"gitlab.com/elixxir/crypto/signature/rsa"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/credentials"
+	"io/ioutil"
 	"sort"
 	"sync"
 	"time"
@@ -74,6 +76,7 @@ type ConnectionManager struct {
 	// A map of string IDs to open connections
 	connections     map[string]*ConnectionInfo
 	connectionsLock sync.Mutex
+	privateKey      *rsa.PrivateKey
 }
 
 // Default maximum number of retries
@@ -89,6 +92,29 @@ func MakeCreds(certPath, certPEM string,
 	} else {
 		return nil
 	}
+}
+
+// Set private key to key at a given path
+func (m *ConnectionManager) SetPrivateKey(path string) error {
+	keyBytes, err := ioutil.ReadFile(path)
+	if err != nil {
+		jww.ERROR.Printf("Failed to read private key file at %s: %+v", path, err)
+		return err
+	}
+
+	key, err := rsa.LoadPrivateKeyFromPem(keyBytes)
+	if err != nil {
+		jww.ERROR.Printf("Failed to form private key file from data at %s: %+v", path, err)
+		return err
+	}
+
+	m.privateKey = key
+	return nil
+}
+
+// Get connection manager's private key
+func (m *ConnectionManager) GetPrivateKey() *rsa.PrivateKey {
+	return m.privateKey
 }
 
 // Connect to a certain registration server
