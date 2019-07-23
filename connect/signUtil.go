@@ -10,10 +10,6 @@ import (
 	"gitlab.com/elixxir/crypto/signature/rsa"
 )
 
-func hashString() {
-
-}
-
 func (c *ConnectionManager) SignMessage(anyMessage *any.Any) (*pb.SignedMessage, error) {
 
 	// Get hashed data
