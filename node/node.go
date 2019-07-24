@@ -43,7 +43,7 @@ func (s *NodeComms) Shutdown() {
 // and a callback interface for server operations
 // with given path to public and private key for TLS connection
 func StartNode(localServer string, handler ServerHandler,
-	certPath, keyPath string, publicKey rsa.PublicKey) *NodeComms {
+	certPath, keyPath string, publicKey *rsa.PublicKey) *NodeComms {
 	var grpcServer *grpc.Server
 
 	// Listen on the given address
