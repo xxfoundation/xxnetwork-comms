@@ -46,6 +46,6 @@ func (s *RegistrationComms) RegisterNode(ctx context.Context, msg *pb.NodeRegist
 	*pb.Ack, error) {
 	info, _ := peer.FromContext(ctx)
 
-	err := s.handler.RegisterNode(msg.GetID(), msg.GetNodeTLSCert(), msg.GetGatewayTLSCert(), msg.GetRegistrationCode(), info.Addr.String())
+	err := s.handler.RegisterNode(msg.GetID(), msg.GetNodeCSR(), msg.GetGatewayTLSCert(), msg.GetRegistrationCode(), info.Addr.String())
 	return &pb.Ack{}, err
 }
