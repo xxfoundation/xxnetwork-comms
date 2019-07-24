@@ -22,12 +22,10 @@ func TestSignVerify(t *testing.T) {
 	if err != nil {
 		t.Errorf("Error setting private key: %+v", err)
 	}
+
 	private := c.GetPrivateKey()
 	pub := private.Public().(*rsa.PublicKey)
-
-	if err != nil {
-		t.Errorf("Error setting public key: %+v", err)
-	}
+	c.SetPublicKey(pub)
 
 	message := pb.NodeTopology{
 		Topology: []*pb.NodeInfo{
@@ -50,7 +48,7 @@ func TestSignVerify(t *testing.T) {
 	}
 
 	verified := pb.NodeTopology{}
-	err = c.VerifySignature(signed, &verified, pub)
+	err = c.VerifySignature(signed, &verified)
 	if err != nil {
 		t.Errorf("Error verifying signature")
 	}

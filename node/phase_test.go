@@ -30,12 +30,12 @@ func TestPhase_StreamPostPhaseSendReceive(t *testing.T) {
 		return mockStreamPostPhase(server)
 	}
 	serverStreamReceiver := StartNode(servReceiverAddress, receiverImpl,
-		testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath())
+		testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath(), "")
 
 	// Init server sender
 	servSenderAddress := getNextServerAddress()
 	serverStreamSender := StartNode(servSenderAddress, NewImplementation(),
-		testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath())
+		testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath(), "")
 
 	// Get credentials and connect to node
 	creds := connect.NewCredentialsFromFile(testkeys.GetNodeCertPath(),
@@ -124,12 +124,12 @@ func TestGetPostPhaseStream_ErrorsWhenContextCanceled(t *testing.T) {
 	// Init server receiver
 	servReceiverAddress := getNextServerAddress()
 	_ = StartNode(servReceiverAddress, NewImplementation(),
-		testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath())
+		testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath(), "")
 
 	// Init server sender
 	servSenderAddress := getNextServerAddress()
 	serverStreamSender := StartNode(servSenderAddress, NewImplementation(),
-		testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath())
+		testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath(), "")
 
 	// Get credentials and connect to node
 	creds := connect.NewCredentialsFromFile(testkeys.GetNodeCertPath(),

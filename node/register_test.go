@@ -15,7 +15,7 @@ import (
 func TestSendNodeRegistration(t *testing.T) {
 	RegAddress := getNextServerAddress()
 	server := StartNode(getNextServerAddress(), NewImplementation(),
-		"", "")
+		"", "", "")
 	reg := registration.StartRegistrationServer(RegAddress,
 		registration.NewImplementation(), "", "")
 	defer server.Shutdown()

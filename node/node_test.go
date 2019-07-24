@@ -38,10 +38,10 @@ func getNextServerAddress() string {
 func TestTLS(t *testing.T) {
 	serverAddress := getNextServerAddress()
 	server := StartNode(serverAddress, NewImplementation(),
-		testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath())
+		testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath(), "")
 	serverAddress2 := getNextServerAddress()
 	server2 := StartNode(serverAddress2, NewImplementation(),
-		testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath())
+		testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath(), "")
 	creds := connect.NewCredentialsFromFile(testkeys.GetNodeCertPath(),
 		"*.cmix.rip")
 	connectionID := MockID("server2toserver")

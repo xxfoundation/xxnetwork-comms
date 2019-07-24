@@ -18,7 +18,7 @@ func TestSendRequestNonceMessage(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	gateway := StartGateway(GatewayAddress, NewImplementation(), "", "")
 	server := node.StartNode(ServerAddress, node.NewImplementation(),
-		"", "")
+		"", "", "")
 	defer gateway.Shutdown()
 	defer server.Shutdown()
 	connID := MockID("gatewayToServer")
@@ -36,7 +36,7 @@ func TestSendConfirmNonceMessage(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	gateway := StartGateway(GatewayAddress, NewImplementation(), "", "")
 	server := node.StartNode(ServerAddress, node.NewImplementation(),
-		"", "")
+		"", "", "")
 	defer gateway.Shutdown()
 	defer server.Shutdown()
 	connID := MockID("gatewayToServer")

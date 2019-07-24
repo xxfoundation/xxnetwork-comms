@@ -16,7 +16,7 @@ import (
 func TestSendNodeTopology(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	server := node.StartNode(ServerAddress, node.NewImplementation(),
-		"", "")
+		"", "", testkeys.GetNodeCertPath())
 	reg := StartRegistrationServer(getNextServerAddress(),
 		NewImplementation(), testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath())
 	defer server.Shutdown()
@@ -34,7 +34,7 @@ func TestSendNodeTopology(t *testing.T) {
 func TestSendNodeTopologyNilKeyError(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	server := node.StartNode(ServerAddress, node.NewImplementation(),
-		"", "")
+		"", "", "")
 	reg := StartRegistrationServer(getNextServerAddress(),
 		NewImplementation(), "", "")
 	defer server.Shutdown()
@@ -52,7 +52,7 @@ func TestSendNodeTopologyNilKeyError(t *testing.T) {
 func TestSendNodeTopologyBadKeyError(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	server := node.StartNode(ServerAddress, node.NewImplementation(),
-		"", "")
+		"", "", "")
 	reg := StartRegistrationServer(getNextServerAddress(),
 		NewImplementation(), "", testkeys.GetNodeCertPath())
 	defer server.Shutdown()

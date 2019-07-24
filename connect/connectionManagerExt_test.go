@@ -23,9 +23,9 @@ func (m MockID) String() string {
 // Putting this test in an exterior package connect_test makes it simpler to run
 // test servers
 func TestConnectionManager_String(t *testing.T) {
-	server1 := node.StartNode(":5658", node.NewImplementation(), "", "")
+	server1 := node.StartNode(":5658", node.NewImplementation(), "", "", "")
 	server2 := node.StartNode(":5659", node.NewImplementation(),
-		testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath())
+		testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath(), "")
 	defer server1.Shutdown()
 	defer server2.Shutdown()
 	cm := &connect.ConnectionManager{}

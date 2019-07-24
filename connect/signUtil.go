@@ -35,7 +35,7 @@ func (c *ConnectionManager) SignMessage(anyMessage *any.Any) (*pb.SignedMessage,
 	return &signedMessage, nil
 }
 
-func (c *ConnectionManager) VerifySignature(message *pb.SignedMessage, pb proto.Message, pub *rsa.PublicKey) error {
+func (c *ConnectionManager) VerifySignature(message *pb.SignedMessage, pb proto.Message) error {
 	err := ptypes.UnmarshalAny(message.Message, pb)
 	if err != nil {
 		jww.ERROR.Printf("Failed to unmarshal generic message, check your input message type: %+v", err)
@@ -48,7 +48,7 @@ func (c *ConnectionManager) VerifySignature(message *pb.SignedMessage, pb proto.
 	data := []byte(s)
 	hashed := hash.Sum(data)[len(data):]
 
-	err = rsa.Verify(pub, options.Hash, hashed, message.Signature, nil)
+	err = rsa.Verify(c.GetPublicKey(), options.Hash, hashed, message.Signature, nil)
 
 	return nil
 }

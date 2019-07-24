@@ -77,6 +77,7 @@ type ConnectionManager struct {
 	connections     map[string]*ConnectionInfo
 	connectionsLock sync.Mutex
 	privateKey      *rsa.PrivateKey
+	publicKey       *rsa.PublicKey
 }
 
 // Default maximum number of retries
@@ -110,6 +111,33 @@ func (m *ConnectionManager) SetPrivateKey(path string) error {
 
 	m.privateKey = key
 	return nil
+}
+
+// Get connection manager's public key
+func (m *ConnectionManager) GetPublicKey() *rsa.PublicKey {
+	return m.publicKey
+}
+
+// Set connection manager's public key
+func (m *ConnectionManager) SetPublicKeyPath(path string) error {
+	keyBytes, err := ioutil.ReadFile(path)
+	if err != nil {
+		jww.ERROR.Printf("Failed to read public key file at %s: %+v", path, err)
+		return err
+	}
+
+	key, err := rsa.LoadPublicKeyFromPem(keyBytes)
+	if err != nil {
+		jww.ERROR.Printf("Failed to form private key file from data at %s: %+v", path, err)
+		return err
+	}
+
+	m.publicKey = key
+	return nil
+}
+
+func (m *ConnectionManager) SetPublicKey(key *rsa.PublicKey) {
+	m.publicKey = key
 }
 
 // Get connection manager's private key

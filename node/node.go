@@ -75,6 +75,10 @@ func StartNode(localServer string, handler ServerHandler,
 			grpc.MaxRecvMsgSize(math.MaxInt32))
 	}
 	mixmessageServer := NodeComms{gs: grpcServer, handler: handler, localServer: localServer}
+	err = mixmessageServer.ConnectionManager.SetPublicKeyPath(publicKey)
+	if err != nil {
+		jww.ERROR.Printf("Error: %+v", err)
+	}
 
 	go func() {
 		// Make the port close when the gateway dies
