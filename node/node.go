@@ -12,6 +12,7 @@ import (
 	"github.com/pkg/errors"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
+	"gitlab.com/elixxir/crypto/signature/rsa"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/reflection"
@@ -42,7 +43,7 @@ func (s *NodeComms) Shutdown() {
 // and a callback interface for server operations
 // with given path to public and private key for TLS connection
 func StartNode(localServer string, handler ServerHandler,
-	certPath, keyPath string) *NodeComms {
+	certPath, keyPath string, publicKey rsa.PublicKey) *NodeComms {
 	var grpcServer *grpc.Server
 
 	// Listen on the given address
