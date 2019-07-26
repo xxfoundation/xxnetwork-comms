@@ -40,7 +40,6 @@ type ConnectionManager struct {
 	connections     map[string]*ConnectionInfo
 	connectionsLock sync.Mutex
 	privateKey      *rsa.PrivateKey
-	publicKey       *rsa.PublicKey
 }
 
 // Default maximum number of retries
@@ -82,7 +81,7 @@ func (m *ConnectionManager) GetConnectionInfo(id string) *ConnectionInfo {
 // Connect to a certain registration server
 // connectionInfo can be nil if the connection already exists for this id
 func (m *ConnectionManager) ConnectToRegistration(id fmt.Stringer,
-	addr string, certPEMblock []byte) {
+	addr string, certPEMblock []byte) error {
 	// Make TransportCredentials
 	var creds credentials.TransportCredentials
 	var pubKey *rsa.PublicKey
@@ -91,15 +90,18 @@ func (m *ConnectionManager) ConnectToRegistration(id fmt.Stringer,
 		creds, err = tlsCreds.NewCredentialsFromPEM(string(certPEMblock), "*.cmix.rip")
 		if err != nil {
 			jww.ERROR.Printf("Error forming transportCredentials: %+v", err)
+			return err
 		}
 
 		pubKey, err = tlsCreds.NewPublicKeyFromPEM(certPEMblock)
 		if err != nil {
 			jww.ERROR.Printf("Error extracting PublicKey: %+v", err)
+			return err
 		}
 	}
 	// NewCredentialsFromPem, NewCredentialsFromFile, NewP
 	m.connect(id.String(), addr, creds, pubKey)
+	return nil
 }
 
 func (m *ConnectionManager) GetRegistrationConnection(id fmt.Stringer) pb.
@@ -111,7 +113,7 @@ func (m *ConnectionManager) GetRegistrationConnection(id fmt.Stringer) pb.
 // Connect to a certain gateway
 // connectionInfo can be nil if the connection already exists for this id
 func (m *ConnectionManager) ConnectToGateway(id fmt.Stringer,
-	addr string, certPEMblock []byte) {
+	addr string, certPEMblock []byte) error {
 	// Make TransportCredentials
 	var creds credentials.TransportCredentials
 	var pubKey *rsa.PublicKey
@@ -120,14 +122,17 @@ func (m *ConnectionManager) ConnectToGateway(id fmt.Stringer,
 		creds, err = tlsCreds.NewCredentialsFromPEM(string(certPEMblock), "*.cmix.rip")
 		if err != nil {
 			jww.ERROR.Printf("Error forming transportCredentials: %+v", err)
+			return err
 		}
 
 		pubKey, err = tlsCreds.NewPublicKeyFromPEM(certPEMblock)
 		if err != nil {
 			jww.ERROR.Printf("Error extracting PublicKey: %+v", err)
+			return err
 		}
 	}
 	m.connect(id.String(), addr, creds, pubKey)
+	return nil
 }
 
 func (m *ConnectionManager) GetGatewayConnection(id fmt.Stringer) pb.
@@ -141,7 +146,7 @@ func (m *ConnectionManager) GetGatewayConnection(id fmt.Stringer) pb.
 // Should this return an error if the connection doesn't exist and the
 // connection info is nil?
 func (m *ConnectionManager) ConnectToNode(id fmt.Stringer,
-	addr string, certPEMblock []byte) {
+	addr string, certPEMblock []byte) error {
 	// Make TransportCredentials
 	var creds credentials.TransportCredentials
 	var pubKey *rsa.PublicKey
@@ -150,23 +155,20 @@ func (m *ConnectionManager) ConnectToNode(id fmt.Stringer,
 		creds, err = tlsCreds.NewCredentialsFromPEM(string(certPEMblock), "*.cmix.rip")
 		if err != nil {
 			jww.ERROR.Printf("Error forming transportCredentials: %+v", err)
+			return err
 		}
 
 		pubKey, err = tlsCreds.NewPublicKeyFromPEM(certPEMblock)
 		if err != nil {
 			jww.ERROR.Printf("Error extracting PublicKey: %+v", err)
+			return err
 		}
 	}
 
 	// Modify me to take a tls object so we can get useful data from it
 	m.connect(id.String(), addr, creds, pubKey)
+	return nil
 }
-
-/*
-func (m *ConnectionManager) ConnectToPermissioning(id fmt.Stringer,
-	addr string, tls credentials.TransportCredentials){
-
-}*/
 
 func (m *ConnectionManager) GetNodeConnection(id fmt.Stringer) pb.NodeClient {
 	conn := m.get(id)

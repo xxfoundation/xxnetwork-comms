@@ -22,8 +22,6 @@ import (
 	"time"
 )
 
-var GlobalKeyPath string
-
 // Server object containing a gRPC server
 type RegistrationComms struct {
 	connect.ConnectionManager

@@ -4,7 +4,6 @@ import (
 	"crypto/rand"
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes/any"
-	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/crypto/signature/rsa"
 	"golang.org/x/crypto/openpgp/errors"
@@ -21,14 +20,12 @@ func (c *ConnectionManager) SignMessage(anyMessage *any.Any, id string) (*pb.Sig
 
 	key := c.GetPrivateKey()
 	if key == nil {
-		jww.ERROR.Printf("Connection manager private key not set")
-		return nil, errors.InvalidArgumentError("Nil private key")
+		return nil, errors.InvalidArgumentError("Connection manager: nil private key")
 	}
 
 	// Sign the thing
 	signature, err := rsa.Sign(rand.Reader, key, options.Hash, hashed, nil)
 	if err != nil {
-		jww.ERROR.Printf("Failed to form message signature: %+v", err)
 		return nil, err
 	}
 
@@ -55,7 +52,6 @@ func (c *ConnectionManager) VerifySignature(message *pb.SignedMessage, pb proto.
 	// Verify signature of message
 	err := rsa.Verify(pubKey, options.Hash, hashed, message.Signature, nil)
 	if err != nil {
-		jww.ERROR.Printf("Error verifying message contents: %+v", err)
 		return err
 	}
 
