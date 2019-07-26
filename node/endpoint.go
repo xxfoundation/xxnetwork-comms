@@ -12,6 +12,7 @@ package node
 //       errors that can occur are not accounted for.
 
 import (
+	"github.com/golang/protobuf/ptypes"
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"golang.org/x/net/context"
@@ -26,17 +27,26 @@ func (s *NodeComms) AskOnline(ctx context.Context, msg *pb.Ping) (
 // Handle a broadcasted DownloadTopology event
 func (s *NodeComms) DownloadTopology(ctx context.Context,
 	msg *pb.SignedMessage) (*pb.Ack, error) {
+	// Get message sender ID
 	sender := msg.ID
 	pubKey := s.ConnectionManager.GetConnectionInfo(sender).RsaPublicKey
-	// VERIFY AND UNWRAP
-	verified := pb.NodeTopology{}
-	err := s.ConnectionManager.VerifySignature(msg, &verified, pubKey)
+
+	// Unmarshal message to its original type
+	original := pb.NodeTopology{}
+	err := ptypes.UnmarshalAny(msg.Message, &original)
+	if err != nil {
+		jww.ERROR.Printf("Failed to unmarshal generic message, check your input message type: %+v", err)
+		return nil, err
+	}
+
+	// Verify message contents
+	err = s.ConnectionManager.VerifySignature(msg, &original, pubKey)
 	if err != nil {
 		jww.ERROR.Printf("Failed to verify message contents: %+v", err)
 		return nil, err
 	}
 
-	s.handler.DownloadTopology(&verified)
+	s.handler.DownloadTopology(&original)
 	return &pb.Ack{}, nil
 }
 

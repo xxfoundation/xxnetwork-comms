@@ -3,7 +3,6 @@ package connect
 import (
 	"crypto/rand"
 	"github.com/golang/protobuf/proto"
-	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
@@ -37,19 +36,17 @@ func (c *ConnectionManager) SignMessage(anyMessage *any.Any, id string) (*pb.Sig
 }
 
 func (c *ConnectionManager) VerifySignature(message *pb.SignedMessage, pb proto.Message, pubKey *rsa.PublicKey) error {
-	err := ptypes.UnmarshalAny(message.Message, pb)
-	if err != nil {
-		jww.ERROR.Printf("Failed to unmarshal generic message, check your input message type: %+v", err)
-		return err
-	}
-
 	options := rsa.NewDefaultOptions()
 	hash := options.Hash.New()
 	s := pb.String()
 	data := []byte(s)
 	hashed := hash.Sum(data)[len(data):]
 
-	err = rsa.Verify(pubKey, options.Hash, hashed, message.Signature, nil)
+	err := rsa.Verify(pubKey, options.Hash, hashed, message.Signature, nil)
+	if err != nil {
+		jww.ERROR.Printf("Error verifying message contents: %+v", err)
+		return err
+	}
 
 	return nil
 }

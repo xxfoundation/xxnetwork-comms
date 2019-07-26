@@ -47,10 +47,17 @@ func TestSignVerify(t *testing.T) {
 	}
 
 	verified := pb.NodeTopology{}
+	err = ptypes.UnmarshalAny(signed.Message, &verified)
+	if err != nil {
+		t.Errorf("Failed to unmarshal generic message, check your input message type: %+v", err)
+	}
+
 	err = c.VerifySignature(signed, &verified, pub)
 	if err != nil {
 		t.Errorf("Error verifying signature")
 	}
 
-	t.Logf("%+v", verified)
+	if len(verified.Topology) != 1 && string(verified.Topology[0].Id) != "test" {
+		t.Errorf("Message contents do not match original: %+v", verified)
+	}
 }

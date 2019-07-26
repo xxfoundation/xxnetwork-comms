@@ -25,7 +25,7 @@ func (r *RegistrationComms) SendNodeTopology(id fmt.Stringer,
 	// Wrap message as a generic
 	anyMessage, err := ptypes.MarshalAny(message)
 	if err != nil {
-		jww.ERROR.Printf("ERROR OUT HERE: %+v", err)
+		jww.ERROR.Printf("Error marshalling NodeTopology to Any type: %+v", err)
 		return err
 	}
 
