@@ -22,11 +22,11 @@ func (m MockID) String() string {
 func TestSendPutMessage(t *testing.T) {
 	gatewayAddress := getNextGatewayAddress()
 	gw := gateway.StartGateway(gatewayAddress,
-		gateway.NewImplementation(), "", "")
+		gateway.NewImplementation(), nil, nil)
 	defer gw.Shutdown()
 	var c ClientComms
 	id := MockID("clientToGateway")
-	c.ConnectToGateway(id, gatewayAddress, "")
+	c.ConnectToGateway(id, gatewayAddress, nil)
 
 	err := c.SendPutMessage(id, &pb.Slot{})
 	if err != nil {
@@ -38,10 +38,10 @@ func TestSendPutMessage(t *testing.T) {
 func TestSendCheckMessages(t *testing.T) {
 	gatewayAddress := getNextGatewayAddress()
 	gw := gateway.StartGateway(gatewayAddress,
-		gateway.NewImplementation(), "", "")
+		gateway.NewImplementation(), nil, nil)
 	connectionID := MockID("clientToGateway")
 	var c ClientComms
-	c.ConnectToGateway(connectionID, gatewayAddress, "")
+	c.ConnectToGateway(connectionID, gatewayAddress, nil)
 	defer gw.Shutdown()
 
 	_, err := c.SendCheckMessages(connectionID, &pb.ClientRequest{})
@@ -54,10 +54,10 @@ func TestSendCheckMessages(t *testing.T) {
 func TestSendGetMessage(t *testing.T) {
 	gatewayAddress := getNextGatewayAddress()
 	gw := gateway.StartGateway(gatewayAddress,
-		gateway.NewImplementation(), "", "")
+		gateway.NewImplementation(), nil, nil)
 	connectionID := MockID("clientToGateway")
 	var c ClientComms
-	c.ConnectToGateway(connectionID, gatewayAddress, "")
+	c.ConnectToGateway(connectionID, gatewayAddress, nil)
 	defer gw.Shutdown()
 
 	_, err := c.SendGetMessage(connectionID, &pb.ClientRequest{})
@@ -70,11 +70,11 @@ func TestSendGetMessage(t *testing.T) {
 func TestSendRequestNonceMessage(t *testing.T) {
 	gatewayAddress := getNextGatewayAddress()
 	gw := gateway.StartGateway(gatewayAddress,
-		gateway.NewImplementation(), "", "")
+		gateway.NewImplementation(), nil, nil)
 	defer gw.Shutdown()
 	connectionID := MockID("clientToGateway")
 	var c ClientComms
-	c.ConnectToGateway(connectionID, gatewayAddress, "")
+	c.ConnectToGateway(connectionID, gatewayAddress, nil)
 
 	_, err := c.SendRequestNonceMessage(connectionID, &pb.NonceRequest{})
 	if err != nil {
@@ -86,11 +86,11 @@ func TestSendRequestNonceMessage(t *testing.T) {
 func TestSendConfirmNonceMessage(t *testing.T) {
 	gatewayAddress := getNextGatewayAddress()
 	gw := gateway.StartGateway(gatewayAddress,
-		gateway.NewImplementation(), "", "")
+		gateway.NewImplementation(), nil, nil)
 	defer gw.Shutdown()
 	connectionID := MockID("clientToGateway")
 	var c ClientComms
-	c.ConnectToGateway(connectionID, gatewayAddress, "")
+	c.ConnectToGateway(connectionID, gatewayAddress, nil)
 
 	_, err := c.SendConfirmNonceMessage(connectionID, &pb.DSASignature{})
 	if err != nil {

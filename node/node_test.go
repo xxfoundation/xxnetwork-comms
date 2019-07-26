@@ -36,16 +36,21 @@ func getNextServerAddress() string {
 // Tests whether the server can be connected to and run an RPC with TLS enabled
 func TestTLS(t *testing.T) {
 	serverAddress := getNextServerAddress()
+
+	keyPath := testkeys.GetNodeKeyPath()
+	keyData := testkeys.LoadFromPath(keyPath)
+	certPath := testkeys.GetNodeCertPath()
+	certData := testkeys.LoadFromPath(certPath)
+
 	server := StartNode(serverAddress, NewImplementation(),
-		testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath())
+		certData, keyData)
 	serverAddress2 := getNextServerAddress()
 	server2 := StartNode(serverAddress2, NewImplementation(),
-		testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath())
-	creds := testkeys.GetNodeCertPath()
+		certData, keyData)
 	connectionID := MockID("server2toserver")
 	// It might make more sense to call the RPC on the connection object
 	// that's returned from this
-	server2.ConnectToNode(connectionID, serverAddress, creds)
+	server2.ConnectToNode(connectionID, serverAddress, certData)
 	// Reset TLS-related global variables
 	defer server.Shutdown()
 	defer server2.Shutdown()

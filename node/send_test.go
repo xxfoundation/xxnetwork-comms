@@ -15,10 +15,10 @@ import (
 // Smoke test SendAskOnline
 func TestSendAskOnline(t *testing.T) {
 	ServerAddress := getNextServerAddress()
-	server := StartNode(ServerAddress, NewImplementation(), "", "")
+	server := StartNode(ServerAddress, NewImplementation(), nil, nil)
 	connID := MockID("connection35")
 	// Connect the server to itself
-	server.ConnectToNode(connID, ServerAddress, "")
+	server.ConnectToNode(connID, ServerAddress, nil)
 	defer server.Shutdown()
 	_, err := server.SendAskOnline(connID, &pb.Ping{})
 	if err != nil {
@@ -29,9 +29,9 @@ func TestSendAskOnline(t *testing.T) {
 // Smoke test SendFinishRealtime
 func TestSendFinishRealtime(t *testing.T) {
 	ServerAddress := getNextServerAddress()
-	server := StartNode(ServerAddress, NewImplementation(), "", "")
+	server := StartNode(ServerAddress, NewImplementation(), nil, nil)
 	connID := MockID("node2node")
-	server.ConnectToNode(connID, ServerAddress, "")
+	server.ConnectToNode(connID, ServerAddress, nil)
 	defer server.Shutdown()
 	_, err := server.SendFinishRealtime(connID, &pb.RoundInfo{ID: 0})
 	if err != nil {
@@ -42,10 +42,10 @@ func TestSendFinishRealtime(t *testing.T) {
 // Smoke test SendNewRound
 func TestSendNewRound(t *testing.T) {
 	ServerAddress := getNextServerAddress()
-	server := StartNode(ServerAddress, NewImplementation(), "", "")
+	server := StartNode(ServerAddress, NewImplementation(), nil, nil)
 	connID := MockID("connection35")
 	// Connect the server to itself
-	server.ConnectToNode(connID, ServerAddress, "")
+	server.ConnectToNode(connID, ServerAddress, nil)
 	defer server.Shutdown()
 	_, err := server.SendNewRound(connID, &pb.RoundInfo{})
 	if err != nil {
@@ -56,10 +56,10 @@ func TestSendNewRound(t *testing.T) {
 // Smoke test SendPhase
 func TestSendPostPhase(t *testing.T) {
 	ServerAddress := getNextServerAddress()
-	server := StartNode(ServerAddress, NewImplementation(), "", "")
+	server := StartNode(ServerAddress, NewImplementation(), nil, nil)
 	connID := MockID("connection35")
 	// Connect the server to itself
-	server.ConnectToNode(connID, ServerAddress, "")
+	server.ConnectToNode(connID, ServerAddress, nil)
 	defer server.Shutdown()
 	_, err := server.SendPostPhase(connID, &pb.Batch{})
 	if err != nil {
@@ -70,10 +70,10 @@ func TestSendPostPhase(t *testing.T) {
 // Smoke test SendPostRoundPublicKey
 func TestSendPostRoundPublicKey(t *testing.T) {
 	ServerAddress := getNextServerAddress()
-	server := StartNode(ServerAddress, NewImplementation(), "", "")
+	server := StartNode(ServerAddress, NewImplementation(), nil, nil)
 	connID := MockID("connection35")
 	// Connect the server to itself
-	server.ConnectToNode(connID, ServerAddress, "")
+	server.ConnectToNode(connID, ServerAddress, nil)
 	defer server.Shutdown()
 	_, err := server.SendPostRoundPublicKey(connID, &pb.RoundPublicKey{})
 	if err != nil {
@@ -84,11 +84,11 @@ func TestSendPostRoundPublicKey(t *testing.T) {
 // TestPostPrecompResult Smoke test
 func TestSendPostPrecompResult(t *testing.T) {
 	ServerAddress := getNextServerAddress()
-	server := StartNode(ServerAddress, NewImplementation(), "", "")
+	server := StartNode(ServerAddress, NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	connID := MockID("connection35")
 	// Connect the server to itself
-	server.ConnectToNode(connID, ServerAddress, "")
+	server.ConnectToNode(connID, ServerAddress, nil)
 	slots := make([]*pb.Slot, 0)
 	_, err := server.SendPostPrecompResult(connID, 0, slots)
 	if err != nil {
@@ -108,11 +108,11 @@ func TestSendGetMeasure(t *testing.T) {
 		return &mockReturn, nil
 	}
 	impl.Functions.GetMeasure = mockMeasure
-	server := StartNode(ServerAddress, impl, "", "")
+	server := StartNode(ServerAddress, impl, nil, nil)
 	defer server.Shutdown()
 
 	connID := MockID("connection35")
-	server.ConnectToNode(connID, ServerAddress, "")
+	server.ConnectToNode(connID, ServerAddress, nil)
 	ri := pb.RoundInfo{
 		ID: uint64(3),
 	}
@@ -132,11 +132,11 @@ func TestSendGetMeasureError(t *testing.T) {
 		return nil, errors.New("Test error")
 	}
 	impl.Functions.GetMeasure = mockMeasureError
-	server := StartNode(ServerAddress, impl, "", "")
+	server := StartNode(ServerAddress, impl, nil, nil)
 	defer server.Shutdown()
 
 	connID := MockID("connection35")
-	server.ConnectToNode(connID, ServerAddress, "")
+	server.ConnectToNode(connID, ServerAddress, nil)
 	ri := pb.RoundInfo{
 		ID: uint64(3),
 	}

@@ -17,18 +17,23 @@ func TestSendNodeTopology(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	RegAddress := getNextServerAddress()
 
+	keyPath := testkeys.GetNodeKeyPath()
+	keyData := testkeys.LoadFromPath(keyPath)
+	certPath := testkeys.GetNodeCertPath()
+	certData := testkeys.LoadFromPath(certPath)
+
 	server := node.StartNode(ServerAddress, node.NewImplementation(),
-		"", "")
+		nil, nil)
 	reg := StartRegistrationServer(RegAddress,
-		NewImplementation(), testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath())
+		NewImplementation(), certData, keyData)
 	defer server.Shutdown()
 	defer reg.Shutdown()
 
 	connID := MockID("permissioningToServer")
 	regID := MockID("Permissioning")
 
-	server.ConnectToRegistration(regID, RegAddress, testkeys.GetNodeCertPath())
-	reg.ConnectToNode(connID, ServerAddress, "")
+	server.ConnectToRegistration(regID, RegAddress, certData)
+	reg.ConnectToNode(connID, ServerAddress, nil)
 
 	msgs := &pb.NodeTopology{}
 	err := reg.SendNodeTopology(connID, msgs)
@@ -42,17 +47,17 @@ func TestSendNodeTopologyNilKeyError(t *testing.T) {
 	RegAddress := getNextServerAddress()
 
 	server := node.StartNode(ServerAddress, node.NewImplementation(),
-		"", "")
+		nil, nil)
 	reg := StartRegistrationServer(RegAddress,
-		NewImplementation(), "", "")
+		NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	defer reg.Shutdown()
 
 	connID := MockID("permissioningToServer")
 	regID := MockID("Permissioning")
 
-	server.ConnectToRegistration(regID, RegAddress, "")
-	reg.ConnectToNode(connID, ServerAddress, "")
+	server.ConnectToRegistration(regID, RegAddress, nil)
+	reg.ConnectToNode(connID, ServerAddress, nil)
 
 	msgs := &pb.NodeTopology{}
 	err := reg.SendNodeTopology(connID, msgs)

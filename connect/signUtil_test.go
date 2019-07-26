@@ -18,7 +18,8 @@ func TestSignVerify(t *testing.T) {
 
 	c := *new(ConnectionManager)
 
-	err := c.SetPrivateKey(testkeys.GetNodeKeyPath())
+	key := testkeys.GetNodeKeyPath()
+	err := c.SetPrivateKey(testkeys.LoadFromPath(key))
 	if err != nil {
 		t.Errorf("Error setting private key: %+v", err)
 	}

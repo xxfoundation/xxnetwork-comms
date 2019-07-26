@@ -30,10 +30,15 @@ func (m MockID) String() string {
 // Tests whether the server can be connected to and run an RPC with TLS enabled
 func TestTLS(t *testing.T) {
 	RegAddress := getNextServerAddress()
+
+	keyPath := testkeys.GetNodeKeyPath()
+	keyData := testkeys.LoadFromPath(keyPath)
+	certPath := testkeys.GetNodeCertPath()
+	certData := testkeys.LoadFromPath(certPath)
+
 	rg := StartRegistrationServer(RegAddress,
 		NewImplementation(),
-		testkeys.GetNodeCertPath(),
-		testkeys.GetNodeKeyPath())
+		certData, keyData)
 	// Well, client shouldn't have a server type because it's not a server
 	// It's a client
 	// So, we need some way to add a connection to the manager for the client
@@ -41,8 +46,7 @@ func TestTLS(t *testing.T) {
 	var c client.ClientComms
 	connID := MockID("clientToRegistration")
 	c.ConnectToRegistration(connID,
-		RegAddress,
-		testkeys.GetNodeCertPath())
+		RegAddress, certData)
 
 	_, err := c.SendRegistrationMessage(connID, &pb.UserRegistration{})
 	if err != nil {

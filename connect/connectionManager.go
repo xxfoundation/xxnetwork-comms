@@ -18,7 +18,6 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/credentials"
-	"io/ioutil"
 	"sort"
 	"sync"
 	"time"
@@ -59,17 +58,11 @@ func MakeCreds(certPath, certPEM string,
 	}
 }
 
-// Set private key to key at a given path
-func (m *ConnectionManager) SetPrivateKey(path string) error {
-	keyBytes, err := ioutil.ReadFile(path)
+// Set private key to data to a PEM block
+func (m *ConnectionManager) SetPrivateKey(data []byte) error {
+	key, err := rsa.LoadPrivateKeyFromPem(data)
 	if err != nil {
-		jww.ERROR.Printf("Failed to read private key file at %s: %+v", path, err)
-		return err
-	}
-
-	key, err := rsa.LoadPrivateKeyFromPem(keyBytes)
-	if err != nil {
-		jww.ERROR.Printf("Failed to form private key file from data at %s: %+v", path, err)
+		jww.ERROR.Printf("Failed to form private key file from data at %s: %+v", data, err)
 		return err
 	}
 
@@ -89,18 +82,18 @@ func (m *ConnectionManager) GetConnectionInfo(id string) *ConnectionInfo {
 // Connect to a certain registration server
 // connectionInfo can be nil if the connection already exists for this id
 func (m *ConnectionManager) ConnectToRegistration(id fmt.Stringer,
-	addr, tls string) {
+	addr string, certPEMblock []byte) {
 	// Make TransportCredentials
 	var creds credentials.TransportCredentials
 	var pubKey *rsa.PublicKey
-	if tls != "" {
+	if certPEMblock != nil {
 		var err error
-		creds, err = tlsCreds.NewCredentialsFromFile(tls, "*.cmix.rip")
+		creds, err = tlsCreds.NewCredentialsFromPEM(string(certPEMblock), "*.cmix.rip")
 		if err != nil {
 			jww.ERROR.Printf("Error forming transportCredentials: %+v", err)
 		}
 
-		pubKey, err = tlsCreds.NewPublicKeyFromFile(tls)
+		pubKey, err = tlsCreds.NewPublicKeyFromPEM(certPEMblock)
 		if err != nil {
 			jww.ERROR.Printf("Error extracting PublicKey: %+v", err)
 		}
@@ -118,18 +111,18 @@ func (m *ConnectionManager) GetRegistrationConnection(id fmt.Stringer) pb.
 // Connect to a certain gateway
 // connectionInfo can be nil if the connection already exists for this id
 func (m *ConnectionManager) ConnectToGateway(id fmt.Stringer,
-	addr, tls string) {
+	addr string, certPEMblock []byte) {
 	// Make TransportCredentials
 	var creds credentials.TransportCredentials
 	var pubKey *rsa.PublicKey
-	if tls != "" {
+	if certPEMblock != nil {
 		var err error
-		creds, err = tlsCreds.NewCredentialsFromFile(tls, "*.cmix.rip")
+		creds, err = tlsCreds.NewCredentialsFromPEM(string(certPEMblock), "*.cmix.rip")
 		if err != nil {
 			jww.ERROR.Printf("Error forming transportCredentials: %+v", err)
 		}
 
-		pubKey, err = tlsCreds.NewPublicKeyFromFile(tls)
+		pubKey, err = tlsCreds.NewPublicKeyFromPEM(certPEMblock)
 		if err != nil {
 			jww.ERROR.Printf("Error extracting PublicKey: %+v", err)
 		}
@@ -148,18 +141,18 @@ func (m *ConnectionManager) GetGatewayConnection(id fmt.Stringer) pb.
 // Should this return an error if the connection doesn't exist and the
 // connection info is nil?
 func (m *ConnectionManager) ConnectToNode(id fmt.Stringer,
-	addr, tls string) {
+	addr string, certPEMblock []byte) {
 	// Make TransportCredentials
 	var creds credentials.TransportCredentials
 	var pubKey *rsa.PublicKey
-	if tls != "" {
+	if certPEMblock != nil {
 		var err error
-		creds, err = tlsCreds.NewCredentialsFromFile(tls, "*.cmix.rip")
+		creds, err = tlsCreds.NewCredentialsFromPEM(string(certPEMblock), "*.cmix.rip")
 		if err != nil {
 			jww.ERROR.Printf("Error forming transportCredentials: %+v", err)
 		}
 
-		pubKey, err = tlsCreds.NewPublicKeyFromFile(tls)
+		pubKey, err = tlsCreds.NewPublicKeyFromPEM(certPEMblock)
 		if err != nil {
 			jww.ERROR.Printf("Error extracting PublicKey: %+v", err)
 		}

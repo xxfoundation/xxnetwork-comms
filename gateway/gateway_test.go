@@ -47,18 +47,22 @@ func getNextGatewayAddress() string {
 
 // Tests whether the gateway can be connected to and run an RPC with TLS enabled
 func TestTLS(t *testing.T) {
+	keyPath := testkeys.GetNodeKeyPath()
+	keyData := testkeys.LoadFromPath(keyPath)
+	certPath := testkeys.GetNodeCertPath()
+	certData := testkeys.LoadFromPath(certPath)
+
 	GatewayAddress := getNextGatewayAddress()
 	gateway := StartGateway(GatewayAddress, NewImplementation(),
-		testkeys.GetGatewayCertPath(), testkeys.GetGatewayKeyPath())
+		certData, keyData)
 	defer gateway.Shutdown()
 	ServerAddress := getNextServerAddress()
 	server := node.StartNode(ServerAddress, node.NewImplementation(),
-		testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath())
+		certData, keyData)
 	defer server.Shutdown()
 	connID := MockID("gatewayToServer")
 	gateway.ConnectToNode(connID,
-		ServerAddress,
-		testkeys.GetNodeCertPath())
+		ServerAddress, certData)
 
 	err := gateway.PostNewBatch(connID, &mixmessages.Batch{})
 	if err != nil {
