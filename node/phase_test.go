@@ -8,7 +8,6 @@ package node
 
 import (
 	"context"
-	"gitlab.com/elixxir/comms/connect"
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/testkeys"
 	"io"
@@ -30,16 +29,15 @@ func TestPhase_StreamPostPhaseSendReceive(t *testing.T) {
 		return mockStreamPostPhase(server)
 	}
 	serverStreamReceiver := StartNode(servReceiverAddress, receiverImpl,
-		testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath(), "")
+		testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath())
 
 	// Init server sender
 	servSenderAddress := getNextServerAddress()
 	serverStreamSender := StartNode(servSenderAddress, NewImplementation(),
-		testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath(), "")
+		testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath())
 
 	// Get credentials and connect to node
-	creds := connect.NewCredentialsFromFile(testkeys.GetNodeCertPath(),
-		"*.cmix.rip")
+	creds := testkeys.GetNodeCertPath()
 
 	senderToReceiverID := MockID("sender2receiver")
 	receiverToSenderID := MockID("receiver2tosender")
@@ -124,16 +122,15 @@ func TestGetPostPhaseStream_ErrorsWhenContextCanceled(t *testing.T) {
 	// Init server receiver
 	servReceiverAddress := getNextServerAddress()
 	_ = StartNode(servReceiverAddress, NewImplementation(),
-		testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath(), "")
+		testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath())
 
 	// Init server sender
 	servSenderAddress := getNextServerAddress()
 	serverStreamSender := StartNode(servSenderAddress, NewImplementation(),
-		testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath(), "")
+		testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath())
 
 	// Get credentials and connect to node
-	creds := connect.NewCredentialsFromFile(testkeys.GetNodeCertPath(),
-		"*.cmix.rip")
+	creds := testkeys.GetNodeCertPath()
 
 	senderToReceiverID := MockID("sender2receiver")
 

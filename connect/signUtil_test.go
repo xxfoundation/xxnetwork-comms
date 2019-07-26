@@ -25,7 +25,6 @@ func TestSignVerify(t *testing.T) {
 
 	private := c.GetPrivateKey()
 	pub := private.Public().(*rsa.PublicKey)
-	c.SetPublicKey(pub)
 
 	message := pb.NodeTopology{
 		Topology: []*pb.NodeInfo{
@@ -42,13 +41,13 @@ func TestSignVerify(t *testing.T) {
 		t.Errorf("Error converting to Any type: %+v", err)
 	}
 
-	signed, err := c.SignMessage(wrappedMessage)
+	signed, err := c.SignMessage(wrappedMessage, "test_id")
 	if err != nil {
 		t.Errorf("Error signing message: %+v", err)
 	}
 
 	verified := pb.NodeTopology{}
-	err = c.VerifySignature(signed, &verified)
+	err = c.VerifySignature(signed, &verified, pub)
 	if err != nil {
 		t.Errorf("Error verifying signature")
 	}

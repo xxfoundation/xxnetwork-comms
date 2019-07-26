@@ -10,7 +10,7 @@ import (
 	"gitlab.com/elixxir/crypto/signature/rsa"
 )
 
-func (c *ConnectionManager) SignMessage(anyMessage *any.Any) (*pb.SignedMessage, error) {
+func (c *ConnectionManager) SignMessage(anyMessage *any.Any, id string) (*pb.SignedMessage, error) {
 
 	// Get hashed data
 	options := rsa.NewDefaultOptions()
@@ -30,12 +30,13 @@ func (c *ConnectionManager) SignMessage(anyMessage *any.Any) (*pb.SignedMessage,
 	signedMessage := pb.SignedMessage{
 		Message:   anyMessage,
 		Signature: signature,
+		ID:        id,
 	}
 
 	return &signedMessage, nil
 }
 
-func (c *ConnectionManager) VerifySignature(message *pb.SignedMessage, pb proto.Message) error {
+func (c *ConnectionManager) VerifySignature(message *pb.SignedMessage, pb proto.Message, pubKey *rsa.PublicKey) error {
 	err := ptypes.UnmarshalAny(message.Message, pb)
 	if err != nil {
 		jww.ERROR.Printf("Failed to unmarshal generic message, check your input message type: %+v", err)
@@ -48,7 +49,7 @@ func (c *ConnectionManager) VerifySignature(message *pb.SignedMessage, pb proto.
 	data := []byte(s)
 	hashed := hash.Sum(data)[len(data):]
 
-	err = rsa.Verify(c.GetPublicKey(), options.Hash, hashed, message.Signature, nil)
+	err = rsa.Verify(pubKey, options.Hash, hashed, message.Signature, nil)
 
 	return nil
 }

@@ -42,7 +42,7 @@ func (s *NodeComms) Shutdown() {
 // and a callback interface for server operations
 // with given path to public and private key for TLS connection
 func StartNode(localServer string, handler ServerHandler,
-	certPath, keyPath, publicKey string) *NodeComms {
+	certPath, keyPath string) *NodeComms {
 	var grpcServer *grpc.Server
 
 	// Listen on the given address
@@ -75,10 +75,6 @@ func StartNode(localServer string, handler ServerHandler,
 			grpc.MaxRecvMsgSize(math.MaxInt32))
 	}
 	mixmessageServer := NodeComms{gs: grpcServer, handler: handler, localServer: localServer}
-	err = mixmessageServer.ConnectionManager.SetPublicKeyPath(publicKey)
-	if err != nil {
-		jww.ERROR.Printf("Error: %+v", err)
-	}
 
 	go func() {
 		// Make the port close when the gateway dies

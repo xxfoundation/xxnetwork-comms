@@ -254,5 +254,6 @@ message Slot {
 
 message SignedMessage {
     bytes Signature = 1;
-    google.protobuf.Any Message = 2;
+    string ID = 2;
+    google.protobuf.Any Message = 3;
 }

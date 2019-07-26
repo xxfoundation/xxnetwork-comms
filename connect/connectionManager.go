@@ -10,10 +10,10 @@ package connect
 
 import (
 	"bytes"
-	"crypto/x509"
 	"fmt"
 	"github.com/pkg/errors"
 	"gitlab.com/elixxir/crypto/signature/rsa"
+	tlsCreds "gitlab.com/elixxir/crypto/tls"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/connectivity"
@@ -25,51 +25,15 @@ import (
 
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/elixxir/comms/utils"
 )
 
 // Stores information used to connect to a server
 type ConnectionInfo struct {
 	Address string
 	// You can also get the server name from Creds if you need it
-	Creds      credentials.TransportCredentials
-	Connection *grpc.ClientConn
-}
-
-// Create credentials from a PEM string
-// Intended for mobile clients that can't reasonably use a file
-func NewCredentialsFromPEM(certificate string, nameOverride string) credentials.TransportCredentials {
-	if nameOverride == "" {
-		jww.WARN.Printf("Failure to provide name override can result in" +
-			" TLS connection timeouts")
-	}
-	// Create cert pool
-	pool := x509.NewCertPool()
-	// Append the cert string
-	if !pool.AppendCertsFromPEM([]byte(certificate)) {
-		jww.FATAL.Panicf("Failed to parse certificate string!")
-	}
-	// Generate credentials from pool
-	return credentials.NewClientTLSFromCert(pool, nameOverride)
-}
-
-// Create credentials from a filename
-// Generally, prefer using this
-// The second parameter, serverNameOverride, should just be an empty string in
-// production
-func NewCredentialsFromFile(filePath string, nameOverride string) credentials.TransportCredentials {
-	if nameOverride == "" {
-		jww.WARN.Printf("Failure to provide name override can result in" +
-			" TLS connection timeouts")
-	}
-	// Convert to fully qualified path
-	filePath = utils.GetFullPath(filePath)
-	// Generate credentials from path
-	result, err := credentials.NewClientTLSFromFile(filePath, nameOverride)
-	if err != nil {
-		jww.FATAL.Panicf("Could not load TLS keys: %s", errors.New(err.Error()))
-	}
-	return result
+	Creds        credentials.TransportCredentials
+	RsaPublicKey *rsa.PublicKey
+	Connection   *grpc.ClientConn
 }
 
 type ConnectionManager struct {
@@ -87,9 +51,9 @@ const MAX_RETRIES = 5
 func MakeCreds(certPath, certPEM string,
 	serverNameOverride string) credentials.TransportCredentials {
 	if certPath != "" {
-		return NewCredentialsFromFile(certPath, serverNameOverride)
+		return tlsCreds.NewCredentialsFromFile(certPath, serverNameOverride)
 	} else if certPEM != "" {
-		return NewCredentialsFromPEM(certPEM, serverNameOverride)
+		return tlsCreds.NewCredentialsFromPEM(certPEM, serverNameOverride)
 	} else {
 		return nil
 	}
@@ -113,43 +77,28 @@ func (m *ConnectionManager) SetPrivateKey(path string) error {
 	return nil
 }
 
-// Get connection manager's public key
-func (m *ConnectionManager) GetPublicKey() *rsa.PublicKey {
-	return m.publicKey
-}
-
-// Set connection manager's public key
-func (m *ConnectionManager) SetPublicKeyPath(path string) error {
-	keyBytes, err := ioutil.ReadFile(path)
-	if err != nil {
-		jww.ERROR.Printf("Failed to read public key file at %s: %+v", path, err)
-		return err
-	}
-
-	key, err := rsa.LoadPublicKeyFromPem(keyBytes)
-	if err != nil {
-		jww.ERROR.Printf("Failed to form private key file from data at %s: %+v", path, err)
-		return err
-	}
-
-	m.publicKey = key
-	return nil
-}
-
-func (m *ConnectionManager) SetPublicKey(key *rsa.PublicKey) {
-	m.publicKey = key
-}
-
 // Get connection manager's private key
 func (m *ConnectionManager) GetPrivateKey() *rsa.PrivateKey {
 	return m.privateKey
 }
 
+func (m *ConnectionManager) GetConnectionInfo(id string) *ConnectionInfo {
+	return m.connections[id]
+}
+
 // Connect to a certain registration server
 // connectionInfo can be nil if the connection already exists for this id
 func (m *ConnectionManager) ConnectToRegistration(id fmt.Stringer,
-	addr string, tls credentials.TransportCredentials) {
-	m.connect(id.String(), addr, tls)
+	addr, tls string) {
+	// Make TransportCredentials
+	var creds credentials.TransportCredentials
+	var pubKey *rsa.PublicKey
+	if tls != "" {
+		creds = tlsCreds.NewCredentialsFromFile(tls, "*.cmix.rip")
+		pubKey = tlsCreds.NewPublicKeyFromFile(tls)
+	}
+	// NewCredentialsFromPem, NewCredentialsFromFile, NewP
+	m.connect(id.String(), addr, creds, pubKey)
 }
 
 func (m *ConnectionManager) GetRegistrationConnection(id fmt.Stringer) pb.
@@ -161,8 +110,15 @@ func (m *ConnectionManager) GetRegistrationConnection(id fmt.Stringer) pb.
 // Connect to a certain gateway
 // connectionInfo can be nil if the connection already exists for this id
 func (m *ConnectionManager) ConnectToGateway(id fmt.Stringer,
-	addr string, tls credentials.TransportCredentials) {
-	m.connect(id.String(), addr, tls)
+	addr, tls string) {
+	// Make TransportCredentials
+	var creds credentials.TransportCredentials
+	var pubKey *rsa.PublicKey
+	if tls != "" {
+		creds = tlsCreds.NewCredentialsFromFile(tls, "*.cmix.rip")
+		pubKey = tlsCreds.NewPublicKeyFromFile(tls)
+	}
+	m.connect(id.String(), addr, creds, pubKey)
 }
 
 func (m *ConnectionManager) GetGatewayConnection(id fmt.Stringer) pb.
@@ -176,8 +132,17 @@ func (m *ConnectionManager) GetGatewayConnection(id fmt.Stringer) pb.
 // Should this return an error if the connection doesn't exist and the
 // connection info is nil?
 func (m *ConnectionManager) ConnectToNode(id fmt.Stringer,
-	addr string, tls credentials.TransportCredentials) {
-	m.connect(id.String(), addr, tls)
+	addr, tls string) {
+	// Make TransportCredentials
+	var creds credentials.TransportCredentials
+	var pubKey *rsa.PublicKey
+	if tls != "" {
+		creds = tlsCreds.NewCredentialsFromFile(tls, "*.cmix.rip")
+		pubKey = tlsCreds.NewPublicKeyFromFile(tls)
+	}
+
+	// Modify me to take a tls object so we can get useful data from it
+	m.connect(id.String(), addr, creds, pubKey)
 }
 
 /*
@@ -216,7 +181,7 @@ func (m *ConnectionManager) get(id fmt.Stringer) *grpc.ClientConn {
 
 // Connect creates a connection
 func (m *ConnectionManager) connect(id string, addr string,
-	tls credentials.TransportCredentials) {
+	tls credentials.TransportCredentials, pubKey *rsa.PublicKey) {
 
 	// Create top level vars
 	var connection *grpc.ClientConn
@@ -266,9 +231,10 @@ func (m *ConnectionManager) connect(id string, addr string,
 		jww.INFO.Printf("Successfully connected to %s at %v", id, addr)
 		m.connectionsLock.Lock()
 		m.connections[id] = &ConnectionInfo{
-			Address:    addr,
-			Creds:      tls,
-			Connection: connection,
+			Address:      addr,
+			Creds:        tls,
+			Connection:   connection,
+			RsaPublicKey: pubKey,
 		}
 		m.connectionsLock.Unlock()
 	}

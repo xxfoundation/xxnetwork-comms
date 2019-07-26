@@ -26,9 +26,11 @@ func (s *NodeComms) AskOnline(ctx context.Context, msg *pb.Ping) (
 // Handle a broadcasted DownloadTopology event
 func (s *NodeComms) DownloadTopology(ctx context.Context,
 	msg *pb.SignedMessage) (*pb.Ack, error) {
+	sender := msg.ID
+	pubKey := s.ConnectionManager.GetConnectionInfo(sender).RsaPublicKey
 	// VERIFY AND UNWRAP
 	verified := pb.NodeTopology{}
-	err := s.ConnectionManager.VerifySignature(msg, &verified)
+	err := s.ConnectionManager.VerifySignature(msg, &verified, pubKey)
 	if err != nil {
 		jww.ERROR.Printf("Failed to verify message contents: %+v", err)
 		return nil, err

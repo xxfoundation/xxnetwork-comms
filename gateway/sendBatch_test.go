@@ -18,11 +18,11 @@ func TestPostNewBatch(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	gateway := StartGateway(GatewayAddress, NewImplementation(), "", "")
 	server := node.StartNode(ServerAddress, node.NewImplementation(),
-		"", "", "")
+		"", "")
 	defer gateway.Shutdown()
 	defer server.Shutdown()
 	connID := MockID("gatewayToServer")
-	gateway.ConnectToNode(connID, ServerAddress, nil)
+	gateway.ConnectToNode(connID, ServerAddress, "")
 
 	msgs := &pb.Batch{}
 	err := gateway.PostNewBatch(connID, msgs)
@@ -37,11 +37,11 @@ func TestGetRoundBufferInfo(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	gateway := StartGateway(GatewayAddress, NewImplementation(), "", "")
 	server := node.StartNode(ServerAddress, node.NewImplementation(),
-		"", "", "")
+		"", "")
 	defer gateway.Shutdown()
 	defer server.Shutdown()
 	connID := MockID("gatewayToServer")
-	gateway.ConnectToNode(connID, ServerAddress, nil)
+	gateway.ConnectToNode(connID, ServerAddress, "")
 
 	bufSize, err := gateway.GetRoundBufferInfo(connID)
 	if err != nil {
@@ -58,11 +58,11 @@ func TestGetCompletedBatch(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	gateway := StartGateway(GatewayAddress, NewImplementation(), "", "")
 	server := node.StartNode(ServerAddress, node.NewImplementation(),
-		"", "", "")
+		"", "")
 	defer gateway.Shutdown()
 	defer server.Shutdown()
 	connID := MockID("gatewayToServer")
-	gateway.ConnectToNode(connID, ServerAddress, nil)
+	gateway.ConnectToNode(connID, ServerAddress, "")
 
 	batch, err := gateway.GetCompletedBatch(connID)
 	if err != nil {

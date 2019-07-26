@@ -18,11 +18,11 @@ func TestSendRequestNonceMessage(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	gateway := StartGateway(GatewayAddress, NewImplementation(), "", "")
 	server := node.StartNode(ServerAddress, node.NewImplementation(),
-		"", "", "")
+		"", "")
 	defer gateway.Shutdown()
 	defer server.Shutdown()
 	connID := MockID("gatewayToServer")
-	gateway.ConnectToNode(connID, ServerAddress, nil)
+	gateway.ConnectToNode(connID, ServerAddress, "")
 
 	_, err := gateway.SendRequestNonceMessage(connID, &pb.NonceRequest{})
 	if err != nil {
@@ -36,11 +36,11 @@ func TestSendConfirmNonceMessage(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	gateway := StartGateway(GatewayAddress, NewImplementation(), "", "")
 	server := node.StartNode(ServerAddress, node.NewImplementation(),
-		"", "", "")
+		"", "")
 	defer gateway.Shutdown()
 	defer server.Shutdown()
 	connID := MockID("gatewayToServer")
-	gateway.ConnectToNode(connID, ServerAddress, nil)
+	gateway.ConnectToNode(connID, ServerAddress, "")
 
 	_, err := gateway.SendConfirmNonceMessage(connID, &pb.DSASignature{})
 	if err != nil {

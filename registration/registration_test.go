@@ -3,7 +3,6 @@ package registration
 import (
 	"fmt"
 	"gitlab.com/elixxir/comms/client"
-	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/testkeys"
 	"sync"
@@ -43,7 +42,7 @@ func TestTLS(t *testing.T) {
 	connID := MockID("clientToRegistration")
 	c.ConnectToRegistration(connID,
 		RegAddress,
-		connect.NewCredentialsFromFile(testkeys.GetNodeCertPath(), "*.cmix.rip"))
+		testkeys.GetNodeCertPath())
 
 	_, err := c.SendRegistrationMessage(connID, &pb.UserRegistration{})
 	if err != nil {

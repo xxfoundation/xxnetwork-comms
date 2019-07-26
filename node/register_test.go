@@ -15,13 +15,13 @@ import (
 func TestSendNodeRegistration(t *testing.T) {
 	RegAddress := getNextServerAddress()
 	server := StartNode(getNextServerAddress(), NewImplementation(),
-		"", "", "")
+		"", "")
 	reg := registration.StartRegistrationServer(RegAddress,
 		registration.NewImplementation(), "", "")
 	defer server.Shutdown()
 	defer reg.Shutdown()
 	connID := MockID("serverToPermissioning")
-	server.ConnectToRegistration(connID, RegAddress, nil)
+	server.ConnectToRegistration(connID, RegAddress, "")
 
 	msgs := &pb.NodeRegistration{}
 	err := server.SendNodeRegistration(connID, msgs)

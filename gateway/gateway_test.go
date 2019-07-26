@@ -8,7 +8,6 @@ package gateway
 
 import (
 	"fmt"
-	"gitlab.com/elixxir/comms/connect"
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/node"
 	"gitlab.com/elixxir/comms/testkeys"
@@ -54,13 +53,12 @@ func TestTLS(t *testing.T) {
 	defer gateway.Shutdown()
 	ServerAddress := getNextServerAddress()
 	server := node.StartNode(ServerAddress, node.NewImplementation(),
-		testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath(), "")
+		testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath())
 	defer server.Shutdown()
 	connID := MockID("gatewayToServer")
 	gateway.ConnectToNode(connID,
 		ServerAddress,
-		connect.NewCredentialsFromFile(testkeys.GetNodeCertPath(),
-			"*.cmix.rip"))
+		testkeys.GetNodeCertPath())
 
 	err := gateway.PostNewBatch(connID, &mixmessages.Batch{})
 	if err != nil {

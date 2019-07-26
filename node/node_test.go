@@ -8,7 +8,6 @@ package node
 
 import (
 	"fmt"
-	"gitlab.com/elixxir/comms/connect"
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/testkeys"
 	"sync"
@@ -38,12 +37,11 @@ func getNextServerAddress() string {
 func TestTLS(t *testing.T) {
 	serverAddress := getNextServerAddress()
 	server := StartNode(serverAddress, NewImplementation(),
-		testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath(), "")
+		testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath())
 	serverAddress2 := getNextServerAddress()
 	server2 := StartNode(serverAddress2, NewImplementation(),
-		testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath(), "")
-	creds := connect.NewCredentialsFromFile(testkeys.GetNodeCertPath(),
-		"*.cmix.rip")
+		testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath())
+	creds := testkeys.GetNodeCertPath()
 	connectionID := MockID("server2toserver")
 	// It might make more sense to call the RPC on the connection object
 	// that's returned from this
