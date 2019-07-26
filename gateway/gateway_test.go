@@ -69,3 +69,15 @@ func TestTLS(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestBadCerts(t *testing.T) {
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("The code did not panic")
+		}
+	}()
+	Address := getNextServerAddress()
+
+	_ = StartGateway(Address, NewImplementation(),
+		[]byte("bad cert"), []byte("bad key"))
+}

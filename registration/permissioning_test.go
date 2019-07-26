@@ -56,11 +56,34 @@ func TestSendNodeTopologyNilKeyError(t *testing.T) {
 	connID := MockID("permissioningToServer")
 	regID := MockID("Permissioning")
 
-	server.ConnectToRegistration(regID, RegAddress, nil)
-	reg.ConnectToNode(connID, ServerAddress, nil)
+	_ = server.ConnectToRegistration(regID, RegAddress, nil)
+	_ = reg.ConnectToNode(connID, ServerAddress, nil)
 
 	msgs := &pb.NodeTopology{}
 	err := reg.SendNodeTopology(connID, msgs)
+	if err == nil {
+		t.Errorf("SendNodeTopology: did not receive missing private key error")
+	}
+}
+
+func TestSendNodeTopologyBadMessageError(t *testing.T) {
+	ServerAddress := getNextServerAddress()
+	RegAddress := getNextServerAddress()
+
+	server := node.StartNode(ServerAddress, node.NewImplementation(),
+		nil, nil)
+	reg := StartRegistrationServer(RegAddress,
+		NewImplementation(), nil, nil)
+	defer server.Shutdown()
+	defer reg.Shutdown()
+
+	connID := MockID("permissioningToServer")
+	regID := MockID("Permissioning")
+
+	_ = server.ConnectToRegistration(regID, RegAddress, nil)
+	_ = reg.ConnectToNode(connID, ServerAddress, nil)
+
+	err := reg.SendNodeTopology(connID, nil)
 	if err == nil {
 		t.Errorf("SendNodeTopology: did not receive missing private key error")
 	}

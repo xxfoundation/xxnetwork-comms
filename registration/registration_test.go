@@ -45,11 +45,23 @@ func TestTLS(t *testing.T) {
 	defer rg.Shutdown()
 	var c client.ClientComms
 	connID := MockID("clientToRegistration")
-	c.ConnectToRegistration(connID,
+	_ = c.ConnectToRegistration(connID,
 		RegAddress, certData)
 
 	_, err := c.SendRegistrationMessage(connID, &pb.UserRegistration{})
 	if err != nil {
 		t.Errorf("RegistrationMessage: Error received: %s", err)
 	}
+}
+
+func TestBadCerts(t *testing.T) {
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("The code did not panic")
+		}
+	}()
+	RegAddress := getNextServerAddress()
+
+	_ = StartRegistrationServer(RegAddress, NewImplementation(),
+		[]byte("bad cert"), []byte("bad key"))
 }
