@@ -49,13 +49,13 @@ const MAX_RETRIES = 5
 
 // Convenience method to make a TransportCredentials for connecting
 func MakeCreds(certPath, certPEM string,
-	serverNameOverride string) credentials.TransportCredentials {
+	serverNameOverride string) (credentials.TransportCredentials, error) {
 	if certPath != "" {
 		return tlsCreds.NewCredentialsFromFile(certPath, serverNameOverride)
 	} else if certPEM != "" {
 		return tlsCreds.NewCredentialsFromPEM(certPEM, serverNameOverride)
 	} else {
-		return nil
+		return nil, errors.New("missing credentials")
 	}
 }
 
@@ -94,8 +94,16 @@ func (m *ConnectionManager) ConnectToRegistration(id fmt.Stringer,
 	var creds credentials.TransportCredentials
 	var pubKey *rsa.PublicKey
 	if tls != "" {
-		creds = tlsCreds.NewCredentialsFromFile(tls, "*.cmix.rip")
-		pubKey = tlsCreds.NewPublicKeyFromFile(tls)
+		var err error
+		creds, err = tlsCreds.NewCredentialsFromFile(tls, "*.cmix.rip")
+		if err != nil {
+			jww.ERROR.Printf("Error forming transportCredentials: %+v", err)
+		}
+
+		pubKey, err = tlsCreds.NewPublicKeyFromFile(tls)
+		if err != nil {
+			jww.ERROR.Printf("Error extracting PublicKey: %+v", err)
+		}
 	}
 	// NewCredentialsFromPem, NewCredentialsFromFile, NewP
 	m.connect(id.String(), addr, creds, pubKey)
@@ -115,8 +123,16 @@ func (m *ConnectionManager) ConnectToGateway(id fmt.Stringer,
 	var creds credentials.TransportCredentials
 	var pubKey *rsa.PublicKey
 	if tls != "" {
-		creds = tlsCreds.NewCredentialsFromFile(tls, "*.cmix.rip")
-		pubKey = tlsCreds.NewPublicKeyFromFile(tls)
+		var err error
+		creds, err = tlsCreds.NewCredentialsFromFile(tls, "*.cmix.rip")
+		if err != nil {
+			jww.ERROR.Printf("Error forming transportCredentials: %+v", err)
+		}
+
+		pubKey, err = tlsCreds.NewPublicKeyFromFile(tls)
+		if err != nil {
+			jww.ERROR.Printf("Error extracting PublicKey: %+v", err)
+		}
 	}
 	m.connect(id.String(), addr, creds, pubKey)
 }
@@ -137,8 +153,16 @@ func (m *ConnectionManager) ConnectToNode(id fmt.Stringer,
 	var creds credentials.TransportCredentials
 	var pubKey *rsa.PublicKey
 	if tls != "" {
-		creds = tlsCreds.NewCredentialsFromFile(tls, "*.cmix.rip")
-		pubKey = tlsCreds.NewPublicKeyFromFile(tls)
+		var err error
+		creds, err = tlsCreds.NewCredentialsFromFile(tls, "*.cmix.rip")
+		if err != nil {
+			jww.ERROR.Printf("Error forming transportCredentials: %+v", err)
+		}
+
+		pubKey, err = tlsCreds.NewPublicKeyFromFile(tls)
+		if err != nil {
+			jww.ERROR.Printf("Error extracting PublicKey: %+v", err)
+		}
 	}
 
 	// Modify me to take a tls object so we can get useful data from it
