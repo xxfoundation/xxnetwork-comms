@@ -45,18 +45,6 @@ type ConnectionManager struct {
 // Default maximum number of retries
 const MAX_RETRIES = 5
 
-// Convenience method to make a TransportCredentials for connecting
-func MakeCreds(certPath, certPEM string,
-	serverNameOverride string) (credentials.TransportCredentials, error) {
-	if certPath != "" {
-		return tlsCreds.NewCredentialsFromFile(certPath, serverNameOverride)
-	} else if certPEM != "" {
-		return tlsCreds.NewCredentialsFromPEM(certPEM, serverNameOverride)
-	} else {
-		return nil, errors.New("missing credentials")
-	}
-}
-
 // Set private key to data to a PEM block
 func (m *ConnectionManager) SetPrivateKey(data []byte) error {
 	key, err := rsa.LoadPrivateKeyFromPem(data)
