@@ -24,7 +24,7 @@ func (s *NodeComms) AskOnline(ctx context.Context, msg *pb.Ping) (
 	return &pb.Ack{}, nil
 }
 
-// Handle a broadcasted DownloadTopology event
+// DownloadTopology handles an incoming DownloadTopology event
 func (s *NodeComms) DownloadTopology(ctx context.Context,
 	msg *pb.SignedMessage) (*pb.Ack, error) {
 	// Get message sender ID

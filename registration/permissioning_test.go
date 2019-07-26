@@ -44,43 +44,19 @@ func TestSendNodeTopologyNilKeyError(t *testing.T) {
 	server := node.StartNode(ServerAddress, node.NewImplementation(),
 		"", "")
 	reg := StartRegistrationServer(RegAddress,
-		NewImplementation(), testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath())
+		NewImplementation(), "", "")
 	defer server.Shutdown()
 	defer reg.Shutdown()
 
 	connID := MockID("permissioningToServer")
 	regID := MockID("Permissioning")
 
-	server.ConnectToRegistration(regID, RegAddress, testkeys.GetNodeCertPath())
+	server.ConnectToRegistration(regID, RegAddress, "")
 	reg.ConnectToNode(connID, ServerAddress, "")
 
 	msgs := &pb.NodeTopology{}
 	err := reg.SendNodeTopology(connID, msgs)
 	if err == nil {
 		t.Errorf("SendNodeTopology: did not receive missing private key error")
-	}
-}
-
-func TestSendNodeTopologyBadKeyError(t *testing.T) {
-	ServerAddress := getNextServerAddress()
-	RegAddress := getNextServerAddress()
-
-	server := node.StartNode(ServerAddress, node.NewImplementation(),
-		"", "")
-	reg := StartRegistrationServer(RegAddress,
-		NewImplementation(), testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath())
-	defer server.Shutdown()
-	defer reg.Shutdown()
-
-	connID := MockID("permissioningToServer")
-	regID := MockID("Permissioning")
-
-	server.ConnectToRegistration(regID, RegAddress, testkeys.GetNodeCertPath())
-	reg.ConnectToNode(connID, ServerAddress, "")
-
-	msgs := &pb.NodeTopology{}
-	err := reg.SendNodeTopology(connID, msgs)
-	if err == nil {
-		t.Errorf("SendNodeTopology: did not receive bad private key error")
 	}
 }

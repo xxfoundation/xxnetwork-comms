@@ -29,6 +29,7 @@ func (r *RegistrationComms) SendNodeTopology(id fmt.Stringer,
 		return err
 	}
 
+	// Sign message
 	signedMessage, err := r.ConnectionManager.SignMessage(anyMessage, "Permissioning")
 	if err != nil {
 		jww.ERROR.Printf("Error signing message: %+v", err)
