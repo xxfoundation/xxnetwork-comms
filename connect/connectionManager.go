@@ -49,8 +49,8 @@ const MAX_RETRIES = 5
 func (m *ConnectionManager) SetPrivateKey(data []byte) error {
 	key, err := rsa.LoadPrivateKeyFromPem(data)
 	if err != nil {
-		jww.ERROR.Printf("Failed to form private key file from data at %s: %+v", data, err)
-		return err
+		s := fmt.Sprintf("Failed to form private key file from data at %s: %+v", data, err)
+		return errors.New(s)
 	}
 
 	m.privateKey = key
@@ -77,14 +77,14 @@ func (m *ConnectionManager) ConnectToRegistration(id fmt.Stringer,
 		var err error
 		creds, err = tlsCreds.NewCredentialsFromPEM(string(certPEMblock), "*.cmix.rip")
 		if err != nil {
-			jww.ERROR.Printf("Error forming transportCredentials: %+v", err)
-			return err
+			s := fmt.Sprintf("Error forming transportCredentials: %+v", err)
+			return errors.New(s)
 		}
 
 		pubKey, err = tlsCreds.NewPublicKeyFromPEM(certPEMblock)
 		if err != nil {
-			jww.ERROR.Printf("Error extracting PublicKey: %+v", err)
-			return err
+			s := fmt.Sprintf("Error extracting PublicKey: %+v", err)
+			return errors.New(s)
 		}
 	}
 	// NewCredentialsFromPem, NewCredentialsFromFile, NewP
@@ -109,14 +109,14 @@ func (m *ConnectionManager) ConnectToGateway(id fmt.Stringer,
 		var err error
 		creds, err = tlsCreds.NewCredentialsFromPEM(string(certPEMblock), "*.cmix.rip")
 		if err != nil {
-			jww.ERROR.Printf("Error forming transportCredentials: %+v", err)
-			return err
+			s := fmt.Sprintf("Error forming transportCredentials: %+v", err)
+			return errors.New(s)
 		}
 
 		pubKey, err = tlsCreds.NewPublicKeyFromPEM(certPEMblock)
 		if err != nil {
-			jww.ERROR.Printf("Error extracting PublicKey: %+v", err)
-			return err
+			s := fmt.Sprintf("Error extracting PublicKey: %+v", err)
+			return errors.New(s)
 		}
 	}
 	m.connect(id.String(), addr, creds, pubKey)
@@ -142,14 +142,14 @@ func (m *ConnectionManager) ConnectToNode(id fmt.Stringer,
 		var err error
 		creds, err = tlsCreds.NewCredentialsFromPEM(string(certPEMblock), "*.cmix.rip")
 		if err != nil {
-			jww.ERROR.Printf("Error forming transportCredentials: %+v", err)
-			return err
+			s := fmt.Sprintf("Error forming transportCredentials: %+v", err)
+			return errors.New(s)
 		}
 
 		pubKey, err = tlsCreds.NewPublicKeyFromPEM(certPEMblock)
 		if err != nil {
-			jww.ERROR.Printf("Error extracting PublicKey: %+v", err)
-			return err
+			s := fmt.Sprintf("Error extracting PublicKey: %+v", err)
+			return errors.New(s)
 		}
 	}
 
