@@ -9,11 +9,11 @@
 package gateway
 
 import (
-	"crypto/tls"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
+	"gitlab.com/elixxir/comms/utils"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/reflection"
@@ -41,7 +41,7 @@ func (g *GatewayComms) Shutdown() {
 // and a callback interface for gateway operations
 // with given path to public and private key for TLS connection
 func StartGateway(localServer string, handler Handler,
-	certPEMblock, keyPEMblock []byte) *GatewayComms {
+	certPath, keyPath string) *GatewayComms {
 	var grpcServer *grpc.Server
 
 	// Listen on the given address
@@ -52,15 +52,16 @@ func StartGateway(localServer string, handler Handler,
 	}
 
 	// If TLS was specified
-	if certPEMblock != nil && keyPEMblock != nil {
-		// Create the TLS certificate
-		x509cert, err2 := tls.X509KeyPair(certPEMblock, keyPEMblock)
+	if certPath != "" && keyPath != "" {
+
+		// Create the TLS credentials
+		certPath = utils.GetFullPath(certPath)
+		keyPath = utils.GetFullPath(keyPath)
+		creds, err2 := credentials.NewServerTLSFromFile(certPath, keyPath)
 		if err2 != nil {
 			err = errors.New(err2.Error())
 			jww.FATAL.Panicf("Could not load TLS keys: %+v", err)
 		}
-
-		creds := credentials.NewServerTLSFromCert(&x509cert)
 
 		// Create the gRPC server with TLS
 		jww.INFO.Printf("Starting gateway with TLS...")

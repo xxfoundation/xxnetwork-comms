@@ -9,7 +9,6 @@
 package node
 
 import (
-	"crypto/tls"
 	"github.com/pkg/errors"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
@@ -18,6 +17,7 @@ import (
 	"google.golang.org/grpc/reflection"
 
 	jww "github.com/spf13/jwalterweatherman"
+	"gitlab.com/elixxir/comms/utils"
 	"math"
 	"net"
 	"time"
@@ -42,7 +42,7 @@ func (s *NodeComms) Shutdown() {
 // and a callback interface for server operations
 // with given path to public and private key for TLS connection
 func StartNode(localServer string, handler ServerHandler,
-	certPEMblock, keyPEMblock []byte) *NodeComms {
+	certPath, keyPath string) *NodeComms {
 	var grpcServer *grpc.Server
 
 	// Listen on the given address
@@ -53,16 +53,15 @@ func StartNode(localServer string, handler ServerHandler,
 	}
 
 	// If TLS was specified
-	if certPEMblock != nil && keyPEMblock != nil {
+	if certPath != "" && keyPath != "" {
 		// Create the TLS credentials
-		// Create the TLS certificate
-		x509cert, err2 := tls.X509KeyPair(certPEMblock, keyPEMblock)
+		certPath = utils.GetFullPath(certPath)
+		keyPath = utils.GetFullPath(keyPath)
+		creds, err2 := credentials.NewServerTLSFromFile(certPath, keyPath)
 		if err2 != nil {
 			err = errors.New(err2.Error())
 			jww.FATAL.Panicf("Could not load TLS keys: %+v", err)
 		}
-
-		creds := credentials.NewServerTLSFromCert(&x509cert)
 
 		// Create the gRPC server with TLS
 		jww.INFO.Printf("Starting server with TLS...")
