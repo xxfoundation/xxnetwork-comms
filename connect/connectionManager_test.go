@@ -39,7 +39,7 @@ func TestConnectionManager_Disconnect(t *testing.T) {
 	id := "pear"
 	var manager ConnectionManager
 
-	manager.connect(id, address, nil, nil)
+	manager.connect(id, address, nil)
 
 	_, inMap := manager.connections[id]
 

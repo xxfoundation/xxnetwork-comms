@@ -22,7 +22,7 @@ func (m MockID) String() string {
 func TestSendPutMessage(t *testing.T) {
 	gatewayAddress := getNextGatewayAddress()
 	gw := gateway.StartGateway(gatewayAddress,
-		gateway.NewImplementation(), nil, nil)
+		gateway.NewImplementation(), "", "")
 	defer gw.Shutdown()
 	var c ClientComms
 	id := MockID("clientToGateway")
@@ -38,7 +38,7 @@ func TestSendPutMessage(t *testing.T) {
 func TestSendCheckMessages(t *testing.T) {
 	gatewayAddress := getNextGatewayAddress()
 	gw := gateway.StartGateway(gatewayAddress,
-		gateway.NewImplementation(), nil, nil)
+		gateway.NewImplementation(), "", "")
 	connectionID := MockID("clientToGateway")
 	var c ClientComms
 	c.ConnectToGateway(connectionID, gatewayAddress, nil)
@@ -54,7 +54,7 @@ func TestSendCheckMessages(t *testing.T) {
 func TestSendGetMessage(t *testing.T) {
 	gatewayAddress := getNextGatewayAddress()
 	gw := gateway.StartGateway(gatewayAddress,
-		gateway.NewImplementation(), nil, nil)
+		gateway.NewImplementation(), "", "")
 	connectionID := MockID("clientToGateway")
 	var c ClientComms
 	c.ConnectToGateway(connectionID, gatewayAddress, nil)
@@ -70,7 +70,7 @@ func TestSendGetMessage(t *testing.T) {
 func TestSendRequestNonceMessage(t *testing.T) {
 	gatewayAddress := getNextGatewayAddress()
 	gw := gateway.StartGateway(gatewayAddress,
-		gateway.NewImplementation(), nil, nil)
+		gateway.NewImplementation(), "", "")
 	defer gw.Shutdown()
 	connectionID := MockID("clientToGateway")
 	var c ClientComms
@@ -86,7 +86,7 @@ func TestSendRequestNonceMessage(t *testing.T) {
 func TestSendConfirmNonceMessage(t *testing.T) {
 	gatewayAddress := getNextGatewayAddress()
 	gw := gateway.StartGateway(gatewayAddress,
-		gateway.NewImplementation(), nil, nil)
+		gateway.NewImplementation(), "", "")
 	defer gw.Shutdown()
 	connectionID := MockID("clientToGateway")
 	var c ClientComms

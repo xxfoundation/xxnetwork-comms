@@ -8,7 +8,6 @@ package registration
 import (
 	"errors"
 	"fmt"
-	"github.com/golang/protobuf/ptypes"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
@@ -22,22 +21,8 @@ func (r *RegistrationComms) SendNodeTopology(id fmt.Stringer,
 	connection := r.GetNodeConnection(id)
 	ctx, cancel := connect.DefaultContext()
 
-	// Wrap message as a generic
-	anyMessage, err := ptypes.MarshalAny(message)
-	if err != nil {
-		jww.ERROR.Printf("Error marshalling NodeTopology to Any type: %+v", err)
-		return err
-	}
-
-	// Sign message
-	signedMessage, err := r.ConnectionManager.SignMessage(anyMessage, "Permissioning")
-	if err != nil {
-		jww.ERROR.Printf("Error signing message: %+v", err)
-		return err
-	}
-
 	// Send the message
-	_, err = connection.DownloadTopology(ctx, signedMessage)
+	_, err := connection.DownloadTopology(ctx, message)
 
 	// Make sure there are no errors with sending the message
 	if err != nil {

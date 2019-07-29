@@ -16,9 +16,9 @@ import (
 func TestSendRequestNonceMessage(t *testing.T) {
 	GatewayAddress := getNextGatewayAddress()
 	ServerAddress := getNextServerAddress()
-	gateway := StartGateway(GatewayAddress, NewImplementation(), nil, nil)
+	gateway := StartGateway(GatewayAddress, NewImplementation(), "", "")
 	server := node.StartNode(ServerAddress, node.NewImplementation(),
-		nil, nil)
+		"", "")
 	defer gateway.Shutdown()
 	defer server.Shutdown()
 	connID := MockID("gatewayToServer")
@@ -34,9 +34,9 @@ func TestSendRequestNonceMessage(t *testing.T) {
 func TestSendConfirmNonceMessage(t *testing.T) {
 	GatewayAddress := getNextGatewayAddress()
 	ServerAddress := getNextServerAddress()
-	gateway := StartGateway(GatewayAddress, NewImplementation(), nil, nil)
+	gateway := StartGateway(GatewayAddress, NewImplementation(), "", "")
 	server := node.StartNode(ServerAddress, node.NewImplementation(),
-		nil, nil)
+		"", "")
 	defer gateway.Shutdown()
 	defer server.Shutdown()
 	connID := MockID("gatewayToServer")
