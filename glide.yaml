@@ -7,7 +7,7 @@ import:
 - package: github.com/pkg/errors
 - package: github.com/grpc-ecosystem/go-grpc-middleware
 - package: gitlab.com/elixxir/crypto
-  version: master
+  version: updateMessageFormat
   repo: git@gitlab.com:elixxir/crypto
   vcs: git
 - package: gitlab.com/elixxir/primitives
