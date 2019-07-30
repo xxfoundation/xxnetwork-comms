@@ -43,12 +43,12 @@ func (s *NodeComms) SendPostPhase(id fmt.Stringer,
 // GetPostPhaseStreamClient gets the streaming client
 // using a header and returns the stream and the cancel context
 // if there are no connection errors
-func (nodeComms *NodeComms) GetPostPhaseStreamClient(id fmt.Stringer,
+func (s *NodeComms) GetPostPhaseStreamClient(id fmt.Stringer,
 	header pb.BatchInfo) (pb.Node_StreamPostPhaseClient, context.CancelFunc, error) {
 
-	ctx, cancel := nodeComms.getPostPhaseStreamContext(header)
+	ctx, cancel := s.getPostPhaseStreamContext(header)
 
-	streamClient, err := nodeComms.getPostPhaseStream(id, ctx)
+	streamClient, err := s.getPostPhaseStream(id, ctx)
 
 	if err != nil {
 		return nil, nil, err
@@ -61,7 +61,7 @@ func (nodeComms *NodeComms) GetPostPhaseStreamClient(id fmt.Stringer,
 // getPostPhaseStreamContext is given batchInfo PostPhase header
 // and creates a streaming context, adds the header to the context
 // and returns the context with the header and a cancel func
-func (nodeComms *NodeComms) getPostPhaseStreamContext(batchInfo pb.BatchInfo) (context.Context, context.CancelFunc) {
+func (s *NodeComms) getPostPhaseStreamContext(batchInfo pb.BatchInfo) (context.Context, context.CancelFunc) {
 
 	// Create streaming context so you can close stream later
 	ctx, cancel := connect.StreamingContext()
@@ -76,11 +76,11 @@ func (nodeComms *NodeComms) getPostPhaseStreamContext(batchInfo pb.BatchInfo) (c
 // getPostPhaseStream uses an id and streaming context to retrieve
 // a Node_StreamPostPhaseClient object otherwise it returns
 // an error if the connection is unavailable
-func (nodeComms *NodeComms) getPostPhaseStream(id fmt.Stringer, ctx context.Context) (
+func (s *NodeComms) getPostPhaseStream(id fmt.Stringer, ctx context.Context) (
 	pb.Node_StreamPostPhaseClient, error) {
 
 	// Attempt to connect to addr
-	c := nodeComms.GetNodeConnection(id)
+	c := s.GetNodeConnection(id)
 
 	// Get the stream client using streaming context
 	streamClient, err := c.StreamPostPhase(ctx,
