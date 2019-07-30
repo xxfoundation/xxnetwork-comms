@@ -8,6 +8,8 @@ syntax = "proto3";
 
 package mixmessages;
 
+import "google/protobuf/any.proto";
+
 // SERVER MESSAGE SERVICE ------------------------------------------------------
 
 service Node {
@@ -62,7 +64,7 @@ service Node {
     }
 
     // Obtains a network topology from the Permissioning Server
-    rpc DownloadTopology (NodeTopology) returns (Ack) {
+    rpc DownloadTopology (SignedMessage) returns (Ack) {
     }
 
     rpc GetMeasure (RoundInfo) returns (RoundMetrics) {
@@ -165,10 +167,10 @@ message DSAPublicKey {
 
 // RegisterNode to register a node with needed attributes
 message NodeRegistration {
-      bytes ID = 1;
-      string NodeTLSCert = 2;
-      string GatewayTLSCert = 3;
-      string RegistrationCode = 4;
+    bytes ID = 1;
+    string NodeTLSCert = 2;
+    string GatewayTLSCert = 3;
+    string RegistrationCode = 4;
 }
 
 // DSASignature is a digital signature for the digital signature algorithm
@@ -248,4 +250,10 @@ message Slot {
     bytes AssociatedData = 9;  // Len(Prime) bit length associated data
     bytes Salt = 10;           // Salt to identify message key
     repeated bytes KMACs = 11; // Individual Key MAC for each node in network
+}
+
+message SignedMessage {
+    bytes Signature = 1;
+    string ID = 2;
+    google.protobuf.Any Message = 3;
 }

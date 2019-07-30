@@ -16,7 +16,7 @@ import (
 func TestSendRegistrationMessage(t *testing.T) {
 	GatewayAddress := getNextGatewayAddress()
 	rg := registration.StartRegistrationServer(GatewayAddress,
-		registration.NewImplementation(), "", "")
+		registration.NewImplementation(), nil, nil)
 	defer rg.Shutdown()
 	connID := MockID("clientToRegistration")
 	var c ClientComms
