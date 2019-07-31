@@ -49,7 +49,7 @@ func NewImplementation() Handler {
 				return nil, nil, nil, nil
 			},
 			RegisterNode: func(ID []byte,
-				NodeCSR, GatewayTLSCert, RegistrationCode, Addr string) error {
+				NodeCsr, GatewayTLSCert, RegistrationCode, Addr string) error {
 				warn(um)
 				return nil
 			},
@@ -64,7 +64,7 @@ func (s *Implementation) RegisterUser(registrationCode string,
 }
 
 func (s *Implementation) RegisterNode(ID []byte,
-	NodeCSR, GatewayTLSCert, RegistrationCode, Addr string) error {
-	s.Functions.RegisterNode(ID, NodeCSR, GatewayTLSCert, RegistrationCode, Addr)
+	NodeCsr, GatewayTLSCert, RegistrationCode, Addr string) error {
+	s.Functions.RegisterNode(ID, NodeCsr, GatewayTLSCert, RegistrationCode, Addr)
 	return nil
 }
