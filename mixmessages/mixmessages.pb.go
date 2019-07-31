@@ -484,7 +484,7 @@ func (m *DSAPublicKey) GetG() []byte {
 // RegisterNode to register a node with needed attributes
 type NodeRegistration struct {
 	ID                   []byte   `protobuf:"bytes,1,opt,name=ID,proto3" json:"ID,omitempty"`
-	NodeTLSCert          string   `protobuf:"bytes,2,opt,name=NodeTLSCert,proto3" json:"NodeTLSCert,omitempty"`
+	NodeCsr              string   `protobuf:"bytes,2,opt,name=NodeCsr,proto3" json:"NodeCsr,omitempty"`
 	GatewayTLSCert       string   `protobuf:"bytes,3,opt,name=GatewayTLSCert,proto3" json:"GatewayTLSCert,omitempty"`
 	RegistrationCode     string   `protobuf:"bytes,4,opt,name=RegistrationCode,proto3" json:"RegistrationCode,omitempty"`
 	Port                 string   `protobuf:"bytes,5,opt,name=Port,proto3" json:"Port,omitempty"`
@@ -525,9 +525,9 @@ func (m *NodeRegistration) GetID() []byte {
 	return nil
 }
 
-func (m *NodeRegistration) GetNodeTLSCert() string {
+func (m *NodeRegistration) GetNodeCsr() string {
 	if m != nil {
-		return m.NodeTLSCert
+		return m.NodeCsr
 	}
 	return ""
 }
