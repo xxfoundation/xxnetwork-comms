@@ -46,6 +46,9 @@ func (s *NodeComms) DownloadTopology(ctx context.Context,
 			jww.ERROR.Printf("Failed to verify message contents: %+v", err)
 			return nil, err
 		}
+	} else {
+		s := "WARNING: No public key found for connection, proceeding without signature verification"
+		jww.WARN.Println(s)
 	}
 
 	s.handler.DownloadTopology(&original)
