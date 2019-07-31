@@ -23,9 +23,12 @@ func (m MockID) String() string {
 // Putting this test in an exterior package connect_test makes it simpler to run
 // test servers
 func TestConnectionManager_String(t *testing.T) {
-	server1 := node.StartNode(":5658", node.NewImplementation(), "", "")
+	keyPath := testkeys.GetNodeKeyPath()
+	certPath := testkeys.GetNodeCertPath()
+
+	server1 := node.StartNode(":5658", node.NewImplementation(), nil, nil)
 	server2 := node.StartNode(":5659", node.NewImplementation(),
-		testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath())
+		testkeys.LoadFromPath(certPath), testkeys.LoadFromPath(keyPath))
 	defer server1.Shutdown()
 	defer server2.Shutdown()
 	cm := &connect.ConnectionManager{}
@@ -33,7 +36,6 @@ func TestConnectionManager_String(t *testing.T) {
 	cm.ConnectToNode(MockID("credsNil"), ":5658", nil)
 	t.Log(cm)
 	cm.ConnectToNode(MockID("goodCreds"), ":5659",
-		connect.NewCredentialsFromFile(testkeys.GetNodeCertPath(),
-			"*.cmix.rip"))
+		testkeys.LoadFromPath(certPath))
 	t.Log(cm)
 }

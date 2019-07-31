@@ -1,6 +1,8 @@
 package testkeys
 
 import (
+	jww "github.com/spf13/jwalterweatherman"
+	"io/ioutil"
 	"path/filepath"
 	"runtime"
 )
@@ -26,4 +28,12 @@ func GetGatewayCertPath() string {
 
 func GetGatewayKeyPath() string {
 	return filepath.Join(getDirForFile(), "gateway.cmix.rip.key")
+}
+
+func LoadFromPath(path string) []byte {
+	data, err := ioutil.ReadFile(path)
+	if err != nil {
+		jww.FATAL.Panicf("***Check your key!***\nFailed to read file at %s: %+v", path, err)
+	}
+	return data
 }
