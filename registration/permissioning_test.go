@@ -112,3 +112,27 @@ func TestSendNodeTopologyNilMessage(t *testing.T) {
 		t.Errorf("Should not have tried to sign message, instead got: %+v", err)
 	}
 }
+
+func TestSendNodeTopologyBadSignature(t *testing.T) {
+	ServerAddress := getNextServerAddress()
+	RegAddress := getNextServerAddress()
+
+	server := node.StartNode(ServerAddress, node.NewImplementation(),
+		nil, nil)
+	reg := StartRegistrationServer(RegAddress,
+		NewImplementation(), nil, nil)
+	defer server.Shutdown()
+	defer reg.Shutdown()
+
+	connID := MockID("permissioningToServer")
+	regID := MockID("Permissioning")
+
+	_ = server.ConnectToRegistration(regID, RegAddress, nil)
+	_ = reg.ConnectToNode(connID, ServerAddress, nil)
+
+	msgs := &pb.NodeTopology{}
+	err := reg.SendNodeTopology(connID, msgs)
+	if err != nil {
+		t.Errorf("Should not have tried to sign message, instead got: %+v", err)
+	}
+}
