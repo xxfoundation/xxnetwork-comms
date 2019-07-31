@@ -65,6 +65,6 @@ func (s *Implementation) RegisterUser(registrationCode string,
 
 func (s *Implementation) RegisterNode(ID []byte,
 	NodeCsr, GatewayTLSCert, RegistrationCode, Addr string) error {
-	s.Functions.RegisterNode(ID, NodeCsr, GatewayTLSCert, RegistrationCode, Addr)
-	return nil
+	return 	s.Functions.RegisterNode(ID, NodeCsr, GatewayTLSCert, RegistrationCode, Addr)
+
 }
