@@ -88,3 +88,27 @@ func TestSendNodeTopologyBadMessageError(t *testing.T) {
 		t.Errorf("SendNodeTopology: did not receive missing private key error")
 	}
 }
+
+func TestSendNodeTopologyNilMessage(t *testing.T) {
+	ServerAddress := getNextServerAddress()
+	RegAddress := getNextServerAddress()
+
+	server := node.StartNode(ServerAddress, node.NewImplementation(),
+		nil, nil)
+	reg := StartRegistrationServer(RegAddress,
+		NewImplementation(), nil, nil)
+	defer server.Shutdown()
+	defer reg.Shutdown()
+
+	connID := MockID("permissioningToServer")
+	regID := MockID("Permissioning")
+
+	_ = server.ConnectToRegistration(regID, RegAddress, nil)
+	_ = reg.ConnectToNode(connID, ServerAddress, nil)
+
+	//sgs := &pb.NodeTopology{}
+	err := reg.SendNodeTopology(connID, nil)
+	if err == nil {
+		t.Errorf("Should not have tried to sign message, instead got: %+v", err)
+	}
+}
