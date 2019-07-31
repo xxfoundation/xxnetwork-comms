@@ -52,7 +52,7 @@ func (r *RegistrationComms) RegisterNode(ctx context.Context, msg *pb.NodeRegist
 	if err != nil {
 		return &pb.Ack{}, err
 	}
-	addr := fmt.Sprintf("%s:%d", host, msg.GetPort())
+	addr := fmt.Sprintf("%s:%s", host, msg.GetPort())
 
 	// Pass information for Node registration
 	err = r.handler.RegisterNode(msg.GetID(), msg.GetNodeCsr(),
