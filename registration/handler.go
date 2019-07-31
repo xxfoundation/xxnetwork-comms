@@ -17,14 +17,14 @@ type Handler interface {
 	RegisterUser(registrationCode string, Y, P, Q, G []byte) (hash,
 		R, S []byte, err error)
 	RegisterNode(ID []byte,
-		NodeCSR, GatewayTLSCert, RegistrationCode, Addr string) error
+		NodeCsr, GatewayTLSCert, RegistrationCode, Addr string) error
 }
 
 type implementationFunctions struct {
 	RegisterUser func(registrationCode string, Y, P, Q, G []byte) (hash,
 		R, S []byte, err error)
 	RegisterNode func(ID []byte,
-		NodeCSR, GatewayTLSCert, RegistrationCode, Addr string) error
+		NodeCsr, GatewayTLSCert, RegistrationCode, Addr string) error
 }
 
 // Implementation allows users of the client library to set the
