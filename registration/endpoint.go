@@ -9,18 +9,20 @@
 package registration
 
 import (
+	"fmt"
 	"github.com/pkg/errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc/peer"
+	"net"
 )
 
 // RegisterUser event handler which registers a user with the platform
-func (s *RegistrationComms) RegisterUser(ctx context.Context, msg *pb.UserRegistration) (
+func (r *RegistrationComms) RegisterUser(ctx context.Context, msg *pb.UserRegistration) (
 	*pb.UserRegistrationConfirmation, error) {
 	// Obtain the signed key by passing to registration server
 	pubKey := msg.GetClient()
-	hash, R, S, err := s.handler.RegisterUser(msg.
+	hash, R, S, err := r.handler.RegisterUser(msg.
 		GetRegistrationCode(), pubKey.GetY(), pubKey.GetP(),
 		pubKey.GetQ(), pubKey.GetG())
 	// Obtain the error message, if any
@@ -42,10 +44,22 @@ func (s *RegistrationComms) RegisterUser(ctx context.Context, msg *pb.UserRegist
 }
 
 // Handle a node registration event
-func (s *RegistrationComms) RegisterNode(ctx context.Context, msg *pb.NodeRegistration) (
+func (r *RegistrationComms) RegisterNode(ctx context.Context, msg *pb.NodeRegistration) (
 	*pb.Ack, error) {
+	// Obtain peer IP address
 	info, _ := peer.FromContext(ctx)
+	host, _, err := net.SplitHostPort(info.Addr.String())
+	if err != nil {
+		return &pb.Ack{}, err
+	}
+	addr := fmt.Sprintf("%s:%d", host, msg.GetPort())
 
+<<<<<<< HEAD
 	err := s.handler.RegisterNode(msg.GetID(), msg.GetNodeCSR(), msg.GetGatewayTLSCert(), msg.GetRegistrationCode(), info.Addr.String())
+=======
+	// Pass information for Node registration
+	err = r.handler.RegisterNode(msg.GetID(), msg.GetNodeTLSCert(),
+		msg.GetGatewayTLSCert(), msg.GetRegistrationCode(), addr)
+>>>>>>> bf752cba8c312f83d73dccfaa32a0ee1c8365350
 	return &pb.Ack{}, err
 }

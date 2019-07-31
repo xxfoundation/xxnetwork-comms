@@ -167,10 +167,11 @@ message DSAPublicKey {
 
 // RegisterNode to register a node with needed attributes
 message NodeRegistration {
-    bytes ID = 1;
-    string NodeTLSCert = 2;
-    string GatewayTLSCert = 3;
-    string RegistrationCode = 4;
+      bytes ID = 1;
+      string NodeCSR = 2;
+      string GatewayTLSCert = 3;
+      string RegistrationCode = 4;
+      int32 Port = 5;
 }
 
 // DSASignature is a digital signature for the digital signature algorithm

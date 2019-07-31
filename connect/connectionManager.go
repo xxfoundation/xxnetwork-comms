@@ -215,8 +215,7 @@ func (m *ConnectionManager) connect(id string, addr string,
 	for numRetries := 0; numRetries < maxRetries && !isConnectionGood(connection); numRetries++ {
 
 		jww.DEBUG.Printf("Trying to connect to %v", addr)
-		ctx, cancel := context.WithTimeout(context.Background(),
-			100000*time.Millisecond)
+		ctx, cancel := DefaultContext()
 
 		// Create the connection
 		connection, err = grpc.DialContext(ctx, addr,
