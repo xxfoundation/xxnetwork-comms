@@ -4,9 +4,9 @@ import (
 	"crypto/rand"
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes/any"
+	"github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/crypto/signature/rsa"
-	"golang.org/x/crypto/openpgp/errors"
 )
 
 // SignMessage takes a generic-type message and an ID, returns a SignedMessage
@@ -20,7 +20,12 @@ func (c *ConnectionManager) SignMessage(anyMessage *any.Any, id string) (*pb.Sig
 
 	key := c.GetPrivateKey()
 	if key == nil {
-		return nil, errors.InvalidArgumentError("Connection manager: nil private key")
+		jwalterweatherman.WARN.Printf("Private key was nil, sending message unsigned")
+		return &pb.SignedMessage{
+			Message: anyMessage,
+			Signature: nil,
+			ID: id,
+		}, nil
 	}
 
 	// Sign the thing

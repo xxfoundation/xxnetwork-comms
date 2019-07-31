@@ -40,10 +40,12 @@ func (s *NodeComms) DownloadTopology(ctx context.Context,
 	}
 
 	// Verify message contents
-	err = s.ConnectionManager.VerifySignature(msg, &original, pubKey)
-	if err != nil {
-		jww.ERROR.Printf("Failed to verify message contents: %+v", err)
-		return nil, err
+	if pubKey != nil {
+		err = s.ConnectionManager.VerifySignature(msg, &original, pubKey)
+		if err != nil {
+			jww.ERROR.Printf("Failed to verify message contents: %+v", err)
+			return nil, err
+		}
 	}
 
 	s.handler.DownloadTopology(&original)

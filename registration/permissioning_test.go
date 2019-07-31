@@ -42,7 +42,7 @@ func TestSendNodeTopology(t *testing.T) {
 	}
 }
 
-func TestSendNodeTopologyNilKeyError(t *testing.T) {
+func TestSendNodeTopologyNilKey(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	RegAddress := getNextServerAddress()
 
@@ -61,8 +61,8 @@ func TestSendNodeTopologyNilKeyError(t *testing.T) {
 
 	msgs := &pb.NodeTopology{}
 	err := reg.SendNodeTopology(connID, msgs)
-	if err == nil {
-		t.Errorf("SendNodeTopology: did not receive missing private key error")
+	if err != nil {
+		t.Errorf("Should not have tried to sign message, instead got: %+v", err)
 	}
 }
 
