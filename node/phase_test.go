@@ -8,7 +8,6 @@ package node
 
 import (
 	"context"
-	"gitlab.com/elixxir/comms/connect"
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/testkeys"
 	"io"
@@ -23,6 +22,11 @@ import (
 // received batch to compare with expected values of batch.
 func TestPhase_StreamPostPhaseSendReceive(t *testing.T) {
 
+	keyPath := testkeys.GetNodeKeyPath()
+	keyData := testkeys.LoadFromPath(keyPath)
+	certPath := testkeys.GetNodeCertPath()
+	certData := testkeys.LoadFromPath(certPath)
+
 	// Init server receiver
 	servReceiverAddress := getNextServerAddress()
 	receiverImpl := NewImplementation()
@@ -30,23 +34,20 @@ func TestPhase_StreamPostPhaseSendReceive(t *testing.T) {
 		return mockStreamPostPhase(server)
 	}
 	serverStreamReceiver := StartNode(servReceiverAddress, receiverImpl,
-		testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath())
+		certData, keyData)
 
 	// Init server sender
 	servSenderAddress := getNextServerAddress()
 	serverStreamSender := StartNode(servSenderAddress, NewImplementation(),
-		testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath())
+		certData, keyData)
 
 	// Get credentials and connect to node
-	creds := connect.NewCredentialsFromFile(testkeys.GetNodeCertPath(),
-		"*.cmix.rip")
-
 	senderToReceiverID := MockID("sender2receiver")
 	receiverToSenderID := MockID("receiver2tosender")
 	// It might make more sense to call the RPC on the connection object
 	// that's returned from this
-	serverStreamSender.ConnectToNode(senderToReceiverID, servReceiverAddress, creds)
-	serverStreamSender.ConnectToNode(receiverToSenderID, servSenderAddress, creds)
+	serverStreamSender.ConnectToNode(senderToReceiverID, servReceiverAddress, certData)
+	serverStreamSender.ConnectToNode(receiverToSenderID, servSenderAddress, certData)
 
 	// Reset TLS-related global variables
 	defer serverStreamReceiver.Shutdown()
@@ -121,23 +122,25 @@ func TestPhase_StreamPostPhaseSendReceive(t *testing.T) {
 
 // getPostPhaseStream should error when context canceled before call
 func TestGetPostPhaseStream_ErrorsWhenContextCanceled(t *testing.T) {
+	keyPath := testkeys.GetNodeKeyPath()
+	keyData := testkeys.LoadFromPath(keyPath)
+	certPath := testkeys.GetNodeCertPath()
+	certData := testkeys.LoadFromPath(certPath)
+
 	// Init server receiver
 	servReceiverAddress := getNextServerAddress()
 	_ = StartNode(servReceiverAddress, NewImplementation(),
-		testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath())
+		certData, keyData)
 
 	// Init server sender
 	servSenderAddress := getNextServerAddress()
 	serverStreamSender := StartNode(servSenderAddress, NewImplementation(),
-		testkeys.GetNodeCertPath(), testkeys.GetNodeKeyPath())
+		certData, keyData)
 
 	// Get credentials and connect to node
-	creds := connect.NewCredentialsFromFile(testkeys.GetNodeCertPath(),
-		"*.cmix.rip")
-
 	senderToReceiverID := MockID("sender2receiver")
 
-	serverStreamSender.ConnectToNode(senderToReceiverID, servReceiverAddress, creds)
+	serverStreamSender.ConnectToNode(senderToReceiverID, servReceiverAddress, certData)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()

@@ -9,11 +9,11 @@
 package registration
 
 import (
+	"crypto/tls"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/elixxir/comms/utils"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/reflection"
@@ -39,7 +39,7 @@ func (r *RegistrationComms) Shutdown() {
 // and a callback interface for server operations
 // with given path to public and private key for TLS connection
 func StartRegistrationServer(localServer string, handler Handler,
-	certPath, keyPath string) *RegistrationComms {
+	certPEMblock, keyPEMblock []byte) *RegistrationComms {
 	var grpcServer *grpc.Server
 
 	// Listen on the given address
@@ -50,15 +50,15 @@ func StartRegistrationServer(localServer string, handler Handler,
 	}
 
 	// If TLS was specified
-	if certPath != "" && keyPath != "" {
-		// Create the TLS credentials
-		certPath = utils.GetFullPath(certPath)
-		keyPath = utils.GetFullPath(keyPath)
-		creds, err2 := credentials.NewServerTLSFromFile(certPath, keyPath)
+	if certPEMblock != nil && keyPEMblock != nil {
+		// Create the TLS certificate
+		x509cert, err2 := tls.X509KeyPair(certPEMblock, keyPEMblock)
 		if err2 != nil {
 			err = errors.New(err2.Error())
 			jww.FATAL.Panicf("Could not load TLS keys: %+v", err)
 		}
+
+		creds := credentials.NewServerTLSFromCert(&x509cert)
 
 		// Create the gRPC server with TLS
 		jww.INFO.Printf("Starting server with TLS...")
@@ -72,6 +72,10 @@ func StartRegistrationServer(localServer string, handler Handler,
 			grpc.MaxRecvMsgSize(math.MaxInt32))
 	}
 	registrationServer := RegistrationComms{gs: grpcServer, handler: handler}
+	err = registrationServer.SetPrivateKey(keyPEMblock)
+	if err != nil {
+		jww.ERROR.Printf("Error setting RSA private key: %+v", err)
+	}
 
 	go func() {
 		// Make the port close when the gateway dies
