@@ -102,7 +102,7 @@ message NodeInfo {
     bytes Id = 1;
     uint32 Index=2;
     string IpAddress = 3;
-    string TLSCert = 4;
+    string TlsCert = 4;
 }
 
 message RoundMetrics {
@@ -168,7 +168,7 @@ message DSAPublicKey {
 // RegisterNode to register a node with needed attributes
 message NodeRegistration {
       bytes ID = 1;
-      string NodeCSR = 2;
+      string NodeCsr = 2;
       string GatewayTLSCert = 3;
       string RegistrationCode = 4;
       int32 Port = 5;
