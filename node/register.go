@@ -14,11 +14,11 @@ import (
 )
 
 // Send a message to the gateway
-func (r *NodeComms) SendNodeRegistration(id fmt.Stringer,
+func (s *NodeComms) SendNodeRegistration(id fmt.Stringer,
 	message *pb.NodeRegistration) error {
 
 	// Attempt to connect to addr
-	connection := r.GetRegistrationConnection(id)
+	connection := s.GetRegistrationConnection(id)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
