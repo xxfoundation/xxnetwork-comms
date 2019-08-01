@@ -40,18 +40,29 @@ func (s *NodeComms) DownloadTopology(ctx context.Context,
 	}
 
 	// Verify message contents
+	var verified bool
 	if pubKey != nil {
 		err = s.ConnectionManager.VerifySignature(msg, &original, pubKey)
 		if err != nil {
 			jww.ERROR.Printf("Failed to verify message contents: %+v", err)
 			return nil, err
 		}
+		verified = true
 	} else {
 		s := "WARNING: No public key found for connection, proceeding without signature verification"
 		jww.WARN.Println(s)
+		verified = false
 	}
 
-	s.handler.DownloadTopology(&original)
+	senderAddress := s.ConnectionManager.GetConnectionInfo(msg.ID).Address
+	ci := MessageInfo{
+		Signature:      msg.Signature,
+		ValidSignature: verified,
+		Address:        senderAddress,
+		SenderId:       msg.ID,
+	}
+
+	s.handler.DownloadTopology(&original, &ci)
 	return &pb.Ack{}, nil
 }
 
