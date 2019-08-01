@@ -14,13 +14,17 @@ import (
 
 // Smoke test SendRequestNonceMessage
 func TestSendRequestNonceMessage(t *testing.T) {
-	gwShutDown := StartGateway(GatewayAddress, NewImplementation(), "", "")
-	nodeShutDown := node.StartServer(ServerAddress, node.NewImplementation(),
-		"", "")
-	defer gwShutDown()
-	defer nodeShutDown()
+	GatewayAddress := getNextGatewayAddress()
+	ServerAddress := getNextServerAddress()
+	gateway := StartGateway(GatewayAddress, NewImplementation(), nil, nil)
+	server := node.StartNode(ServerAddress, node.NewImplementation(),
+		nil, nil)
+	defer gateway.Shutdown()
+	defer server.Shutdown()
+	connID := MockID("gatewayToServer")
+	gateway.ConnectToNode(connID, ServerAddress, nil)
 
-	_, err := SendRequestNonceMessage(ServerAddress, &pb.RequestNonceMessage{})
+	_, err := gateway.SendRequestNonceMessage(connID, &pb.NonceRequest{})
 	if err != nil {
 		t.Errorf("SendRequestNonceMessage: Error received: %s", err)
 	}
@@ -28,13 +32,17 @@ func TestSendRequestNonceMessage(t *testing.T) {
 
 // Smoke test SendConfirmNonceMessage
 func TestSendConfirmNonceMessage(t *testing.T) {
-	gwShutDown := StartGateway(GatewayAddress, NewImplementation(), "", "")
-	nodeShutDown := node.StartServer(ServerAddress, node.NewImplementation(),
-		"", "")
-	defer gwShutDown()
-	defer nodeShutDown()
+	GatewayAddress := getNextGatewayAddress()
+	ServerAddress := getNextServerAddress()
+	gateway := StartGateway(GatewayAddress, NewImplementation(), nil, nil)
+	server := node.StartNode(ServerAddress, node.NewImplementation(),
+		nil, nil)
+	defer gateway.Shutdown()
+	defer server.Shutdown()
+	connID := MockID("gatewayToServer")
+	gateway.ConnectToNode(connID, ServerAddress, nil)
 
-	_, err := SendConfirmNonceMessage(ServerAddress, &pb.ConfirmNonceMessage{})
+	_, err := gateway.SendConfirmNonceMessage(connID, &pb.DSASignature{})
 	if err != nil {
 		t.Errorf("SendConfirmNonceMessage: Error received: %s", err)
 	}

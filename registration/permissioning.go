@@ -3,35 +3,48 @@
 //                                                                             /
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
-
-// Contains client -> registration server functionality
-
-package client
+package registration
 
 import (
+	"errors"
 	"fmt"
-	"github.com/pkg/errors"
+	"github.com/golang/protobuf/ptypes"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 )
 
-// Send a RegisterUserMessage to the RegistrationServer
-func (c *ClientComms) SendRegistrationMessage(id fmt.Stringer,
-	message *pb.UserRegistration) (*pb.UserRegistrationConfirmation, error) {
+// Send a message to the gateway
+func (r *RegistrationComms) SendNodeTopology(id fmt.Stringer,
+	message *pb.NodeTopology) error {
+
 	// Attempt to connect to addr
-	connection := c.GetRegistrationConnection(id)
+	connection := r.GetNodeConnection(id)
 	ctx, cancel := connect.DefaultContext()
 
+	// Wrap message as a generic
+	anyMessage, err := ptypes.MarshalAny(message)
+	if err != nil {
+		jww.ERROR.Printf("Error marshalling NodeTopology to Any type: %+v", err)
+		return err
+	}
+
+	// Sign message
+	signedMessage, err := r.ConnectionManager.SignMessage(anyMessage, "Permissioning")
+	if err != nil {
+		jww.ERROR.Printf("Error signing message: %+v", err)
+		return err
+	}
+
 	// Send the message
-	response, err := connection.RegisterUser(ctx, message)
+	_, err = connection.DownloadTopology(ctx, signedMessage)
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
 		err = errors.New(err.Error())
-		jww.ERROR.Printf("RegistrationMessage: Error received: %+v", err)
+		jww.ERROR.Printf("SendNodeToplogy: Error received: %+v", err)
 	}
 
 	cancel()
-	return response, err
+	return err
 }

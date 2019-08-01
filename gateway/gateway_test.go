@@ -8,19 +8,76 @@ package gateway
 
 import (
 	"fmt"
-	"math/rand"
-	"os"
+	"gitlab.com/elixxir/comms/mixmessages"
+	"gitlab.com/elixxir/comms/node"
+	"gitlab.com/elixxir/comms/testkeys"
+	"sync"
 	"testing"
-	"time"
 )
 
-var GatewayAddress = ""
-var ServerAddress = ""
+var serverPortLock sync.Mutex
+var serverPort = 5500
 
-// This sets up a dummy/mock gateway instance for testing purposes
-func TestMain(m *testing.M) {
-	rand.Seed(time.Now().Unix())
-	GatewayAddress = fmt.Sprintf("localhost:%d", 6001)
-	ServerAddress = fmt.Sprintf("localhost:%d", 5001)
-	os.Exit(m.Run())
+type MockID string
+
+func (m MockID) String() string {
+	return string(m)
+}
+
+func getNextServerAddress() string {
+	serverPortLock.Lock()
+	defer func() {
+		serverPort++
+		serverPortLock.Unlock()
+	}()
+	return fmt.Sprintf("0.0.0.0:%d", serverPort)
+}
+
+var gatewayPortLock sync.Mutex
+var gatewayPort = 5600
+
+func getNextGatewayAddress() string {
+	gatewayPortLock.Lock()
+	defer func() {
+		gatewayPort++
+		gatewayPortLock.Unlock()
+	}()
+	return fmt.Sprintf("0.0.0.0:%d", gatewayPort)
+}
+
+// Tests whether the gateway can be connected to and run an RPC with TLS enabled
+func TestTLS(t *testing.T) {
+	keyPath := testkeys.GetNodeKeyPath()
+	keyData := testkeys.LoadFromPath(keyPath)
+	certPath := testkeys.GetNodeCertPath()
+	certData := testkeys.LoadFromPath(certPath)
+
+	GatewayAddress := getNextGatewayAddress()
+	gateway := StartGateway(GatewayAddress, NewImplementation(),
+		certData, keyData)
+	defer gateway.Shutdown()
+	ServerAddress := getNextServerAddress()
+	server := node.StartNode(ServerAddress, node.NewImplementation(),
+		certData, keyData)
+	defer server.Shutdown()
+	connID := MockID("gatewayToServer")
+	gateway.ConnectToNode(connID,
+		ServerAddress, certData)
+
+	err := gateway.PostNewBatch(connID, &mixmessages.Batch{})
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+func TestBadCerts(t *testing.T) {
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("The code did not panic")
+		}
+	}()
+	Address := getNextServerAddress()
+
+	_ = StartGateway(Address, NewImplementation(),
+		[]byte("bad cert"), []byte("bad key"))
 }

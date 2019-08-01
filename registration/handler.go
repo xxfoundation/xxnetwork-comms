@@ -14,15 +14,17 @@ import (
 )
 
 type Handler interface {
-	// RegistrationServer interface for RegisterUser Messages
 	RegisterUser(registrationCode string, Y, P, Q, G []byte) (hash,
 		R, S []byte, err error)
+	RegisterNode(ID []byte,
+		NodeCsr, GatewayTLSCert, RegistrationCode, Addr string) error
 }
 
 type implementationFunctions struct {
-	// RegistrationServer interface for RegisterUser Messages
 	RegisterUser func(registrationCode string, Y, P, Q, G []byte) (hash,
 		R, S []byte, err error)
+	RegisterNode func(ID []byte,
+		NodeCsr, GatewayTLSCert, RegistrationCode, Addr string) error
 }
 
 // Implementation allows users of the client library to set the
@@ -46,6 +48,11 @@ func NewImplementation() Handler {
 				warn(um)
 				return nil, nil, nil, nil
 			},
+			RegisterNode: func(ID []byte,
+				NodeCsr, GatewayTLSCert, RegistrationCode, Addr string) error {
+				warn(um)
+				return nil
+			},
 		},
 	})
 }
@@ -54,4 +61,10 @@ func NewImplementation() Handler {
 func (s *Implementation) RegisterUser(registrationCode string,
 	Y, P, Q, G []byte) (hash, R, S []byte, err error) {
 	return s.Functions.RegisterUser(registrationCode, Y, P, Q, G)
+}
+
+func (s *Implementation) RegisterNode(ID []byte,
+	NodeCsr, GatewayTLSCert, RegistrationCode, Addr string) error {
+	return 	s.Functions.RegisterNode(ID, NodeCsr, GatewayTLSCert, RegistrationCode, Addr)
+
 }

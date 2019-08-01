@@ -9,17 +9,20 @@
 package gateway
 
 import (
+	"fmt"
+	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 )
 
 // Send a RequestNonceMessage to the server
-func SendRequestNonceMessage(addr string, message *pb.RequestNonceMessage) (
-	*pb.NonceMessage, error) {
+func (g *GatewayComms) SendRequestNonceMessage(id fmt.Stringer,
+	message *pb.NonceRequest) (
+	*pb.Nonce, error) {
 
 	// Attempt to connect to addr
-	c := connect.ConnectToNode(addr)
+	c := g.GetNodeConnection(id)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
@@ -27,7 +30,8 @@ func SendRequestNonceMessage(addr string, message *pb.RequestNonceMessage) (
 
 	// Handle comms errors
 	if err != nil {
-		jww.ERROR.Printf("RequestNonceMessage: Error received: %s", err)
+		err = errors.New(err.Error())
+		jww.ERROR.Printf("RequestNonceMessage: Error received: %+v", err)
 	}
 
 	// Return the NonceMessage
@@ -36,19 +40,21 @@ func SendRequestNonceMessage(addr string, message *pb.RequestNonceMessage) (
 }
 
 // Send a ConfirmNonceMessage to the server
-func SendConfirmNonceMessage(addr string, message *pb.ConfirmNonceMessage) (
+func (g *GatewayComms) SendConfirmNonceMessage(id fmt.Stringer,
+	message *pb.DSASignature) (
 	*pb.RegistrationConfirmation, error) {
 
 	// Attempt to connect to addr
-	c := connect.ConnectToNode(addr)
+	c := g.GetNodeConnection(id)
 	ctx, cancel := connect.DefaultContext()
 
 	// Send the message
-	response, err := c.ConfirmNonce(ctx, message)
+	response, err := c.ConfirmRegistration(ctx, message)
 
 	// Handle comms errors
 	if err != nil {
-		jww.ERROR.Printf("ConfirmNonceMessage: Error received: %s", err)
+		err = errors.New(err.Error())
+		jww.ERROR.Printf("ConfirmNonceMessage: Error received: %+v", err)
 	}
 
 	// Return the RegistrationConfirmation

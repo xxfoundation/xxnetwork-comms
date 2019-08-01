@@ -15,95 +15,78 @@ import (
 )
 
 type ServerHandler interface {
-	// Server Interface for round trip ping
-	RoundtripPing(*mixmessages.TimePing)
-	// Server Interface for ServerMetrics Messages
-	ServerMetrics(*mixmessages.ServerMetricsMessage)
-
-	// Server Interface for starting New Rounds
-	NewRound(RoundID string)
-	// Server interface for Starting a new round
-	StartRound(message *mixmessages.InputMessages)
+	// Server interface for starting New Rounds
+	CreateNewRound(message *mixmessages.RoundInfo) error
+	// Server interface for sending a new batch
+	PostNewBatch(message *mixmessages.Batch) error
+	// Server interface for broadcasting when realtime is complete
+	FinishRealtime(message *mixmessages.RoundInfo) error
 	// GetRoundBufferInfo returns # of available precomputations
 	GetRoundBufferInfo() (int, error)
-	// Server Interface for SetPublicKey
-	SetPublicKey(RoundID string, PublicKey []byte)
 
-	// Server Interface for the PrecompDecrypt Messages
-	PrecompDecrypt(*mixmessages.PrecompDecryptMessage)
-	// Server Interface for the PrecompEncrypt Messages
-	PrecompEncrypt(*mixmessages.PrecompEncryptMessage)
-	// Server Interface for the PrecompReveal Messages
-	PrecompReveal(*mixmessages.PrecompRevealMessage)
-	// Server Interface for the PrecompPermute Messages
-	PrecompPermute(*mixmessages.PrecompPermuteMessage)
-	// Server Interface for the PrecompShare Messages
-	PrecompShare(*mixmessages.PrecompShareMessage)
-	// Server Interface for the PrecompShareInit Messages
-	PrecompShareInit(*mixmessages.PrecompShareInitMessage)
-	// Server Interface for the PrecompShareInit Messages
-	PrecompShareCompare(*mixmessages.PrecompShareCompareMessage)
-	// Server Interface for the PrecompShareConfirm Messages
-	PrecompShareConfirm(*mixmessages.PrecompShareConfirmMessage)
-	// Server Interface for the RealtimeDecrypt Messages
-	RealtimeDecrypt(*mixmessages.RealtimeDecryptMessage)
-	// Server Interface for the RealtimeEncrypt Messages
-	RealtimeEncrypt(*mixmessages.RealtimeEncryptMessage)
-	// Server Interface for the RealtimePermute Messages
-	RealtimePermute(*mixmessages.RealtimePermuteMessage)
+	GetMeasure(message *mixmessages.RoundInfo) (*mixmessages.RoundMetrics, error)
+
+	// Server Interface for all Internode Comms
+	PostPhase(message *mixmessages.Batch)
+
+	StreamPostPhase(server mixmessages.Node_StreamPostPhaseServer) error
+
+	// Server interface for share broadcast
+	PostRoundPublicKey(message *mixmessages.RoundPublicKey)
 
 	// Server interface for RequestNonceMessage
 	RequestNonce(salt, Y, P, Q, G,
 		hash, R, S []byte) ([]byte, error)
 	// Server interface for ConfirmNonceMessage
-	ConfirmNonce(hash, R, S []byte) ([]byte,
+	ConfirmRegistration(hash, R, S []byte) ([]byte,
 		[]byte, []byte, []byte, []byte, []byte, []byte, error)
+
+	// PostPrecompResult interface to finalize message and AD precomps
+	PostPrecompResult(roundID uint64, slots []*mixmessages.Slot) error
+
+	// GetCompletedBatch: gateway uses completed batch from the server
+	GetCompletedBatch() (*mixmessages.Batch, error)
+
+	// DownloadTopology: Obtains network topology from permissioning server
+	DownloadTopology(topology *mixmessages.NodeTopology)
 }
 
 type implementationFunctions struct {
-	// Server Interface for roundtrip ping
-	RoundtripPing func(*mixmessages.TimePing)
-	// Server Interface for ServerMetrics Messages
-	ServerMetrics func(*mixmessages.ServerMetricsMessage)
-
 	// Server Interface for starting New Rounds
-	NewRound func(RoundID string)
-	// Server interface for Starting a new round
-	StartRound func(message *mixmessages.InputMessages)
+	CreateNewRound func(message *mixmessages.RoundInfo) error
+	// Server interface for sending a new batch
+	PostNewBatch func(message *mixmessages.Batch) error
+	// Server interface for finishing the realtime phase
+	FinishRealtime func(message *mixmessages.RoundInfo) error
 	// GetRoundBufferInfo returns # of available precomputations completed
 	GetRoundBufferInfo func() (int, error)
-	// Server Interface for SetPublicKey
-	SetPublicKey func(RoundID string, PublicKey []byte)
 
-	// Server Interface for the PrecompDecrypt Messages
-	PrecompDecrypt func(*mixmessages.PrecompDecryptMessage)
-	// Server Interface for the PrecompEncrypt Messages
-	PrecompEncrypt func(*mixmessages.PrecompEncryptMessage)
-	// Server Interface for the PrecompReveal Messages
-	PrecompReveal func(*mixmessages.PrecompRevealMessage)
-	// Server Interface for the PrecompPermute Messages
-	PrecompPermute func(*mixmessages.PrecompPermuteMessage)
-	// Server Interface for the PrecompShare Messages
-	PrecompShare func(*mixmessages.PrecompShareMessage)
-	// Server Interface for the PrecompShareInit Messages
-	PrecompShareInit func(*mixmessages.PrecompShareInitMessage)
-	// Server Interface for the PrecompShareInit Messages
-	PrecompShareCompare func(*mixmessages.PrecompShareCompareMessage)
-	// Server Interface for the PrecompShareConfirm Messages
-	PrecompShareConfirm func(*mixmessages.PrecompShareConfirmMessage)
-	// Server Interface for the RealtimeDecrypt Messages
-	RealtimeDecrypt func(*mixmessages.RealtimeDecryptMessage)
-	// Server Interface for the RealtimeEncrypt Messages
-	RealtimeEncrypt func(*mixmessages.RealtimeEncryptMessage)
-	// Server Interface for the RealtimePermute Messages
-	RealtimePermute func(*mixmessages.RealtimePermuteMessage)
+	GetMeasure func(message *mixmessages.RoundInfo) (*mixmessages.RoundMetrics, error)
+
+	// Server Interface for the Internode Messages
+	PostPhase func(message *mixmessages.Batch)
+
+	// Server interface for internode streaming messages
+	StreamPostPhase func(message mixmessages.Node_StreamPostPhaseServer) error
+
+	// Server interface for share broadcast
+	PostRoundPublicKey func(message *mixmessages.RoundPublicKey)
 
 	// Server interface for RequestNonceMessage
 	RequestNonce func(salt, Y, P, Q, G,
 		hash, R, S []byte) ([]byte, error)
 	// Server interface for ConfirmNonceMessage
-	ConfirmNonce func(hash, R, S []byte) ([]byte,
+	ConfirmRegistration func(hash, R, S []byte) ([]byte,
 		[]byte, []byte, []byte, []byte, []byte, []byte, error)
+
+	// PostPrecompResult interface to finalize message and AD precomps
+	PostPrecompResult func(roundID uint64,
+		slots []*mixmessages.Slot) error
+
+	GetCompletedBatch func() (*mixmessages.Batch, error)
+
+	// DownloadTopology: Obtains network topology from permissioning server
+	DownloadTopology func(topology *mixmessages.NodeTopology)
 }
 
 // Implementation allows users of the client library to set the
@@ -125,27 +108,32 @@ func NewImplementation() *Implementation {
 	}
 	return &Implementation{
 		Functions: implementationFunctions{
-			RoundtripPing:    func(pingMsg *mixmessages.TimePing) { warn(um) },
-			ServerMetrics:    func(metMsg *mixmessages.ServerMetricsMessage) { warn(um) },
-			NewRound:         func(RoundID string) { warn(um) },
-			SetPublicKey:     func(RoundID string, PublicKey []byte) { warn(um) },
-			PrecompDecrypt:   func(m *mixmessages.PrecompDecryptMessage) { warn(um) },
-			PrecompEncrypt:   func(m *mixmessages.PrecompEncryptMessage) { warn(um) },
-			PrecompReveal:    func(m *mixmessages.PrecompRevealMessage) { warn(um) },
-			PrecompPermute:   func(m *mixmessages.PrecompPermuteMessage) { warn(um) },
-			PrecompShare:     func(m *mixmessages.PrecompShareMessage) { warn(um) },
-			PrecompShareInit: func(m *mixmessages.PrecompShareInitMessage) { warn(um) },
-			PrecompShareCompare: func(m *mixmessages.PrecompShareCompareMessage) {
+			CreateNewRound: func(m *mixmessages.RoundInfo) error {
+				warn(um)
+				return nil
+			},
+			PostPhase: func(m *mixmessages.Batch) {
 				warn(um)
 			},
-			PrecompShareConfirm: func(m *mixmessages.PrecompShareConfirmMessage) {
+			StreamPostPhase: func(message mixmessages.Node_StreamPostPhaseServer) error {
+				warn(um)
+				return nil
+			},
+			PostRoundPublicKey: func(message *mixmessages.RoundPublicKey) {
 				warn(um)
 			},
-
-			RealtimeDecrypt: func(m *mixmessages.RealtimeDecryptMessage) { warn(um) },
-			RealtimeEncrypt: func(m *mixmessages.RealtimeEncryptMessage) { warn(um) },
-			RealtimePermute: func(m *mixmessages.RealtimePermuteMessage) { warn(um) },
-			StartRound:      func(message *mixmessages.InputMessages) { warn(um) },
+			PostNewBatch: func(message *mixmessages.Batch) error {
+				warn(um)
+				return nil
+			},
+			FinishRealtime: func(message *mixmessages.RoundInfo) error {
+				warn(um)
+				return nil
+			},
+			GetMeasure: func(message *mixmessages.RoundInfo) (*mixmessages.RoundMetrics, error) {
+				warn(um)
+				return nil, nil
+			},
 			GetRoundBufferInfo: func() (int, error) {
 				warn(um)
 				return 0, nil
@@ -156,100 +144,51 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return nil, nil
 			},
-			ConfirmNonce: func(hash, R, S []byte) ([]byte,
-				[]byte, []byte, []byte, []byte, []byte, []byte, error) {
+			ConfirmRegistration: func(hash, R, S []byte) (
+				[]byte, []byte, []byte, []byte, []byte,
+				[]byte, []byte, error) {
 				warn(um)
 				return nil, nil, nil, nil, nil, nil, nil, nil
+			},
+			PostPrecompResult: func(roundID uint64,
+				slots []*mixmessages.Slot) error {
+				warn(um)
+				return nil
+			},
+			GetCompletedBatch: func() (batch *mixmessages.Batch, e error) {
+				warn(um)
+				return &mixmessages.Batch{}, nil
+			},
+			DownloadTopology: func(topology *mixmessages.NodeTopology) {
+				warn(um)
 			},
 		},
 	}
 }
 
-// Server Interface for roundtrip ping
-func (s *Implementation) RoundtripPing(pingMsg *mixmessages.TimePing) {
-	s.Functions.RoundtripPing(pingMsg)
-}
-
-// Server Interface for ServerMetrics Messages
-func (s *Implementation) ServerMetrics(
-	metricsMsg *mixmessages.ServerMetricsMessage) {
-	s.Functions.ServerMetrics(metricsMsg)
-}
-
 // Server Interface for starting New Rounds
-func (s *Implementation) NewRound(RoundID string) {
-	s.Functions.NewRound(RoundID)
+func (s *Implementation) CreateNewRound(msg *mixmessages.RoundInfo) error {
+	return s.Functions.CreateNewRound(msg)
 }
 
-// Server Interface for SetPublicKey
-func (s *Implementation) SetPublicKey(RoundID string, PublicKey []byte) {
-	s.Functions.SetPublicKey(RoundID, PublicKey)
+func (s *Implementation) PostNewBatch(msg *mixmessages.Batch) error {
+	return s.Functions.PostNewBatch(msg)
 }
 
-// Server Interface for the PrecompDecrypt Messages
-func (s *Implementation) PrecompDecrypt(m *mixmessages.PrecompDecryptMessage) {
-	s.Functions.PrecompDecrypt(m)
+// Server Interface for the phase messages
+func (s *Implementation) PostPhase(m *mixmessages.Batch) {
+	s.Functions.PostPhase(m)
 }
 
-// Server Interface for the PrecompEncrypt Messages
-func (s *Implementation) PrecompEncrypt(m *mixmessages.PrecompEncryptMessage) {
-	s.Functions.PrecompEncrypt(m)
+// Server Interface for streaming phase messages
+func (s *Implementation) StreamPostPhase(m mixmessages.Node_StreamPostPhaseServer) error {
+	return s.Functions.StreamPostPhase(m)
 }
 
-// Server Interface for the PrecompReveal Messages
-func (s *Implementation) PrecompReveal(m *mixmessages.PrecompRevealMessage) {
-	s.Functions.PrecompReveal(m)
-}
-
-// Server Interface for the PrecompPermute Messages
-func (s *Implementation) PrecompPermute(m *mixmessages.PrecompPermuteMessage) {
-	s.Functions.PrecompPermute(m)
-}
-
-// Server Interface for the PrecompShare Messages
-func (s *Implementation) PrecompShare(m *mixmessages.PrecompShareMessage) {
-	s.Functions.PrecompShare(m)
-}
-
-// Server Interface for the PrecompShareInit Messages
-func (s *Implementation) PrecompShareInit(
-	m *mixmessages.PrecompShareInitMessage) {
-	s.Functions.PrecompShareInit(m)
-}
-
-// Server Interface for the PrecompShareInit Messages
-func (s *Implementation) PrecompShareCompare(
-	m *mixmessages.PrecompShareCompareMessage) {
-	s.Functions.PrecompShareCompare(m)
-}
-
-// Server Interface for the PrecompShareConfirm Messages
-func (s *Implementation) PrecompShareConfirm(
-	m *mixmessages.PrecompShareConfirmMessage) {
-	s.Functions.PrecompShareConfirm(m)
-}
-
-// Server Interface for the RealtimeDecrypt Messages
-func (s *Implementation) RealtimeDecrypt(
-	m *mixmessages.RealtimeDecryptMessage) {
-	s.Functions.RealtimeDecrypt(m)
-}
-
-// Server Interface for the RealtimeEncrypt Messages
-func (s *Implementation) RealtimeEncrypt(
-	m *mixmessages.RealtimeEncryptMessage) {
-	s.Functions.RealtimeEncrypt(m)
-}
-
-// Server Interface for the RealtimePermute Messages
-func (s *Implementation) RealtimePermute(
-	m *mixmessages.RealtimePermuteMessage) {
-	s.Functions.RealtimePermute(m)
-}
-
-// Server interface for Starting a new round
-func (s *Implementation) StartRound(message *mixmessages.InputMessages) {
-	s.Functions.StartRound(message)
+// Server Interface for the share message
+func (s *Implementation) PostRoundPublicKey(message *mixmessages.
+	RoundPublicKey) {
+	s.Functions.PostRoundPublicKey(message)
 }
 
 // GetRoundBufferInfo returns # of completed precomputations
@@ -264,7 +203,31 @@ func (s *Implementation) RequestNonce(salt, Y, P, Q, G,
 }
 
 // Server interface for ConfirmNonceMessage
-func (s *Implementation) ConfirmNonce(hash, R, S []byte) ([]byte,
+func (s *Implementation) ConfirmRegistration(hash, R, S []byte) ([]byte,
 	[]byte, []byte, []byte, []byte, []byte, []byte, error) {
-	return s.Functions.ConfirmNonce(hash, R, S)
+	return s.Functions.ConfirmRegistration(hash, R, S)
+}
+
+// PostPrecompResult interface to finalize message and AD precomps
+func (s *Implementation) PostPrecompResult(roundID uint64,
+	slots []*mixmessages.Slot) error {
+	return s.Functions.PostPrecompResult(roundID, slots)
+}
+
+func (s *Implementation) FinishRealtime(message *mixmessages.RoundInfo) error {
+	return s.Functions.FinishRealtime(message)
+}
+
+func (s *Implementation) GetMeasure(message *mixmessages.RoundInfo) (*mixmessages.RoundMetrics, error) {
+	return s.Functions.GetMeasure(message)
+}
+
+// Implementation of the interface using the function in the struct
+func (s *Implementation) GetCompletedBatch() (*mixmessages.Batch, error) {
+	return s.Functions.GetCompletedBatch()
+}
+
+// Obtains network topology from permissioning server
+func (s *Implementation) DownloadTopology(topology *mixmessages.NodeTopology) {
+	s.Functions.DownloadTopology(topology)
 }
