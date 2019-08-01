@@ -62,7 +62,7 @@ func (s *NodeComms) DownloadTopology(ctx context.Context,
 		SenderId:       msg.ID,
 	}
 
-	s.handler.DownloadTopology(&original, &ci)
+	s.handler.DownloadTopology(&ci, &original)
 	return &pb.Ack{}, nil
 }
 
