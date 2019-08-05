@@ -48,7 +48,7 @@ type ServerHandler interface {
 	GetCompletedBatch() (*mixmessages.Batch, error)
 
 	// DownloadTopology: Obtains network topology from permissioning server
-	DownloadTopology(topology *mixmessages.NodeTopology, info *MessageInfo)
+	DownloadTopology(info *MessageInfo, topology *mixmessages.NodeTopology)
 }
 
 type implementationFunctions struct {
@@ -86,7 +86,7 @@ type implementationFunctions struct {
 	GetCompletedBatch func() (*mixmessages.Batch, error)
 
 	// DownloadTopology: Obtains network topology from permissioning server
-	DownloadTopology func(topology *mixmessages.NodeTopology, info *MessageInfo)
+	DownloadTopology func(info *MessageInfo, topology *mixmessages.NodeTopology)
 }
 
 // Implementation allows users of the client library to set the
@@ -159,7 +159,7 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return &mixmessages.Batch{}, nil
 			},
-			DownloadTopology: func(topology *mixmessages.NodeTopology, info *MessageInfo) {
+			DownloadTopology: func(info *MessageInfo, topology *mixmessages.NodeTopology) {
 				warn(um)
 			},
 		},
@@ -228,6 +228,6 @@ func (s *Implementation) GetCompletedBatch() (*mixmessages.Batch, error) {
 }
 
 // Obtains network topology from permissioning server
-func (s *Implementation) DownloadTopology(topology *mixmessages.NodeTopology, info *MessageInfo) {
-	s.Functions.DownloadTopology(topology, info)
+func (s *Implementation) DownloadTopology(info *MessageInfo, topology *mixmessages.NodeTopology) {
+	s.Functions.DownloadTopology(info, topology)
 }
