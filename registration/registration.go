@@ -72,9 +72,14 @@ func StartRegistrationServer(localServer string, handler Handler,
 			grpc.MaxRecvMsgSize(math.MaxInt32))
 	}
 	registrationServer := RegistrationComms{gs: grpcServer, handler: handler}
-	err = registrationServer.SetPrivateKey(keyPEMblock)
-	if err != nil {
-		jww.ERROR.Printf("Error setting RSA private key: %+v", err)
+
+	if keyPEMblock != nil {
+		err = registrationServer.SetPrivateKey(keyPEMblock)
+		if err != nil {
+			jww.ERROR.Printf("Error setting RSA private key: %+v", err)
+		}
+	} else {
+		jww.WARN.Println("Starting registration server with no private key...")
 	}
 
 	go func() {
