@@ -39,7 +39,7 @@ func NewImplementation() Handler {
 	um := "UNIMPLEMENTED FUNCTION!"
 	warn := func(msg string) {
 		jww.WARN.Printf(msg)
-		jww.WARN.Printf("%v", debug.Stack())
+		jww.WARN.Printf("%s", debug.Stack())
 	}
 	return Handler(&Implementation{
 		Functions: implementationFunctions{
@@ -65,6 +65,6 @@ func (s *Implementation) RegisterUser(registrationCode string,
 
 func (s *Implementation) RegisterNode(ID []byte,
 	NodeCsr, GatewayTLSCert, RegistrationCode, Addr string) error {
-	return 	s.Functions.RegisterNode(ID, NodeCsr, GatewayTLSCert, RegistrationCode, Addr)
+	return s.Functions.RegisterNode(ID, NodeCsr, GatewayTLSCert, RegistrationCode, Addr)
 
 }

@@ -56,7 +56,7 @@ func NewImplementation() Handler {
 	um := "UNIMPLEMENTED FUNCTION!"
 	warn := func(msg string) {
 		jww.WARN.Printf(msg)
-		jww.WARN.Printf("%v", debug.Stack())
+		jww.WARN.Printf("%s", debug.Stack())
 	}
 	return Handler(&Implementation{
 		Functions: implementationFunctions{
