@@ -67,13 +67,16 @@ service Node {
     rpc DownloadTopology (SignedMessage) returns (Ack) {
     }
 
+    //
     rpc GetMeasure (RoundInfo) returns (RoundMetrics) {
     }
 
+    // Gateway -> Server polling for CA-signed certificates
     rpc GetSignedCert (Ping) returns (SignedCerts) {
     }
 }
 
+// Response to gateway for providing certs signed by the Permissioning CA
 message SignedCerts {
     string GatewayCertPEM = 1;
     string ServerCertPEM = 2;
