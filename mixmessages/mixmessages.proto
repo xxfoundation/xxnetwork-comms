@@ -69,6 +69,14 @@ service Node {
 
     rpc GetMeasure (RoundInfo) returns (RoundMetrics) {
     }
+
+    rpc GetSignedCert (Ping) returns (SignedCerts) {
+    }
+}
+
+message SignedCerts {
+    string GatewayCertPEM = 1;
+    string ServerCertPEM = 2;
 }
 
 // The request message asking if server is online
