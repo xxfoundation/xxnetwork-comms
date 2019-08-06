@@ -12,6 +12,7 @@ package node
 //       errors that can occur are not accounted for.
 
 import (
+	"fmt"
 	"github.com/golang/protobuf/ptypes"
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
@@ -117,13 +118,15 @@ func (s *NodeComms) GetRoundBufferInfo(ctx context.Context,
 // Handles Registration Nonce Communication
 func (s *NodeComms) RequestNonce(ctx context.Context,
 	msg *pb.NonceRequest) (*pb.Nonce, error) {
-	pk := msg.GetClient()
-	sig := msg.GetClientSignedByServer()
 
 	// Obtain the nonce by passing to server
+	fmt.Printf("msg.GetSalt(): %v\n", msg.GetSalt())
+	fmt.Printf("msg.GetClientRSAPubKey(): %v\n", msg.GetClientRSAPubKey())
+	fmt.Printf("msg.GetClientDHPubKey(): %v\n", msg.GetClientDHPubKey())
+	fmt.Printf("msg.GetClientSignedByServer(): %v\n", msg.GetClientSignedByServer())
 	nonce, err := s.handler.RequestNonce(msg.GetSalt(),
-		pk.GetY(), pk.GetP(), pk.GetQ(),
-		pk.GetG(), sig.GetHash(), sig.GetR(), sig.GetS())
+		msg.GetClientRSAPubKey(), msg.GetClientDHPubKey(),
+		msg.GetClientSignedByServer().Signature)
 
 	// Obtain the error message, if any
 	errMsg := ""
@@ -140,12 +143,10 @@ func (s *NodeComms) RequestNonce(ctx context.Context,
 
 // Handles Registration Nonce Confirmation
 func (s *NodeComms) ConfirmRegistration(ctx context.Context,
-	msg *pb.DSASignature) (*pb.RegistrationConfirmation, error) {
+	msg *pb.RSASignature) (*pb.RegistrationConfirmation, error) {
 
 	// Obtain signed client public key by passing to server
-	hash, R, S, Y, P, Q, G, err := s.handler.ConfirmRegistration(
-		msg.GetHash(),
-		msg.GetR(), msg.GetS())
+	signature, err := s.handler.ConfirmRegistration(msg.GetSignature())
 
 	// Obtain the error message, if any
 	errMsg := ""
@@ -155,16 +156,8 @@ func (s *NodeComms) ConfirmRegistration(ctx context.Context,
 
 	// Return the RegistrationConfirmation
 	return &pb.RegistrationConfirmation{
-		ClientSignedByServer: &pb.DSASignature{
-			Hash: hash,
-			R:    R,
-			S:    S,
-		},
-		Server: &pb.DSAPublicKey{
-			Y: Y,
-			P: P,
-			Q: Q,
-			G: G,
+		ClientSignedByServer: &pb.RSASignature{
+			Signature: signature,
 		},
 		Error: errMsg,
 	}, err
