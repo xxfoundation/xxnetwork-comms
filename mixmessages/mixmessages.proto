@@ -181,7 +181,7 @@ message DSAPublicKey {
 message NodeRegistration {
       bytes ID = 1;
       string NodeCsr = 2;
-      string GatewayTLSCert = 3;
+      string GatewayCsr = 3;
       string RegistrationCode = 4;
       string Port = 5;
 }
