@@ -48,7 +48,7 @@ func TestSendConfirmNonceMessage(t *testing.T) {
 	}
 }
 
-func TestSendGetSignedCertMessage(t *testing.T) {
+func TestPollSignedCerts(t *testing.T) {
 	GatewayAddress := getNextGatewayAddress()
 	ServerAddress := getNextServerAddress()
 
@@ -59,7 +59,7 @@ func TestSendGetSignedCertMessage(t *testing.T) {
 	connID := MockID("gatewayToServer")
 	gateway.ConnectToNode(connID, ServerAddress, nil)
 
-	_, err := gateway.SendGetSignedCertMessage(connID, &pb.Ping{})
+	_, err := gateway.PollSignedCerts(connID, &pb.Ping{})
 	if err != nil {
 		t.Errorf("SendGetSignedCertMessage: Error received: %s", err)
 	}
