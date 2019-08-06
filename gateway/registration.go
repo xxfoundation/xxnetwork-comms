@@ -63,7 +63,7 @@ func (g *GatewayComms) SendConfirmNonceMessage(id fmt.Stringer,
 }
 
 // SendGetSignedCertMessage gets signed certs from a node.  Accepts a Ping message (empty message)
-func (g *GatewayComms) SendGetSignedCertMessage(id fmt.Stringer,
+func (g *GatewayComms) PollSignedCerts(id fmt.Stringer,
 	message *pb.Ping) (*pb.SignedCerts, error) {
 
 	c := g.GetNodeConnection(id)
