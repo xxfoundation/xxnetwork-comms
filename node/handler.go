@@ -49,6 +49,8 @@ type ServerHandler interface {
 
 	// DownloadTopology: Obtains network topology from permissioning server
 	DownloadTopology(info *MessageInfo, topology *mixmessages.NodeTopology)
+
+	GetSignedCert(ping *mixmessages.Ping) (*mixmessages.SignedCerts, error)
 }
 
 type implementationFunctions struct {
@@ -87,6 +89,8 @@ type implementationFunctions struct {
 
 	// DownloadTopology: Obtains network topology from permissioning server
 	DownloadTopology func(info *MessageInfo, topology *mixmessages.NodeTopology)
+
+	GetSignedCert func(ping *mixmessages.Ping) (*mixmessages.SignedCerts, error)
 }
 
 // Implementation allows users of the client library to set the
@@ -162,6 +166,10 @@ func NewImplementation() *Implementation {
 			DownloadTopology: func(info *MessageInfo, topology *mixmessages.NodeTopology) {
 				warn(um)
 			},
+			GetSignedCert: func(ping *mixmessages.Ping) (certs *mixmessages.SignedCerts, e error) {
+				warn(um)
+				return &mixmessages.SignedCerts{}, nil
+			},
 		},
 	}
 }
@@ -230,4 +238,8 @@ func (s *Implementation) GetCompletedBatch() (*mixmessages.Batch, error) {
 // Obtains network topology from permissioning server
 func (s *Implementation) DownloadTopology(info *MessageInfo, topology *mixmessages.NodeTopology) {
 	s.Functions.DownloadTopology(info, topology)
+}
+
+func (s *Implementation) GetSignedCert(ping *mixmessages.Ping) (*mixmessages.SignedCerts, error) {
+	return s.Functions.GetSignedCert(ping)
 }

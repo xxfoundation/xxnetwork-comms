@@ -198,3 +198,8 @@ func (s *NodeComms) GetMeasure(ctx context.Context, msg *pb.RoundInfo) (*pb.Roun
 	rm, err := s.handler.GetMeasure(msg)
 	return rm, err
 }
+
+func (s *NodeComms) GetSignedCert(ctx context.Context, msg *pb.Ping) (*pb.SignedCerts, error) {
+	rm, err := s.handler.GetSignedCert(msg)
+	return rm, err
+}
