@@ -61,3 +61,20 @@ func (g *GatewayComms) SendConfirmNonceMessage(id fmt.Stringer,
 	cancel()
 	return response, err
 }
+
+// SendGetSignedCertMessage gets signed certs from a node.  Accepts a Ping message (empty message)
+func (g *GatewayComms) PollSignedCerts(id fmt.Stringer,
+	message *pb.Ping) (*pb.SignedCerts, error) {
+
+	c := g.GetNodeConnection(id)
+	ctx, cancel := connect.DefaultContext()
+
+	response, err := c.GetSignedCert(ctx, message)
+
+	if err != nil {
+		return nil, err
+	}
+
+	cancel()
+	return response, nil
+}
