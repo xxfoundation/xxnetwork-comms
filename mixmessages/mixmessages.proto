@@ -67,8 +67,19 @@ service Node {
     rpc DownloadTopology (SignedMessage) returns (Ack) {
     }
 
+    //
     rpc GetMeasure (RoundInfo) returns (RoundMetrics) {
     }
+
+    // Gateway -> Server polling for CA-signed certificates
+    rpc GetSignedCert (Ping) returns (SignedCerts) {
+    }
+}
+
+// Response to gateway for providing certs signed by the Permissioning CA
+message SignedCerts {
+    string GatewayCertPEM = 1;
+    string ServerCertPEM = 2;
 }
 
 // The request message asking if server is online
@@ -100,9 +111,10 @@ message NodeTopology {
 // Contains network information about a single Node
 message NodeInfo {
     bytes Id = 1;
-    uint32 Index=2;
+    uint32 Index = 2;
     string IpAddress = 3;
-    string TlsCert = 4;
+    string ServerTlsCert = 4;
+    string GatewayTlsCert = 5;
 }
 
 message RoundMetrics {
@@ -169,7 +181,7 @@ message DSAPublicKey {
 message NodeRegistration {
       bytes ID = 1;
       string NodeCsr = 2;
-      string GatewayTLSCert = 3;
+      string GatewayCsr = 3;
       string RegistrationCode = 4;
       string Port = 5;
 }
