@@ -56,6 +56,6 @@ func (r *RegistrationComms) RegisterNode(ctx context.Context, msg *pb.NodeRegist
 
 	// Pass information for Node registration
 	err = r.handler.RegisterNode(msg.GetID(), msg.GetNodeCsr(),
-		msg.GetGatewayTLSCert(), msg.GetRegistrationCode(), addr)
+		msg.GetGatewayCsr(), msg.GetRegistrationCode(), addr)
 	return &pb.Ack{}, err
 }
