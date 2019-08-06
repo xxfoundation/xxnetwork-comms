@@ -180,8 +180,8 @@ message DSAPublicKey {
 // RegisterNode to register a node with needed attributes
 message NodeRegistration {
       bytes ID = 1;
-      string NodeCsr = 2;
-      string GatewayCsr = 3;
+      string ServerTlsCert = 2;
+      string GatewayTlsCert = 3;
       string RegistrationCode = 4;
       string Port = 5;
 }
