@@ -85,8 +85,8 @@ func (m *ConnectionManager) ConnectToRegistration(id fmt.Stringer,
 			return errors.New(s)
 		}
 
-		fmt.Println("We think is override:", cert.OCSPServer[0])
-		fmt.Printf("Entire Cert: %+v", cert)
+		jww.INFO.Println("We think is override:", cert.OCSPServer[0])
+		jww.INFO.Printf("Entire Cert: %+v", cert)
 
 		creds, err = tlsCreds.NewCredentialsFromPEM(string(certPEMblock), cert.OCSPServer[0])
 		if err != nil {
