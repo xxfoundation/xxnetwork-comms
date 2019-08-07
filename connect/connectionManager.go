@@ -92,6 +92,8 @@ func (m *ConnectionManager) internalConnect(id fmt.Stringer,
 			return errors.New(s)
 		}
 
+		jww.DEBUG.Printf("Cert: %+v", cert)
+
 		dnsName := ""
 		if len(cert.DNSNames) > 0 {
 			dnsName = cert.DNSNames[0]
