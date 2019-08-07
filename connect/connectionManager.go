@@ -78,6 +78,8 @@ func (m *ConnectionManager) ConnectToRegistration(id fmt.Stringer,
 
 		var err error
 
+		jww.INFO.Println("Loading tls cert")
+
 		cert, err := tlsCreds.LoadCertificate(string(certPEMblock))
 
 		if err != nil {
