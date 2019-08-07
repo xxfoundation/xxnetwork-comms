@@ -70,6 +70,11 @@ func (m *ConnectionManager) GetConnectionInfo(id string) *ConnectionInfo {
 // connectionInfo can be nil if the connection already exists for this id
 func (m *ConnectionManager) ConnectToRegistration(id fmt.Stringer,
 	addr string, certPEMblock []byte) error {
+	return m.internalConnect(id, addr, certPEMblock)
+}
+
+func (m *ConnectionManager) internalConnect(id fmt.Stringer,
+	addr string, certPEMblock []byte) error {
 	// Make TransportCredentials
 	var creds credentials.TransportCredentials
 	var pubKey *rsa.PublicKey
@@ -87,10 +92,13 @@ func (m *ConnectionManager) ConnectToRegistration(id fmt.Stringer,
 			return errors.New(s)
 		}
 
-		jww.INFO.Println("We think is override:", cert.OCSPServer[0])
-		jww.INFO.Printf("Entire Cert: %+v", cert)
+		dnsName := ""
+		if len(cert.DNSNames) > 0 {
+			dnsName = cert.DNSNames[0]
+		}
 
-		creds, err = tlsCreds.NewCredentialsFromPEM(string(certPEMblock), cert.OCSPServer[0])
+		creds, err = tlsCreds.NewCredentialsFromPEM(string(certPEMblock),
+			dnsName)
 		if err != nil {
 			s := fmt.Sprintf("Error forming transportCredentials: %+v", err)
 			return errors.New(s)
@@ -117,25 +125,7 @@ func (m *ConnectionManager) GetRegistrationConnection(id fmt.Stringer) pb.
 // connectionInfo can be nil if the connection already exists for this id
 func (m *ConnectionManager) ConnectToGateway(id fmt.Stringer,
 	addr string, certPEMblock []byte) error {
-	// Make TransportCredentials
-	var creds credentials.TransportCredentials
-	var pubKey *rsa.PublicKey
-	if certPEMblock != nil {
-		var err error
-		creds, err = tlsCreds.NewCredentialsFromPEM(string(certPEMblock), "*.cmix.rip")
-		if err != nil {
-			s := fmt.Sprintf("Error forming transportCredentials: %+v", err)
-			return errors.New(s)
-		}
-
-		pubKey, err = tlsCreds.NewPublicKeyFromPEM(certPEMblock)
-		if err != nil {
-			s := fmt.Sprintf("Error extracting PublicKey: %+v", err)
-			return errors.New(s)
-		}
-	}
-	m.connect(id.String(), addr, creds, pubKey)
-	return nil
+	return m.internalConnect(id, addr, certPEMblock)
 }
 
 func (m *ConnectionManager) GetGatewayConnection(id fmt.Stringer) pb.
@@ -150,27 +140,7 @@ func (m *ConnectionManager) GetGatewayConnection(id fmt.Stringer) pb.
 // connection info is nil?
 func (m *ConnectionManager) ConnectToNode(id fmt.Stringer,
 	addr string, certPEMblock []byte) error {
-	// Make TransportCredentials
-	var creds credentials.TransportCredentials
-	var pubKey *rsa.PublicKey
-	if certPEMblock != nil {
-		var err error
-		creds, err = tlsCreds.NewCredentialsFromPEM(string(certPEMblock), "*.cmix.rip")
-		if err != nil {
-			s := fmt.Sprintf("Error forming transportCredentials: %+v", err)
-			return errors.New(s)
-		}
-
-		pubKey, err = tlsCreds.NewPublicKeyFromPEM(certPEMblock)
-		if err != nil {
-			s := fmt.Sprintf("Error extracting PublicKey: %+v", err)
-			return errors.New(s)
-		}
-	}
-
-	// Modify me to take a tls object so we can get useful data from it
-	m.connect(id.String(), addr, creds, pubKey)
-	return nil
+	return m.internalConnect(id, addr, certPEMblock)
 }
 
 func (m *ConnectionManager) GetNodeConnection(id fmt.Stringer) pb.NodeClient {
