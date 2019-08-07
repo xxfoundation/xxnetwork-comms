@@ -75,7 +75,8 @@ func (m *ConnectionManager) ConnectToRegistration(id fmt.Stringer,
 	var pubKey *rsa.PublicKey
 	if certPEMblock != nil {
 		var err error
-		creds, err = tlsCreds.NewCredentialsFromPEM(string(certPEMblock), "*.cmix.rip")
+		creds, err = tlsCreds.NewCredentialsFromPEM(string(certPEMblock),
+			"registration.cmix.rip")
 		if err != nil {
 			s := fmt.Sprintf("Error forming transportCredentials: %+v", err)
 			return errors.New(s)
@@ -107,7 +108,8 @@ func (m *ConnectionManager) ConnectToGateway(id fmt.Stringer,
 	var pubKey *rsa.PublicKey
 	if certPEMblock != nil {
 		var err error
-		creds, err = tlsCreds.NewCredentialsFromPEM(string(certPEMblock), "*.cmix.rip")
+		creds, err = tlsCreds.NewCredentialsFromPEM(string(certPEMblock),
+			"gateway*.cmix.rip")
 		if err != nil {
 			s := fmt.Sprintf("Error forming transportCredentials: %+v", err)
 			return errors.New(s)
