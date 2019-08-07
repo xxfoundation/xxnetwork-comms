@@ -10,6 +10,7 @@ package connect
 
 import (
 	"bytes"
+	"crypto/x509"
 	"fmt"
 	"github.com/pkg/errors"
 	"gitlab.com/elixxir/crypto/signature/rsa"
@@ -73,9 +74,21 @@ func (m *ConnectionManager) ConnectToRegistration(id fmt.Stringer,
 	// Make TransportCredentials
 	var creds credentials.TransportCredentials
 	var pubKey *rsa.PublicKey
+
 	if certPEMblock != nil {
+
 		var err error
-		creds, err = tlsCreds.NewCredentialsFromPEM(string(certPEMblock), "*.cmix.rip")
+		cert, err := x509.ParseCertificate(certPEMblock)
+
+		if err != nil {
+			s := fmt.Sprintf("Could not get cert to get override: %+v", err)
+			return errors.New(s)
+		}
+
+		fmt.Println("We think is override:", cert.OCSPServer[0])
+		fmt.Printf("Entire Cert: %+v", cert)
+
+		creds, err = tlsCreds.NewCredentialsFromPEM(string(certPEMblock), cert.OCSPServer[0])
 		if err != nil {
 			s := fmt.Sprintf("Error forming transportCredentials: %+v", err)
 			return errors.New(s)
