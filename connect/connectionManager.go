@@ -79,7 +79,7 @@ func (m *ConnectionManager) internalConnect(id fmt.Stringer,
 	var creds credentials.TransportCredentials
 	var pubKey *rsa.PublicKey
 
-	if certPEMblock != nil {
+	if certPEMblock != nil || len(certPEMblock) == 0 {
 
 		var err error
 
