@@ -85,6 +85,8 @@ func (m *ConnectionManager) internalConnect(id fmt.Stringer,
 
 		jww.INFO.Println("Loading tls cert")
 
+		//Gets the DNS name from the cert so it cna override for testing
+		//fix-me: this should not run on a live deployment
 		cert, err := tlsCreds.LoadCertificate(string(certPEMblock))
 
 		if err != nil {
@@ -99,6 +101,7 @@ func (m *ConnectionManager) internalConnect(id fmt.Stringer,
 			dnsName = cert.DNSNames[0]
 		}
 
+		//create the TLS cert
 		creds, err = tlsCreds.NewCredentialsFromPEM(string(certPEMblock),
 			dnsName)
 		if err != nil {
