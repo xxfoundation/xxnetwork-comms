@@ -74,6 +74,10 @@ func (m *ConnectionManager) ConnectToRegistration(id fmt.Stringer,
 	return m.ConnectToRemote(id, addr, certPEMblock)
 }
 
+// ConnectToRemote connects to a remote server at address addr with the passed
+// cert. The connection is stored locally at the passed id.  that ID can be
+// used to identify the private keys of the sender of incoming messages so
+// it must be the same as used across the network.
 func (m *ConnectionManager) ConnectToRemote(id fmt.Stringer,
 	addr string, certPEMblock []byte) error {
 	// Make TransportCredentials
