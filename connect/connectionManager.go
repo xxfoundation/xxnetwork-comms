@@ -66,14 +66,15 @@ func (m *ConnectionManager) GetConnectionInfo(id string) *ConnectionInfo {
 	return m.connections[id]
 }
 
+// DEPRECATED - Use ConnectToRemote instead
 // Connect to a certain registration server
 // connectionInfo can be nil if the connection already exists for this id
 func (m *ConnectionManager) ConnectToRegistration(id fmt.Stringer,
 	addr string, certPEMblock []byte) error {
-	return m.internalConnect(id, addr, certPEMblock)
+	return m.ConnectToRemote(id, addr, certPEMblock)
 }
 
-func (m *ConnectionManager) internalConnect(id fmt.Stringer,
+func (m *ConnectionManager) ConnectToRemote(id fmt.Stringer,
 	addr string, certPEMblock []byte) error {
 	// Make TransportCredentials
 	var creds credentials.TransportCredentials
@@ -126,13 +127,15 @@ func (m *ConnectionManager) GetRegistrationConnection(id fmt.Stringer) pb.
 	return pb.NewRegistrationClient(conn)
 }
 
+// DEPRECATED - Use ConnectToRemote instead
 // Connect to a certain gateway
 // connectionInfo can be nil if the connection already exists for this id
 func (m *ConnectionManager) ConnectToGateway(id fmt.Stringer,
 	addr string, certPEMblock []byte) error {
-	return m.internalConnect(id, addr, certPEMblock)
+	return m.ConnectToRemote(id, addr, certPEMblock)
 }
 
+// DEPRECATED - Use ConnectToRemote instead
 func (m *ConnectionManager) GetGatewayConnection(id fmt.Stringer) pb.
 	GatewayClient {
 	conn := m.get(id)
@@ -145,7 +148,7 @@ func (m *ConnectionManager) GetGatewayConnection(id fmt.Stringer) pb.
 // connection info is nil?
 func (m *ConnectionManager) ConnectToNode(id fmt.Stringer,
 	addr string, certPEMblock []byte) error {
-	return m.internalConnect(id, addr, certPEMblock)
+	return m.ConnectToRemote(id, addr, certPEMblock)
 }
 
 func (m *ConnectionManager) GetNodeConnection(id fmt.Stringer) pb.NodeClient {
