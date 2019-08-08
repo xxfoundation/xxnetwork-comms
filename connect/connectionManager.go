@@ -84,8 +84,6 @@ func (m *ConnectionManager) ConnectToRemote(id fmt.Stringer,
 
 		var err error
 
-		jww.INFO.Println("Loading tls cert")
-
 		//Gets the DNS name from the cert so it cna override for testing
 		//fix-me: this should not run on a live deployment
 		cert, err := tlsCreds.LoadCertificate(string(certPEMblock))
