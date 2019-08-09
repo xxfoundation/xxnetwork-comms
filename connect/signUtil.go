@@ -22,9 +22,9 @@ func (c *ConnectionManager) SignMessage(anyMessage *any.Any, id string) (*pb.Sig
 	if key == nil {
 		jwalterweatherman.WARN.Printf("Private key was nil, sending message unsigned")
 		return &pb.SignedMessage{
-			Message: anyMessage,
+			Message:   anyMessage,
 			Signature: nil,
-			ID: id,
+			ID:        id,
 		}, nil
 	}
 
