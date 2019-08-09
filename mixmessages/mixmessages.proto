@@ -259,8 +259,8 @@ message Slot {
 
     // Realtime/client fields
     bytes SenderID = 7;        // 256 bit Sender Id
-    bytes PayloadA = 8;  // Len(Prime) bit length Encrypted Payload
-    bytes PayloadB = 9;  // Len(Prime) bit length associated data
+    bytes PayloadA = 8;  // Len(Prime) bit length payload A (contains part of encrypted payload)
+    bytes PayloadB = 9;  // Len(Prime) bit length payload B (contains part of encrypted payload, and associated data)
     bytes Salt = 10;           // Salt to identify message key
     repeated bytes KMACs = 11; // Individual Key MAC for each node in network
 }
