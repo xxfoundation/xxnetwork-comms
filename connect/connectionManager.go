@@ -84,7 +84,7 @@ func (m *ConnectionManager) ConnectToRemote(id fmt.Stringer,
 	var creds credentials.TransportCredentials
 	var pubKey *rsa.PublicKey
 
-	if certPEMblock != nil || len(certPEMblock) == 0 {
+	if certPEMblock != nil && len(certPEMblock) != 0 {
 
 		var err error
 
@@ -253,6 +253,23 @@ func (m *ConnectionManager) Disconnect(id string) {
 		}
 		delete(m.connections, id)
 	}
+	m.connectionsLock.Unlock()
+}
+
+// DisconnectAll closes alld client connections and removes them from the connection map
+func (m *ConnectionManager) DisconnectAll() {
+
+	m.connectionsLock.Lock()
+
+	for id, connection := range m.connections {
+		err := connection.Connection.Close()
+		if err != nil {
+			jww.ERROR.Printf("Unable to close connection to %s: %+v", id,
+				errors.New(err.Error()))
+		}
+		delete(m.connections, id)
+	}
+
 	m.connectionsLock.Unlock()
 }
 
