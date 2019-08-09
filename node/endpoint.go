@@ -27,42 +27,47 @@ func (s *NodeComms) AskOnline(ctx context.Context, msg *pb.Ping) (
 // DownloadTopology handles an incoming DownloadTopology event
 func (s *NodeComms) DownloadTopology(ctx context.Context,
 	msg *pb.SignedMessage) (*pb.Ack, error) {
-	// Get message sender ID
-	sender := msg.ID
-	pubKey := s.ConnectionManager.GetConnectionInfo(sender).RsaPublicKey
 
-	// Unmarshal message to its original type
-	original := pb.NodeTopology{}
-	err := ptypes.UnmarshalAny(msg.Message, &original)
-	if err != nil {
-		jww.ERROR.Printf("Failed to unmarshal generic message, check your input message type: %+v", err)
-		return nil, err
-	}
+	// fixme: this has got to be bad, we need to review this...
+	go func() {
+		// Get message sender ID
+		sender := msg.ID
+		pubKey := s.ConnectionManager.GetConnectionInfo(sender).RsaPublicKey
 
-	// Verify message contents
-	var verified bool
-	if pubKey != nil {
-		err = s.ConnectionManager.VerifySignature(msg, &original, pubKey)
+		// Unmarshal message to its original type
+		original := pb.NodeTopology{}
+		err := ptypes.UnmarshalAny(msg.Message, &original)
 		if err != nil {
-			jww.ERROR.Printf("Failed to verify message contents: %+v", err)
-			return nil, err
+			jww.ERROR.Printf("Failed to unmarshal generic message, check your input message type: %+v", err)
+			return
 		}
-		verified = true
-	} else {
-		s := "WARNING: No public key found for connection, proceeding without signature verification"
-		jww.WARN.Println(s)
-		verified = false
-	}
 
-	senderAddress := s.ConnectionManager.GetConnectionInfo(msg.ID).Address
-	ci := MessageInfo{
-		Signature:      msg.Signature,
-		ValidSignature: verified,
-		Address:        senderAddress,
-		SenderId:       msg.ID,
-	}
+		// Verify message contents
+		var verified bool
+		if pubKey != nil {
+			err = s.ConnectionManager.VerifySignature(msg, &original, pubKey)
+			if err != nil {
+				jww.ERROR.Printf("Failed to verify message contents: %+v", err)
+				return
+			}
+			verified = true
+		} else {
+			s := "WARNING: No public key found for connection, proceeding without signature verification"
+			jww.WARN.Println(s)
+			verified = false
+		}
 
-	s.handler.DownloadTopology(&ci, &original)
+		senderAddress := s.ConnectionManager.GetConnectionInfo(msg.ID).Address
+		ci := MessageInfo{
+			Signature:      msg.Signature,
+			ValidSignature: verified,
+			Address:        senderAddress,
+			SenderId:       msg.ID,
+		}
+
+		s.handler.DownloadTopology(&ci, &original)
+	}()
+
 	return &pb.Ack{}, nil
 }
 

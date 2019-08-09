@@ -33,7 +33,7 @@ type NodeComms struct {
 
 // Performs a graceful shutdown of the server
 func (s *NodeComms) Shutdown() {
-	// TODO Close all connections in the manager?
+	s.DisconnectAll()
 	s.gs.GracefulStop()
 	time.Sleep(time.Millisecond * 500)
 }

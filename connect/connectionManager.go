@@ -66,17 +66,47 @@ func (m *ConnectionManager) GetConnectionInfo(id string) *ConnectionInfo {
 	return m.connections[id]
 }
 
+// DEPRECATED - Use ConnectToRemote instead
 // Connect to a certain registration server
 // connectionInfo can be nil if the connection already exists for this id
 func (m *ConnectionManager) ConnectToRegistration(id fmt.Stringer,
 	addr string, certPEMblock []byte) error {
+	return m.ConnectToRemote(id, addr, certPEMblock)
+}
+
+// ConnectToRemote connects to a remote server at address addr with the passed
+// cert. The connection is stored locally at the passed id.  that ID can be
+// used to identify the private keys of the sender of incoming messages so
+// it must be the same as used across the network.
+func (m *ConnectionManager) ConnectToRemote(id fmt.Stringer,
+	addr string, certPEMblock []byte) error {
 	// Make TransportCredentials
 	var creds credentials.TransportCredentials
 	var pubKey *rsa.PublicKey
-	if certPEMblock != nil {
+
+	if certPEMblock != nil && len(certPEMblock) != 0 {
+
 		var err error
+
+		//Gets the DNS name from the cert so it cna override for testing
+		//fix-me: this should not run on a live deployment
+		cert, err := tlsCreds.LoadCertificate(string(certPEMblock))
+
+		if err != nil {
+			s := fmt.Sprintf("Error forming transportCredentials: %+v", err)
+			return errors.New(s)
+		}
+
+		jww.DEBUG.Printf("Cert: %+v", cert)
+
+		dnsName := ""
+		if len(cert.DNSNames) > 0 {
+			dnsName = cert.DNSNames[0]
+		}
+
+		//create the TLS cert
 		creds, err = tlsCreds.NewCredentialsFromPEM(string(certPEMblock),
-			"registration.cmix.rip")
+			dnsName)
 		if err != nil {
 			s := fmt.Sprintf("Error forming transportCredentials: %+v", err)
 			return errors.New(s)
@@ -99,32 +129,15 @@ func (m *ConnectionManager) GetRegistrationConnection(id fmt.Stringer) pb.
 	return pb.NewRegistrationClient(conn)
 }
 
+// DEPRECATED - Use ConnectToRemote instead
 // Connect to a certain gateway
 // connectionInfo can be nil if the connection already exists for this id
 func (m *ConnectionManager) ConnectToGateway(id fmt.Stringer,
 	addr string, certPEMblock []byte) error {
-	// Make TransportCredentials
-	var creds credentials.TransportCredentials
-	var pubKey *rsa.PublicKey
-	if certPEMblock != nil {
-		var err error
-		creds, err = tlsCreds.NewCredentialsFromPEM(string(certPEMblock),
-			"gateway*.cmix.rip")
-		if err != nil {
-			s := fmt.Sprintf("Error forming transportCredentials: %+v", err)
-			return errors.New(s)
-		}
-
-		pubKey, err = tlsCreds.NewPublicKeyFromPEM(certPEMblock)
-		if err != nil {
-			s := fmt.Sprintf("Error extracting PublicKey: %+v", err)
-			return errors.New(s)
-		}
-	}
-	m.connect(id.String(), addr, creds, pubKey)
-	return nil
+	return m.ConnectToRemote(id, addr, certPEMblock)
 }
 
+// DEPRECATED - Use ConnectToRemote instead
 func (m *ConnectionManager) GetGatewayConnection(id fmt.Stringer) pb.
 	GatewayClient {
 	conn := m.get(id)
@@ -137,27 +150,7 @@ func (m *ConnectionManager) GetGatewayConnection(id fmt.Stringer) pb.
 // connection info is nil?
 func (m *ConnectionManager) ConnectToNode(id fmt.Stringer,
 	addr string, certPEMblock []byte) error {
-	// Make TransportCredentials
-	var creds credentials.TransportCredentials
-	var pubKey *rsa.PublicKey
-	if certPEMblock != nil {
-		var err error
-		creds, err = tlsCreds.NewCredentialsFromPEM(string(certPEMblock), "*.cmix.rip")
-		if err != nil {
-			s := fmt.Sprintf("Error forming transportCredentials: %+v", err)
-			return errors.New(s)
-		}
-
-		pubKey, err = tlsCreds.NewPublicKeyFromPEM(certPEMblock)
-		if err != nil {
-			s := fmt.Sprintf("Error extracting PublicKey: %+v", err)
-			return errors.New(s)
-		}
-	}
-
-	// Modify me to take a tls object so we can get useful data from it
-	m.connect(id.String(), addr, creds, pubKey)
-	return nil
+	return m.ConnectToRemote(id, addr, certPEMblock)
 }
 
 func (m *ConnectionManager) GetNodeConnection(id fmt.Stringer) pb.NodeClient {
@@ -260,6 +253,23 @@ func (m *ConnectionManager) Disconnect(id string) {
 		}
 		delete(m.connections, id)
 	}
+	m.connectionsLock.Unlock()
+}
+
+// DisconnectAll closes alld client connections and removes them from the connection map
+func (m *ConnectionManager) DisconnectAll() {
+
+	m.connectionsLock.Lock()
+
+	for id, connection := range m.connections {
+		err := connection.Connection.Close()
+		if err != nil {
+			jww.ERROR.Printf("Unable to close connection to %s: %+v", id,
+				errors.New(err.Error()))
+		}
+		delete(m.connections, id)
+	}
+
 	m.connectionsLock.Unlock()
 }
 
