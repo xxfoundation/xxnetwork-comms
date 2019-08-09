@@ -55,7 +55,7 @@ service Node {
     }
 
     // PostPrecompResult finalizes the precomputation results with each node from the last node
-    // sending the final Message and AD precomputations
+    // sending the final PayloadA and PayloadB precomputations
     rpc PostPrecompResult (Batch) returns (Ack) {
     }
 
@@ -251,16 +251,16 @@ message Slot {
     uint32 Index = 1;
 
     // Precomputation fields
-    bytes EncryptedMessageKeys = 2;
-    bytes EncryptedAssociatedDataKeys = 3;
-    bytes PartialMessageCypherText = 4;
-    bytes PartialAssociatedDataCypherText = 5;
+    bytes EncryptedPayloadAKeys = 2;
+    bytes EncryptedPayloadBKeys = 3;
+    bytes PartialPayloadACypherText = 4;
+    bytes PartialPayloadBCypherText = 5;
     bytes PartialRoundPublicCypherKey = 6;
 
     // Realtime/client fields
     bytes SenderID = 7;        // 256 bit Sender Id
-    bytes MessagePayload = 8;  // Len(Prime) bit length Encrypted Payload
-    bytes AssociatedData = 9;  // Len(Prime) bit length associated data
+    bytes PayloadA = 8;  // Len(Prime) bit length Encrypted Payload
+    bytes PayloadB = 9;  // Len(Prime) bit length associated data
     bytes Salt = 10;           // Salt to identify message key
     repeated bytes KMACs = 11; // Individual Key MAC for each node in network
 }
