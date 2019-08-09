@@ -33,6 +33,7 @@ type GatewayComms struct {
 // Performs a graceful shutdown of the gateway
 // TODO Close all connections in the manager
 func (g *GatewayComms) Shutdown() {
+	g.DisconnectAll()
 	g.gs.GracefulStop()
 	time.Sleep(time.Millisecond * 500)
 }

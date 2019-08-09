@@ -22,8 +22,6 @@ func TestSendNodeTopology(t *testing.T) {
 	certPath := testkeys.GetNodeCertPath()
 	certData := testkeys.LoadFromPath(certPath)
 
-	//fmt
-
 	server := node.StartNode(ServerAddress, node.NewImplementation(),
 		nil, nil)
 	reg := StartRegistrationServer(RegAddress,
