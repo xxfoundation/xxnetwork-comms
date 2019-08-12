@@ -41,7 +41,7 @@ type ServerHandler interface {
 	ConfirmRegistration(hash, R, S []byte) ([]byte,
 		[]byte, []byte, []byte, []byte, []byte, []byte, error)
 
-	// PostPrecompResult interface to finalize message and AD precomps
+	// PostPrecompResult interface to finalize both payloads' precomps
 	PostPrecompResult(roundID uint64, slots []*mixmessages.Slot) error
 
 	// GetCompletedBatch: gateway uses completed batch from the server
@@ -81,7 +81,7 @@ type implementationFunctions struct {
 	ConfirmRegistration func(hash, R, S []byte) ([]byte,
 		[]byte, []byte, []byte, []byte, []byte, []byte, error)
 
-	// PostPrecompResult interface to finalize message and AD precomps
+	// PostPrecompResult interface to finalize both payloads' precomputations
 	PostPrecompResult func(roundID uint64,
 		slots []*mixmessages.Slot) error
 
@@ -216,7 +216,7 @@ func (s *Implementation) ConfirmRegistration(hash, R, S []byte) ([]byte,
 	return s.Functions.ConfirmRegistration(hash, R, S)
 }
 
-// PostPrecompResult interface to finalize message and AD precomps
+// PostPrecompResult interface to finalize both payloads' precomputations
 func (s *Implementation) PostPrecompResult(roundID uint64,
 	slots []*mixmessages.Slot) error {
 	return s.Functions.PostPrecompResult(roundID, slots)
