@@ -107,7 +107,7 @@ func (c *ClientComms) SendRequestNonceMessage(id fmt.Stringer,
 
 // Send a ConfirmNonceMessage to the gateway
 func (c *ClientComms) SendConfirmNonceMessage(id fmt.Stringer,
-	message *pb.DSASignature) (*pb.RegistrationConfirmation, error) {
+	message *pb.RSASignature) (*pb.RegistrationConfirmation, error) {
 
 	// Attempt to connect to addr
 	connection := c.GetGatewayConnection(id)

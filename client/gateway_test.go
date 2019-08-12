@@ -92,7 +92,7 @@ func TestSendConfirmNonceMessage(t *testing.T) {
 	var c ClientComms
 	c.ConnectToGateway(connectionID, gatewayAddress, nil)
 
-	_, err := c.SendConfirmNonceMessage(connectionID, &pb.DSASignature{})
+	_, err := c.SendConfirmNonceMessage(connectionID, &pb.RSASignature{})
 	if err != nil {
 		t.Errorf("SendConfirmNonceMessage: Error received: %s", err)
 	}
