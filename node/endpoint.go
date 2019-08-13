@@ -126,7 +126,8 @@ func (s *NodeComms) RequestNonce(ctx context.Context,
 	fmt.Printf("msg.GetClientSignedByServer(): %v\n", msg.GetClientSignedByServer())
 	nonce, err := s.handler.RequestNonce(msg.GetSalt(),
 		msg.GetClientRSAPubKey(), msg.GetClientDHPubKey(),
-		msg.GetClientSignedByServer().Signature)
+		msg.GetClientSignedByServer().Signature,
+		msg.GetRequestSignature().Signature)
 
 	// Obtain the error message, if any
 	errMsg := ""
