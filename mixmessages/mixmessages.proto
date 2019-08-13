@@ -208,7 +208,8 @@ message NonceRequest {
 // Nonce message to reply to client from server
 message Nonce {
     bytes Nonce = 1;
-    string Error = 2;
+    bytes DHPubKey = 2;
+    string Error = 3;
 }
 
 // RegistrationConfirmation returning proof of registration
