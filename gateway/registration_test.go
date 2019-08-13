@@ -28,7 +28,9 @@ func TestSendRequestNonceMessage(t *testing.T) {
 		Signature: []byte{},
 	}
 
-	_, err := gateway.SendRequestNonceMessage(connID, &pb.NonceRequest{ClientSignedByServer: RSASignature})
+	_, err := gateway.SendRequestNonceMessage(connID,
+		&pb.NonceRequest{ClientSignedByServer: RSASignature,
+			RequestSignature: RSASignature})
 	if err != nil {
 		t.Errorf("SendRequestNonceMessage: Error received: %s", err)
 	}

@@ -36,7 +36,7 @@ type ServerHandler interface {
 
 	// Server interface for RequestNonceMessage
 	RequestNonce(salt []byte, RSAPubKey string, DHPubKey,
-		RSASig []byte) ([]byte, error)
+		RSASignedByRegistration, DHSignedByClientRSA []byte) ([]byte, error)
 
 	// Server interface for ConfirmNonceMessage
 	ConfirmRegistration(Signature []byte) ([]byte, error)
@@ -76,7 +76,7 @@ type implementationFunctions struct {
 
 	// Server interface for RequestNonceMessage
 	RequestNonce func(salt []byte, RSAPubKey string, DHPubKey,
-		RSASig []byte) ([]byte, error)
+		RSASigFromReg, RSASigDH []byte) ([]byte, error)
 	// Server interface for ConfirmNonceMessage
 	ConfirmRegistration func(Signature []byte) ([]byte, error)
 
@@ -143,7 +143,7 @@ func NewImplementation() *Implementation {
 			},
 
 			RequestNonce: func(salt []byte, RSAPubKey string, DHPubKey,
-				RSASig []byte) ([]byte, error) {
+				RSASig, RSASigDH []byte) ([]byte, error) {
 				warn(um)
 				return nil, nil
 			},
@@ -203,8 +203,8 @@ func (s *Implementation) GetRoundBufferInfo() (int, error) {
 
 // Server interface for RequestNonceMessage
 func (s *Implementation) RequestNonce(salt []byte, RSAPubKey string, DHPubKey,
-	RSASig []byte) ([]byte, error) {
-	return s.Functions.RequestNonce(salt, RSAPubKey, DHPubKey, RSASig)
+	RSASigFromReg, RSASigDH []byte) ([]byte, error) {
+	return s.Functions.RequestNonce(salt, RSAPubKey, DHPubKey, RSASigFromReg, RSASigDH)
 }
 
 // Server interface for ConfirmNonceMessage
