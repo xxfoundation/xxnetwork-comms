@@ -47,7 +47,7 @@ service Node {
     }
 
     // ConfirmRegistration uses a nonce confirmation to finalize user registration
-    rpc ConfirmRegistration (RSASignature) returns (RegistrationConfirmation) {
+    rpc ConfirmRegistration (RequestRegistrationConfirmation) returns (RegistrationConfirmation) {
     }
 
     // PostRoundPublicKey sets the public cypher key for a round on other nodes
@@ -212,11 +212,17 @@ message Nonce {
     string Error = 3;
 }
 
+// RequestRegistrationConfirmation returning proof of registration
+message RequestRegistrationConfirmation {
+    bytes userID = 1;
+    RSASignature NonceSignedByClient = 2;
+    string Error = 3;
+}
+
 // RegistrationConfirmation returning proof of registration
 message RegistrationConfirmation {
     RSASignature ClientSignedByServer = 1;
-    bytes UID = 2;
-    string Error = 3;
+    string Error = 2;
 }
 
 // GENERAL USE MESSAGES --------------------------------------------------------
