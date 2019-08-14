@@ -41,7 +41,7 @@ func (g *GatewayComms) SendRequestNonceMessage(id fmt.Stringer,
 
 // Send a ConfirmNonceMessage to the server
 func (g *GatewayComms) SendConfirmNonceMessage(id fmt.Stringer,
-	message *pb.RSASignature) (
+	message *pb.RequestRegistrationConfirmation) (
 	*pb.RegistrationConfirmation, error) {
 
 	// Attempt to connect to addr

@@ -53,6 +53,6 @@ func (g *GatewayComms) RequestNonce(ctx context.Context,
 
 // Pass-through for Registration Nonce Confirmation
 func (g *GatewayComms) ConfirmNonce(ctx context.Context,
-	msg *pb.RSASignature) (*pb.RegistrationConfirmation, error) {
+	msg *pb.RequestRegistrationConfirmation) (*pb.RegistrationConfirmation, error) {
 	return g.handler.ConfirmNonce(msg)
 }
