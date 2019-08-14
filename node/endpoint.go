@@ -12,7 +12,6 @@ package node
 //       errors that can occur are not accounted for.
 
 import (
-	"fmt"
 	"github.com/golang/protobuf/ptypes"
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
@@ -120,11 +119,7 @@ func (s *NodeComms) RequestNonce(ctx context.Context,
 	msg *pb.NonceRequest) (*pb.Nonce, error) {
 
 	// Obtain the nonce by passing to server
-	fmt.Printf("msg.GetSalt(): %v\n", msg.GetSalt())
-	fmt.Printf("msg.GetClientRSAPubKey(): %v\n", msg.GetClientRSAPubKey())
-	fmt.Printf("msg.GetClientDHPubKey(): %v\n", msg.GetClientDHPubKey())
-	fmt.Printf("msg.GetClientSignedByServer(): %v\n", msg.GetClientSignedByServer())
-	nonce, err := s.handler.RequestNonce(msg.GetSalt(),
+	nonce, pk, err := s.handler.RequestNonce(msg.GetSalt(),
 		msg.GetClientRSAPubKey(), msg.GetClientDHPubKey(),
 		msg.GetClientSignedByServer().Signature,
 		msg.GetRequestSignature().Signature)
@@ -137,8 +132,9 @@ func (s *NodeComms) RequestNonce(ctx context.Context,
 
 	// Return the NonceMessage
 	return &pb.Nonce{
-		Nonce: nonce,
-		Error: errMsg,
+		Nonce:    nonce,
+		DHPubKey: pk,
+		Error:    errMsg,
 	}, err
 }
 
