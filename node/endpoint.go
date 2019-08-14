@@ -144,10 +144,10 @@ func (s *NodeComms) RequestNonce(ctx context.Context,
 
 // Handles Registration Nonce Confirmation
 func (s *NodeComms) ConfirmRegistration(ctx context.Context,
-	msg *pb.RSASignature) (*pb.RegistrationConfirmation, error) {
+	msg *pb.RequestRegistrationConfirmation) (*pb.RegistrationConfirmation, error) {
 
 	// Obtain signed client public key by passing to server
-	signature, err := s.handler.ConfirmRegistration(msg.GetSignature())
+	signature, err := s.handler.ConfirmRegistration(msg.GetUserID(), msg.NonceSignedByClient.Signature)
 
 	// Obtain the error message, if any
 	errMsg := ""
