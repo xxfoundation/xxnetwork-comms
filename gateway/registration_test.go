@@ -48,7 +48,9 @@ func TestSendConfirmNonceMessage(t *testing.T) {
 	connID := MockID("gatewayToServer")
 	gateway.ConnectToNode(connID, ServerAddress, nil)
 
-	_, err := gateway.SendConfirmNonceMessage(connID, &pb.RSASignature{})
+	reg := &pb.RequestRegistrationConfirmation{}
+	reg.NonceSignedByClient = &pb.RSASignature{}
+	_, err := gateway.SendConfirmNonceMessage(connID, reg)
 	if err != nil {
 		t.Errorf("SendConfirmNonceMessage: Error received: %s", err)
 	}

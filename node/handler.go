@@ -39,7 +39,7 @@ type ServerHandler interface {
 		RSASignedByRegistration, DHSignedByClientRSA []byte) ([]byte, []byte, error)
 
 	// Server interface for ConfirmNonceMessage
-	ConfirmRegistration(Signature []byte) ([]byte, error)
+	ConfirmRegistration(UserID []byte, Signature []byte) ([]byte, error)
 
 	// PostPrecompResult interface to finalize message and AD precomps
 	PostPrecompResult(roundID uint64, slots []*mixmessages.Slot) error
@@ -78,7 +78,7 @@ type implementationFunctions struct {
 	RequestNonce func(salt []byte, RSAPubKey string, DHPubKey,
 		RSASigFromReg, RSASigDH []byte) ([]byte, []byte, error)
 	// Server interface for ConfirmNonceMessage
-	ConfirmRegistration func(Signature []byte) ([]byte, error)
+	ConfirmRegistration func(UserID, Signature []byte) ([]byte, error)
 
 	// PostPrecompResult interface to finalize message and AD precomps
 	PostPrecompResult func(roundID uint64,
@@ -147,7 +147,7 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return nil, nil, nil
 			},
-			ConfirmRegistration: func(Signature []byte) ([]byte, error) {
+			ConfirmRegistration: func(UserID, Signature []byte) ([]byte, error) {
 				warn(um)
 				return nil, nil
 			},
@@ -208,8 +208,8 @@ func (s *Implementation) RequestNonce(salt []byte, RSAPubKey string, DHPubKey,
 }
 
 // Server interface for ConfirmNonceMessage
-func (s *Implementation) ConfirmRegistration(Signature []byte) ([]byte, error) {
-	return s.Functions.ConfirmRegistration(Signature)
+func (s *Implementation) ConfirmRegistration(UserID, Signature []byte) ([]byte, error) {
+	return s.Functions.ConfirmRegistration(UserID, Signature)
 }
 
 // PostPrecompResult interface to finalize message and AD precomps

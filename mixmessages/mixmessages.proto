@@ -47,7 +47,7 @@ service Node {
     }
 
     // ConfirmRegistration uses a nonce confirmation to finalize user registration
-    rpc ConfirmRegistration (RSASignature) returns (RegistrationConfirmation) {
+    rpc ConfirmRegistration (RequestRegistrationConfirmation) returns (RegistrationConfirmation) {
     }
 
     // PostRoundPublicKey sets the public cypher key for a round on other nodes
@@ -141,7 +141,7 @@ service Gateway {
     }
 
     // ConfirmNonce takes a client signed nonce for Registration Nonce Confirmation
-    rpc ConfirmNonce (RSASignature) returns (RegistrationConfirmation) {
+    rpc ConfirmNonce (RequestRegistrationConfirmation) returns (RegistrationConfirmation) {
     }
 }
 
@@ -209,6 +209,13 @@ message NonceRequest {
 message Nonce {
     bytes Nonce = 1;
     bytes DHPubKey = 2;
+    string Error = 3;
+}
+
+// RequestRegistrationConfirmation returning proof of registration
+message RequestRegistrationConfirmation {
+    bytes userID = 1;
+    RSASignature NonceSignedByClient = 2;
     string Error = 3;
 }
 
