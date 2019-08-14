@@ -215,7 +215,8 @@ message Nonce {
 // RegistrationConfirmation returning proof of registration
 message RegistrationConfirmation {
     RSASignature ClientSignedByServer = 1;
-    string Error = 2;
+    bytes UID = 2;
+    string Error = 3;
 }
 
 // GENERAL USE MESSAGES --------------------------------------------------------
