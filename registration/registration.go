@@ -31,6 +31,7 @@ type RegistrationComms struct {
 
 // Performs a graceful shutdown of the server
 func (r *RegistrationComms) Shutdown() {
+	r.DisconnectAll()
 	r.gs.GracefulStop()
 	time.Sleep(time.Millisecond * 500)
 }

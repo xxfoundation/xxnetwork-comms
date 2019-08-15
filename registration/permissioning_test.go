@@ -32,11 +32,20 @@ func TestSendNodeTopology(t *testing.T) {
 	connID := MockID("permissioningToServer")
 	regID := MockID("Permissioning")
 
-	server.ConnectToRegistration(regID, RegAddress, certData)
-	reg.ConnectToNode(connID, ServerAddress, nil)
+	err := server.ConnectToRegistration(regID, RegAddress, certData)
+	if err != nil {
+		t.Errorf("SendNodeTopology: Node could not connect to"+
+			" registration: %s", err)
+	}
+
+	err = reg.ConnectToNode(connID, ServerAddress, nil)
+	if err != nil {
+		t.Errorf("SendNodeTopology: Registration could not connect to"+
+			" node: %s", err)
+	}
 
 	msgs := &pb.NodeTopology{}
-	err := reg.SendNodeTopology(connID, msgs)
+	err = reg.SendNodeTopology(connID, msgs)
 	if err != nil {
 		t.Errorf("SendNodeTopology: Error received: %s", err)
 	}
