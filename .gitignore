@@ -10,3 +10,4 @@ localdev_*
 *.log
 .*.swp
 .*.swo
+glide.yaml
