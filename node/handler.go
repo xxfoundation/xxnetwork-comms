@@ -41,7 +41,7 @@ type ServerHandler interface {
 	// Server interface for ConfirmNonceMessage
 	ConfirmRegistration(UserID []byte, Signature []byte) ([]byte, error)
 
-	// PostPrecompResult interface to finalize message and AD precomps
+	// PostPrecompResult interface to finalize both payloads' precomps
 	PostPrecompResult(roundID uint64, slots []*mixmessages.Slot) error
 
 	// GetCompletedBatch: gateway uses completed batch from the server
@@ -80,7 +80,7 @@ type implementationFunctions struct {
 	// Server interface for ConfirmNonceMessage
 	ConfirmRegistration func(UserID, Signature []byte) ([]byte, error)
 
-	// PostPrecompResult interface to finalize message and AD precomps
+	// PostPrecompResult interface to finalize both payloads' precomputations
 	PostPrecompResult func(roundID uint64,
 		slots []*mixmessages.Slot) error
 
@@ -212,7 +212,7 @@ func (s *Implementation) ConfirmRegistration(UserID, Signature []byte) ([]byte, 
 	return s.Functions.ConfirmRegistration(UserID, Signature)
 }
 
-// PostPrecompResult interface to finalize message and AD precomps
+// PostPrecompResult interface to finalize both payloads' precomputations
 func (s *Implementation) PostPrecompResult(roundID uint64,
 	slots []*mixmessages.Slot) error {
 	return s.Functions.PostPrecompResult(roundID, slots)

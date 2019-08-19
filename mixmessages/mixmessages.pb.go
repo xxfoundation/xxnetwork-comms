@@ -27,8 +27,8 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 // Response to gateway for providing certs signed by the Permissioning CA
 type SignedCerts struct {
-	GatewayCertPEM       string   `protobuf:"bytes,1,opt,name=GatewayCertPEM,proto3" json:"GatewayCertPEM,omitempty"`
-	ServerCertPEM        string   `protobuf:"bytes,2,opt,name=ServerCertPEM,proto3" json:"ServerCertPEM,omitempty"`
+	GatewayCertPEM       string   `protobuf:"bytes,1,opt,name=GatewayCertPEM,json=gatewayCertPEM,proto3" json:"GatewayCertPEM,omitempty"`
+	ServerCertPEM        string   `protobuf:"bytes,2,opt,name=ServerCertPEM,json=serverCertPEM,proto3" json:"ServerCertPEM,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -107,7 +107,7 @@ var xxx_messageInfo_Ping proto.InternalMessageInfo
 
 // The message for Init Round
 type RoundInfo struct {
-	ID                   uint64   `protobuf:"varint,1,opt,name=ID,proto3" json:"ID,omitempty"`
+	ID                   uint64   `protobuf:"varint,1,opt,name=ID,json=iD,proto3" json:"ID,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -148,7 +148,7 @@ func (m *RoundInfo) GetID() uint64 {
 // RoundInfo contains the # of precomputations ready for messages, among other
 // information
 type RoundBufferInfo struct {
-	RoundBufferSize      uint32   `protobuf:"varint,1,opt,name=RoundBufferSize,proto3" json:"RoundBufferSize,omitempty"`
+	RoundBufferSize      uint32   `protobuf:"varint,1,opt,name=RoundBufferSize,json=roundBufferSize,proto3" json:"RoundBufferSize,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -188,8 +188,8 @@ func (m *RoundBufferInfo) GetRoundBufferSize() uint32 {
 
 //
 type RoundPublicKey struct {
-	Round                *RoundInfo `protobuf:"bytes,1,opt,name=Round,proto3" json:"Round,omitempty"`
-	Key                  []byte     `protobuf:"bytes,2,opt,name=Key,proto3" json:"Key,omitempty"`
+	Round                *RoundInfo `protobuf:"bytes,1,opt,name=Round,json=round,proto3" json:"Round,omitempty"`
+	Key                  []byte     `protobuf:"bytes,2,opt,name=Key,json=key,proto3" json:"Key,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}   `json:"-"`
 	XXX_unrecognized     []byte     `json:"-"`
 	XXX_sizecache        int32      `json:"-"`
@@ -236,7 +236,7 @@ func (m *RoundPublicKey) GetKey() []byte {
 
 // Contains network information about all Nodes
 type NodeTopology struct {
-	Topology             []*NodeInfo `protobuf:"bytes,1,rep,name=Topology,proto3" json:"Topology,omitempty"`
+	Topology             []*NodeInfo `protobuf:"bytes,1,rep,name=Topology,json=topology,proto3" json:"Topology,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}    `json:"-"`
 	XXX_unrecognized     []byte      `json:"-"`
 	XXX_sizecache        int32       `json:"-"`
@@ -276,11 +276,11 @@ func (m *NodeTopology) GetTopology() []*NodeInfo {
 
 // Contains network information about a single Node
 type NodeInfo struct {
-	Id                   []byte   `protobuf:"bytes,1,opt,name=Id,proto3" json:"Id,omitempty"`
-	Index                uint32   `protobuf:"varint,2,opt,name=Index,proto3" json:"Index,omitempty"`
-	IpAddress            string   `protobuf:"bytes,3,opt,name=IpAddress,proto3" json:"IpAddress,omitempty"`
-	ServerTlsCert        string   `protobuf:"bytes,4,opt,name=ServerTlsCert,proto3" json:"ServerTlsCert,omitempty"`
-	GatewayTlsCert       string   `protobuf:"bytes,5,opt,name=GatewayTlsCert,proto3" json:"GatewayTlsCert,omitempty"`
+	Id                   []byte   `protobuf:"bytes,1,opt,name=Id,json=id,proto3" json:"Id,omitempty"`
+	Index                uint32   `protobuf:"varint,2,opt,name=Index,json=index,proto3" json:"Index,omitempty"`
+	IpAddress            string   `protobuf:"bytes,3,opt,name=IpAddress,json=ipAddress,proto3" json:"IpAddress,omitempty"`
+	ServerTlsCert        string   `protobuf:"bytes,4,opt,name=ServerTlsCert,json=serverTlsCert,proto3" json:"ServerTlsCert,omitempty"`
+	GatewayTlsCert       string   `protobuf:"bytes,5,opt,name=GatewayTlsCert,json=gatewayTlsCert,proto3" json:"GatewayTlsCert,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -347,7 +347,7 @@ func (m *NodeInfo) GetGatewayTlsCert() string {
 }
 
 type RoundMetrics struct {
-	RoundMetricJSON      string   `protobuf:"bytes,1,opt,name=RoundMetricJSON,proto3" json:"RoundMetricJSON,omitempty"`
+	RoundMetricJSON      string   `protobuf:"bytes,1,opt,name=RoundMetricJSON,json=roundMetricJSON,proto3" json:"RoundMetricJSON,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -387,8 +387,8 @@ func (m *RoundMetrics) GetRoundMetricJSON() string {
 
 // ClientRequest message for clients to poll new CMIX messages
 type ClientRequest struct {
-	UserID               []byte   `protobuf:"bytes,1,opt,name=UserID,proto3" json:"UserID,omitempty"`
-	LastMessageID        string   `protobuf:"bytes,2,opt,name=LastMessageID,proto3" json:"LastMessageID,omitempty"`
+	UserID               []byte   `protobuf:"bytes,1,opt,name=UserID,json=userID,proto3" json:"UserID,omitempty"`
+	LastMessageID        string   `protobuf:"bytes,2,opt,name=LastMessageID,json=lastMessageID,proto3" json:"LastMessageID,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -435,7 +435,7 @@ func (m *ClientRequest) GetLastMessageID() string {
 
 // The message for clients to poll the gateway for Message IDs
 type IDList struct {
-	IDs                  []string `protobuf:"bytes,1,rep,name=IDs,proto3" json:"IDs,omitempty"`
+	IDs                  []string `protobuf:"bytes,1,rep,name=IDs,json=iDs,proto3" json:"IDs,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -475,11 +475,11 @@ func (m *IDList) GetIDs() []string {
 
 // RegisterNode to register a node with needed attributes
 type NodeRegistration struct {
-	ID                   []byte   `protobuf:"bytes,1,opt,name=ID,proto3" json:"ID,omitempty"`
-	ServerTlsCert        string   `protobuf:"bytes,2,opt,name=ServerTlsCert,proto3" json:"ServerTlsCert,omitempty"`
-	GatewayTlsCert       string   `protobuf:"bytes,3,opt,name=GatewayTlsCert,proto3" json:"GatewayTlsCert,omitempty"`
-	RegistrationCode     string   `protobuf:"bytes,4,opt,name=RegistrationCode,proto3" json:"RegistrationCode,omitempty"`
-	Port                 string   `protobuf:"bytes,5,opt,name=Port,proto3" json:"Port,omitempty"`
+	ID                   []byte   `protobuf:"bytes,1,opt,name=ID,json=iD,proto3" json:"ID,omitempty"`
+	ServerTlsCert        string   `protobuf:"bytes,2,opt,name=ServerTlsCert,json=serverTlsCert,proto3" json:"ServerTlsCert,omitempty"`
+	GatewayTlsCert       string   `protobuf:"bytes,3,opt,name=GatewayTlsCert,json=gatewayTlsCert,proto3" json:"GatewayTlsCert,omitempty"`
+	RegistrationCode     string   `protobuf:"bytes,4,opt,name=RegistrationCode,json=registrationCode,proto3" json:"RegistrationCode,omitempty"`
+	Port                 string   `protobuf:"bytes,5,opt,name=Port,json=port,proto3" json:"Port,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -916,7 +916,7 @@ func (m *RegistrationConfirmation) GetError() string {
 
 // Ack generic message containing an Error field
 type Ack struct {
-	Error                string   `protobuf:"bytes,1,opt,name=Error,proto3" json:"Error,omitempty"`
+	Error                string   `protobuf:"bytes,1,opt,name=Error,json=error,proto3" json:"Error,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -955,8 +955,8 @@ func (m *Ack) GetError() string {
 }
 
 type Batch struct {
-	Round                *RoundInfo `protobuf:"bytes,1,opt,name=Round,proto3" json:"Round,omitempty"`
-	FromPhase            int32      `protobuf:"varint,2,opt,name=FromPhase,proto3" json:"FromPhase,omitempty"`
+	Round                *RoundInfo `protobuf:"bytes,1,opt,name=Round,json=round,proto3" json:"Round,omitempty"`
+	FromPhase            int32      `protobuf:"varint,2,opt,name=FromPhase,json=fromPhase,proto3" json:"FromPhase,omitempty"`
 	Slots                []*Slot    `protobuf:"bytes,3,rep,name=slots,proto3" json:"slots,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}   `json:"-"`
 	XXX_unrecognized     []byte     `json:"-"`
@@ -1011,9 +1011,9 @@ func (m *Batch) GetSlots() []*Slot {
 
 // Used as part of header for streaming post phase
 type BatchInfo struct {
-	Round                *RoundInfo `protobuf:"bytes,1,opt,name=Round,proto3" json:"Round,omitempty"`
-	FromPhase            int32      `protobuf:"varint,2,opt,name=FromPhase,proto3" json:"FromPhase,omitempty"`
-	BatchSize            uint32     `protobuf:"varint,3,opt,name=BatchSize,proto3" json:"BatchSize,omitempty"`
+	Round                *RoundInfo `protobuf:"bytes,1,opt,name=Round,json=round,proto3" json:"Round,omitempty"`
+	FromPhase            int32      `protobuf:"varint,2,opt,name=FromPhase,json=fromPhase,proto3" json:"FromPhase,omitempty"`
+	BatchSize            uint32     `protobuf:"varint,3,opt,name=BatchSize,json=batchSize,proto3" json:"BatchSize,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}   `json:"-"`
 	XXX_unrecognized     []byte     `json:"-"`
 	XXX_sizecache        int32      `json:"-"`
@@ -1067,19 +1067,19 @@ func (m *BatchInfo) GetBatchSize() uint32 {
 
 type Slot struct {
 	// Index in batch this slot belongs in
-	Index uint32 `protobuf:"varint,1,opt,name=Index,proto3" json:"Index,omitempty"`
+	Index uint32 `protobuf:"varint,1,opt,name=Index,json=index,proto3" json:"Index,omitempty"`
 	// Precomputation fields
-	EncryptedMessageKeys            []byte `protobuf:"bytes,2,opt,name=EncryptedMessageKeys,proto3" json:"EncryptedMessageKeys,omitempty"`
-	EncryptedAssociatedDataKeys     []byte `protobuf:"bytes,3,opt,name=EncryptedAssociatedDataKeys,proto3" json:"EncryptedAssociatedDataKeys,omitempty"`
-	PartialMessageCypherText        []byte `protobuf:"bytes,4,opt,name=PartialMessageCypherText,proto3" json:"PartialMessageCypherText,omitempty"`
-	PartialAssociatedDataCypherText []byte `protobuf:"bytes,5,opt,name=PartialAssociatedDataCypherText,proto3" json:"PartialAssociatedDataCypherText,omitempty"`
-	PartialRoundPublicCypherKey     []byte `protobuf:"bytes,6,opt,name=PartialRoundPublicCypherKey,proto3" json:"PartialRoundPublicCypherKey,omitempty"`
+	EncryptedPayloadAKeys       []byte `protobuf:"bytes,2,opt,name=EncryptedPayloadAKeys,json=encryptedPayloadAKeys,proto3" json:"EncryptedPayloadAKeys,omitempty"`
+	EncryptedPayloadBKeys       []byte `protobuf:"bytes,3,opt,name=EncryptedPayloadBKeys,json=encryptedPayloadBKeys,proto3" json:"EncryptedPayloadBKeys,omitempty"`
+	PartialPayloadACypherText   []byte `protobuf:"bytes,4,opt,name=PartialPayloadACypherText,json=partialPayloadACypherText,proto3" json:"PartialPayloadACypherText,omitempty"`
+	PartialPayloadBCypherText   []byte `protobuf:"bytes,5,opt,name=PartialPayloadBCypherText,json=partialPayloadBCypherText,proto3" json:"PartialPayloadBCypherText,omitempty"`
+	PartialRoundPublicCypherKey []byte `protobuf:"bytes,6,opt,name=PartialRoundPublicCypherKey,json=partialRoundPublicCypherKey,proto3" json:"PartialRoundPublicCypherKey,omitempty"`
 	// Realtime/client fields
-	SenderID             []byte   `protobuf:"bytes,7,opt,name=SenderID,proto3" json:"SenderID,omitempty"`
-	MessagePayload       []byte   `protobuf:"bytes,8,opt,name=MessagePayload,proto3" json:"MessagePayload,omitempty"`
-	AssociatedData       []byte   `protobuf:"bytes,9,opt,name=AssociatedData,proto3" json:"AssociatedData,omitempty"`
-	Salt                 []byte   `protobuf:"bytes,10,opt,name=Salt,proto3" json:"Salt,omitempty"`
-	KMACs                [][]byte `protobuf:"bytes,11,rep,name=KMACs,proto3" json:"KMACs,omitempty"`
+	SenderID             []byte   `protobuf:"bytes,7,opt,name=SenderID,json=senderID,proto3" json:"SenderID,omitempty"`
+	PayloadA             []byte   `protobuf:"bytes,8,opt,name=PayloadA,json=payloadA,proto3" json:"PayloadA,omitempty"`
+	PayloadB             []byte   `protobuf:"bytes,9,opt,name=PayloadB,json=payloadB,proto3" json:"PayloadB,omitempty"`
+	Salt                 []byte   `protobuf:"bytes,10,opt,name=Salt,json=salt,proto3" json:"Salt,omitempty"`
+	KMACs                [][]byte `protobuf:"bytes,11,rep,name=KMACs,json=kMACs,proto3" json:"KMACs,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -1117,30 +1117,30 @@ func (m *Slot) GetIndex() uint32 {
 	return 0
 }
 
-func (m *Slot) GetEncryptedMessageKeys() []byte {
+func (m *Slot) GetEncryptedPayloadAKeys() []byte {
 	if m != nil {
-		return m.EncryptedMessageKeys
+		return m.EncryptedPayloadAKeys
 	}
 	return nil
 }
 
-func (m *Slot) GetEncryptedAssociatedDataKeys() []byte {
+func (m *Slot) GetEncryptedPayloadBKeys() []byte {
 	if m != nil {
-		return m.EncryptedAssociatedDataKeys
+		return m.EncryptedPayloadBKeys
 	}
 	return nil
 }
 
-func (m *Slot) GetPartialMessageCypherText() []byte {
+func (m *Slot) GetPartialPayloadACypherText() []byte {
 	if m != nil {
-		return m.PartialMessageCypherText
+		return m.PartialPayloadACypherText
 	}
 	return nil
 }
 
-func (m *Slot) GetPartialAssociatedDataCypherText() []byte {
+func (m *Slot) GetPartialPayloadBCypherText() []byte {
 	if m != nil {
-		return m.PartialAssociatedDataCypherText
+		return m.PartialPayloadBCypherText
 	}
 	return nil
 }
@@ -1159,16 +1159,16 @@ func (m *Slot) GetSenderID() []byte {
 	return nil
 }
 
-func (m *Slot) GetMessagePayload() []byte {
+func (m *Slot) GetPayloadA() []byte {
 	if m != nil {
-		return m.MessagePayload
+		return m.PayloadA
 	}
 	return nil
 }
 
-func (m *Slot) GetAssociatedData() []byte {
+func (m *Slot) GetPayloadB() []byte {
 	if m != nil {
-		return m.AssociatedData
+		return m.PayloadB
 	}
 	return nil
 }
@@ -1188,9 +1188,9 @@ func (m *Slot) GetKMACs() [][]byte {
 }
 
 type SignedMessage struct {
-	Signature            []byte   `protobuf:"bytes,1,opt,name=Signature,proto3" json:"Signature,omitempty"`
-	ID                   string   `protobuf:"bytes,2,opt,name=ID,proto3" json:"ID,omitempty"`
-	Message              *any.Any `protobuf:"bytes,3,opt,name=Message,proto3" json:"Message,omitempty"`
+	Signature            []byte   `protobuf:"bytes,1,opt,name=Signature,json=signature,proto3" json:"Signature,omitempty"`
+	ID                   string   `protobuf:"bytes,2,opt,name=ID,json=iD,proto3" json:"ID,omitempty"`
+	Message              *any.Any `protobuf:"bytes,3,opt,name=Message,json=message,proto3" json:"Message,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -1392,7 +1392,7 @@ type NodeClient interface {
 	// PostRoundPublicKey sets the public cypher key for a round on other nodes
 	PostRoundPublicKey(ctx context.Context, in *RoundPublicKey, opts ...grpc.CallOption) (*Ack, error)
 	// PostPrecompResult finalizes the precomputation results with each node from the last node
-	// sending the final Message and AD precomputations
+	// sending the final PayloadA and PayloadB precomputations
 	PostPrecompResult(ctx context.Context, in *Batch, opts ...grpc.CallOption) (*Ack, error)
 	// The gateway calls GetCompletedBatch to get any finished batch from a node
 	GetCompletedBatch(ctx context.Context, in *Ping, opts ...grpc.CallOption) (*Batch, error)
@@ -1596,7 +1596,7 @@ type NodeServer interface {
 	// PostRoundPublicKey sets the public cypher key for a round on other nodes
 	PostRoundPublicKey(context.Context, *RoundPublicKey) (*Ack, error)
 	// PostPrecompResult finalizes the precomputation results with each node from the last node
-	// sending the final Message and AD precomputations
+	// sending the final PayloadA and PayloadB precomputations
 	PostPrecompResult(context.Context, *Batch) (*Ack, error)
 	// The gateway calls GetCompletedBatch to get any finished batch from a node
 	GetCompletedBatch(context.Context, *Ping) (*Batch, error)
