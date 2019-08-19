@@ -27,8 +27,8 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 // Response to gateway for providing certs signed by the Permissioning CA
 type SignedCerts struct {
-	GatewayCertPEM       string   `protobuf:"bytes,1,opt,name=GatewayCertPEM,proto3" json:"GatewayCertPEM,omitempty"`
-	ServerCertPEM        string   `protobuf:"bytes,2,opt,name=ServerCertPEM,proto3" json:"ServerCertPEM,omitempty"`
+	GatewayCertPEM       string   `protobuf:"bytes,1,opt,name=GatewayCertPEM,json=gatewayCertPEM,proto3" json:"GatewayCertPEM,omitempty"`
+	ServerCertPEM        string   `protobuf:"bytes,2,opt,name=ServerCertPEM,json=serverCertPEM,proto3" json:"ServerCertPEM,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -107,7 +107,7 @@ var xxx_messageInfo_Ping proto.InternalMessageInfo
 
 // The message for Init Round
 type RoundInfo struct {
-	ID                   uint64   `protobuf:"varint,1,opt,name=ID,proto3" json:"ID,omitempty"`
+	ID                   uint64   `protobuf:"varint,1,opt,name=ID,json=iD,proto3" json:"ID,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -148,7 +148,7 @@ func (m *RoundInfo) GetID() uint64 {
 // RoundInfo contains the # of precomputations ready for messages, among other
 // information
 type RoundBufferInfo struct {
-	RoundBufferSize      uint32   `protobuf:"varint,1,opt,name=RoundBufferSize,proto3" json:"RoundBufferSize,omitempty"`
+	RoundBufferSize      uint32   `protobuf:"varint,1,opt,name=RoundBufferSize,json=roundBufferSize,proto3" json:"RoundBufferSize,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -188,8 +188,8 @@ func (m *RoundBufferInfo) GetRoundBufferSize() uint32 {
 
 //
 type RoundPublicKey struct {
-	Round                *RoundInfo `protobuf:"bytes,1,opt,name=Round,proto3" json:"Round,omitempty"`
-	Key                  []byte     `protobuf:"bytes,2,opt,name=Key,proto3" json:"Key,omitempty"`
+	Round                *RoundInfo `protobuf:"bytes,1,opt,name=Round,json=round,proto3" json:"Round,omitempty"`
+	Key                  []byte     `protobuf:"bytes,2,opt,name=Key,json=key,proto3" json:"Key,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}   `json:"-"`
 	XXX_unrecognized     []byte     `json:"-"`
 	XXX_sizecache        int32      `json:"-"`
@@ -236,7 +236,7 @@ func (m *RoundPublicKey) GetKey() []byte {
 
 // Contains network information about all Nodes
 type NodeTopology struct {
-	Topology             []*NodeInfo `protobuf:"bytes,1,rep,name=Topology,proto3" json:"Topology,omitempty"`
+	Topology             []*NodeInfo `protobuf:"bytes,1,rep,name=Topology,json=topology,proto3" json:"Topology,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}    `json:"-"`
 	XXX_unrecognized     []byte      `json:"-"`
 	XXX_sizecache        int32       `json:"-"`
@@ -276,11 +276,11 @@ func (m *NodeTopology) GetTopology() []*NodeInfo {
 
 // Contains network information about a single Node
 type NodeInfo struct {
-	Id                   []byte   `protobuf:"bytes,1,opt,name=Id,proto3" json:"Id,omitempty"`
-	Index                uint32   `protobuf:"varint,2,opt,name=Index,proto3" json:"Index,omitempty"`
-	IpAddress            string   `protobuf:"bytes,3,opt,name=IpAddress,proto3" json:"IpAddress,omitempty"`
-	ServerTlsCert        string   `protobuf:"bytes,4,opt,name=ServerTlsCert,proto3" json:"ServerTlsCert,omitempty"`
-	GatewayTlsCert       string   `protobuf:"bytes,5,opt,name=GatewayTlsCert,proto3" json:"GatewayTlsCert,omitempty"`
+	Id                   []byte   `protobuf:"bytes,1,opt,name=Id,json=id,proto3" json:"Id,omitempty"`
+	Index                uint32   `protobuf:"varint,2,opt,name=Index,json=index,proto3" json:"Index,omitempty"`
+	IpAddress            string   `protobuf:"bytes,3,opt,name=IpAddress,json=ipAddress,proto3" json:"IpAddress,omitempty"`
+	ServerTlsCert        string   `protobuf:"bytes,4,opt,name=ServerTlsCert,json=serverTlsCert,proto3" json:"ServerTlsCert,omitempty"`
+	GatewayTlsCert       string   `protobuf:"bytes,5,opt,name=GatewayTlsCert,json=gatewayTlsCert,proto3" json:"GatewayTlsCert,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -347,7 +347,7 @@ func (m *NodeInfo) GetGatewayTlsCert() string {
 }
 
 type RoundMetrics struct {
-	RoundMetricJSON      string   `protobuf:"bytes,1,opt,name=RoundMetricJSON,proto3" json:"RoundMetricJSON,omitempty"`
+	RoundMetricJSON      string   `protobuf:"bytes,1,opt,name=RoundMetricJSON,json=roundMetricJSON,proto3" json:"RoundMetricJSON,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -387,8 +387,8 @@ func (m *RoundMetrics) GetRoundMetricJSON() string {
 
 // ClientRequest message for clients to poll new CMIX messages
 type ClientRequest struct {
-	UserID               []byte   `protobuf:"bytes,1,opt,name=UserID,proto3" json:"UserID,omitempty"`
-	LastMessageID        string   `protobuf:"bytes,2,opt,name=LastMessageID,proto3" json:"LastMessageID,omitempty"`
+	UserID               []byte   `protobuf:"bytes,1,opt,name=UserID,json=userID,proto3" json:"UserID,omitempty"`
+	LastMessageID        string   `protobuf:"bytes,2,opt,name=LastMessageID,json=lastMessageID,proto3" json:"LastMessageID,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -435,7 +435,7 @@ func (m *ClientRequest) GetLastMessageID() string {
 
 // The message for clients to poll the gateway for Message IDs
 type IDList struct {
-	IDs                  []string `protobuf:"bytes,1,rep,name=IDs,proto3" json:"IDs,omitempty"`
+	IDs                  []string `protobuf:"bytes,1,rep,name=IDs,json=iDs,proto3" json:"IDs,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -473,77 +473,13 @@ func (m *IDList) GetIDs() []string {
 	return nil
 }
 
-// DSAPublicKey is a public key for the digital signature algorithm
-type DSAPublicKey struct {
-	Y                    []byte   `protobuf:"bytes,1,opt,name=Y,proto3" json:"Y,omitempty"`
-	P                    []byte   `protobuf:"bytes,2,opt,name=P,proto3" json:"P,omitempty"`
-	Q                    []byte   `protobuf:"bytes,3,opt,name=Q,proto3" json:"Q,omitempty"`
-	G                    []byte   `protobuf:"bytes,4,opt,name=G,proto3" json:"G,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *DSAPublicKey) Reset()         { *m = DSAPublicKey{} }
-func (m *DSAPublicKey) String() string { return proto.CompactTextString(m) }
-func (*DSAPublicKey) ProtoMessage()    {}
-func (*DSAPublicKey) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f858aeec3eb2fbf5, []int{10}
-}
-
-func (m *DSAPublicKey) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_DSAPublicKey.Unmarshal(m, b)
-}
-func (m *DSAPublicKey) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_DSAPublicKey.Marshal(b, m, deterministic)
-}
-func (m *DSAPublicKey) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_DSAPublicKey.Merge(m, src)
-}
-func (m *DSAPublicKey) XXX_Size() int {
-	return xxx_messageInfo_DSAPublicKey.Size(m)
-}
-func (m *DSAPublicKey) XXX_DiscardUnknown() {
-	xxx_messageInfo_DSAPublicKey.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_DSAPublicKey proto.InternalMessageInfo
-
-func (m *DSAPublicKey) GetY() []byte {
-	if m != nil {
-		return m.Y
-	}
-	return nil
-}
-
-func (m *DSAPublicKey) GetP() []byte {
-	if m != nil {
-		return m.P
-	}
-	return nil
-}
-
-func (m *DSAPublicKey) GetQ() []byte {
-	if m != nil {
-		return m.Q
-	}
-	return nil
-}
-
-func (m *DSAPublicKey) GetG() []byte {
-	if m != nil {
-		return m.G
-	}
-	return nil
-}
-
 // RegisterNode to register a node with needed attributes
 type NodeRegistration struct {
-	ID                   []byte   `protobuf:"bytes,1,opt,name=ID,proto3" json:"ID,omitempty"`
-	ServerTlsCert        string   `protobuf:"bytes,2,opt,name=ServerTlsCert,proto3" json:"ServerTlsCert,omitempty"`
-	GatewayTlsCert       string   `protobuf:"bytes,3,opt,name=GatewayTlsCert,proto3" json:"GatewayTlsCert,omitempty"`
-	RegistrationCode     string   `protobuf:"bytes,4,opt,name=RegistrationCode,proto3" json:"RegistrationCode,omitempty"`
-	Port                 string   `protobuf:"bytes,5,opt,name=Port,proto3" json:"Port,omitempty"`
+	ID                   []byte   `protobuf:"bytes,1,opt,name=ID,json=iD,proto3" json:"ID,omitempty"`
+	ServerTlsCert        string   `protobuf:"bytes,2,opt,name=ServerTlsCert,json=serverTlsCert,proto3" json:"ServerTlsCert,omitempty"`
+	GatewayTlsCert       string   `protobuf:"bytes,3,opt,name=GatewayTlsCert,json=gatewayTlsCert,proto3" json:"GatewayTlsCert,omitempty"`
+	RegistrationCode     string   `protobuf:"bytes,4,opt,name=RegistrationCode,json=registrationCode,proto3" json:"RegistrationCode,omitempty"`
+	Port                 string   `protobuf:"bytes,5,opt,name=Port,json=port,proto3" json:"Port,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -553,7 +489,7 @@ func (m *NodeRegistration) Reset()         { *m = NodeRegistration{} }
 func (m *NodeRegistration) String() string { return proto.CompactTextString(m) }
 func (*NodeRegistration) ProtoMessage()    {}
 func (*NodeRegistration) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f858aeec3eb2fbf5, []int{11}
+	return fileDescriptor_f858aeec3eb2fbf5, []int{10}
 }
 
 func (m *NodeRegistration) XXX_Unmarshal(b []byte) error {
@@ -609,76 +545,60 @@ func (m *NodeRegistration) GetPort() string {
 	return ""
 }
 
-// DSASignature is a digital signature for the digital signature algorithm
-type DSASignature struct {
-	Hash                 []byte   `protobuf:"bytes,1,opt,name=Hash,proto3" json:"Hash,omitempty"`
-	R                    []byte   `protobuf:"bytes,2,opt,name=R,proto3" json:"R,omitempty"`
-	S                    []byte   `protobuf:"bytes,3,opt,name=S,proto3" json:"S,omitempty"`
+// RSASignature is a digital signature for the RSA algorithm
+type RSASignature struct {
+	Signature            []byte   `protobuf:"bytes,1,opt,name=Signature,proto3" json:"Signature,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *DSASignature) Reset()         { *m = DSASignature{} }
-func (m *DSASignature) String() string { return proto.CompactTextString(m) }
-func (*DSASignature) ProtoMessage()    {}
-func (*DSASignature) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f858aeec3eb2fbf5, []int{12}
+func (m *RSASignature) Reset()         { *m = RSASignature{} }
+func (m *RSASignature) String() string { return proto.CompactTextString(m) }
+func (*RSASignature) ProtoMessage()    {}
+func (*RSASignature) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f858aeec3eb2fbf5, []int{11}
 }
 
-func (m *DSASignature) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_DSASignature.Unmarshal(m, b)
+func (m *RSASignature) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_RSASignature.Unmarshal(m, b)
 }
-func (m *DSASignature) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_DSASignature.Marshal(b, m, deterministic)
+func (m *RSASignature) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_RSASignature.Marshal(b, m, deterministic)
 }
-func (m *DSASignature) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_DSASignature.Merge(m, src)
+func (m *RSASignature) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RSASignature.Merge(m, src)
 }
-func (m *DSASignature) XXX_Size() int {
-	return xxx_messageInfo_DSASignature.Size(m)
+func (m *RSASignature) XXX_Size() int {
+	return xxx_messageInfo_RSASignature.Size(m)
 }
-func (m *DSASignature) XXX_DiscardUnknown() {
-	xxx_messageInfo_DSASignature.DiscardUnknown(m)
+func (m *RSASignature) XXX_DiscardUnknown() {
+	xxx_messageInfo_RSASignature.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_DSASignature proto.InternalMessageInfo
+var xxx_messageInfo_RSASignature proto.InternalMessageInfo
 
-func (m *DSASignature) GetHash() []byte {
+func (m *RSASignature) GetSignature() []byte {
 	if m != nil {
-		return m.Hash
-	}
-	return nil
-}
-
-func (m *DSASignature) GetR() []byte {
-	if m != nil {
-		return m.R
-	}
-	return nil
-}
-
-func (m *DSASignature) GetS() []byte {
-	if m != nil {
-		return m.S
+		return m.Signature
 	}
 	return nil
 }
 
 // UserRegistration message to initialize registration process
 type UserRegistration struct {
-	RegistrationCode     string        `protobuf:"bytes,1,opt,name=RegistrationCode,proto3" json:"RegistrationCode,omitempty"`
-	Client               *DSAPublicKey `protobuf:"bytes,2,opt,name=Client,proto3" json:"Client,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}      `json:"-"`
-	XXX_unrecognized     []byte        `json:"-"`
-	XXX_sizecache        int32         `json:"-"`
+	RegistrationCode     string   `protobuf:"bytes,1,opt,name=RegistrationCode,proto3" json:"RegistrationCode,omitempty"`
+	ClientRSAPubKey      string   `protobuf:"bytes,2,opt,name=ClientRSAPubKey,proto3" json:"ClientRSAPubKey,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *UserRegistration) Reset()         { *m = UserRegistration{} }
 func (m *UserRegistration) String() string { return proto.CompactTextString(m) }
 func (*UserRegistration) ProtoMessage()    {}
 func (*UserRegistration) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f858aeec3eb2fbf5, []int{13}
+	return fileDescriptor_f858aeec3eb2fbf5, []int{12}
 }
 
 func (m *UserRegistration) XXX_Unmarshal(b []byte) error {
@@ -706,17 +626,17 @@ func (m *UserRegistration) GetRegistrationCode() string {
 	return ""
 }
 
-func (m *UserRegistration) GetClient() *DSAPublicKey {
+func (m *UserRegistration) GetClientRSAPubKey() string {
 	if m != nil {
-		return m.Client
+		return m.ClientRSAPubKey
 	}
-	return nil
+	return ""
 }
 
 // UserRegistrationConfirmation to confirm registration with users
 type UserRegistrationConfirmation struct {
 	// RegistrationServer-Signed Client Public Key
-	ClientSignedByServer *DSASignature `protobuf:"bytes,1,opt,name=ClientSignedByServer,proto3" json:"ClientSignedByServer,omitempty"`
+	ClientSignedByServer *RSASignature `protobuf:"bytes,1,opt,name=ClientSignedByServer,proto3" json:"ClientSignedByServer,omitempty"`
 	Error                string        `protobuf:"bytes,2,opt,name=Error,proto3" json:"Error,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}      `json:"-"`
 	XXX_unrecognized     []byte        `json:"-"`
@@ -727,7 +647,7 @@ func (m *UserRegistrationConfirmation) Reset()         { *m = UserRegistrationCo
 func (m *UserRegistrationConfirmation) String() string { return proto.CompactTextString(m) }
 func (*UserRegistrationConfirmation) ProtoMessage()    {}
 func (*UserRegistrationConfirmation) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f858aeec3eb2fbf5, []int{14}
+	return fileDescriptor_f858aeec3eb2fbf5, []int{13}
 }
 
 func (m *UserRegistrationConfirmation) XXX_Unmarshal(b []byte) error {
@@ -748,7 +668,7 @@ func (m *UserRegistrationConfirmation) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_UserRegistrationConfirmation proto.InternalMessageInfo
 
-func (m *UserRegistrationConfirmation) GetClientSignedByServer() *DSASignature {
+func (m *UserRegistrationConfirmation) GetClientSignedByServer() *RSASignature {
 	if m != nil {
 		return m.ClientSignedByServer
 	}
@@ -765,8 +685,10 @@ func (m *UserRegistrationConfirmation) GetError() string {
 // NonceRequest message to request nonce from client to server
 type NonceRequest struct {
 	Salt                 []byte        `protobuf:"bytes,1,opt,name=Salt,proto3" json:"Salt,omitempty"`
-	Client               *DSAPublicKey `protobuf:"bytes,2,opt,name=Client,proto3" json:"Client,omitempty"`
-	ClientSignedByServer *DSASignature `protobuf:"bytes,3,opt,name=ClientSignedByServer,proto3" json:"ClientSignedByServer,omitempty"`
+	ClientRSAPubKey      string        `protobuf:"bytes,2,opt,name=ClientRSAPubKey,proto3" json:"ClientRSAPubKey,omitempty"`
+	ClientSignedByServer *RSASignature `protobuf:"bytes,3,opt,name=ClientSignedByServer,proto3" json:"ClientSignedByServer,omitempty"`
+	ClientDHPubKey       []byte        `protobuf:"bytes,4,opt,name=ClientDHPubKey,proto3" json:"ClientDHPubKey,omitempty"`
+	RequestSignature     *RSASignature `protobuf:"bytes,5,opt,name=RequestSignature,proto3" json:"RequestSignature,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}      `json:"-"`
 	XXX_unrecognized     []byte        `json:"-"`
 	XXX_sizecache        int32         `json:"-"`
@@ -776,7 +698,7 @@ func (m *NonceRequest) Reset()         { *m = NonceRequest{} }
 func (m *NonceRequest) String() string { return proto.CompactTextString(m) }
 func (*NonceRequest) ProtoMessage()    {}
 func (*NonceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f858aeec3eb2fbf5, []int{15}
+	return fileDescriptor_f858aeec3eb2fbf5, []int{14}
 }
 
 func (m *NonceRequest) XXX_Unmarshal(b []byte) error {
@@ -804,16 +726,30 @@ func (m *NonceRequest) GetSalt() []byte {
 	return nil
 }
 
-func (m *NonceRequest) GetClient() *DSAPublicKey {
+func (m *NonceRequest) GetClientRSAPubKey() string {
 	if m != nil {
-		return m.Client
+		return m.ClientRSAPubKey
+	}
+	return ""
+}
+
+func (m *NonceRequest) GetClientSignedByServer() *RSASignature {
+	if m != nil {
+		return m.ClientSignedByServer
 	}
 	return nil
 }
 
-func (m *NonceRequest) GetClientSignedByServer() *DSASignature {
+func (m *NonceRequest) GetClientDHPubKey() []byte {
 	if m != nil {
-		return m.ClientSignedByServer
+		return m.ClientDHPubKey
+	}
+	return nil
+}
+
+func (m *NonceRequest) GetRequestSignature() *RSASignature {
+	if m != nil {
+		return m.RequestSignature
 	}
 	return nil
 }
@@ -821,7 +757,8 @@ func (m *NonceRequest) GetClientSignedByServer() *DSASignature {
 // Nonce message to reply to client from server
 type Nonce struct {
 	Nonce                []byte   `protobuf:"bytes,1,opt,name=Nonce,proto3" json:"Nonce,omitempty"`
-	Error                string   `protobuf:"bytes,2,opt,name=Error,proto3" json:"Error,omitempty"`
+	DHPubKey             []byte   `protobuf:"bytes,2,opt,name=DHPubKey,proto3" json:"DHPubKey,omitempty"`
+	Error                string   `protobuf:"bytes,3,opt,name=Error,proto3" json:"Error,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -831,7 +768,7 @@ func (m *Nonce) Reset()         { *m = Nonce{} }
 func (m *Nonce) String() string { return proto.CompactTextString(m) }
 func (*Nonce) ProtoMessage()    {}
 func (*Nonce) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f858aeec3eb2fbf5, []int{16}
+	return fileDescriptor_f858aeec3eb2fbf5, []int{15}
 }
 
 func (m *Nonce) XXX_Unmarshal(b []byte) error {
@@ -859,7 +796,70 @@ func (m *Nonce) GetNonce() []byte {
 	return nil
 }
 
+func (m *Nonce) GetDHPubKey() []byte {
+	if m != nil {
+		return m.DHPubKey
+	}
+	return nil
+}
+
 func (m *Nonce) GetError() string {
+	if m != nil {
+		return m.Error
+	}
+	return ""
+}
+
+// RequestRegistrationConfirmation returning proof of registration
+type RequestRegistrationConfirmation struct {
+	UserID               []byte        `protobuf:"bytes,1,opt,name=userID,proto3" json:"userID,omitempty"`
+	NonceSignedByClient  *RSASignature `protobuf:"bytes,2,opt,name=NonceSignedByClient,proto3" json:"NonceSignedByClient,omitempty"`
+	Error                string        `protobuf:"bytes,3,opt,name=Error,proto3" json:"Error,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}      `json:"-"`
+	XXX_unrecognized     []byte        `json:"-"`
+	XXX_sizecache        int32         `json:"-"`
+}
+
+func (m *RequestRegistrationConfirmation) Reset()         { *m = RequestRegistrationConfirmation{} }
+func (m *RequestRegistrationConfirmation) String() string { return proto.CompactTextString(m) }
+func (*RequestRegistrationConfirmation) ProtoMessage()    {}
+func (*RequestRegistrationConfirmation) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f858aeec3eb2fbf5, []int{16}
+}
+
+func (m *RequestRegistrationConfirmation) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_RequestRegistrationConfirmation.Unmarshal(m, b)
+}
+func (m *RequestRegistrationConfirmation) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_RequestRegistrationConfirmation.Marshal(b, m, deterministic)
+}
+func (m *RequestRegistrationConfirmation) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RequestRegistrationConfirmation.Merge(m, src)
+}
+func (m *RequestRegistrationConfirmation) XXX_Size() int {
+	return xxx_messageInfo_RequestRegistrationConfirmation.Size(m)
+}
+func (m *RequestRegistrationConfirmation) XXX_DiscardUnknown() {
+	xxx_messageInfo_RequestRegistrationConfirmation.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RequestRegistrationConfirmation proto.InternalMessageInfo
+
+func (m *RequestRegistrationConfirmation) GetUserID() []byte {
+	if m != nil {
+		return m.UserID
+	}
+	return nil
+}
+
+func (m *RequestRegistrationConfirmation) GetNonceSignedByClient() *RSASignature {
+	if m != nil {
+		return m.NonceSignedByClient
+	}
+	return nil
+}
+
+func (m *RequestRegistrationConfirmation) GetError() string {
 	if m != nil {
 		return m.Error
 	}
@@ -868,9 +868,8 @@ func (m *Nonce) GetError() string {
 
 // RegistrationConfirmation returning proof of registration
 type RegistrationConfirmation struct {
-	ClientSignedByServer *DSASignature `protobuf:"bytes,1,opt,name=ClientSignedByServer,proto3" json:"ClientSignedByServer,omitempty"`
-	Server               *DSAPublicKey `protobuf:"bytes,2,opt,name=Server,proto3" json:"Server,omitempty"`
-	Error                string        `protobuf:"bytes,3,opt,name=Error,proto3" json:"Error,omitempty"`
+	ClientSignedByServer *RSASignature `protobuf:"bytes,1,opt,name=ClientSignedByServer,proto3" json:"ClientSignedByServer,omitempty"`
+	Error                string        `protobuf:"bytes,2,opt,name=Error,proto3" json:"Error,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}      `json:"-"`
 	XXX_unrecognized     []byte        `json:"-"`
 	XXX_sizecache        int32         `json:"-"`
@@ -901,16 +900,9 @@ func (m *RegistrationConfirmation) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_RegistrationConfirmation proto.InternalMessageInfo
 
-func (m *RegistrationConfirmation) GetClientSignedByServer() *DSASignature {
+func (m *RegistrationConfirmation) GetClientSignedByServer() *RSASignature {
 	if m != nil {
 		return m.ClientSignedByServer
-	}
-	return nil
-}
-
-func (m *RegistrationConfirmation) GetServer() *DSAPublicKey {
-	if m != nil {
-		return m.Server
 	}
 	return nil
 }
@@ -924,7 +916,7 @@ func (m *RegistrationConfirmation) GetError() string {
 
 // Ack generic message containing an Error field
 type Ack struct {
-	Error                string   `protobuf:"bytes,1,opt,name=Error,proto3" json:"Error,omitempty"`
+	Error                string   `protobuf:"bytes,1,opt,name=Error,json=error,proto3" json:"Error,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -963,8 +955,8 @@ func (m *Ack) GetError() string {
 }
 
 type Batch struct {
-	Round                *RoundInfo `protobuf:"bytes,1,opt,name=Round,proto3" json:"Round,omitempty"`
-	FromPhase            int32      `protobuf:"varint,2,opt,name=FromPhase,proto3" json:"FromPhase,omitempty"`
+	Round                *RoundInfo `protobuf:"bytes,1,opt,name=Round,json=round,proto3" json:"Round,omitempty"`
+	FromPhase            int32      `protobuf:"varint,2,opt,name=FromPhase,json=fromPhase,proto3" json:"FromPhase,omitempty"`
 	Slots                []*Slot    `protobuf:"bytes,3,rep,name=slots,proto3" json:"slots,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}   `json:"-"`
 	XXX_unrecognized     []byte     `json:"-"`
@@ -1019,9 +1011,9 @@ func (m *Batch) GetSlots() []*Slot {
 
 // Used as part of header for streaming post phase
 type BatchInfo struct {
-	Round                *RoundInfo `protobuf:"bytes,1,opt,name=Round,proto3" json:"Round,omitempty"`
-	FromPhase            int32      `protobuf:"varint,2,opt,name=FromPhase,proto3" json:"FromPhase,omitempty"`
-	BatchSize            uint32     `protobuf:"varint,3,opt,name=BatchSize,proto3" json:"BatchSize,omitempty"`
+	Round                *RoundInfo `protobuf:"bytes,1,opt,name=Round,json=round,proto3" json:"Round,omitempty"`
+	FromPhase            int32      `protobuf:"varint,2,opt,name=FromPhase,json=fromPhase,proto3" json:"FromPhase,omitempty"`
+	BatchSize            uint32     `protobuf:"varint,3,opt,name=BatchSize,json=batchSize,proto3" json:"BatchSize,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}   `json:"-"`
 	XXX_unrecognized     []byte     `json:"-"`
 	XXX_sizecache        int32      `json:"-"`
@@ -1075,19 +1067,19 @@ func (m *BatchInfo) GetBatchSize() uint32 {
 
 type Slot struct {
 	// Index in batch this slot belongs in
-	Index uint32 `protobuf:"varint,1,opt,name=Index,proto3" json:"Index,omitempty"`
+	Index uint32 `protobuf:"varint,1,opt,name=Index,json=index,proto3" json:"Index,omitempty"`
 	// Precomputation fields
-	EncryptedMessageKeys            []byte `protobuf:"bytes,2,opt,name=EncryptedMessageKeys,proto3" json:"EncryptedMessageKeys,omitempty"`
-	EncryptedAssociatedDataKeys     []byte `protobuf:"bytes,3,opt,name=EncryptedAssociatedDataKeys,proto3" json:"EncryptedAssociatedDataKeys,omitempty"`
-	PartialMessageCypherText        []byte `protobuf:"bytes,4,opt,name=PartialMessageCypherText,proto3" json:"PartialMessageCypherText,omitempty"`
-	PartialAssociatedDataCypherText []byte `protobuf:"bytes,5,opt,name=PartialAssociatedDataCypherText,proto3" json:"PartialAssociatedDataCypherText,omitempty"`
-	PartialRoundPublicCypherKey     []byte `protobuf:"bytes,6,opt,name=PartialRoundPublicCypherKey,proto3" json:"PartialRoundPublicCypherKey,omitempty"`
+	EncryptedPayloadAKeys       []byte `protobuf:"bytes,2,opt,name=EncryptedPayloadAKeys,json=encryptedPayloadAKeys,proto3" json:"EncryptedPayloadAKeys,omitempty"`
+	EncryptedPayloadBKeys       []byte `protobuf:"bytes,3,opt,name=EncryptedPayloadBKeys,json=encryptedPayloadBKeys,proto3" json:"EncryptedPayloadBKeys,omitempty"`
+	PartialPayloadACypherText   []byte `protobuf:"bytes,4,opt,name=PartialPayloadACypherText,json=partialPayloadACypherText,proto3" json:"PartialPayloadACypherText,omitempty"`
+	PartialPayloadBCypherText   []byte `protobuf:"bytes,5,opt,name=PartialPayloadBCypherText,json=partialPayloadBCypherText,proto3" json:"PartialPayloadBCypherText,omitempty"`
+	PartialRoundPublicCypherKey []byte `protobuf:"bytes,6,opt,name=PartialRoundPublicCypherKey,json=partialRoundPublicCypherKey,proto3" json:"PartialRoundPublicCypherKey,omitempty"`
 	// Realtime/client fields
-	SenderID             []byte   `protobuf:"bytes,7,opt,name=SenderID,proto3" json:"SenderID,omitempty"`
-	MessagePayload       []byte   `protobuf:"bytes,8,opt,name=MessagePayload,proto3" json:"MessagePayload,omitempty"`
-	AssociatedData       []byte   `protobuf:"bytes,9,opt,name=AssociatedData,proto3" json:"AssociatedData,omitempty"`
-	Salt                 []byte   `protobuf:"bytes,10,opt,name=Salt,proto3" json:"Salt,omitempty"`
-	KMACs                [][]byte `protobuf:"bytes,11,rep,name=KMACs,proto3" json:"KMACs,omitempty"`
+	SenderID             []byte   `protobuf:"bytes,7,opt,name=SenderID,json=senderID,proto3" json:"SenderID,omitempty"`
+	PayloadA             []byte   `protobuf:"bytes,8,opt,name=PayloadA,json=payloadA,proto3" json:"PayloadA,omitempty"`
+	PayloadB             []byte   `protobuf:"bytes,9,opt,name=PayloadB,json=payloadB,proto3" json:"PayloadB,omitempty"`
+	Salt                 []byte   `protobuf:"bytes,10,opt,name=Salt,json=salt,proto3" json:"Salt,omitempty"`
+	KMACs                [][]byte `protobuf:"bytes,11,rep,name=KMACs,json=kMACs,proto3" json:"KMACs,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -1125,30 +1117,30 @@ func (m *Slot) GetIndex() uint32 {
 	return 0
 }
 
-func (m *Slot) GetEncryptedMessageKeys() []byte {
+func (m *Slot) GetEncryptedPayloadAKeys() []byte {
 	if m != nil {
-		return m.EncryptedMessageKeys
+		return m.EncryptedPayloadAKeys
 	}
 	return nil
 }
 
-func (m *Slot) GetEncryptedAssociatedDataKeys() []byte {
+func (m *Slot) GetEncryptedPayloadBKeys() []byte {
 	if m != nil {
-		return m.EncryptedAssociatedDataKeys
+		return m.EncryptedPayloadBKeys
 	}
 	return nil
 }
 
-func (m *Slot) GetPartialMessageCypherText() []byte {
+func (m *Slot) GetPartialPayloadACypherText() []byte {
 	if m != nil {
-		return m.PartialMessageCypherText
+		return m.PartialPayloadACypherText
 	}
 	return nil
 }
 
-func (m *Slot) GetPartialAssociatedDataCypherText() []byte {
+func (m *Slot) GetPartialPayloadBCypherText() []byte {
 	if m != nil {
-		return m.PartialAssociatedDataCypherText
+		return m.PartialPayloadBCypherText
 	}
 	return nil
 }
@@ -1167,16 +1159,16 @@ func (m *Slot) GetSenderID() []byte {
 	return nil
 }
 
-func (m *Slot) GetMessagePayload() []byte {
+func (m *Slot) GetPayloadA() []byte {
 	if m != nil {
-		return m.MessagePayload
+		return m.PayloadA
 	}
 	return nil
 }
 
-func (m *Slot) GetAssociatedData() []byte {
+func (m *Slot) GetPayloadB() []byte {
 	if m != nil {
-		return m.AssociatedData
+		return m.PayloadB
 	}
 	return nil
 }
@@ -1196,9 +1188,9 @@ func (m *Slot) GetKMACs() [][]byte {
 }
 
 type SignedMessage struct {
-	Signature            []byte   `protobuf:"bytes,1,opt,name=Signature,proto3" json:"Signature,omitempty"`
-	ID                   string   `protobuf:"bytes,2,opt,name=ID,proto3" json:"ID,omitempty"`
-	Message              *any.Any `protobuf:"bytes,3,opt,name=Message,proto3" json:"Message,omitempty"`
+	Signature            []byte   `protobuf:"bytes,1,opt,name=Signature,json=signature,proto3" json:"Signature,omitempty"`
+	ID                   string   `protobuf:"bytes,2,opt,name=ID,json=iD,proto3" json:"ID,omitempty"`
+	Message              *any.Any `protobuf:"bytes,3,opt,name=Message,json=message,proto3" json:"Message,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -1261,13 +1253,13 @@ func init() {
 	proto.RegisterType((*RoundMetrics)(nil), "mixmessages.RoundMetrics")
 	proto.RegisterType((*ClientRequest)(nil), "mixmessages.ClientRequest")
 	proto.RegisterType((*IDList)(nil), "mixmessages.IDList")
-	proto.RegisterType((*DSAPublicKey)(nil), "mixmessages.DSAPublicKey")
 	proto.RegisterType((*NodeRegistration)(nil), "mixmessages.NodeRegistration")
-	proto.RegisterType((*DSASignature)(nil), "mixmessages.DSASignature")
+	proto.RegisterType((*RSASignature)(nil), "mixmessages.RSASignature")
 	proto.RegisterType((*UserRegistration)(nil), "mixmessages.UserRegistration")
 	proto.RegisterType((*UserRegistrationConfirmation)(nil), "mixmessages.UserRegistrationConfirmation")
 	proto.RegisterType((*NonceRequest)(nil), "mixmessages.NonceRequest")
 	proto.RegisterType((*Nonce)(nil), "mixmessages.Nonce")
+	proto.RegisterType((*RequestRegistrationConfirmation)(nil), "mixmessages.RequestRegistrationConfirmation")
 	proto.RegisterType((*RegistrationConfirmation)(nil), "mixmessages.RegistrationConfirmation")
 	proto.RegisterType((*Ack)(nil), "mixmessages.Ack")
 	proto.RegisterType((*Batch)(nil), "mixmessages.Batch")
@@ -1279,91 +1271,91 @@ func init() {
 func init() { proto.RegisterFile("mixmessages.proto", fileDescriptor_f858aeec3eb2fbf5) }
 
 var fileDescriptor_f858aeec3eb2fbf5 = []byte{
-	// 1329 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x17, 0xd9, 0x6e, 0x1b, 0x55,
-	0xdb, 0x13, 0x2f, 0x89, 0xbf, 0xd8, 0x69, 0x72, 0x9a, 0xbf, 0x72, 0x9c, 0x54, 0x7f, 0x75, 0xc4,
-	0x12, 0x10, 0x4a, 0x55, 0x57, 0x42, 0xa8, 0x85, 0x82, 0x63, 0xa7, 0xae, 0x49, 0x9d, 0xba, 0xc7,
-	0xe5, 0xa2, 0x70, 0x35, 0xf5, 0x7c, 0xb1, 0x47, 0x19, 0xcf, 0xb8, 0x73, 0x8e, 0x49, 0x8d, 0xb8,
-	0xe3, 0x35, 0xb8, 0xe4, 0x16, 0x09, 0xf1, 0x30, 0x88, 0xc7, 0xe0, 0x11, 0xd0, 0x59, 0xec, 0x99,
-	0xb1, 0xc7, 0xe9, 0x02, 0xe2, 0x6e, 0xbe, 0xe5, 0x7c, 0xfb, 0x36, 0xb0, 0x33, 0x72, 0x5f, 0x8d,
-	0x90, 0x73, 0x7b, 0x80, 0xfc, 0x68, 0x1c, 0x06, 0x22, 0x20, 0x9b, 0x31, 0x54, 0x75, 0x6f, 0x10,
-	0x04, 0x03, 0x0f, 0x6f, 0x2b, 0xd2, 0x8b, 0xc9, 0xf9, 0x6d, 0xdb, 0x9f, 0x6a, 0x3e, 0xfa, 0x1d,
-	0x6c, 0xf6, 0xdc, 0x81, 0x8f, 0x4e, 0x03, 0x43, 0xc1, 0xc9, 0x07, 0xb0, 0xd5, 0xb2, 0x05, 0x5e,
-	0xda, 0x53, 0x09, 0x77, 0x4f, 0x3a, 0x15, 0xeb, 0x96, 0x75, 0x58, 0x64, 0x0b, 0x58, 0xf2, 0x1e,
-	0x94, 0x7b, 0x18, 0x7e, 0x8f, 0xe1, 0x8c, 0x6d, 0x4d, 0xb1, 0x25, 0x91, 0xb4, 0x00, 0xb9, 0xae,
-	0xeb, 0x0f, 0xe8, 0x3e, 0x14, 0x59, 0x30, 0xf1, 0x9d, 0xb6, 0x7f, 0x1e, 0x90, 0x2d, 0x58, 0x6b,
-	0x37, 0x95, 0xd8, 0x1c, 0x5b, 0x6b, 0x37, 0xe9, 0x7d, 0xb8, 0xa6, 0x88, 0xc7, 0x93, 0xf3, 0x73,
-	0x0c, 0x15, 0xcb, 0x61, 0x02, 0xd5, 0x73, 0x7f, 0x40, 0xc5, 0x5f, 0x66, 0x8b, 0x68, 0xda, 0x85,
-	0x2d, 0x85, 0xea, 0x4e, 0x5e, 0x78, 0x6e, 0xff, 0x14, 0xa7, 0xe4, 0x13, 0xc8, 0x2b, 0x8c, 0x7a,
-	0xb1, 0x59, 0xbb, 0x71, 0x14, 0x8f, 0xcd, 0xdc, 0x0a, 0xa6, 0x99, 0xc8, 0x36, 0x64, 0x4f, 0x71,
-	0xaa, 0xac, 0x2f, 0x31, 0xf9, 0x49, 0xeb, 0x50, 0x3a, 0x0b, 0x1c, 0x7c, 0x16, 0x8c, 0x03, 0x2f,
-	0x18, 0x4c, 0xc9, 0x1d, 0xd8, 0x98, 0x7d, 0x57, 0xac, 0x5b, 0xd9, 0xc3, 0xcd, 0xda, 0xff, 0x12,
-	0x22, 0x25, 0xb3, 0x92, 0x38, 0x67, 0xa3, 0x3f, 0x5b, 0xb0, 0x31, 0x43, 0x2b, 0x77, 0xb5, 0x31,
-	0x25, 0xb6, 0xd6, 0x76, 0xc8, 0x2e, 0xe4, 0xdb, 0xbe, 0x83, 0xaf, 0x94, 0xce, 0x32, 0xd3, 0x00,
-	0x39, 0x80, 0x62, 0x7b, 0x5c, 0x77, 0x9c, 0x10, 0x39, 0xaf, 0x64, 0x55, 0x2c, 0x23, 0x44, 0x14,
-	0xed, 0x67, 0x1e, 0x97, 0xb1, 0xad, 0xe4, 0xe2, 0xd1, 0x36, 0xc8, 0x58, 0xee, 0x66, 0x6c, 0xf9,
-	0x44, 0xee, 0x0c, 0x96, 0x7e, 0x06, 0x25, 0xe5, 0x7c, 0x07, 0x45, 0xe8, 0xf6, 0xf9, 0x3c, 0xda,
-	0x1a, 0xfe, 0xba, 0xf7, 0xe4, 0xcc, 0x24, 0x7d, 0x11, 0x4d, 0x3b, 0x50, 0x6e, 0x78, 0x2e, 0xfa,
-	0x82, 0xe1, 0xcb, 0x09, 0x72, 0x41, 0x6e, 0x40, 0xe1, 0x1b, 0x8e, 0xa1, 0xc9, 0x67, 0x89, 0x19,
-	0x48, 0x1a, 0xfc, 0xd8, 0xe6, 0xa2, 0xa3, 0x83, 0xd4, 0x6e, 0xce, 0xca, 0x23, 0x81, 0xa4, 0x55,
-	0x28, 0xb4, 0x9b, 0x8f, 0x5d, 0x2e, 0x64, 0x1a, 0xda, 0x4d, 0xae, 0xe2, 0x5b, 0x64, 0xf2, 0x93,
-	0x3e, 0x84, 0x52, 0xb3, 0x57, 0x8f, 0xd2, 0x5a, 0x02, 0xeb, 0xb9, 0x51, 0x62, 0x3d, 0x97, 0x50,
-	0xd7, 0x24, 0xcd, 0xea, 0x4a, 0xe8, 0xa9, 0x0a, 0x5a, 0x89, 0x59, 0x4f, 0x25, 0xd4, 0x52, 0x01,
-	0x2a, 0x31, 0xab, 0x45, 0x7f, 0xb3, 0x60, 0x5b, 0xe6, 0x82, 0xe1, 0xc0, 0xe5, 0x22, 0xb4, 0x85,
-	0x1b, 0xf8, 0xb1, 0x12, 0x94, 0x39, 0x69, 0x2e, 0xc7, 0x77, 0xed, 0xcd, 0xe2, 0x9b, 0x4d, 0x8b,
-	0x2f, 0xf9, 0x18, 0xb6, 0xe3, 0xda, 0x1a, 0x81, 0x83, 0x26, 0x61, 0x4b, 0x78, 0x42, 0x20, 0xd7,
-	0x0d, 0xe6, 0x99, 0x52, 0xdf, 0xf4, 0x81, 0x72, 0x5d, 0x76, 0xa5, 0x2d, 0x26, 0xa1, 0xe2, 0x79,
-	0x64, 0xf3, 0xa1, 0xb1, 0x57, 0x7d, 0x4b, 0x27, 0xd9, 0x2c, 0x00, 0x4c, 0x42, 0xbd, 0x59, 0x00,
-	0x7a, 0xf4, 0x25, 0x6c, 0xcb, 0x34, 0x24, 0x3c, 0x4e, 0xb3, 0xc9, 0x5a, 0x61, 0xd3, 0x1d, 0x28,
-	0xe8, 0x2c, 0x2b, 0x05, 0x9b, 0xb5, 0xbd, 0x44, 0xbd, 0xc7, 0xb3, 0xc2, 0x0c, 0x23, 0xfd, 0xc9,
-	0x82, 0x83, 0x45, 0x9d, 0x8d, 0xc0, 0x3f, 0x77, 0xc3, 0x91, 0xd6, 0xdf, 0x81, 0x5d, 0xcd, 0xaa,
-	0x87, 0xcd, 0xf1, 0x54, 0x87, 0xd6, 0x34, 0xe9, 0x92, 0x86, 0xb9, 0xf3, 0x2c, 0xf5, 0x99, 0x6c,
-	0xa2, 0x93, 0x30, 0x0c, 0x42, 0x93, 0x28, 0x0d, 0xd0, 0x5f, 0x2c, 0xd9, 0xbb, 0x7e, 0x1f, 0x67,
-	0xe5, 0x49, 0x20, 0xd7, 0xb3, 0x3d, 0x31, 0x8b, 0x9c, 0xfc, 0x7e, 0x07, 0xef, 0x56, 0x1a, 0x9f,
-	0x7d, 0x27, 0xe3, 0xe9, 0x5d, 0xc8, 0x2b, 0x2b, 0xa5, 0x17, 0xea, 0xc3, 0xd8, 0x17, 0x61, 0x53,
-	0x7c, 0xfb, 0xdd, 0x82, 0xca, 0x7f, 0x15, 0xdd, 0x3b, 0x50, 0x30, 0x02, 0x5e, 0x1f, 0xa2, 0xc5,
-	0x84, 0x64, 0xe3, 0x46, 0xef, 0x43, 0xb6, 0xde, 0xbf, 0x88, 0x88, 0x56, 0x9c, 0xf8, 0x23, 0xe4,
-	0x8f, 0x6d, 0xd1, 0x1f, 0xbe, 0xe5, 0xc4, 0x3e, 0x80, 0xe2, 0xc3, 0x30, 0x18, 0x75, 0x87, 0x36,
-	0x47, 0x65, 0x5f, 0x9e, 0x45, 0x08, 0xf2, 0x21, 0xe4, 0xb9, 0x17, 0x08, 0x39, 0x43, 0xe5, 0xa8,
-	0xde, 0x49, 0xc8, 0xea, 0x79, 0x81, 0x60, 0x9a, 0x4e, 0x27, 0x50, 0x54, 0xda, 0xd5, 0x8c, 0xfe,
-	0x37, 0x2d, 0x38, 0x30, 0x82, 0xd5, 0xd6, 0xca, 0xaa, 0x19, 0x1f, 0x21, 0xe8, 0x5f, 0x59, 0xc8,
-	0x49, 0x33, 0xa2, 0x35, 0x60, 0xc5, 0xd7, 0x40, 0x0d, 0x76, 0x4f, 0xfc, 0x7e, 0x38, 0x1d, 0x0b,
-	0x74, 0xcc, 0x9c, 0x3c, 0xc5, 0x29, 0x37, 0x9d, 0x9e, 0x4a, 0x23, 0x5f, 0xc1, 0xfe, 0x1c, 0x5f,
-	0xe7, 0x3c, 0xe8, 0xbb, 0xb6, 0x40, 0xa7, 0x69, 0x0b, 0x5b, 0x3d, 0xd5, 0x63, 0xe1, 0x2a, 0x16,
-	0x72, 0x0f, 0x2a, 0x5d, 0x3b, 0x14, 0xae, 0xed, 0x19, 0xb9, 0x8d, 0xe9, 0x78, 0x88, 0xe1, 0x33,
-	0x7c, 0x25, 0xcc, 0x20, 0x5d, 0x49, 0x27, 0x8f, 0xe0, 0xff, 0x86, 0x96, 0x14, 0x1c, 0x13, 0x91,
-	0x57, 0x22, 0x5e, 0xc7, 0x26, 0xfd, 0x30, 0x2c, 0xb1, 0x8d, 0xae, 0xe9, 0x72, 0x45, 0x17, 0xb4,
-	0x1f, 0x57, 0xb0, 0x90, 0x2a, 0x6c, 0xf4, 0xd0, 0x77, 0xd4, 0x3e, 0x5a, 0x57, 0xec, 0x73, 0x58,
-	0x0e, 0x6f, 0x63, 0x7c, 0xd7, 0x9e, 0x7a, 0x81, 0xed, 0x54, 0x36, 0x14, 0xc7, 0x02, 0x56, 0xf2,
-	0x25, 0x2d, 0xac, 0x14, 0x35, 0x5f, 0x12, 0x3b, 0x1f, 0x2d, 0x10, 0x1b, 0x2d, 0xbb, 0x90, 0x3f,
-	0xed, 0xd4, 0x1b, 0xbc, 0xb2, 0x79, 0x2b, 0x2b, 0xfb, 0x59, 0x01, 0x74, 0x04, 0x65, 0xdd, 0x5f,
-	0x46, 0x93, 0xac, 0x90, 0x79, 0x07, 0x9a, 0xd6, 0x8f, 0x10, 0x66, 0x37, 0xe9, 0xde, 0x97, 0xbb,
-	0xe9, 0x08, 0xd6, 0xcd, 0x43, 0x33, 0x6f, 0x76, 0x8f, 0xf4, 0x35, 0x77, 0x34, 0xbb, 0xe6, 0x8e,
-	0xea, 0xfe, 0x94, 0xcd, 0x98, 0x6a, 0x7f, 0xae, 0x43, 0x4e, 0x2e, 0x3c, 0x52, 0x83, 0x62, 0x9d,
-	0x5f, 0x3c, 0xf1, 0x3d, 0xd7, 0x47, 0x92, 0x6c, 0x04, 0x79, 0x94, 0x55, 0xb7, 0x13, 0xa8, 0x7a,
-	0xff, 0x82, 0x66, 0xc8, 0xe7, 0xb0, 0xd5, 0x08, 0xd1, 0x16, 0x78, 0x86, 0x97, 0xba, 0xd8, 0x57,
-	0xf4, 0x42, 0xea, 0xeb, 0x4f, 0xa1, 0xd4, 0x0d, 0xb8, 0x38, 0xc3, 0x4b, 0xdd, 0xd8, 0x24, 0xc1,
-	0xa3, 0x70, 0xab, 0xb4, 0x3e, 0x74, 0x7d, 0x97, 0x0f, 0x19, 0xda, 0x9e, 0x70, 0x47, 0xf8, 0x56,
-	0x5a, 0xef, 0x42, 0x51, 0x6a, 0xd5, 0xdd, 0xf7, 0xa6, 0x2a, 0xef, 0xc1, 0xb5, 0x9e, 0x08, 0xd1,
-	0x1e, 0x45, 0x4f, 0x97, 0x67, 0x45, 0xda, 0xcb, 0x43, 0x8b, 0x30, 0x20, 0x2d, 0x14, 0x8b, 0x37,
-	0xeb, 0xc1, 0xb2, 0xc9, 0x11, 0xb5, 0x7a, 0x25, 0x95, 0x66, 0xc8, 0x97, 0x50, 0x32, 0x4b, 0x4b,
-	0x2f, 0x81, 0xbd, 0x85, 0x1b, 0x33, 0x5a, 0x6a, 0x55, 0xb2, 0x4c, 0xa2, 0x19, 0xf2, 0x1c, 0xae,
-	0x9b, 0x95, 0x90, 0xd8, 0xfb, 0xab, 0x67, 0x7f, 0xf5, 0xfd, 0xa4, 0x49, 0x2b, 0x76, 0x0b, 0xcd,
-	0x90, 0x13, 0x20, 0x32, 0x4a, 0x0b, 0x77, 0xf6, 0xfe, 0xb2, 0x47, 0x73, 0x62, 0x6a, 0xc8, 0xef,
-	0xc3, 0x8e, 0x0a, 0x76, 0x88, 0xfd, 0x60, 0x34, 0x66, 0xc8, 0x27, 0x9e, 0x78, 0x8b, 0x12, 0xd9,
-	0x69, 0xa1, 0x68, 0x04, 0xa3, 0xb1, 0x87, 0x02, 0x1d, 0x5d, 0x5f, 0x29, 0x45, 0x9d, 0x22, 0x8f,
-	0x66, 0xc8, 0x31, 0x6c, 0x37, 0x83, 0x4b, 0x5f, 0x36, 0xf8, 0xfc, 0xae, 0xaf, 0x26, 0xd3, 0x1d,
-	0xef, 0xd0, 0x54, 0x0b, 0xea, 0x00, 0x2d, 0x14, 0x1d, 0xb4, 0xb9, 0xec, 0xd2, 0x55, 0x05, 0xba,
-	0xb7, 0x8c, 0x37, 0x67, 0x36, 0xcd, 0x90, 0x07, 0x50, 0x6e, 0xa1, 0x88, 0x7e, 0xb7, 0xd2, 0x1c,
-	0xa8, 0xa4, 0x98, 0xa5, 0x7e, 0xcd, 0x68, 0xa6, 0xf6, 0xc7, 0x1a, 0xac, 0x9b, 0x5b, 0x93, 0x1c,
-	0x43, 0xb9, 0x31, 0xc4, 0xfe, 0x85, 0x31, 0x99, 0x2f, 0xf8, 0x93, 0x38, 0xd3, 0xab, 0xd7, 0x13,
-	0x34, 0x7d, 0x73, 0xd3, 0x0c, 0xf9, 0xc2, 0xb8, 0xa4, 0xc7, 0xd2, 0x55, 0x02, 0x96, 0x7b, 0x43,
-	0x35, 0x1e, 0x74, 0x27, 0xf3, 0xe7, 0x6f, 0xd6, 0x3e, 0xff, 0xbc, 0xd0, 0x19, 0x94, 0x4c, 0x7d,
-	0xa6, 0x09, 0x78, 0xa7, 0x0a, 0xaf, 0xfd, 0x6a, 0x49, 0xab, 0x62, 0x6d, 0xf3, 0xed, 0x0c, 0xc6,
-	0x50, 0x9e, 0xb5, 0xe4, 0x66, 0x42, 0xd2, 0xe2, 0xa5, 0x5b, 0xfd, 0xe8, 0x4a, 0xf2, 0x42, 0x3b,
-	0xd5, 0x23, 0xd9, 0x6a, 0x4e, 0xdf, 0x5c, 0xfa, 0x9d, 0x4c, 0xc8, 0x4e, 0x09, 0xe2, 0x8b, 0x82,
-	0x1a, 0xfd, 0x77, 0xff, 0x0e, 0x00, 0x00, 0xff, 0xff, 0xb9, 0x6e, 0x9c, 0xed, 0xf8, 0x0f, 0x00,
-	0x00,
+	// 1339 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xc4, 0x57, 0x5b, 0x6f, 0x1b, 0x45,
+	0x14, 0xf6, 0x35, 0x89, 0x4f, 0xec, 0x34, 0x99, 0x86, 0xca, 0x71, 0x52, 0xb5, 0x1a, 0x41, 0x09,
+	0xa8, 0x4a, 0x85, 0x2b, 0x21, 0xd4, 0x72, 0x73, 0xec, 0x34, 0x35, 0xa9, 0x53, 0x6b, 0x5d, 0x5e,
+	0xe0, 0x69, 0xe3, 0x3d, 0x71, 0x56, 0x59, 0xef, 0x98, 0x9d, 0x31, 0xa9, 0x11, 0x12, 0x0f, 0xbc,
+	0xf1, 0x1b, 0xfa, 0x17, 0x90, 0xf8, 0x5b, 0x88, 0x17, 0x7e, 0x02, 0x9a, 0x8b, 0xbd, 0x17, 0xaf,
+	0xdd, 0x84, 0x8b, 0x78, 0xdb, 0xf9, 0xce, 0x99, 0x73, 0xce, 0x7c, 0x73, 0x2e, 0xb3, 0xb0, 0x35,
+	0x74, 0x5f, 0x0f, 0x91, 0x73, 0x7b, 0x80, 0xfc, 0x60, 0x14, 0x30, 0xc1, 0xc8, 0x7a, 0x04, 0xaa,
+	0xed, 0x0c, 0x18, 0x1b, 0x78, 0xf8, 0x48, 0x89, 0xce, 0xc6, 0xe7, 0x8f, 0x6c, 0x7f, 0xa2, 0xf5,
+	0xe8, 0xb7, 0xb0, 0xde, 0x73, 0x07, 0x3e, 0x3a, 0x4d, 0x0c, 0x04, 0x27, 0x0f, 0x60, 0xe3, 0xd8,
+	0x16, 0x78, 0x65, 0x4f, 0xe4, 0xba, 0x7b, 0xd4, 0xa9, 0x66, 0xef, 0x67, 0xf7, 0x4b, 0x56, 0x02,
+	0x25, 0xef, 0x42, 0xa5, 0x87, 0xc1, 0xf7, 0x18, 0x4c, 0xd5, 0x72, 0x4a, 0x2d, 0x0e, 0xd2, 0x15,
+	0x28, 0x74, 0x5d, 0x7f, 0x40, 0x77, 0xa1, 0x64, 0xb1, 0xb1, 0xef, 0xb4, 0xfd, 0x73, 0x46, 0x36,
+	0x20, 0xd7, 0x6e, 0x29, 0xb3, 0x05, 0x2b, 0xd7, 0x6e, 0xd1, 0xa7, 0x70, 0x4b, 0x09, 0x0f, 0xc7,
+	0xe7, 0xe7, 0x18, 0x28, 0x95, 0xfd, 0x18, 0xd4, 0x73, 0x7f, 0x40, 0xa5, 0x5f, 0xb1, 0x92, 0x30,
+	0xed, 0xc2, 0x86, 0x82, 0xba, 0xe3, 0x33, 0xcf, 0xed, 0x9f, 0xe0, 0x84, 0x3c, 0x84, 0xa2, 0x42,
+	0xd4, 0x8e, 0xf5, 0xfa, 0x9d, 0x83, 0x28, 0x37, 0xb3, 0x28, 0x2c, 0xad, 0x44, 0x36, 0x21, 0x7f,
+	0x82, 0x13, 0x15, 0x7d, 0xd9, 0x92, 0x9f, 0xb4, 0x01, 0xe5, 0x53, 0xe6, 0xe0, 0x2b, 0x36, 0x62,
+	0x1e, 0x1b, 0x4c, 0xc8, 0x47, 0xb0, 0x36, 0xfd, 0xae, 0x66, 0xef, 0xe7, 0xf7, 0xd7, 0xeb, 0xef,
+	0xc4, 0x4c, 0x4a, 0x65, 0x65, 0x71, 0xa6, 0x46, 0xdf, 0x64, 0x61, 0x6d, 0x0a, 0xab, 0xe3, 0xea,
+	0x60, 0xca, 0x56, 0xae, 0xed, 0x90, 0x6d, 0x28, 0xb6, 0x7d, 0x07, 0x5f, 0x2b, 0x9f, 0x15, 0x4b,
+	0x2f, 0xc8, 0x1e, 0x94, 0xda, 0xa3, 0x86, 0xe3, 0x04, 0xc8, 0x79, 0x35, 0xaf, 0xb8, 0x0c, 0x81,
+	0x90, 0xed, 0x57, 0x1e, 0x97, 0xdc, 0x56, 0x0b, 0x51, 0xb6, 0x0d, 0x18, 0xb9, 0xbb, 0xa9, 0x5a,
+	0x31, 0x76, 0x77, 0x06, 0xa5, 0x9f, 0x40, 0x59, 0x1d, 0xbe, 0x83, 0x22, 0x70, 0xfb, 0x7c, 0xc6,
+	0xb6, 0x5e, 0x7f, 0xd5, 0x7b, 0x79, 0x6a, 0x2e, 0x3d, 0x09, 0xd3, 0x0e, 0x54, 0x9a, 0x9e, 0x8b,
+	0xbe, 0xb0, 0xf0, 0xbb, 0x31, 0x72, 0x41, 0xee, 0xc0, 0xca, 0xd7, 0x1c, 0x03, 0x73, 0x9f, 0x65,
+	0xcb, 0xac, 0x64, 0xc0, 0x2f, 0x6c, 0x2e, 0x3a, 0x9a, 0xa4, 0x76, 0x6b, 0x9a, 0x1e, 0x31, 0x90,
+	0xd6, 0x60, 0xa5, 0xdd, 0x7a, 0xe1, 0x72, 0x21, 0xaf, 0xa1, 0xdd, 0xe2, 0x8a, 0xdf, 0x92, 0x25,
+	0x3f, 0xe9, 0x6f, 0x59, 0xd8, 0x94, 0x1c, 0x5a, 0x38, 0x70, 0xb9, 0x08, 0x6c, 0xe1, 0x32, 0x3f,
+	0x92, 0x3a, 0x92, 0xcb, 0xd6, 0x3c, 0x2f, 0xb9, 0xeb, 0xf1, 0x92, 0x4f, 0xe3, 0x85, 0x7c, 0x08,
+	0x9b, 0x51, 0x6f, 0x4d, 0xe6, 0xa0, 0x21, 0x7a, 0x0e, 0x27, 0x04, 0x0a, 0x5d, 0x36, 0x63, 0x58,
+	0x7d, 0xd3, 0x87, 0x50, 0xb6, 0x7a, 0x0d, 0x59, 0x4d, 0xb6, 0x18, 0x07, 0x28, 0xef, 0x74, 0xb6,
+	0x30, 0x41, 0x87, 0x00, 0xbd, 0x80, 0x4d, 0x49, 0x56, 0xec, 0x7c, 0x69, 0x11, 0x64, 0x17, 0x44,
+	0xb0, 0x0f, 0xb7, 0xcc, 0x5d, 0xf4, 0x1a, 0xdd, 0xf1, 0xd9, 0x34, 0x8b, 0x4b, 0x56, 0x12, 0xa6,
+	0x3f, 0x67, 0x61, 0x2f, 0xe9, 0xaa, 0xc9, 0xfc, 0x73, 0x37, 0x18, 0x6a, 0xb7, 0x1d, 0xd8, 0xd6,
+	0x7b, 0x74, 0x27, 0x38, 0x9c, 0x68, 0xfe, 0x4c, 0x05, 0xed, 0xc4, 0x2b, 0x28, 0x72, 0x42, 0x2b,
+	0x75, 0x9b, 0xcc, 0xf0, 0xa3, 0x20, 0x60, 0x81, 0x89, 0x47, 0x2f, 0xe8, 0x2f, 0x39, 0x59, 0x58,
+	0x7e, 0x1f, 0xa7, 0xb9, 0x43, 0xa0, 0xd0, 0xb3, 0x3d, 0x61, 0x98, 0x51, 0xdf, 0xd7, 0x3f, 0xd4,
+	0xc2, 0x98, 0xf3, 0x7f, 0x2f, 0xe6, 0x07, 0xb0, 0xa1, 0xf1, 0xd6, 0x73, 0xe3, 0xb7, 0xa0, 0xc2,
+	0x4a, 0xa0, 0xe4, 0x48, 0xde, 0x90, 0x8a, 0x3f, 0xbc, 0xda, 0xe2, 0xdb, 0x5c, 0xce, 0x6d, 0xa1,
+	0x2f, 0xa1, 0xa8, 0xb8, 0x90, 0x5c, 0xa9, 0x0f, 0xc3, 0x82, 0x41, 0x6b, 0xb0, 0x36, 0x8b, 0x43,
+	0xb7, 0xa6, 0xd9, 0x3a, 0x64, 0x37, 0x1f, 0x65, 0xf7, 0x4d, 0x16, 0xee, 0x19, 0x2f, 0x0b, 0xaf,
+	0xf9, 0x0e, 0xac, 0x8c, 0x63, 0xc5, 0xaa, 0x57, 0xe4, 0x04, 0x6e, 0x2b, 0xb7, 0x53, 0x4a, 0xf4,
+	0x91, 0x95, 0xe3, 0xa5, 0xc7, 0x4a, 0xdb, 0xb5, 0x20, 0xbc, 0x9f, 0xa0, 0xfa, 0xff, 0x66, 0xdf,
+	0x2e, 0xe4, 0x1b, 0xfd, 0xcb, 0x50, 0x98, 0x8d, 0x0a, 0x7f, 0x84, 0xe2, 0xa1, 0x2d, 0xfa, 0x17,
+	0x37, 0x9c, 0x1d, 0x7b, 0x50, 0x7a, 0x16, 0xb0, 0x61, 0xf7, 0xc2, 0xe6, 0xa8, 0xbc, 0x15, 0xad,
+	0x10, 0x20, 0xef, 0x43, 0x91, 0x7b, 0x4c, 0xc8, 0x6e, 0x2e, 0x87, 0xc6, 0x56, 0xcc, 0x56, 0xcf,
+	0x63, 0xc2, 0xd2, 0x72, 0x3a, 0x86, 0x92, 0xf2, 0xae, 0xa6, 0xc5, 0xbf, 0x19, 0xc1, 0x9e, 0x31,
+	0xac, 0xe6, 0x67, 0x5e, 0x4d, 0x9b, 0x10, 0xa0, 0x7f, 0xe6, 0xa1, 0x20, 0xc3, 0x08, 0x07, 0x52,
+	0x36, 0x3a, 0x90, 0xea, 0xb0, 0x7d, 0xe4, 0xf7, 0x83, 0xc9, 0x48, 0xa0, 0x63, 0x3a, 0xf6, 0x09,
+	0x4e, 0xb8, 0x49, 0xc7, 0x54, 0x19, 0xf9, 0x12, 0x76, 0x67, 0x78, 0x83, 0x73, 0xd6, 0x77, 0x6d,
+	0x81, 0x4e, 0xcb, 0x16, 0xb6, 0xda, 0x9a, 0x57, 0x5b, 0x97, 0xa9, 0x90, 0x27, 0x50, 0xed, 0xda,
+	0x81, 0x70, 0x6d, 0xcf, 0xd8, 0x6d, 0x4e, 0x46, 0x17, 0x18, 0xbc, 0xc2, 0xd7, 0xc2, 0x14, 0xe4,
+	0x42, 0x39, 0x79, 0x0e, 0xf7, 0x8c, 0x2c, 0x6e, 0x38, 0x62, 0xa2, 0xa8, 0x4c, 0xbc, 0x4d, 0x4d,
+	0x9e, 0xc3, 0xa8, 0x44, 0xde, 0x16, 0x5a, 0x2e, 0x2b, 0x72, 0x45, 0x9f, 0x63, 0x89, 0x8a, 0x2c,
+	0xe0, 0x1e, 0xfa, 0x8e, 0x2a, 0xb6, 0x55, 0x5d, 0xc0, 0xd3, 0xb5, 0x6c, 0x35, 0x26, 0xf8, 0xae,
+	0x3d, 0xf1, 0x98, 0xed, 0x54, 0xd7, 0x74, 0xab, 0x89, 0xa3, 0x52, 0x2f, 0x1e, 0x61, 0xb5, 0xa4,
+	0xf5, 0xe2, 0xe8, 0xac, 0x8f, 0x42, 0xa4, 0x8f, 0x6e, 0x43, 0xf1, 0xa4, 0xd3, 0x68, 0xf2, 0xea,
+	0xfa, 0xfd, 0xbc, 0x6c, 0x2b, 0x6a, 0x41, 0x87, 0x50, 0xd1, 0xc5, 0x62, 0x3c, 0x2d, 0x9f, 0x50,
+	0x66, 0xda, 0xea, 0x32, 0x92, 0xd3, 0xf6, 0x00, 0x56, 0xcd, 0x46, 0xd3, 0x65, 0xb7, 0x0f, 0xf4,
+	0xbb, 0xf2, 0x60, 0xfa, 0xae, 0x3c, 0x68, 0xf8, 0x13, 0x6b, 0xaa, 0x54, 0xff, 0x63, 0x15, 0x0a,
+	0x72, 0x84, 0x93, 0x3a, 0x94, 0x1a, 0xfc, 0xf2, 0xa5, 0xef, 0xb9, 0x3e, 0x92, 0x78, 0x21, 0xc8,
+	0xe7, 0x61, 0x6d, 0x33, 0x06, 0x35, 0xfa, 0x97, 0x34, 0x43, 0x3e, 0x85, 0x8d, 0x66, 0x80, 0xb6,
+	0xc0, 0x53, 0xbc, 0xd2, 0xc9, 0xbe, 0xa0, 0x16, 0x52, 0x77, 0x7f, 0x0c, 0xe5, 0x2e, 0xe3, 0xe2,
+	0x14, 0xaf, 0x74, 0x61, 0x93, 0x98, 0x8e, 0xc2, 0x16, 0x79, 0x7d, 0xe6, 0xfa, 0x2e, 0xbf, 0xb0,
+	0xd0, 0xf6, 0x84, 0x3b, 0xc4, 0x1b, 0x79, 0x7d, 0x0c, 0x25, 0xe9, 0x55, 0x57, 0xdf, 0x75, 0x5d,
+	0x3e, 0x81, 0x5b, 0x3d, 0x11, 0xa0, 0x3d, 0x0c, 0xb7, 0xce, 0xf7, 0x8a, 0xb4, 0x9d, 0xfb, 0x59,
+	0x62, 0x01, 0x39, 0x46, 0x91, 0x7c, 0x3d, 0xef, 0xcd, 0x87, 0x1c, 0x4a, 0x6b, 0x4b, 0xa5, 0x34,
+	0x43, 0xbe, 0x80, 0xb2, 0x19, 0x24, 0x7a, 0x16, 0xed, 0x24, 0x5e, 0xbb, 0xe1, 0x04, 0xaf, 0x91,
+	0x79, 0x11, 0xcd, 0x10, 0x0f, 0x6e, 0x9b, 0xfe, 0x1e, 0x7b, 0xdb, 0x3c, 0x8c, 0xfb, 0x5d, 0x3e,
+	0xab, 0x6a, 0xef, 0x25, 0xb4, 0xd3, 0xd5, 0x68, 0x86, 0x1c, 0x01, 0x91, 0xc4, 0x25, 0x7e, 0x02,
+	0x76, 0xe7, 0x0f, 0x39, 0x13, 0xa6, 0xde, 0xc2, 0x53, 0xd8, 0x52, 0xfc, 0x07, 0xd8, 0x67, 0xc3,
+	0x91, 0x85, 0x7c, 0xec, 0x89, 0x1b, 0x64, 0xcd, 0xd6, 0x31, 0x8a, 0x26, 0x1b, 0x8e, 0x3c, 0x14,
+	0xe8, 0xe8, 0x94, 0x4b, 0xc9, 0xf3, 0x14, 0x7b, 0x34, 0x43, 0x0e, 0x61, 0xb3, 0xc5, 0xae, 0x7c,
+	0x59, 0xf3, 0xb3, 0x9f, 0x8e, 0x5a, 0x3c, 0x03, 0xa2, 0x45, 0x9b, 0x1a, 0x41, 0x03, 0xe0, 0x18,
+	0x45, 0x07, 0x6d, 0x2e, 0x0b, 0x77, 0x51, 0xce, 0xee, 0xcc, 0xe3, 0xe6, 0x1f, 0x80, 0x66, 0xc8,
+	0xe7, 0x50, 0x39, 0x46, 0x11, 0xfe, 0x0b, 0xa6, 0x1d, 0xa0, 0x9a, 0x12, 0x96, 0xfa, 0x6f, 0xa4,
+	0x99, 0xfa, 0xef, 0x39, 0x58, 0x35, 0x0f, 0x6a, 0x72, 0x08, 0x95, 0xe6, 0x05, 0xf6, 0x2f, 0x4d,
+	0xc8, 0x3c, 0x71, 0x9e, 0xd8, 0x3f, 0x44, 0xed, 0x76, 0x4c, 0xa6, 0x7f, 0x08, 0x68, 0x86, 0x7c,
+	0x66, 0x8e, 0xa4, 0x3b, 0xd5, 0x32, 0x03, 0xf3, 0xe5, 0xa2, 0x6a, 0x11, 0xba, 0xe3, 0xd9, 0xf6,
+	0xeb, 0x55, 0xd4, 0x3f, 0xcf, 0x7d, 0x84, 0xb2, 0xc9, 0x4f, 0x6d, 0xe0, 0xbf, 0x49, 0xfa, 0xfa,
+	0xaf, 0x59, 0x19, 0x68, 0xa4, 0xb8, 0xbe, 0x99, 0xae, 0x31, 0x90, 0x2f, 0x7d, 0x72, 0x37, 0x66,
+	0x29, 0xf9, 0xf8, 0xaf, 0x7d, 0xb0, 0x54, 0x9c, 0xa8, 0xb0, 0x46, 0x68, 0x5b, 0x75, 0xf3, 0xbb,
+	0x73, 0xbf, 0xbf, 0x31, 0xdb, 0x29, 0xbc, 0x9e, 0xad, 0xa8, 0x01, 0xf1, 0xf8, 0xaf, 0x00, 0x00,
+	0x00, 0xff, 0xff, 0xf3, 0x5f, 0x2a, 0x1a, 0xa8, 0x10, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -1396,11 +1388,11 @@ type NodeClient interface {
 	// RequestNonce generates a nonce for user registration
 	RequestNonce(ctx context.Context, in *NonceRequest, opts ...grpc.CallOption) (*Nonce, error)
 	// ConfirmRegistration uses a nonce confirmation to finalize user registration
-	ConfirmRegistration(ctx context.Context, in *DSASignature, opts ...grpc.CallOption) (*RegistrationConfirmation, error)
+	ConfirmRegistration(ctx context.Context, in *RequestRegistrationConfirmation, opts ...grpc.CallOption) (*RegistrationConfirmation, error)
 	// PostRoundPublicKey sets the public cypher key for a round on other nodes
 	PostRoundPublicKey(ctx context.Context, in *RoundPublicKey, opts ...grpc.CallOption) (*Ack, error)
 	// PostPrecompResult finalizes the precomputation results with each node from the last node
-	// sending the final Message and AD precomputations
+	// sending the final PayloadA and PayloadB precomputations
 	PostPrecompResult(ctx context.Context, in *Batch, opts ...grpc.CallOption) (*Ack, error)
 	// The gateway calls GetCompletedBatch to get any finished batch from a node
 	GetCompletedBatch(ctx context.Context, in *Ping, opts ...grpc.CallOption) (*Batch, error)
@@ -1517,7 +1509,7 @@ func (c *nodeClient) RequestNonce(ctx context.Context, in *NonceRequest, opts ..
 	return out, nil
 }
 
-func (c *nodeClient) ConfirmRegistration(ctx context.Context, in *DSASignature, opts ...grpc.CallOption) (*RegistrationConfirmation, error) {
+func (c *nodeClient) ConfirmRegistration(ctx context.Context, in *RequestRegistrationConfirmation, opts ...grpc.CallOption) (*RegistrationConfirmation, error) {
 	out := new(RegistrationConfirmation)
 	err := c.cc.Invoke(ctx, "/mixmessages.Node/ConfirmRegistration", in, out, opts...)
 	if err != nil {
@@ -1600,11 +1592,11 @@ type NodeServer interface {
 	// RequestNonce generates a nonce for user registration
 	RequestNonce(context.Context, *NonceRequest) (*Nonce, error)
 	// ConfirmRegistration uses a nonce confirmation to finalize user registration
-	ConfirmRegistration(context.Context, *DSASignature) (*RegistrationConfirmation, error)
+	ConfirmRegistration(context.Context, *RequestRegistrationConfirmation) (*RegistrationConfirmation, error)
 	// PostRoundPublicKey sets the public cypher key for a round on other nodes
 	PostRoundPublicKey(context.Context, *RoundPublicKey) (*Ack, error)
 	// PostPrecompResult finalizes the precomputation results with each node from the last node
-	// sending the final Message and AD precomputations
+	// sending the final PayloadA and PayloadB precomputations
 	PostPrecompResult(context.Context, *Batch) (*Ack, error)
 	// The gateway calls GetCompletedBatch to get any finished batch from a node
 	GetCompletedBatch(context.Context, *Ping) (*Batch, error)
@@ -1644,7 +1636,7 @@ func (*UnimplementedNodeServer) GetRoundBufferInfo(ctx context.Context, req *Rou
 func (*UnimplementedNodeServer) RequestNonce(ctx context.Context, req *NonceRequest) (*Nonce, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RequestNonce not implemented")
 }
-func (*UnimplementedNodeServer) ConfirmRegistration(ctx context.Context, req *DSASignature) (*RegistrationConfirmation, error) {
+func (*UnimplementedNodeServer) ConfirmRegistration(ctx context.Context, req *RequestRegistrationConfirmation) (*RegistrationConfirmation, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ConfirmRegistration not implemented")
 }
 func (*UnimplementedNodeServer) PostRoundPublicKey(ctx context.Context, req *RoundPublicKey) (*Ack, error) {
@@ -1823,7 +1815,7 @@ func _Node_RequestNonce_Handler(srv interface{}, ctx context.Context, dec func(i
 }
 
 func _Node_ConfirmRegistration_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DSASignature)
+	in := new(RequestRegistrationConfirmation)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -1835,7 +1827,7 @@ func _Node_ConfirmRegistration_Handler(srv interface{}, ctx context.Context, dec
 		FullMethod: "/mixmessages.Node/ConfirmRegistration",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NodeServer).ConfirmRegistration(ctx, req.(*DSASignature))
+		return srv.(NodeServer).ConfirmRegistration(ctx, req.(*RequestRegistrationConfirmation))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -2032,7 +2024,7 @@ type GatewayClient interface {
 	// RequestNonce returns a Nonce to the user
 	RequestNonce(ctx context.Context, in *NonceRequest, opts ...grpc.CallOption) (*Nonce, error)
 	// ConfirmNonce takes a client signed nonce for Registration Nonce Confirmation
-	ConfirmNonce(ctx context.Context, in *DSASignature, opts ...grpc.CallOption) (*RegistrationConfirmation, error)
+	ConfirmNonce(ctx context.Context, in *RequestRegistrationConfirmation, opts ...grpc.CallOption) (*RegistrationConfirmation, error)
 }
 
 type gatewayClient struct {
@@ -2079,7 +2071,7 @@ func (c *gatewayClient) RequestNonce(ctx context.Context, in *NonceRequest, opts
 	return out, nil
 }
 
-func (c *gatewayClient) ConfirmNonce(ctx context.Context, in *DSASignature, opts ...grpc.CallOption) (*RegistrationConfirmation, error) {
+func (c *gatewayClient) ConfirmNonce(ctx context.Context, in *RequestRegistrationConfirmation, opts ...grpc.CallOption) (*RegistrationConfirmation, error) {
 	out := new(RegistrationConfirmation)
 	err := c.cc.Invoke(ctx, "/mixmessages.Gateway/ConfirmNonce", in, out, opts...)
 	if err != nil {
@@ -2099,7 +2091,7 @@ type GatewayServer interface {
 	// RequestNonce returns a Nonce to the user
 	RequestNonce(context.Context, *NonceRequest) (*Nonce, error)
 	// ConfirmNonce takes a client signed nonce for Registration Nonce Confirmation
-	ConfirmNonce(context.Context, *DSASignature) (*RegistrationConfirmation, error)
+	ConfirmNonce(context.Context, *RequestRegistrationConfirmation) (*RegistrationConfirmation, error)
 }
 
 // UnimplementedGatewayServer can be embedded to have forward compatible implementations.
@@ -2118,7 +2110,7 @@ func (*UnimplementedGatewayServer) PutMessage(ctx context.Context, req *Slot) (*
 func (*UnimplementedGatewayServer) RequestNonce(ctx context.Context, req *NonceRequest) (*Nonce, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RequestNonce not implemented")
 }
-func (*UnimplementedGatewayServer) ConfirmNonce(ctx context.Context, req *DSASignature) (*RegistrationConfirmation, error) {
+func (*UnimplementedGatewayServer) ConfirmNonce(ctx context.Context, req *RequestRegistrationConfirmation) (*RegistrationConfirmation, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ConfirmNonce not implemented")
 }
 
@@ -2199,7 +2191,7 @@ func _Gateway_RequestNonce_Handler(srv interface{}, ctx context.Context, dec fun
 }
 
 func _Gateway_ConfirmNonce_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DSASignature)
+	in := new(RequestRegistrationConfirmation)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -2211,7 +2203,7 @@ func _Gateway_ConfirmNonce_Handler(srv interface{}, ctx context.Context, dec fun
 		FullMethod: "/mixmessages.Gateway/ConfirmNonce",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GatewayServer).ConfirmNonce(ctx, req.(*DSASignature))
+		return srv.(GatewayServer).ConfirmNonce(ctx, req.(*RequestRegistrationConfirmation))
 	}
 	return interceptor(ctx, in, info, handler)
 }

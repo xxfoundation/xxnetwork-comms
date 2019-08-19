@@ -12,10 +12,10 @@ Create a new `message`, resembling a `struct` in golang.
 ```
 message PrecompDecryptSlot {
   uint64 Slot = 1;
-  bytes EncryptedMessageKeys = 2;
-  bytes EncryptedRecipientIDKeys = 3;
-  bytes PartialMessageCypherText = 4;
-  bytes PartialRecipientIDCypherText = 5;
+  bytes EncryptedPayloadAKeys = 2;
+  bytes EncryptedPayloadBKeys = 3;
+  bytes PartialPayloadACypherText = 4;
+  bytes PartialPayloadBCypherText = 5;
 }
 ```
 

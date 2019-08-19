@@ -14,15 +14,14 @@ import (
 )
 
 type Handler interface {
-	RegisterUser(registrationCode string, Y, P, Q, G []byte) (hash,
-		R, S []byte, err error)
+	RegisterUser(registrationCode, pubKey string) (signature []byte, err error)
 	RegisterNode(ID []byte,
 		ServerTlsCert, GatewayTlsCert, RegistrationCode, Addr string) error
 }
 
 type implementationFunctions struct {
-	RegisterUser func(registrationCode string, Y, P, Q, G []byte) (hash,
-		R, S []byte, err error)
+	RegisterUser func(registrationCode, pubKey string) (signature []byte,
+		err error)
 	RegisterNode func(ID []byte,
 		ServerTlsCert, GatewayTlsCert, RegistrationCode, Addr string) error
 }
@@ -43,10 +42,11 @@ func NewImplementation() Handler {
 	}
 	return Handler(&Implementation{
 		Functions: implementationFunctions{
-			RegisterUser: func(registrationCode string,
-				Y, P, Q, G []byte) (hash, R, S []byte, err error) {
+
+			RegisterUser: func(registrationCode,
+				pubKey string) (signature []byte, err error) {
 				warn(um)
-				return nil, nil, nil, nil
+				return nil, nil
 			},
 			RegisterNode: func(ID []byte,
 				ServerTlsCert, GatewayTlsCert, RegistrationCode, Addr string) error {
@@ -58,9 +58,9 @@ func NewImplementation() Handler {
 }
 
 // Registers a user and returns a signed public key
-func (s *Implementation) RegisterUser(registrationCode string,
-	Y, P, Q, G []byte) (hash, R, S []byte, err error) {
-	return s.Functions.RegisterUser(registrationCode, Y, P, Q, G)
+func (s *Implementation) RegisterUser(registrationCode,
+	pubKey string) (signature []byte, err error) {
+	return s.Functions.RegisterUser(registrationCode, pubKey)
 }
 
 func (s *Implementation) RegisterNode(ID []byte,
