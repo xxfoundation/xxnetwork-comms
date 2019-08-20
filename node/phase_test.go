@@ -205,9 +205,9 @@ func createSlots(numSlots uint32) []mixmessages.Slot {
 
 	for i := uint32(0); i < numSlots; i++ {
 		slots[i] = mixmessages.Slot{
-			Index:          i,
+			Index:    i,
 			PayloadA: []byte{0x01},
-			SenderID:       []byte{0x02},
+			SenderID: []byte{0x02},
 		}
 	}
 

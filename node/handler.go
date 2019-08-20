@@ -35,11 +35,11 @@ type ServerHandler interface {
 	PostRoundPublicKey(message *mixmessages.RoundPublicKey)
 
 	// Server interface for RequestNonceMessage
-	RequestNonce(salt, Y, P, Q, G,
-		hash, R, S []byte) ([]byte, error)
+	RequestNonce(salt []byte, RSAPubKey string, DHPubKey,
+		RSASignedByRegistration, DHSignedByClientRSA []byte) ([]byte, []byte, error)
+
 	// Server interface for ConfirmNonceMessage
-	ConfirmRegistration(hash, R, S []byte) ([]byte,
-		[]byte, []byte, []byte, []byte, []byte, []byte, error)
+	ConfirmRegistration(UserID []byte, Signature []byte) ([]byte, error)
 
 	// PostPrecompResult interface to finalize both payloads' precomps
 	PostPrecompResult(roundID uint64, slots []*mixmessages.Slot) error
@@ -75,11 +75,10 @@ type implementationFunctions struct {
 	PostRoundPublicKey func(message *mixmessages.RoundPublicKey)
 
 	// Server interface for RequestNonceMessage
-	RequestNonce func(salt, Y, P, Q, G,
-		hash, R, S []byte) ([]byte, error)
+	RequestNonce func(salt []byte, RSAPubKey string, DHPubKey,
+		RSASigFromReg, RSASigDH []byte) ([]byte, []byte, error)
 	// Server interface for ConfirmNonceMessage
-	ConfirmRegistration func(hash, R, S []byte) ([]byte,
-		[]byte, []byte, []byte, []byte, []byte, []byte, error)
+	ConfirmRegistration func(UserID, Signature []byte) ([]byte, error)
 
 	// PostPrecompResult interface to finalize both payloads' precomputations
 	PostPrecompResult func(roundID uint64,
@@ -143,16 +142,14 @@ func NewImplementation() *Implementation {
 				return 0, nil
 			},
 
-			RequestNonce: func(salt, Y, P, Q, G,
-				hash, R, S []byte) ([]byte, error) {
+			RequestNonce: func(salt []byte, RSAPubKey string, DHPubKey,
+				RSASig, RSASigDH []byte) ([]byte, []byte, error) {
+				warn(um)
+				return nil, nil, nil
+			},
+			ConfirmRegistration: func(UserID, Signature []byte) ([]byte, error) {
 				warn(um)
 				return nil, nil
-			},
-			ConfirmRegistration: func(hash, R, S []byte) (
-				[]byte, []byte, []byte, []byte, []byte,
-				[]byte, []byte, error) {
-				warn(um)
-				return nil, nil, nil, nil, nil, nil, nil, nil
 			},
 			PostPrecompResult: func(roundID uint64,
 				slots []*mixmessages.Slot) error {
@@ -205,15 +202,14 @@ func (s *Implementation) GetRoundBufferInfo() (int, error) {
 }
 
 // Server interface for RequestNonceMessage
-func (s *Implementation) RequestNonce(salt, Y, P, Q, G,
-	hash, R, S []byte) ([]byte, error) {
-	return s.Functions.RequestNonce(salt, Y, P, Q, G, hash, R, S)
+func (s *Implementation) RequestNonce(salt []byte, RSAPubKey string, DHPubKey,
+	RSASigFromReg, RSASigDH []byte) ([]byte, []byte, error) {
+	return s.Functions.RequestNonce(salt, RSAPubKey, DHPubKey, RSASigFromReg, RSASigDH)
 }
 
 // Server interface for ConfirmNonceMessage
-func (s *Implementation) ConfirmRegistration(hash, R, S []byte) ([]byte,
-	[]byte, []byte, []byte, []byte, []byte, []byte, error) {
-	return s.Functions.ConfirmRegistration(hash, R, S)
+func (s *Implementation) ConfirmRegistration(UserID, Signature []byte) ([]byte, error) {
+	return s.Functions.ConfirmRegistration(UserID, Signature)
 }
 
 // PostPrecompResult interface to finalize both payloads' precomputations

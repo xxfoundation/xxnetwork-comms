@@ -122,13 +122,12 @@ func (s *NodeComms) GetRoundBufferInfo(ctx context.Context,
 // Handles Registration Nonce Communication
 func (s *NodeComms) RequestNonce(ctx context.Context,
 	msg *pb.NonceRequest) (*pb.Nonce, error) {
-	pk := msg.GetClient()
-	sig := msg.GetClientSignedByServer()
 
 	// Obtain the nonce by passing to server
-	nonce, err := s.handler.RequestNonce(msg.GetSalt(),
-		pk.GetY(), pk.GetP(), pk.GetQ(),
-		pk.GetG(), sig.GetHash(), sig.GetR(), sig.GetS())
+	nonce, pk, err := s.handler.RequestNonce(msg.GetSalt(),
+		msg.GetClientRSAPubKey(), msg.GetClientDHPubKey(),
+		msg.GetClientSignedByServer().Signature,
+		msg.GetRequestSignature().Signature)
 
 	// Obtain the error message, if any
 	errMsg := ""
@@ -138,19 +137,18 @@ func (s *NodeComms) RequestNonce(ctx context.Context,
 
 	// Return the NonceMessage
 	return &pb.Nonce{
-		Nonce: nonce,
-		Error: errMsg,
+		Nonce:    nonce,
+		DHPubKey: pk,
+		Error:    errMsg,
 	}, err
 }
 
 // Handles Registration Nonce Confirmation
 func (s *NodeComms) ConfirmRegistration(ctx context.Context,
-	msg *pb.DSASignature) (*pb.RegistrationConfirmation, error) {
+	msg *pb.RequestRegistrationConfirmation) (*pb.RegistrationConfirmation, error) {
 
 	// Obtain signed client public key by passing to server
-	hash, R, S, Y, P, Q, G, err := s.handler.ConfirmRegistration(
-		msg.GetHash(),
-		msg.GetR(), msg.GetS())
+	signature, err := s.handler.ConfirmRegistration(msg.GetUserID(), msg.NonceSignedByClient.Signature)
 
 	// Obtain the error message, if any
 	errMsg := ""
@@ -160,16 +158,8 @@ func (s *NodeComms) ConfirmRegistration(ctx context.Context,
 
 	// Return the RegistrationConfirmation
 	return &pb.RegistrationConfirmation{
-		ClientSignedByServer: &pb.DSASignature{
-			Hash: hash,
-			R:    R,
-			S:    S,
-		},
-		Server: &pb.DSAPublicKey{
-			Y: Y,
-			P: P,
-			Q: Q,
-			G: G,
+		ClientSignedByServer: &pb.RSASignature{
+			Signature: signature,
 		},
 		Error: errMsg,
 	}, err

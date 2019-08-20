@@ -26,7 +26,7 @@ type Handler interface {
 	// Pass-through for Registration Nonce Communication
 	RequestNonce(message *pb.NonceRequest) (*pb.Nonce, error)
 	// Pass-through for Registration Nonce Confirmation
-	ConfirmNonce(message *pb.DSASignature) (*pb.
+	ConfirmNonce(message *pb.RequestRegistrationConfirmation) (*pb.
 		RegistrationConfirmation, error)
 }
 
@@ -41,7 +41,7 @@ type implementationFunctions struct {
 	// Pass-through for Registration Nonce Communication
 	RequestNonce func(message *pb.NonceRequest) (*pb.Nonce, error)
 	// Pass-through for Registration Nonce Confirmation
-	ConfirmNonce func(message *pb.DSASignature) (*pb.
+	ConfirmNonce func(message *pb.RequestRegistrationConfirmation) (*pb.
 			RegistrationConfirmation, error)
 }
 
@@ -76,7 +76,7 @@ func NewImplementation() Handler {
 				warn(um)
 				return new(pb.Nonce), nil
 			},
-			ConfirmNonce: func(message *pb.DSASignature) (*pb.RegistrationConfirmation, error) {
+			ConfirmNonce: func(message *pb.RequestRegistrationConfirmation) (*pb.RegistrationConfirmation, error) {
 				warn(um)
 				return new(pb.RegistrationConfirmation), nil
 			},
@@ -108,7 +108,7 @@ func (s *Implementation) RequestNonce(message *pb.NonceRequest) (
 }
 
 // Pass-through for Registration Nonce Confirmation
-func (s *Implementation) ConfirmNonce(message *pb.DSASignature) (*pb.
+func (s *Implementation) ConfirmNonce(message *pb.RequestRegistrationConfirmation) (*pb.
 	RegistrationConfirmation, error) {
 	return s.Functions.ConfirmNonce(message)
 }
