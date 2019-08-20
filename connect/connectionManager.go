@@ -205,17 +205,21 @@ func (m *ConnectionManager) connect(id string, addr string,
 		m.connections = make(map[string]*ConnectionInfo)
 	}
 
-	maxRetries := 10
+	maxRetries := 3
+	//up to 15 seconds
+	//TODO: Verify that this will work on all server, registration & gateway
+	//try to send msg, doesn't work, backs off depending what they're seeing
+
 	// Create a new connection if we are not present or disconnecting/disconnected
-	for numRetries := 0; numRetries < maxRetries && !isConnectionGood(connection); numRetries++ {
+	for numRetries := 0; numRetries < maxRetries; numRetries++ {
 
 		jww.DEBUG.Printf("Trying to connect to %v", addr)
-		ctx, cancel := DefaultContext()
+
+		ctx, cancel := TimeoutContext(time.Duration(5*(numRetries+1)))
 
 		// Create the connection
 		connection, err = grpc.DialContext(ctx, addr,
 			securityDial, grpc.WithBlock())
-
 		if err != nil {
 			jww.ERROR.Printf("Connection to %s failed: %+v\n", addr,
 				errors.New(err.Error()))
@@ -322,6 +326,16 @@ func (m *ConnectionManager) String() string {
 	}
 
 	return result.String()
+}
+
+//TimeoutContext is the basis for the default timeout
+func TimeoutContext(seconds time.Duration) (context.Context, context.CancelFunc) {
+	waitingPeriod := seconds * time.Second
+	jww.DEBUG.Printf("Timing out in: %s", waitingPeriod)
+	ctx, cancel := context.WithTimeout(context.Background(),
+		waitingPeriod)
+	return ctx, cancel
+
 }
 
 // DefaultContexts creates a context object with the default context
