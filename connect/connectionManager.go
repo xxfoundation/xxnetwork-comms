@@ -18,6 +18,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/credentials"
+	"math"
 	"sort"
 	"sync"
 	"time"
@@ -205,16 +206,26 @@ func (m *ConnectionManager) connect(id string, addr string,
 	}
 	jww.DEBUG.Printf("Trying to connect to %v", addr)
 
-	maxRetries := 100
+	//Set the max number depending on if we want to timeout or not
+	var maxRetries int64
+	if hasTimeout {
+		maxRetries = 100
+	} else {
+		maxRetries = math.MaxInt64
+	}
+
+
 	var ctx context.Context
 	var cancel context.CancelFunc
+
+
 	// Create a new connection if we are not present or disconnecting/disconnected
-	for numRetries := 0; numRetries < maxRetries && !isConnectionGood(connection); numRetries++ {
-		if hasTimeout {
-			ctx, cancel = TimeoutContext(time.Duration(2 * (numRetries/16 + 1)))
-		} else {
-			ctx, cancel = DefaultContext()
-		}
+	for numRetries := int64(0); numRetries < maxRetries && !isConnectionGood(connection); numRetries++ {
+
+		ctx, cancel = TimeoutContext(time.Duration(2 * (numRetries/16 + 1)))
+
+
+
 		// Create the connection
 		connection, err = grpc.DialContext(ctx, addr,
 			securityDial, grpc.WithBlock())
