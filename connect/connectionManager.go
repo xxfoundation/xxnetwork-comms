@@ -221,6 +221,7 @@ func (m *ConnectionManager) connect(id string, addr string,
 			jww.ERROR.Printf("Connection to %s failed: %+v\n", addr,
 				errors.New(err.Error()))
 		}
+		jww.INFO.Printf("Attempt number %+v to connect failed..", numRetries)
 
 		cancel()
 	}
