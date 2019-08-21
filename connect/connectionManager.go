@@ -204,24 +204,20 @@ func (m *ConnectionManager) connect(id string, addr string,
 	if m.connections == nil {
 		m.connections = make(map[string]*ConnectionInfo)
 	}
+	jww.DEBUG.Printf("Trying to connect to %v", addr)
 
 	maxRetries := 3
-	//up to 15 seconds
-	//TODO: Verify that this will work on all server, registration & gateway
-	//try to send msg, doesn't work, backs off depending what they're seeing
-	jww.DEBUG.Printf("Trying to connect to %v", addr)
 	// Create a new connection if we are not present or disconnecting/disconnected
 	for numRetries := 0; numRetries < maxRetries && !isConnectionGood(connection); numRetries++ {
-		ctx, cancel := TimeoutContext(time.Duration(5*(numRetries+1)))
-		jww.INFO.Printf("context: %+v", ctx)
+
+		ctx, cancel := TimeoutContext(time.Duration(5 * (numRetries + 1)))
 		// Create the connection
 		connection, err = grpc.DialContext(ctx, addr,
 			securityDial, grpc.WithBlock())
 		if err != nil {
-			jww.ERROR.Printf("Connection to %s failed: %+v\n", addr,
+			jww.ERROR.Printf("Attempt number %+v to connect to %s failed: %+v\n", numRetries, addr,
 				errors.New(err.Error()))
 		}
-		jww.INFO.Printf("Attempt number %+v to connect failed..", numRetries)
 
 		cancel()
 	}
