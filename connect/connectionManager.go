@@ -213,7 +213,7 @@ func (m *ConnectionManager) connect(id string, addr string,
 	// Create a new connection if we are not present or disconnecting/disconnected
 	for numRetries := 0; numRetries < maxRetries && !isConnectionGood(connection); numRetries++ {
 		ctx, cancel := TimeoutContext(time.Duration(5*(numRetries+1)))
-		jww.INFO.Printf("context: %+v")
+		jww.INFO.Printf("context: %+v", ctx)
 		// Create the connection
 		connection, err = grpc.DialContext(ctx, addr,
 			securityDial, grpc.WithBlock())
