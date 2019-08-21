@@ -49,7 +49,7 @@ func TestConnectionManager_Disconnect(t *testing.T) {
 	id := "pear"
 	var manager ConnectionManager
 
-	manager.connect(id, address, nil, nil)
+	manager.connect(id, address, nil, nil, false)
 
 	_, inMap := manager.connections[id]
 
@@ -84,7 +84,7 @@ func TestConnectionManager_DisconnectAll(t *testing.T) {
 	id2 := "apple"
 	var manager ConnectionManager
 
-	manager.connect(id, address, nil, nil)
+	manager.connect(id, address, nil, nil, false)
 
 	_, inMap := manager.connections[id]
 
@@ -94,7 +94,7 @@ func TestConnectionManager_DisconnectAll(t *testing.T) {
 		pass++
 	}
 
-	manager.connect(id2, address2, nil, nil)
+	manager.connect(id2, address2, nil, nil, false)
 
 	_, inMap = manager.connections[id2]
 

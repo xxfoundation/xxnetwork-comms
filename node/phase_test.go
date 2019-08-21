@@ -46,8 +46,8 @@ func TestPhase_StreamPostPhaseSendReceive(t *testing.T) {
 	receiverToSenderID := MockID("receiver2tosender")
 	// It might make more sense to call the RPC on the connection object
 	// that's returned from this
-	serverStreamSender.ConnectToNode(senderToReceiverID, servReceiverAddress, certData)
-	serverStreamSender.ConnectToNode(receiverToSenderID, servSenderAddress, certData)
+	serverStreamSender.ConnectToNode(senderToReceiverID, servReceiverAddress, certData, false)
+	serverStreamSender.ConnectToNode(receiverToSenderID, servSenderAddress, certData, false)
 
 	// Reset TLS-related global variables
 	defer serverStreamReceiver.Shutdown()
@@ -140,7 +140,7 @@ func TestGetPostPhaseStream_ErrorsWhenContextCanceled(t *testing.T) {
 	// Get credentials and connect to node
 	senderToReceiverID := MockID("sender2receiver")
 
-	serverStreamSender.ConnectToNode(senderToReceiverID, servReceiverAddress, certData)
+	serverStreamSender.ConnectToNode(senderToReceiverID, servReceiverAddress, certData, false)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
