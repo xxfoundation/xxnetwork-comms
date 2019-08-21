@@ -21,7 +21,6 @@ import (
 	"sort"
 	"sync"
 	"time"
-
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 )
@@ -43,7 +42,7 @@ type ConnectionManager struct {
 }
 
 // Default maximum number of retries
-const MAX_RETRIES = 5
+const MAX_RETRIES = 100
 
 // Set private key to data to a PEM block
 func (m *ConnectionManager) SetPrivateKey(data []byte) error {
@@ -70,8 +69,8 @@ func (m *ConnectionManager) GetConnectionInfo(id string) *ConnectionInfo {
 // Connect to a certain registration server
 // connectionInfo can be nil if the connection already exists for this id
 func (m *ConnectionManager) ConnectToRegistration(id fmt.Stringer,
-	addr string, certPEMblock []byte) error {
-	return m.ConnectToRemote(id, addr, certPEMblock)
+	addr string, certPEMblock []byte, hasTimeout bool) error {
+	return m.ConnectToRemote(id, addr, certPEMblock, hasTimeout)
 }
 
 // ConnectToRemote connects to a remote server at address addr with the passed
@@ -79,7 +78,7 @@ func (m *ConnectionManager) ConnectToRegistration(id fmt.Stringer,
 // used to identify the private keys of the sender of incoming messages so
 // it must be the same as used across the network.
 func (m *ConnectionManager) ConnectToRemote(id fmt.Stringer,
-	addr string, certPEMblock []byte) error {
+	addr string, certPEMblock []byte, hasTimeout bool) error {
 	// Make TransportCredentials
 	var creds credentials.TransportCredentials
 	var pubKey *rsa.PublicKey
@@ -119,7 +118,7 @@ func (m *ConnectionManager) ConnectToRemote(id fmt.Stringer,
 		}
 	}
 	// NewCredentialsFromPem, NewCredentialsFromFile, NewP
-	m.connect(id.String(), addr, creds, pubKey)
+	m.connect(id.String(), addr, creds, pubKey, hasTimeout)
 	return nil
 }
 
@@ -133,8 +132,8 @@ func (m *ConnectionManager) GetRegistrationConnection(id fmt.Stringer) pb.
 // Connect to a certain gateway
 // connectionInfo can be nil if the connection already exists for this id
 func (m *ConnectionManager) ConnectToGateway(id fmt.Stringer,
-	addr string, certPEMblock []byte) error {
-	return m.ConnectToRemote(id, addr, certPEMblock)
+	addr string, certPEMblock []byte, hasTimeout bool) error {
+	return m.ConnectToRemote(id, addr, certPEMblock, hasTimeout)
 }
 
 // DEPRECATED - Use ConnectToRemote instead
@@ -149,8 +148,8 @@ func (m *ConnectionManager) GetGatewayConnection(id fmt.Stringer) pb.
 // Should this return an error if the connection doesn't exist and the
 // connection info is nil?
 func (m *ConnectionManager) ConnectToNode(id fmt.Stringer,
-	addr string, certPEMblock []byte) error {
-	return m.ConnectToRemote(id, addr, certPEMblock)
+	addr string, certPEMblock []byte, hasTimeout bool) error {
+	return m.ConnectToRemote(id, addr, certPEMblock, hasTimeout)
 }
 
 func (m *ConnectionManager) GetNodeConnection(id fmt.Stringer) pb.NodeClient {
@@ -183,7 +182,7 @@ func (m *ConnectionManager) get(id fmt.Stringer) *grpc.ClientConn {
 
 // Connect creates a connection
 func (m *ConnectionManager) connect(id string, addr string,
-	tls credentials.TransportCredentials, pubKey *rsa.PublicKey) {
+	tls credentials.TransportCredentials, pubKey *rsa.PublicKey, hasTimeout bool) {
 
 	// Create top level vars
 	var connection *grpc.ClientConn
@@ -207,10 +206,15 @@ func (m *ConnectionManager) connect(id string, addr string,
 	jww.DEBUG.Printf("Trying to connect to %v", addr)
 
 	maxRetries := 100
+	var ctx context.Context
+	var cancel context.CancelFunc
 	// Create a new connection if we are not present or disconnecting/disconnected
 	for numRetries := 0; numRetries < maxRetries && !isConnectionGood(connection); numRetries++ {
-
-		ctx, cancel := TimeoutContext(time.Duration(2 * (numRetries/16 + 1)))
+		if hasTimeout {
+			ctx, cancel = TimeoutContext(time.Duration(2 * (numRetries/16 + 1)))
+		} else {
+			ctx, cancel = DefaultContext()
+		}
 		// Create the connection
 		connection, err = grpc.DialContext(ctx, addr,
 			securityDial, grpc.WithBlock())
