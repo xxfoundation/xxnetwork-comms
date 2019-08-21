@@ -209,14 +209,11 @@ func (m *ConnectionManager) connect(id string, addr string,
 	//up to 15 seconds
 	//TODO: Verify that this will work on all server, registration & gateway
 	//try to send msg, doesn't work, backs off depending what they're seeing
-
+	jww.DEBUG.Printf("Trying to connect to %v", addr)
 	// Create a new connection if we are not present or disconnecting/disconnected
-	for numRetries := 0; numRetries < maxRetries; numRetries++ {
-
-		jww.DEBUG.Printf("Trying to connect to %v", addr)
-
+	for numRetries := 0; numRetries < maxRetries && !isConnectionGood(connection); numRetries++ {
 		ctx, cancel := TimeoutContext(time.Duration(5*(numRetries+1)))
-
+		jww.INFO.Printf("context: %+v")
 		// Create the connection
 		connection, err = grpc.DialContext(ctx, addr,
 			securityDial, grpc.WithBlock())
