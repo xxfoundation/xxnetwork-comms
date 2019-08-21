@@ -33,7 +33,6 @@ type ConnectionInfo struct {
 	Creds        credentials.TransportCredentials
 	RsaPublicKey *rsa.PublicKey
 	Connection   *grpc.ClientConn
-	hasTimeout    bool
 }
 
 type ConnectionManager struct {
@@ -235,7 +234,6 @@ func (m *ConnectionManager) connect(id string, addr string,
 			Creds:        tls,
 			Connection:   connection,
 			RsaPublicKey: pubKey,
-			hasTimeout:   hasTimeout,
 		}
 		m.connectionsLock.Unlock()
 	}
@@ -339,7 +337,7 @@ func TimeoutContext(seconds time.Duration) (context.Context, context.CancelFunc)
 // timeout for all clients
 func DefaultContext() (context.Context, context.CancelFunc) {
 	ctx, cancel := context.WithTimeout(context.Background(),
-		0*time.Millisecond)
+		10000*time.Millisecond)
 	return ctx, cancel
 }
 
