@@ -39,7 +39,7 @@ func TestDownloadTopology(t *testing.T) {
 	defer reg.Shutdown()
 
 	regID := MockID("Permissioning")
-	err := server.ConnectToRegistration(regID, RegAddress, certData, false)
+	err := server.ConnectToRegistration(regID, RegAddress, certData)
 
 	if err != nil {
 		t.Errorf("Download topology could not connect to registration: %+v", err)

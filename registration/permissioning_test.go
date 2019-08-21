@@ -32,13 +32,13 @@ func TestSendNodeTopology(t *testing.T) {
 	connID := MockID("permissioningToServer")
 	regID := MockID("Permissioning")
 
-	err := server.ConnectToRegistration(regID, RegAddress, certData, false)
+	err := server.ConnectToRegistration(regID, RegAddress, certData)
 	if err != nil {
 		t.Errorf("SendNodeTopology: Node could not connect to"+
 			" registration: %s", err)
 	}
 
-	err = reg.ConnectToNode(connID, ServerAddress, nil, false)
+	err = reg.ConnectToNode(connID, ServerAddress, nil)
 	if err != nil {
 		t.Errorf("SendNodeTopology: Registration could not connect to"+
 			" node: %s", err)
@@ -65,8 +65,8 @@ func TestSendNodeTopologyNilKey(t *testing.T) {
 	connID := MockID("permissioningToServer")
 	regID := MockID("Permissioning")
 
-	_ = server.ConnectToRegistration(regID, RegAddress, nil, false)
-	_ = reg.ConnectToNode(connID, ServerAddress, nil, false)
+	_ = server.ConnectToRegistration(regID, RegAddress, nil)
+	_ = reg.ConnectToNode(connID, ServerAddress, nil)
 
 	msgs := &pb.NodeTopology{}
 	err := reg.SendNodeTopology(connID, msgs)
@@ -89,8 +89,8 @@ func TestSendNodeTopologyBadMessageError(t *testing.T) {
 	connID := MockID("permissioningToServer")
 	regID := MockID("Permissioning")
 
-	_ = server.ConnectToRegistration(regID, RegAddress, nil, false)
-	_ = reg.ConnectToNode(connID, ServerAddress, nil, false)
+	_ = server.ConnectToRegistration(regID, RegAddress, nil)
+	_ = reg.ConnectToNode(connID, ServerAddress, nil)
 
 	err := reg.SendNodeTopology(connID, nil)
 	if err == nil {
@@ -112,8 +112,8 @@ func TestSendNodeTopologyNilMessage(t *testing.T) {
 	connID := MockID("permissioningToServer")
 	regID := MockID("Permissioning")
 
-	_ = server.ConnectToRegistration(regID, RegAddress, nil, false)
-	_ = reg.ConnectToNode(connID, ServerAddress, nil, false)
+	_ = server.ConnectToRegistration(regID, RegAddress, nil)
+	_ = reg.ConnectToNode(connID, ServerAddress, nil)
 
 	//sgs := &pb.NodeTopology{}
 	err := reg.SendNodeTopology(connID, nil)
@@ -136,8 +136,8 @@ func TestSendNodeTopologyBadSignature(t *testing.T) {
 	connID := MockID("permissioningToServer")
 	regID := MockID("Permissioning")
 
-	_ = server.ConnectToRegistration(regID, RegAddress, nil, false)
-	_ = reg.ConnectToNode(connID, ServerAddress, nil, false)
+	_ = server.ConnectToRegistration(regID, RegAddress, nil)
+	_ = reg.ConnectToNode(connID, ServerAddress, nil)
 
 	msgs := &pb.NodeTopology{}
 	err := reg.SendNodeTopology(connID, msgs)

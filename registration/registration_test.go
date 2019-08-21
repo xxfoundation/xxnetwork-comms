@@ -46,7 +46,7 @@ func TestTLS(t *testing.T) {
 	var c client.ClientComms
 	connID := MockID("clientToRegistration")
 	_ = c.ConnectToRegistration(connID,
-		RegAddress, certData, false)
+		RegAddress, certData)
 
 	_, err := c.SendRegistrationMessage(connID, &pb.UserRegistration{})
 	if err != nil {
