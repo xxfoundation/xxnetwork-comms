@@ -12,6 +12,8 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/pkg/errors"
+	jww "github.com/spf13/jwalterweatherman"
+	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/crypto/signature/rsa"
 	tlsCreds "gitlab.com/elixxir/crypto/tls"
 	"golang.org/x/net/context"
@@ -22,8 +24,6 @@ import (
 	"sort"
 	"sync"
 	"time"
-	jww "github.com/spf13/jwalterweatherman"
-	pb "gitlab.com/elixxir/comms/mixmessages"
 )
 
 // Stores information used to connect to a server
@@ -214,17 +214,10 @@ func (m *ConnectionManager) connect(id string, addr string,
 		maxRetries = math.MaxInt64
 	}
 
-
-	var ctx context.Context
-	var cancel context.CancelFunc
-
-
 	// Create a new connection if we are not present or disconnecting/disconnected
 	for numRetries := int64(0); numRetries < maxRetries && !isConnectionGood(connection); numRetries++ {
 
-		ctx, cancel = TimeoutContext(time.Duration(2 * (numRetries/16 + 1)))
-
-
+		ctx, cancel := TimeoutContext(time.Duration(2 * (numRetries/16 + 1)))
 
 		// Create the connection
 		connection, err = grpc.DialContext(ctx, addr,
