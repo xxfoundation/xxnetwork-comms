@@ -206,11 +206,11 @@ func (m *ConnectionManager) connect(id string, addr string,
 	}
 	jww.DEBUG.Printf("Trying to connect to %v", addr)
 
-	maxRetries := 3
+	maxRetries := 100
 	// Create a new connection if we are not present or disconnecting/disconnected
 	for numRetries := 0; numRetries < maxRetries && !isConnectionGood(connection); numRetries++ {
 
-		ctx, cancel := TimeoutContext(time.Duration(5 * (numRetries + 1)))
+		ctx, cancel := TimeoutContext(time.Duration(2 * (numRetries/16 + 1)))
 		// Create the connection
 		connection, err = grpc.DialContext(ctx, addr,
 			securityDial, grpc.WithBlock())
