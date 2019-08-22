@@ -23,7 +23,7 @@ func (g *GatewayComms) SendRequestNonceMessage(id fmt.Stringer,
 
 	// Attempt to connect to addr
 	c := g.GetNodeConnection(id)
-	ctx, cancel := connect.DefaultContext()
+	ctx, cancel := connect.MessagingContext()
 
 	// Send the message
 	response, err := c.RequestNonce(ctx, message)
@@ -46,7 +46,7 @@ func (g *GatewayComms) SendConfirmNonceMessage(id fmt.Stringer,
 
 	// Attempt to connect to addr
 	c := g.GetNodeConnection(id)
-	ctx, cancel := connect.DefaultContext()
+	ctx, cancel := connect.MessagingContext()
 
 	// Send the message
 	response, err := c.ConfirmRegistration(ctx, message)
@@ -67,7 +67,7 @@ func (g *GatewayComms) PollSignedCerts(id fmt.Stringer,
 	message *pb.Ping) (*pb.SignedCerts, error) {
 
 	c := g.GetNodeConnection(id)
-	ctx, cancel := connect.DefaultContext()
+	ctx, cancel := connect.MessagingContext()
 
 	response, err := c.GetSignedCert(ctx, message)
 

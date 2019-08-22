@@ -12,18 +12,18 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/pkg/errors"
+	jww "github.com/spf13/jwalterweatherman"
+	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/crypto/signature/rsa"
 	tlsCreds "gitlab.com/elixxir/crypto/tls"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/credentials"
+	"math"
 	"sort"
 	"sync"
 	"time"
-
-	jww "github.com/spf13/jwalterweatherman"
-	pb "gitlab.com/elixxir/comms/mixmessages"
 )
 
 // Stores information used to connect to a server
@@ -43,7 +43,7 @@ type ConnectionManager struct {
 }
 
 // Default maximum number of retries
-const MAX_RETRIES = 5
+const MAX_RETRIES = 100
 
 // Set private key to data to a PEM block
 func (m *ConnectionManager) SetPrivateKey(data []byte) error {
@@ -66,24 +66,17 @@ func (m *ConnectionManager) GetConnectionInfo(id string) *ConnectionInfo {
 	return m.connections[id]
 }
 
-// DEPRECATED - Use ConnectToRemote instead
-// Connect to a certain registration server
-// connectionInfo can be nil if the connection already exists for this id
-func (m *ConnectionManager) ConnectToRegistration(id fmt.Stringer,
-	addr string, certPEMblock []byte) error {
-	return m.ConnectToRemote(id, addr, certPEMblock)
-}
-
 // ConnectToRemote connects to a remote server at address addr with the passed
 // cert. The connection is stored locally at the passed id.  that ID can be
 // used to identify the private keys of the sender of incoming messages so
 // it must be the same as used across the network.
 func (m *ConnectionManager) ConnectToRemote(id fmt.Stringer,
-	addr string, certPEMblock []byte) error {
+	addr string, certPEMblock []byte, disableTimeout bool) error {
 	// Make TransportCredentials
 	var creds credentials.TransportCredentials
 	var pubKey *rsa.PublicKey
-
+	//TODO: Conglomerate this and the connect function, then split and refactor into helper functions
+	// ie this if statement could be a function like loadCredentials that returns credentials, etc
 	if certPEMblock != nil && len(certPEMblock) != 0 {
 
 		var err error
@@ -119,7 +112,7 @@ func (m *ConnectionManager) ConnectToRemote(id fmt.Stringer,
 		}
 	}
 	// NewCredentialsFromPem, NewCredentialsFromFile, NewP
-	m.connect(id.String(), addr, creds, pubKey)
+	m.connect(id.String(), addr, creds, pubKey, disableTimeout)
 	return nil
 }
 
@@ -130,27 +123,10 @@ func (m *ConnectionManager) GetRegistrationConnection(id fmt.Stringer) pb.
 }
 
 // DEPRECATED - Use ConnectToRemote instead
-// Connect to a certain gateway
-// connectionInfo can be nil if the connection already exists for this id
-func (m *ConnectionManager) ConnectToGateway(id fmt.Stringer,
-	addr string, certPEMblock []byte) error {
-	return m.ConnectToRemote(id, addr, certPEMblock)
-}
-
-// DEPRECATED - Use ConnectToRemote instead
 func (m *ConnectionManager) GetGatewayConnection(id fmt.Stringer) pb.
 	GatewayClient {
 	conn := m.get(id)
 	return pb.NewGatewayClient(conn)
-}
-
-// Connect to a certain node
-// connectionInfo can be nil if the connection already exists for this id
-// Should this return an error if the connection doesn't exist and the
-// connection info is nil?
-func (m *ConnectionManager) ConnectToNode(id fmt.Stringer,
-	addr string, certPEMblock []byte) error {
-	return m.ConnectToRemote(id, addr, certPEMblock)
 }
 
 func (m *ConnectionManager) GetNodeConnection(id fmt.Stringer) pb.NodeClient {
@@ -183,7 +159,7 @@ func (m *ConnectionManager) get(id fmt.Stringer) *grpc.ClientConn {
 
 // Connect creates a connection
 func (m *ConnectionManager) connect(id string, addr string,
-	tls credentials.TransportCredentials, pubKey *rsa.PublicKey) {
+	tls credentials.TransportCredentials, pubKey *rsa.PublicKey, disableTimeout bool) {
 
 	// Create top level vars
 	var connection *grpc.ClientConn
@@ -205,19 +181,30 @@ func (m *ConnectionManager) connect(id string, addr string,
 		m.connections = make(map[string]*ConnectionInfo)
 	}
 
-	maxRetries := 10
-	// Create a new connection if we are not present or disconnecting/disconnected
-	for numRetries := 0; numRetries < maxRetries && !isConnectionGood(connection); numRetries++ {
+	//Set the max number depending on if we want to timeout or not
+	var maxRetries int64
+	if disableTimeout {
+		maxRetries = math.MaxInt64
+	} else {
+		maxRetries = MAX_RETRIES
+	}
 
-		jww.DEBUG.Printf("Trying to connect to %v", addr)
-		ctx, cancel := DefaultContext()
+	// Create a new connection if we are not present or disconnecting/disconnected
+	for numRetries := int64(0); numRetries < maxRetries && !isConnectionGood(connection); numRetries++ {
+		jww.INFO.Printf("Connecting to address %+v. Attempt number %+v of %+v", addr, numRetries, maxRetries)
+
+		//If timeout is enabled, the max wait time becomes ~14 seconds (with maxRetries=100)
+		backoffTime := 2 * (numRetries/16 + 1)
+		if backoffTime > 15 {
+			backoffTime = 15
+		}
+		ctx, cancel := ConnectionContext(time.Duration(backoffTime))
 
 		// Create the connection
 		connection, err = grpc.DialContext(ctx, addr,
 			securityDial, grpc.WithBlock())
-
 		if err != nil {
-			jww.ERROR.Printf("Connection to %s failed: %+v\n", addr,
+			jww.ERROR.Printf("Attempt number %+v to connect to %s failed: %+v\n", numRetries, addr,
 				errors.New(err.Error()))
 		}
 
@@ -324,10 +311,20 @@ func (m *ConnectionManager) String() string {
 	return result.String()
 }
 
+//TimeoutContext is the basis for the default timeout
+func ConnectionContext(seconds time.Duration) (context.Context, context.CancelFunc) {
+	waitingPeriod := seconds * time.Second
+	jww.DEBUG.Printf("Timing out in: %s", waitingPeriod)
+	ctx, cancel := context.WithTimeout(context.Background(),
+		waitingPeriod)
+	return ctx, cancel
+
+}
+
 // DefaultContexts creates a context object with the default context
 // for all client messages. This is primarily used to set the default
 // timeout for all clients
-func DefaultContext() (context.Context, context.CancelFunc) {
+func MessagingContext() (context.Context, context.CancelFunc) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		10000*time.Millisecond)
 	return ctx, cancel

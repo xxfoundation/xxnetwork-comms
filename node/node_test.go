@@ -50,7 +50,7 @@ func TestTLS(t *testing.T) {
 	connectionID := MockID("server2toserver")
 	// It might make more sense to call the RPC on the connection object
 	// that's returned from this
-	server2.ConnectToNode(connectionID, serverAddress, certData)
+	server2.ConnectToRemote(connectionID, serverAddress, certData, false)
 	// Reset TLS-related global variables
 	defer server.Shutdown()
 	defer server2.Shutdown()
