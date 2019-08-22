@@ -66,14 +66,6 @@ func (m *ConnectionManager) GetConnectionInfo(id string) *ConnectionInfo {
 	return m.connections[id]
 }
 
-// DEPRECATED - Use ConnectToRemote instead
-// Connect to a certain registration server
-// connectionInfo can be nil if the connection already exists for this id
-func (m *ConnectionManager) ConnectToRegistration(id fmt.Stringer,
-	addr string, certPEMblock []byte, disableTimeout bool) error {
-	return m.ConnectToRemote(id, addr, certPEMblock, disableTimeout)
-}
-
 // ConnectToRemote connects to a remote server at address addr with the passed
 // cert. The connection is stored locally at the passed id.  that ID can be
 // used to identify the private keys of the sender of incoming messages so
@@ -129,13 +121,7 @@ func (m *ConnectionManager) GetRegistrationConnection(id fmt.Stringer) pb.
 	return pb.NewRegistrationClient(conn)
 }
 
-// DEPRECATED - Use ConnectToRemote instead
-// Connect to a certain gateway
-// connectionInfo can be nil if the connection already exists for this id
-func (m *ConnectionManager) ConnectToGateway(id fmt.Stringer,
-	addr string, certPEMblock []byte, disableTimeout bool) error {
-	return m.ConnectToRemote(id, addr, certPEMblock, disableTimeout)
-}
+
 
 // DEPRECATED - Use ConnectToRemote instead
 func (m *ConnectionManager) GetGatewayConnection(id fmt.Stringer) pb.
@@ -144,14 +130,6 @@ func (m *ConnectionManager) GetGatewayConnection(id fmt.Stringer) pb.
 	return pb.NewGatewayClient(conn)
 }
 
-// Connect to a certain node
-// connectionInfo can be nil if the connection already exists for this id
-// Should this return an error if the connection doesn't exist and the
-// connection info is nil?
-func (m *ConnectionManager) ConnectToNode(id fmt.Stringer,
-	addr string, certPEMblock []byte, disableTimeout bool) error {
-	return m.ConnectToRemote(id, addr, certPEMblock, disableTimeout)
-}
 
 func (m *ConnectionManager) GetNodeConnection(id fmt.Stringer) pb.NodeClient {
 	conn := m.get(id)
@@ -208,22 +186,23 @@ func (m *ConnectionManager) connect(id string, addr string,
 	//Set the max number depending on if we want to timeout or not
 	var maxRetries int64
 	if disableTimeout {
-		maxRetries = MAX_RETRIES
-	} else {
 		maxRetries = math.MaxInt64
+	} else {
+		maxRetries = MAX_RETRIES
 	}
 
 	// Create a new connection if we are not present or disconnecting/disconnected
 	for numRetries := int64(0); numRetries < maxRetries && !isConnectionGood(connection); numRetries++ {
 		//Proportional timeout deadline. Reviewer: Should it be a constant if it has a timeout??
 		//Probably a cleaner way to do it
-		jww.INFO.Printf("Connecting to address %+v. Attempt number %+v", addr, numRetries/maxRetries)
+		jww.INFO.Printf("Connecting to address %+v. Attempt number %+v/%+v", addr, numRetries, maxRetries)
 
+		//If timeout is enabled, the max wait time becomes ~14 second
 		backoffTime := 2 * (numRetries/16 + 1)
 		if backoffTime > 15 {
 			backoffTime = 15
 		}
-		ctx, cancel := TimeoutContext(time.Duration(backoffTime))
+		ctx, cancel := ConnectionContext(time.Duration(backoffTime))
 
 		// Create the connection
 		connection, err = grpc.DialContext(ctx, addr,
@@ -337,7 +316,7 @@ func (m *ConnectionManager) String() string {
 }
 
 //TimeoutContext is the basis for the default timeout
-func TimeoutContext(seconds time.Duration) (context.Context, context.CancelFunc) {
+func ConnectionContext(seconds time.Duration) (context.Context, context.CancelFunc) {
 	waitingPeriod := seconds * time.Second
 	jww.DEBUG.Printf("Timing out in: %s", waitingPeriod)
 	ctx, cancel := context.WithTimeout(context.Background(),
@@ -349,7 +328,7 @@ func TimeoutContext(seconds time.Duration) (context.Context, context.CancelFunc)
 // DefaultContexts creates a context object with the default context
 // for all client messages. This is primarily used to set the default
 // timeout for all clients
-func DefaultContext() (context.Context, context.CancelFunc) {
+func MessagingContext() (context.Context, context.CancelFunc) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		10000*time.Millisecond)
 	return ctx, cancel

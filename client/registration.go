@@ -21,7 +21,7 @@ func (c *ClientComms) SendRegistrationMessage(id fmt.Stringer,
 	message *pb.UserRegistration) (*pb.UserRegistrationConfirmation, error) {
 	// Attempt to connect to addr
 	connection := c.GetRegistrationConnection(id)
-	ctx, cancel := connect.DefaultContext()
+	ctx, cancel := connect.MessagingContext()
 
 	// Send the message
 	response, err := connection.RegisterUser(ctx, message)
