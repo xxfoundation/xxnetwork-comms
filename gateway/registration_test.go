@@ -22,7 +22,7 @@ func TestSendRequestNonceMessage(t *testing.T) {
 	defer gateway.Shutdown()
 	defer server.Shutdown()
 	connID := MockID("gatewayToServer")
-	gateway.ConnectToNode(connID, ServerAddress, nil, true)
+	gateway.ConnectToRemote(connID, ServerAddress, nil, true)
 
 	RSASignature := &pb.RSASignature{
 		Signature: []byte{},
@@ -46,7 +46,7 @@ func TestSendConfirmNonceMessage(t *testing.T) {
 	defer gateway.Shutdown()
 	defer server.Shutdown()
 	connID := MockID("gatewayToServer")
-	gateway.ConnectToNode(connID, ServerAddress, nil, true)
+	gateway.ConnectToRemote(connID, ServerAddress, nil, true)
 
 	reg := &pb.RequestRegistrationConfirmation{}
 	reg.NonceSignedByClient = &pb.RSASignature{}
@@ -65,7 +65,7 @@ func TestPollSignedCerts(t *testing.T) {
 	defer gateway.Shutdown()
 	defer server.Shutdown()
 	connID := MockID("gatewayToServer")
-	gateway.ConnectToNode(connID, ServerAddress, nil, true)
+	gateway.ConnectToRemote(connID, ServerAddress, nil, true)
 
 	_, err := gateway.PollSignedCerts(connID, &pb.Ping{})
 	if err != nil {

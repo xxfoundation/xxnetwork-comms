@@ -61,7 +61,7 @@ func TestTLS(t *testing.T) {
 		certData, keyData)
 	defer server.Shutdown()
 	connID := MockID("gatewayToServer")
-	gateway.ConnectToNode(connID,
+	gateway.ConnectToRemote(connID,
 		ServerAddress, certData, false)
 
 	err := gateway.PostNewBatch(connID, &mixmessages.Batch{})

@@ -21,7 +21,7 @@ func TestSendNodeRegistration(t *testing.T) {
 	defer server.Shutdown()
 	defer reg.Shutdown()
 	connID := MockID("serverToPermissioning")
-	server.ConnectToRegistration(connID, RegAddress, nil, false)
+	server.ConnectToRemote(connID, RegAddress, nil, false)
 
 	msgs := &pb.NodeRegistration{}
 	err := server.SendNodeRegistration(connID, msgs)

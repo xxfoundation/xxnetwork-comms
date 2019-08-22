@@ -45,7 +45,7 @@ func TestTLS(t *testing.T) {
 	defer rg.Shutdown()
 	var c client.ClientComms
 	connID := MockID("clientToRegistration")
-	_ = c.ConnectToRegistration(connID,
+	_ = c.ConnectToRemote(connID,
 		RegAddress, certData, false)
 
 	_, err := c.SendRegistrationMessage(connID, &pb.UserRegistration{})

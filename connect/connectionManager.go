@@ -121,15 +121,12 @@ func (m *ConnectionManager) GetRegistrationConnection(id fmt.Stringer) pb.
 	return pb.NewRegistrationClient(conn)
 }
 
-
-
 // DEPRECATED - Use ConnectToRemote instead
 func (m *ConnectionManager) GetGatewayConnection(id fmt.Stringer) pb.
 	GatewayClient {
 	conn := m.get(id)
 	return pb.NewGatewayClient(conn)
 }
-
 
 func (m *ConnectionManager) GetNodeConnection(id fmt.Stringer) pb.NodeClient {
 	conn := m.get(id)
