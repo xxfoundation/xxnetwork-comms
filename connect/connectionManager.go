@@ -75,7 +75,8 @@ func (m *ConnectionManager) ConnectToRemote(id fmt.Stringer,
 	// Make TransportCredentials
 	var creds credentials.TransportCredentials
 	var pubKey *rsa.PublicKey
-
+	//TODO: Conglomerate this and the connect function, then split and refactor into helper functions
+	// ie this if statement could be a function like loadCredentials that returns credentials, etc
 	if certPEMblock != nil && len(certPEMblock) != 0 {
 
 		var err error
@@ -194,7 +195,7 @@ func (m *ConnectionManager) connect(id string, addr string,
 		//Probably a cleaner way to do it
 		jww.INFO.Printf("Connecting to address %+v. Attempt number %+v of %+v", addr, numRetries, maxRetries)
 
-		//If timeout is enabled, the max wait time becomes ~14 second
+		//If timeout is enabled, the max wait time becomes ~14 seconds (with maxRetries=100)
 		backoffTime := 2 * (numRetries/16 + 1)
 		if backoffTime > 15 {
 			backoffTime = 15
