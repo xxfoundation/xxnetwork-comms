@@ -216,7 +216,7 @@ func (m *ConnectionManager) connect(id string, addr string,
 
 	// Create a new connection if we are not present or disconnecting/disconnected
 	for numRetries := int64(0); numRetries < maxRetries && !isConnectionGood(connection); numRetries++ {
-
+		//Proportional timeout deadline. Reviewer: Should it be a constant if it has a timeout??
 		ctx, cancel := TimeoutContext(time.Duration(2 * (numRetries/16 + 1)))
 
 		// Create the connection
