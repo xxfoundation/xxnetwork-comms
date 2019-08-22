@@ -15,6 +15,7 @@ import (
 
 type Handler interface {
 	RegisterUser(registrationCode, pubKey string) (signature []byte, err error)
+	CheckClientVersion(clientVersion string) (isOK bool, err error)
 	RegisterNode(ID []byte,
 		ServerTlsCert, GatewayTlsCert, RegistrationCode, Addr string) error
 }
@@ -22,7 +23,8 @@ type Handler interface {
 type implementationFunctions struct {
 	RegisterUser func(registrationCode, pubKey string) (signature []byte,
 		err error)
-	RegisterNode func(ID []byte,
+	CheckClientVersion func(clientVersion string) (isOK bool, err error)
+	RegisterNode       func(ID []byte,
 		ServerTlsCert, GatewayTlsCert, RegistrationCode, Addr string) error
 }
 
@@ -48,6 +50,10 @@ func NewImplementation() Handler {
 				warn(um)
 				return nil, nil
 			},
+			CheckClientVersion: func(clientVersion string) (isOK bool, err error) {
+				warn(um)
+				return false, nil
+			},
 			RegisterNode: func(ID []byte,
 				ServerTlsCert, GatewayTlsCert, RegistrationCode, Addr string) error {
 				warn(um)
@@ -61,6 +67,10 @@ func NewImplementation() Handler {
 func (s *Implementation) RegisterUser(registrationCode,
 	pubKey string) (signature []byte, err error) {
 	return s.Functions.RegisterUser(registrationCode, pubKey)
+}
+
+func (s *Implementation) CheckClientVersion(clientVersion string) (bool, error) {
+	return s.Functions.CheckClientVersion(clientVersion)
 }
 
 func (s *Implementation) RegisterNode(ID []byte,
