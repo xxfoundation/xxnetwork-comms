@@ -191,8 +191,6 @@ func (m *ConnectionManager) connect(id string, addr string,
 
 	// Create a new connection if we are not present or disconnecting/disconnected
 	for numRetries := int64(0); numRetries < maxRetries && !isConnectionGood(connection); numRetries++ {
-		//Proportional timeout deadline. Reviewer: Should it be a constant if it has a timeout??
-		//Probably a cleaner way to do it
 		jww.INFO.Printf("Connecting to address %+v. Attempt number %+v of %+v", addr, numRetries, maxRetries)
 
 		//If timeout is enabled, the max wait time becomes ~14 seconds (with maxRetries=100)
