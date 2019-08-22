@@ -204,12 +204,11 @@ func (m *ConnectionManager) connect(id string, addr string,
 	if m.connections == nil {
 		m.connections = make(map[string]*ConnectionInfo)
 	}
-	jww.DEBUG.Printf("Trying to connect to %v", addr)
 
 	//Set the max number depending on if we want to timeout or not
 	var maxRetries int64
 	if disableTimeout {
-		maxRetries = 100
+		maxRetries = MAX_RETRIES
 	} else {
 		maxRetries = math.MaxInt64
 	}
@@ -218,6 +217,8 @@ func (m *ConnectionManager) connect(id string, addr string,
 	for numRetries := int64(0); numRetries < maxRetries && !isConnectionGood(connection); numRetries++ {
 		//Proportional timeout deadline. Reviewer: Should it be a constant if it has a timeout??
 		//Probably a cleaner way to do it
+		jww.INFO.Printf("Connecting to address %+v. Attempt number %+v", addr, numRetries/maxRetries)
+
 		backoffTime := 2 * (numRetries/16 + 1)
 		if backoffTime > 15 {
 			backoffTime = 15
