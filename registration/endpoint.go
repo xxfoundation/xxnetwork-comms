@@ -51,7 +51,8 @@ func (r *RegistrationComms) RegisterNode(ctx context.Context, msg *pb.NodeRegist
 	addr := fmt.Sprintf("%s:%s", host, msg.GetPort())
 
 	// Pass information for Node registration
-	err = r.handler.RegisterNode(msg.GetID(), msg.GetServerTlsCert(),
-		msg.GetGatewayTlsCert(), msg.GetRegistrationCode(), addr)
+	err = r.handler.RegisterNode(msg.GetID(), addr, msg.GetServerTlsCert(),
+		msg.GetGatewayAddress(), msg.GetGatewayTlsCert(),
+		msg.GetRegistrationCode())
 	return &pb.Ack{}, err
 }
