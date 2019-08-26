@@ -30,9 +30,9 @@ func TestSignVerify(t *testing.T) {
 	message := pb.NodeTopology{
 		Topology: []*pb.NodeInfo{
 			{
-				Id:        []byte("test"),
-				Index:     uint32(3),
-				IpAddress: "0.0.0.0",
+				Id:            []byte("test"),
+				Index:         uint32(3),
+				ServerAddress: "0.0.0.0",
 			},
 		},
 	}
