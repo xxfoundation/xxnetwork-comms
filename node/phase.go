@@ -24,7 +24,7 @@ func (s *NodeComms) SendPostPhase(id fmt.Stringer,
 	message *pb.Batch) (*pb.Ack, error) {
 	// Attempt to connect to addr
 	c := s.GetNodeConnection(id)
-	ctx, cancel := connect.DefaultContext()
+	ctx, cancel := connect.MessagingContext()
 
 	// Send the message
 	result, err := c.PostPhase(ctx, message,

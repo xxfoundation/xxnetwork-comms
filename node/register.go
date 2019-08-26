@@ -19,7 +19,7 @@ func (s *NodeComms) SendNodeRegistration(id fmt.Stringer,
 
 	// Attempt to connect to addr
 	connection := s.GetRegistrationConnection(id)
-	ctx, cancel := connect.DefaultContext()
+	ctx, cancel := connect.MessagingContext()
 
 	// Send the message
 	_, err := connection.RegisterNode(ctx, message)

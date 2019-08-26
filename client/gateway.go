@@ -21,7 +21,7 @@ func (c *ClientComms) SendPutMessage(id fmt.Stringer,
 	message *pb.Slot) error {
 	// Attempt to connect to addr
 	connection := c.GetGatewayConnection(id)
-	ctx, cancel := connect.DefaultContext()
+	ctx, cancel := connect.MessagingContext()
 
 	// Send the message
 	_, err := connection.PutMessage(ctx, message)
@@ -41,7 +41,7 @@ func (c *ClientComms) SendCheckMessages(id fmt.Stringer,
 	message *pb.ClientRequest) (*pb.IDList, error) {
 	// Attempt to connect to addr
 	connection := c.GetGatewayConnection(id)
-	ctx, cancel := connect.DefaultContext()
+	ctx, cancel := connect.MessagingContext()
 
 	// Send the message
 	result, err := connection.CheckMessages(ctx, message)
@@ -61,7 +61,7 @@ func (c *ClientComms) SendGetMessage(id fmt.Stringer,
 	message *pb.ClientRequest) (*pb.Slot, error) {
 	// Attempt to connect to addr
 	connection := c.GetGatewayConnection(id)
-	ctx, cancel := connect.DefaultContext()
+	ctx, cancel := connect.MessagingContext()
 
 	// Send the message
 	result, err := connection.GetMessage(ctx, message)
@@ -82,7 +82,7 @@ func (c *ClientComms) SendRequestNonceMessage(id fmt.Stringer,
 
 	// Attempt to connect to addr
 	connection := c.GetGatewayConnection(id)
-	ctx, cancel := connect.DefaultContext()
+	ctx, cancel := connect.MessagingContext()
 
 	// Send the message
 	response, err := connection.RequestNonce(ctx, message)
@@ -111,7 +111,7 @@ func (c *ClientComms) SendConfirmNonceMessage(id fmt.Stringer,
 
 	// Attempt to connect to addr
 	connection := c.GetGatewayConnection(id)
-	ctx, cancel := connect.DefaultContext()
+	ctx, cancel := connect.MessagingContext()
 
 	// Send the message
 

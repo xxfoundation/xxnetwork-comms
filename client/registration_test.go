@@ -20,7 +20,7 @@ func TestSendRegistrationMessage(t *testing.T) {
 	defer rg.Shutdown()
 	connID := MockID("clientToRegistration")
 	var c ClientComms
-	c.ConnectToRegistration(connID, GatewayAddress, nil)
+	c.ConnectToRemote(connID, GatewayAddress, nil, false)
 
 	_, err := c.SendRegistrationMessage(connID, &pb.UserRegistration{})
 	if err != nil {

@@ -20,7 +20,7 @@ import (
 func (s *NodeComms) SendGetMeasure(id fmt.Stringer, message *pb.RoundInfo) (*pb.RoundMetrics, error) {
 	// Attempt to connect to addr
 	c := s.GetNodeConnection(id)
-	ctx, cancel := connect.DefaultContext()
+	ctx, cancel := connect.MessagingContext()
 
 	// Send the message
 	result, err := c.GetMeasure(ctx, message,
@@ -40,7 +40,7 @@ func (s *NodeComms) SendAskOnline(id fmt.Stringer, message *pb.Ping) (
 	*pb.Ack, error) {
 	// Attempt to connect to addr
 	c := s.GetNodeConnection(id)
-	ctx, cancel := connect.DefaultContext()
+	ctx, cancel := connect.MessagingContext()
 
 	// Send the message
 	result, err := c.AskOnline(ctx, message,
@@ -59,7 +59,7 @@ func (s *NodeComms) SendAskOnline(id fmt.Stringer, message *pb.Ping) (
 func (s *NodeComms) SendFinishRealtime(id fmt.Stringer,
 	message *pb.RoundInfo) (*pb.Ack, error) {
 	c := s.GetNodeConnection(id)
-	ctx, cancel := connect.DefaultContext()
+	ctx, cancel := connect.MessagingContext()
 
 	// Send the message
 	result, err := c.FinishRealtime(ctx, message,
@@ -77,7 +77,7 @@ func (s *NodeComms) SendFinishRealtime(id fmt.Stringer,
 func (s *NodeComms) SendNewRound(id fmt.Stringer, message *pb.RoundInfo) (
 	*pb.Ack, error) {
 	c := s.GetNodeConnection(id)
-	ctx, cancel := connect.DefaultContext()
+	ctx, cancel := connect.MessagingContext()
 
 	// Send the message
 	result, err := c.CreateNewRound(ctx, message,
@@ -95,7 +95,7 @@ func (s *NodeComms) SendNewRound(id fmt.Stringer, message *pb.RoundInfo) (
 func (s *NodeComms) SendPostRoundPublicKey(id fmt.Stringer,
 	message *pb.RoundPublicKey) (*pb.Ack, error) {
 	c := s.GetNodeConnection(id)
-	ctx, cancel := connect.DefaultContext()
+	ctx, cancel := connect.MessagingContext()
 
 	// Send the message
 	result, err := c.PostRoundPublicKey(ctx, message,
@@ -116,7 +116,7 @@ func (s *NodeComms) SendPostRoundPublicKey(id fmt.Stringer,
 func (s *NodeComms) SendPostPrecompResult(id fmt.Stringer,
 	roundID uint64, slots []*pb.Slot) (*pb.Ack, error) {
 	c := s.GetNodeConnection(id)
-	ctx, cancel := connect.DefaultContext()
+	ctx, cancel := connect.MessagingContext()
 
 	// Send the message
 	result, err := c.PostPrecompResult(ctx,
