@@ -41,12 +41,12 @@ func (r *RegistrationComms) RegisterUser(ctx context.Context, msg *pb.UserRegist
 
 // CheckClientVersion event handler which checks whether the client library
 // version is compatible with the network
-func (r *RegistrationComms) CheckClientVersion(ctx context.Context, msg *pb.ClientVersion) (*pb.ClientVersionConfirmation, error) {
-	isOK, err := r.handler.CheckClientVersion(msg.Version)
+func (r *RegistrationComms) GetCurrentClientVersion(ctx context.Context, msg *pb.Ping) (*pb.ClientVersion, error) {
+	version, err := r.handler.GetCurrentClientVersion()
 
 	// Return the confirmation message
-	return &pb.ClientVersionConfirmation{
-		IsOK:isOK,
+	return &pb.ClientVersion{
+		Version: version,
 	}, err
 }
 

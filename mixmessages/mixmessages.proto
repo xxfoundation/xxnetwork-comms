@@ -166,7 +166,7 @@ service Registration {
     }
 
     // Client uses this to check if it needs to be updated
-    rpc CheckClientVersion (ClientVersion) returns (ClientVersionConfirmation) {
+    rpc GetCurrentClientVersion (Ping) returns (ClientVersion) {
     }
 
     //Node registration for the permissioning server
@@ -202,12 +202,9 @@ message UserRegistrationConfirmation {
     string Error = 2;
 }
 
+// ClientVersion contains a version string for the client
 message ClientVersion {
     string Version = 1;
-}
-
-message ClientVersionConfirmation {
-    bool IsOK = 1;
 }
 
 // NonceRequest message to request nonce from client to server

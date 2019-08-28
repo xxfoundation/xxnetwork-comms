@@ -15,7 +15,7 @@ import (
 
 type Handler interface {
 	RegisterUser(registrationCode, pubKey string) (signature []byte, err error)
-	CheckClientVersion(clientVersion string) (isOK bool, err error)
+	GetCurrentClientVersion() (version string, err error)
 	RegisterNode(ID []byte, ServerAddr, ServerTlsCert, GatewayAddr, GatewayTlsCert,
 		RegistrationCode string) error
 }
@@ -23,7 +23,7 @@ type Handler interface {
 type implementationFunctions struct {
 	RegisterUser func(registrationCode, pubKey string) (signature []byte,
 		err error)
-	CheckClientVersion func(clientVersion string) (isOK bool, err error)
+	GetCurrentClientVersion func() (version string, err error)
 	RegisterNode func(ID []byte, ServerAddr, ServerTlsCert,
 		GatewayAddr, GatewayTlsCert, RegistrationCode string) error
 }
@@ -50,9 +50,9 @@ func NewImplementation() Handler {
 				warn(um)
 				return nil, nil
 			},
-			CheckClientVersion: func(clientVersion string) (isOK bool, err error) {
+			GetCurrentClientVersion: func() (version string, err error) {
 				warn(um)
-				return false, nil
+				return "", nil
 			},
 			RegisterNode: func(ID []byte, ServerAddr, ServerTlsCert,
 				GatewayAddr, GatewayTlsCert, RegistrationCode string) error {
@@ -69,8 +69,8 @@ func (s *Implementation) RegisterUser(registrationCode,
 	return s.Functions.RegisterUser(registrationCode, pubKey)
 }
 
-func (s *Implementation) CheckClientVersion(clientVersion string) (bool, error) {
-	return s.Functions.CheckClientVersion(clientVersion)
+func (s *Implementation) GetCurrentClientVersion() (string, error) {
+	return s.Functions.GetCurrentClientVersion()
 }
 
 func (s *Implementation) RegisterNode(ID []byte, ServerAddr, ServerTlsCert,

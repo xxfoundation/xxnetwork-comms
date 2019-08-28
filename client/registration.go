@@ -37,14 +37,13 @@ func (c *ClientComms) SendRegistrationMessage(id fmt.Stringer,
 }
 
 // Call CheckClientVersion on the registration server
-func (c *ClientComms) SendCheckClientVersionMessage(id fmt.Stringer,
-	message *pb.ClientVersion) (*pb.ClientVersionConfirmation, error) {
+func (c *ClientComms) SendGetCurrentClientVersionMessage(id fmt.Stringer) (*pb.ClientVersion, error) {
 	// Get the connection
 	connection := c.GetRegistrationConnection(id)
 	ctx, cancel := connect.MessagingContext()
 
 	// Send the message
-	response, err := connection.CheckClientVersion(ctx, message)
+	response, err := connection.GetCurrentClientVersion(ctx, &pb.Ping{})
 
 	// Log if we got an error
 	if err != nil {

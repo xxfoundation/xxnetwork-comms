@@ -38,7 +38,7 @@ func TestSendCheckClientVersionMessage(t *testing.T) {
 	var c ClientComms
 	c.ConnectToRemote(connID, GatewayAddress, nil, false)
 
-	_, err := c.SendCheckClientVersionMessage(connID, &pb.ClientVersion{})
+	_, err := c.SendGetCurrentClientVersionMessage(connID)
 	if err != nil {
 		t.Errorf("CheckClientVersion: Error received: %s", err)
 	}
