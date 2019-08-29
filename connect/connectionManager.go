@@ -40,10 +40,11 @@ type ConnectionManager struct {
 	connections     map[string]*ConnectionInfo
 	connectionsLock sync.Mutex
 	privateKey      *rsa.PrivateKey
+	maxRetries      int64
 }
 
 // Default maximum number of retries
-const MAX_RETRIES = 100
+const DefaultMaxRetries = 10
 
 // Set private key to data to a PEM block
 func (m *ConnectionManager) SetPrivateKey(data []byte) error {
@@ -64,6 +65,10 @@ func (m *ConnectionManager) GetPrivateKey() *rsa.PrivateKey {
 
 func (m *ConnectionManager) GetConnectionInfo(id string) *ConnectionInfo {
 	return m.connections[id]
+}
+
+func (m *ConnectionManager) SetMaxRetries(mr int64) {
+	m.maxRetries = mr
 }
 
 // ConnectToRemote connects to a remote server at address addr with the passed
@@ -186,7 +191,12 @@ func (m *ConnectionManager) connect(id string, addr string,
 	if disableTimeout {
 		maxRetries = math.MaxInt64
 	} else {
-		maxRetries = MAX_RETRIES
+		if m.maxRetries == 0 {
+			maxRetries = DefaultMaxRetries
+		} else {
+			maxRetries = int64(m.maxRetries)
+		}
+
 	}
 
 	// Create a new connection if we are not present or disconnecting/disconnected
