@@ -24,7 +24,7 @@ func (s *NodeComms) SendGetMeasure(id fmt.Stringer, message *pb.RoundInfo) (*pb.
 
 	// Send the message
 	result, err := c.GetMeasure(ctx, message,
-		grpc_retry.WithMax(connect.MAX_RETRIES))
+		grpc_retry.WithMax(connect.DefaultMaxRetries))
 
 	// Check for errors
 	if err != nil {
@@ -44,7 +44,7 @@ func (s *NodeComms) SendAskOnline(id fmt.Stringer, message *pb.Ping) (
 
 	// Send the message
 	result, err := c.AskOnline(ctx, message,
-		grpc_retry.WithMax(connect.MAX_RETRIES))
+		grpc_retry.WithMax(connect.DefaultMaxRetries))
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
@@ -63,7 +63,7 @@ func (s *NodeComms) SendFinishRealtime(id fmt.Stringer,
 
 	// Send the message
 	result, err := c.FinishRealtime(ctx, message,
-		grpc_retry.WithMax(connect.MAX_RETRIES))
+		grpc_retry.WithMax(connect.DefaultMaxRetries))
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
@@ -81,7 +81,7 @@ func (s *NodeComms) SendNewRound(id fmt.Stringer, message *pb.RoundInfo) (
 
 	// Send the message
 	result, err := c.CreateNewRound(ctx, message,
-		grpc_retry.WithMax(connect.MAX_RETRIES))
+		grpc_retry.WithMax(connect.DefaultMaxRetries))
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
@@ -99,7 +99,7 @@ func (s *NodeComms) SendPostRoundPublicKey(id fmt.Stringer,
 
 	// Send the message
 	result, err := c.PostRoundPublicKey(ctx, message,
-		grpc_retry.WithMax(connect.MAX_RETRIES))
+		grpc_retry.WithMax(connect.DefaultMaxRetries))
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
@@ -126,7 +126,7 @@ func (s *NodeComms) SendPostPrecompResult(id fmt.Stringer,
 			},
 			Slots: slots,
 		},
-		grpc_retry.WithMax(connect.MAX_RETRIES))
+		grpc_retry.WithMax(connect.DefaultMaxRetries))
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
