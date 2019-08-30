@@ -116,9 +116,7 @@ func (m *ConnectionManager) ConnectToRemote(id fmt.Stringer,
 			return errors.New(s)
 		}
 	}
-	// NewCredentialsFromPem, NewCredentialsFromFile, NewP
-	m.connect(id.String(), addr, creds, pubKey, disableTimeout)
-	return nil
+	return m.connect(id.String(), addr, creds, pubKey, disableTimeout)
 }
 
 func (m *ConnectionManager) GetRegistrationConnection(id fmt.Stringer) pb.
@@ -164,7 +162,7 @@ func (m *ConnectionManager) get(id fmt.Stringer) *grpc.ClientConn {
 
 // Connect creates a connection
 func (m *ConnectionManager) connect(id string, addr string,
-	tls credentials.TransportCredentials, pubKey *rsa.PublicKey, disableTimeout bool) {
+	tls credentials.TransportCredentials, pubKey *rsa.PublicKey, disableTimeout bool)error {
 
 	// Create top level vars
 	var connection *grpc.ClientConn
@@ -222,7 +220,7 @@ func (m *ConnectionManager) connect(id string, addr string,
 	}
 
 	if !isConnectionGood(connection) {
-		jww.FATAL.Panicf("Last try to connect to %s failed. Giving up", addr)
+		return errors.New(fmt.Sprintf("Last try to connect to %s failed. Giving up", addr))
 	} else {
 		// Connection succeeded, so add it to the map along with any information
 		// needed for reconnection
@@ -236,6 +234,7 @@ func (m *ConnectionManager) connect(id string, addr string,
 		}
 		m.connectionsLock.Unlock()
 	}
+	return nil
 }
 
 // Disconnect closes client connections and removes them from the connection map
