@@ -2,7 +2,7 @@ package testkeys
 
 import (
 	jww "github.com/spf13/jwalterweatherman"
-	"io/ioutil"
+	"gitlab.com/elixxir/primitives/utils"
 	"path/filepath"
 	"runtime"
 )
@@ -31,7 +31,7 @@ func GetGatewayKeyPath() string {
 }
 
 func LoadFromPath(path string) []byte {
-	data, err := ioutil.ReadFile(path)
+	data, err := utils.ReadFile(path)
 	if err != nil {
 		jww.FATAL.Panicf("***Check your key!***\nFailed to read file at %s: %+v", path, err)
 	}
