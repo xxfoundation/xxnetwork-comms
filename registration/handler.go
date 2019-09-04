@@ -15,6 +15,7 @@ import (
 
 type Handler interface {
 	RegisterUser(registrationCode, pubKey string) (signature []byte, err error)
+	GetCurrentClientVersion() (version string, err error)
 	RegisterNode(ID []byte, ServerAddr, ServerTlsCert, GatewayAddr, GatewayTlsCert,
 		RegistrationCode string) error
 }
@@ -22,6 +23,7 @@ type Handler interface {
 type implementationFunctions struct {
 	RegisterUser func(registrationCode, pubKey string) (signature []byte,
 		err error)
+	GetCurrentClientVersion func() (version string, err error)
 	RegisterNode func(ID []byte, ServerAddr, ServerTlsCert,
 		GatewayAddr, GatewayTlsCert, RegistrationCode string) error
 }
@@ -48,6 +50,10 @@ func NewImplementation() Handler {
 				warn(um)
 				return nil, nil
 			},
+			GetCurrentClientVersion: func() (version string, err error) {
+				warn(um)
+				return "", nil
+			},
 			RegisterNode: func(ID []byte, ServerAddr, ServerTlsCert,
 				GatewayAddr, GatewayTlsCert, RegistrationCode string) error {
 				warn(um)
@@ -63,9 +69,12 @@ func (s *Implementation) RegisterUser(registrationCode,
 	return s.Functions.RegisterUser(registrationCode, pubKey)
 }
 
+func (s *Implementation) GetCurrentClientVersion() (string, error) {
+	return s.Functions.GetCurrentClientVersion()
+}
+
 func (s *Implementation) RegisterNode(ID []byte, ServerAddr, ServerTlsCert,
 	GatewayAddr, GatewayTlsCert, RegistrationCode string) error {
 	return s.Functions.RegisterNode(ID, ServerAddr, ServerTlsCert,
 		GatewayAddr, GatewayTlsCert, RegistrationCode)
-
 }

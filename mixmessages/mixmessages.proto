@@ -161,8 +161,12 @@ message IDList {
 
 // Registration service definition
 service Registration {
-    // Client & RegistrationServer Communication
+    // Client uses this to register its user with the system
     rpc RegisterUser (UserRegistration) returns (UserRegistrationConfirmation) {
+    }
+
+    // Client uses this to check if it needs to be updated
+    rpc GetCurrentClientVersion (Ping) returns (ClientVersion) {
     }
 
     //Node registration for the permissioning server
@@ -196,6 +200,11 @@ message UserRegistrationConfirmation {
     // RegistrationServer-Signed Client Public Key
     RSASignature ClientSignedByServer = 1;
     string Error = 2;
+}
+
+// ClientVersion contains a version string for the client
+message ClientVersion {
+    string Version = 1;
 }
 
 // NonceRequest message to request nonce from client to server
