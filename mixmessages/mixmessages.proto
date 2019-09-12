@@ -112,9 +112,10 @@ message NodeTopology {
 message NodeInfo {
     bytes Id = 1;
     uint32 Index = 2;
-    string IpAddress = 3;
-    string ServerTlsCert = 4;
-    string GatewayTlsCert = 5;
+    string ServerAddress = 3;
+    string GatewayAddress = 4;
+    string ServerTlsCert = 5;
+    string GatewayTlsCert = 6;
 }
 
 message RoundMetrics {
@@ -160,8 +161,12 @@ message IDList {
 
 // Registration service definition
 service Registration {
-    // Client & RegistrationServer Communication
+    // Client uses this to register its user with the system
     rpc RegisterUser (UserRegistration) returns (UserRegistrationConfirmation) {
+    }
+
+    // Client uses this to check if it needs to be updated
+    rpc GetCurrentClientVersion (Ping) returns (ClientVersion) {
     }
 
     //Node registration for the permissioning server
@@ -174,8 +179,9 @@ message NodeRegistration {
       bytes ID = 1;
       string ServerTlsCert = 2;
       string GatewayTlsCert = 3;
-      string RegistrationCode = 4;
-      string Port = 5;
+      string GatewayAddress = 4;
+      string RegistrationCode = 5;
+      string Port = 6;
 }
 
 // RSASignature is a digital signature for the RSA algorithm
@@ -194,6 +200,11 @@ message UserRegistrationConfirmation {
     // RegistrationServer-Signed Client Public Key
     RSASignature ClientSignedByServer = 1;
     string Error = 2;
+}
+
+// ClientVersion contains a version string for the client
+message ClientVersion {
+    string Version = 1;
 }
 
 // NonceRequest message to request nonce from client to server

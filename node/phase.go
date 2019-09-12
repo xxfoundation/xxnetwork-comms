@@ -24,11 +24,11 @@ func (s *NodeComms) SendPostPhase(id fmt.Stringer,
 	message *pb.Batch) (*pb.Ack, error) {
 	// Attempt to connect to addr
 	c := s.GetNodeConnection(id)
-	ctx, cancel := connect.DefaultContext()
+	ctx, cancel := connect.MessagingContext()
 
 	// Send the message
 	result, err := c.PostPhase(ctx, message,
-		grpc_retry.WithMax(connect.MAX_RETRIES))
+		grpc_retry.WithMax(connect.DefaultMaxRetries))
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
@@ -84,7 +84,7 @@ func (s *NodeComms) getPostPhaseStream(id fmt.Stringer, ctx context.Context) (
 
 	// Get the stream client using streaming context
 	streamClient, err := c.StreamPostPhase(ctx,
-		grpc_retry.WithMax(connect.MAX_RETRIES))
+		grpc_retry.WithMax(connect.DefaultMaxRetries))
 
 	// Make sure there are no errors with getting the stream client
 	if err != nil {

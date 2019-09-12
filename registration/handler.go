@@ -15,15 +15,17 @@ import (
 
 type Handler interface {
 	RegisterUser(registrationCode, pubKey string) (signature []byte, err error)
-	RegisterNode(ID []byte,
-		ServerTlsCert, GatewayTlsCert, RegistrationCode, Addr string) error
+	GetCurrentClientVersion() (version string, err error)
+	RegisterNode(ID []byte, ServerAddr, ServerTlsCert, GatewayAddr, GatewayTlsCert,
+		RegistrationCode string) error
 }
 
 type implementationFunctions struct {
 	RegisterUser func(registrationCode, pubKey string) (signature []byte,
 		err error)
-	RegisterNode func(ID []byte,
-		ServerTlsCert, GatewayTlsCert, RegistrationCode, Addr string) error
+	GetCurrentClientVersion func() (version string, err error)
+	RegisterNode func(ID []byte, ServerAddr, ServerTlsCert,
+		GatewayAddr, GatewayTlsCert, RegistrationCode string) error
 }
 
 // Implementation allows users of the client library to set the
@@ -48,8 +50,12 @@ func NewImplementation() Handler {
 				warn(um)
 				return nil, nil
 			},
-			RegisterNode: func(ID []byte,
-				ServerTlsCert, GatewayTlsCert, RegistrationCode, Addr string) error {
+			GetCurrentClientVersion: func() (version string, err error) {
+				warn(um)
+				return "", nil
+			},
+			RegisterNode: func(ID []byte, ServerAddr, ServerTlsCert,
+				GatewayAddr, GatewayTlsCert, RegistrationCode string) error {
 				warn(um)
 				return nil
 			},
@@ -63,8 +69,12 @@ func (s *Implementation) RegisterUser(registrationCode,
 	return s.Functions.RegisterUser(registrationCode, pubKey)
 }
 
-func (s *Implementation) RegisterNode(ID []byte,
-	ServerTlsCert, GatewayTlsCert, RegistrationCode, Addr string) error {
-	return s.Functions.RegisterNode(ID, ServerTlsCert, GatewayTlsCert, RegistrationCode, Addr)
+func (s *Implementation) GetCurrentClientVersion() (string, error) {
+	return s.Functions.GetCurrentClientVersion()
+}
 
+func (s *Implementation) RegisterNode(ID []byte, ServerAddr, ServerTlsCert,
+	GatewayAddr, GatewayTlsCert, RegistrationCode string) error {
+	return s.Functions.RegisterNode(ID, ServerAddr, ServerTlsCert,
+		GatewayAddr, GatewayTlsCert, RegistrationCode)
 }

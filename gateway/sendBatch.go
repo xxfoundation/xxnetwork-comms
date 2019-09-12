@@ -19,7 +19,7 @@ import (
 // Sends a batch of messages from the gateway to a server
 func (g *GatewayComms) PostNewBatch(nodeID fmt.Stringer, messages *pb.Batch) error {
 	c := g.GetNodeConnection(nodeID)
-	ctx, cancel := connect.DefaultContext()
+	ctx, cancel := connect.MessagingContext()
 
 	_, err := c.PostNewBatch(ctx, messages)
 
@@ -40,7 +40,7 @@ func (g *GatewayComms) PostNewBatch(nodeID fmt.Stringer, messages *pb.Batch) err
 func (g *GatewayComms) GetRoundBufferInfo(nodeID fmt.Stringer) (int,
 	error) {
 	c := g.GetNodeConnection(nodeID)
-	ctx, cancel := connect.DefaultContext()
+	ctx, cancel := connect.MessagingContext()
 
 	msg := &pb.RoundBufferInfo{}
 	bufSize := int(0)
@@ -62,7 +62,7 @@ func (g *GatewayComms) GetRoundBufferInfo(nodeID fmt.Stringer) (int,
 func (g *GatewayComms) GetCompletedBatch(nodeID fmt.Stringer) (*pb.Batch,
 	error) {
 	c := g.GetNodeConnection(nodeID)
-	ctx, cancel := connect.DefaultContext()
+	ctx, cancel := connect.MessagingContext()
 
 	msg := &pb.Ping{}
 	batch, err := c.GetCompletedBatch(ctx, msg)

@@ -20,7 +20,7 @@ func (r *RegistrationComms) SendNodeTopology(id fmt.Stringer,
 
 	// Attempt to connect to addr
 	connection := r.GetNodeConnection(id)
-	ctx, cancel := connect.DefaultContext()
+	ctx, cancel := connect.MessagingContext()
 
 	// Wrap message as a generic
 	anyMessage, err := ptypes.MarshalAny(message)
