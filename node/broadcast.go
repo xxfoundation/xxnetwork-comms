@@ -142,7 +142,7 @@ func (s *NodeComms) SendPostPrecompResult(id fmt.Stringer,
 
 func (s *NodeComms) RoundTripPing(id fmt.Stringer, roundID uint64) (*pb.Ack, error) {
 	c := s.GetNodeConnection(id)
-	ctx, cancel := connect.DefaultContext()
+	ctx, cancel := connect.MessagingContext()
 
 	any, err := ptypes.MarshalAny(nil)
 	if err != nil {
