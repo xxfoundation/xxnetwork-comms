@@ -198,3 +198,8 @@ func (s *NodeComms) GetSignedCert(ctx context.Context, msg *pb.Ping) (*pb.Signed
 	rm, err := s.handler.GetSignedCert(msg)
 	return rm, err
 }
+
+func (s *NodeComms) SendRoundTripPing(ping *pb.RoundTripPing) error {
+	err := s.handler.SendRoundTripPing(ping)
+	return err
+}
