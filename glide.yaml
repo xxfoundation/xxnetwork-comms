@@ -1,16 +1,16 @@
 package: gitlab.com/elixxir/comms
 import:
-  - package: github.com/grpc/grpc-go
-    version: master
-    repo: https://github.com/grpc/grpc-go.git
-  - package: github.com/spf13/jwalterweatherman
-  - package: github.com/pkg/errors
-  - package: github.com/grpc-ecosystem/go-grpc-middleware
-  - package: gitlab.com/elixxir/crypto
-    version: master
-    repo: git@gitlab.com:elixxir/crypto
-    vcs: git
-  - package: gitlab.com/elixxir/primitives
-    version: master
-    repo: git@gitlab.com:elixxir/primitives
-    vcs: git
+- package: github.com/grpc/grpc-go
+  version: master
+  repo: https://github.com/grpc/grpc-go.git
+- package: github.com/spf13/jwalterweatherman
+- package: github.com/pkg/errors
+- package: github.com/grpc-ecosystem/go-grpc-middleware
+- package: gitlab.com/elixxir/crypto
+  version: master
+  repo: git@gitlab.com:elixxir/crypto
+  vcs: git
+- package: gitlab.com/elixxir/primitives
+  version: master
+  repo: git@gitlab.com:elixxir/primitives
+  vcs: git
