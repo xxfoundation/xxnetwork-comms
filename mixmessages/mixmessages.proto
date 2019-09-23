@@ -172,6 +172,19 @@ service Registration {
     //Node registration for the permissioning server
     rpc RegisterNode (NodeRegistration) returns (Ack){
     }
+
+    rpc GetUpdatedNDF(NDFHash) returns (NDF) {
+    }
+}
+
+//The ndf Hash used to compare ndf on permissioning and client
+message NDFHash{
+    bytes Hash = 1;
+}
+
+//Message from permissioning <->client for a dynamic ndf
+message NDF{
+    bytes Ndf = 1;
 }
 
 // RegisterNode to register a node with needed attributes

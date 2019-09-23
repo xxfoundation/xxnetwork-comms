@@ -67,3 +67,10 @@ func (r *RegistrationComms) RegisterNode(ctx context.Context, msg *pb.NodeRegist
 		msg.GetRegistrationCode())
 	return &pb.Ack{}, err
 }
+
+//Handle an update NDF request
+func (r *RegistrationComms) GetUpdatedNDF(ctx context.Context, msg *pb.NDFHash) (*pb.NDF, error) {
+	newNDF, err := r.handler.GetUpdatedNDF(msg.Hash)
+	//Return the new ndf
+	return &pb.NDF{Ndf: newNDF}, err
+}

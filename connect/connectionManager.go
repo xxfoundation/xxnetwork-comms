@@ -162,7 +162,7 @@ func (m *ConnectionManager) get(id fmt.Stringer) *grpc.ClientConn {
 
 // Connect creates a connection
 func (m *ConnectionManager) connect(id string, addr string,
-	tls credentials.TransportCredentials, pubKey *rsa.PublicKey, disableTimeout bool)error {
+	tls credentials.TransportCredentials, pubKey *rsa.PublicKey, disableTimeout bool) error {
 
 	// Create top level vars
 	var connection *grpc.ClientConn
