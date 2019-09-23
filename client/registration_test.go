@@ -44,21 +44,19 @@ func TestSendCheckClientVersionMessage(t *testing.T) {
 	}
 }
 
-//Call GetUpdatedNDF on the registration server
-func (c *ClientComms) SendGetUpdatedNDF(id fmt.Stringer, message *pb.NDFHash) (*pb.NDF, error) {
-	//Get the connection
-	connection := c.GetRegistrationConnection(id)
-	ctx, cancel := connect.MessagingContext()
+//Smoke test SendGetUpdatedNDF
+func TestSendGetUpdatedNDF(t *testing.T) {
+	GatewayAddress := getNextGatewayAddress()
+	rg := registration.StartRegistrationServer(GatewayAddress,
+		registration.NewImplementation(), nil, nil)
+	defer rg.Shutdown()
+	connID := MockID("clientToRegistration")
+	var c ClientComms
+	c.ConnectToRemote(connID, GatewayAddress, nil, false)
 
-	//Send message
-	response, err := connection.GetUpdatedNDF(ctx, message)
+	_, err := c.SendGetUpdatedNDF(connID, &pb.NDFHash{})
 
-	// Make sure there are no errors with sending the message
 	if err != nil {
-		err = errors.New(err.Error())
-		jww.ERROR.Printf("GetUpdatedNDf: Error received: %v", err)
+		t.Errorf("GetUpdatedNDF: Error recieved: %s", err)
 	}
-
-	cancel()
-	return response, err
 }
