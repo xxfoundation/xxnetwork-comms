@@ -44,7 +44,7 @@ type ConnectionManager struct {
 }
 
 // Default maximum number of retries
-const DefaultMaxRetries = 10
+const DefaultMaxRetries = 110
 
 // Set private key to data to a PEM block
 func (m *ConnectionManager) SetPrivateKey(data []byte) error {
@@ -369,7 +369,7 @@ func ConnectionContext(seconds time.Duration) (context.Context, context.CancelFu
 // timeout for all clients
 func MessagingContext() (context.Context, context.CancelFunc) {
 	ctx, cancel := context.WithTimeout(context.Background(),
-		10000*time.Millisecond)
+		2*time.Minute)
 	return ctx, cancel
 }
 
