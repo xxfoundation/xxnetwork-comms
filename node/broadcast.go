@@ -144,9 +144,8 @@ func (s *NodeComms) RoundTripPing(id fmt.Stringer, roundID uint64) (*pb.Ack, err
 	c := s.GetNodeConnection(id)
 	ctx, cancel := connect.MessagingContext()
 
-	any, err := ptypes.MarshalAny(nil)
+	any, err := ptypes.MarshalAny(&pb.Ack{})
 	if err != nil {
-		err = errors.New(err.Error())
 		jww.ERROR.Printf("SendRoundTripPing: failed attempting to marshall any type: %+v", err)
 	}
 

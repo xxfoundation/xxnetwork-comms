@@ -145,3 +145,17 @@ func TestSendGetMeasureError(t *testing.T) {
 		t.Error("Did not receive error response")
 	}
 }
+
+func TestRoundTripPing(t *testing.T) {
+	ServerAddress := getNextServerAddress()
+	impl := NewImplementation()
+	server := StartNode(ServerAddress, impl, nil, nil)
+	defer server.Shutdown()
+
+	connID := MockID("mock_id")
+	_ = server.ConnectToRemote(connID, ServerAddress, nil, false)
+	_, err := server.RoundTripPing(connID, uint64(1))
+	if err != nil {
+		t.Errorf("Received error from RoundTripPing: %+v", err)
+	}
+}
