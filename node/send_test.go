@@ -7,6 +7,7 @@
 package node
 
 import (
+	"github.com/golang/protobuf/ptypes"
 	"github.com/pkg/errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"testing"
@@ -152,9 +153,14 @@ func TestRoundTripPing(t *testing.T) {
 	server := StartNode(ServerAddress, impl, nil, nil)
 	defer server.Shutdown()
 
+	any, err := ptypes.MarshalAny(&pb.Ack{})
+	if err != nil {
+		t.Errorf("SendRoundTripPing: failed attempting to marshall any type: %+v", err)
+	}
+
 	connID := MockID("mock_id")
 	_ = server.ConnectToRemote(connID, ServerAddress, nil, false)
-	_, err := server.RoundTripPing(connID, uint64(1))
+	_, err = server.RoundTripPing(connID, uint64(1), any)
 	if err != nil {
 		t.Errorf("Received error from RoundTripPing: %+v", err)
 	}

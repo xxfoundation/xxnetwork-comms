@@ -10,7 +10,7 @@ package node
 
 import (
 	"fmt"
-	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/any"
 	"github.com/grpc-ecosystem/go-grpc-middleware/retry"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
@@ -140,21 +140,16 @@ func (s *NodeComms) SendPostPrecompResult(id fmt.Stringer,
 	return result, err
 }
 
-func (s *NodeComms) RoundTripPing(id fmt.Stringer, roundID uint64) (*pb.Ack, error) {
+func (s *NodeComms) RoundTripPing(id fmt.Stringer, roundID uint64, payload *any.Any) (*pb.Ack, error) {
 	c := s.GetNodeConnection(id)
 	ctx, cancel := connect.MessagingContext()
-
-	any, err := ptypes.MarshalAny(&pb.Ack{})
-	if err != nil {
-		return nil, errors.Errorf("SendRoundTripPing: failed attempting to marshall any type: %+v", err)
-	}
 
 	result, err := c.SendRoundTripPing(ctx,
 		&pb.RoundTripPing{
 			Round: &pb.RoundInfo{
 				ID: roundID,
 			},
-			Payload: any,
+			Payload: payload,
 		})
 
 	if err != nil {
