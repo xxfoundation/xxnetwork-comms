@@ -146,7 +146,7 @@ func (s *NodeComms) RoundTripPing(id fmt.Stringer, roundID uint64) (*pb.Ack, err
 
 	any, err := ptypes.MarshalAny(&pb.Ack{})
 	if err != nil {
-		jww.ERROR.Printf("SendRoundTripPing: failed attempting to marshall any type: %+v", err)
+		return nil, errors.Errorf("SendRoundTripPing: failed attempting to marshall any type: %+v", err)
 	}
 
 	result, err := c.SendRoundTripPing(ctx,
@@ -158,9 +158,9 @@ func (s *NodeComms) RoundTripPing(id fmt.Stringer, roundID uint64) (*pb.Ack, err
 		})
 
 	if err != nil {
-		jww.ERROR.Printf("SendRoundTripPing: Error received: %+v", err)
+		return nil, errors.Errorf("SendRoundTripPing: Error received: %+v", err)
 	}
 
 	cancel()
-	return result, err
+	return result, nil
 }
