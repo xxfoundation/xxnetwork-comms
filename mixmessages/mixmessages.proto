@@ -165,7 +165,7 @@ service Registration {
     rpc RegisterUser (UserRegistration) returns (UserRegistrationConfirmation) {
     }
 
-    // Client uses this to check if it needs to be updated
+    // Client uses this to check if the version needs to be updated
     rpc GetCurrentClientVersion (Ping) returns (ClientVersion) {
     }
 
@@ -173,6 +173,7 @@ service Registration {
     rpc RegisterNode (NodeRegistration) returns (Ack){
     }
 
+    //Client uses this to check it the ndf needs updating
     rpc GetUpdatedNDF(NDFHash) returns (NDF) {
     }
 }

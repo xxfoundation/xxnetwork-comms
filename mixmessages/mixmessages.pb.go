@@ -2387,10 +2387,11 @@ var _Gateway_serviceDesc = grpc.ServiceDesc{
 type RegistrationClient interface {
 	// Client uses this to register its user with the system
 	RegisterUser(ctx context.Context, in *UserRegistration, opts ...grpc.CallOption) (*UserRegistrationConfirmation, error)
-	// Client uses this to check if it needs to be updated
+	// Client uses this to check if the version needs to be updated
 	GetCurrentClientVersion(ctx context.Context, in *Ping, opts ...grpc.CallOption) (*ClientVersion, error)
 	//Node registration for the permissioning server
 	RegisterNode(ctx context.Context, in *NodeRegistration, opts ...grpc.CallOption) (*Ack, error)
+	//Client uses this to check it the ndf needs updating
 	GetUpdatedNDF(ctx context.Context, in *NDFHash, opts ...grpc.CallOption) (*NDF, error)
 }
 
@@ -2442,10 +2443,11 @@ func (c *registrationClient) GetUpdatedNDF(ctx context.Context, in *NDFHash, opt
 type RegistrationServer interface {
 	// Client uses this to register its user with the system
 	RegisterUser(context.Context, *UserRegistration) (*UserRegistrationConfirmation, error)
-	// Client uses this to check if it needs to be updated
+	// Client uses this to check if the version needs to be updated
 	GetCurrentClientVersion(context.Context, *Ping) (*ClientVersion, error)
 	//Node registration for the permissioning server
 	RegisterNode(context.Context, *NodeRegistration) (*Ack, error)
+	//Client uses this to check it the ndf needs updating
 	GetUpdatedNDF(context.Context, *NDFHash) (*NDF, error)
 }
 
