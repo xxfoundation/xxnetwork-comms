@@ -68,7 +68,7 @@ func (r *RegistrationComms) RegisterNode(ctx context.Context, msg *pb.NodeRegist
 	return &pb.Ack{}, err
 }
 
-//Handle an update NDF request
+//GetUpdatedNDF event handler handles a client's request for a new ndf on the permissioning server
 func (r *RegistrationComms) GetUpdatedNDF(ctx context.Context, msg *pb.NDFHash) (*pb.NDF, error) {
 	newNDF, err := r.handler.GetUpdatedNDF(msg.Hash)
 	//Return the new ndf
