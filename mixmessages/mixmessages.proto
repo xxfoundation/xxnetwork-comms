@@ -173,7 +173,7 @@ service Registration {
     rpc RegisterNode (NodeRegistration) returns (Ack){
     }
 
-    //Client uses this to check it the ndf needs updating
+    //Client uses this to check it the ndf needs updating on the registration server
     rpc GetUpdatedNDF(NDFHash) returns (NDF) {
     }
 }

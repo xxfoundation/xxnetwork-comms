@@ -2391,7 +2391,7 @@ type RegistrationClient interface {
 	GetCurrentClientVersion(ctx context.Context, in *Ping, opts ...grpc.CallOption) (*ClientVersion, error)
 	//Node registration for the permissioning server
 	RegisterNode(ctx context.Context, in *NodeRegistration, opts ...grpc.CallOption) (*Ack, error)
-	//Client uses this to check it the ndf needs updating
+	//Client uses this to check it the ndf needs updating on the registration server
 	GetUpdatedNDF(ctx context.Context, in *NDFHash, opts ...grpc.CallOption) (*NDF, error)
 }
 
@@ -2447,7 +2447,7 @@ type RegistrationServer interface {
 	GetCurrentClientVersion(context.Context, *Ping) (*ClientVersion, error)
 	//Node registration for the permissioning server
 	RegisterNode(context.Context, *NodeRegistration) (*Ack, error)
-	//Client uses this to check it the ndf needs updating
+	//Client uses this to check it the ndf needs updating on the registration server
 	GetUpdatedNDF(context.Context, *NDFHash) (*NDF, error)
 }
 
