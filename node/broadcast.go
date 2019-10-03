@@ -10,6 +10,7 @@ package node
 
 import (
 	"fmt"
+	"github.com/golang/protobuf/ptypes/any"
 	"github.com/grpc-ecosystem/go-grpc-middleware/retry"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
@@ -137,4 +138,24 @@ func (s *NodeComms) SendPostPrecompResult(id fmt.Stringer,
 
 	cancel()
 	return result, err
+}
+
+func (s *NodeComms) RoundTripPing(id fmt.Stringer, roundID uint64, payload *any.Any) (*pb.Ack, error) {
+	c := s.GetNodeConnection(id)
+	ctx, cancel := connect.MessagingContext()
+
+	result, err := c.SendRoundTripPing(ctx,
+		&pb.RoundTripPing{
+			Round: &pb.RoundInfo{
+				ID: roundID,
+			},
+			Payload: payload,
+		})
+
+	if err != nil {
+		return nil, errors.Errorf("SendRoundTripPing: Error received: %+v", err)
+	}
+
+	cancel()
+	return result, nil
 }

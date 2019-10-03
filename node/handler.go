@@ -51,6 +51,8 @@ type ServerHandler interface {
 	DownloadTopology(info *MessageInfo, topology *mixmessages.NodeTopology)
 
 	GetSignedCert(ping *mixmessages.Ping) (*mixmessages.SignedCerts, error)
+
+	SendRoundTripPing(ping *mixmessages.RoundTripPing) error
 }
 
 type implementationFunctions struct {
@@ -90,6 +92,8 @@ type implementationFunctions struct {
 	DownloadTopology func(info *MessageInfo, topology *mixmessages.NodeTopology)
 
 	GetSignedCert func(ping *mixmessages.Ping) (*mixmessages.SignedCerts, error)
+
+	SendRoundTripPing func(ping *mixmessages.RoundTripPing) error
 }
 
 // Implementation allows users of the client library to set the
@@ -167,6 +171,10 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return &mixmessages.SignedCerts{}, nil
 			},
+			SendRoundTripPing: func(ping *mixmessages.RoundTripPing) error {
+				warn(um)
+				return nil
+			},
 		},
 	}
 }
@@ -238,4 +246,8 @@ func (s *Implementation) DownloadTopology(info *MessageInfo, topology *mixmessag
 
 func (s *Implementation) GetSignedCert(ping *mixmessages.Ping) (*mixmessages.SignedCerts, error) {
 	return s.Functions.GetSignedCert(ping)
+}
+
+func (s *Implementation) SendRoundTripPing(ping *mixmessages.RoundTripPing) error {
+	return s.Functions.SendRoundTripPing(ping)
 }
