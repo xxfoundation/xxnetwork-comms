@@ -44,7 +44,7 @@ type ConnectionManager struct {
 }
 
 // Default maximum number of retries
-const DefaultMaxRetries = 10
+const DefaultMaxRetries = 110
 
 // Set private key to data to a PEM block
 func (m *ConnectionManager) SetPrivateKey(data []byte) error {
@@ -122,6 +122,12 @@ func (m *ConnectionManager) ConnectToRemote(id fmt.Stringer,
 func (m *ConnectionManager) GetRegistrationConnection(id fmt.Stringer) pb.
 	RegistrationClient {
 	conn := m.get(id)
+	if !isConnectionGood(conn) {
+		jww.WARN.Printf("Bad Registration connection state, "+
+			"reconnecting: %s",
+			m.connections[id.String()])
+		resetConnection(conn)
+	}
 	return pb.NewRegistrationClient(conn)
 }
 
@@ -129,12 +135,31 @@ func (m *ConnectionManager) GetRegistrationConnection(id fmt.Stringer) pb.
 func (m *ConnectionManager) GetGatewayConnection(id fmt.Stringer) pb.
 	GatewayClient {
 	conn := m.get(id)
+	if !isConnectionGood(conn) {
+		jww.WARN.Printf("Bad Gateway connection state, "+
+			"reconnecting: %s",
+			m.connections[id.String()])
+		resetConnection(conn)
+	}
 	return pb.NewGatewayClient(conn)
 }
 
 func (m *ConnectionManager) GetNodeConnection(id fmt.Stringer) pb.NodeClient {
 	conn := m.get(id)
+	if !isConnectionGood(conn) {
+		jww.WARN.Printf("Bad Node connection state, reconnecting: %s",
+			m.connections[id.String()])
+		resetConnection(conn)
+	}
 	return pb.NewNodeClient(conn)
+}
+
+// resetConnection attempts to reconnect to the remote host
+func resetConnection(connection *grpc.ClientConn) {
+	// NOTE: This is currently experimental, but claims to immediately
+	//       reconnect. We wrap this so we can fix/change later...
+	// https://godoc.org/google.golang.org/grpc#ClientConn.ResetConnectBackoff
+	connection.ResetConnectBackoff()
 }
 
 // Returns true if the connection is non-nil and alive
@@ -210,7 +235,9 @@ func (m *ConnectionManager) connect(id string, addr string,
 
 		// Create the connection
 		connection, err = grpc.DialContext(ctx, addr,
-			securityDial, grpc.WithBlock())
+			securityDial,
+			grpc.WithBlock(),
+			grpc.WithBackoffMaxDelay(time.Minute*5))
 		if err != nil {
 			jww.ERROR.Printf("Attempt number %+v to connect to %s failed: %+v\n", numRetries, addr,
 				errors.New(err.Error()))
@@ -221,19 +248,19 @@ func (m *ConnectionManager) connect(id string, addr string,
 
 	if !isConnectionGood(connection) {
 		return errors.New(fmt.Sprintf("Last try to connect to %s failed. Giving up", addr))
-	} else {
-		// Connection succeeded, so add it to the map along with any information
-		// needed for reconnection
-		jww.INFO.Printf("Successfully connected to %s at %v", id, addr)
-		m.connectionsLock.Lock()
-		m.connections[id] = &ConnectionInfo{
-			Address:      addr,
-			Creds:        tls,
-			Connection:   connection,
-			RsaPublicKey: pubKey,
-		}
-		m.connectionsLock.Unlock()
 	}
+
+	// Connection succeeded, so add it to the map along with any information
+	// needed for reconnection
+	jww.INFO.Printf("Successfully connected to %s at %v", id, addr)
+	m.connectionsLock.Lock()
+	m.connections[id] = &ConnectionInfo{
+		Address:      addr,
+		Creds:        tls,
+		Connection:   connection,
+		RsaPublicKey: pubKey,
+	}
+	m.connectionsLock.Unlock()
 	return nil
 }
 
@@ -289,35 +316,42 @@ func (m *ConnectionManager) String() string {
 		// Populate fields without ever dereferencing nil
 		connection := m.connections[key]
 		if connection != nil {
-			addr := connection.Address
-			actualConnection := connection.Connection
-			creds := connection.Creds
-
-			var state connectivity.State
-			if actualConnection != nil {
-				state = actualConnection.GetState()
-			}
-
-			serverName := "<nil>"
-			protocolVersion := "<nil>"
-			securityVersion := "<nil>"
-			securityProtocol := "<nil>"
-			if creds != nil {
-				serverName = creds.Info().ServerName
-				securityVersion = creds.Info().SecurityVersion
-				protocolVersion = creds.Info().ProtocolVersion
-				securityProtocol = creds.Info().SecurityProtocol
-			}
 			result.WriteString(fmt.Sprintf(
-				"[%v] Addr: %v\tState: %v\tTLS ServerName: %v\t"+
-					"TLS ProtocolVersion: %v\tTLS SecurityVersion: %v\t"+
-					"TLS SecurityProtocol: %v\n",
-				key, addr, state, serverName, protocolVersion,
-				securityVersion, securityProtocol))
+				"[%v] %s",
+				key, connection))
 		}
 	}
 
 	return result.String()
+}
+
+// String er interface for ConnectionInfo
+func (ci *ConnectionInfo) String() string {
+	addr := ci.Address
+	actualConnection := ci.Connection
+	creds := ci.Creds
+
+	var state connectivity.State
+	if actualConnection != nil {
+		state = actualConnection.GetState()
+	}
+
+	serverName := "<nil>"
+	protocolVersion := "<nil>"
+	securityVersion := "<nil>"
+	securityProtocol := "<nil>"
+	if creds != nil {
+		serverName = creds.Info().ServerName
+		securityVersion = creds.Info().SecurityVersion
+		protocolVersion = creds.Info().ProtocolVersion
+		securityProtocol = creds.Info().SecurityProtocol
+	}
+	return fmt.Sprintf(
+		"Addr: %v\tState: %v\tTLS ServerName: %v\t"+
+			"TLS ProtocolVersion: %v\tTLS SecurityVersion: %v\t"+
+			"TLS SecurityProtocol: %v\n",
+		addr, state, serverName, protocolVersion,
+		securityVersion, securityProtocol)
 }
 
 //TimeoutContext is the basis for the default timeout
@@ -335,7 +369,7 @@ func ConnectionContext(seconds time.Duration) (context.Context, context.CancelFu
 // timeout for all clients
 func MessagingContext() (context.Context, context.CancelFunc) {
 	ctx, cancel := context.WithTimeout(context.Background(),
-		10000*time.Millisecond)
+		2*time.Minute)
 	return ctx, cancel
 }
 
