@@ -74,6 +74,10 @@ service Node {
     // Gateway -> Server polling for CA-signed certificates
     rpc GetSignedCert (Ping) returns (SignedCerts) {
     }
+
+    // Round trip ping comm
+    rpc SendRoundTripPing (RoundTripPing) returns (Ack) {
+    }
 }
 
 // Response to gateway for providing certs signed by the Permissioning CA
@@ -293,4 +297,9 @@ message SignedMessage {
     bytes Signature = 1;
     string ID = 2;
     google.protobuf.Any Message = 3;
+}
+
+message RoundTripPing {
+    google.protobuf.Any Payload = 1;
+    RoundInfo Round = 2;
 }
