@@ -169,13 +169,27 @@ service Registration {
     rpc RegisterUser (UserRegistration) returns (UserRegistrationConfirmation) {
     }
 
-    // Client uses this to check if it needs to be updated
+    // Client uses this to check if the version needs to be updated
     rpc GetCurrentClientVersion (Ping) returns (ClientVersion) {
     }
 
     //Node registration for the permissioning server
     rpc RegisterNode (NodeRegistration) returns (Ack){
     }
+
+    //Client uses this to check it the ndf needs updating on the registration server
+    rpc GetUpdatedNDF(NDFHash) returns (NDF) {
+    }
+}
+
+//The ndf Hash used to compare ndf on permissioning and client
+message NDFHash{
+    bytes Hash = 1;
+}
+
+//Message from permissioning <->client for a dynamic ndf
+message NDF{
+    bytes Ndf = 1;
 }
 
 // RegisterNode to register a node with needed attributes
