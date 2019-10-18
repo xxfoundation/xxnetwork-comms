@@ -38,13 +38,13 @@ type Implementation struct {
 
 // NewImplementation returns a Implementation struct with all of the
 // function pointers returning nothing and printing an error.
-func NewImplementation() Handler {
+func NewImplementation() *Implementation {
 	um := "UNIMPLEMENTED FUNCTION!"
 	warn := func(msg string) {
 		jww.WARN.Printf(msg)
 		jww.WARN.Printf("%s", debug.Stack())
 	}
-	return Handler(&Implementation{
+	return &Implementation{
 		Functions: implementationFunctions{
 
 			RegisterUser: func(registrationCode,
@@ -66,7 +66,7 @@ func NewImplementation() Handler {
 				return nil, nil
 			},
 		},
-	})
+	}
 }
 
 // Registers a user and returns a signed public key
