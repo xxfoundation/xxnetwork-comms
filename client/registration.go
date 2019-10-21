@@ -55,3 +55,22 @@ func (c *ClientComms) SendGetCurrentClientVersionMessage(id fmt.Stringer) (*pb.C
 	cancel()
 	return response, err
 }
+
+//Call GetUpdatedNDF on the registration server
+func (c *ClientComms) SendGetUpdatedNDF(id fmt.Stringer, message *pb.NDFHash) (*pb.NDF, error) {
+	//Get the connection
+	connection := c.GetRegistrationConnection(id)
+	ctx, cancel := connect.MessagingContext()
+
+	//Send message
+	response, err := connection.GetUpdatedNDF(ctx, message)
+
+	// Make sure there are no errors with sending the message
+	if err != nil {
+		err = errors.New(err.Error())
+		jww.ERROR.Printf("GetUpdatedNDf: Error received: %v", err)
+	}
+
+	cancel()
+	return response, err
+}

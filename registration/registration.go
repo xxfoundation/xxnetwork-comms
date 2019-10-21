@@ -84,15 +84,6 @@ func StartRegistrationServer(localServer string, handler Handler,
 	}
 
 	go func() {
-		// Make the port close when the gateway dies
-		defer func() {
-			err = lis.Close()
-			if err != nil {
-				err = errors.New(err.Error())
-				jww.WARN.Printf("Unable to close listening port: %+v", err)
-			}
-		}()
-
 		pb.RegisterRegistrationServer(registrationServer.gs, &registrationServer)
 
 		// Register reflection service on gRPC server.
@@ -101,6 +92,8 @@ func StartRegistrationServer(localServer string, handler Handler,
 			err = errors.New(err.Error())
 			jww.FATAL.Panicf("Failed to serve: %+v", err)
 		}
+		jww.INFO.Printf("Shutting down registration server listener:"+
+			" %s", lis)
 	}()
 
 	return &registrationServer

@@ -18,14 +18,16 @@ type Handler interface {
 	GetCurrentClientVersion() (version string, err error)
 	RegisterNode(ID []byte, ServerAddr, ServerTlsCert, GatewayAddr, GatewayTlsCert,
 		RegistrationCode string) error
+	GetUpdatedNDF(clientNDFHash []byte) ([]byte, error)
 }
 
 type implementationFunctions struct {
 	RegisterUser func(registrationCode, pubKey string) (signature []byte,
 		err error)
 	GetCurrentClientVersion func() (version string, err error)
-	RegisterNode func(ID []byte, ServerAddr, ServerTlsCert,
+	RegisterNode            func(ID []byte, ServerAddr, ServerTlsCert,
 		GatewayAddr, GatewayTlsCert, RegistrationCode string) error
+	GetUpdatedNDF func(clientNDFHash []byte) ([]byte, error)
 }
 
 // Implementation allows users of the client library to set the
@@ -36,13 +38,13 @@ type Implementation struct {
 
 // NewImplementation returns a Implementation struct with all of the
 // function pointers returning nothing and printing an error.
-func NewImplementation() Handler {
+func NewImplementation() *Implementation {
 	um := "UNIMPLEMENTED FUNCTION!"
 	warn := func(msg string) {
 		jww.WARN.Printf(msg)
 		jww.WARN.Printf("%s", debug.Stack())
 	}
-	return Handler(&Implementation{
+	return &Implementation{
 		Functions: implementationFunctions{
 
 			RegisterUser: func(registrationCode,
@@ -59,8 +61,12 @@ func NewImplementation() Handler {
 				warn(um)
 				return nil
 			},
+			GetUpdatedNDF: func(clientNDFHash []byte) ([]byte, error) {
+				warn(um)
+				return nil, nil
+			},
 		},
-	})
+	}
 }
 
 // Registers a user and returns a signed public key
@@ -77,4 +83,8 @@ func (s *Implementation) RegisterNode(ID []byte, ServerAddr, ServerTlsCert,
 	GatewayAddr, GatewayTlsCert, RegistrationCode string) error {
 	return s.Functions.RegisterNode(ID, ServerAddr, ServerTlsCert,
 		GatewayAddr, GatewayTlsCert, RegistrationCode)
+}
+
+func (s *Implementation) GetUpdatedNDF(clientNDFHash []byte) ([]byte, error) {
+	return s.Functions.GetUpdatedNDF(clientNDFHash)
 }
