@@ -78,15 +78,6 @@ func StartNode(localServer string, handler ServerHandler,
 	mixmessageServer := NodeComms{gs: grpcServer, handler: handler, localServer: localServer}
 
 	go func() {
-		// Make the port close when the gateway dies
-		defer func() {
-			err = lis.Close()
-			if err != nil {
-				err = errors.New(err.Error())
-				jww.WARN.Printf("Unable to close listening port: %+v", err)
-			}
-		}()
-
 		pb.RegisterNodeServer(mixmessageServer.gs, &mixmessageServer)
 
 		// Register reflection service on gRPC server.
@@ -95,6 +86,7 @@ func StartNode(localServer string, handler ServerHandler,
 			err = errors.New(err.Error())
 			jww.FATAL.Panicf("Failed to serve: %+v", err)
 		}
+		jww.INFO.Printf("Shutting down node server listener: %s", lis)
 	}()
 
 	return &mixmessageServer
