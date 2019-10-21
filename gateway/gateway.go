@@ -83,15 +83,6 @@ func StartGateway(localServer string, handler Handler,
 	}
 
 	go func() {
-		//Make the port close when the gateway dies
-		defer func() {
-			err = lis.Close()
-			if err != nil {
-				err = errors.New(err.Error())
-				jww.WARN.Printf("Unable to close listening port: %+v", err)
-			}
-		}()
-
 		pb.RegisterGatewayServer(gatewayServer.gs, &gatewayServer)
 
 		// Register reflection service on gRPC server.
@@ -101,6 +92,9 @@ func StartGateway(localServer string, handler Handler,
 			err = errors.New(err.Error())
 			jww.FATAL.Panicf("Failed to serve: %+v", err)
 		}
+		jww.INFO.Printf("Shutting down gateway server listener: %s",
+			lis)
+
 	}()
 
 	return &gatewayServer
