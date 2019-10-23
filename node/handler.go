@@ -53,6 +53,8 @@ type ServerHandler interface {
 	GetSignedCert(ping *mixmessages.Ping) (*mixmessages.SignedCerts, error)
 
 	SendRoundTripPing(ping *mixmessages.RoundTripPing) error
+
+	AskOnline(ping *mixmessages.Ping) error
 }
 
 type implementationFunctions struct {
@@ -94,6 +96,8 @@ type implementationFunctions struct {
 	GetSignedCert func(ping *mixmessages.Ping) (*mixmessages.SignedCerts, error)
 
 	SendRoundTripPing func(ping *mixmessages.RoundTripPing) error
+
+	AskOnline func(ping *mixmessages.Ping) error
 }
 
 // Implementation allows users of the client library to set the
@@ -175,6 +179,10 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return nil
 			},
+			AskOnline: func(ping *mixmessages.Ping) error {
+				warn(um)
+				return nil
+			},
 		},
 	}
 }
@@ -250,4 +258,9 @@ func (s *Implementation) GetSignedCert(ping *mixmessages.Ping) (*mixmessages.Sig
 
 func (s *Implementation) SendRoundTripPing(ping *mixmessages.RoundTripPing) error {
 	return s.Functions.SendRoundTripPing(ping)
+}
+
+// AskOnline blocks until the server is online, or returns an error
+func (s *Implementation) AskOnline(ping *mixmessages.Ping) error {
+	return s.Functions.AskOnline(ping)
 }
