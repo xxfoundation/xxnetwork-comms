@@ -52,7 +52,7 @@ type Implementation struct {
 }
 
 // Creates and returns a new Handler interface
-func NewImplementation() Handler {
+func NewImplementation() *Implementation {
 	um := "UNIMPLEMENTED FUNCTION!"
 	warn := func(msg string) {
 		jww.WARN.Printf(msg)
