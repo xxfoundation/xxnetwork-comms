@@ -52,13 +52,13 @@ type Implementation struct {
 }
 
 // Creates and returns a new Handler interface
-func NewImplementation() Handler {
+func NewImplementation() *Implementation {
 	um := "UNIMPLEMENTED FUNCTION!"
 	warn := func(msg string) {
 		jww.WARN.Printf(msg)
 		jww.WARN.Printf("%s", debug.Stack())
 	}
-	return Handler(&Implementation{
+	return &Implementation{
 		Functions: implementationFunctions{
 			CheckMessages: func(userID *id.User, messageID string) ([]string, bool) {
 				warn(um)
@@ -81,7 +81,7 @@ func NewImplementation() Handler {
 				return new(pb.RegistrationConfirmation), nil
 			},
 		},
-	})
+	}
 }
 
 // Return any MessageIDs in the buffer for this UserID
