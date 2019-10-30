@@ -12,8 +12,8 @@ import (
 	"testing"
 )
 
-// Smoke test PostNewBatch
-func TestPostNewBatch(t *testing.T) {
+// Smoke test SendRequestNonceMessage
+func TestSendRequestNonceMessage(t *testing.T) {
 	GatewayAddress := getNextGatewayAddress()
 	ServerAddress := getNextServerAddress()
 	gateway := StartGateway(GatewayAddress, NewImplementation(), nil, nil)
@@ -22,17 +22,22 @@ func TestPostNewBatch(t *testing.T) {
 	defer gateway.Shutdown()
 	defer server.Shutdown()
 	connID := MockID("gatewayToServer")
-	gateway.ConnectToRemote(connID, ServerAddress, nil, false)
+	gateway.ConnectToRemote(connID, ServerAddress, nil, true)
 
-	msgs := &pb.Batch{}
-	err := gateway.PostNewBatch(connID, msgs)
+	RSASignature := &pb.RSASignature{
+		Signature: []byte{},
+	}
+
+	_, err := gateway.SendRequestNonceMessage(connID,
+		&pb.NonceRequest{ClientSignedByServer: RSASignature,
+			RequestSignature: RSASignature})
 	if err != nil {
-		t.Errorf("PostNewBatch: Error received: %s", err)
+		t.Errorf("SendRequestNonceMessage: Error received: %s", err)
 	}
 }
 
-// Smoke Test GetBufferInfo
-func TestGetRoundBufferInfo(t *testing.T) {
+// Smoke test SendConfirmNonceMessage
+func TestSendConfirmNonceMessage(t *testing.T) {
 	GatewayAddress := getNextGatewayAddress()
 	ServerAddress := getNextServerAddress()
 	gateway := StartGateway(GatewayAddress, NewImplementation(), nil, nil)
@@ -41,37 +46,29 @@ func TestGetRoundBufferInfo(t *testing.T) {
 	defer gateway.Shutdown()
 	defer server.Shutdown()
 	connID := MockID("gatewayToServer")
-	gateway.ConnectToRemote(connID, ServerAddress, nil, false)
+	gateway.ConnectToRemote(connID, ServerAddress, nil, true)
 
-	bufSize, err := gateway.GetRoundBufferInfo(connID)
+	reg := &pb.RequestRegistrationConfirmation{}
+	reg.NonceSignedByClient = &pb.RSASignature{}
+	_, err := gateway.SendConfirmNonceMessage(connID, reg)
 	if err != nil {
-		t.Errorf("GetRoundBufferInfo: Error received: %s", err)
-	}
-	if bufSize != 0 {
-		t.Errorf("GetRoundBufferInfo: Unexpected buffer size.")
+		t.Errorf("SendConfirmNonceMessage: Error received: %s", err)
 	}
 }
 
-// Smoke test GetCompletedBatch
-func TestGetCompletedBatch(t *testing.T) {
+func TestPollSignedCerts(t *testing.T) {
 	GatewayAddress := getNextGatewayAddress()
 	ServerAddress := getNextServerAddress()
+
 	gateway := StartGateway(GatewayAddress, NewImplementation(), nil, nil)
-	server := node.StartNode(ServerAddress, node.NewImplementation(),
-		nil, nil)
+	server := node.StartNode(ServerAddress, node.NewImplementation(), nil, nil)
 	defer gateway.Shutdown()
 	defer server.Shutdown()
 	connID := MockID("gatewayToServer")
-	gateway.ConnectToRemote(connID, ServerAddress, nil, false)
+	gateway.ConnectToRemote(connID, ServerAddress, nil, true)
 
-	batch, err := gateway.GetCompletedBatch(connID)
+	_, err := gateway.PollSignedCerts(connID, &pb.Ping{})
 	if err != nil {
-		t.Errorf("GetCompletedBatch: Error received: %s", err)
-	}
-	// The mock server doesn't have any batches ready,
-	// so it should return either a nil slice of slots,
-	// or a slice with no slots in it.
-	if len(batch.Slots) != 0 {
-		t.Errorf("GetCompletedBatch: Expected batch with no slots")
+		t.Errorf("SendGetSignedCertMessage: Error received: %s", err)
 	}
 }

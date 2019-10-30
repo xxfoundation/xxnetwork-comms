@@ -8,22 +8,55 @@ package client
 
 import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/elixxir/comms/node"
 	"gitlab.com/elixxir/comms/registration"
 	"testing"
 )
 
 // Smoke test SendRegistrationMessage
 func TestSendRegistrationMessage(t *testing.T) {
-	rgShutDown := registration.StartRegistrationServer(GatewayAddress,
-		registration.NewImplementation(), "", "")
-	nodeShutDown := node.StartServer(ServerAddress, node.NewImplementation(),
-		"", "")
-	defer rgShutDown()
-	defer nodeShutDown()
+	GatewayAddress := getNextGatewayAddress()
+	rg := registration.StartRegistrationServer(GatewayAddress,
+		registration.NewImplementation(), nil, nil)
+	defer rg.Shutdown()
+	connID := MockID("clientToRegistration")
+	var c ClientComms
+	c.ConnectToRemote(connID, GatewayAddress, nil, false)
 
-	err := SendRegistrationMessage(GatewayAddress, &pb.RegisterUserMessage{})
+	_, err := c.SendRegistrationMessage(connID, &pb.UserRegistration{})
 	if err != nil {
 		t.Errorf("RegistrationMessage: Error received: %s", err)
+	}
+}
+
+// Smoke test SendCheckClientVersion
+func TestSendCheckClientVersionMessage(t *testing.T) {
+	GatewayAddress := getNextGatewayAddress()
+	rg := registration.StartRegistrationServer(GatewayAddress,
+		registration.NewImplementation(), nil, nil)
+	defer rg.Shutdown()
+	connID := MockID("clientToRegistration")
+	var c ClientComms
+	c.ConnectToRemote(connID, GatewayAddress, nil, false)
+
+	_, err := c.SendGetCurrentClientVersionMessage(connID)
+	if err != nil {
+		t.Errorf("CheckClientVersion: Error received: %s", err)
+	}
+}
+
+//Smoke test SendGetUpdatedNDF
+func TestSendGetUpdatedNDF(t *testing.T) {
+	GatewayAddress := getNextGatewayAddress()
+	rg := registration.StartRegistrationServer(GatewayAddress,
+		registration.NewImplementation(), nil, nil)
+	defer rg.Shutdown()
+	connID := MockID("clientToRegistration")
+	var c ClientComms
+	c.ConnectToRemote(connID, GatewayAddress, nil, false)
+
+	_, err := c.SendGetUpdatedNDF(connID, &pb.NDFHash{})
+
+	if err != nil {
+		t.Errorf("GetUpdatedNDF: Error recieved: %s", err)
 	}
 }

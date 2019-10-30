@@ -3,31 +3,33 @@
 //                                                                             /
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
-
-// Contains server -> gateway functionality
-
 package node
 
 import (
+	"errors"
+	"fmt"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 )
 
-// SendReceiveBatch sends a batch to the gateway
-func SendReceiveBatch(addr string, message []*pb.CmixMessage) error {
+// Send a message to the gateway
+func (s *NodeComms) SendNodeRegistration(id fmt.Stringer,
+	message *pb.NodeRegistration) error {
+
 	// Attempt to connect to addr
-	c := connect.ConnectToGateway(addr)
-	ctx, cancel := connect.DefaultContext()
+	connection := s.GetRegistrationConnection(id)
+	ctx, cancel := connect.MessagingContext()
 
-	outputMessages := pb.OutputMessages{Messages: message}
-
-	_, err := c.ReceiveBatch(ctx, &outputMessages)
+	// Send the message
+	_, err := connection.RegisterNode(ctx, message)
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
-		jww.ERROR.Printf("ReceiveBatch(): Error received: %s", err)
+		err = errors.New(err.Error())
+		jww.ERROR.Printf("SendNodeRegistration: Error received: %+v", err)
 	}
+
 	cancel()
 	return err
 }

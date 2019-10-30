@@ -1,4 +1,4 @@
-GRPC - Adding New Cryptop Message Types
+gRPC - Adding New Cryptop Message Types
 ----
 
 **Note**: This guide is specifically intended for adding new `node` 
@@ -12,10 +12,10 @@ Create a new `message`, resembling a `struct` in golang.
 ```
 message PrecompDecryptSlot {
   uint64 Slot = 1;
-  bytes EncryptedMessageKeys = 2;
-  bytes EncryptedRecipientIDKeys = 3;
-  bytes PartialMessageCypherText = 4;
-  bytes PartialRecipientIDCypherText = 5;
+  bytes EncryptedPayloadAKeys = 2;
+  bytes EncryptedPayloadBKeys = 3;
+  bytes PartialPayloadACypherText = 4;
+  bytes PartialPayloadBCypherText = 5;
 }
 ```
 
@@ -32,10 +32,10 @@ message PrecompDecryptMessage {
   repeated PrecompDecryptSlot Slots = 2;
 }
 ```
-Then, simply add an `rpc` in `service MixMessageNode` specifying what the 
+Then, simply add an `rpc` in `service Node` specifying what the 
 endpoint for your new
 message will be called. You must also specify what message that endpoint will trigger with, and
-what type of message to respond with.
+what type of message to respond with (*Keep in mind, these are examples and actual names may change*)
 
 For example, this rpc is called `PrecompDecrypt`. `PrecompDecryptMessage` messages will end up here, and
 the endpoint will respond with a generic blank `Ack` message (Use `Ack` if you don't need anything back,
@@ -58,7 +58,7 @@ message Pong {}
 #### Step 2: Regenerate mixmessages.pb.go
 
 Run the following command in the base project directory
-(assuming you've set GRPC up correctly per the main README):
+(assuming you've set gRPC up correctly per the main README):
 
 `protoc -I mixmessages/ mixmessages/mixmessages.proto --go_out=plugins=grpc:mixmessages`
 
@@ -86,7 +86,7 @@ like above. We will create this interface method in Step 5.
 #### Step 4: Add SendMessage function for your rpc in node package
 
 Create a new file in `node` package for your `rpc`. The purpose of this
-is to be able to send a message from the `server` repository without any dependencies on grpc.
+is to be able to send a message from the `server` repository without any dependencies on gRPC.
 You may copy one of the other files in this package and modify the message input and return types.
 Additionally, make sure you call your endpoint from Step 3 in the method body as follows:
 

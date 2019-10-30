@@ -13,14 +13,21 @@ import (
 	"runtime/debug"
 )
 
-type RegistrationHandler interface {
-	RegisterUser(registrationCode, email, password string,
-		publicKey []byte) ([]byte, error)
+type Handler interface {
+	RegisterUser(registrationCode, pubKey string) (signature []byte, err error)
+	GetCurrentClientVersion() (version string, err error)
+	RegisterNode(ID []byte, ServerAddr, ServerTlsCert, GatewayAddr, GatewayTlsCert,
+		RegistrationCode string) error
+	GetUpdatedNDF(clientNDFHash []byte) ([]byte, error)
 }
 
 type implementationFunctions struct {
-	RegisterUser func(registrationCode, email, password string,
-		publicKey []byte) ([]byte, error)
+	RegisterUser func(registrationCode, pubKey string) (signature []byte,
+		err error)
+	GetCurrentClientVersion func() (version string, err error)
+	RegisterNode            func(ID []byte, ServerAddr, ServerTlsCert,
+		GatewayAddr, GatewayTlsCert, RegistrationCode string) error
+	GetUpdatedNDF func(clientNDFHash []byte) ([]byte, error)
 }
 
 // Implementation allows users of the client library to set the
@@ -31,25 +38,53 @@ type Implementation struct {
 
 // NewImplementation returns a Implementation struct with all of the
 // function pointers returning nothing and printing an error.
-func NewImplementation() RegistrationHandler {
+func NewImplementation() *Implementation {
 	um := "UNIMPLEMENTED FUNCTION!"
 	warn := func(msg string) {
 		jww.WARN.Printf(msg)
-		jww.WARN.Printf("%v", debug.Stack())
+		jww.WARN.Printf("%s", debug.Stack())
 	}
-	return RegistrationHandler(&Implementation{
+	return &Implementation{
 		Functions: implementationFunctions{
-			RegisterUser: func(registrationCode, email, password string,
-				publicKey []byte) ([]byte, error) {
+
+			RegisterUser: func(registrationCode,
+				pubKey string) (signature []byte, err error) {
+				warn(um)
+				return nil, nil
+			},
+			GetCurrentClientVersion: func() (version string, err error) {
+				warn(um)
+				return "", nil
+			},
+			RegisterNode: func(ID []byte, ServerAddr, ServerTlsCert,
+				GatewayAddr, GatewayTlsCert, RegistrationCode string) error {
+				warn(um)
+				return nil
+			},
+			GetUpdatedNDF: func(clientNDFHash []byte) ([]byte, error) {
 				warn(um)
 				return nil, nil
 			},
 		},
-	})
+	}
 }
 
 // Registers a user and returns a signed public key
-func (s *Implementation) RegisterUser(registrationCode, email, password string,
-	publicKey []byte) ([]byte, error) {
-	return s.Functions.RegisterUser(registrationCode, email, password, publicKey)
+func (s *Implementation) RegisterUser(registrationCode,
+	pubKey string) (signature []byte, err error) {
+	return s.Functions.RegisterUser(registrationCode, pubKey)
+}
+
+func (s *Implementation) GetCurrentClientVersion() (string, error) {
+	return s.Functions.GetCurrentClientVersion()
+}
+
+func (s *Implementation) RegisterNode(ID []byte, ServerAddr, ServerTlsCert,
+	GatewayAddr, GatewayTlsCert, RegistrationCode string) error {
+	return s.Functions.RegisterNode(ID, ServerAddr, ServerTlsCert,
+		GatewayAddr, GatewayTlsCert, RegistrationCode)
+}
+
+func (s *Implementation) GetUpdatedNDF(clientNDFHash []byte) ([]byte, error) {
+	return s.Functions.GetUpdatedNDF(clientNDFHash)
 }
