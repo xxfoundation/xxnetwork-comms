@@ -7,10 +7,11 @@ require (
 	github.com/grpc-ecosystem/go-grpc-middleware v1.1.0
 	github.com/pkg/errors v0.8.1
 	github.com/spf13/jwalterweatherman v1.1.0
-	gitlab.com/elixxir/crypto v0.0.0-20191024163612-1d67595237e4
-	gitlab.com/elixxir/primitives v0.0.0-20191024163559-539ed465e76f
-	golang.org/x/net v0.0.0-20191021144547-ec77196f6094
-	golang.org/x/sys v0.0.0-20191024172528-b4ff53e7a1cb // indirect
+	gitlab.com/elixxir/crypto v0.0.0-20191029164123-324be42ee600
+	gitlab.com/elixxir/primitives v0.0.0-20191029164023-7f6b4088b191
+	golang.org/x/crypto v0.0.0-20191029031824-8986dd9e96cf // indirect
+	golang.org/x/net v0.0.0-20191028085509-fe3aa8a45271
+	golang.org/x/sys v0.0.0-20191029155521-f43be2a4598c // indirect
 	golang.org/x/text v0.3.2 // indirect
 	google.golang.org/genproto v0.0.0-20191028173616-919d9bdd9fe6 // indirect
 	google.golang.org/grpc v1.24.0

@@ -26,25 +26,49 @@ import (
 	"time"
 )
 
-// Stores information used to connect to a server
-type ConnectionInfo struct {
+// Stores a connection and its associated information
+type connection struct {
+	// Address:Port being connected to
 	Address string
-	// You can also get the server name from Creds if you need it
-	Creds        credentials.TransportCredentials
+
+	// GRPC connection object
+	Connection *grpc.ClientConn
+
+	// Credentials object used to establish the connection
+	Creds credentials.TransportCredentials
+
+	// RSA Public Key corresponding to the TLS Certificate
 	RsaPublicKey *rsa.PublicKey
-	Connection   *grpc.ClientConn
+}
+
+// Information used to describe a connection
+type ConnectionInfo struct {
+	// ID used to identify the connection
+	Id fmt.Stringer
+
+	// Address:Port being connected to
+	Address string
+
+	// PEM-format TLS Certificate
+	Cert []byte
+
+	// Indicates whether connection timeout should be disabled
+	DisableTimeout bool
 }
 
 type ConnectionManager struct {
 	// A map of string IDs to open connections
-	connections     map[string]*ConnectionInfo
+	connections map[string]*connection
+
+	// Local server RSA Private Key
+	privateKey *rsa.PrivateKey
+
 	connectionsLock sync.Mutex
-	privateKey      *rsa.PrivateKey
 	maxRetries      int64
 }
 
 // Default maximum number of retries
-const DefaultMaxRetries = 110
+const DefaultMaxRetries = 100
 
 // Set private key to data to a PEM block
 func (m *ConnectionManager) SetPrivateKey(data []byte) error {
@@ -63,7 +87,7 @@ func (m *ConnectionManager) GetPrivateKey() *rsa.PrivateKey {
 	return m.privateKey
 }
 
-func (m *ConnectionManager) GetConnectionInfo(id string) *ConnectionInfo {
+func (m *ConnectionManager) GetConnectionInfo(id string) *connection {
 	return m.connections[id]
 }
 
@@ -71,90 +95,90 @@ func (m *ConnectionManager) SetMaxRetries(mr int64) {
 	m.maxRetries = mr
 }
 
+// TODO
+func createCredentials(connInfo *ConnectionInfo) (credentials.
+	TransportCredentials, *rsa.PublicKey, error) {
+
+	// If no TLS Certificate specified, print a warning and do nothing
+	if connInfo.Cert == nil || len(connInfo.Cert) == 0 {
+		jww.WARN.Printf("No TLS Certificate specified!")
+		return nil, nil, nil
+	}
+
+	// Obtain the DNS name included with the certificate
+	dnsName := ""
+	cert, err := tlsCreds.LoadCertificate(string(connInfo.Cert))
+	if err != nil {
+		s := fmt.Sprintf("Error forming transportCredentials: %+v", err)
+		return nil, nil, errors.New(s)
+	}
+	if len(cert.DNSNames) > 0 {
+		dnsName = cert.DNSNames[0]
+	}
+
+	// Create the TLS Credentials object
+	tlsCredentials, err := tlsCreds.NewCredentialsFromPEM(string(connInfo.Cert),
+		dnsName)
+	if err != nil {
+		s := fmt.Sprintf("Error forming transportCredentials: %+v", err)
+		return nil, nil, errors.New(s)
+	}
+
+	// Create the RSA Public Key object
+	publicKey, err := tlsCreds.NewPublicKeyFromPEM(connInfo.Cert)
+	if err != nil {
+		s := fmt.Sprintf("Error extracting PublicKey: %+v", err)
+		return nil, nil, errors.New(s)
+	}
+
+	return tlsCredentials, publicKey, nil
+}
+
 // ConnectToRemote connects to a remote server at address addr with the passed
 // cert. The connection is stored locally at the passed id.  that ID can be
 // used to identify the private keys of the sender of incoming messages so
 // it must be the same as used across the network.
-func (m *ConnectionManager) ConnectToRemote(id fmt.Stringer,
-	addr string, certPEMblock []byte, disableTimeout bool) error {
-	// Make TransportCredentials
-	var creds credentials.TransportCredentials
-	var pubKey *rsa.PublicKey
-	//TODO: Conglomerate this and the connect function, then split and refactor into helper functions
-	// ie this if statement could be a function like loadCredentials that returns credentials, etc
-	if certPEMblock != nil && len(certPEMblock) != 0 {
-
-		var err error
-
-		//Gets the DNS name from the cert so it cna override for testing
-		//fix-me: this should not run on a live deployment
-		cert, err := tlsCreds.LoadCertificate(string(certPEMblock))
-
-		if err != nil {
-			s := fmt.Sprintf("Error forming transportCredentials: %+v", err)
-			return errors.New(s)
-		}
-
-		jww.DEBUG.Printf("Cert: %+v", cert)
-
-		dnsName := ""
-		if len(cert.DNSNames) > 0 {
-			dnsName = cert.DNSNames[0]
-		}
-
-		//create the TLS cert
-		creds, err = tlsCreds.NewCredentialsFromPEM(string(certPEMblock),
-			dnsName)
-		if err != nil {
-			s := fmt.Sprintf("Error forming transportCredentials: %+v", err)
-			return errors.New(s)
-		}
-
-		pubKey, err = tlsCreds.NewPublicKeyFromPEM(certPEMblock)
-		if err != nil {
-			s := fmt.Sprintf("Error extracting PublicKey: %+v", err)
-			return errors.New(s)
-		}
-	}
-	return m.connect(id.String(), addr, creds, pubKey, disableTimeout)
+// TODO: Deprecated. Create connections automatically if they do not exist
+func (m *ConnectionManager) ConnectToRemote(connInfo *ConnectionInfo) error {
+	return m.connect(connInfo)
 }
 
-func (m *ConnectionManager) GetRegistrationConnection(id fmt.Stringer) pb.
+func (m *ConnectionManager) GetRegistrationConnection(connInfo *ConnectionInfo) pb.
 	RegistrationClient {
-	conn := m.get(id)
+	conn := m.get(connInfo)
 	if !isConnectionGood(conn) {
 		jww.WARN.Printf("Bad Registration connection state, "+
-			"reconnecting: %s",
-			m.connections[id.String()])
+			"reconnecting: %v",
+			m.connections[connInfo.Id.String()])
 		resetConnection(conn)
 	}
 	return pb.NewRegistrationClient(conn)
 }
 
-// DEPRECATED - Use ConnectToRemote instead
-func (m *ConnectionManager) GetGatewayConnection(id fmt.Stringer) pb.
+func (m *ConnectionManager) GetGatewayConnection(connInfo *ConnectionInfo) pb.
 	GatewayClient {
-	conn := m.get(id)
+	conn := m.get(connInfo)
 	if !isConnectionGood(conn) {
 		jww.WARN.Printf("Bad Gateway connection state, "+
-			"reconnecting: %s",
-			m.connections[id.String()])
+			"reconnecting: %v",
+			m.connections[connInfo.Id.String()])
 		resetConnection(conn)
 	}
 	return pb.NewGatewayClient(conn)
 }
 
-func (m *ConnectionManager) GetNodeConnection(id fmt.Stringer) pb.NodeClient {
-	conn := m.get(id)
+func (m *ConnectionManager) GetNodeConnection(connInfo *ConnectionInfo) pb.
+	NodeClient {
+	conn := m.get(connInfo)
 	if !isConnectionGood(conn) {
-		jww.WARN.Printf("Bad Node connection state, reconnecting: %s",
-			m.connections[id.String()])
+		jww.WARN.Printf("Bad Node connection state, reconnecting: %v",
+			m.connections[connInfo.Id.String()])
 		resetConnection(conn)
 	}
 	return pb.NewNodeClient(conn)
 }
 
-// resetConnection attempts to reconnect to the remote host
+// Attempts to reconnect to the remote host
 func resetConnection(connection *grpc.ClientConn) {
 	// NOTE: This is currently experimental, but claims to immediately
 	//       reconnect. We wrap this so we can fix/change later...
@@ -173,60 +197,64 @@ func isConnectionGood(connection *grpc.ClientConn) bool {
 }
 
 // Get creates an existing connection
-func (m *ConnectionManager) get(id fmt.Stringer) *grpc.ClientConn {
+func (m *ConnectionManager) get(connInfo *ConnectionInfo) *grpc.ClientConn {
 	m.connectionsLock.Lock()
-	// TODO Retry/reconnect here based on current connection state?
-	//  I think this could be made more robust to handle TransientFailure
-	conn, ok := m.connections[id.String()]
+	defer m.connectionsLock.Unlock()
+
+	conn, ok := m.connections[connInfo.Id.String()]
 	if !ok {
-		jww.FATAL.Panicf("No connection exists for the ID \"" + id.String() + "\"")
+		// TODO: Create the connection if it does not exist
+		jww.FATAL.Panicf("No connection exists for ID %s",
+			connInfo.Id.String())
 	}
-	m.connectionsLock.Unlock()
 	return conn.Connection
 }
 
 // Connect creates a connection
-func (m *ConnectionManager) connect(id string, addr string,
-	tls credentials.TransportCredentials, pubKey *rsa.PublicKey, disableTimeout bool) error {
-
-	// Create top level vars
-	var connection *grpc.ClientConn
-	var err error
-	connection = nil
-	err = nil
-
+func (m *ConnectionManager) connect(connInfo *ConnectionInfo) error {
+	var clientConnection *grpc.ClientConn
 	var securityDial grpc.DialOption
-	if tls != nil {
+
+	// Obtain credentials
+	tlsCredentials, publicKey, err := createCredentials(connInfo)
+	if err != nil {
+		return err
+	}
+
+	if tlsCredentials != nil {
 		// Create the gRPC client with TLS
-		securityDial = grpc.WithTransportCredentials(tls)
+		securityDial = grpc.WithTransportCredentials(tlsCredentials)
 	} else {
 		// Create the gRPC client without TLS
-		jww.WARN.Printf("Connecting to %v without TLS!", addr)
+		jww.WARN.Printf("Connecting to %v without TLS!", connInfo.Address)
 		securityDial = grpc.WithInsecure()
 	}
 
+	// Initialize the connections map if it hasn't already
 	if m.connections == nil {
-		m.connections = make(map[string]*ConnectionInfo)
+		m.connections = make(map[string]*connection)
 	}
 
-	//Set the max number depending on if we want to timeout or not
+	// Set the max number of retries for establishing a connection
 	var maxRetries int64
-	if disableTimeout {
+	if connInfo.DisableTimeout {
 		maxRetries = math.MaxInt64
 	} else {
 		if m.maxRetries == 0 {
 			maxRetries = DefaultMaxRetries
 		} else {
-			maxRetries = int64(m.maxRetries)
+			maxRetries = m.maxRetries
 		}
-
 	}
 
-	// Create a new connection if we are not present or disconnecting/disconnected
-	for numRetries := int64(0); numRetries < maxRetries && !isConnectionGood(connection); numRetries++ {
-		jww.INFO.Printf("Connecting to address %+v. Attempt number %+v of %+v", addr, numRetries, maxRetries)
+	// Attempt to create a new connection
+	for numRetries := int64(0); numRetries < maxRetries && !isConnectionGood(clientConnection); numRetries++ {
 
-		//If timeout is enabled, the max wait time becomes ~14 seconds (with maxRetries=100)
+		jww.INFO.Printf("Connecting to address %+v. Attempt number %+v of %+v",
+			connInfo.Address, numRetries, maxRetries)
+
+		// If timeout is enabled, the max wait time becomes
+		// ~14 seconds (with maxRetries=100)
 		backoffTime := 2 * (numRetries/16 + 1)
 		if backoffTime > 15 {
 			backoffTime = 15
@@ -234,37 +262,38 @@ func (m *ConnectionManager) connect(id string, addr string,
 		ctx, cancel := ConnectionContext(time.Duration(backoffTime))
 
 		// Create the connection
-		connection, err = grpc.DialContext(ctx, addr,
+		clientConnection, err = grpc.DialContext(ctx, connInfo.Address,
 			securityDial,
 			grpc.WithBlock(),
 			grpc.WithBackoffMaxDelay(time.Minute*5))
 		if err != nil {
-			jww.ERROR.Printf("Attempt number %+v to connect to %s failed: %+v\n", numRetries, addr,
-				errors.New(err.Error()))
+			jww.ERROR.Printf("Attempt number %+v to connect to %s failed: %+v\n",
+				numRetries, connInfo.Address, errors.New(err.Error()))
 		}
-
 		cancel()
 	}
 
-	if !isConnectionGood(connection) {
-		return errors.New(fmt.Sprintf("Last try to connect to %s failed. Giving up", addr))
+	// Verify that the connection was established successfully
+	if !isConnectionGood(clientConnection) {
+		return errors.New(fmt.Sprintf("Last try to connect to %s failed. Giving up",
+			connInfo.Address))
 	}
 
-	// Connection succeeded, so add it to the map along with any information
-	// needed for reconnection
-	jww.INFO.Printf("Successfully connected to %s at %v", id, addr)
+	// Add the successful connection to the ConnectionManager
+	jww.INFO.Printf("Successfully connected to %s at %v",
+		connInfo.Id, connInfo.Address)
 	m.connectionsLock.Lock()
-	m.connections[id] = &ConnectionInfo{
-		Address:      addr,
-		Creds:        tls,
-		Connection:   connection,
-		RsaPublicKey: pubKey,
+	m.connections[connInfo.Id.String()] = &connection{
+		Address:      connInfo.Address,
+		Connection:   clientConnection,
+		Creds:        tlsCredentials,
+		RsaPublicKey: publicKey,
 	}
 	m.connectionsLock.Unlock()
 	return nil
 }
 
-// Disconnect closes client connections and removes them from the connection map
+// Disconnect closes client connections and removes it from ConnectionManager
 func (m *ConnectionManager) Disconnect(id string) {
 	m.connectionsLock.Lock()
 	connection, present := m.connections[id]
@@ -279,24 +308,15 @@ func (m *ConnectionManager) Disconnect(id string) {
 	m.connectionsLock.Unlock()
 }
 
-// DisconnectAll closes alld client connections and removes them from the connection map
+// DisconnectAll closes all client connections
+// and removes them from ConnectionManager
 func (m *ConnectionManager) DisconnectAll() {
-
-	m.connectionsLock.Lock()
-
-	for id, connection := range m.connections {
-		err := connection.Connection.Close()
-		if err != nil {
-			jww.ERROR.Printf("Unable to close connection to %s: %+v", id,
-				errors.New(err.Error()))
-		}
-		delete(m.connections, id)
+	for connId := range m.connections {
+		m.Disconnect(connId)
 	}
-
-	m.connectionsLock.Unlock()
 }
 
-// implements Stringer for debug printing
+// Implements Stringer for debug printing
 func (m *ConnectionManager) String() string {
 	m.connectionsLock.Lock()
 	defer m.connectionsLock.Unlock()
@@ -325,8 +345,8 @@ func (m *ConnectionManager) String() string {
 	return result.String()
 }
 
-// String er interface for ConnectionInfo
-func (ci *ConnectionInfo) String() string {
+// Stringer interface for connection
+func (ci *connection) String() string {
 	addr := ci.Address
 	actualConnection := ci.Connection
 	creds := ci.Creds
@@ -354,7 +374,7 @@ func (ci *ConnectionInfo) String() string {
 		securityVersion, securityProtocol)
 }
 
-//TimeoutContext is the basis for the default timeout
+// TimeoutContext is a context with the default timeout
 func ConnectionContext(seconds time.Duration) (context.Context, context.CancelFunc) {
 	waitingPeriod := seconds * time.Second
 	jww.DEBUG.Printf("Timing out in: %s", waitingPeriod)
