@@ -18,9 +18,9 @@ import (
 // Handler interface for the Gateway
 type Handler interface {
 	// Return any MessageIDs in the buffer for this UserID
-	CheckMessages(userID *id.User, messageID string) ([]string, bool)
+	CheckMessages(userID *id.User, messageID string, ipAddress string) ([]string, bool)
 	// Returns the message matching the given parameters to the client
-	GetMessage(userID *id.User, msgID string) (*pb.Slot, bool)
+	GetMessage(userID *id.User, msgID string, ipAddress string) (*pb.Slot, bool)
 	// Upload a message to the cMix Gateway
 	PutMessage(message *pb.Slot, ipAddress string) bool
 	// Pass-through for Registration Nonce Communication
@@ -85,13 +85,13 @@ func NewImplementation() *Implementation {
 }
 
 // Return any MessageIDs in the buffer for this UserID
-func (s *Implementation) CheckMessages(userID *id.User, messageID string) (
+func (s *Implementation) CheckMessages(userID *id.User, messageID string, ipAddress string) (
 	[]string, bool) {
 	return s.Functions.CheckMessages(userID, messageID)
 }
 
 // Returns the message matching the given parameters to the client
-func (s *Implementation) GetMessage(userID *id.User, msgID string) (
+func (s *Implementation) GetMessage(userID *id.User, msgID string, ipAddress string) (
 	*pb.Slot, bool) {
 	return s.Functions.GetMessage(userID, msgID)
 }

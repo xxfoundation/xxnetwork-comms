@@ -19,8 +19,21 @@ import (
 // Sends new MessageIDs in the buffer to a client
 func (g *GatewayComms) CheckMessages(ctx context.Context, msg *pb.ClientRequest) (
 	*pb.IDList, error) {
+
+	// Get peer information from context
+	p, ok := peer.FromContext(ctx)
+	if !ok {
+		return &pb.IDList{}, nil
+	}
+
+	// Strip port from IP address
+	ipAddress, _, err := net.SplitHostPort(p.Addr.String())
+	if err != nil {
+		return nil, err
+	}
+
 	userID := id.NewUserFromBytes(msg.UserID)
-	msgIds, ok := g.handler.CheckMessages(userID, msg.LastMessageID)
+	msgIds, ok := g.handler.CheckMessages(userID, msg.LastMessageID, ipAddress)
 	returnMsg := &pb.IDList{}
 	if ok {
 		returnMsg.IDs = msgIds
@@ -31,8 +44,20 @@ func (g *GatewayComms) CheckMessages(ctx context.Context, msg *pb.ClientRequest)
 // Sends a message matching the given parameters to a client
 func (g *GatewayComms) GetMessage(ctx context.Context, msg *pb.ClientRequest) (
 	*pb.Slot, error) {
+	// Get peer information from context
+	p, ok := peer.FromContext(ctx)
+	if !ok {
+		return &pb.Slot{}, nil
+	}
+
+	// Strip port from IP address
+	ipAddress, _, err := net.SplitHostPort(p.Addr.String())
+	if err != nil {
+		return nil, err
+	}
+
 	userID := id.NewUserFromBytes(msg.UserID)
-	returnMsg, ok := g.handler.GetMessage(userID, msg.LastMessageID)
+	returnMsg, ok := g.handler.GetMessage(userID, msg.LastMessageID, ipAddress)
 	if !ok {
 		// Return an empty message if no results
 		returnMsg = &pb.Slot{}
