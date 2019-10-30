@@ -33,7 +33,7 @@ func (s *NodeComms) DownloadTopology(ctx context.Context,
 	go func() {
 		// Get message sender ID
 		sender := msg.ID
-		pubKey := s.ConnectionManager.GetConnectionInfo(sender).RsaPublicKey
+		pubKey := s.ConnectionManager.GetConnection(sender).RsaPublicKey
 
 		// Unmarshal message to its original type
 		original := pb.NodeTopology{}
@@ -58,7 +58,7 @@ func (s *NodeComms) DownloadTopology(ctx context.Context,
 			verified = false
 		}
 
-		senderAddress := s.ConnectionManager.GetConnectionInfo(msg.ID).Address
+		senderAddress := s.ConnectionManager.GetConnection(msg.ID).Address
 		ci := MessageInfo{
 			Signature:      msg.Signature,
 			ValidSignature: verified,

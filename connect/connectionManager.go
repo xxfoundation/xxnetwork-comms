@@ -87,7 +87,7 @@ func (m *ConnectionManager) GetPrivateKey() *rsa.PrivateKey {
 	return m.privateKey
 }
 
-func (m *ConnectionManager) GetConnectionInfo(id string) *connection {
+func (m *ConnectionManager) GetConnection(id string) *connection {
 	return m.connections[id]
 }
 
