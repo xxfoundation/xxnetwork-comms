@@ -87,8 +87,30 @@ func (m *ConnectionManager) GetPrivateKey() *rsa.PrivateKey {
 	return m.privateKey
 }
 
-func (m *ConnectionManager) GetConnection(id string) *connection {
-	return m.connections[id]
+// Gets a connection object from the ConnectionManager
+// Or creates and returns a new one if it does not already exist
+func (m *ConnectionManager) GetOrCreateConnection(
+	connInfo *ConnectionInfo) (*connection, error) {
+
+	conn, ok := m.connections[connInfo.Id.String()]
+	// If the connection does not already exist, create a new connection
+	if !ok {
+		jww.INFO.Printf("Connection %s does not exist, creating...",
+			connInfo.Id)
+		err := m.connect(connInfo)
+		if err != nil {
+			return nil, err
+		}
+		conn, ok = m.connections[connInfo.Id.String()]
+	}
+
+	// Verify the connection is still good
+	if !isConnectionGood(conn.Connection) {
+		jww.WARN.Printf("Bad connection state, reconnecting: %v",
+			conn.Connection)
+		resetConnection(conn)
+	}
+	return conn, nil
 }
 
 func (m *ConnectionManager) SetMaxRetries(mr int64) {
@@ -135,56 +157,42 @@ func createCredentials(connInfo *ConnectionInfo) (credentials.
 	return tlsCredentials, publicKey, nil
 }
 
-// ConnectToRemote connects to a remote server at address addr with the passed
-// cert. The connection is stored locally at the passed id.  that ID can be
-// used to identify the private keys of the sender of incoming messages so
-// it must be the same as used across the network.
-// TODO: Deprecated. Create connections automatically if they do not exist
-func (m *ConnectionManager) ConnectToRemote(connInfo *ConnectionInfo) error {
-	return m.connect(connInfo)
+// TODO: Delete
+func (m *ConnectionManager) GetRegistrationConnection(
+	connInfo *ConnectionInfo) (pb.RegistrationClient, error) {
+	conn, err := m.GetOrCreateConnection(connInfo)
+	if err != nil {
+		return nil, err
+	}
+	return pb.NewRegistrationClient(conn.Connection), nil
 }
 
-func (m *ConnectionManager) GetRegistrationConnection(connInfo *ConnectionInfo) pb.
-	RegistrationClient {
-	conn := m.get(connInfo)
-	if !isConnectionGood(conn) {
-		jww.WARN.Printf("Bad Registration connection state, "+
-			"reconnecting: %v",
-			m.connections[connInfo.Id.String()])
-		resetConnection(conn)
+// TODO: Delete
+func (m *ConnectionManager) GetGatewayConnection(
+	connInfo *ConnectionInfo) (pb.GatewayClient, error) {
+	conn, err := m.GetOrCreateConnection(connInfo)
+	if err != nil {
+		return nil, err
 	}
-	return pb.NewRegistrationClient(conn)
+	return pb.NewGatewayClient(conn.Connection), nil
 }
 
-func (m *ConnectionManager) GetGatewayConnection(connInfo *ConnectionInfo) pb.
-	GatewayClient {
-	conn := m.get(connInfo)
-	if !isConnectionGood(conn) {
-		jww.WARN.Printf("Bad Gateway connection state, "+
-			"reconnecting: %v",
-			m.connections[connInfo.Id.String()])
-		resetConnection(conn)
+// TODO: Delete
+func (m *ConnectionManager) GetNodeConnection(
+	connInfo *ConnectionInfo) (pb.NodeClient, error) {
+	conn, err := m.GetOrCreateConnection(connInfo)
+	if err != nil {
+		return nil, err
 	}
-	return pb.NewGatewayClient(conn)
-}
-
-func (m *ConnectionManager) GetNodeConnection(connInfo *ConnectionInfo) pb.
-	NodeClient {
-	conn := m.get(connInfo)
-	if !isConnectionGood(conn) {
-		jww.WARN.Printf("Bad Node connection state, reconnecting: %v",
-			m.connections[connInfo.Id.String()])
-		resetConnection(conn)
-	}
-	return pb.NewNodeClient(conn)
+	return pb.NewNodeClient(conn.Connection), nil
 }
 
 // Attempts to reconnect to the remote host
-func resetConnection(connection *grpc.ClientConn) {
+func resetConnection(conn *connection) {
 	// NOTE: This is currently experimental, but claims to immediately
 	//       reconnect. We wrap this so we can fix/change later...
 	// https://godoc.org/google.golang.org/grpc#ClientConn.ResetConnectBackoff
-	connection.ResetConnectBackoff()
+	conn.Connection.ResetConnectBackoff()
 }
 
 // Returns true if the connection is non-nil and alive
@@ -195,20 +203,6 @@ func isConnectionGood(connection *grpc.ClientConn) bool {
 	state := connection.GetState()
 	return state == connectivity.Idle || state == connectivity.Connecting ||
 		state == connectivity.Ready
-}
-
-// Get creates an existing connection
-func (m *ConnectionManager) get(connInfo *ConnectionInfo) *grpc.ClientConn {
-	m.connectionsLock.Lock()
-	defer m.connectionsLock.Unlock()
-
-	conn, ok := m.connections[connInfo.Id.String()]
-	if !ok {
-		// TODO: Create the connection if it does not exist
-		jww.FATAL.Panicf("No connection exists for ID %s",
-			connInfo.Id.String())
-	}
-	return conn.Connection
 }
 
 // Connect creates a connection
