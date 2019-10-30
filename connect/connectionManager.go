@@ -106,9 +106,14 @@ func (m *ConnectionManager) GetOrCreateConnection(
 
 	// Verify the connection is still good
 	if !isConnectionGood(conn.Connection) {
+		// If not, attempt to reestablish the connection
 		jww.WARN.Printf("Bad connection state, reconnecting: %v",
 			conn.Connection)
-		resetConnection(conn)
+		m.Disconnect(connInfo.Id.String())
+		err := m.connect(connInfo)
+		if err != nil {
+			return nil, err
+		}
 	}
 	return conn, nil
 }
@@ -185,14 +190,6 @@ func (m *ConnectionManager) GetNodeConnection(
 		return nil, err
 	}
 	return pb.NewNodeClient(conn.Connection), nil
-}
-
-// Attempts to reconnect to the remote host
-func resetConnection(conn *connection) {
-	// NOTE: This is currently experimental, but claims to immediately
-	//       reconnect. We wrap this so we can fix/change later...
-	// https://godoc.org/google.golang.org/grpc#ClientConn.ResetConnectBackoff
-	conn.Connection.ResetConnectBackoff()
 }
 
 // Returns true if the connection is non-nil and alive
