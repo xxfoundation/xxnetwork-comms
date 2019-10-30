@@ -9,68 +9,79 @@
 package client
 
 import (
-	"fmt"
 	"github.com/pkg/errors"
-	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 )
 
-// Send a RegisterUserMessage to the RegistrationServer
-func (c *ClientComms) SendRegistrationMessage(id fmt.Stringer,
+// Client -> Registration Send Function
+func (c *ClientComms) SendRegistrationMessage(connInfo *connect.ConnectionInfo,
 	message *pb.UserRegistration) (*pb.UserRegistrationConfirmation, error) {
-	// Attempt to connect to addr
-	connection := c.GetRegistrationConnection(id)
-	ctx, cancel := connect.MessagingContext()
 
-	// Send the message
-	response, err := connection.RegisterUser(ctx, message)
-
-	// Make sure there are no errors with sending the message
+	// Obtain the connection
+	conn, err := c.ObtainConnection(connInfo)
 	if err != nil {
-		err = errors.New(err.Error())
-		jww.ERROR.Printf("RegistrationMessage: Error received: %+v", err)
+		return nil, err
 	}
 
-	cancel()
+	// Set up the context
+	ctx, cancel := connect.MessagingContext()
+	defer cancel()
+
+	// Send the message
+	response, err := pb.NewRegistrationClient(
+		conn.Connection).RegisterUser(ctx, message)
+	if err != nil {
+		err = errors.New(err.Error())
+	}
+
 	return response, err
 }
 
-// Call CheckClientVersion on the registration server
-func (c *ClientComms) SendGetCurrentClientVersionMessage(id fmt.Stringer) (*pb.ClientVersion, error) {
-	// Get the connection
-	connection := c.GetRegistrationConnection(id)
-	ctx, cancel := connect.MessagingContext()
+// Client -> Registration Send Function
+func (c *ClientComms) SendGetCurrentClientVersionMessage(
+	connInfo *connect.ConnectionInfo) (*pb.ClientVersion, error) {
 
-	// Send the message
-	response, err := connection.GetCurrentClientVersion(ctx, &pb.Ping{})
-
-	// Log if we got an error
+	// Obtain the connection
+	conn, err := c.ObtainConnection(connInfo)
 	if err != nil {
-		err = errors.New(err.Error())
-		jww.ERROR.Printf("CheckClientVersion: Error received: %+v", err)
+		return nil, err
 	}
 
-	// Finish up
-	cancel()
+	// Set up the context
+	ctx, cancel := connect.MessagingContext()
+	defer cancel()
+
+	// Send the message
+	response, err := pb.NewRegistrationClient(
+		conn.Connection).GetCurrentClientVersion(ctx, &pb.Ping{})
+	if err != nil {
+		err = errors.New(err.Error())
+	}
+
 	return response, err
 }
 
-//Call GetUpdatedNDF on the registration server
-func (c *ClientComms) SendGetUpdatedNDF(id fmt.Stringer, message *pb.NDFHash) (*pb.NDF, error) {
-	//Get the connection
-	connection := c.GetRegistrationConnection(id)
-	ctx, cancel := connect.MessagingContext()
+// Client -> Registration Send Function
+func (c *ClientComms) SendGetUpdatedNDF(connInfo *connect.ConnectionInfo,
+	message *pb.NDFHash) (*pb.NDF, error) {
 
-	//Send message
-	response, err := connection.GetUpdatedNDF(ctx, message)
-
-	// Make sure there are no errors with sending the message
+	// Obtain the connection
+	conn, err := c.ObtainConnection(connInfo)
 	if err != nil {
-		err = errors.New(err.Error())
-		jww.ERROR.Printf("GetUpdatedNDf: Error received: %v", err)
+		return nil, err
 	}
 
-	cancel()
+	// Set up the context
+	ctx, cancel := connect.MessagingContext()
+	defer cancel()
+
+	// Send the message
+	response, err := pb.NewRegistrationClient(
+		conn.Connection).GetUpdatedNDF(ctx, message)
+	if err != nil {
+		err = errors.New(err.Error())
+	}
+
 	return response, err
 }

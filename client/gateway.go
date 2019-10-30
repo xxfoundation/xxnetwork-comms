@@ -9,128 +9,133 @@
 package client
 
 import (
-	"fmt"
 	"github.com/pkg/errors"
-	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 )
 
-// Send a message to the gateway
-func (c *ClientComms) SendPutMessage(id fmt.Stringer,
+// Client -> Gateway Send Function
+func (c *ClientComms) SendPutMessage(connInfo *connect.ConnectionInfo,
 	message *pb.Slot) error {
-	// Attempt to connect to addr
-	connection := c.GetGatewayConnection(id)
-	ctx, cancel := connect.MessagingContext()
 
-	// Send the message
-	_, err := connection.PutMessage(ctx, message)
-
-	// Make sure there are no errors with sending the message
+	// Obtain the connection
+	conn, err := c.ObtainConnection(connInfo)
 	if err != nil {
-		err = errors.New(err.Error())
-		jww.ERROR.Printf("PutMessage: Error received: %+v", err)
+		return err
 	}
 
-	cancel()
+	// Set up the context
+	ctx, cancel := connect.MessagingContext()
+	defer cancel()
+
+	// Send the message
+	_, err = pb.NewGatewayClient(conn.Connection).PutMessage(ctx, message)
+	if err != nil {
+		err = errors.New(err.Error())
+	}
+
 	return err
 }
 
-// Request MessageIDs of new messages in the buffer from the gateway
-func (c *ClientComms) SendCheckMessages(id fmt.Stringer,
+// Client -> Gateway Send Function
+func (c *ClientComms) SendCheckMessages(connInfo *connect.ConnectionInfo,
 	message *pb.ClientRequest) (*pb.IDList, error) {
-	// Attempt to connect to addr
-	connection := c.GetGatewayConnection(id)
-	ctx, cancel := connect.MessagingContext()
 
-	// Send the message
-	result, err := connection.CheckMessages(ctx, message)
-
-	// Make sure there are no errors with sending the message
+	// Obtain the connection
+	conn, err := c.ObtainConnection(connInfo)
 	if err != nil {
-		err = errors.New(err.Error())
-		jww.ERROR.Printf("CheckMessages: Error received: %+v", err)
+		return nil, err
 	}
 
-	cancel()
+	// Set up the context
+	ctx, cancel := connect.MessagingContext()
+	defer cancel()
+
+	// Send the message
+	result, err := pb.NewGatewayClient(conn.Connection).CheckMessages(ctx, message)
+	if err != nil {
+		err = errors.New(err.Error())
+	}
+
 	return result, err
 }
 
-// Request a message with a specific ID from the gateway
-func (c *ClientComms) SendGetMessage(id fmt.Stringer,
+// Client -> Gateway Send Function
+func (c *ClientComms) SendGetMessage(connInfo *connect.ConnectionInfo,
 	message *pb.ClientRequest) (*pb.Slot, error) {
-	// Attempt to connect to addr
-	connection := c.GetGatewayConnection(id)
+
+	// Obtain the connection
+	conn, err := c.ObtainConnection(connInfo)
+	if err != nil {
+		return nil, err
+	}
+
+	// Set up the context
 	ctx, cancel := connect.MessagingContext()
+	defer cancel()
 
 	// Send the message
-	result, err := connection.GetMessage(ctx, message)
+	result, err := pb.NewGatewayClient(conn.Connection).GetMessage(ctx, message)
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
 		err = errors.New(err.Error())
-		jww.ERROR.Printf("GetMessage: Error received: %+v", err)
 	}
 
-	cancel()
 	return result, err
 }
 
-// Send a RequestNonceMessage to the gateway
-func (c *ClientComms) SendRequestNonceMessage(id fmt.Stringer,
+// Client -> Gateway Send Function
+func (c *ClientComms) SendRequestNonceMessage(connInfo *connect.ConnectionInfo,
 	message *pb.NonceRequest) (*pb.Nonce, error) {
 
-	// Attempt to connect to addr
-	connection := c.GetGatewayConnection(id)
-	ctx, cancel := connect.MessagingContext()
-
-	// Send the message
-	response, err := connection.RequestNonce(ctx, message)
-
-	// Handle comms errors
+	// Obtain the connection
+	conn, err := c.ObtainConnection(connInfo)
 	if err != nil {
-		err = errors.New(err.Error())
-		jww.ERROR.Printf("RequestNonceMessage: Error received: %+v", err)
+		return nil, err
 	}
 
-	// Handle logic errors
+	// Set up the context
+	ctx, cancel := connect.MessagingContext()
+	defer cancel()
+
+	// Send the message
+	response, err := pb.NewGatewayClient(conn.Connection).RequestNonce(ctx, message)
+	if err != nil {
+		err = errors.New(err.Error())
+	}
+
 	errMsg := response.GetError()
 	if errMsg != "" {
-		jww.ERROR.Printf("RequestNonceMessage: Error received: %s",
-			errMsg)
 		err = errors.New(errMsg)
 	}
 
-	cancel()
 	return response, err
 }
 
-// Send a ConfirmNonceMessage to the gateway
-func (c *ClientComms) SendConfirmNonceMessage(id fmt.Stringer,
+// Client -> Gateway Send Function
+func (c *ClientComms) SendConfirmNonceMessage(connInfo *connect.ConnectionInfo,
 	message *pb.RequestRegistrationConfirmation) (*pb.RegistrationConfirmation, error) {
 
-	// Attempt to connect to addr
-	connection := c.GetGatewayConnection(id)
-	ctx, cancel := connect.MessagingContext()
-
-	// Send the message
-
-	response, err := connection.ConfirmNonce(ctx, message)
-
-	// Handle comms errors
+	// Obtain the connection
+	conn, err := c.ObtainConnection(connInfo)
 	if err != nil {
-		err = errors.New(err.Error())
-		jww.ERROR.Printf("ConfirmNonceMessage: Error received: %+v", err)
+		return nil, err
 	}
 
-	// Handle logic errors
+	// Set up the context
+	ctx, cancel := connect.MessagingContext()
+	defer cancel()
+
+	// Send the message
+	response, err := pb.NewGatewayClient(conn.Connection).ConfirmNonce(ctx, message)
+	if err != nil {
+		err = errors.New(err.Error())
+	}
 	errMsg := response.GetError()
 	if errMsg != "" {
-		jww.ERROR.Printf("ConfirmNonceMessage: Error received: %s",
-			errMsg)
 		err = errors.New(errMsg)
 	}
 
-	cancel()
 	return response, err
 }

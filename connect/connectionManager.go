@@ -13,7 +13,6 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
-	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/crypto/signature/rsa"
 	tlsCreds "gitlab.com/elixxir/crypto/tls"
 	"golang.org/x/net/context"
@@ -89,7 +88,7 @@ func (m *ConnectionManager) GetPrivateKey() *rsa.PrivateKey {
 
 // Gets a connection object from the ConnectionManager
 // Or creates and returns a new one if it does not already exist
-func (m *ConnectionManager) GetOrCreateConnection(
+func (m *ConnectionManager) ObtainConnection(
 	connInfo *ConnectionInfo) (*connection, error) {
 
 	conn, ok := m.connections[connInfo.Id.String()]
@@ -160,36 +159,6 @@ func createCredentials(connInfo *ConnectionInfo) (credentials.
 	}
 
 	return tlsCredentials, publicKey, nil
-}
-
-// TODO: Delete
-func (m *ConnectionManager) GetRegistrationConnection(
-	connInfo *ConnectionInfo) (pb.RegistrationClient, error) {
-	conn, err := m.GetOrCreateConnection(connInfo)
-	if err != nil {
-		return nil, err
-	}
-	return pb.NewRegistrationClient(conn.Connection), nil
-}
-
-// TODO: Delete
-func (m *ConnectionManager) GetGatewayConnection(
-	connInfo *ConnectionInfo) (pb.GatewayClient, error) {
-	conn, err := m.GetOrCreateConnection(connInfo)
-	if err != nil {
-		return nil, err
-	}
-	return pb.NewGatewayClient(conn.Connection), nil
-}
-
-// TODO: Delete
-func (m *ConnectionManager) GetNodeConnection(
-	connInfo *ConnectionInfo) (pb.NodeClient, error) {
-	conn, err := m.GetOrCreateConnection(connInfo)
-	if err != nil {
-		return nil, err
-	}
-	return pb.NewNodeClient(conn.Connection), nil
 }
 
 // Returns true if the connection is non-nil and alive
