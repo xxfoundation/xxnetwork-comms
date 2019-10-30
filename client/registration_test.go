@@ -7,6 +7,7 @@
 package client
 
 import (
+	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/registration"
 	"testing"
@@ -20,9 +21,13 @@ func TestSendRegistrationMessage(t *testing.T) {
 	defer rg.Shutdown()
 	connID := MockID("clientToRegistration")
 	var c ClientComms
-	c.ConnectToRemote(connID, GatewayAddress, nil, false)
 
-	_, err := c.SendRegistrationMessage(connID, &pb.UserRegistration{})
+	_, err := c.SendRegistrationMessage(&connect.ConnectionInfo{
+		Id:             connID,
+		Address:        GatewayAddress,
+		Cert:           nil,
+		DisableTimeout: false,
+	}, &pb.UserRegistration{})
 	if err != nil {
 		t.Errorf("RegistrationMessage: Error received: %s", err)
 	}
@@ -36,9 +41,13 @@ func TestSendCheckClientVersionMessage(t *testing.T) {
 	defer rg.Shutdown()
 	connID := MockID("clientToRegistration")
 	var c ClientComms
-	c.ConnectToRemote(connID, GatewayAddress, nil, false)
 
-	_, err := c.SendGetCurrentClientVersionMessage(connID)
+	_, err := c.SendGetCurrentClientVersionMessage(&connect.ConnectionInfo{
+		Id:             connID,
+		Address:        GatewayAddress,
+		Cert:           nil,
+		DisableTimeout: false,
+	})
 	if err != nil {
 		t.Errorf("CheckClientVersion: Error received: %s", err)
 	}
@@ -52,9 +61,13 @@ func TestSendGetUpdatedNDF(t *testing.T) {
 	defer rg.Shutdown()
 	connID := MockID("clientToRegistration")
 	var c ClientComms
-	c.ConnectToRemote(connID, GatewayAddress, nil, false)
 
-	_, err := c.SendGetUpdatedNDF(connID, &pb.NDFHash{})
+	_, err := c.SendGetUpdatedNDF(&connect.ConnectionInfo{
+		Id:             connID,
+		Address:        GatewayAddress,
+		Cert:           nil,
+		DisableTimeout: false,
+	}, &pb.NDFHash{})
 
 	if err != nil {
 		t.Errorf("GetUpdatedNDF: Error recieved: %s", err)

@@ -7,6 +7,7 @@
 package client
 
 import (
+	"gitlab.com/elixxir/comms/connect"
 	"gitlab.com/elixxir/comms/gateway"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"testing"
@@ -26,9 +27,13 @@ func TestSendPutMessage(t *testing.T) {
 	defer gw.Shutdown()
 	var c ClientComms
 	id := MockID("clientToGateway")
-	c.ConnectToRemote(id, gatewayAddress, nil, false)
 
-	err := c.SendPutMessage(id, &pb.Slot{})
+	err := c.SendPutMessage(&connect.ConnectionInfo{
+		Id:             id,
+		Address:        gatewayAddress,
+		Cert:           nil,
+		DisableTimeout: false,
+	}, &pb.Slot{})
 	if err != nil {
 		t.Errorf("PutMessage: Error received: %s", err)
 	}
@@ -39,12 +44,16 @@ func TestSendCheckMessages(t *testing.T) {
 	gatewayAddress := getNextGatewayAddress()
 	gw := gateway.StartGateway(gatewayAddress,
 		gateway.NewImplementation(), nil, nil)
-	connectionID := MockID("clientToGateway")
+	id := MockID("clientToGateway")
 	var c ClientComms
-	c.ConnectToRemote(connectionID, gatewayAddress, nil, false)
 	defer gw.Shutdown()
 
-	_, err := c.SendCheckMessages(connectionID, &pb.ClientRequest{})
+	_, err := c.SendCheckMessages(&connect.ConnectionInfo{
+		Id:             id,
+		Address:        gatewayAddress,
+		Cert:           nil,
+		DisableTimeout: false,
+	}, &pb.ClientRequest{})
 	if err != nil {
 		t.Errorf("CheckMessages: Error received: %s", err)
 	}
@@ -55,12 +64,16 @@ func TestSendGetMessage(t *testing.T) {
 	gatewayAddress := getNextGatewayAddress()
 	gw := gateway.StartGateway(gatewayAddress,
 		gateway.NewImplementation(), nil, nil)
-	connectionID := MockID("clientToGateway")
+	id := MockID("clientToGateway")
 	var c ClientComms
-	c.ConnectToRemote(connectionID, gatewayAddress, nil, false)
 	defer gw.Shutdown()
 
-	_, err := c.SendGetMessage(connectionID, &pb.ClientRequest{})
+	_, err := c.SendGetMessage(&connect.ConnectionInfo{
+		Id:             id,
+		Address:        gatewayAddress,
+		Cert:           nil,
+		DisableTimeout: false,
+	}, &pb.ClientRequest{})
 	if err != nil {
 		t.Errorf("GetMessage: Error received: %s", err)
 	}
@@ -72,11 +85,15 @@ func TestSendRequestNonceMessage(t *testing.T) {
 	gw := gateway.StartGateway(gatewayAddress,
 		gateway.NewImplementation(), nil, nil)
 	defer gw.Shutdown()
-	connectionID := MockID("clientToGateway")
+	id := MockID("clientToGateway")
 	var c ClientComms
-	c.ConnectToRemote(connectionID, gatewayAddress, nil, false)
 
-	_, err := c.SendRequestNonceMessage(connectionID, &pb.NonceRequest{})
+	_, err := c.SendRequestNonceMessage(&connect.ConnectionInfo{
+		Id:             id,
+		Address:        gatewayAddress,
+		Cert:           nil,
+		DisableTimeout: false,
+	}, &pb.NonceRequest{})
 	if err != nil {
 		t.Errorf("SendRequestNonceMessage: Error received: %s", err)
 	}
@@ -88,11 +105,15 @@ func TestSendConfirmNonceMessage(t *testing.T) {
 	gw := gateway.StartGateway(gatewayAddress,
 		gateway.NewImplementation(), nil, nil)
 	defer gw.Shutdown()
-	connectionID := MockID("clientToGateway")
+	id := MockID("clientToGateway")
 	var c ClientComms
-	c.ConnectToRemote(connectionID, gatewayAddress, nil, false)
 
-	_, err := c.SendConfirmNonceMessage(connectionID,
+	_, err := c.SendConfirmNonceMessage(&connect.ConnectionInfo{
+		Id:             id,
+		Address:        gatewayAddress,
+		Cert:           nil,
+		DisableTimeout: false,
+	},
 		&pb.RequestRegistrationConfirmation{})
 	if err != nil {
 		t.Errorf("SendConfirmNonceMessage: Error received: %s", err)
