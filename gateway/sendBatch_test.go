@@ -7,6 +7,7 @@
 package gateway
 
 import (
+	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/node"
 	"testing"
@@ -22,10 +23,14 @@ func TestPostNewBatch(t *testing.T) {
 	defer gateway.Shutdown()
 	defer server.Shutdown()
 	connID := MockID("gatewayToServer")
-	gateway.ConnectToRemote(connID, ServerAddress, nil, false)
 
 	msgs := &pb.Batch{}
-	err := gateway.PostNewBatch(connID, msgs)
+	err := gateway.PostNewBatch(&connect.ConnectionInfo{
+		Id:             connID,
+		Address:        ServerAddress,
+		Cert:           nil,
+		DisableTimeout: false,
+	}, msgs)
 	if err != nil {
 		t.Errorf("PostNewBatch: Error received: %s", err)
 	}
@@ -41,9 +46,13 @@ func TestGetRoundBufferInfo(t *testing.T) {
 	defer gateway.Shutdown()
 	defer server.Shutdown()
 	connID := MockID("gatewayToServer")
-	gateway.ConnectToRemote(connID, ServerAddress, nil, false)
 
-	bufSize, err := gateway.GetRoundBufferInfo(connID)
+	bufSize, err := gateway.GetRoundBufferInfo(&connect.ConnectionInfo{
+		Id:             connID,
+		Address:        ServerAddress,
+		Cert:           nil,
+		DisableTimeout: false,
+	})
 	if err != nil {
 		t.Errorf("GetRoundBufferInfo: Error received: %s", err)
 	}
@@ -62,9 +71,13 @@ func TestGetCompletedBatch(t *testing.T) {
 	defer gateway.Shutdown()
 	defer server.Shutdown()
 	connID := MockID("gatewayToServer")
-	gateway.ConnectToRemote(connID, ServerAddress, nil, false)
 
-	batch, err := gateway.GetCompletedBatch(connID)
+	batch, err := gateway.GetCompletedBatch(&connect.ConnectionInfo{
+		Id:             connID,
+		Address:        ServerAddress,
+		Cert:           nil,
+		DisableTimeout: false,
+	})
 	if err != nil {
 		t.Errorf("GetCompletedBatch: Error received: %s", err)
 	}

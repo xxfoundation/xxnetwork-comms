@@ -8,6 +8,7 @@ package gateway
 
 import (
 	"fmt"
+	"gitlab.com/elixxir/comms/connect"
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/node"
 	"gitlab.com/elixxir/comms/testkeys"
@@ -61,10 +62,13 @@ func TestTLS(t *testing.T) {
 		certData, keyData)
 	defer server.Shutdown()
 	connID := MockID("gatewayToServer")
-	gateway.ConnectToRemote(connID,
-		ServerAddress, certData, false)
 
-	err := gateway.PostNewBatch(connID, &mixmessages.Batch{})
+	err := gateway.PostNewBatch(&connect.ConnectionInfo{
+		Id:             connID,
+		Address:        ServerAddress,
+		Cert:           nil,
+		DisableTimeout: false,
+	}, &mixmessages.Batch{})
 	if err != nil {
 		t.Error(err)
 	}

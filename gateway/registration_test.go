@@ -7,6 +7,7 @@
 package gateway
 
 import (
+	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/node"
 	"testing"
@@ -22,13 +23,17 @@ func TestSendRequestNonceMessage(t *testing.T) {
 	defer gateway.Shutdown()
 	defer server.Shutdown()
 	connID := MockID("gatewayToServer")
-	gateway.ConnectToRemote(connID, ServerAddress, nil, true)
 
 	RSASignature := &pb.RSASignature{
 		Signature: []byte{},
 	}
 
-	_, err := gateway.SendRequestNonceMessage(connID,
+	_, err := gateway.SendRequestNonceMessage(&connect.ConnectionInfo{
+		Id:             connID,
+		Address:        ServerAddress,
+		Cert:           nil,
+		DisableTimeout: false,
+	},
 		&pb.NonceRequest{ClientSignedByServer: RSASignature,
 			RequestSignature: RSASignature})
 	if err != nil {
@@ -46,11 +51,15 @@ func TestSendConfirmNonceMessage(t *testing.T) {
 	defer gateway.Shutdown()
 	defer server.Shutdown()
 	connID := MockID("gatewayToServer")
-	gateway.ConnectToRemote(connID, ServerAddress, nil, true)
 
 	reg := &pb.RequestRegistrationConfirmation{}
 	reg.NonceSignedByClient = &pb.RSASignature{}
-	_, err := gateway.SendConfirmNonceMessage(connID, reg)
+	_, err := gateway.SendConfirmNonceMessage(&connect.ConnectionInfo{
+		Id:             connID,
+		Address:        ServerAddress,
+		Cert:           nil,
+		DisableTimeout: false,
+	}, reg)
 	if err != nil {
 		t.Errorf("SendConfirmNonceMessage: Error received: %s", err)
 	}
@@ -65,9 +74,13 @@ func TestPollSignedCerts(t *testing.T) {
 	defer gateway.Shutdown()
 	defer server.Shutdown()
 	connID := MockID("gatewayToServer")
-	gateway.ConnectToRemote(connID, ServerAddress, nil, true)
 
-	_, err := gateway.PollSignedCerts(connID, &pb.Ping{})
+	_, err := gateway.PollSignedCerts(&connect.ConnectionInfo{
+		Id:             connID,
+		Address:        ServerAddress,
+		Cert:           nil,
+		DisableTimeout: false,
+	}, &pb.Ping{})
 	if err != nil {
 		t.Errorf("SendGetSignedCertMessage: Error received: %s", err)
 	}
