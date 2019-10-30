@@ -24,9 +24,9 @@ type Handler interface {
 	// Upload a message to the cMix Gateway
 	PutMessage(message *pb.Slot, ipAddress string) bool
 	// Pass-through for Registration Nonce Communication
-	RequestNonce(message *pb.NonceRequest) (*pb.Nonce, error)
+	RequestNonce(message *pb.NonceRequest, ipAddress string) (*pb.Nonce, error)
 	// Pass-through for Registration Nonce Confirmation
-	ConfirmNonce(message *pb.RequestRegistrationConfirmation) (*pb.
+	ConfirmNonce(message *pb.RequestRegistrationConfirmation, ipAddress string) (*pb.
 		RegistrationConfirmation, error)
 }
 
@@ -98,17 +98,17 @@ func (s *Implementation) GetMessage(userID *id.User, msgID string) (
 
 // Upload a message to the cMix Gateway
 func (s *Implementation) PutMessage(message *pb.Slot, ipAddress string) bool {
-	return s.Functions.PutMessage(message)
+	return s.Functions.PutMessage(message, ipAddress)
 }
 
 // Pass-through for Registration Nonce Communication
-func (s *Implementation) RequestNonce(message *pb.NonceRequest) (
+func (s *Implementation) RequestNonce(message *pb.NonceRequest, ipAddress string) (
 	*pb.Nonce, error) {
 	return s.Functions.RequestNonce(message)
 }
 
 // Pass-through for Registration Nonce Confirmation
-func (s *Implementation) ConfirmNonce(message *pb.RequestRegistrationConfirmation) (*pb.
-	RegistrationConfirmation, error) {
+func (s *Implementation) ConfirmNonce(message *pb.RequestRegistrationConfirmation,
+	ipAddress string) (*pb.RegistrationConfirmation, error) {
 	return s.Functions.ConfirmNonce(message)
 }

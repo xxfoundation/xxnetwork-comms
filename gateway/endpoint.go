@@ -13,6 +13,7 @@ import (
 	"gitlab.com/elixxir/primitives/id"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc/peer"
+	"net"
 )
 
 // Sends new MessageIDs in the buffer to a client
@@ -43,29 +44,59 @@ func (g *GatewayComms) GetMessage(ctx context.Context, msg *pb.ClientRequest) (
 func (g *GatewayComms) PutMessage(ctx context.Context, msg *pb.Slot) (*pb.Ack,
 	error) {
 
+	// Get peer information from context
 	p, ok := peer.FromContext(ctx)
-	if ok {
-		gatewayHandler.PutMessage(msg, p.Addr.String())
+	if !ok {
+		return &pb.Ack{}, nil
 	}
 
-	return &pb.Ack{}, nil
-}
+	// Strip port from IP address
+	ipAddress, _, err := net.SplitHostPort(p.Addr.String())
+	if err != nil {
+		return nil, err
+	}
 
-// Receives a batch of messages from a server
-func (s *gateway) ReceiveBatch(ctx context.Context, msg *pb.OutputMessages) (*pb.Ack,
-	error) {
-	g.handler.PutMessage(msg)
+	// Upload a message to the cMix Gateway at the peer's IP address
+	g.handler.PutMessage(msg, ipAddress)
+
 	return &pb.Ack{}, nil
 }
 
 // Pass-through for Registration Nonce Communication
 func (g *GatewayComms) RequestNonce(ctx context.Context,
 	msg *pb.NonceRequest) (*pb.Nonce, error) {
-	return g.handler.RequestNonce(msg)
+
+	// Get peer information from context
+	p, ok := peer.FromContext(ctx)
+	if !ok {
+		return &pb.Nonce{}, nil
+	}
+
+	// Strip port from IP address
+	ipAddress, _, err := net.SplitHostPort(p.Addr.String())
+	if err != nil {
+		return nil, err
+	}
+
+	return g.handler.RequestNonce(msg, ipAddress)
 }
 
 // Pass-through for Registration Nonce Confirmation
 func (g *GatewayComms) ConfirmNonce(ctx context.Context,
-	msg *pb.RequestRegistrationConfirmation) (*pb.RegistrationConfirmation, error) {
-	return g.handler.ConfirmNonce(msg)
+	msg *pb.RequestRegistrationConfirmation) (*pb.RegistrationConfirmation,
+	error) {
+
+	// Get peer information from context
+	p, ok := peer.FromContext(ctx)
+	if !ok {
+		return &pb.RegistrationConfirmation{}, nil
+	}
+
+	// Strip port from IP address
+	ipAddress, _, err := net.SplitHostPort(p.Addr.String())
+	if err != nil {
+		return nil, err
+	}
+
+	return g.handler.ConfirmNonce(msg, ipAddress)
 }
