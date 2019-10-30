@@ -95,7 +95,8 @@ func (m *ConnectionManager) SetMaxRetries(mr int64) {
 	m.maxRetries = mr
 }
 
-// TODO
+// Creates TransportCredentials and RSA PublicKey objects
+// using a PEM-encoded TLS Certificate
 func createCredentials(connInfo *ConnectionInfo) (credentials.
 	TransportCredentials, *rsa.PublicKey, error) {
 
