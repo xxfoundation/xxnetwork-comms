@@ -119,7 +119,7 @@ func (m *Manager) createConnection(host *Host) (err error) {
 	return
 }
 
-// Disconnect closes client connections and removes it from Manager
+// Closes a client connection and removes it from Manager
 func (m *Manager) Disconnect(id string) {
 	m.lock.Lock()
 	connection, present := m.connections[id]
@@ -134,8 +134,7 @@ func (m *Manager) Disconnect(id string) {
 	m.lock.Unlock()
 }
 
-// DisconnectAll closes all client connections
-// and removes them from Manager
+// Closes all client connections and removes them from Manager
 func (m *Manager) DisconnectAll() {
 	for connId := range m.connections {
 		m.Disconnect(connId)
