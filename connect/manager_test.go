@@ -67,6 +67,24 @@ func TestManager_ObtainConnection_DeadConnection(t *testing.T) {
 	}
 }
 
+func TestSetCredentials_InvalidCert(t *testing.T) {
+	conn := connection{
+		Address:      "",
+		Connection:   nil,
+		Creds:        nil,
+		RsaPublicKey: nil,
+	}
+	err := conn.setCredentials(&Host{
+		Id:             "",
+		Address:        "",
+		Cert:           []byte("test"),
+		DisableTimeout: false,
+	})
+	if err == nil {
+		t.Errorf("Expected error")
+	}
+}
+
 // Function to test the Disconnect
 // Checks if conn established in Connect() is deleted.
 func TestConnectionManager_Disconnect(t *testing.T) {

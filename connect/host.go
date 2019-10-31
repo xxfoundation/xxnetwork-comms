@@ -109,7 +109,7 @@ func (c *connection) connect(maxRetries int64) (err error) {
 	return
 }
 
-// Creates TransportCredentials and RSA PublicKey objects
+// Sets TransportCredentials and RSA PublicKey objects
 // using a PEM-encoded TLS Certificate
 func (c *connection) setCredentials(connInfo *Host) error {
 
