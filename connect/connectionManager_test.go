@@ -14,12 +14,12 @@ import (
 	"testing"
 )
 
-const SERVER_ADDRESS = "localhost:5556"
-const SERVER_ADDRESS2 = "localhost:5557"
+const SERVER_ADDRESS = "0.0.0.0:5556"
+const SERVER_ADDRESS2 = "0.0.0.0:5557"
 
 func TestMain(m *testing.M) {
-	lis1, _ := net.Listen("tcp", ":5556")
-	lis2, _ := net.Listen("tcp", ":5557")
+	lis1, _ := net.Listen("tcp", SERVER_ADDRESS)
+	lis2, _ := net.Listen("tcp", SERVER_ADDRESS2)
 
 	grpcServer1 := grpc.NewServer(grpc.MaxConcurrentStreams(math.MaxUint32),
 		grpc.MaxRecvMsgSize(33554432))
@@ -28,12 +28,10 @@ func TestMain(m *testing.M) {
 		grpc.MaxRecvMsgSize(33554432))
 
 	go func() {
-		defer func() { _ = lis1.Close() }()
 		_ = grpcServer1.Serve(lis1)
 	}()
 
 	go func() {
-		defer func() { _ = lis2.Close() }()
 		_ = grpcServer2.Serve(lis2)
 	}()
 	os.Exit(m.Run())
@@ -147,22 +145,4 @@ func TestConnectionManager_DisconnectAll(t *testing.T) {
 	}
 
 	println("Connection Manager Test: ", pass, "out of", test, "tests passed.")
-}
-
-func TestConnectionManager_String(t *testing.T) {
-	cm := &ConnectionManager{connections: make(map[string]*connection)}
-	t.Log(cm)
-	cm.connections["infoNil"] = nil
-	t.Log(cm)
-	cm.connections["fieldsNil"] = &connection{
-		Address: "fake address",
-	}
-	t.Log(cm)
-	// A mocked connection created without the gRPC factory methods will cause
-	// a panic, but there's no way to check if the field gRPC uses isn't nil,
-	// or to set that field up, because it's not exported
-	/* cm.connections["incorrectlyCreatedConnection"] = &ConnectionInfo{
-		Address: "real address",
-		Connection: &grpc.ClientConn{},
-	} */
 }
