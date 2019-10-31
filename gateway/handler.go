@@ -18,11 +18,11 @@ import (
 // Handler interface for the Gateway
 type Handler interface {
 	// Return any MessageIDs in the buffer for this UserID
-	CheckMessages(userID *id.User, messageID string, ipAddress string) ([]string, bool)
+	CheckMessages(userID *id.User, messageID string, ipAddress string) ([]string, error)
 	// Returns the message matching the given parameters to the client
-	GetMessage(userID *id.User, msgID string, ipAddress string) (*pb.Slot, bool)
+	GetMessage(userID *id.User, msgID string, ipAddress string) (*pb.Slot, error)
 	// Upload a message to the cMix Gateway
-	PutMessage(message *pb.Slot, ipAddress string) bool
+	PutMessage(message *pb.Slot, ipAddress string) error
 	// Pass-through for Registration Nonce Communication
 	RequestNonce(message *pb.NonceRequest, ipAddress string) (*pb.Nonce, error)
 	// Pass-through for Registration Nonce Confirmation
@@ -33,11 +33,11 @@ type Handler interface {
 // Handler implementation for the Gateway
 type implementationFunctions struct {
 	// Return any MessageIDs in the buffer for this UserID
-	CheckMessages func(userID *id.User, messageID string, ipAddress string) ([]string, bool)
+	CheckMessages func(userID *id.User, messageID string, ipAddress string) ([]string, error)
 	// Returns the message matching the given parameters to the client
-	GetMessage func(userID *id.User, msgID string, ipAddress string) (*pb.Slot, bool)
+	GetMessage func(userID *id.User, msgID string, ipAddress string) (*pb.Slot, error)
 	// Upload a message to the cMix Gateway
-	PutMessage func(message *pb.Slot, ipAddress string) bool
+	PutMessage func(message *pb.Slot, ipAddress string) error
 	// Pass-through for Registration Nonce Communication
 	RequestNonce func(message *pb.NonceRequest, ipAddress string) (*pb.Nonce, error)
 	// Pass-through for Registration Nonce Confirmation
@@ -60,17 +60,17 @@ func NewImplementation() *Implementation {
 	}
 	return &Implementation{
 		Functions: implementationFunctions{
-			CheckMessages: func(userID *id.User, messageID string, ipAddress string) ([]string, bool) {
+			CheckMessages: func(userID *id.User, messageID string, ipAddress string) ([]string, error) {
 				warn(um)
-				return nil, false
+				return nil, nil
 			},
-			GetMessage: func(userID *id.User, msgID string, ipAddress string) (*pb.Slot, bool) {
+			GetMessage: func(userID *id.User, msgID string, ipAddress string) (*pb.Slot, error) {
 				warn(um)
-				return &pb.Slot{}, false
+				return &pb.Slot{}, nil
 			},
-			PutMessage: func(message *pb.Slot, ipAddress string) bool {
+			PutMessage: func(message *pb.Slot, ipAddress string) error {
 				warn(um)
-				return false
+				return nil
 			},
 			RequestNonce: func(message *pb.NonceRequest, ipAddress string) (*pb.Nonce, error) {
 				warn(um)
@@ -86,18 +86,18 @@ func NewImplementation() *Implementation {
 
 // Return any MessageIDs in the buffer for this UserID
 func (s *Implementation) CheckMessages(userID *id.User, messageID string, ipAddress string) (
-	[]string, bool) {
+	[]string, error) {
 	return s.Functions.CheckMessages(userID, messageID, ipAddress)
 }
 
 // Returns the message matching the given parameters to the client
 func (s *Implementation) GetMessage(userID *id.User, msgID string, ipAddress string) (
-	*pb.Slot, bool) {
+	*pb.Slot, error) {
 	return s.Functions.GetMessage(userID, msgID, ipAddress)
 }
 
 // Upload a message to the cMix Gateway
-func (s *Implementation) PutMessage(message *pb.Slot, ipAddress string) bool {
+func (s *Implementation) PutMessage(message *pb.Slot, ipAddress string) error {
 	return s.Functions.PutMessage(message, ipAddress)
 }
 

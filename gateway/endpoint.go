@@ -33,12 +33,12 @@ func (g *GatewayComms) CheckMessages(ctx context.Context, msg *pb.ClientRequest)
 	}
 
 	userID := id.NewUserFromBytes(msg.UserID)
-	msgIds, ok := g.handler.CheckMessages(userID, msg.LastMessageID, ipAddress)
+	msgIds, err := g.handler.CheckMessages(userID, msg.LastMessageID, ipAddress)
 	returnMsg := &pb.IDList{}
-	if ok {
+	if err == nil {
 		returnMsg.IDs = msgIds
 	}
-	return returnMsg, nil
+	return returnMsg, err
 }
 
 // Sends a message matching the given parameters to a client
@@ -57,12 +57,12 @@ func (g *GatewayComms) GetMessage(ctx context.Context, msg *pb.ClientRequest) (
 	}
 
 	userID := id.NewUserFromBytes(msg.UserID)
-	returnMsg, ok := g.handler.GetMessage(userID, msg.LastMessageID, ipAddress)
-	if !ok {
+	returnMsg, err := g.handler.GetMessage(userID, msg.LastMessageID, ipAddress)
+	if err != nil {
 		// Return an empty message if no results
 		returnMsg = &pb.Slot{}
 	}
-	return returnMsg, nil
+	return returnMsg, err
 }
 
 // Receives a single message from a client
