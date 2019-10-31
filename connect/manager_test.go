@@ -7,6 +7,7 @@
 package connect
 
 import (
+	"gitlab.com/elixxir/comms/testkeys"
 	"google.golang.org/grpc"
 	"math"
 	"net"
@@ -112,7 +113,7 @@ func TestConnectionManager_DisconnectAll(t *testing.T) {
 		Id:             id2,
 		Address:        address2,
 		Cert:           nil,
-		DisableTimeout: false,
+		DisableTimeout: true,
 	})
 	if err != nil {
 		t.Errorf("Unable to call connnect: %+v", err)
@@ -152,15 +153,33 @@ func TestConnectionManager_String(t *testing.T) {
 	t.Log(cm)
 	cm.connections["infoNil"] = nil
 	t.Log(cm)
-	cm.connections["fieldsNil"] = &connection{
-		Address: "fake address",
+	certPath := testkeys.GetNodeCertPath()
+	certData := testkeys.LoadFromPath(certPath)
+	id := "420"
+	// Initialize the connection object
+	conn := &connection{}
+	err := conn.setCredentials(&Host{
+		Id:             id,
+		Address:        "420",
+		Cert:           certData,
+		DisableTimeout: true,
+	})
+	if err != nil {
+		t.Errorf(err.Error())
 	}
+	cm.connections[id] = conn
 	t.Log(cm)
-	// A mocked connection created without the gRPC factory methods will cause
-	// a panic, but there's no way to check if the field gRPC uses isn't nil,
-	// or to set that field up, because it's not exported
-	/* cm.connections["incorrectlyCreatedConnection"] = &Host{
-		Address: "real address",
-		Connection: &grpc.ClientConn{},
-	} */
+}
+
+func TestManager_SetMaxRetries(t *testing.T) {
+	start := int64(10)
+	cm := &Manager{
+		maxRetries: start,
+	}
+	expected := int64(0)
+	cm.SetMaxRetries(expected)
+	if cm.maxRetries != expected {
+		t.Errorf("Max retries did not match, got %d expected %d",
+			cm.maxRetries, expected)
+	}
 }
