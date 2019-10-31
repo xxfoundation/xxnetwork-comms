@@ -146,3 +146,21 @@ func TestConnectionManager_DisconnectAll(t *testing.T) {
 
 	println("Connection Manager Test: ", pass, "out of", test, "tests passed.")
 }
+
+func TestConnectionManager_String(t *testing.T) {
+	cm := &ConnectionManager{connections: make(map[string]*connection)}
+	t.Log(cm)
+	cm.connections["infoNil"] = nil
+	t.Log(cm)
+	cm.connections["fieldsNil"] = &connection{
+		Address: "fake address",
+	}
+	t.Log(cm)
+	// A mocked connection created without the gRPC factory methods will cause
+	// a panic, but there's no way to check if the field gRPC uses isn't nil,
+	// or to set that field up, because it's not exported
+	/* cm.connections["incorrectlyCreatedConnection"] = &ConnectionInfo{
+		Address: "real address",
+		Connection: &grpc.ClientConn{},
+	} */
+}
