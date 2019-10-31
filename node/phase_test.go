@@ -8,6 +8,7 @@ package node
 
 import (
 	"context"
+	"gitlab.com/elixxir/comms/connect"
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/testkeys"
 	"io"
@@ -41,14 +42,6 @@ func TestPhase_StreamPostPhaseSendReceive(t *testing.T) {
 	serverStreamSender := StartNode(servSenderAddress, NewImplementation(),
 		certData, keyData)
 
-	// Get credentials and connect to node
-	senderToReceiverID := MockID("sender2receiver")
-	receiverToSenderID := MockID("receiver2tosender")
-	// It might make more sense to call the RPC on the connection object
-	// that's returned from this
-	serverStreamSender.ConnectToRemote(senderToReceiverID, servReceiverAddress, certData, false)
-	serverStreamSender.ConnectToRemote(receiverToSenderID, servSenderAddress, certData, false)
-
 	// Reset TLS-related global variables
 	defer serverStreamReceiver.Shutdown()
 	defer serverStreamSender.Shutdown()
@@ -66,7 +59,12 @@ func TestPhase_StreamPostPhaseSendReceive(t *testing.T) {
 		BatchSize: batchSize,
 	}
 
-	streamClient, cancel, err := serverStreamSender.GetPostPhaseStreamClient(senderToReceiverID, batchInfo)
+	streamClient, cancel, err := serverStreamSender.GetPostPhaseStreamClient(&connect.ConnectionInfo{
+		Id:             "sender2receiver",
+		Address:        servReceiverAddress,
+		Cert:           nil,
+		DisableTimeout: false,
+	}, batchInfo)
 
 	if err != nil {
 		t.Errorf("Unable to get streaming client %v", err)
@@ -138,14 +136,15 @@ func TestGetPostPhaseStream_ErrorsWhenContextCanceled(t *testing.T) {
 		certData, keyData)
 
 	// Get credentials and connect to node
-	senderToReceiverID := MockID("sender2receiver")
-
-	serverStreamSender.ConnectToRemote(senderToReceiverID, servReceiverAddress, certData, false)
-
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
 
-	_, err := serverStreamSender.getPostPhaseStream(senderToReceiverID, ctx)
+	_, err := serverStreamSender.getPostPhaseStream(&connect.ConnectionInfo{
+		Id:             "sender2receiver",
+		Address:        servReceiverAddress,
+		Cert:           nil,
+		DisableTimeout: false,
+	}, ctx)
 	if err == nil {
 		t.Errorf("Getting streaming client after canceling context should error")
 	}

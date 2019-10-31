@@ -22,14 +22,13 @@ func TestSendRequestNonceMessage(t *testing.T) {
 		nil, nil)
 	defer gateway.Shutdown()
 	defer server.Shutdown()
-	connID := MockID("gatewayToServer")
 
 	RSASignature := &pb.RSASignature{
 		Signature: []byte{},
 	}
 
 	_, err := gateway.SendRequestNonceMessage(&connect.ConnectionInfo{
-		Id:             connID,
+		Id:             "gatewayToServer",
 		Address:        ServerAddress,
 		Cert:           nil,
 		DisableTimeout: false,
@@ -50,12 +49,11 @@ func TestSendConfirmNonceMessage(t *testing.T) {
 		nil, nil)
 	defer gateway.Shutdown()
 	defer server.Shutdown()
-	connID := MockID("gatewayToServer")
 
 	reg := &pb.RequestRegistrationConfirmation{}
 	reg.NonceSignedByClient = &pb.RSASignature{}
 	_, err := gateway.SendConfirmNonceMessage(&connect.ConnectionInfo{
-		Id:             connID,
+		Id:             "gatewayToServer",
 		Address:        ServerAddress,
 		Cert:           nil,
 		DisableTimeout: false,
@@ -73,10 +71,9 @@ func TestPollSignedCerts(t *testing.T) {
 	server := node.StartNode(ServerAddress, node.NewImplementation(), nil, nil)
 	defer gateway.Shutdown()
 	defer server.Shutdown()
-	connID := MockID("gatewayToServer")
 
 	_, err := gateway.PollSignedCerts(&connect.ConnectionInfo{
-		Id:             connID,
+		Id:             "gatewayToServer",
 		Address:        ServerAddress,
 		Cert:           nil,
 		DisableTimeout: false,

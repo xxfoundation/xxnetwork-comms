@@ -6,6 +6,7 @@
 package registration
 
 import (
+	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/node"
 	"gitlab.com/elixxir/comms/testkeys"
@@ -28,24 +29,13 @@ func TestSendNodeTopology(t *testing.T) {
 		NewImplementation(), certData, keyData)
 	defer server.Shutdown()
 	defer reg.Shutdown()
-
-	connID := MockID("permissioningToServer")
-	regID := MockID("Permissioning")
-
-	err := server.ConnectToRemote(regID, RegAddress, certData, true)
-	if err != nil {
-		t.Errorf("SendNodeTopology: Node could not connect to"+
-			" registration: %s", err)
-	}
-
-	err = reg.ConnectToRemote(connID, ServerAddress, nil, false)
-	if err != nil {
-		t.Errorf("SendNodeTopology: Registration could not connect to"+
-			" node: %s", err)
-	}
-
 	msgs := &pb.NodeTopology{}
-	err = reg.SendNodeTopology(connID, msgs)
+	err := reg.SendNodeTopology(&connect.ConnectionInfo{
+		Id:             "permissioningToServer",
+		Address:        ServerAddress,
+		Cert:           nil,
+		DisableTimeout: false,
+	}, msgs)
 	if err != nil {
 		t.Errorf("SendNodeTopology: Error received: %s", err)
 	}
@@ -61,15 +51,13 @@ func TestSendNodeTopologyNilKey(t *testing.T) {
 		NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	defer reg.Shutdown()
-
-	connID := MockID("permissioningToServer")
-	regID := MockID("Permissioning")
-
-	_ = server.ConnectToRemote(regID, RegAddress, nil, true)
-	_ = reg.ConnectToRemote(connID, ServerAddress, nil, false)
-
 	msgs := &pb.NodeTopology{}
-	err := reg.SendNodeTopology(connID, msgs)
+	err := reg.SendNodeTopology(&connect.ConnectionInfo{
+		Id:             "permissioningToServer",
+		Address:        ServerAddress,
+		Cert:           nil,
+		DisableTimeout: false,
+	}, msgs)
 	if err != nil {
 		t.Errorf("Should not have tried to sign message, instead got: %+v", err)
 	}
@@ -86,13 +74,12 @@ func TestSendNodeTopologyBadMessageError(t *testing.T) {
 	defer server.Shutdown()
 	defer reg.Shutdown()
 
-	connID := MockID("permissioningToServer")
-	regID := MockID("Permissioning")
-
-	_ = server.ConnectToRemote(regID, RegAddress, nil, true)
-	_ = reg.ConnectToRemote(connID, ServerAddress, nil, false)
-
-	err := reg.SendNodeTopology(connID, nil)
+	err := reg.SendNodeTopology(&connect.ConnectionInfo{
+		Id:             "permissioningToServer",
+		Address:        ServerAddress,
+		Cert:           nil,
+		DisableTimeout: false,
+	}, nil)
 	if err == nil {
 		t.Errorf("SendNodeTopology: did not receive missing private key error")
 	}
@@ -108,15 +95,12 @@ func TestSendNodeTopologyNilMessage(t *testing.T) {
 		NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	defer reg.Shutdown()
-
-	connID := MockID("permissioningToServer")
-	regID := MockID("Permissioning")
-
-	_ = server.ConnectToRemote(regID, RegAddress, nil, true)
-	_ = reg.ConnectToRemote(connID, ServerAddress, nil, false)
-
-	//sgs := &pb.NodeTopology{}
-	err := reg.SendNodeTopology(connID, nil)
+	err := reg.SendNodeTopology(&connect.ConnectionInfo{
+		Id:             "permissioningToServer",
+		Address:        ServerAddress,
+		Cert:           nil,
+		DisableTimeout: false,
+	}, nil)
 	if err == nil {
 		t.Errorf("Should not have tried to sign message, instead got: %+v", err)
 	}
@@ -133,14 +117,13 @@ func TestSendNodeTopologyBadSignature(t *testing.T) {
 	defer server.Shutdown()
 	defer reg.Shutdown()
 
-	connID := MockID("permissioningToServer")
-	regID := MockID("Permissioning")
-
-	_ = server.ConnectToRemote(regID, RegAddress, nil, true)
-	_ = reg.ConnectToRemote(connID, ServerAddress, nil, false)
-
 	msgs := &pb.NodeTopology{}
-	err := reg.SendNodeTopology(connID, msgs)
+	err := reg.SendNodeTopology(&connect.ConnectionInfo{
+		Id:             "permissioningToServer",
+		Address:        ServerAddress,
+		Cert:           nil,
+		DisableTimeout: false,
+	}, msgs)
 	if err != nil {
 		t.Errorf("Should not have tried to sign message, instead got: %+v", err)
 	}

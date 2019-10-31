@@ -9,6 +9,7 @@ package node
 import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/pkg/errors"
+	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"testing"
 )
@@ -17,11 +18,13 @@ import (
 func TestSendAskOnline(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	server := StartNode(ServerAddress, NewImplementation(), nil, nil)
-	connID := MockID("connection35")
-	// Connect the server to itself
-	server.ConnectToRemote(connID, ServerAddress, nil, false)
 	defer server.Shutdown()
-	_, err := server.SendAskOnline(connID, &pb.Ping{})
+	_, err := server.SendAskOnline(&connect.ConnectionInfo{
+		Id:             "connection35",
+		Address:        ServerAddress,
+		Cert:           nil,
+		DisableTimeout: false,
+	}, &pb.Ping{})
 	if err != nil {
 		t.Errorf("AskOnline: Error received: %s", err)
 	}
@@ -31,10 +34,13 @@ func TestSendAskOnline(t *testing.T) {
 func TestSendFinishRealtime(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	server := StartNode(ServerAddress, NewImplementation(), nil, nil)
-	connID := MockID("node2node")
-	server.ConnectToRemote(connID, ServerAddress, nil, false)
 	defer server.Shutdown()
-	_, err := server.SendFinishRealtime(connID, &pb.RoundInfo{ID: 0})
+	_, err := server.SendFinishRealtime(&connect.ConnectionInfo{
+		Id:             "node2node",
+		Address:        ServerAddress,
+		Cert:           nil,
+		DisableTimeout: false,
+	}, &pb.RoundInfo{ID: 0})
 	if err != nil {
 		t.Errorf("FinishRealtime: Error received: %s", err)
 	}
@@ -44,11 +50,13 @@ func TestSendFinishRealtime(t *testing.T) {
 func TestSendNewRound(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	server := StartNode(ServerAddress, NewImplementation(), nil, nil)
-	connID := MockID("connection35")
-	// Connect the server to itself
-	server.ConnectToRemote(connID, ServerAddress, nil, false)
 	defer server.Shutdown()
-	_, err := server.SendNewRound(connID, &pb.RoundInfo{})
+	_, err := server.SendNewRound(&connect.ConnectionInfo{
+		Id:             "connection35",
+		Address:        ServerAddress,
+		Cert:           nil,
+		DisableTimeout: false,
+	}, &pb.RoundInfo{})
 	if err != nil {
 		t.Errorf("NewRound: Error received: %s", err)
 	}
@@ -58,11 +66,13 @@ func TestSendNewRound(t *testing.T) {
 func TestSendPostPhase(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	server := StartNode(ServerAddress, NewImplementation(), nil, nil)
-	connID := MockID("connection35")
-	// Connect the server to itself
-	server.ConnectToRemote(connID, ServerAddress, nil, false)
 	defer server.Shutdown()
-	_, err := server.SendPostPhase(connID, &pb.Batch{})
+	_, err := server.SendPostPhase(&connect.ConnectionInfo{
+		Id:             "connection35",
+		Address:        ServerAddress,
+		Cert:           nil,
+		DisableTimeout: false,
+	}, &pb.Batch{})
 	if err != nil {
 		t.Errorf("Phase: Error received: %s", err)
 	}
@@ -72,11 +82,13 @@ func TestSendPostPhase(t *testing.T) {
 func TestSendPostRoundPublicKey(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	server := StartNode(ServerAddress, NewImplementation(), nil, nil)
-	connID := MockID("connection35")
-	// Connect the server to itself
-	server.ConnectToRemote(connID, ServerAddress, nil, false)
 	defer server.Shutdown()
-	_, err := server.SendPostRoundPublicKey(connID, &pb.RoundPublicKey{})
+	_, err := server.SendPostRoundPublicKey(&connect.ConnectionInfo{
+		Id:             "connection35",
+		Address:        ServerAddress,
+		Cert:           nil,
+		DisableTimeout: false,
+	}, &pb.RoundPublicKey{})
 	if err != nil {
 		t.Errorf("PostRoundPublicKey: Error received: %s", err)
 	}
@@ -87,11 +99,13 @@ func TestSendPostPrecompResult(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	server := StartNode(ServerAddress, NewImplementation(), nil, nil)
 	defer server.Shutdown()
-	connID := MockID("connection35")
-	// Connect the server to itself
-	server.ConnectToRemote(connID, ServerAddress, nil, false)
 	slots := make([]*pb.Slot, 0)
-	_, err := server.SendPostPrecompResult(connID, 0, slots)
+	_, err := server.SendPostPrecompResult(&connect.ConnectionInfo{
+		Id:             "connection35",
+		Address:        ServerAddress,
+		Cert:           nil,
+		DisableTimeout: false,
+	}, 0, slots)
 	if err != nil {
 		t.Errorf("PostPrecompResult: Error received: %s", err)
 	}
@@ -112,12 +126,15 @@ func TestSendGetMeasure(t *testing.T) {
 	server := StartNode(ServerAddress, impl, nil, nil)
 	defer server.Shutdown()
 
-	connID := MockID("connection35")
-	server.ConnectToRemote(connID, ServerAddress, nil, false)
 	ri := pb.RoundInfo{
 		ID: uint64(3),
 	}
-	_, err := server.SendGetMeasure(connID, &ri)
+	_, err := server.SendGetMeasure(&connect.ConnectionInfo{
+		Id:             "connection35",
+		Address:        ServerAddress,
+		Cert:           nil,
+		DisableTimeout: false,
+	}, &ri)
 	if err != nil {
 		t.Errorf("SendGetMeasure: Error received: %s", err)
 	}
@@ -136,12 +153,15 @@ func TestSendGetMeasureError(t *testing.T) {
 	server := StartNode(ServerAddress, impl, nil, nil)
 	defer server.Shutdown()
 
-	connID := MockID("connection35")
-	server.ConnectToRemote(connID, ServerAddress, nil, false)
 	ri := pb.RoundInfo{
 		ID: uint64(3),
 	}
-	_, err := server.SendGetMeasure(connID, &ri)
+	_, err := server.SendGetMeasure(&connect.ConnectionInfo{
+		Id:             "connection35",
+		Address:        ServerAddress,
+		Cert:           nil,
+		DisableTimeout: false,
+	}, &ri)
 	if err == nil {
 		t.Error("Did not receive error response")
 	}
@@ -158,9 +178,12 @@ func TestRoundTripPing(t *testing.T) {
 		t.Errorf("SendRoundTripPing: failed attempting to marshall any type: %+v", err)
 	}
 
-	connID := MockID("mock_id")
-	_ = server.ConnectToRemote(connID, ServerAddress, nil, false)
-	_, err = server.RoundTripPing(connID, uint64(1), any)
+	_, err = server.RoundTripPing(&connect.ConnectionInfo{
+		Id:             "mock_id",
+		Address:        ServerAddress,
+		Cert:           nil,
+		DisableTimeout: false,
+	}, uint64(1), any)
 	if err != nil {
 		t.Errorf("Received error from RoundTripPing: %+v", err)
 	}

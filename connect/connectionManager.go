@@ -43,7 +43,7 @@ type connection struct {
 // Information used to describe a connection
 type ConnectionInfo struct {
 	// ID used to identify the connection
-	Id fmt.Stringer
+	Id string
 
 	// Address:Port being connected to
 	Address string
@@ -91,7 +91,7 @@ func (m *ConnectionManager) GetPrivateKey() *rsa.PrivateKey {
 func (m *ConnectionManager) ObtainConnection(
 	connInfo *ConnectionInfo) (*connection, error) {
 
-	conn, ok := m.connections[connInfo.Id.String()]
+	conn, ok := m.connections[connInfo.Id]
 	// If the connection does not already exist, create a new connection
 	if !ok {
 		jww.INFO.Printf("Connection %s does not exist, creating...",
@@ -100,7 +100,7 @@ func (m *ConnectionManager) ObtainConnection(
 		if err != nil {
 			return nil, err
 		}
-		conn, ok = m.connections[connInfo.Id.String()]
+		conn, ok = m.connections[connInfo.Id]
 	}
 
 	// Verify the connection is still good
@@ -108,7 +108,7 @@ func (m *ConnectionManager) ObtainConnection(
 		// If not, attempt to reestablish the connection
 		jww.WARN.Printf("Bad connection state, reconnecting: %v",
 			conn.Connection)
-		m.Disconnect(connInfo.Id.String())
+		m.Disconnect(connInfo.Id)
 		err := m.connect(connInfo)
 		if err != nil {
 			return nil, err
@@ -244,7 +244,7 @@ func (m *ConnectionManager) connect(connInfo *ConnectionInfo) error {
 	jww.INFO.Printf("Successfully connected to %s at %v",
 		connInfo.Id, connInfo.Address)
 	m.connectionsLock.Lock()
-	m.connections[connInfo.Id.String()] = &connection{
+	m.connections[connInfo.Id] = &connection{
 		Address:      connInfo.Address,
 		Connection:   clientConnection,
 		Creds:        tlsCredentials,

@@ -7,29 +7,31 @@ package node
 
 import (
 	"errors"
-	"fmt"
-	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 )
 
-// Send a message to the gateway
-func (s *NodeComms) SendNodeRegistration(id fmt.Stringer,
+// Server -> Registration Send Function
+func (s *NodeComms) SendNodeRegistration(connInfo *connect.ConnectionInfo,
 	message *pb.NodeRegistration) error {
 
-	// Attempt to connect to addr
-	connection := s.GetRegistrationConnection(id)
+	// Obtain the connection
+	conn, err := s.ObtainConnection(connInfo)
+	if err != nil {
+		return err
+	}
+
+	// Set up the context
 	ctx, cancel := connect.MessagingContext()
+	defer cancel()
 
 	// Send the message
-	_, err := connection.RegisterNode(ctx, message)
+	_, err = pb.NewRegistrationClient(conn.Connection).RegisterNode(ctx, message)
 
 	// Make sure there are no errors with sending the message
 	if err != nil {
 		err = errors.New(err.Error())
-		jww.ERROR.Printf("SendNodeRegistration: Error received: %+v", err)
 	}
 
-	cancel()
 	return err
 }

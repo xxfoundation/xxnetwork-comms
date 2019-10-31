@@ -19,12 +19,6 @@ import (
 var serverPortLock sync.Mutex
 var serverPort = 5500
 
-type MockID string
-
-func (m MockID) String() string {
-	return string(m)
-}
-
 func getNextServerAddress() string {
 	serverPortLock.Lock()
 	defer func() {
@@ -61,10 +55,9 @@ func TestTLS(t *testing.T) {
 	server := node.StartNode(ServerAddress, node.NewImplementation(),
 		certData, keyData)
 	defer server.Shutdown()
-	connID := MockID("gatewayToServer")
 
 	err := gateway.PostNewBatch(&connect.ConnectionInfo{
-		Id:             connID,
+		Id:             "gatewayToServer",
 		Address:        ServerAddress,
 		Cert:           nil,
 		DisableTimeout: false,

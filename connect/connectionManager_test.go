@@ -49,7 +49,15 @@ func TestConnectionManager_Disconnect(t *testing.T) {
 	id := "pear"
 	var manager ConnectionManager
 
-	manager.connect(id, address, nil, nil, false)
+	err := manager.connect(&ConnectionInfo{
+		Id:             id,
+		Address:        address,
+		Cert:           nil,
+		DisableTimeout: false,
+	})
+	if err != nil {
+		t.Errorf("Unable to call connnect: %+v", err)
+	}
 
 	_, inMap := manager.connections[id]
 
@@ -84,7 +92,15 @@ func TestConnectionManager_DisconnectAll(t *testing.T) {
 	id2 := "apple"
 	var manager ConnectionManager
 
-	manager.connect(id, address, nil, nil, false)
+	err := manager.connect(&ConnectionInfo{
+		Id:             id,
+		Address:        address,
+		Cert:           nil,
+		DisableTimeout: false,
+	})
+	if err != nil {
+		t.Errorf("Unable to call connnect: %+v", err)
+	}
 
 	_, inMap := manager.connections[id]
 
@@ -94,7 +110,15 @@ func TestConnectionManager_DisconnectAll(t *testing.T) {
 		pass++
 	}
 
-	manager.connect(id2, address2, nil, nil, false)
+	err = manager.connect(&ConnectionInfo{
+		Id:             id2,
+		Address:        address2,
+		Cert:           nil,
+		DisableTimeout: false,
+	})
+	if err != nil {
+		t.Errorf("Unable to call connnect: %+v", err)
+	}
 
 	_, inMap = manager.connections[id2]
 
@@ -126,11 +150,11 @@ func TestConnectionManager_DisconnectAll(t *testing.T) {
 }
 
 func TestConnectionManager_String(t *testing.T) {
-	cm := &ConnectionManager{connections: make(map[string]*ConnectionInfo)}
+	cm := &ConnectionManager{connections: make(map[string]*connection)}
 	t.Log(cm)
 	cm.connections["infoNil"] = nil
 	t.Log(cm)
-	cm.connections["fieldsNil"] = &ConnectionInfo{
+	cm.connections["fieldsNil"] = &connection{
 		Address: "fake address",
 	}
 	t.Log(cm)

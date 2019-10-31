@@ -32,10 +32,5 @@ func TestConnectionManager_String(t *testing.T) {
 	defer server1.Shutdown()
 	defer server2.Shutdown()
 	cm := &connect.ConnectionManager{}
-	// A real connection will be printed correctly, though
-	cm.ConnectToRemote(MockID("credsNil"), ":5658", nil, false)
-	t.Log(cm)
-	cm.ConnectToRemote(MockID("goodCreds"), ":5659",
-		testkeys.LoadFromPath(certPath), false)
 	t.Log(cm)
 }

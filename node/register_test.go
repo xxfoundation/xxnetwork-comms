@@ -6,6 +6,7 @@
 package node
 
 import (
+	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/registration"
 	"testing"
@@ -20,11 +21,14 @@ func TestSendNodeRegistration(t *testing.T) {
 		registration.NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	defer reg.Shutdown()
-	connID := MockID("serverToPermissioning")
-	server.ConnectToRemote(connID, RegAddress, nil, false)
 
 	msgs := &pb.NodeRegistration{}
-	err := server.SendNodeRegistration(connID, msgs)
+	err := server.SendNodeRegistration(&connect.ConnectionInfo{
+		Id:             "serverToPermissioning",
+		Address:        RegAddress,
+		Cert:           nil,
+		DisableTimeout: false,
+	}, msgs)
 	if err != nil {
 		t.Errorf("SendNodeTopology: Error received: %s", err)
 	}

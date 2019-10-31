@@ -13,7 +13,9 @@ package node
 
 import (
 	"github.com/golang/protobuf/ptypes"
+	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
+	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"golang.org/x/net/context"
 )
@@ -31,20 +33,27 @@ func (s *NodeComms) DownloadTopology(ctx context.Context,
 
 	// fixme: this has got to be bad, we need to review this...
 	go func() {
-		// Get message sender ID
-		sender := msg.ID
-		pubKey := s.ConnectionManager.GetConnection(sender).RsaPublicKey
+		conn, err := s.ConnectionManager.ObtainConnection(&connect.
+			ConnectionInfo{
+			Id: msg.ID,
+		})
+		if err != nil {
+			jww.ERROR.Printf("Unable to obtain connection: %+v",
+				errors.New(err.Error()))
+		}
 
 		// Unmarshal message to its original type
 		original := pb.NodeTopology{}
-		err := ptypes.UnmarshalAny(msg.Message, &original)
+		err = ptypes.UnmarshalAny(msg.Message, &original)
 		if err != nil {
-			jww.ERROR.Printf("Failed to unmarshal generic message, check your input message type: %+v", err)
+			jww.ERROR.Printf("Failed to unmarshal generic message, "+
+				"check your input me ssage type: %+v", errors.New(err.Error()))
 			return
 		}
 
 		// Verify message contents
 		var verified bool
+		pubKey := conn.RsaPublicKey
 		if pubKey != nil {
 			err = s.ConnectionManager.VerifySignature(msg, &original, pubKey)
 			if err != nil {
@@ -58,7 +67,7 @@ func (s *NodeComms) DownloadTopology(ctx context.Context,
 			verified = false
 		}
 
-		senderAddress := s.ConnectionManager.GetConnection(msg.ID).Address
+		senderAddress := conn.Address
 		ci := MessageInfo{
 			Signature:      msg.Signature,
 			ValidSignature: verified,

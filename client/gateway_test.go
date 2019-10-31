@@ -26,10 +26,9 @@ func TestSendPutMessage(t *testing.T) {
 		gateway.NewImplementation(), nil, nil)
 	defer gw.Shutdown()
 	var c ClientComms
-	id := MockID("clientToGateway")
 
 	err := c.SendPutMessage(&connect.ConnectionInfo{
-		Id:             id,
+		Id:             "clientToGateway",
 		Address:        gatewayAddress,
 		Cert:           nil,
 		DisableTimeout: false,
@@ -44,12 +43,11 @@ func TestSendCheckMessages(t *testing.T) {
 	gatewayAddress := getNextGatewayAddress()
 	gw := gateway.StartGateway(gatewayAddress,
 		gateway.NewImplementation(), nil, nil)
-	id := MockID("clientToGateway")
 	var c ClientComms
 	defer gw.Shutdown()
 
 	_, err := c.SendCheckMessages(&connect.ConnectionInfo{
-		Id:             id,
+		Id:             "clientToGateway",
 		Address:        gatewayAddress,
 		Cert:           nil,
 		DisableTimeout: false,
@@ -64,12 +62,11 @@ func TestSendGetMessage(t *testing.T) {
 	gatewayAddress := getNextGatewayAddress()
 	gw := gateway.StartGateway(gatewayAddress,
 		gateway.NewImplementation(), nil, nil)
-	id := MockID("clientToGateway")
 	var c ClientComms
 	defer gw.Shutdown()
 
 	_, err := c.SendGetMessage(&connect.ConnectionInfo{
-		Id:             id,
+		Id:             "clientToGateway",
 		Address:        gatewayAddress,
 		Cert:           nil,
 		DisableTimeout: false,
@@ -85,11 +82,10 @@ func TestSendRequestNonceMessage(t *testing.T) {
 	gw := gateway.StartGateway(gatewayAddress,
 		gateway.NewImplementation(), nil, nil)
 	defer gw.Shutdown()
-	id := MockID("clientToGateway")
 	var c ClientComms
 
 	_, err := c.SendRequestNonceMessage(&connect.ConnectionInfo{
-		Id:             id,
+		Id:             "clientToGateway",
 		Address:        gatewayAddress,
 		Cert:           nil,
 		DisableTimeout: false,
@@ -105,11 +101,10 @@ func TestSendConfirmNonceMessage(t *testing.T) {
 	gw := gateway.StartGateway(gatewayAddress,
 		gateway.NewImplementation(), nil, nil)
 	defer gw.Shutdown()
-	id := MockID("clientToGateway")
 	var c ClientComms
 
 	_, err := c.SendConfirmNonceMessage(&connect.ConnectionInfo{
-		Id:             id,
+		Id:             "clientToGateway",
 		Address:        gatewayAddress,
 		Cert:           nil,
 		DisableTimeout: false,

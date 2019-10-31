@@ -19,11 +19,10 @@ func TestSendRegistrationMessage(t *testing.T) {
 	rg := registration.StartRegistrationServer(GatewayAddress,
 		registration.NewImplementation(), nil, nil)
 	defer rg.Shutdown()
-	connID := MockID("clientToRegistration")
 	var c ClientComms
 
 	_, err := c.SendRegistrationMessage(&connect.ConnectionInfo{
-		Id:             connID,
+		Id:             "clientToRegistration",
 		Address:        GatewayAddress,
 		Cert:           nil,
 		DisableTimeout: false,
@@ -39,11 +38,10 @@ func TestSendCheckClientVersionMessage(t *testing.T) {
 	rg := registration.StartRegistrationServer(GatewayAddress,
 		registration.NewImplementation(), nil, nil)
 	defer rg.Shutdown()
-	connID := MockID("clientToRegistration")
 	var c ClientComms
 
 	_, err := c.SendGetCurrentClientVersionMessage(&connect.ConnectionInfo{
-		Id:             connID,
+		Id:             "clientToRegistration",
 		Address:        GatewayAddress,
 		Cert:           nil,
 		DisableTimeout: false,
@@ -59,11 +57,10 @@ func TestSendGetUpdatedNDF(t *testing.T) {
 	rg := registration.StartRegistrationServer(GatewayAddress,
 		registration.NewImplementation(), nil, nil)
 	defer rg.Shutdown()
-	connID := MockID("clientToRegistration")
 	var c ClientComms
 
 	_, err := c.SendGetUpdatedNDF(&connect.ConnectionInfo{
-		Id:             connID,
+		Id:             "clientToRegistration",
 		Address:        GatewayAddress,
 		Cert:           nil,
 		DisableTimeout: false,
