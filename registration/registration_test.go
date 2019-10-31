@@ -42,7 +42,7 @@ func TestTLS(t *testing.T) {
 	_, err := c.SendRegistrationMessage(&connect.ConnectionInfo{
 		Id:             "clientToRegistration",
 		Address:        RegAddress,
-		Cert:           nil,
+		Cert:           certData,
 		DisableTimeout: false,
 	}, &pb.UserRegistration{})
 	if err != nil {

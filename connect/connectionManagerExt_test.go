@@ -26,8 +26,9 @@ func TestConnectionManager_String(t *testing.T) {
 	keyPath := testkeys.GetNodeKeyPath()
 	certPath := testkeys.GetNodeCertPath()
 
-	server1 := node.StartNode(":5658", node.NewImplementation(), nil, nil)
-	server2 := node.StartNode(":5659", node.NewImplementation(),
+	server1 := node.StartNode("0.0.0.0:5658", node.NewImplementation(), nil,
+		nil)
+	server2 := node.StartNode("0.0.0.0:5659", node.NewImplementation(),
 		testkeys.LoadFromPath(certPath), testkeys.LoadFromPath(keyPath))
 	defer server1.Shutdown()
 	defer server2.Shutdown()

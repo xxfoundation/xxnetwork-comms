@@ -3,6 +3,7 @@ package node
 import (
 	"context"
 	"github.com/golang/protobuf/ptypes"
+	"gitlab.com/elixxir/comms/connect"
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/registration"
 	"gitlab.com/elixxir/comms/testkeys"
@@ -38,7 +39,18 @@ func TestDownloadTopology(t *testing.T) {
 	defer server.Shutdown()
 	defer reg.Shutdown()
 
-	_, err := server.DownloadTopology(ctx, &msg)
+	_, err := server.ConnectionManager.ObtainConnection(&connect.
+		ConnectionInfo{
+		Id:             msg.ID,
+		Address:        RegAddress,
+		Cert:           certData,
+		DisableTimeout: false,
+	})
+	if err != nil {
+		t.Errorf("Download topology failed: %+v", err)
+	}
+
+	_, err = server.DownloadTopology(ctx, &msg)
 	if err != nil {
 		t.Errorf("Download topology failed: %+v", err)
 	}

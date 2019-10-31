@@ -46,7 +46,7 @@ func TestTLS(t *testing.T) {
 	_, err := server2.SendAskOnline(&connect.ConnectionInfo{
 		Id:             "server2toserver",
 		Address:        serverAddress,
-		Cert:           nil,
+		Cert:           certData,
 		DisableTimeout: false,
 	}, &mixmessages.Ping{})
 	if err != nil {

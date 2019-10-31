@@ -59,7 +59,7 @@ func TestTLS(t *testing.T) {
 	err := gateway.PostNewBatch(&connect.ConnectionInfo{
 		Id:             "gatewayToServer",
 		Address:        ServerAddress,
-		Cert:           nil,
+		Cert:           certData,
 		DisableTimeout: false,
 	}, &mixmessages.Batch{})
 	if err != nil {
