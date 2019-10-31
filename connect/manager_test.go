@@ -38,6 +38,14 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
+func TestManager_SetPrivateKey_Invalid(t *testing.T) {
+	var manager Manager
+	err := manager.SetPrivateKey(make([]byte, 0))
+	if err == nil {
+		t.Errorf("Expected error!")
+	}
+}
+
 // Tests the case of obtaining a dead connection
 func TestManager_ObtainConnection_DeadConnection(t *testing.T) {
 	address := SERVER_ADDRESS
