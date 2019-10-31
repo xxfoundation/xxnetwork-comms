@@ -25,7 +25,7 @@ import (
 
 // Server object containing a gRPC server
 type NodeComms struct {
-	connect.ConnectionManager
+	connect.Manager
 	gs          *grpc.Server
 	handler     ServerHandler
 	localServer string

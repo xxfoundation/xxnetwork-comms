@@ -23,7 +23,7 @@ func TestSendNodeRegistration(t *testing.T) {
 	defer reg.Shutdown()
 
 	msgs := &pb.NodeRegistration{}
-	err := server.SendNodeRegistration(&connect.ConnectionInfo{
+	err := server.SendNodeRegistration(&connect.Host{
 		Id:             "serverToPermissioning",
 		Address:        RegAddress,
 		Cert:           nil,

@@ -24,7 +24,7 @@ import (
 
 // Server object containing a gRPC server
 type RegistrationComms struct {
-	connect.ConnectionManager
+	connect.Manager
 	gs      *grpc.Server
 	handler Handler
 }

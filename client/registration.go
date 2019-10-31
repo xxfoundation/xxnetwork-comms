@@ -15,7 +15,7 @@ import (
 )
 
 // Client -> Registration Send Function
-func (c *ClientComms) SendRegistrationMessage(connInfo *connect.ConnectionInfo,
+func (c *ClientComms) SendRegistrationMessage(connInfo *connect.Host,
 	message *pb.UserRegistration) (*pb.UserRegistrationConfirmation, error) {
 
 	// Obtain the connection
@@ -40,7 +40,7 @@ func (c *ClientComms) SendRegistrationMessage(connInfo *connect.ConnectionInfo,
 
 // Client -> Registration Send Function
 func (c *ClientComms) SendGetCurrentClientVersionMessage(
-	connInfo *connect.ConnectionInfo) (*pb.ClientVersion, error) {
+	connInfo *connect.Host) (*pb.ClientVersion, error) {
 
 	// Obtain the connection
 	conn, err := c.ObtainConnection(connInfo)
@@ -63,7 +63,7 @@ func (c *ClientComms) SendGetCurrentClientVersionMessage(
 }
 
 // Client -> Registration Send Function
-func (c *ClientComms) SendGetUpdatedNDF(connInfo *connect.ConnectionInfo,
+func (c *ClientComms) SendGetUpdatedNDF(connInfo *connect.Host,
 	message *pb.NDFHash) (*pb.NDF, error) {
 
 	// Obtain the connection

@@ -25,7 +25,7 @@ import (
 // Gateway object contains a gRPC server and a connection manager for outgoing
 // connections
 type GatewayComms struct {
-	connect.ConnectionManager
+	connect.Manager
 	gs      *grpc.Server
 	handler Handler
 }

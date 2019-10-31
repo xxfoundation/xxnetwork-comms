@@ -15,7 +15,7 @@ import (
 )
 
 // Client -> Gateway Send Function
-func (c *ClientComms) SendPutMessage(connInfo *connect.ConnectionInfo,
+func (c *ClientComms) SendPutMessage(connInfo *connect.Host,
 	message *pb.Slot) error {
 
 	// Obtain the connection
@@ -38,7 +38,7 @@ func (c *ClientComms) SendPutMessage(connInfo *connect.ConnectionInfo,
 }
 
 // Client -> Gateway Send Function
-func (c *ClientComms) SendCheckMessages(connInfo *connect.ConnectionInfo,
+func (c *ClientComms) SendCheckMessages(connInfo *connect.Host,
 	message *pb.ClientRequest) (*pb.IDList, error) {
 
 	// Obtain the connection
@@ -61,7 +61,7 @@ func (c *ClientComms) SendCheckMessages(connInfo *connect.ConnectionInfo,
 }
 
 // Client -> Gateway Send Function
-func (c *ClientComms) SendGetMessage(connInfo *connect.ConnectionInfo,
+func (c *ClientComms) SendGetMessage(connInfo *connect.Host,
 	message *pb.ClientRequest) (*pb.Slot, error) {
 
 	// Obtain the connection
@@ -86,7 +86,7 @@ func (c *ClientComms) SendGetMessage(connInfo *connect.ConnectionInfo,
 }
 
 // Client -> Gateway Send Function
-func (c *ClientComms) SendRequestNonceMessage(connInfo *connect.ConnectionInfo,
+func (c *ClientComms) SendRequestNonceMessage(connInfo *connect.Host,
 	message *pb.NonceRequest) (*pb.Nonce, error) {
 
 	// Obtain the connection
@@ -114,7 +114,7 @@ func (c *ClientComms) SendRequestNonceMessage(connInfo *connect.ConnectionInfo,
 }
 
 // Client -> Gateway Send Function
-func (c *ClientComms) SendConfirmNonceMessage(connInfo *connect.ConnectionInfo,
+func (c *ClientComms) SendConfirmNonceMessage(connInfo *connect.Host,
 	message *pb.RequestRegistrationConfirmation) (*pb.RegistrationConfirmation, error) {
 
 	// Obtain the connection

@@ -16,7 +16,7 @@ import (
 
 func TestSignVerify(t *testing.T) {
 
-	c := *new(ConnectionManager)
+	c := *new(Manager)
 
 	key := testkeys.GetNodeKeyPath()
 	err := c.SetPrivateKey(testkeys.LoadFromPath(key))

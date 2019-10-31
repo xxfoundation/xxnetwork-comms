@@ -21,7 +21,7 @@ func TestSendRegistrationMessage(t *testing.T) {
 	defer rg.Shutdown()
 	var c ClientComms
 
-	_, err := c.SendRegistrationMessage(&connect.ConnectionInfo{
+	_, err := c.SendRegistrationMessage(&connect.Host{
 		Id:             "clientToRegistration",
 		Address:        GatewayAddress,
 		Cert:           nil,
@@ -40,7 +40,7 @@ func TestSendCheckClientVersionMessage(t *testing.T) {
 	defer rg.Shutdown()
 	var c ClientComms
 
-	_, err := c.SendGetCurrentClientVersionMessage(&connect.ConnectionInfo{
+	_, err := c.SendGetCurrentClientVersionMessage(&connect.Host{
 		Id:             "clientToRegistration",
 		Address:        GatewayAddress,
 		Cert:           nil,
@@ -59,7 +59,7 @@ func TestSendGetUpdatedNDF(t *testing.T) {
 	defer rg.Shutdown()
 	var c ClientComms
 
-	_, err := c.SendGetUpdatedNDF(&connect.ConnectionInfo{
+	_, err := c.SendGetUpdatedNDF(&connect.Host{
 		Id:             "clientToRegistration",
 		Address:        GatewayAddress,
 		Cert:           nil,

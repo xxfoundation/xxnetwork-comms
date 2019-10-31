@@ -15,7 +15,7 @@ import (
 )
 
 // Gateway -> Server Send Function
-func (g *GatewayComms) PostNewBatch(connInfo *connect.ConnectionInfo,
+func (g *GatewayComms) PostNewBatch(connInfo *connect.Host,
 	messages *pb.Batch) error {
 
 	// Obtain the connection
@@ -42,7 +42,7 @@ func (g *GatewayComms) PostNewBatch(connInfo *connect.ConnectionInfo,
 // Note that this function should block if the buffer size is 0
 // This allows the caller to continuously poll without spinning too much.
 func (g *GatewayComms) GetRoundBufferInfo(
-	connInfo *connect.ConnectionInfo) (int, error) {
+	connInfo *connect.Host) (int, error) {
 
 	// Initialize bufSize
 	bufSize := 0
@@ -71,7 +71,7 @@ func (g *GatewayComms) GetRoundBufferInfo(
 
 // Gateway -> Server Send Function
 func (g *GatewayComms) GetCompletedBatch(
-	connInfo *connect.ConnectionInfo) (*pb.Batch, error) {
+	connInfo *connect.Host) (*pb.Batch, error) {
 
 	// Obtain the connection
 	conn, err := g.ObtainConnection(connInfo)

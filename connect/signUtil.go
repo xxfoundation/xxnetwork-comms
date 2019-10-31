@@ -10,8 +10,8 @@ import (
 )
 
 // SignMessage takes a generic-type message and an ID, returns a SignedMessage
-// The message is signed with the ConnectionManager's RSA PrivateKey
-func (m *ConnectionManager) SignMessage(anyMessage *any.Any, id string) (*pb.SignedMessage, error) {
+// The message is signed with the Manager's RSA PrivateKey
+func (m *Manager) SignMessage(anyMessage *any.Any, id string) (*pb.SignedMessage, error) {
 	// Get hashed data
 	options := rsa.NewDefaultOptions()
 	hash := options.Hash.New()
@@ -46,7 +46,7 @@ func (m *ConnectionManager) SignMessage(anyMessage *any.Any, id string) (*pb.Sig
 
 // VerifySignature accepts a signed message, the UnMarshalled message, and RSA PublicKey
 // It verifies the signature, returning an error if invalid
-func (m *ConnectionManager) VerifySignature(message *pb.SignedMessage, pb proto.Message, pubKey *rsa.PublicKey) error {
+func (m *Manager) VerifySignature(message *pb.SignedMessage, pb proto.Message, pubKey *rsa.PublicKey) error {
 	// Get hashed data of the message
 	options := rsa.NewDefaultOptions()
 	hash := options.Hash.New()

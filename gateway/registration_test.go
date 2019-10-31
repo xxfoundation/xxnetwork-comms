@@ -27,7 +27,7 @@ func TestSendRequestNonceMessage(t *testing.T) {
 		Signature: []byte{},
 	}
 
-	_, err := gateway.SendRequestNonceMessage(&connect.ConnectionInfo{
+	_, err := gateway.SendRequestNonceMessage(&connect.Host{
 		Id:             "gatewayToServer",
 		Address:        ServerAddress,
 		Cert:           nil,
@@ -52,7 +52,7 @@ func TestSendConfirmNonceMessage(t *testing.T) {
 
 	reg := &pb.RequestRegistrationConfirmation{}
 	reg.NonceSignedByClient = &pb.RSASignature{}
-	_, err := gateway.SendConfirmNonceMessage(&connect.ConnectionInfo{
+	_, err := gateway.SendConfirmNonceMessage(&connect.Host{
 		Id:             "gatewayToServer",
 		Address:        ServerAddress,
 		Cert:           nil,
@@ -72,7 +72,7 @@ func TestPollSignedCerts(t *testing.T) {
 	defer gateway.Shutdown()
 	defer server.Shutdown()
 
-	_, err := gateway.PollSignedCerts(&connect.ConnectionInfo{
+	_, err := gateway.PollSignedCerts(&connect.Host{
 		Id:             "gatewayToServer",
 		Address:        ServerAddress,
 		Cert:           nil,

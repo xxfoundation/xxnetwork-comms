@@ -39,7 +39,7 @@ func TestTLS(t *testing.T) {
 	// So, we need some way to add a connection to the manager for the client
 	defer rg.Shutdown()
 	var c client.ClientComms
-	_, err := c.SendRegistrationMessage(&connect.ConnectionInfo{
+	_, err := c.SendRegistrationMessage(&connect.Host{
 		Id:             "clientToRegistration",
 		Address:        RegAddress,
 		Cert:           certData,

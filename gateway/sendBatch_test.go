@@ -24,7 +24,7 @@ func TestPostNewBatch(t *testing.T) {
 	defer server.Shutdown()
 
 	msgs := &pb.Batch{}
-	err := gateway.PostNewBatch(&connect.ConnectionInfo{
+	err := gateway.PostNewBatch(&connect.Host{
 		Id:             "gatewayToServer",
 		Address:        ServerAddress,
 		Cert:           nil,
@@ -45,7 +45,7 @@ func TestGetRoundBufferInfo(t *testing.T) {
 	defer gateway.Shutdown()
 	defer server.Shutdown()
 
-	bufSize, err := gateway.GetRoundBufferInfo(&connect.ConnectionInfo{
+	bufSize, err := gateway.GetRoundBufferInfo(&connect.Host{
 		Id:             "gatewayToServer",
 		Address:        ServerAddress,
 		Cert:           nil,
@@ -69,7 +69,7 @@ func TestGetCompletedBatch(t *testing.T) {
 	defer gateway.Shutdown()
 	defer server.Shutdown()
 
-	batch, err := gateway.GetCompletedBatch(&connect.ConnectionInfo{
+	batch, err := gateway.GetCompletedBatch(&connect.Host{
 		Id:             "gatewayToServer",
 		Address:        ServerAddress,
 		Cert:           nil,

@@ -27,7 +27,7 @@ func TestSendPutMessage(t *testing.T) {
 	defer gw.Shutdown()
 	var c ClientComms
 
-	err := c.SendPutMessage(&connect.ConnectionInfo{
+	err := c.SendPutMessage(&connect.Host{
 		Id:             "clientToGateway",
 		Address:        gatewayAddress,
 		Cert:           nil,
@@ -46,7 +46,7 @@ func TestSendCheckMessages(t *testing.T) {
 	var c ClientComms
 	defer gw.Shutdown()
 
-	_, err := c.SendCheckMessages(&connect.ConnectionInfo{
+	_, err := c.SendCheckMessages(&connect.Host{
 		Id:             "clientToGateway",
 		Address:        gatewayAddress,
 		Cert:           nil,
@@ -65,7 +65,7 @@ func TestSendGetMessage(t *testing.T) {
 	var c ClientComms
 	defer gw.Shutdown()
 
-	_, err := c.SendGetMessage(&connect.ConnectionInfo{
+	_, err := c.SendGetMessage(&connect.Host{
 		Id:             "clientToGateway",
 		Address:        gatewayAddress,
 		Cert:           nil,
@@ -84,7 +84,7 @@ func TestSendRequestNonceMessage(t *testing.T) {
 	defer gw.Shutdown()
 	var c ClientComms
 
-	_, err := c.SendRequestNonceMessage(&connect.ConnectionInfo{
+	_, err := c.SendRequestNonceMessage(&connect.Host{
 		Id:             "clientToGateway",
 		Address:        gatewayAddress,
 		Cert:           nil,
@@ -103,7 +103,7 @@ func TestSendConfirmNonceMessage(t *testing.T) {
 	defer gw.Shutdown()
 	var c ClientComms
 
-	_, err := c.SendConfirmNonceMessage(&connect.ConnectionInfo{
+	_, err := c.SendConfirmNonceMessage(&connect.Host{
 		Id:             "clientToGateway",
 		Address:        gatewayAddress,
 		Cert:           nil,

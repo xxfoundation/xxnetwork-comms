@@ -39,8 +39,8 @@ func TestDownloadTopology(t *testing.T) {
 	defer server.Shutdown()
 	defer reg.Shutdown()
 
-	_, err := server.ConnectionManager.ObtainConnection(&connect.
-		ConnectionInfo{
+	_, err := server.Manager.ObtainConnection(&connect.
+		Host{
 		Id:             msg.ID,
 		Address:        RegAddress,
 		Cert:           certData,

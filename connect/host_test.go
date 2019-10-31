@@ -45,9 +45,9 @@ func TestConnectionManager_Disconnect(t *testing.T) {
 	pass := 0
 	address := SERVER_ADDRESS
 	id := "pear"
-	var manager ConnectionManager
+	var manager Manager
 
-	err := manager.connect(&ConnectionInfo{
+	err := manager.createConnection(&Host{
 		Id:             id,
 		Address:        address,
 		Cert:           nil,
@@ -88,9 +88,9 @@ func TestConnectionManager_DisconnectAll(t *testing.T) {
 	address2 := SERVER_ADDRESS2
 	id := "pear"
 	id2 := "apple"
-	var manager ConnectionManager
+	var manager Manager
 
-	err := manager.connect(&ConnectionInfo{
+	err := manager.createConnection(&Host{
 		Id:             id,
 		Address:        address,
 		Cert:           nil,
@@ -108,7 +108,7 @@ func TestConnectionManager_DisconnectAll(t *testing.T) {
 		pass++
 	}
 
-	err = manager.connect(&ConnectionInfo{
+	err = manager.createConnection(&Host{
 		Id:             id2,
 		Address:        address2,
 		Cert:           nil,
@@ -148,7 +148,7 @@ func TestConnectionManager_DisconnectAll(t *testing.T) {
 }
 
 func TestConnectionManager_String(t *testing.T) {
-	cm := &ConnectionManager{connections: make(map[string]*connection)}
+	cm := &Manager{connections: make(map[string]*connection)}
 	t.Log(cm)
 	cm.connections["infoNil"] = nil
 	t.Log(cm)
@@ -159,7 +159,7 @@ func TestConnectionManager_String(t *testing.T) {
 	// A mocked connection created without the gRPC factory methods will cause
 	// a panic, but there's no way to check if the field gRPC uses isn't nil,
 	// or to set that field up, because it's not exported
-	/* cm.connections["incorrectlyCreatedConnection"] = &ConnectionInfo{
+	/* cm.connections["incorrectlyCreatedConnection"] = &Host{
 		Address: "real address",
 		Connection: &grpc.ClientConn{},
 	} */

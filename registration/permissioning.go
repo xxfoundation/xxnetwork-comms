@@ -13,7 +13,7 @@ import (
 )
 
 // Permissioning -> Server Send Function
-func (r *RegistrationComms) SendNodeTopology(connInfo *connect.ConnectionInfo,
+func (r *RegistrationComms) SendNodeTopology(connInfo *connect.Host,
 	message *pb.NodeTopology) error {
 
 	// Obtain the connection
@@ -33,7 +33,7 @@ func (r *RegistrationComms) SendNodeTopology(connInfo *connect.ConnectionInfo,
 	}
 
 	// Sign message
-	signedMessage, err := r.ConnectionManager.SignMessage(anyMessage, "Permissioning")
+	signedMessage, err := r.Manager.SignMessage(anyMessage, "Permissioning")
 	if err != nil {
 		return err
 	}

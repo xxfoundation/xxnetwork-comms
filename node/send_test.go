@@ -19,7 +19,7 @@ func TestSendAskOnline(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	server := StartNode(ServerAddress, NewImplementation(), nil, nil)
 	defer server.Shutdown()
-	_, err := server.SendAskOnline(&connect.ConnectionInfo{
+	_, err := server.SendAskOnline(&connect.Host{
 		Id:             "connection35",
 		Address:        ServerAddress,
 		Cert:           nil,
@@ -35,7 +35,7 @@ func TestSendFinishRealtime(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	server := StartNode(ServerAddress, NewImplementation(), nil, nil)
 	defer server.Shutdown()
-	_, err := server.SendFinishRealtime(&connect.ConnectionInfo{
+	_, err := server.SendFinishRealtime(&connect.Host{
 		Id:             "node2node",
 		Address:        ServerAddress,
 		Cert:           nil,
@@ -51,7 +51,7 @@ func TestSendNewRound(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	server := StartNode(ServerAddress, NewImplementation(), nil, nil)
 	defer server.Shutdown()
-	_, err := server.SendNewRound(&connect.ConnectionInfo{
+	_, err := server.SendNewRound(&connect.Host{
 		Id:             "connection35",
 		Address:        ServerAddress,
 		Cert:           nil,
@@ -67,7 +67,7 @@ func TestSendPostPhase(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	server := StartNode(ServerAddress, NewImplementation(), nil, nil)
 	defer server.Shutdown()
-	_, err := server.SendPostPhase(&connect.ConnectionInfo{
+	_, err := server.SendPostPhase(&connect.Host{
 		Id:             "connection35",
 		Address:        ServerAddress,
 		Cert:           nil,
@@ -83,7 +83,7 @@ func TestSendPostRoundPublicKey(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	server := StartNode(ServerAddress, NewImplementation(), nil, nil)
 	defer server.Shutdown()
-	_, err := server.SendPostRoundPublicKey(&connect.ConnectionInfo{
+	_, err := server.SendPostRoundPublicKey(&connect.Host{
 		Id:             "connection35",
 		Address:        ServerAddress,
 		Cert:           nil,
@@ -100,7 +100,7 @@ func TestSendPostPrecompResult(t *testing.T) {
 	server := StartNode(ServerAddress, NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	slots := make([]*pb.Slot, 0)
-	_, err := server.SendPostPrecompResult(&connect.ConnectionInfo{
+	_, err := server.SendPostPrecompResult(&connect.Host{
 		Id:             "connection35",
 		Address:        ServerAddress,
 		Cert:           nil,
@@ -129,7 +129,7 @@ func TestSendGetMeasure(t *testing.T) {
 	ri := pb.RoundInfo{
 		ID: uint64(3),
 	}
-	_, err := server.SendGetMeasure(&connect.ConnectionInfo{
+	_, err := server.SendGetMeasure(&connect.Host{
 		Id:             "connection35",
 		Address:        ServerAddress,
 		Cert:           nil,
@@ -156,7 +156,7 @@ func TestSendGetMeasureError(t *testing.T) {
 	ri := pb.RoundInfo{
 		ID: uint64(3),
 	}
-	_, err := server.SendGetMeasure(&connect.ConnectionInfo{
+	_, err := server.SendGetMeasure(&connect.Host{
 		Id:             "connection35",
 		Address:        ServerAddress,
 		Cert:           nil,
@@ -178,7 +178,7 @@ func TestRoundTripPing(t *testing.T) {
 		t.Errorf("SendRoundTripPing: failed attempting to marshall any type: %+v", err)
 	}
 
-	_, err = server.RoundTripPing(&connect.ConnectionInfo{
+	_, err = server.RoundTripPing(&connect.Host{
 		Id:             "mock_id",
 		Address:        ServerAddress,
 		Cert:           nil,

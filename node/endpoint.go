@@ -33,8 +33,8 @@ func (s *NodeComms) DownloadTopology(ctx context.Context,
 
 	// fixme: this has got to be bad, we need to review this...
 	go func() {
-		conn, err := s.ConnectionManager.ObtainConnection(&connect.
-			ConnectionInfo{
+		conn, err := s.Manager.ObtainConnection(&connect.
+			Host{
 			Id: msg.ID,
 		})
 		if err != nil {
@@ -55,7 +55,7 @@ func (s *NodeComms) DownloadTopology(ctx context.Context,
 		var verified bool
 		pubKey := conn.RsaPublicKey
 		if pubKey != nil {
-			err = s.ConnectionManager.VerifySignature(msg, &original, pubKey)
+			err = s.Manager.VerifySignature(msg, &original, pubKey)
 			if err != nil {
 				jww.ERROR.Printf("Failed to verify message contents: %+v", err)
 				return

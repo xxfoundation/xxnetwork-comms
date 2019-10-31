@@ -59,7 +59,7 @@ func TestPhase_StreamPostPhaseSendReceive(t *testing.T) {
 		BatchSize: batchSize,
 	}
 
-	streamClient, cancel, err := serverStreamSender.GetPostPhaseStreamClient(&connect.ConnectionInfo{
+	streamClient, cancel, err := serverStreamSender.GetPostPhaseStreamClient(&connect.Host{
 		Id:             "sender2receiver",
 		Address:        servReceiverAddress,
 		Cert:           certData,
@@ -139,7 +139,7 @@ func TestGetPostPhaseStream_ErrorsWhenContextCanceled(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
 
-	_, err := serverStreamSender.getPostPhaseStream(&connect.ConnectionInfo{
+	_, err := serverStreamSender.getPostPhaseStream(&connect.Host{
 		Id:             "sender2receiver",
 		Address:        servReceiverAddress,
 		Cert:           certData,
