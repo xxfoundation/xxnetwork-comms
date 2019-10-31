@@ -69,6 +69,7 @@ func (m *Manager) ObtainConnection(connInfo *Host) (*connection, error) {
 		if err != nil {
 			return nil, err
 		}
+		conn, ok = m.connections[connInfo.Id]
 	}
 	return conn, nil
 }

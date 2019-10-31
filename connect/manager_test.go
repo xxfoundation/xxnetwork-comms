@@ -38,6 +38,35 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
+// Tests the case of obtaining a dead connection
+func TestManager_ObtainConnection_DeadConnection(t *testing.T) {
+	address := SERVER_ADDRESS
+	id := "pear"
+	var manager Manager
+	host := &Host{
+		Id:             id,
+		Address:        address,
+		Cert:           nil,
+		DisableTimeout: false,
+	}
+
+	err := manager.createConnection(host)
+	if err != nil {
+		t.Errorf("Unable to create connection: %+v", err)
+	}
+	err = manager.connections[id].Connection.Close()
+	if err != nil {
+		t.Errorf("Unable to close connection: %+v", err)
+	}
+	conn, err := manager.ObtainConnection(host)
+	if err != nil {
+		t.Errorf("Unable to obtain connection: %+v", err)
+	}
+	if !conn.isAlive() {
+		t.Errorf("Connection was not reestablished! %+v", conn)
+	}
+}
+
 // Function to test the Disconnect
 // Checks if conn established in Connect() is deleted.
 func TestConnectionManager_Disconnect(t *testing.T) {
