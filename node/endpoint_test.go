@@ -41,7 +41,6 @@ func TestDownloadTopology(t *testing.T) {
 
 	_, err := server.Manager.ObtainConnection(&connect.
 		Host{
-		Id:             msg.ID,
 		Address:        RegAddress,
 		Cert:           certData,
 		DisableTimeout: false,

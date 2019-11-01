@@ -49,10 +49,8 @@ func TestManager_SetPrivateKey_Invalid(t *testing.T) {
 // Tests the case of obtaining a dead connection
 func TestManager_ObtainConnection_DeadConnection(t *testing.T) {
 	address := SERVER_ADDRESS
-	id := "pear"
 	var manager Manager
 	host := &Host{
-		Id:             id,
 		Address:        address,
 		Cert:           nil,
 		DisableTimeout: false,
@@ -62,7 +60,7 @@ func TestManager_ObtainConnection_DeadConnection(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unable to create connection: %+v", err)
 	}
-	err = manager.connections[id].Connection.Close()
+	err = manager.connections[host.GetId()].Connection.Close()
 	if err != nil {
 		t.Errorf("Unable to close connection: %+v", err)
 	}
@@ -83,7 +81,6 @@ func TestSetCredentials_InvalidCert(t *testing.T) {
 		RsaPublicKey: nil,
 	}
 	err := conn.setCredentials(&Host{
-		Id:             "",
 		Address:        "",
 		Cert:           []byte("test"),
 		DisableTimeout: false,
@@ -100,20 +97,19 @@ func TestConnectionManager_Disconnect(t *testing.T) {
 	test := 2
 	pass := 0
 	address := SERVER_ADDRESS
-	id := "pear"
 	var manager Manager
-
-	err := manager.createConnection(&Host{
-		Id:             id,
+	host := &Host{
 		Address:        address,
 		Cert:           nil,
 		DisableTimeout: false,
-	})
+	}
+
+	err := manager.createConnection(host)
 	if err != nil {
 		t.Errorf("Unable to call connnect: %+v", err)
 	}
 
-	_, inMap := manager.connections[id]
+	_, inMap := manager.connections[host.GetId()]
 
 	if !inMap {
 		t.Errorf("Connect Function didn't add connection to map")
@@ -121,7 +117,7 @@ func TestConnectionManager_Disconnect(t *testing.T) {
 		pass++
 	}
 
-	manager.Disconnect(id)
+	manager.Disconnect(host.GetId())
 
 	_, present := manager.connections[address]
 
@@ -142,21 +138,18 @@ func TestConnectionManager_DisconnectAll(t *testing.T) {
 	pass := 0
 	address := SERVER_ADDRESS
 	address2 := SERVER_ADDRESS2
-	id := "pear"
-	id2 := "apple"
 	var manager Manager
-
-	err := manager.createConnection(&Host{
-		Id:             id,
+	host := &Host{
 		Address:        address,
 		Cert:           nil,
 		DisableTimeout: false,
-	})
+	}
+	err := manager.createConnection(host)
 	if err != nil {
 		t.Errorf("Unable to call connnect: %+v", err)
 	}
 
-	_, inMap := manager.connections[id]
+	_, inMap := manager.connections[host.GetId()]
 
 	if !inMap {
 		t.Errorf("Connect Function didn't add connection to map")
@@ -165,7 +158,6 @@ func TestConnectionManager_DisconnectAll(t *testing.T) {
 	}
 
 	err = manager.createConnection(&Host{
-		Id:             id2,
 		Address:        address2,
 		Cert:           nil,
 		DisableTimeout: true,
@@ -174,7 +166,7 @@ func TestConnectionManager_DisconnectAll(t *testing.T) {
 		t.Errorf("Unable to call connnect: %+v", err)
 	}
 
-	_, inMap = manager.connections[id2]
+	_, inMap = manager.connections[host.GetId()]
 
 	if !inMap {
 		t.Errorf("Connect Function didn't add connection to map")
@@ -210,19 +202,18 @@ func TestConnectionManager_String(t *testing.T) {
 	t.Log(cm)
 	certPath := testkeys.GetNodeCertPath()
 	certData := testkeys.LoadFromPath(certPath)
-	id := "420"
 	// Initialize the connection object
 	conn := &connection{}
-	err := conn.setCredentials(&Host{
-		Id:             id,
+	host := &Host{
 		Address:        "420",
 		Cert:           certData,
 		DisableTimeout: true,
-	})
+	}
+	err := conn.setCredentials(host)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
-	cm.connections[id] = conn
+	cm.connections[host.GetId()] = conn
 	t.Log(cm)
 }
 

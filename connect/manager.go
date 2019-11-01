@@ -46,17 +46,20 @@ func (m *Manager) GetPrivateKey() *rsa.PrivateKey {
 
 // Gets a connection object from the Manager
 // Or creates and returns a new one if it does not already exist
-func (m *Manager) ObtainConnection(connInfo *Host) (*connection, error) {
+func (m *Manager) ObtainConnection(host *Host) (*connection, error) {
+	// Create the connection ID
+	id := host.GetId()
+
 	// If the connection does not already exist, create a new connection
-	conn, ok := m.connections[connInfo.Id]
+	conn, ok := m.connections[id]
 	if !ok {
 		jww.INFO.Printf("Connection %s does not exist, creating...",
-			connInfo.Id)
-		err := m.createConnection(connInfo)
+			id)
+		err := m.createConnection(host)
 		if err != nil {
 			return nil, err
 		}
-		conn, ok = m.connections[connInfo.Id]
+		conn, ok = m.connections[id]
 	}
 
 	// Verify the connection is still good
@@ -64,13 +67,14 @@ func (m *Manager) ObtainConnection(connInfo *Host) (*connection, error) {
 		// If not, attempt to reestablish the connection
 		jww.WARN.Printf("Bad connection state, reconnecting: %v",
 			conn.Connection)
-		m.Disconnect(connInfo.Id)
-		err := m.createConnection(connInfo)
+		m.Disconnect(id)
+		err := m.createConnection(host)
 		if err != nil {
 			return nil, err
 		}
-		conn, ok = m.connections[connInfo.Id]
+		conn, ok = m.connections[id]
 	}
+
 	return conn, nil
 }
 
@@ -115,7 +119,7 @@ func (m *Manager) createConnection(host *Host) (err error) {
 
 	// Add the connection to the manager
 	m.lock.Lock()
-	m.connections[host.Id] = conn
+	m.connections[host.GetId()] = conn
 	m.lock.Unlock()
 	return
 }

@@ -33,13 +33,11 @@ func (s *NodeComms) DownloadTopology(ctx context.Context,
 
 	// fixme: this has got to be bad, we need to review this...
 	go func() {
-		conn, err := s.Manager.ObtainConnection(&connect.
-			Host{
-			Id: msg.ID,
-		})
+		conn, err := s.Manager.ObtainConnection(&connect.Host{Id: msg.ID})
 		if err != nil {
 			jww.ERROR.Printf("Unable to obtain connection: %+v",
 				errors.New(err.Error()))
+			return
 		}
 
 		// Unmarshal message to its original type

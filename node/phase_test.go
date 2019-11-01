@@ -60,7 +60,6 @@ func TestPhase_StreamPostPhaseSendReceive(t *testing.T) {
 	}
 
 	streamClient, cancel, err := serverStreamSender.GetPostPhaseStreamClient(&connect.Host{
-		Id:             "sender2receiver",
 		Address:        servReceiverAddress,
 		Cert:           certData,
 		DisableTimeout: false,
@@ -140,7 +139,6 @@ func TestGetPostPhaseStream_ErrorsWhenContextCanceled(t *testing.T) {
 	cancel()
 
 	_, err := serverStreamSender.getPostPhaseStream(&connect.Host{
-		Id:             "sender2receiver",
 		Address:        servReceiverAddress,
 		Cert:           certData,
 		DisableTimeout: false,

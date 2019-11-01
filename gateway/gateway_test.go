@@ -57,7 +57,6 @@ func TestTLS(t *testing.T) {
 	defer server.Shutdown()
 
 	err := gateway.PostNewBatch(&connect.Host{
-		Id:             "gatewayToServer",
 		Address:        ServerAddress,
 		Cert:           certData,
 		DisableTimeout: false,

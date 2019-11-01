@@ -24,7 +24,6 @@ func TestSendNodeRegistration(t *testing.T) {
 
 	msgs := &pb.NodeRegistration{}
 	err := server.SendNodeRegistration(&connect.Host{
-		Id:             "serverToPermissioning",
 		Address:        RegAddress,
 		Cert:           nil,
 		DisableTimeout: false,

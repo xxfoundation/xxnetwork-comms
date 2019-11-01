@@ -31,7 +31,6 @@ func TestSendNodeTopology(t *testing.T) {
 	defer reg.Shutdown()
 	msgs := &pb.NodeTopology{}
 	err := reg.SendNodeTopology(&connect.Host{
-		Id:             "permissioningToServer",
 		Address:        ServerAddress,
 		Cert:           nil,
 		DisableTimeout: false,
@@ -53,7 +52,6 @@ func TestSendNodeTopologyNilKey(t *testing.T) {
 	defer reg.Shutdown()
 	msgs := &pb.NodeTopology{}
 	err := reg.SendNodeTopology(&connect.Host{
-		Id:             "permissioningToServer",
 		Address:        ServerAddress,
 		Cert:           nil,
 		DisableTimeout: false,
@@ -75,7 +73,6 @@ func TestSendNodeTopologyBadMessageError(t *testing.T) {
 	defer reg.Shutdown()
 
 	err := reg.SendNodeTopology(&connect.Host{
-		Id:             "permissioningToServer",
 		Address:        ServerAddress,
 		Cert:           nil,
 		DisableTimeout: false,
@@ -96,7 +93,6 @@ func TestSendNodeTopologyNilMessage(t *testing.T) {
 	defer server.Shutdown()
 	defer reg.Shutdown()
 	err := reg.SendNodeTopology(&connect.Host{
-		Id:             "permissioningToServer",
 		Address:        ServerAddress,
 		Cert:           nil,
 		DisableTimeout: false,
@@ -119,7 +115,6 @@ func TestSendNodeTopologyBadSignature(t *testing.T) {
 
 	msgs := &pb.NodeTopology{}
 	err := reg.SendNodeTopology(&connect.Host{
-		Id:             "permissioningToServer",
 		Address:        ServerAddress,
 		Cert:           nil,
 		DisableTimeout: false,

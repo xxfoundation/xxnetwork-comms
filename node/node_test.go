@@ -44,7 +44,6 @@ func TestTLS(t *testing.T) {
 	defer server.Shutdown()
 	defer server2.Shutdown()
 	_, err := server2.SendAskOnline(&connect.Host{
-		Id:             "server2toserver",
 		Address:        serverAddress,
 		Cert:           certData,
 		DisableTimeout: false,

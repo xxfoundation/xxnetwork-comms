@@ -20,7 +20,6 @@ func TestSendAskOnline(t *testing.T) {
 	server := StartNode(ServerAddress, NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	_, err := server.SendAskOnline(&connect.Host{
-		Id:             "connection35",
 		Address:        ServerAddress,
 		Cert:           nil,
 		DisableTimeout: false,
@@ -36,7 +35,6 @@ func TestSendFinishRealtime(t *testing.T) {
 	server := StartNode(ServerAddress, NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	_, err := server.SendFinishRealtime(&connect.Host{
-		Id:             "node2node",
 		Address:        ServerAddress,
 		Cert:           nil,
 		DisableTimeout: false,
@@ -52,7 +50,6 @@ func TestSendNewRound(t *testing.T) {
 	server := StartNode(ServerAddress, NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	_, err := server.SendNewRound(&connect.Host{
-		Id:             "connection35",
 		Address:        ServerAddress,
 		Cert:           nil,
 		DisableTimeout: false,
@@ -68,7 +65,6 @@ func TestSendPostPhase(t *testing.T) {
 	server := StartNode(ServerAddress, NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	_, err := server.SendPostPhase(&connect.Host{
-		Id:             "connection35",
 		Address:        ServerAddress,
 		Cert:           nil,
 		DisableTimeout: false,
@@ -84,7 +80,6 @@ func TestSendPostRoundPublicKey(t *testing.T) {
 	server := StartNode(ServerAddress, NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	_, err := server.SendPostRoundPublicKey(&connect.Host{
-		Id:             "connection35",
 		Address:        ServerAddress,
 		Cert:           nil,
 		DisableTimeout: false,
@@ -101,7 +96,6 @@ func TestSendPostPrecompResult(t *testing.T) {
 	defer server.Shutdown()
 	slots := make([]*pb.Slot, 0)
 	_, err := server.SendPostPrecompResult(&connect.Host{
-		Id:             "connection35",
 		Address:        ServerAddress,
 		Cert:           nil,
 		DisableTimeout: false,
@@ -130,7 +124,6 @@ func TestSendGetMeasure(t *testing.T) {
 		ID: uint64(3),
 	}
 	_, err := server.SendGetMeasure(&connect.Host{
-		Id:             "connection35",
 		Address:        ServerAddress,
 		Cert:           nil,
 		DisableTimeout: false,
@@ -157,7 +150,6 @@ func TestSendGetMeasureError(t *testing.T) {
 		ID: uint64(3),
 	}
 	_, err := server.SendGetMeasure(&connect.Host{
-		Id:             "connection35",
 		Address:        ServerAddress,
 		Cert:           nil,
 		DisableTimeout: false,
@@ -179,7 +171,6 @@ func TestRoundTripPing(t *testing.T) {
 	}
 
 	_, err = server.RoundTripPing(&connect.Host{
-		Id:             "mock_id",
 		Address:        ServerAddress,
 		Cert:           nil,
 		DisableTimeout: false,

@@ -40,7 +40,6 @@ func TestTLS(t *testing.T) {
 	defer rg.Shutdown()
 	var c client.ClientComms
 	_, err := c.SendRegistrationMessage(&connect.Host{
-		Id:             "clientToRegistration",
 		Address:        RegAddress,
 		Cert:           certData,
 		DisableTimeout: false,

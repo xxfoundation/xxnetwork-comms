@@ -23,6 +23,7 @@ import (
 // Information used to describe a connection to a host
 type Host struct {
 	// ID used to identify the connection
+	// TODO: Must be removed after changes to DownloadTopology
 	Id string
 
 	// Address:Port being connected to
@@ -48,6 +49,14 @@ type connection struct {
 
 	// RSA Public Key corresponding to the TLS Certificate
 	RsaPublicKey *rsa.PublicKey
+}
+
+// Gets the ID identifying the Host
+func (h *Host) GetId() string {
+	if h.Id != "" {
+		return h.Id
+	}
+	return h.Address + string(h.Cert)
 }
 
 // Returns true if the connection is non-nil and alive
