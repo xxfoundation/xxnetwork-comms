@@ -29,7 +29,6 @@ func (c *ClientComms) SendPutMessage(id fmt.Stringer,
 	// Make sure there are no errors with sending the message
 	if err != nil {
 		err = errors.New(err.Error())
-		jww.ERROR.Printf("PutMessage: Error received: %+v", err)
 	}
 
 	cancel()
@@ -49,7 +48,6 @@ func (c *ClientComms) SendCheckMessages(id fmt.Stringer,
 	// Make sure there are no errors with sending the message
 	if err != nil {
 		err = errors.New(err.Error())
-		jww.ERROR.Printf("CheckMessages: Error received: %+v", err)
 	}
 
 	cancel()
@@ -69,7 +67,6 @@ func (c *ClientComms) SendGetMessage(id fmt.Stringer,
 	// Make sure there are no errors with sending the message
 	if err != nil {
 		err = errors.New(err.Error())
-		jww.ERROR.Printf("GetMessage: Error received: %+v", err)
 	}
 
 	cancel()
@@ -96,8 +93,6 @@ func (c *ClientComms) SendRequestNonceMessage(id fmt.Stringer,
 	// Handle logic errors
 	errMsg := response.GetError()
 	if errMsg != "" {
-		jww.ERROR.Printf("RequestNonceMessage: Error received: %s",
-			errMsg)
 		err = errors.New(errMsg)
 	}
 
@@ -126,8 +121,6 @@ func (c *ClientComms) SendConfirmNonceMessage(id fmt.Stringer,
 	// Handle logic errors
 	errMsg := response.GetError()
 	if errMsg != "" {
-		jww.ERROR.Printf("ConfirmNonceMessage: Error received: %s",
-			errMsg)
 		err = errors.New(errMsg)
 	}
 
