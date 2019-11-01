@@ -17,8 +17,7 @@ import (
 )
 
 // Send a message to the gateway
-func (c *ClientComms) SendPutMessage(id fmt.Stringer,
-	message *pb.Slot) error {
+func (c *ClientComms) SendPutMessage(id fmt.Stringer, message *pb.Slot) error {
 	// Attempt to connect to addr
 	connection := c.GetGatewayConnection(id)
 	ctx, cancel := connect.MessagingContext()

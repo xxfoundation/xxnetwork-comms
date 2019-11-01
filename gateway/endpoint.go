@@ -82,9 +82,9 @@ func (g *GatewayComms) PutMessage(ctx context.Context, msg *pb.Slot) (*pb.Ack,
 	}
 
 	// Upload a message to the cMix Gateway at the peer's IP address
-	g.handler.PutMessage(msg, ipAddress)
+	err = g.handler.PutMessage(msg, ipAddress)
 
-	return &pb.Ack{}, nil
+	return &pb.Ack{}, err
 }
 
 // Pass-through for Registration Nonce Communication
