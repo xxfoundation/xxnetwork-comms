@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+// Copyright © 2018 Privategrity Corporation                                   /
+//                                                                             /
+// All rights reserved.                                                        /
+////////////////////////////////////////////////////////////////////////////////
+
+// Contains functionality for managing connections
+
 package connect
 
 import (
@@ -6,11 +14,9 @@ import (
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/crypto/signature/rsa"
-	"golang.org/x/net/context"
 	"math"
 	"sort"
 	"sync"
-	"time"
 )
 
 // Default maximum number of retries
@@ -173,31 +179,4 @@ func (m *Manager) String() string {
 	}
 
 	return result.String()
-}
-
-// TimeoutContext is a context with the default timeout
-func ConnectionContext(seconds time.Duration) (context.Context, context.CancelFunc) {
-	waitingPeriod := seconds * time.Second
-	jww.DEBUG.Printf("Timing out in: %s", waitingPeriod)
-	ctx, cancel := context.WithTimeout(context.Background(),
-		waitingPeriod)
-	return ctx, cancel
-
-}
-
-// DefaultContexts creates a context object with the default context
-// for all client messages. This is primarily used to set the default
-// timeout for all clients
-func MessagingContext() (context.Context, context.CancelFunc) {
-	ctx, cancel := context.WithTimeout(context.Background(),
-		2*time.Minute)
-	return ctx, cancel
-}
-
-// StreamingContext creates a context object with the default context
-// for all client streaming messages. This is primarily used to
-// allow a cancel option for clients and is suitable for unary streaming.
-func StreamingContext() (context.Context, context.CancelFunc) {
-	ctx, cancel := context.WithCancel(context.Background())
-	return ctx, cancel
 }

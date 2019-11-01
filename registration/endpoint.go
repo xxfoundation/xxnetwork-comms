@@ -11,10 +11,9 @@ package registration
 import (
 	"fmt"
 	"github.com/pkg/errors"
+	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"golang.org/x/net/context"
-	"google.golang.org/grpc/peer"
-	"net"
 )
 
 // RegisterUser event handler which registers a user with the platform
@@ -54,8 +53,7 @@ func (r *RegistrationComms) GetCurrentClientVersion(ctx context.Context, msg *pb
 func (r *RegistrationComms) RegisterNode(ctx context.Context, msg *pb.NodeRegistration) (
 	*pb.Ack, error) {
 	// Obtain peer IP address
-	info, _ := peer.FromContext(ctx)
-	host, _, err := net.SplitHostPort(info.Addr.String())
+	host, _, err := connect.GetAddressFromContext(ctx)
 	if err != nil {
 		return &pb.Ack{}, err
 	}

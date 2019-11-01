@@ -4,7 +4,7 @@
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
 
-// Contains functionality for connecting to gateways and servers
+// Contains functionality for describing and creating connections
 
 package connect
 
