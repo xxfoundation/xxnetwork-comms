@@ -17,7 +17,7 @@ import (
 )
 
 // Server -> Server Send Function
-func (s *NodeComms) SendGetMeasure(connInfo *connect.Host,
+func (s *Comms) SendGetMeasure(connInfo *connect.Host,
 	message *pb.RoundInfo) (*pb.RoundMetrics, error) {
 
 	// Obtain the connection
@@ -43,7 +43,7 @@ func (s *NodeComms) SendGetMeasure(connInfo *connect.Host,
 }
 
 // Server -> Server Send Function
-func (s *NodeComms) SendAskOnline(connInfo *connect.Host,
+func (s *Comms) SendAskOnline(connInfo *connect.Host,
 	message *pb.Ping) (*pb.Ack, error) {
 
 	// Obtain the connection
@@ -67,7 +67,7 @@ func (s *NodeComms) SendAskOnline(connInfo *connect.Host,
 }
 
 // Server -> Server Send Function
-func (s *NodeComms) SendFinishRealtime(connInfo *connect.Host,
+func (s *Comms) SendFinishRealtime(connInfo *connect.Host,
 	message *pb.RoundInfo) (*pb.Ack, error) {
 
 	// Obtain the connection
@@ -92,7 +92,7 @@ func (s *NodeComms) SendFinishRealtime(connInfo *connect.Host,
 }
 
 // Server -> Server Send Function
-func (s *NodeComms) SendNewRound(connInfo *connect.Host,
+func (s *Comms) SendNewRound(connInfo *connect.Host,
 	message *pb.RoundInfo) (*pb.Ack, error) {
 
 	// Obtain the connection
@@ -116,7 +116,7 @@ func (s *NodeComms) SendNewRound(connInfo *connect.Host,
 }
 
 // Server -> Server Send Function
-func (s *NodeComms) SendPostRoundPublicKey(connInfo *connect.Host,
+func (s *Comms) SendPostRoundPublicKey(connInfo *connect.Host,
 	message *pb.RoundPublicKey) (*pb.Ack, error) {
 
 	// Obtain the connection
@@ -140,7 +140,7 @@ func (s *NodeComms) SendPostRoundPublicKey(connInfo *connect.Host,
 }
 
 // Server -> Server Send Function
-func (s *NodeComms) SendPostPrecompResult(connInfo *connect.Host,
+func (s *Comms) SendPostPrecompResult(connInfo *connect.Host,
 	roundID uint64, slots []*pb.Slot) (*pb.Ack, error) {
 
 	// Obtain the connection
@@ -170,7 +170,7 @@ func (s *NodeComms) SendPostPrecompResult(connInfo *connect.Host,
 }
 
 // Server -> Server Send Function
-func (s *NodeComms) RoundTripPing(connInfo *connect.Host,
+func (s *Comms) RoundTripPing(connInfo *connect.Host,
 	roundID uint64, payload *any.Any) (*pb.Ack, error) {
 
 	// Obtain the connection

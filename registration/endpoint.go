@@ -17,7 +17,7 @@ import (
 )
 
 // RegisterUser event handler which registers a user with the platform
-func (r *RegistrationComms) RegisterUser(ctx context.Context, msg *pb.UserRegistration) (
+func (r *Comms) RegisterUser(ctx context.Context, msg *pb.UserRegistration) (
 	*pb.UserRegistrationConfirmation, error) {
 	// Obtain the signed key by passing to registration server
 	pubKey := msg.GetClientRSAPubKey()
@@ -40,7 +40,7 @@ func (r *RegistrationComms) RegisterUser(ctx context.Context, msg *pb.UserRegist
 
 // CheckClientVersion event handler which checks whether the client library
 // version is compatible with the network
-func (r *RegistrationComms) GetCurrentClientVersion(ctx context.Context, msg *pb.Ping) (*pb.ClientVersion, error) {
+func (r *Comms) GetCurrentClientVersion(ctx context.Context, msg *pb.Ping) (*pb.ClientVersion, error) {
 	version, err := r.handler.GetCurrentClientVersion()
 
 	// Return the confirmation message
@@ -50,7 +50,7 @@ func (r *RegistrationComms) GetCurrentClientVersion(ctx context.Context, msg *pb
 }
 
 // Handle a node registration event
-func (r *RegistrationComms) RegisterNode(ctx context.Context, msg *pb.NodeRegistration) (
+func (r *Comms) RegisterNode(ctx context.Context, msg *pb.NodeRegistration) (
 	*pb.Ack, error) {
 	// Obtain peer IP address
 	host, _, err := connect.GetAddressFromContext(ctx)
@@ -67,7 +67,7 @@ func (r *RegistrationComms) RegisterNode(ctx context.Context, msg *pb.NodeRegist
 }
 
 //GetUpdatedNDF event handler handles a client's request for a new ndf on the permissioning server
-func (r *RegistrationComms) GetUpdatedNDF(ctx context.Context, msg *pb.NDFHash) (*pb.NDF, error) {
+func (r *Comms) GetUpdatedNDF(ctx context.Context, msg *pb.NDFHash) (*pb.NDF, error) {
 	newNDF, err := r.handler.GetUpdatedNDF(msg.Hash)
 	//Return the new ndf
 	return &pb.NDF{Ndf: newNDF}, err

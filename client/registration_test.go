@@ -19,7 +19,7 @@ func TestSendRegistrationMessage(t *testing.T) {
 	rg := registration.StartRegistrationServer(GatewayAddress,
 		registration.NewImplementation(), nil, nil)
 	defer rg.Shutdown()
-	var c ClientComms
+	var c Comms
 
 	_, err := c.SendRegistrationMessage(&connect.Host{
 		Address:        GatewayAddress,
@@ -37,7 +37,7 @@ func TestSendCheckClientVersionMessage(t *testing.T) {
 	rg := registration.StartRegistrationServer(GatewayAddress,
 		registration.NewImplementation(), nil, nil)
 	defer rg.Shutdown()
-	var c ClientComms
+	var c Comms
 
 	_, err := c.SendGetCurrentClientVersionMessage(&connect.Host{
 		Address:        GatewayAddress,
@@ -55,7 +55,7 @@ func TestSendGetUpdatedNDF(t *testing.T) {
 	rg := registration.StartRegistrationServer(GatewayAddress,
 		registration.NewImplementation(), nil, nil)
 	defer rg.Shutdown()
-	var c ClientComms
+	var c Comms
 
 	_, err := c.SendGetUpdatedNDF(&connect.Host{
 		Address:        GatewayAddress,

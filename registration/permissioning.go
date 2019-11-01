@@ -13,7 +13,7 @@ import (
 )
 
 // Permissioning -> Server Send Function
-func (r *RegistrationComms) SendNodeTopology(connInfo *connect.Host,
+func (r *Comms) SendNodeTopology(connInfo *connect.Host,
 	message *pb.NodeTopology) error {
 
 	// Obtain the connection

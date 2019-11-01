@@ -24,7 +24,7 @@ import (
 
 // Gateway object contains a gRPC server and a connection manager for outgoing
 // connections
-type GatewayComms struct {
+type Comms struct {
 	connect.Manager
 	gs      *grpc.Server
 	handler Handler
@@ -32,7 +32,7 @@ type GatewayComms struct {
 
 // Performs a graceful shutdown of the gateway
 // TODO Close all connections in the manager
-func (g *GatewayComms) Shutdown() {
+func (g *Comms) Shutdown() {
 	g.DisconnectAll()
 	g.gs.GracefulStop()
 	time.Sleep(time.Millisecond * 500)
@@ -42,7 +42,7 @@ func (g *GatewayComms) Shutdown() {
 // and a callback interface for gateway operations
 // with given path to public and private key for TLS connection
 func StartGateway(localServer string, handler Handler,
-	certPEMblock, keyPEMblock []byte) *GatewayComms {
+	certPEMblock, keyPEMblock []byte) *Comms {
 	var grpcServer *grpc.Server
 
 	// Listen on the given address
@@ -77,7 +77,7 @@ func StartGateway(localServer string, handler Handler,
 			grpc.MaxRecvMsgSize(33554432)) // 32 MiB
 
 	}
-	gatewayServer := GatewayComms{
+	gatewayServer := Comms{
 		gs:      grpcServer,
 		handler: handler,
 	}

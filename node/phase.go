@@ -19,7 +19,7 @@ import (
 )
 
 // Server -> Server Send Function
-func (s *NodeComms) SendPostPhase(connInfo *connect.Host,
+func (s *Comms) SendPostPhase(connInfo *connect.Host,
 	message *pb.Batch) (*pb.Ack, error) {
 
 	// Obtain the connection
@@ -45,7 +45,7 @@ func (s *NodeComms) SendPostPhase(connInfo *connect.Host,
 // GetPostPhaseStreamClient gets the streaming client
 // using a header and returns the stream and the cancel context
 // if there are no connection errors
-func (s *NodeComms) GetPostPhaseStreamClient(connInfo *connect.Host,
+func (s *Comms) GetPostPhaseStreamClient(connInfo *connect.Host,
 	header pb.BatchInfo) (pb.Node_StreamPostPhaseClient, context.CancelFunc, error) {
 
 	ctx, cancel := s.getPostPhaseStreamContext(header)
@@ -60,7 +60,7 @@ func (s *NodeComms) GetPostPhaseStreamClient(connInfo *connect.Host,
 // getPostPhaseStreamContext is given batchInfo PostPhase header
 // and creates a streaming context, adds the header to the context
 // and returns the context with the header and a cancel func
-func (s *NodeComms) getPostPhaseStreamContext(batchInfo pb.BatchInfo) (
+func (s *Comms) getPostPhaseStreamContext(batchInfo pb.BatchInfo) (
 	context.Context, context.CancelFunc) {
 
 	// Create streaming context so you can close stream later
@@ -76,7 +76,7 @@ func (s *NodeComms) getPostPhaseStreamContext(batchInfo pb.BatchInfo) (
 // getPostPhaseStream uses an id and streaming context to retrieve
 // a Node_StreamPostPhaseClient object otherwise it returns
 // an error if the connection is unavailable
-func (s *NodeComms) getPostPhaseStream(connInfo *connect.Host,
+func (s *Comms) getPostPhaseStream(connInfo *connect.Host,
 	ctx context.Context) (pb.Node_StreamPostPhaseClient, error) {
 
 	// Obtain the connection

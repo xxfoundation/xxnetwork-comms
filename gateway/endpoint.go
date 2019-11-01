@@ -16,7 +16,7 @@ import (
 )
 
 // Sends new MessageIDs in the buffer to a client
-func (g *GatewayComms) CheckMessages(ctx context.Context,
+func (g *Comms) CheckMessages(ctx context.Context,
 	msg *pb.ClientRequest) (*pb.IDList, error) {
 
 	// Get peer information from context
@@ -35,7 +35,7 @@ func (g *GatewayComms) CheckMessages(ctx context.Context,
 }
 
 // Sends a message matching the given parameters to a client
-func (g *GatewayComms) GetMessage(ctx context.Context, msg *pb.ClientRequest) (
+func (g *Comms) GetMessage(ctx context.Context, msg *pb.ClientRequest) (
 	*pb.Slot, error) {
 
 	// Get peer information from context
@@ -54,7 +54,7 @@ func (g *GatewayComms) GetMessage(ctx context.Context, msg *pb.ClientRequest) (
 }
 
 // Receives a single message from a client
-func (g *GatewayComms) PutMessage(ctx context.Context, msg *pb.Slot) (*pb.Ack,
+func (g *Comms) PutMessage(ctx context.Context, msg *pb.Slot) (*pb.Ack,
 	error) {
 
 	// Get peer information from context
@@ -70,7 +70,7 @@ func (g *GatewayComms) PutMessage(ctx context.Context, msg *pb.Slot) (*pb.Ack,
 }
 
 // Pass-through for Registration Nonce Communication
-func (g *GatewayComms) RequestNonce(ctx context.Context,
+func (g *Comms) RequestNonce(ctx context.Context,
 	msg *pb.NonceRequest) (*pb.Nonce, error) {
 
 	// Get peer information from context
@@ -83,7 +83,7 @@ func (g *GatewayComms) RequestNonce(ctx context.Context,
 }
 
 // Pass-through for Registration Nonce Confirmation
-func (g *GatewayComms) ConfirmNonce(ctx context.Context,
+func (g *Comms) ConfirmNonce(ctx context.Context,
 	msg *pb.RequestRegistrationConfirmation) (*pb.RegistrationConfirmation,
 	error) {
 

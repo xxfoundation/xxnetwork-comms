@@ -12,7 +12,7 @@ import (
 )
 
 // Server -> Registration Send Function
-func (s *NodeComms) SendNodeRegistration(connInfo *connect.Host,
+func (s *Comms) SendNodeRegistration(connInfo *connect.Host,
 	message *pb.NodeRegistration) error {
 
 	// Obtain the connection

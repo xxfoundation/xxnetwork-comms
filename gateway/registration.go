@@ -15,7 +15,7 @@ import (
 )
 
 // Gateway -> Server Send Function
-func (g *GatewayComms) SendRequestNonceMessage(connInfo *connect.Host,
+func (g *Comms) SendRequestNonceMessage(connInfo *connect.Host,
 	message *pb.NonceRequest) (*pb.Nonce, error) {
 
 	// Obtain the connection
@@ -38,7 +38,7 @@ func (g *GatewayComms) SendRequestNonceMessage(connInfo *connect.Host,
 }
 
 // Gateway -> Server Send Function
-func (g *GatewayComms) SendConfirmNonceMessage(connInfo *connect.Host,
+func (g *Comms) SendConfirmNonceMessage(connInfo *connect.Host,
 	message *pb.RequestRegistrationConfirmation) (
 	*pb.RegistrationConfirmation, error) {
 
@@ -62,7 +62,7 @@ func (g *GatewayComms) SendConfirmNonceMessage(connInfo *connect.Host,
 }
 
 // Gateway -> Server Send Function
-func (g *GatewayComms) PollSignedCerts(connInfo *connect.Host,
+func (g *Comms) PollSignedCerts(connInfo *connect.Host,
 	message *pb.Ping) (*pb.SignedCerts, error) {
 
 	// Obtain the connection
