@@ -19,8 +19,9 @@ func TestDownloadTopology(t *testing.T) {
 
 	a, _ := ptypes.MarshalAny(&wrapped)
 
+	id := "Permissioning"
 	msg := mixmessages.SignedMessage{
-		ID:        "Permissioning",
+		ID:        id,
 		Signature: []byte("test"),
 		Message:   a,
 	}
@@ -41,6 +42,7 @@ func TestDownloadTopology(t *testing.T) {
 
 	_, err := server.Manager.ObtainConnection(&connect.
 		Host{
+		Id:             id,
 		Address:        RegAddress,
 		Cert:           certData,
 		DisableTimeout: false,

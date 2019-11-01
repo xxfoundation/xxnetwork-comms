@@ -16,7 +16,7 @@ import (
 	"time"
 )
 
-// TimeoutContext is a context with the default timeout
+// Used for creating connections with the default timeout
 func ConnectionContext(seconds time.Duration) (context.Context, context.CancelFunc) {
 	waitingPeriod := seconds * time.Second
 	jww.DEBUG.Printf("Timing out in: %s", waitingPeriod)
@@ -26,16 +26,14 @@ func ConnectionContext(seconds time.Duration) (context.Context, context.CancelFu
 
 }
 
-// DefaultContexts creates a context object with the default context
-// for all client messages. This is primarily used to set the default
-// timeout for all clients
+// Used for sending messages with the default timeout
 func MessagingContext() (context.Context, context.CancelFunc) {
 	ctx, cancel := context.WithTimeout(context.Background(),
 		2*time.Minute)
 	return ctx, cancel
 }
 
-// StreamingContext creates a context object with the default context
+// Creates a context object with the default context
 // for all client streaming messages. This is primarily used to
 // allow a cancel option for clients and is suitable for unary streaming.
 func StreamingContext() (context.Context, context.CancelFunc) {

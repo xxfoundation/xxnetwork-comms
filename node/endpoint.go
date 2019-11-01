@@ -45,7 +45,7 @@ func (s *Comms) DownloadTopology(ctx context.Context,
 		err = ptypes.UnmarshalAny(msg.Message, &original)
 		if err != nil {
 			jww.ERROR.Printf("Failed to unmarshal generic message, "+
-				"check your input me ssage type: %+v", errors.New(err.Error()))
+				"check your input message type: %+v", errors.New(err.Error()))
 			return
 		}
 
