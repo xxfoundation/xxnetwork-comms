@@ -9,77 +9,98 @@
 package gateway
 
 import (
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
+	"google.golang.org/grpc"
 )
 
 // Gateway -> Server Send Function
-func (g *Comms) SendRequestNonceMessage(connInfo *connect.Host,
+func (g *Comms) SendRequestNonceMessage(host *connect.Host,
 	message *pb.NonceRequest) (*pb.Nonce, error) {
 
-	// Obtain the connection
-	conn, err := g.ObtainConnection(connInfo)
+	// Create the Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := connect.MessagingContext()
+		defer cancel()
+
+		// Send the message
+		resultMsg, err := pb.NewNodeClient(conn).RequestNonce(ctx, message)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+		return ptypes.MarshalAny(resultMsg)
+	}
+
+	// Execute the Send function
+	resultMsg, err := host.Send(f)
 	if err != nil {
 		return nil, err
 	}
 
-	// Set up the context
-	ctx, cancel := connect.MessagingContext()
-	defer cancel()
-
-	// Send the message
-	response, err := pb.NewNodeClient(conn.Connection).RequestNonce(ctx, message)
-	if err != nil {
-		err = errors.New(err.Error())
-	}
-
-	return response, err
+	// Marshall the result
+	result := &pb.Nonce{}
+	return result, ptypes.UnmarshalAny(resultMsg, result)
 }
 
 // Gateway -> Server Send Function
-func (g *Comms) SendConfirmNonceMessage(connInfo *connect.Host,
+func (g *Comms) SendConfirmNonceMessage(host *connect.Host,
 	message *pb.RequestRegistrationConfirmation) (
 	*pb.RegistrationConfirmation, error) {
 
-	// Obtain the connection
-	conn, err := g.ObtainConnection(connInfo)
+	// Create the Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := connect.MessagingContext()
+		defer cancel()
+
+		// Send the message
+		resultMsg, err := pb.NewNodeClient(conn).ConfirmRegistration(ctx, message)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+		return ptypes.MarshalAny(resultMsg)
+	}
+
+	// Execute the Send function
+	resultMsg, err := host.Send(f)
 	if err != nil {
 		return nil, err
 	}
 
-	// Set up the context
-	ctx, cancel := connect.MessagingContext()
-	defer cancel()
-
-	// Send the message
-	response, err := pb.NewNodeClient(conn.Connection).ConfirmRegistration(ctx, message)
-	if err != nil {
-		err = errors.New(err.Error())
-	}
-
-	return response, err
+	// Marshall the result
+	result := &pb.RegistrationConfirmation{}
+	return result, ptypes.UnmarshalAny(resultMsg, result)
 }
 
 // Gateway -> Server Send Function
-func (g *Comms) PollSignedCerts(connInfo *connect.Host,
+func (g *Comms) PollSignedCerts(host *connect.Host,
 	message *pb.Ping) (*pb.SignedCerts, error) {
 
-	// Obtain the connection
-	conn, err := g.ObtainConnection(connInfo)
+	// Create the Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := connect.MessagingContext()
+		defer cancel()
+
+		// Send the message
+		resultMsg, err := pb.NewNodeClient(conn).GetSignedCert(ctx, message)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+		return ptypes.MarshalAny(resultMsg)
+	}
+
+	// Execute the Send function
+	resultMsg, err := host.Send(f)
 	if err != nil {
 		return nil, err
 	}
 
-	// Set up the context
-	ctx, cancel := connect.MessagingContext()
-	defer cancel()
-
-	// Send the message
-	response, err := pb.NewNodeClient(conn.Connection).GetSignedCert(ctx, message)
-	if err != nil {
-		return nil, err
-	}
-
-	return response, nil
+	// Marshall the result
+	result := &pb.SignedCerts{}
+	return result, ptypes.UnmarshalAny(resultMsg, result)
 }

@@ -9,31 +9,33 @@
 package gateway
 
 import (
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
+	"google.golang.org/grpc"
 )
 
 // Gateway -> Server Send Function
-func (g *Comms) PostNewBatch(connInfo *connect.Host,
-	messages *pb.Batch) error {
+func (g *Comms) PostNewBatch(host *connect.Host, messages *pb.Batch) error {
 
-	// Obtain the connection
-	conn, err := g.ObtainConnection(connInfo)
-	if err != nil {
-		return err
+	// Create the Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := connect.MessagingContext()
+		defer cancel()
+
+		// Send the message
+		_, err := pb.NewNodeClient(conn).PostNewBatch(ctx, messages)
+		if err != nil {
+			err = errors.New(err.Error())
+		}
+		return nil, err
 	}
 
-	// Set up the context
-	ctx, cancel := connect.MessagingContext()
-	defer cancel()
-
-	// Send the message
-	_, err = pb.NewNodeClient(conn.Connection).PostNewBatch(ctx, messages)
-	if err != nil {
-		err = errors.New(err.Error())
-	}
-
+	// Execute the Send function
+	_, err := host.Send(f)
 	return err
 }
 
@@ -41,53 +43,59 @@ func (g *Comms) PostNewBatch(connInfo *connect.Host,
 // many rounds have gone through precomputation.
 // Note that this function should block if the buffer size is 0
 // This allows the caller to continuously poll without spinning too much.
-func (g *Comms) GetRoundBufferInfo(
-	connInfo *connect.Host) (int, error) {
+func (g *Comms) GetRoundBufferInfo(host *connect.Host) (*pb.RoundBufferInfo, error) {
 
-	// Initialize bufSize
-	bufSize := 0
+	// Create the Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := connect.MessagingContext()
+		defer cancel()
 
-	// Obtain the connection
-	conn, err := g.ObtainConnection(connInfo)
-	if err != nil {
-		return bufSize, err
+		// Send the message
+		resultMsg, err := pb.NewNodeClient(conn).GetRoundBufferInfo(ctx,
+			&pb.RoundBufferInfo{})
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+		return ptypes.MarshalAny(resultMsg)
 	}
 
-	// Set up the context
-	ctx, cancel := connect.MessagingContext()
-	defer cancel()
-
-	// Send the message
-	bufInfo, err := pb.NewNodeClient(
-		conn.Connection).GetRoundBufferInfo(ctx, &pb.RoundBufferInfo{})
-	if err != nil {
-		err = errors.New(err.Error())
-	} else {
-		bufSize = int(bufInfo.RoundBufferSize)
-	}
-
-	return bufSize, err
-}
-
-// Gateway -> Server Send Function
-func (g *Comms) GetCompletedBatch(
-	connInfo *connect.Host) (*pb.Batch, error) {
-
-	// Obtain the connection
-	conn, err := g.ObtainConnection(connInfo)
+	// Execute the Send function
+	resultMsg, err := host.Send(f)
 	if err != nil {
 		return nil, err
 	}
 
-	// Set up the context
-	ctx, cancel := connect.MessagingContext()
-	defer cancel()
+	// Marshall the result
+	result := &pb.RoundBufferInfo{}
+	return result, ptypes.UnmarshalAny(resultMsg, result)
+}
 
-	// Send the message
-	batch, err := pb.NewNodeClient(conn.Connection).GetCompletedBatch(ctx, &pb.Ping{})
-	if err != nil {
-		err = errors.New(err.Error())
+// Gateway -> Server Send Function
+func (g *Comms) GetCompletedBatch(host *connect.Host) (*pb.Batch, error) {
+
+	// Create the Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := connect.MessagingContext()
+		defer cancel()
+
+		// Send the message
+		resultMsg, err := pb.NewNodeClient(conn).GetCompletedBatch(ctx,
+			&pb.Ping{})
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+		return ptypes.MarshalAny(resultMsg)
 	}
 
-	return batch, err
+	// Execute the Send function
+	resultMsg, err := host.Send(f)
+	if err != nil {
+		return nil, err
+	}
+
+	// Marshall the result
+	result := &pb.Batch{}
+	return result, ptypes.UnmarshalAny(resultMsg, result)
 }

@@ -55,12 +55,15 @@ func TestTLS(t *testing.T) {
 	server := node.StartNode(ServerAddress, node.NewImplementation(),
 		certData, keyData)
 	defer server.Shutdown()
+	var manager connect.Manager
 
-	err := gateway.PostNewBatch(&connect.Host{
-		address:        ServerAddress,
-		certificate:    certData,
-		disableTimeout: false,
-	}, &mixmessages.Batch{})
+	testId := "test"
+	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	err = gateway.PostNewBatch(host, &mixmessages.Batch{})
 	if err != nil {
 		t.Error(err)
 	}
