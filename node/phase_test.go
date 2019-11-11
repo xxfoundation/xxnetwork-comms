@@ -60,9 +60,9 @@ func TestPhase_StreamPostPhaseSendReceive(t *testing.T) {
 	}
 
 	streamClient, cancel, err := serverStreamSender.GetPostPhaseStreamClient(&connect.Host{
-		Address:        servReceiverAddress,
-		Cert:           certData,
-		DisableTimeout: false,
+		address:        servReceiverAddress,
+		certificate:    certData,
+		disableTimeout: false,
 	}, batchInfo)
 
 	if err != nil {
@@ -139,9 +139,9 @@ func TestGetPostPhaseStream_ErrorsWhenContextCanceled(t *testing.T) {
 	cancel()
 
 	_, err := serverStreamSender.getPostPhaseStream(&connect.Host{
-		Address:        servReceiverAddress,
-		Cert:           certData,
-		DisableTimeout: false,
+		address:        servReceiverAddress,
+		certificate:    certData,
+		disableTimeout: false,
 	}, ctx)
 	if err == nil {
 		t.Errorf("Getting streaming client after canceling context should error")

@@ -28,9 +28,9 @@ func TestSendRequestNonceMessage(t *testing.T) {
 	}
 
 	_, err := gateway.SendRequestNonceMessage(&connect.Host{
-		Address:        ServerAddress,
-		Cert:           nil,
-		DisableTimeout: false,
+		address:        ServerAddress,
+		certificate:    nil,
+		disableTimeout: false,
 	},
 		&pb.NonceRequest{ClientSignedByServer: RSASignature,
 			RequestSignature: RSASignature})
@@ -52,9 +52,9 @@ func TestSendConfirmNonceMessage(t *testing.T) {
 	reg := &pb.RequestRegistrationConfirmation{}
 	reg.NonceSignedByClient = &pb.RSASignature{}
 	_, err := gateway.SendConfirmNonceMessage(&connect.Host{
-		Address:        ServerAddress,
-		Cert:           nil,
-		DisableTimeout: false,
+		address:        ServerAddress,
+		certificate:    nil,
+		disableTimeout: false,
 	}, reg)
 	if err != nil {
 		t.Errorf("SendConfirmNonceMessage: Error received: %s", err)
@@ -71,9 +71,9 @@ func TestPollSignedCerts(t *testing.T) {
 	defer server.Shutdown()
 
 	_, err := gateway.PollSignedCerts(&connect.Host{
-		Address:        ServerAddress,
-		Cert:           nil,
-		DisableTimeout: false,
+		address:        ServerAddress,
+		certificate:    nil,
+		disableTimeout: false,
 	}, &pb.Ping{})
 	if err != nil {
 		t.Errorf("SendGetSignedCertMessage: Error received: %s", err)

@@ -51,12 +51,12 @@ func TestManager_ObtainConnection_DeadConnection(t *testing.T) {
 	address := SERVER_ADDRESS
 	var manager Manager
 	host := &Host{
-		Address:        address,
-		Cert:           nil,
-		DisableTimeout: false,
+		address:        address,
+		certificate:    nil,
+		disableTimeout: false,
 	}
 
-	err := manager.createConnection(host)
+	err := manager.AddHost(host)
 	if err != nil {
 		t.Errorf("Unable to create connection: %+v", err)
 	}
@@ -69,7 +69,7 @@ func TestManager_ObtainConnection_DeadConnection(t *testing.T) {
 		t.Errorf("Unable to obtain connection: %+v", err)
 	}
 	if !conn.isAlive() {
-		t.Errorf("Connection was not reestablished! %+v", conn)
+		t.Errorf("connection was not reestablished! %+v", conn)
 	}
 }
 
@@ -81,9 +81,9 @@ func TestSetCredentials_InvalidCert(t *testing.T) {
 		RsaPublicKey: nil,
 	}
 	err := conn.setCredentials(&Host{
-		Address:        "",
-		Cert:           []byte("test"),
-		DisableTimeout: false,
+		address:        "",
+		certificate:    []byte("test"),
+		disableTimeout: false,
 	})
 	if err == nil {
 		t.Errorf("Expected error")
@@ -99,12 +99,12 @@ func TestConnectionManager_Disconnect(t *testing.T) {
 	address := SERVER_ADDRESS
 	var manager Manager
 	host := &Host{
-		Address:        address,
-		Cert:           nil,
-		DisableTimeout: false,
+		address:        address,
+		certificate:    nil,
+		disableTimeout: false,
 	}
 
-	err := manager.createConnection(host)
+	err := manager.AddHost(host)
 	if err != nil {
 		t.Errorf("Unable to call connnect: %+v", err)
 	}
@@ -127,7 +127,7 @@ func TestConnectionManager_Disconnect(t *testing.T) {
 		pass++
 	}
 
-	println("Connection Manager Test: ", pass, "out of", test, "tests passed.")
+	println("connection Manager Test: ", pass, "out of", test, "tests passed.")
 }
 
 // Function to test the Disconnect
@@ -140,11 +140,11 @@ func TestConnectionManager_DisconnectAll(t *testing.T) {
 	address2 := SERVER_ADDRESS2
 	var manager Manager
 	host := &Host{
-		Address:        address,
-		Cert:           nil,
-		DisableTimeout: false,
+		address:        address,
+		certificate:    nil,
+		disableTimeout: false,
 	}
-	err := manager.createConnection(host)
+	err := manager.AddHost(host)
 	if err != nil {
 		t.Errorf("Unable to call connnect: %+v", err)
 	}
@@ -157,10 +157,10 @@ func TestConnectionManager_DisconnectAll(t *testing.T) {
 		pass++
 	}
 
-	err = manager.createConnection(&Host{
-		Address:        address2,
-		Cert:           nil,
-		DisableTimeout: true,
+	err = manager.AddHost(&Host{
+		address:        address2,
+		certificate:    nil,
+		disableTimeout: true,
 	})
 	if err != nil {
 		t.Errorf("Unable to call connnect: %+v", err)
@@ -192,7 +192,7 @@ func TestConnectionManager_DisconnectAll(t *testing.T) {
 		pass++
 	}
 
-	println("Connection Manager Test: ", pass, "out of", test, "tests passed.")
+	println("connection Manager Test: ", pass, "out of", test, "tests passed.")
 }
 
 func TestConnectionManager_String(t *testing.T) {
@@ -205,9 +205,9 @@ func TestConnectionManager_String(t *testing.T) {
 	// Initialize the connection object
 	conn := &connection{}
 	host := &Host{
-		Address:        "420",
-		Cert:           certData,
-		DisableTimeout: true,
+		address:        "420",
+		certificate:    certData,
+		disableTimeout: true,
 	}
 	err := conn.setCredentials(host)
 	if err != nil {

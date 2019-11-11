@@ -28,9 +28,9 @@ func TestSendPutMessage(t *testing.T) {
 	var c Comms
 
 	err := c.SendPutMessage(&connect.Host{
-		Address:        gatewayAddress,
-		Cert:           nil,
-		DisableTimeout: false,
+		address:        gatewayAddress,
+		certificate:    nil,
+		disableTimeout: false,
 	}, &pb.Slot{})
 	if err != nil {
 		t.Errorf("PutMessage: Error received: %s", err)
@@ -46,9 +46,9 @@ func TestSendCheckMessages(t *testing.T) {
 	defer gw.Shutdown()
 
 	_, err := c.SendCheckMessages(&connect.Host{
-		Address:        gatewayAddress,
-		Cert:           nil,
-		DisableTimeout: false,
+		address:        gatewayAddress,
+		certificate:    nil,
+		disableTimeout: false,
 	}, &pb.ClientRequest{})
 	if err != nil {
 		t.Errorf("CheckMessages: Error received: %s", err)
@@ -64,9 +64,9 @@ func TestSendGetMessage(t *testing.T) {
 	defer gw.Shutdown()
 
 	_, err := c.SendGetMessage(&connect.Host{
-		Address:        gatewayAddress,
-		Cert:           nil,
-		DisableTimeout: false,
+		address:        gatewayAddress,
+		certificate:    nil,
+		disableTimeout: false,
 	}, &pb.ClientRequest{})
 	if err != nil {
 		t.Errorf("GetMessage: Error received: %s", err)
@@ -82,9 +82,9 @@ func TestSendRequestNonceMessage(t *testing.T) {
 	var c Comms
 
 	_, err := c.SendRequestNonceMessage(&connect.Host{
-		Address:        gatewayAddress,
-		Cert:           nil,
-		DisableTimeout: false,
+		address:        gatewayAddress,
+		certificate:    nil,
+		disableTimeout: false,
 	}, &pb.NonceRequest{})
 	if err != nil {
 		t.Errorf("SendRequestNonceMessage: Error received: %s", err)
@@ -100,9 +100,9 @@ func TestSendConfirmNonceMessage(t *testing.T) {
 	var c Comms
 
 	_, err := c.SendConfirmNonceMessage(&connect.Host{
-		Address:        gatewayAddress,
-		Cert:           nil,
-		DisableTimeout: false,
+		address:        gatewayAddress,
+		certificate:    nil,
+		disableTimeout: false,
 	},
 		&pb.RequestRegistrationConfirmation{})
 	if err != nil {

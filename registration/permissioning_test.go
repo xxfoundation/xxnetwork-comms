@@ -31,9 +31,9 @@ func TestSendNodeTopology(t *testing.T) {
 	defer reg.Shutdown()
 	msgs := &pb.NodeTopology{}
 	err := reg.SendNodeTopology(&connect.Host{
-		Address:        ServerAddress,
-		Cert:           nil,
-		DisableTimeout: false,
+		address:        ServerAddress,
+		certificate:    nil,
+		disableTimeout: false,
 	}, msgs)
 	if err != nil {
 		t.Errorf("SendNodeTopology: Error received: %s", err)
@@ -52,9 +52,9 @@ func TestSendNodeTopologyNilKey(t *testing.T) {
 	defer reg.Shutdown()
 	msgs := &pb.NodeTopology{}
 	err := reg.SendNodeTopology(&connect.Host{
-		Address:        ServerAddress,
-		Cert:           nil,
-		DisableTimeout: false,
+		address:        ServerAddress,
+		certificate:    nil,
+		disableTimeout: false,
 	}, msgs)
 	if err != nil {
 		t.Errorf("Should not have tried to sign message, instead got: %+v", err)
@@ -73,9 +73,9 @@ func TestSendNodeTopologyBadMessageError(t *testing.T) {
 	defer reg.Shutdown()
 
 	err := reg.SendNodeTopology(&connect.Host{
-		Address:        ServerAddress,
-		Cert:           nil,
-		DisableTimeout: false,
+		address:        ServerAddress,
+		certificate:    nil,
+		disableTimeout: false,
 	}, nil)
 	if err == nil {
 		t.Errorf("SendNodeTopology: did not receive missing private key error")
@@ -93,9 +93,9 @@ func TestSendNodeTopologyNilMessage(t *testing.T) {
 	defer server.Shutdown()
 	defer reg.Shutdown()
 	err := reg.SendNodeTopology(&connect.Host{
-		Address:        ServerAddress,
-		Cert:           nil,
-		DisableTimeout: false,
+		address:        ServerAddress,
+		certificate:    nil,
+		disableTimeout: false,
 	}, nil)
 	if err == nil {
 		t.Errorf("Should not have tried to sign message, instead got: %+v", err)
@@ -115,9 +115,9 @@ func TestSendNodeTopologyBadSignature(t *testing.T) {
 
 	msgs := &pb.NodeTopology{}
 	err := reg.SendNodeTopology(&connect.Host{
-		Address:        ServerAddress,
-		Cert:           nil,
-		DisableTimeout: false,
+		address:        ServerAddress,
+		certificate:    nil,
+		disableTimeout: false,
 	}, msgs)
 	if err != nil {
 		t.Errorf("Should not have tried to sign message, instead got: %+v", err)

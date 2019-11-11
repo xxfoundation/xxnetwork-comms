@@ -20,9 +20,9 @@ func TestSendAskOnline(t *testing.T) {
 	server := StartNode(ServerAddress, NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	_, err := server.SendAskOnline(&connect.Host{
-		Address:        ServerAddress,
-		Cert:           nil,
-		DisableTimeout: false,
+		address:        ServerAddress,
+		certificate:    nil,
+		disableTimeout: false,
 	}, &pb.Ping{})
 	if err != nil {
 		t.Errorf("AskOnline: Error received: %s", err)
@@ -35,9 +35,9 @@ func TestSendFinishRealtime(t *testing.T) {
 	server := StartNode(ServerAddress, NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	_, err := server.SendFinishRealtime(&connect.Host{
-		Address:        ServerAddress,
-		Cert:           nil,
-		DisableTimeout: false,
+		address:        ServerAddress,
+		certificate:    nil,
+		disableTimeout: false,
 	}, &pb.RoundInfo{ID: 0})
 	if err != nil {
 		t.Errorf("FinishRealtime: Error received: %s", err)
@@ -50,9 +50,9 @@ func TestSendNewRound(t *testing.T) {
 	server := StartNode(ServerAddress, NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	_, err := server.SendNewRound(&connect.Host{
-		Address:        ServerAddress,
-		Cert:           nil,
-		DisableTimeout: false,
+		address:        ServerAddress,
+		certificate:    nil,
+		disableTimeout: false,
 	}, &pb.RoundInfo{})
 	if err != nil {
 		t.Errorf("NewRound: Error received: %s", err)
@@ -65,9 +65,9 @@ func TestSendPostPhase(t *testing.T) {
 	server := StartNode(ServerAddress, NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	_, err := server.SendPostPhase(&connect.Host{
-		Address:        ServerAddress,
-		Cert:           nil,
-		DisableTimeout: false,
+		address:        ServerAddress,
+		certificate:    nil,
+		disableTimeout: false,
 	}, &pb.Batch{})
 	if err != nil {
 		t.Errorf("Phase: Error received: %s", err)
@@ -80,9 +80,9 @@ func TestSendPostRoundPublicKey(t *testing.T) {
 	server := StartNode(ServerAddress, NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	_, err := server.SendPostRoundPublicKey(&connect.Host{
-		Address:        ServerAddress,
-		Cert:           nil,
-		DisableTimeout: false,
+		address:        ServerAddress,
+		certificate:    nil,
+		disableTimeout: false,
 	}, &pb.RoundPublicKey{})
 	if err != nil {
 		t.Errorf("PostRoundPublicKey: Error received: %s", err)
@@ -96,9 +96,9 @@ func TestSendPostPrecompResult(t *testing.T) {
 	defer server.Shutdown()
 	slots := make([]*pb.Slot, 0)
 	_, err := server.SendPostPrecompResult(&connect.Host{
-		Address:        ServerAddress,
-		Cert:           nil,
-		DisableTimeout: false,
+		address:        ServerAddress,
+		certificate:    nil,
+		disableTimeout: false,
 	}, 0, slots)
 	if err != nil {
 		t.Errorf("PostPrecompResult: Error received: %s", err)
@@ -124,9 +124,9 @@ func TestSendGetMeasure(t *testing.T) {
 		ID: uint64(3),
 	}
 	_, err := server.SendGetMeasure(&connect.Host{
-		Address:        ServerAddress,
-		Cert:           nil,
-		DisableTimeout: false,
+		address:        ServerAddress,
+		certificate:    nil,
+		disableTimeout: false,
 	}, &ri)
 	if err != nil {
 		t.Errorf("SendGetMeasure: Error received: %s", err)
@@ -150,9 +150,9 @@ func TestSendGetMeasureError(t *testing.T) {
 		ID: uint64(3),
 	}
 	_, err := server.SendGetMeasure(&connect.Host{
-		Address:        ServerAddress,
-		Cert:           nil,
-		DisableTimeout: false,
+		address:        ServerAddress,
+		certificate:    nil,
+		disableTimeout: false,
 	}, &ri)
 	if err == nil {
 		t.Error("Did not receive error response")
@@ -171,9 +171,9 @@ func TestRoundTripPing(t *testing.T) {
 	}
 
 	_, err = server.RoundTripPing(&connect.Host{
-		Address:        ServerAddress,
-		Cert:           nil,
-		DisableTimeout: false,
+		address:        ServerAddress,
+		certificate:    nil,
+		disableTimeout: false,
 	}, uint64(1), any)
 	if err != nil {
 		t.Errorf("Received error from RoundTripPing: %+v", err)

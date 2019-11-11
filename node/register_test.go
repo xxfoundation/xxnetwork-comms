@@ -24,9 +24,9 @@ func TestSendNodeRegistration(t *testing.T) {
 
 	msgs := &pb.NodeRegistration{}
 	err := server.SendNodeRegistration(&connect.Host{
-		Address:        RegAddress,
-		Cert:           nil,
-		DisableTimeout: false,
+		address:        RegAddress,
+		certificate:    nil,
+		disableTimeout: false,
 	}, msgs)
 	if err != nil {
 		t.Errorf("SendNodeTopology: Error received: %s", err)

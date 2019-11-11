@@ -40,9 +40,9 @@ func TestTLS(t *testing.T) {
 	defer rg.Shutdown()
 	var c client.Comms
 	_, err := c.SendRegistrationMessage(&connect.Host{
-		Address:        RegAddress,
-		Cert:           certData,
-		DisableTimeout: false,
+		address:        RegAddress,
+		certificate:    certData,
+		disableTimeout: false,
 	}, &pb.UserRegistration{})
 	if err != nil {
 		t.Errorf("RegistrationMessage: Error received: %s", err)

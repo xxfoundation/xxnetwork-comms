@@ -10,6 +10,7 @@ package connect
 
 import (
 	"fmt"
+	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/crypto/signature/rsa"
@@ -22,72 +23,106 @@ import (
 
 // Information used to describe a connection to a host
 type Host struct {
-	// ID used to identify the connection
-	// TODO: Must be removed after changes to DownloadTopology
-	Id string
-
-	// Address:Port being connected to
-	Address string
+	// address:Port being connected to
+	address string
 
 	// PEM-format TLS Certificate
-	Cert []byte
+	certificate []byte
 
-	// Indicates whether connection timeout should be disabled
-	DisableTimeout bool
-}
-
-// Stores a connection and its associated information
-type connection struct {
-	// Address:Port being connected to
-	Address string
+	// Configure the maximum number of connection attempts
+	maxRetries int
 
 	// GRPC connection object
-	Connection *grpc.ClientConn
+	connection *grpc.ClientConn
 
 	// Credentials object used to establish the connection
-	Creds credentials.TransportCredentials
+	credentials credentials.TransportCredentials
 
 	// RSA Public Key corresponding to the TLS Certificate
-	RsaPublicKey *rsa.PublicKey
+	rsaPublicKey *rsa.PublicKey
 }
 
-// Gets the ID identifying the Host
-func (h *Host) GetId() string {
-	if h.Id != "" {
-		return h.Id
+// Sets up or recovers the Host's connection
+// Then runs the given Send function
+func (h *Host) Send(f func(conn *grpc.ClientConn) (*any.Any, error)) (
+	result *any.Any, err error) {
+
+	// If Host connection does not exist, open the connection
+	if h.connection == nil {
+		err := h.connect()
+		if err != nil {
+			return
+		}
 	}
-	return h.Address + string(h.Cert)
+
+	// If Host connection is not active, attempt to reestablish
+	if !h.isAlive() {
+		jww.WARN.Printf("Bad host connection state, reconnecting: %v", h)
+		h.disconnect()
+		err := h.connect()
+		if err != nil {
+			return
+		}
+	}
+
+	// Run the send function
+	return f(h.connection)
+}
+
+// Returns the Host address
+func (h *Host) GetAddress() string {
+	return h.address
+}
+
+// Returns a copy of the Host certificate
+func (h *Host) GetCertificate() []byte {
+	cert := make([]byte, len(h.certificate))
+	copy(cert, h.certificate)
+	return cert
 }
 
 // Returns true if the connection is non-nil and alive
-func (c *connection) isAlive() bool {
-	if c.Connection == nil {
+func (h *Host) isAlive() bool {
+	if h.connection == nil {
 		return false
 	}
-	state := c.Connection.GetState()
+	state := h.connection.GetState()
 	return state == connectivity.Idle || state == connectivity.Connecting ||
 		state == connectivity.Ready
 }
 
+// Closes a the Host connection
+func (h *Host) disconnect() {
+	if h.connection != nil {
+		return
+	}
+	err := h.connection.Close()
+	if err != nil {
+		jww.ERROR.Printf("Unable to close connection to %s: %+v",
+			h.address, errors.New(err.Error()))
+	}
+	h.connection = nil
+}
+
 // Connect creates a connection
-func (c *connection) connect(maxRetries int64) (err error) {
+func (h *Host) connect() (err error) {
 
 	// Configure TLS options
 	var securityDial grpc.DialOption
-	if c.Creds != nil {
+	if h.credentials != nil {
 		// Create the gRPC client with TLS
-		securityDial = grpc.WithTransportCredentials(c.Creds)
+		securityDial = grpc.WithTransportCredentials(h.credentials)
 	} else {
 		// Create the gRPC client without TLS
-		jww.WARN.Printf("Connecting to %v without TLS!", c.Address)
+		jww.WARN.Printf("Connecting to %v without TLS!", h.address)
 		securityDial = grpc.WithInsecure()
 	}
 
 	// Attempt to establish a new connection
-	for numRetries := int64(0); numRetries < maxRetries && !c.isAlive(); numRetries++ {
+	for numRetries := 0; numRetries < h.maxRetries && !h.isAlive(); numRetries++ {
 
 		jww.INFO.Printf("Connecting to address %+v. Attempt number %+v of %+v",
-			c.Address, numRetries, maxRetries)
+			h.address, numRetries, h.maxRetries)
 
 		// If timeout is enabled, the max wait time becomes
 		// ~14 seconds (with maxRetries=100)
@@ -98,39 +133,39 @@ func (c *connection) connect(maxRetries int64) (err error) {
 		ctx, cancel := ConnectionContext(time.Duration(backoffTime))
 
 		// Create the connection
-		c.Connection, err = grpc.DialContext(ctx, c.Address, securityDial,
+		h.connection, err = grpc.DialContext(ctx, h.address, securityDial,
 			grpc.WithBlock(), grpc.WithBackoffMaxDelay(time.Minute*5))
 		if err != nil {
 			jww.ERROR.Printf("Attempt number %+v to connect to %s failed: %+v\n",
-				numRetries, c.Address, errors.New(err.Error()))
+				numRetries, h.address, errors.New(err.Error()))
 		}
 		cancel()
 	}
 
 	// Verify that the connection was established successfully
-	if !c.isAlive() {
+	if !h.isAlive() {
 		return errors.New(fmt.Sprintf(
-			"Last try to connect to %s failed. Giving up", c.Address))
+			"Last try to connect to %s failed. Giving up", h.address))
 	}
 
 	// Add the successful connection to the Manager
-	jww.INFO.Printf("Successfully connected to %v", c.Address)
+	jww.INFO.Printf("Successfully connected to %v", h.address)
 	return
 }
 
 // Sets TransportCredentials and RSA PublicKey objects
 // using a PEM-encoded TLS Certificate
-func (c *connection) setCredentials(connInfo *Host) error {
+func (h *Host) setCredentials() error {
 
 	// If no TLS Certificate specified, print a warning and do nothing
-	if connInfo.Cert == nil || len(connInfo.Cert) == 0 {
+	if h.certificate == nil || len(h.certificate) == 0 {
 		jww.WARN.Printf("No TLS Certificate specified!")
 		return nil
 	}
 
 	// Obtain the DNS name included with the certificate
 	dnsName := ""
-	cert, err := tlsCreds.LoadCertificate(string(connInfo.Cert))
+	cert, err := tlsCreds.LoadCertificate(string(h.certificate))
 	if err != nil {
 		s := fmt.Sprintf("Error forming transportCredentials: %+v", err)
 		return errors.New(s)
@@ -140,7 +175,7 @@ func (c *connection) setCredentials(connInfo *Host) error {
 	}
 
 	// Create the TLS Credentials object
-	c.Creds, err = tlsCreds.NewCredentialsFromPEM(string(connInfo.Cert),
+	h.credentials, err = tlsCreds.NewCredentialsFromPEM(string(h.certificate),
 		dnsName)
 	if err != nil {
 		s := fmt.Sprintf("Error forming transportCredentials: %+v", err)
@@ -148,7 +183,7 @@ func (c *connection) setCredentials(connInfo *Host) error {
 	}
 
 	// Create the RSA Public Key object
-	c.RsaPublicKey, err = tlsCreds.NewPublicKeyFromPEM(connInfo.Cert)
+	h.rsaPublicKey, err = tlsCreds.NewPublicKeyFromPEM(h.certificate)
 	if err != nil {
 		s := fmt.Sprintf("Error extracting PublicKey: %+v", err)
 		return errors.New(s)
@@ -158,10 +193,10 @@ func (c *connection) setCredentials(connInfo *Host) error {
 }
 
 // Stringer interface for connection
-func (c *connection) String() string {
-	addr := c.Address
-	actualConnection := c.Connection
-	creds := c.Creds
+func (h *Host) String() string {
+	addr := h.address
+	actualConnection := h.connection
+	creds := h.credentials
 
 	var state connectivity.State
 	if actualConnection != nil {

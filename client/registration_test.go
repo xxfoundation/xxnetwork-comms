@@ -22,9 +22,9 @@ func TestSendRegistrationMessage(t *testing.T) {
 	var c Comms
 
 	_, err := c.SendRegistrationMessage(&connect.Host{
-		Address:        GatewayAddress,
-		Cert:           nil,
-		DisableTimeout: false,
+		address:        GatewayAddress,
+		certificate:    nil,
+		disableTimeout: false,
 	}, &pb.UserRegistration{})
 	if err != nil {
 		t.Errorf("RegistrationMessage: Error received: %s", err)
@@ -40,9 +40,9 @@ func TestSendCheckClientVersionMessage(t *testing.T) {
 	var c Comms
 
 	_, err := c.SendGetCurrentClientVersionMessage(&connect.Host{
-		Address:        GatewayAddress,
-		Cert:           nil,
-		DisableTimeout: false,
+		address:        GatewayAddress,
+		certificate:    nil,
+		disableTimeout: false,
 	})
 	if err != nil {
 		t.Errorf("CheckClientVersion: Error received: %s", err)
@@ -58,9 +58,9 @@ func TestSendGetUpdatedNDF(t *testing.T) {
 	var c Comms
 
 	_, err := c.SendGetUpdatedNDF(&connect.Host{
-		Address:        GatewayAddress,
-		Cert:           nil,
-		DisableTimeout: false,
+		address:        GatewayAddress,
+		certificate:    nil,
+		disableTimeout: false,
 	}, &pb.NDFHash{})
 
 	if err != nil {

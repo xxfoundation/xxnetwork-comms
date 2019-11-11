@@ -43,9 +43,9 @@ func TestDownloadTopology(t *testing.T) {
 	_, err := server.Manager.ObtainConnection(&connect.
 		Host{
 		Id:             id,
-		Address:        RegAddress,
-		Cert:           certData,
-		DisableTimeout: false,
+		address:        RegAddress,
+		certificate:    certData,
+		disableTimeout: false,
 	})
 	if err != nil {
 		t.Errorf("Download topology failed: %+v", err)

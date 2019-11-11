@@ -25,9 +25,9 @@ func TestPostNewBatch(t *testing.T) {
 
 	msgs := &pb.Batch{}
 	err := gateway.PostNewBatch(&connect.Host{
-		Address:        ServerAddress,
-		Cert:           nil,
-		DisableTimeout: false,
+		address:        ServerAddress,
+		certificate:    nil,
+		disableTimeout: false,
 	}, msgs)
 	if err != nil {
 		t.Errorf("PostNewBatch: Error received: %s", err)
@@ -45,9 +45,9 @@ func TestGetRoundBufferInfo(t *testing.T) {
 	defer server.Shutdown()
 
 	bufSize, err := gateway.GetRoundBufferInfo(&connect.Host{
-		Address:        ServerAddress,
-		Cert:           nil,
-		DisableTimeout: false,
+		address:        ServerAddress,
+		certificate:    nil,
+		disableTimeout: false,
 	})
 	if err != nil {
 		t.Errorf("GetRoundBufferInfo: Error received: %s", err)
@@ -68,9 +68,9 @@ func TestGetCompletedBatch(t *testing.T) {
 	defer server.Shutdown()
 
 	batch, err := gateway.GetCompletedBatch(&connect.Host{
-		Address:        ServerAddress,
-		Cert:           nil,
-		DisableTimeout: false,
+		address:        ServerAddress,
+		certificate:    nil,
+		disableTimeout: false,
 	})
 	if err != nil {
 		t.Errorf("GetCompletedBatch: Error received: %s", err)
