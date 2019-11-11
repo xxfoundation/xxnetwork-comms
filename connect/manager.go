@@ -11,6 +11,8 @@ package connect
 import (
 	"bytes"
 	"fmt"
+	"github.com/pkg/errors"
+	"gitlab.com/elixxir/crypto/signature/rsa"
 	"math"
 	"sync"
 )
@@ -20,6 +22,25 @@ import (
 type Manager struct {
 	// A map of string IDs to Hosts
 	connections sync.Map
+	// Private key of the local communication server
+	privateKey *rsa.PrivateKey
+}
+
+// Set private key to data to a PEM block
+func (m *Manager) SetPrivateKey(data []byte) error {
+	key, err := rsa.LoadPrivateKeyFromPem(data)
+	if err != nil {
+		s := fmt.Sprintf("Failed to form private key file from data at %s: %+v", data, err)
+		return errors.New(s)
+	}
+
+	m.privateKey = key
+	return nil
+}
+
+// Get connection manager's private key
+func (m *Manager) GetPrivateKey() *rsa.PrivateKey {
+	return m.privateKey
 }
 
 // Fetch a Host from the internal map
@@ -32,12 +53,12 @@ func (m *Manager) GetHost(hostId string) (*Host, bool) {
 	return host, ok
 }
 
-// Initializes a host object and adds the newly-created object to the Manager
+// Creates a host object and adds the newly-created object to the Manager
 func (m *Manager) AddHost(id, address string, cert []byte,
-	disableTimeout bool) (err error) {
+	disableTimeout bool) (host *Host, err error) {
 
 	// Initialize the Host object
-	host := &Host{
+	host = &Host{
 		address:     address,
 		certificate: cert,
 	}
@@ -52,7 +73,7 @@ func (m *Manager) AddHost(id, address string, cert []byte,
 	// Configure the host credentials
 	err = host.setCredentials()
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	// Add the connection to the manager

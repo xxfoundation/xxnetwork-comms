@@ -52,11 +52,9 @@ func (c *Comms) SendCheckMessages(host *connect.Host,
 		// Send the message
 		resultMsg, err := pb.NewGatewayClient(conn).CheckMessages(ctx, message)
 		if err != nil {
-			err = errors.New(err.Error())
+			return nil, errors.New(err.Error())
 		}
-
-		result, err := ptypes.MarshalAny(resultMsg)
-		return result, err
+		return ptypes.MarshalAny(resultMsg)
 	}
 
 	// Execute the Send function
@@ -67,8 +65,7 @@ func (c *Comms) SendCheckMessages(host *connect.Host,
 
 	// Marshall the result
 	result := &pb.IDList{}
-	err = ptypes.UnmarshalAny(resultMsg, result)
-	return result, err
+	return result, ptypes.UnmarshalAny(resultMsg, result)
 }
 
 // Client -> Gateway Send Function
@@ -83,14 +80,10 @@ func (c *Comms) SendGetMessage(host *connect.Host,
 
 		// Send the message
 		resultMsg, err := pb.NewGatewayClient(conn).GetMessage(ctx, message)
-
-		// Make sure there are no errors with sending the message
 		if err != nil {
-			err = errors.New(err.Error())
+			return nil, errors.New(err.Error())
 		}
-
-		result, err := ptypes.MarshalAny(resultMsg)
-		return result, err
+		return ptypes.MarshalAny(resultMsg)
 	}
 
 	// Execute the Send function
@@ -101,8 +94,7 @@ func (c *Comms) SendGetMessage(host *connect.Host,
 
 	// Marshall the result
 	result := &pb.Slot{}
-	err = ptypes.UnmarshalAny(resultMsg, result)
-	return result, err
+	return result, ptypes.UnmarshalAny(resultMsg, result)
 }
 
 // Client -> Gateway Send Function
@@ -120,11 +112,9 @@ func (c *Comms) SendRequestNonceMessage(host *connect.Host,
 
 		// Make sure there are no errors with sending the message
 		if err != nil {
-			err = errors.New(err.Error())
+			return nil, errors.New(err.Error())
 		}
-
-		result, err := ptypes.MarshalAny(resultMsg)
-		return result, err
+		return ptypes.MarshalAny(resultMsg)
 	}
 
 	// Execute the Send function
@@ -135,8 +125,7 @@ func (c *Comms) SendRequestNonceMessage(host *connect.Host,
 
 	// Marshall the result
 	result := &pb.Nonce{}
-	err = ptypes.UnmarshalAny(resultMsg, result)
-	return result, err
+	return result, ptypes.UnmarshalAny(resultMsg, result)
 }
 
 // Client -> Gateway Send Function
@@ -151,14 +140,10 @@ func (c *Comms) SendConfirmNonceMessage(host *connect.Host,
 
 		// Send the message
 		resultMsg, err := pb.NewGatewayClient(conn).ConfirmNonce(ctx, message)
-
-		// Make sure there are no errors with sending the message
 		if err != nil {
-			err = errors.New(err.Error())
+			return nil, errors.New(err.Error())
 		}
-
-		result, err := ptypes.MarshalAny(resultMsg)
-		return result, err
+		return ptypes.MarshalAny(resultMsg)
 	}
 
 	// Execute the Send function
@@ -169,6 +154,5 @@ func (c *Comms) SendConfirmNonceMessage(host *connect.Host,
 
 	// Marshall the result
 	result := &pb.RegistrationConfirmation{}
-	err = ptypes.UnmarshalAny(resultMsg, result)
-	return result, err
+	return result, ptypes.UnmarshalAny(resultMsg, result)
 }

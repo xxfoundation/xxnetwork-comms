@@ -13,12 +13,6 @@ import (
 	"testing"
 )
 
-type MockID string
-
-func (m MockID) String() string {
-	return string(m)
-}
-
 // Smoke test SendGetMessage
 func TestSendPutMessage(t *testing.T) {
 	gatewayAddress := getNextGatewayAddress()
@@ -26,12 +20,15 @@ func TestSendPutMessage(t *testing.T) {
 		gateway.NewImplementation(), nil, nil)
 	defer gw.Shutdown()
 	var c Comms
+	var manager connect.Manager
 
-	err := c.SendPutMessage(&connect.Host{
-		address:        gatewayAddress,
-		certificate:    nil,
-		disableTimeout: false,
-	}, &pb.Slot{})
+	testId := "test"
+	host, err := manager.AddHost(testId, gatewayAddress, nil, false)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	err = c.SendPutMessage(host, &pb.Slot{})
 	if err != nil {
 		t.Errorf("PutMessage: Error received: %s", err)
 	}
@@ -44,12 +41,15 @@ func TestSendCheckMessages(t *testing.T) {
 		gateway.NewImplementation(), nil, nil)
 	var c Comms
 	defer gw.Shutdown()
+	var manager connect.Manager
 
-	_, err := c.SendCheckMessages(&connect.Host{
-		address:        gatewayAddress,
-		certificate:    nil,
-		disableTimeout: false,
-	}, &pb.ClientRequest{})
+	testId := "test"
+	host, err := manager.AddHost(testId, gatewayAddress, nil, false)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	_, err = c.SendCheckMessages(host, &pb.ClientRequest{})
 	if err != nil {
 		t.Errorf("CheckMessages: Error received: %s", err)
 	}
@@ -63,11 +63,15 @@ func TestSendGetMessage(t *testing.T) {
 	var c Comms
 	defer gw.Shutdown()
 
-	_, err := c.SendGetMessage(&connect.Host{
-		address:        gatewayAddress,
-		certificate:    nil,
-		disableTimeout: false,
-	}, &pb.ClientRequest{})
+	var manager connect.Manager
+
+	testId := "test"
+	host, err := manager.AddHost(testId, gatewayAddress, nil, false)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	_, err = c.SendGetMessage(host, &pb.ClientRequest{})
 	if err != nil {
 		t.Errorf("GetMessage: Error received: %s", err)
 	}
@@ -80,12 +84,15 @@ func TestSendRequestNonceMessage(t *testing.T) {
 		gateway.NewImplementation(), nil, nil)
 	defer gw.Shutdown()
 	var c Comms
+	var manager connect.Manager
 
-	_, err := c.SendRequestNonceMessage(&connect.Host{
-		address:        gatewayAddress,
-		certificate:    nil,
-		disableTimeout: false,
-	}, &pb.NonceRequest{})
+	testId := "test"
+	host, err := manager.AddHost(testId, gatewayAddress, nil, false)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	_, err = c.SendRequestNonceMessage(host, &pb.NonceRequest{})
 	if err != nil {
 		t.Errorf("SendRequestNonceMessage: Error received: %s", err)
 	}
@@ -98,12 +105,15 @@ func TestSendConfirmNonceMessage(t *testing.T) {
 		gateway.NewImplementation(), nil, nil)
 	defer gw.Shutdown()
 	var c Comms
+	var manager connect.Manager
 
-	_, err := c.SendConfirmNonceMessage(&connect.Host{
-		address:        gatewayAddress,
-		certificate:    nil,
-		disableTimeout: false,
-	},
+	testId := "test"
+	host, err := manager.AddHost(testId, gatewayAddress, nil, false)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	_, err = c.SendConfirmNonceMessage(host,
 		&pb.RequestRegistrationConfirmation{})
 	if err != nil {
 		t.Errorf("SendConfirmNonceMessage: Error received: %s", err)

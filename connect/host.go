@@ -49,7 +49,7 @@ func (h *Host) Send(f func(conn *grpc.ClientConn) (*any.Any, error)) (
 
 	// If Host connection does not exist, open the connection
 	if h.connection == nil {
-		err := h.connect()
+		err = h.connect()
 		if err != nil {
 			return
 		}
@@ -59,7 +59,7 @@ func (h *Host) Send(f func(conn *grpc.ClientConn) (*any.Any, error)) (
 	if !h.isAlive() {
 		jww.WARN.Printf("Bad host connection state, reconnecting: %v", h)
 		h.disconnect()
-		err := h.connect()
+		err = h.connect()
 		if err != nil {
 			return
 		}

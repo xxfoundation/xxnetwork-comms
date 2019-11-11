@@ -9,79 +9,100 @@
 package client
 
 import (
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
+	"google.golang.org/grpc"
 )
 
 // Client -> Registration Send Function
-func (c *Comms) SendRegistrationMessage(connInfo *connect.Host,
+func (c *Comms) SendRegistrationMessage(host *connect.Host,
 	message *pb.UserRegistration) (*pb.UserRegistrationConfirmation, error) {
 
-	// Obtain the connection
-	conn, err := c.ObtainConnection(connInfo)
+	// Create the Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := connect.MessagingContext()
+		defer cancel()
+
+		// Send the message
+		resultMsg, err := pb.NewRegistrationClient(conn).RegisterUser(ctx,
+			message)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+		return ptypes.MarshalAny(resultMsg)
+	}
+
+	// Execute the Send function
+	resultMsg, err := host.Send(f)
 	if err != nil {
 		return nil, err
 	}
 
-	// Set up the context
-	ctx, cancel := connect.MessagingContext()
-	defer cancel()
-
-	// Send the message
-	response, err := pb.NewRegistrationClient(
-		conn.Connection).RegisterUser(ctx, message)
-	if err != nil {
-		err = errors.New(err.Error())
-	}
-
-	return response, err
+	// Marshall the result
+	result := &pb.UserRegistrationConfirmation{}
+	return result, ptypes.UnmarshalAny(resultMsg, result)
 }
 
 // Client -> Registration Send Function
 func (c *Comms) SendGetCurrentClientVersionMessage(
-	connInfo *connect.Host) (*pb.ClientVersion, error) {
+	host *connect.Host) (*pb.ClientVersion, error) {
 
-	// Obtain the connection
-	conn, err := c.ObtainConnection(connInfo)
+	// Create the Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := connect.MessagingContext()
+		defer cancel()
+
+		// Send the message
+		resultMsg, err := pb.NewRegistrationClient(
+			conn).GetCurrentClientVersion(ctx, &pb.Ping{})
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+		return ptypes.MarshalAny(resultMsg)
+	}
+
+	// Execute the Send function
+	resultMsg, err := host.Send(f)
 	if err != nil {
 		return nil, err
 	}
 
-	// Set up the context
-	ctx, cancel := connect.MessagingContext()
-	defer cancel()
-
-	// Send the message
-	response, err := pb.NewRegistrationClient(
-		conn.Connection).GetCurrentClientVersion(ctx, &pb.Ping{})
-	if err != nil {
-		err = errors.New(err.Error())
-	}
-
-	return response, err
+	// Marshall the result
+	result := &pb.ClientVersion{}
+	return result, ptypes.UnmarshalAny(resultMsg, result)
 }
 
 // Client -> Registration Send Function
-func (c *Comms) SendGetUpdatedNDF(connInfo *connect.Host,
+func (c *Comms) SendGetUpdatedNDF(host *connect.Host,
 	message *pb.NDFHash) (*pb.NDF, error) {
 
-	// Obtain the connection
-	conn, err := c.ObtainConnection(connInfo)
+	// Create the Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := connect.MessagingContext()
+		defer cancel()
+
+		// Send the message
+		resultMsg, err := pb.NewRegistrationClient(
+			conn).GetUpdatedNDF(ctx, message)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+		return ptypes.MarshalAny(resultMsg)
+	}
+
+	// Execute the Send function
+	resultMsg, err := host.Send(f)
 	if err != nil {
 		return nil, err
 	}
 
-	// Set up the context
-	ctx, cancel := connect.MessagingContext()
-	defer cancel()
-
-	// Send the message
-	response, err := pb.NewRegistrationClient(
-		conn.Connection).GetUpdatedNDF(ctx, message)
-	if err != nil {
-		err = errors.New(err.Error())
-	}
-
-	return response, err
+	// Marshall the result
+	result := &pb.NDF{}
+	return result, ptypes.UnmarshalAny(resultMsg, result)
 }

@@ -20,12 +20,15 @@ func TestSendRegistrationMessage(t *testing.T) {
 		registration.NewImplementation(), nil, nil)
 	defer rg.Shutdown()
 	var c Comms
+	var manager connect.Manager
 
-	_, err := c.SendRegistrationMessage(&connect.Host{
-		address:        GatewayAddress,
-		certificate:    nil,
-		disableTimeout: false,
-	}, &pb.UserRegistration{})
+	testId := "test"
+	host, err := manager.AddHost(testId, GatewayAddress, nil, false)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	_, err = c.SendRegistrationMessage(host, &pb.UserRegistration{})
 	if err != nil {
 		t.Errorf("RegistrationMessage: Error received: %s", err)
 	}
@@ -38,12 +41,15 @@ func TestSendCheckClientVersionMessage(t *testing.T) {
 		registration.NewImplementation(), nil, nil)
 	defer rg.Shutdown()
 	var c Comms
+	var manager connect.Manager
 
-	_, err := c.SendGetCurrentClientVersionMessage(&connect.Host{
-		address:        GatewayAddress,
-		certificate:    nil,
-		disableTimeout: false,
-	})
+	testId := "test"
+	host, err := manager.AddHost(testId, GatewayAddress, nil, false)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	_, err = c.SendGetCurrentClientVersionMessage(host)
 	if err != nil {
 		t.Errorf("CheckClientVersion: Error received: %s", err)
 	}
@@ -56,12 +62,15 @@ func TestSendGetUpdatedNDF(t *testing.T) {
 		registration.NewImplementation(), nil, nil)
 	defer rg.Shutdown()
 	var c Comms
+	var manager connect.Manager
 
-	_, err := c.SendGetUpdatedNDF(&connect.Host{
-		address:        GatewayAddress,
-		certificate:    nil,
-		disableTimeout: false,
-	}, &pb.NDFHash{})
+	testId := "test"
+	host, err := manager.AddHost(testId, GatewayAddress, nil, false)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	_, err = c.SendGetUpdatedNDF(host, &pb.NDFHash{})
 
 	if err != nil {
 		t.Errorf("GetUpdatedNDF: Error recieved: %s", err)
