@@ -58,7 +58,7 @@ func TestTLS(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	host, err := manager.AddHost(testId, ServerAddress, certData, false)
 	if err != nil {
 		t.Errorf(err.Error())
 	}

@@ -15,7 +15,6 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
-	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"golang.org/x/net/context"
 )
@@ -33,16 +32,15 @@ func (s *Comms) DownloadTopology(ctx context.Context,
 
 	// fixme: this has got to be bad, we need to review this...
 	go func() {
-		conn, err := s.Manager.ObtainConnection(&connect.Host{Id: msg.ID})
-		if err != nil {
-			jww.ERROR.Printf("Unable to obtain connection: %+v",
-				errors.New(err.Error()))
+		host, ok := s.Manager.GetHost(msg.ID)
+		if !ok {
+			jww.ERROR.Printf("Unable to obtain connection %+v", msg.ID)
 			return
 		}
 
 		// Unmarshal message to its original type
 		original := pb.NodeTopology{}
-		err = ptypes.UnmarshalAny(msg.Message, &original)
+		err := ptypes.UnmarshalAny(msg.Message, &original)
 		if err != nil {
 			jww.ERROR.Printf("Failed to unmarshal generic message, "+
 				"check your input message type: %+v", errors.New(err.Error()))
@@ -50,25 +48,16 @@ func (s *Comms) DownloadTopology(ctx context.Context,
 		}
 
 		// Verify message contents
-		var verified bool
-		pubKey := conn.RsaPublicKey
-		if pubKey != nil {
-			err = s.Manager.VerifySignature(msg, &original, pubKey)
-			if err != nil {
-				jww.ERROR.Printf("Failed to verify message contents: %+v", err)
-				return
-			}
-			verified = true
-		} else {
-			s := "WARNING: No public key found for connection, proceeding without signature verification"
-			jww.WARN.Println(s)
-			verified = false
+		err = s.Manager.VerifySignature(msg, &original, host)
+		if err != nil {
+			jww.ERROR.Printf("Failed to verify message contents: %+v", err)
+			return
 		}
 
-		senderAddress := conn.Address
+		senderAddress := host.GetAddress()
 		ci := MessageInfo{
 			Signature:      msg.Signature,
-			ValidSignature: verified,
+			ValidSignature: true,
 			Address:        senderAddress,
 			SenderId:       msg.ID,
 		}

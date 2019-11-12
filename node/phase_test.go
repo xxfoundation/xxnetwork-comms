@@ -59,11 +59,16 @@ func TestPhase_StreamPostPhaseSendReceive(t *testing.T) {
 		BatchSize: batchSize,
 	}
 
-	streamClient, cancel, err := serverStreamSender.GetPostPhaseStreamClient(&connect.Host{
-		address:        servReceiverAddress,
-		certificate:    certData,
-		disableTimeout: false,
-	}, batchInfo)
+	// Init host/manager
+	var manager connect.Manager
+	testId := "test"
+	host, err := manager.AddHost(testId, servReceiverAddress, certData, false)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	streamClient, cancel, err := serverStreamSender.GetPostPhaseStreamClient(
+		host, batchInfo)
 
 	if err != nil {
 		t.Errorf("Unable to get streaming client %v", err)
@@ -138,11 +143,15 @@ func TestGetPostPhaseStream_ErrorsWhenContextCanceled(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
 
-	_, err := serverStreamSender.getPostPhaseStream(&connect.Host{
-		address:        servReceiverAddress,
-		certificate:    certData,
-		disableTimeout: false,
-	}, ctx)
+	// Init host/manager
+	var manager connect.Manager
+	testId := "test"
+	host, err := manager.AddHost(testId, servReceiverAddress, certData, false)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	_, err = serverStreamSender.getPostPhaseStream(host, ctx)
 	if err == nil {
 		t.Errorf("Getting streaming client after canceling context should error")
 	}

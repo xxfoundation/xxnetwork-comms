@@ -53,7 +53,11 @@ func TestSignVerify(t *testing.T) {
 		t.Errorf("Failed to unmarshal generic message, check your input message type: %+v", err)
 	}
 
-	err = c.VerifySignature(signed, &verified, pub)
+	host := &Host{
+		rsaPublicKey: pub,
+	}
+
+	err = c.VerifySignature(signed, &verified, host)
 	if err != nil {
 		t.Errorf("Error verifying signature")
 	}

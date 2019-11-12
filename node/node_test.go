@@ -43,11 +43,15 @@ func TestTLS(t *testing.T) {
 		certData, keyData)
 	defer server.Shutdown()
 	defer server2.Shutdown()
-	_, err := server2.SendAskOnline(&connect.Host{
-		address:        serverAddress,
-		certificate:    certData,
-		disableTimeout: false,
-	}, &mixmessages.Ping{})
+	var manager connect.Manager
+
+	testId := "test"
+	host, err := manager.AddHost(testId, serverAddress, certData, false)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	_, err = server2.SendAskOnline(host, &mixmessages.Ping{})
 	if err != nil {
 		t.Error(err)
 	}

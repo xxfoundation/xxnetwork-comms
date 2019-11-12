@@ -21,13 +21,16 @@ func TestSendNodeRegistration(t *testing.T) {
 		registration.NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	defer reg.Shutdown()
+	var manager connect.Manager
+
+	testId := "test"
+	host, err := manager.AddHost(testId, RegAddress, nil, false)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
 
 	msgs := &pb.NodeRegistration{}
-	err := server.SendNodeRegistration(&connect.Host{
-		address:        RegAddress,
-		certificate:    nil,
-		disableTimeout: false,
-	}, msgs)
+	err = server.SendNodeRegistration(host, msgs)
 	if err != nil {
 		t.Errorf("SendNodeTopology: Error received: %s", err)
 	}

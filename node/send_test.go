@@ -19,11 +19,14 @@ func TestSendAskOnline(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	server := StartNode(ServerAddress, NewImplementation(), nil, nil)
 	defer server.Shutdown()
-	_, err := server.SendAskOnline(&connect.Host{
-		address:        ServerAddress,
-		certificate:    nil,
-		disableTimeout: false,
-	}, &pb.Ping{})
+	var manager connect.Manager
+
+	testId := "test"
+	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	_, err = server.SendAskOnline(host, &pb.Ping{})
 	if err != nil {
 		t.Errorf("AskOnline: Error received: %s", err)
 	}
@@ -34,11 +37,14 @@ func TestSendFinishRealtime(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	server := StartNode(ServerAddress, NewImplementation(), nil, nil)
 	defer server.Shutdown()
-	_, err := server.SendFinishRealtime(&connect.Host{
-		address:        ServerAddress,
-		certificate:    nil,
-		disableTimeout: false,
-	}, &pb.RoundInfo{ID: 0})
+	var manager connect.Manager
+
+	testId := "test"
+	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	_, err = server.SendFinishRealtime(host, &pb.RoundInfo{ID: 0})
 	if err != nil {
 		t.Errorf("FinishRealtime: Error received: %s", err)
 	}
@@ -49,11 +55,14 @@ func TestSendNewRound(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	server := StartNode(ServerAddress, NewImplementation(), nil, nil)
 	defer server.Shutdown()
-	_, err := server.SendNewRound(&connect.Host{
-		address:        ServerAddress,
-		certificate:    nil,
-		disableTimeout: false,
-	}, &pb.RoundInfo{})
+	var manager connect.Manager
+
+	testId := "test"
+	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	_, err = server.SendNewRound(host, &pb.RoundInfo{})
 	if err != nil {
 		t.Errorf("NewRound: Error received: %s", err)
 	}
@@ -64,11 +73,14 @@ func TestSendPostPhase(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	server := StartNode(ServerAddress, NewImplementation(), nil, nil)
 	defer server.Shutdown()
-	_, err := server.SendPostPhase(&connect.Host{
-		address:        ServerAddress,
-		certificate:    nil,
-		disableTimeout: false,
-	}, &pb.Batch{})
+	var manager connect.Manager
+
+	testId := "test"
+	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	_, err = server.SendPostPhase(host, &pb.Batch{})
 	if err != nil {
 		t.Errorf("Phase: Error received: %s", err)
 	}
@@ -79,11 +91,14 @@ func TestSendPostRoundPublicKey(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	server := StartNode(ServerAddress, NewImplementation(), nil, nil)
 	defer server.Shutdown()
-	_, err := server.SendPostRoundPublicKey(&connect.Host{
-		address:        ServerAddress,
-		certificate:    nil,
-		disableTimeout: false,
-	}, &pb.RoundPublicKey{})
+	var manager connect.Manager
+
+	testId := "test"
+	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	_, err = server.SendPostRoundPublicKey(host, &pb.RoundPublicKey{})
 	if err != nil {
 		t.Errorf("PostRoundPublicKey: Error received: %s", err)
 	}
@@ -94,12 +109,15 @@ func TestSendPostPrecompResult(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	server := StartNode(ServerAddress, NewImplementation(), nil, nil)
 	defer server.Shutdown()
+	var manager connect.Manager
+
+	testId := "test"
+	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
 	slots := make([]*pb.Slot, 0)
-	_, err := server.SendPostPrecompResult(&connect.Host{
-		address:        ServerAddress,
-		certificate:    nil,
-		disableTimeout: false,
-	}, 0, slots)
+	_, err = server.SendPostPrecompResult(host, 0, slots)
 	if err != nil {
 		t.Errorf("PostPrecompResult: Error received: %s", err)
 	}
@@ -119,15 +137,18 @@ func TestSendGetMeasure(t *testing.T) {
 	impl.Functions.GetMeasure = mockMeasure
 	server := StartNode(ServerAddress, impl, nil, nil)
 	defer server.Shutdown()
+	var manager connect.Manager
+
+	testId := "test"
+	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
 
 	ri := pb.RoundInfo{
 		ID: uint64(3),
 	}
-	_, err := server.SendGetMeasure(&connect.Host{
-		address:        ServerAddress,
-		certificate:    nil,
-		disableTimeout: false,
-	}, &ri)
+	_, err = server.SendGetMeasure(host, &ri)
 	if err != nil {
 		t.Errorf("SendGetMeasure: Error received: %s", err)
 	}
@@ -149,11 +170,14 @@ func TestSendGetMeasureError(t *testing.T) {
 	ri := pb.RoundInfo{
 		ID: uint64(3),
 	}
-	_, err := server.SendGetMeasure(&connect.Host{
-		address:        ServerAddress,
-		certificate:    nil,
-		disableTimeout: false,
-	}, &ri)
+	var manager connect.Manager
+
+	testId := "test"
+	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	_, err = server.SendGetMeasure(host, &ri)
 	if err == nil {
 		t.Error("Did not receive error response")
 	}
@@ -164,17 +188,20 @@ func TestRoundTripPing(t *testing.T) {
 	impl := NewImplementation()
 	server := StartNode(ServerAddress, impl, nil, nil)
 	defer server.Shutdown()
+	var manager connect.Manager
+
+	testId := "test"
+	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
 
 	any, err := ptypes.MarshalAny(&pb.Ack{})
 	if err != nil {
 		t.Errorf("SendRoundTripPing: failed attempting to marshall any type: %+v", err)
 	}
 
-	_, err = server.RoundTripPing(&connect.Host{
-		address:        ServerAddress,
-		certificate:    nil,
-		disableTimeout: false,
-	}, uint64(1), any)
+	_, err = server.RoundTripPing(host, uint64(1), any)
 	if err != nil {
 		t.Errorf("Received error from RoundTripPing: %+v", err)
 	}

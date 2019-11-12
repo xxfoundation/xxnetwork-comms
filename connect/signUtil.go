@@ -46,7 +46,9 @@ func (m *Manager) SignMessage(anyMessage *any.Any, id string) (*pb.SignedMessage
 
 // VerifySignature accepts a signed message, the UnMarshalled message, and RSA PublicKey
 // It verifies the signature, returning an error if invalid
-func (m *Manager) VerifySignature(message *pb.SignedMessage, pb proto.Message, pubKey *rsa.PublicKey) error {
+func (m *Manager) VerifySignature(message *pb.SignedMessage,
+	pb proto.Message, host *Host) error {
+
 	// Get hashed data of the message
 	options := rsa.NewDefaultOptions()
 	hash := options.Hash.New()
@@ -55,7 +57,7 @@ func (m *Manager) VerifySignature(message *pb.SignedMessage, pb proto.Message, p
 	hashed := hash.Sum(data)[len(data):]
 
 	// Verify signature of message
-	err := rsa.Verify(pubKey, options.Hash, hashed, message.Signature, nil)
+	err := rsa.Verify(host.rsaPublicKey, options.Hash, hashed, message.Signature, nil)
 	if err != nil {
 		return err
 	}

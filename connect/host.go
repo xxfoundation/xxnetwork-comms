@@ -42,17 +42,15 @@ type Host struct {
 	rsaPublicKey *rsa.PublicKey
 }
 
-// Sets up or recovers the Host's connection
-// Then runs the given Send function
-func (h *Host) Send(f func(conn *grpc.ClientConn) (*any.Any, error)) (
-	result *any.Any, err error) {
-
+// Ensures the given Host's connection is alive
+// and attempts to recover if not
+func (h *Host) validateConnection() (err error) {
 	// If Host connection does not exist, open the connection
 	if h.connection == nil {
 		err = h.connect()
-		if err != nil {
-			return
-		}
+	}
+	if err != nil {
+		return
 	}
 
 	// If Host connection is not active, attempt to reestablish
@@ -60,12 +58,38 @@ func (h *Host) Send(f func(conn *grpc.ClientConn) (*any.Any, error)) (
 		jww.WARN.Printf("Bad host connection state, reconnecting: %v", h)
 		h.disconnect()
 		err = h.connect()
-		if err != nil {
-			return
-		}
+	}
+
+	return
+}
+
+// Sets up or recovers the Host's connection
+// Then runs the given Send function
+func (h *Host) Send(f func(conn *grpc.ClientConn) (*any.Any, error)) (
+	result *any.Any, err error) {
+
+	// Ensure the connection is running
+	err = h.validateConnection()
+	if err != nil {
+		return
 	}
 
 	// Run the send function
+	return f(h.connection)
+}
+
+// Sets up or recovers the Host's connection
+// Then runs the given Stream function
+func (h *Host) Stream(f func(conn *grpc.ClientConn) (interface{}, error)) (
+	client interface{}, err error) {
+
+	// Ensure the connection is running
+	err = h.validateConnection()
+	if err != nil {
+		return
+	}
+
+	// Run the stream function
 	return f(h.connection)
 }
 

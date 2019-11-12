@@ -11,45 +11,52 @@ package node
 import (
 	"context"
 	"github.com/golang/protobuf/proto"
-	"github.com/grpc-ecosystem/go-grpc-middleware/retry"
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 )
 
 // Server -> Server Send Function
-func (s *Comms) SendPostPhase(connInfo *connect.Host,
+func (s *Comms) SendPostPhase(host *connect.Host,
 	message *pb.Batch) (*pb.Ack, error) {
 
-	// Obtain the connection
-	conn, err := s.ObtainConnection(connInfo)
+	// Create the Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := connect.MessagingContext()
+		defer cancel()
+
+		// Send the message
+		resultMsg, err := pb.NewNodeClient(conn).PostPhase(ctx, message)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+		return ptypes.MarshalAny(resultMsg)
+	}
+
+	// Execute the Send function
+	resultMsg, err := host.Send(f)
 	if err != nil {
 		return nil, err
 	}
 
-	// Set up the context
-	ctx, cancel := connect.MessagingContext()
-	defer cancel()
-
-	// Send the message
-	result, err := pb.NewNodeClient(conn.Connection).PostPhase(ctx, message,
-		grpc_retry.WithMax(connect.DefaultMaxRetries))
-	if err != nil {
-		err = errors.New(err.Error())
-	}
-
-	return result, err
+	// Marshall the result
+	result := &pb.Ack{}
+	return result, ptypes.UnmarshalAny(resultMsg, result)
 }
 
 // GetPostPhaseStreamClient gets the streaming client
 // using a header and returns the stream and the cancel context
 // if there are no connection errors
-func (s *Comms) GetPostPhaseStreamClient(connInfo *connect.Host,
+func (s *Comms) GetPostPhaseStreamClient(host *connect.Host,
 	header pb.BatchInfo) (pb.Node_StreamPostPhaseClient, context.CancelFunc, error) {
 
 	ctx, cancel := s.getPostPhaseStreamContext(header)
-	streamClient, err := s.getPostPhaseStream(connInfo, ctx)
+	streamClient, err := s.getPostPhaseStream(host, ctx)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -76,23 +83,28 @@ func (s *Comms) getPostPhaseStreamContext(batchInfo pb.BatchInfo) (
 // getPostPhaseStream uses an id and streaming context to retrieve
 // a Node_StreamPostPhaseClient object otherwise it returns
 // an error if the connection is unavailable
-func (s *Comms) getPostPhaseStream(connInfo *connect.Host,
+func (s *Comms) getPostPhaseStream(host *connect.Host,
 	ctx context.Context) (pb.Node_StreamPostPhaseClient, error) {
 
-	// Obtain the connection
-	conn, err := s.ObtainConnection(connInfo)
+	// Create the Stream Function
+	f := func(conn *grpc.ClientConn) (interface{}, error) {
+		// Get the stream client
+		streamClient, err := pb.NewNodeClient(conn).StreamPostPhase(ctx)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+		return streamClient, nil
+	}
+
+	// Execute the Stream function
+	resultClient, err := host.Stream(f)
 	if err != nil {
 		return nil, err
 	}
 
-	// Get the stream client using streaming context
-	streamClient, err := pb.NewNodeClient(conn.Connection).StreamPostPhase(ctx,
-		grpc_retry.WithMax(connect.DefaultMaxRetries))
-	if err != nil {
-		return nil, errors.New(err.Error())
-	}
-
-	return streamClient, nil
+	// Marshall the result
+	result := resultClient.(pb.Node_StreamPostPhaseClient)
+	return result, nil
 }
 
 // GetPostPhaseStreamHeader gets the header
