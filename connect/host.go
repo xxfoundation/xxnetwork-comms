@@ -101,7 +101,7 @@ func (h *Host) GetAddress() string {
 // Returns a copy of the Host certificate
 func (h *Host) GetCertificate() []byte {
 	cert := make([]byte, len(h.certificate))
-	copy(cert, h.certificate)
+	copy(h.certificate, cert)
 	return cert
 }
 

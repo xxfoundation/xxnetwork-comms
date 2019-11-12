@@ -159,5 +159,5 @@ func TestConnectionManager_String(t *testing.T) {
 	certData := testkeys.LoadFromPath(certPath)
 	// Initialize the connection object
 	_, _ = cm.AddHost("test", "test", certData, true)
-	t.Log(cm)
+	t.Log(cm.String())
 }
