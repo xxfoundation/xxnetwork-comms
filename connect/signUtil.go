@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes/any"
+	"github.com/pkg/errors"
 	"github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/crypto/signature/rsa"
@@ -31,7 +32,7 @@ func (m *Manager) SignMessage(anyMessage *any.Any, id string) (*pb.SignedMessage
 	// Sign the thing
 	signature, err := rsa.Sign(rand.Reader, key, options.Hash, hashed, nil)
 	if err != nil {
-		return nil, err
+		return nil, errors.New(err.Error())
 	}
 
 	// Form signed message
@@ -59,7 +60,7 @@ func (m *Manager) VerifySignature(message *pb.SignedMessage,
 	// Verify signature of message
 	err := rsa.Verify(host.rsaPublicKey, options.Hash, hashed, message.Signature, nil)
 	if err != nil {
-		return err
+		return errors.New(err.Error())
 	}
 
 	return nil

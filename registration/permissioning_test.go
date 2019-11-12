@@ -29,12 +29,15 @@ func TestSendNodeTopology(t *testing.T) {
 		NewImplementation(), certData, keyData)
 	defer server.Shutdown()
 	defer reg.Shutdown()
+	var manager connect.Manager
+
+	testId := "test"
+	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
 	msgs := &pb.NodeTopology{}
-	err := reg.SendNodeTopology(&connect.Host{
-		address:        ServerAddress,
-		certificate:    nil,
-		disableTimeout: false,
-	}, msgs)
+	err = reg.SendNodeTopology(host, msgs)
 	if err != nil {
 		t.Errorf("SendNodeTopology: Error received: %s", err)
 	}
@@ -50,12 +53,15 @@ func TestSendNodeTopologyNilKey(t *testing.T) {
 		NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	defer reg.Shutdown()
+	var manager connect.Manager
+
+	testId := "test"
+	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
 	msgs := &pb.NodeTopology{}
-	err := reg.SendNodeTopology(&connect.Host{
-		address:        ServerAddress,
-		certificate:    nil,
-		disableTimeout: false,
-	}, msgs)
+	err = reg.SendNodeTopology(host, msgs)
 	if err != nil {
 		t.Errorf("Should not have tried to sign message, instead got: %+v", err)
 	}
@@ -71,12 +77,15 @@ func TestSendNodeTopologyBadMessageError(t *testing.T) {
 		NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	defer reg.Shutdown()
+	var manager connect.Manager
 
-	err := reg.SendNodeTopology(&connect.Host{
-		address:        ServerAddress,
-		certificate:    nil,
-		disableTimeout: false,
-	}, nil)
+	testId := "test"
+	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	err = reg.SendNodeTopology(host, nil)
 	if err == nil {
 		t.Errorf("SendNodeTopology: did not receive missing private key error")
 	}
@@ -92,11 +101,14 @@ func TestSendNodeTopologyNilMessage(t *testing.T) {
 		NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	defer reg.Shutdown()
-	err := reg.SendNodeTopology(&connect.Host{
-		address:        ServerAddress,
-		certificate:    nil,
-		disableTimeout: false,
-	}, nil)
+	var manager connect.Manager
+
+	testId := "test"
+	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	err = reg.SendNodeTopology(host, nil)
 	if err == nil {
 		t.Errorf("Should not have tried to sign message, instead got: %+v", err)
 	}
@@ -112,13 +124,16 @@ func TestSendNodeTopologyBadSignature(t *testing.T) {
 		NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	defer reg.Shutdown()
+	var manager connect.Manager
+
+	testId := "test"
+	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
 
 	msgs := &pb.NodeTopology{}
-	err := reg.SendNodeTopology(&connect.Host{
-		address:        ServerAddress,
-		certificate:    nil,
-		disableTimeout: false,
-	}, msgs)
+	err = reg.SendNodeTopology(host, msgs)
 	if err != nil {
 		t.Errorf("Should not have tried to sign message, instead got: %+v", err)
 	}
