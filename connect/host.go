@@ -117,7 +117,7 @@ func (h *Host) isAlive() bool {
 
 // Closes a the Host connection
 func (h *Host) disconnect() {
-	if h.connection != nil {
+	if h.connection == nil {
 		return
 	}
 	err := h.connection.Close()
