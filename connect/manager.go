@@ -53,7 +53,7 @@ func (m *Manager) GetHost(hostId string) (*Host, bool) {
 }
 
 // Adds the given Host object to the Manager using the given id
-func (m *Manager) AddHost(id, host *Host) {
+func (m *Manager) AddHost(id string, host *Host) {
 	m.connections.Store(id, host)
 }
 
