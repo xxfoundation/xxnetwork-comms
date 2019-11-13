@@ -53,7 +53,7 @@ func NewHost(address string, cert []byte, disableTimeout bool) (host *Host, err 
 
 	// Set the max number of retries for establishing a connection
 	if disableTimeout {
-		host.maxRetries = math.MaxInt64
+		host.maxRetries = math.MaxInt32
 	} else {
 		host.maxRetries = 100
 	}

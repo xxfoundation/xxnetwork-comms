@@ -66,10 +66,11 @@ func TestConnectionManager_Disconnect(t *testing.T) {
 	address := SERVER_ADDRESS
 	var manager Manager
 	testId := "testId"
-	host, err := manager.AddHost(testId, address, nil, false)
+	host, err := NewHost(address, nil, false)
 	if err != nil {
 		t.Errorf("Unable to call connnect: %+v", err)
 	}
+	manager.AddHost(testId, host)
 
 	_, inMap := manager.connections.Load(testId)
 
