@@ -18,6 +18,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/credentials"
+	"math"
 	"time"
 )
 
@@ -40,6 +41,26 @@ type Host struct {
 
 	// RSA Public Key corresponding to the TLS Certificate
 	rsaPublicKey *rsa.PublicKey
+}
+
+// Creates a new Host object
+func NewHost(address string, cert []byte, disableTimeout bool) (host *Host, err error) {
+	// Initialize the Host object
+	host = &Host{
+		address:     address,
+		certificate: cert,
+	}
+
+	// Set the max number of retries for establishing a connection
+	if disableTimeout {
+		host.maxRetries = math.MaxInt64
+	} else {
+		host.maxRetries = 100
+	}
+
+	// Configure the host credentials
+	err = host.setCredentials()
+	return
 }
 
 // Ensures the given Host's connection is alive

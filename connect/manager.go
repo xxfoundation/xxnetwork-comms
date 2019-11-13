@@ -13,7 +13,6 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	"gitlab.com/elixxir/crypto/signature/rsa"
-	"math"
 	"sync"
 )
 
@@ -57,26 +56,13 @@ func (m *Manager) GetHost(hostId string) (*Host, bool) {
 func (m *Manager) AddHost(id, address string, cert []byte,
 	disableTimeout bool) (host *Host, err error) {
 
-	// Initialize the Host object
-	host = &Host{
-		address:     address,
-		certificate: cert,
-	}
-
-	// Set the max number of retries for establishing a connection
-	if disableTimeout {
-		host.maxRetries = math.MaxInt64
-	} else {
-		host.maxRetries = 100
-	}
-
-	// Configure the host credentials
-	err = host.setCredentials()
+	// Create the Host object
+	host, err = NewHost(address, cert, disableTimeout)
 	if err != nil {
-		return nil, err
+		return
 	}
 
-	// Add the connection to the manager
+	// Add the Host to the Manager
 	m.connections.Store(id, host)
 	return
 }
