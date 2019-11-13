@@ -52,19 +52,9 @@ func (m *Manager) GetHost(hostId string) (*Host, bool) {
 	return host, ok
 }
 
-// Creates a host object and adds the newly-created object to the Manager
-func (m *Manager) AddHost(id, address string, cert []byte,
-	disableTimeout bool) (host *Host, err error) {
-
-	// Create the Host object
-	host, err = NewHost(address, cert, disableTimeout)
-	if err != nil {
-		return
-	}
-
-	// Add the Host to the Manager
+// Adds the given Host object to the Manager using the given id
+func (m *Manager) AddHost(id, host *Host) {
 	m.connections.Store(id, host)
-	return
 }
 
 // Closes all client connections and removes them from Manager
