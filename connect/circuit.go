@@ -23,7 +23,7 @@ type Circuit struct {
 // to ensure any modification of them does not change the
 // Circuit structure.  Will panic if the length of the passed
 // list is zero.
-func New(list []*id.Node) *Circuit {
+func NewCircuit(list []*id.Node) *Circuit {
 	c := Circuit{
 		nodes:       make([]*id.Node, 0),
 		nodeIndexes: make(map[id.Node]int),
@@ -128,7 +128,7 @@ func (c *Circuit) GetOrdering() []*Circuit {
 	circuits := make([]*Circuit, len(list))
 
 	for i := range list {
-		circuits[i] = New(shiftLeft(list, i))
+		circuits[i] = NewCircuit(shiftLeft(list, i))
 	}
 
 	return circuits
