@@ -147,7 +147,6 @@ func (c *Circuit) GetHostAtIndex(index int) *Host {
 //SetHosts takes a list of hosts and copies them into the list of hosts in
 // the circuit object
 func (c *Circuit) AddHost(newHost *Host) {
-	//host arangement doesn't necessarily math the topology??
 	c.hosts = append(c.hosts, newHost)
 }
 

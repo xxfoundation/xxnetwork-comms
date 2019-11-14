@@ -7,7 +7,9 @@
 package connect
 
 import (
+	"gitlab.com/elixxir/comms/testkeys"
 	"gitlab.com/elixxir/primitives/id"
+	"gitlab.com/elixxir/primitives/utils"
 	"reflect"
 	"testing"
 )
@@ -168,6 +170,59 @@ func TestCircuit_GetNodeAtIndex_OutOfList_Greater(t *testing.T) {
 	circuit.GetNodeAtIndex(len(circuit.nodes))
 
 	t.Errorf("Circuit.GetNodeAtIndex: should have paniced with index of len()")
+
+}
+
+//Tests that GetHostAtIndex panics whn the passed index
+// is len or greater
+func TestCircuit_GetHostAtIndex_OutOfList_Greater(t *testing.T) {
+	nodeIdList := makeTestingNodeIdList(5)
+
+	circuit := New(nodeIdList)
+
+	defer func() {
+		if r := recover(); r != nil {
+			return
+		}
+	}()
+
+	circuit.GetHostAtIndex(len(nodeIdList))
+
+	t.Errorf("Circuit.GetHostAtIndex: should have paniced with index of len()")
+
+}
+
+// Tests that GetNodeAtIndex panics when the passed
+// index is lower than 0
+func TestCircuit_GetHostAtIndex_OutOfList_Lesser(t *testing.T) {
+	nodeIdList := makeTestingNodeIdList(5)
+
+	circuit := New(nodeIdList)
+
+	defer func() {
+		if r := recover(); r != nil {
+			return
+		}
+	}()
+
+	circuit.GetNodeAtIndex(-1)
+
+	t.Errorf("Circuit.GetHostAtIndex: should have paniced with index of -1")
+
+}
+
+// Tests the happy path of GetHostAtIndex
+func TestCircuit_GetHostAtIndex(t *testing.T) {
+	nodeIdList := makeTestingNodeIdList(5)
+	cert, _ := utils.ReadFile(testkeys.GetNodeCertPath())
+	circuit := New(nodeIdList)
+	testHost, _ := NewHost("test", cert, false)
+	circuit.AddHost(testHost)
+
+	if !reflect.DeepEqual(circuit.hosts[0], testHost) {
+		t.Errorf("Circuit.GetHostAtIndex: host incorrect;\n"+
+			"Expected: %v\nRecieved: %v", testHost, circuit.hosts[0])
+	}
 
 }
 
