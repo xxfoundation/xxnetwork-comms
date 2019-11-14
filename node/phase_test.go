@@ -62,11 +62,11 @@ func TestPhase_StreamPostPhaseSendReceive(t *testing.T) {
 	// Init host/manager
 	var manager connect.Manager
 	testId := "test"
-	host, err := manager.AddHost(testId, servReceiverAddress, certData, false)
+	host, err := connect.NewHost(servReceiverAddress, certData, false)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Errorf("Unable to call NewHost: %+v", err)
 	}
-
+	manager.AddHost(testId, host)
 	streamClient, cancel, err := serverStreamSender.GetPostPhaseStreamClient(
 		host, batchInfo)
 
@@ -146,10 +146,11 @@ func TestGetPostPhaseStream_ErrorsWhenContextCanceled(t *testing.T) {
 	// Init host/manager
 	var manager connect.Manager
 	testId := "test"
-	host, err := manager.AddHost(testId, servReceiverAddress, certData, false)
+	host, err := connect.NewHost(servReceiverAddress, certData, false)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Errorf("Unable to call NewHost: %+v", err)
 	}
+	manager.AddHost(testId, host)
 
 	_, err = serverStreamSender.getPostPhaseStream(host, ctx)
 	if err == nil {

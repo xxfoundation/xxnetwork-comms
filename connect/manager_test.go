@@ -107,10 +107,11 @@ func TestConnectionManager_DisconnectAll(t *testing.T) {
 	testId := "testId"
 	testId2 := "TestId2"
 
-	host, err := manager.AddHost(testId, address, nil, false)
+	host, err := NewHost(address, nil, false)
 	if err != nil {
-		t.Errorf("Unable to call connnect: %+v", err)
+		t.Errorf("Unable to call NewHost: %+v", err)
 	}
+	manager.AddHost(testId, host)
 
 	_, inMap := manager.GetHost(testId)
 
@@ -120,13 +121,20 @@ func TestConnectionManager_DisconnectAll(t *testing.T) {
 		pass++
 	}
 
-	host2, err := manager.AddHost(testId2, address2, nil, false)
+	host2, err := NewHost(address2, nil, false)
+	if err != nil {
+		t.Errorf("Unable to call NewHost: %+v", err)
+	}
+	manager.AddHost(testId2, host2)
+
+	err = host.connect()
 	if err != nil {
 		t.Errorf("Unable to call connnect: %+v", err)
 	}
-
-	host.connect()
-	host2.connect()
+	err = host2.connect()
+	if err != nil {
+		t.Errorf("Unable to call connnect: %+v", err)
+	}
 
 	_, inMap = manager.connections.Load(testId2)
 
@@ -158,7 +166,11 @@ func TestConnectionManager_String(t *testing.T) {
 
 	certPath := testkeys.GetNodeCertPath()
 	certData := testkeys.LoadFromPath(certPath)
+	host, err := NewHost("test", certData, false)
+	if err != nil {
+		t.Errorf("Unable to call NewHost: %+v", err)
+	}
+	cm.AddHost("test", host)
 	// Initialize the connection object
-	_, _ = cm.AddHost("test", "test", certData, true)
 	t.Log(cm.String())
 }

@@ -24,12 +24,14 @@ import (
 
 // Information used to describe a connection to a host
 type Host struct {
+	// Public Variables ---------------
 	// address:Port being connected to
 	address string
 
 	// PEM-format TLS Certificate
 	certificate []byte
 
+	// Private Variables ---------------
 	// Configure the maximum number of connection attempts
 	maxRetries int
 

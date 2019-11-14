@@ -25,10 +25,11 @@ func TestPostNewBatch(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	host, err := connect.NewHost(ServerAddress, nil, false)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Errorf("Unable to call NewHost: %+v", err)
 	}
+	manager.AddHost(testId, host)
 
 	msgs := &pb.Batch{}
 	err = gateway.PostNewBatch(host, msgs)
@@ -49,10 +50,11 @@ func TestGetRoundBufferInfo(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	host, err := connect.NewHost(ServerAddress, nil, false)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Errorf("Unable to call NewHost: %+v", err)
 	}
+	manager.AddHost(testId, host)
 
 	bufSize, err := gateway.GetRoundBufferInfo(host)
 	if err != nil {
@@ -75,10 +77,11 @@ func TestGetCompletedBatch(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	host, err := connect.NewHost(ServerAddress, nil, false)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Errorf("Unable to call NewHost: %+v", err)
 	}
+	manager.AddHost(testId, host)
 
 	batch, err := gateway.GetCompletedBatch(host)
 	if err != nil {
