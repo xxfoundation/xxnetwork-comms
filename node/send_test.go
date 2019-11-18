@@ -22,11 +22,11 @@ func TestSendAskOnline(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := connect.NewHost(ServerAddress, nil, false)
+	host, err := manager.AddHost(testId, ServerAddress, nil, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
-	manager.AddHost(testId, host)
+
 	_, err = server.SendAskOnline(host, &pb.Ping{})
 	if err != nil {
 		t.Errorf("AskOnline: Error received: %s", err)
@@ -41,11 +41,11 @@ func TestSendFinishRealtime(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := connect.NewHost(ServerAddress, nil, false)
+	host, err := manager.AddHost(testId, ServerAddress, nil, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
-	manager.AddHost(testId, host)
+
 	_, err = server.SendFinishRealtime(host, &pb.RoundInfo{ID: 0})
 	if err != nil {
 		t.Errorf("FinishRealtime: Error received: %s", err)
@@ -60,11 +60,11 @@ func TestSendNewRound(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := connect.NewHost(ServerAddress, nil, false)
+	host, err := manager.AddHost(testId, ServerAddress, nil, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
-	manager.AddHost(testId, host)
+
 	_, err = server.SendNewRound(host, &pb.RoundInfo{})
 	if err != nil {
 		t.Errorf("NewRound: Error received: %s", err)
@@ -79,11 +79,11 @@ func TestSendPostPhase(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := connect.NewHost(ServerAddress, nil, false)
+	host, err := manager.AddHost(testId, ServerAddress, nil, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
-	manager.AddHost(testId, host)
+
 	_, err = server.SendPostPhase(host, &pb.Batch{})
 	if err != nil {
 		t.Errorf("Phase: Error received: %s", err)
@@ -98,11 +98,11 @@ func TestSendPostRoundPublicKey(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := connect.NewHost(ServerAddress, nil, false)
+	host, err := manager.AddHost(testId, ServerAddress, nil, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
-	manager.AddHost(testId, host)
+
 	_, err = server.SendPostRoundPublicKey(host, &pb.RoundPublicKey{})
 	if err != nil {
 		t.Errorf("PostRoundPublicKey: Error received: %s", err)
@@ -117,11 +117,11 @@ func TestSendPostPrecompResult(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := connect.NewHost(ServerAddress, nil, false)
+	host, err := manager.AddHost(testId, ServerAddress, nil, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
-	manager.AddHost(testId, host)
+
 	slots := make([]*pb.Slot, 0)
 	_, err = server.SendPostPrecompResult(host, 0, slots)
 	if err != nil {
@@ -146,11 +146,10 @@ func TestSendGetMeasure(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := connect.NewHost(ServerAddress, nil, false)
+	host, err := manager.AddHost(testId, ServerAddress, nil, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
-	manager.AddHost(testId, host)
 
 	ri := pb.RoundInfo{
 		ID: uint64(3),
@@ -180,11 +179,11 @@ func TestSendGetMeasureError(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := connect.NewHost(ServerAddress, nil, false)
+	host, err := manager.AddHost(testId, ServerAddress, nil, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
-	manager.AddHost(testId, host)
+
 	_, err = server.SendGetMeasure(host, &ri)
 	if err == nil {
 		t.Error("Did not receive error response")
@@ -199,11 +198,10 @@ func TestRoundTripPing(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := connect.NewHost(ServerAddress, nil, false)
+	host, err := manager.AddHost(testId, ServerAddress, nil, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
-	manager.AddHost(testId, host)
 
 	any, err := ptypes.MarshalAny(&pb.Ack{})
 	if err != nil {

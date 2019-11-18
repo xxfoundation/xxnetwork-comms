@@ -23,11 +23,10 @@ func TestSendPutMessage(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := connect.NewHost(gatewayAddress, nil, false)
+	host, err := manager.AddHost(testId, gatewayAddress, nil, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
-	manager.AddHost(testId, host)
 
 	err = c.SendPutMessage(host, &pb.Slot{})
 	if err != nil {
@@ -45,11 +44,10 @@ func TestSendCheckMessages(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := connect.NewHost(gatewayAddress, nil, false)
+	host, err := manager.AddHost(testId, gatewayAddress, nil, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
-	manager.AddHost(testId, host)
 
 	_, err = c.SendCheckMessages(host, &pb.ClientRequest{})
 	if err != nil {
@@ -68,11 +66,11 @@ func TestSendGetMessage(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := connect.NewHost(gatewayAddress, nil, false)
+	host, err := manager.AddHost(testId, gatewayAddress, nil, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
-	manager.AddHost(testId, host)
+
 	_, err = c.SendGetMessage(host, &pb.ClientRequest{})
 	if err != nil {
 		t.Errorf("GetMessage: Error received: %s", err)
@@ -89,11 +87,10 @@ func TestSendRequestNonceMessage(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := connect.NewHost(gatewayAddress, nil, false)
+	host, err := manager.AddHost(testId, gatewayAddress, nil, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
-	manager.AddHost(testId, host)
 
 	_, err = c.SendRequestNonceMessage(host, &pb.NonceRequest{})
 	if err != nil {
@@ -111,11 +108,11 @@ func TestSendConfirmNonceMessage(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := connect.NewHost(gatewayAddress, nil, false)
+	host, err := manager.AddHost(testId, gatewayAddress, nil, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
-	manager.AddHost(testId, host)
+
 	_, err = c.SendConfirmNonceMessage(host,
 		&pb.RequestRegistrationConfirmation{})
 	if err != nil {

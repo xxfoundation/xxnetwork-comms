@@ -15,12 +15,11 @@ func TestHost_GetAddress(t *testing.T) {
 	var mgr Manager
 	testId := "test"
 	testAddress := "test"
-	host, err := NewHost(testAddress, nil, false)
+	host, err := mgr.AddHost(testId, testAddress, nil, false)
 	if err != nil {
 		t.Errorf("Unable to add host")
 		return
 	}
-	mgr.AddHost(testId, host)
 
 	if host.GetAddress() != testAddress {
 		t.Errorf("Expected addresses to match")

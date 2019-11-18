@@ -23,11 +23,10 @@ func TestSendRegistrationMessage(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := connect.NewHost(GatewayAddress, nil, false)
+	host, err := manager.AddHost(testId, GatewayAddress, nil, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
-	manager.AddHost(testId, host)
 
 	_, err = c.SendRegistrationMessage(host, &pb.UserRegistration{})
 	if err != nil {
@@ -45,11 +44,10 @@ func TestSendCheckClientVersionMessage(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := connect.NewHost(GatewayAddress, nil, false)
+	host, err := manager.AddHost(testId, GatewayAddress, nil, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
-	manager.AddHost(testId, host)
 
 	_, err = c.SendGetCurrentClientVersionMessage(host)
 	if err != nil {
@@ -67,11 +65,10 @@ func TestSendGetUpdatedNDF(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := connect.NewHost(GatewayAddress, nil, false)
+	host, err := manager.AddHost(testId, GatewayAddress, nil, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
-	manager.AddHost(testId, host)
 
 	_, err = c.SendGetUpdatedNDF(host, &pb.NDFHash{})
 

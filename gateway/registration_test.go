@@ -25,11 +25,10 @@ func TestSendRequestNonceMessage(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := connect.NewHost(ServerAddress, nil, false)
+	host, err := manager.AddHost(testId, ServerAddress, nil, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
-	manager.AddHost(testId, host)
 
 	RSASignature := &pb.RSASignature{
 		Signature: []byte{},
@@ -55,11 +54,10 @@ func TestSendConfirmNonceMessage(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := connect.NewHost(ServerAddress, nil, false)
+	host, err := manager.AddHost(testId, ServerAddress, nil, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
-	manager.AddHost(testId, host)
 
 	reg := &pb.RequestRegistrationConfirmation{}
 	reg.NonceSignedByClient = &pb.RSASignature{}
@@ -80,11 +78,10 @@ func TestPollSignedCerts(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := connect.NewHost(ServerAddress, nil, false)
+	host, err := manager.AddHost(testId, ServerAddress, nil, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
-	manager.AddHost(testId, host)
 
 	_, err = gateway.PollSignedCerts(host, &pb.Ping{})
 	if err != nil {

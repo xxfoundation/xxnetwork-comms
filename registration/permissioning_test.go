@@ -32,11 +32,11 @@ func TestSendNodeTopology(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := connect.NewHost(ServerAddress, nil, false)
+	host, err := manager.AddHost(testId, ServerAddress, nil, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
-	manager.AddHost(testId, host)
+
 	msgs := &pb.NodeTopology{}
 	err = reg.SendNodeTopology(host, msgs)
 	if err != nil {
@@ -57,11 +57,11 @@ func TestSendNodeTopologyNilKey(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := connect.NewHost(ServerAddress, nil, false)
+	host, err := manager.AddHost(testId, ServerAddress, nil, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
-	manager.AddHost(testId, host)
+
 	msgs := &pb.NodeTopology{}
 	err = reg.SendNodeTopology(host, msgs)
 	if err != nil {
@@ -82,11 +82,10 @@ func TestSendNodeTopologyBadMessageError(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := connect.NewHost(ServerAddress, nil, false)
+	host, err := manager.AddHost(testId, ServerAddress, nil, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
-	manager.AddHost(testId, host)
 
 	err = reg.SendNodeTopology(host, nil)
 	if err == nil {
@@ -107,11 +106,11 @@ func TestSendNodeTopologyNilMessage(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := connect.NewHost(ServerAddress, nil, false)
+	host, err := manager.AddHost(testId, ServerAddress, nil, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
-	manager.AddHost(testId, host)
+
 	err = reg.SendNodeTopology(host, nil)
 	if err == nil {
 		t.Errorf("Should not have tried to sign message, instead got: %+v", err)
@@ -131,11 +130,11 @@ func TestSendNodeTopologyBadSignature(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := connect.NewHost(ServerAddress, nil, false)
+	host, err := manager.AddHost(testId, ServerAddress, nil, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
-	manager.AddHost(testId, host)
+
 	msgs := &pb.NodeTopology{}
 	err = reg.SendNodeTopology(host, msgs)
 	if err != nil {

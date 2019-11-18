@@ -41,11 +41,10 @@ func TestDownloadTopology(t *testing.T) {
 	defer reg.Shutdown()
 	var manager connect.Manager
 
-	host, err := connect.NewHost(RegAddress, certData, false)
+	_, err := manager.AddHost(testId, RegAddress, certData, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
-	manager.AddHost(testId, host)
 
 	if err != nil {
 		t.Errorf("Download topology failed: %+v", err)

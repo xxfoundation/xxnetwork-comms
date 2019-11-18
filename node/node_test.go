@@ -46,11 +46,10 @@ func TestTLS(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := connect.NewHost(serverAddress, certData, false)
+	host, err := manager.AddHost(testId, serverAddress, certData, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
-	manager.AddHost(testId, host)
 
 	_, err = server2.SendAskOnline(host, &mixmessages.Ping{})
 	if err != nil {

@@ -58,11 +58,10 @@ func TestTLS(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := connect.NewHost(ServerAddress, certData, false)
+	host, err := manager.AddHost(testId, ServerAddress, certData, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
-	manager.AddHost(testId, host)
 
 	err = gateway.PostNewBatch(host, &mixmessages.Batch{})
 	if err != nil {

@@ -458,7 +458,7 @@ func makeTestingNodeIdList(len int) []*id.Node {
 
 func makeNodeId(b byte) *id.Node {
 	invalidNodeIdBytes := make([]byte, id.NodeIdLen)
-	invalidNodeIdBytes[0] = byte(b)
+	invalidNodeIdBytes[0] = b
 	invalidNodeID := id.NewNodeFromBytes(invalidNodeIdBytes)
 	return invalidNodeID
 }
