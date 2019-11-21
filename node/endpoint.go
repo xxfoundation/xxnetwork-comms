@@ -21,7 +21,8 @@ import (
 // Handle a Broadcasted Ask Online event
 func (s *NodeComms) AskOnline(ctx context.Context, msg *pb.Ping) (
 	*pb.Ack, error) {
-	return &pb.Ack{}, nil
+	err := s.handler.AskOnline(msg)
+	return &pb.Ack{}, err
 }
 
 // DownloadTopology handles an incoming DownloadTopology event
