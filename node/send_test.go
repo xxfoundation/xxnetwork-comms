@@ -9,6 +9,7 @@ package node
 import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/pkg/errors"
+	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"testing"
 )
@@ -17,11 +18,16 @@ import (
 func TestSendAskOnline(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	server := StartNode(ServerAddress, NewImplementation(), nil, nil)
-	connID := MockID("connection35")
-	// Connect the server to itself
-	server.ConnectToRemote(connID, ServerAddress, nil, false)
 	defer server.Shutdown()
-	_, err := server.SendAskOnline(connID, &pb.Ping{})
+	var manager connect.Manager
+
+	testId := "test"
+	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	if err != nil {
+		t.Errorf("Unable to call NewHost: %+v", err)
+	}
+
+	_, err = server.SendAskOnline(host, &pb.Ping{})
 	if err != nil {
 		t.Errorf("AskOnline: Error received: %s", err)
 	}
@@ -31,10 +37,16 @@ func TestSendAskOnline(t *testing.T) {
 func TestSendFinishRealtime(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	server := StartNode(ServerAddress, NewImplementation(), nil, nil)
-	connID := MockID("node2node")
-	server.ConnectToRemote(connID, ServerAddress, nil, false)
 	defer server.Shutdown()
-	_, err := server.SendFinishRealtime(connID, &pb.RoundInfo{ID: 0})
+	var manager connect.Manager
+
+	testId := "test"
+	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	if err != nil {
+		t.Errorf("Unable to call NewHost: %+v", err)
+	}
+
+	_, err = server.SendFinishRealtime(host, &pb.RoundInfo{ID: 0})
 	if err != nil {
 		t.Errorf("FinishRealtime: Error received: %s", err)
 	}
@@ -44,11 +56,16 @@ func TestSendFinishRealtime(t *testing.T) {
 func TestSendNewRound(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	server := StartNode(ServerAddress, NewImplementation(), nil, nil)
-	connID := MockID("connection35")
-	// Connect the server to itself
-	server.ConnectToRemote(connID, ServerAddress, nil, false)
 	defer server.Shutdown()
-	_, err := server.SendNewRound(connID, &pb.RoundInfo{})
+	var manager connect.Manager
+
+	testId := "test"
+	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	if err != nil {
+		t.Errorf("Unable to call NewHost: %+v", err)
+	}
+
+	_, err = server.SendNewRound(host, &pb.RoundInfo{})
 	if err != nil {
 		t.Errorf("NewRound: Error received: %s", err)
 	}
@@ -58,11 +75,16 @@ func TestSendNewRound(t *testing.T) {
 func TestSendPostPhase(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	server := StartNode(ServerAddress, NewImplementation(), nil, nil)
-	connID := MockID("connection35")
-	// Connect the server to itself
-	server.ConnectToRemote(connID, ServerAddress, nil, false)
 	defer server.Shutdown()
-	_, err := server.SendPostPhase(connID, &pb.Batch{})
+	var manager connect.Manager
+
+	testId := "test"
+	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	if err != nil {
+		t.Errorf("Unable to call NewHost: %+v", err)
+	}
+
+	_, err = server.SendPostPhase(host, &pb.Batch{})
 	if err != nil {
 		t.Errorf("Phase: Error received: %s", err)
 	}
@@ -72,11 +94,16 @@ func TestSendPostPhase(t *testing.T) {
 func TestSendPostRoundPublicKey(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	server := StartNode(ServerAddress, NewImplementation(), nil, nil)
-	connID := MockID("connection35")
-	// Connect the server to itself
-	server.ConnectToRemote(connID, ServerAddress, nil, false)
 	defer server.Shutdown()
-	_, err := server.SendPostRoundPublicKey(connID, &pb.RoundPublicKey{})
+	var manager connect.Manager
+
+	testId := "test"
+	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	if err != nil {
+		t.Errorf("Unable to call NewHost: %+v", err)
+	}
+
+	_, err = server.SendPostRoundPublicKey(host, &pb.RoundPublicKey{})
 	if err != nil {
 		t.Errorf("PostRoundPublicKey: Error received: %s", err)
 	}
@@ -87,11 +114,16 @@ func TestSendPostPrecompResult(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	server := StartNode(ServerAddress, NewImplementation(), nil, nil)
 	defer server.Shutdown()
-	connID := MockID("connection35")
-	// Connect the server to itself
-	server.ConnectToRemote(connID, ServerAddress, nil, false)
+	var manager connect.Manager
+
+	testId := "test"
+	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	if err != nil {
+		t.Errorf("Unable to call NewHost: %+v", err)
+	}
+
 	slots := make([]*pb.Slot, 0)
-	_, err := server.SendPostPrecompResult(connID, 0, slots)
+	_, err = server.SendPostPrecompResult(host, 0, slots)
 	if err != nil {
 		t.Errorf("PostPrecompResult: Error received: %s", err)
 	}
@@ -111,13 +143,18 @@ func TestSendGetMeasure(t *testing.T) {
 	impl.Functions.GetMeasure = mockMeasure
 	server := StartNode(ServerAddress, impl, nil, nil)
 	defer server.Shutdown()
+	var manager connect.Manager
 
-	connID := MockID("connection35")
-	server.ConnectToRemote(connID, ServerAddress, nil, false)
+	testId := "test"
+	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	if err != nil {
+		t.Errorf("Unable to call NewHost: %+v", err)
+	}
+
 	ri := pb.RoundInfo{
 		ID: uint64(3),
 	}
-	_, err := server.SendGetMeasure(connID, &ri)
+	_, err = server.SendGetMeasure(host, &ri)
 	if err != nil {
 		t.Errorf("SendGetMeasure: Error received: %s", err)
 	}
@@ -136,12 +173,18 @@ func TestSendGetMeasureError(t *testing.T) {
 	server := StartNode(ServerAddress, impl, nil, nil)
 	defer server.Shutdown()
 
-	connID := MockID("connection35")
-	server.ConnectToRemote(connID, ServerAddress, nil, false)
 	ri := pb.RoundInfo{
 		ID: uint64(3),
 	}
-	_, err := server.SendGetMeasure(connID, &ri)
+	var manager connect.Manager
+
+	testId := "test"
+	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	if err != nil {
+		t.Errorf("Unable to call NewHost: %+v", err)
+	}
+
+	_, err = server.SendGetMeasure(host, &ri)
 	if err == nil {
 		t.Error("Did not receive error response")
 	}
@@ -152,15 +195,20 @@ func TestRoundTripPing(t *testing.T) {
 	impl := NewImplementation()
 	server := StartNode(ServerAddress, impl, nil, nil)
 	defer server.Shutdown()
+	var manager connect.Manager
+
+	testId := "test"
+	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	if err != nil {
+		t.Errorf("Unable to call NewHost: %+v", err)
+	}
 
 	any, err := ptypes.MarshalAny(&pb.Ack{})
 	if err != nil {
 		t.Errorf("SendRoundTripPing: failed attempting to marshall any type: %+v", err)
 	}
 
-	connID := MockID("mock_id")
-	_ = server.ConnectToRemote(connID, ServerAddress, nil, false)
-	_, err = server.RoundTripPing(connID, uint64(1), any)
+	_, err = server.RoundTripPing(host, uint64(1), any)
 	if err != nil {
 		t.Errorf("Received error from RoundTripPing: %+v", err)
 	}

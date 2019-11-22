@@ -8,6 +8,7 @@ package gateway
 
 import (
 	"fmt"
+	"gitlab.com/elixxir/comms/connect"
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/node"
 	"gitlab.com/elixxir/comms/testkeys"
@@ -17,12 +18,6 @@ import (
 
 var serverPortLock sync.Mutex
 var serverPort = 5500
-
-type MockID string
-
-func (m MockID) String() string {
-	return string(m)
-}
 
 func getNextServerAddress() string {
 	serverPortLock.Lock()
@@ -60,11 +55,15 @@ func TestTLS(t *testing.T) {
 	server := node.StartNode(ServerAddress, node.NewImplementation(),
 		certData, keyData)
 	defer server.Shutdown()
-	connID := MockID("gatewayToServer")
-	gateway.ConnectToRemote(connID,
-		ServerAddress, certData, false)
+	var manager connect.Manager
 
-	err := gateway.PostNewBatch(connID, &mixmessages.Batch{})
+	testId := "test"
+	host, err := manager.AddHost(testId, ServerAddress, certData, false)
+	if err != nil {
+		t.Errorf("Unable to call NewHost: %+v", err)
+	}
+
+	err = gateway.PostNewBatch(host, &mixmessages.Batch{})
 	if err != nil {
 		t.Error(err)
 	}

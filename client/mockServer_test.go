@@ -13,18 +13,6 @@ import (
 	"sync"
 )
 
-var serverPortLock sync.Mutex
-var serverPort = 5700
-
-func getNextServerAddress() string {
-	serverPortLock.Lock()
-	defer func() {
-		serverPort++
-		serverPortLock.Unlock()
-	}()
-	return fmt.Sprintf("0.0.0.0:%d", serverPort)
-}
-
 var gatewayPortLock sync.Mutex
 var gatewayPort = 5800
 

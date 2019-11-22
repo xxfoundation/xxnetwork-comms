@@ -6,45 +6,45 @@
 package registration
 
 import (
-	"errors"
-	"fmt"
 	"github.com/golang/protobuf/ptypes"
-	jww "github.com/spf13/jwalterweatherman"
+	"github.com/golang/protobuf/ptypes/any"
+	"github.com/pkg/errors"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
+	"google.golang.org/grpc"
 )
 
-// Send a message to the gateway
-func (r *RegistrationComms) SendNodeTopology(id fmt.Stringer,
+// Permissioning -> Server Send Function
+func (r *Comms) SendNodeTopology(host *connect.Host,
 	message *pb.NodeTopology) error {
 
-	// Attempt to connect to addr
-	connection := r.GetNodeConnection(id)
-	ctx, cancel := connect.MessagingContext()
+	// Create the Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := connect.MessagingContext()
+		defer cancel()
 
-	// Wrap message as a generic
-	anyMessage, err := ptypes.MarshalAny(message)
-	if err != nil {
-		jww.ERROR.Printf("Error marshalling NodeTopology to Any type: %+v", err)
-		return err
+		// Wrap message as a generic
+		anyMessage, err := ptypes.MarshalAny(message)
+		if err != nil {
+			return nil, err
+		}
+
+		// Sign message
+		signedMessage, err := r.Manager.SignMessage(anyMessage, "Permissioning")
+		if err != nil {
+			return nil, err
+		}
+
+		// Send the message
+		_, err = pb.NewNodeClient(conn).DownloadTopology(ctx, signedMessage)
+		if err != nil {
+			err = errors.New(err.Error())
+		}
+		return nil, err
 	}
 
-	// Sign message
-	signedMessage, err := r.ConnectionManager.SignMessage(anyMessage, "Permissioning")
-	if err != nil {
-		jww.ERROR.Printf("Error signing message: %+v", err)
-		return err
-	}
-
-	// Send the message
-	_, err = connection.DownloadTopology(ctx, signedMessage)
-
-	// Make sure there are no errors with sending the message
-	if err != nil {
-		err = errors.New(err.Error())
-		jww.ERROR.Printf("SendNodeToplogy: Error received: %+v", err)
-	}
-
-	cancel()
+	// Execute the Send function
+	_, err := host.Send(f)
 	return err
 }

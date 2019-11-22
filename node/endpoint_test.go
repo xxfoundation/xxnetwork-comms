@@ -3,6 +3,7 @@ package node
 import (
 	"context"
 	"github.com/golang/protobuf/ptypes"
+	"gitlab.com/elixxir/comms/connect"
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/registration"
 	"gitlab.com/elixxir/comms/testkeys"
@@ -18,8 +19,9 @@ func TestDownloadTopology(t *testing.T) {
 
 	a, _ := ptypes.MarshalAny(&wrapped)
 
+	testId := "Permissioning"
 	msg := mixmessages.SignedMessage{
-		ID:        "Permissioning",
+		ID:        testId,
 		Signature: []byte("test"),
 		Message:   a,
 	}
@@ -37,12 +39,15 @@ func TestDownloadTopology(t *testing.T) {
 		registration.NewImplementation(), certData, keyData)
 	defer server.Shutdown()
 	defer reg.Shutdown()
+	var manager connect.Manager
 
-	regID := MockID("Permissioning")
-	err := server.ConnectToRemote(regID, RegAddress, certData, false)
+	_, err := manager.AddHost(testId, RegAddress, certData, false)
+	if err != nil {
+		t.Errorf("Unable to call NewHost: %+v", err)
+	}
 
 	if err != nil {
-		t.Errorf("Download topology could not connect to registration: %+v", err)
+		t.Errorf("Download topology failed: %+v", err)
 	}
 
 	_, err = server.DownloadTopology(ctx, &msg)

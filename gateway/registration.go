@@ -9,72 +9,98 @@
 package gateway
 
 import (
-	"fmt"
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
-	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
+	"google.golang.org/grpc"
 )
 
-// Send a RequestNonceMessage to the server
-func (g *GatewayComms) SendRequestNonceMessage(id fmt.Stringer,
-	message *pb.NonceRequest) (
-	*pb.Nonce, error) {
+// Gateway -> Server Send Function
+func (g *Comms) SendRequestNonceMessage(host *connect.Host,
+	message *pb.NonceRequest) (*pb.Nonce, error) {
 
-	// Attempt to connect to addr
-	c := g.GetNodeConnection(id)
-	ctx, cancel := connect.MessagingContext()
+	// Create the Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := connect.MessagingContext()
+		defer cancel()
 
-	// Send the message
-	response, err := c.RequestNonce(ctx, message)
-
-	// Handle comms errors
-	if err != nil {
-		err = errors.New(err.Error())
-		jww.ERROR.Printf("RequestNonceMessage: Error received: %+v", err)
+		// Send the message
+		resultMsg, err := pb.NewNodeClient(conn).RequestNonce(ctx, message)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+		return ptypes.MarshalAny(resultMsg)
 	}
 
-	// Return the NonceMessage
-	cancel()
-	return response, err
-}
-
-// Send a ConfirmNonceMessage to the server
-func (g *GatewayComms) SendConfirmNonceMessage(id fmt.Stringer,
-	message *pb.RequestRegistrationConfirmation) (
-	*pb.RegistrationConfirmation, error) {
-
-	// Attempt to connect to addr
-	c := g.GetNodeConnection(id)
-	ctx, cancel := connect.MessagingContext()
-
-	// Send the message
-	response, err := c.ConfirmRegistration(ctx, message)
-
-	// Handle comms errors
-	if err != nil {
-		err = errors.New(err.Error())
-		jww.ERROR.Printf("ConfirmNonceMessage: Error received: %+v", err)
-	}
-
-	// Return the RegistrationConfirmation
-	cancel()
-	return response, err
-}
-
-// SendGetSignedCertMessage gets signed certs from a node.  Accepts a Ping message (empty message)
-func (g *GatewayComms) PollSignedCerts(id fmt.Stringer,
-	message *pb.Ping) (*pb.SignedCerts, error) {
-
-	c := g.GetNodeConnection(id)
-	ctx, cancel := connect.MessagingContext()
-
-	response, err := c.GetSignedCert(ctx, message)
-
+	// Execute the Send function
+	resultMsg, err := host.Send(f)
 	if err != nil {
 		return nil, err
 	}
 
-	cancel()
-	return response, nil
+	// Marshall the result
+	result := &pb.Nonce{}
+	return result, ptypes.UnmarshalAny(resultMsg, result)
+}
+
+// Gateway -> Server Send Function
+func (g *Comms) SendConfirmNonceMessage(host *connect.Host,
+	message *pb.RequestRegistrationConfirmation) (
+	*pb.RegistrationConfirmation, error) {
+
+	// Create the Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := connect.MessagingContext()
+		defer cancel()
+
+		// Send the message
+		resultMsg, err := pb.NewNodeClient(conn).ConfirmRegistration(ctx, message)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+		return ptypes.MarshalAny(resultMsg)
+	}
+
+	// Execute the Send function
+	resultMsg, err := host.Send(f)
+	if err != nil {
+		return nil, err
+	}
+
+	// Marshall the result
+	result := &pb.RegistrationConfirmation{}
+	return result, ptypes.UnmarshalAny(resultMsg, result)
+}
+
+// Gateway -> Server Send Function
+func (g *Comms) PollSignedCerts(host *connect.Host,
+	message *pb.Ping) (*pb.SignedCerts, error) {
+
+	// Create the Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := connect.MessagingContext()
+		defer cancel()
+
+		// Send the message
+		resultMsg, err := pb.NewNodeClient(conn).GetSignedCert(ctx, message)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+		return ptypes.MarshalAny(resultMsg)
+	}
+
+	// Execute the Send function
+	resultMsg, err := host.Send(f)
+	if err != nil {
+		return nil, err
+	}
+
+	// Marshall the result
+	result := &pb.SignedCerts{}
+	return result, ptypes.UnmarshalAny(resultMsg, result)
 }

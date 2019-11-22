@@ -7,6 +7,7 @@
 package client
 
 import (
+	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/registration"
 	"testing"
@@ -18,11 +19,16 @@ func TestSendRegistrationMessage(t *testing.T) {
 	rg := registration.StartRegistrationServer(GatewayAddress,
 		registration.NewImplementation(), nil, nil)
 	defer rg.Shutdown()
-	connID := MockID("clientToRegistration")
-	var c ClientComms
-	c.ConnectToRemote(connID, GatewayAddress, nil, false)
+	var c Comms
+	var manager connect.Manager
 
-	_, err := c.SendRegistrationMessage(connID, &pb.UserRegistration{})
+	testId := "test"
+	host, err := manager.AddHost(testId, GatewayAddress, nil, false)
+	if err != nil {
+		t.Errorf("Unable to call NewHost: %+v", err)
+	}
+
+	_, err = c.SendRegistrationMessage(host, &pb.UserRegistration{})
 	if err != nil {
 		t.Errorf("RegistrationMessage: Error received: %s", err)
 	}
@@ -34,11 +40,16 @@ func TestSendCheckClientVersionMessage(t *testing.T) {
 	rg := registration.StartRegistrationServer(GatewayAddress,
 		registration.NewImplementation(), nil, nil)
 	defer rg.Shutdown()
-	connID := MockID("clientToRegistration")
-	var c ClientComms
-	c.ConnectToRemote(connID, GatewayAddress, nil, false)
+	var c Comms
+	var manager connect.Manager
 
-	_, err := c.SendGetCurrentClientVersionMessage(connID)
+	testId := "test"
+	host, err := manager.AddHost(testId, GatewayAddress, nil, false)
+	if err != nil {
+		t.Errorf("Unable to call NewHost: %+v", err)
+	}
+
+	_, err = c.SendGetCurrentClientVersionMessage(host)
 	if err != nil {
 		t.Errorf("CheckClientVersion: Error received: %s", err)
 	}
@@ -50,11 +61,16 @@ func TestSendGetUpdatedNDF(t *testing.T) {
 	rg := registration.StartRegistrationServer(GatewayAddress,
 		registration.NewImplementation(), nil, nil)
 	defer rg.Shutdown()
-	connID := MockID("clientToRegistration")
-	var c ClientComms
-	c.ConnectToRemote(connID, GatewayAddress, nil, false)
+	var c Comms
+	var manager connect.Manager
 
-	_, err := c.SendGetUpdatedNDF(connID, &pb.NDFHash{})
+	testId := "test"
+	host, err := manager.AddHost(testId, GatewayAddress, nil, false)
+	if err != nil {
+		t.Errorf("Unable to call NewHost: %+v", err)
+	}
+
+	_, err = c.SendGetUpdatedNDF(host, &pb.NDFHash{})
 
 	if err != nil {
 		t.Errorf("GetUpdatedNDF: Error recieved: %s", err)
