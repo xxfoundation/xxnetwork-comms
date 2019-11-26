@@ -57,7 +57,7 @@ func (r *Comms) RegisterNode(ctx context.Context, msg *pb.NodeRegistration) (
 	return &pb.Ack{}, err
 }
 
-//PollNdf event handler handles a client's request for a new ndf on the permissioning server
+// Handles incoming requests for the NDF
 func (r *Comms) PollNdf(ctx context.Context, msg *pb.NDFHash) (*pb.NDF, error) {
 	newNDF, err := r.handler.PollNdf(msg.Hash)
 	//Return the new ndf
