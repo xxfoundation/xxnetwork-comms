@@ -89,7 +89,7 @@ func (c *Comms) SendGetUpdatedNDF(host *connect.Host,
 
 		// Send the message
 		resultMsg, err := pb.NewRegistrationClient(
-			conn).GetUpdatedNDF(ctx, message)
+			conn).PollNdf(ctx, message)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}

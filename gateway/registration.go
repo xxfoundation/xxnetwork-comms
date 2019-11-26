@@ -77,8 +77,8 @@ func (g *Comms) SendConfirmNonceMessage(host *connect.Host,
 }
 
 // Gateway -> Server Send Function
-func (g *Comms) PollSignedCerts(host *connect.Host,
-	message *pb.Ping) (*pb.SignedCerts, error) {
+func (g *Comms) PollNdf(host *connect.Host,
+	message *pb.Ping) (*pb.GatewayNdf, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
@@ -87,7 +87,7 @@ func (g *Comms) PollSignedCerts(host *connect.Host,
 		defer cancel()
 
 		// Send the message
-		resultMsg, err := pb.NewNodeClient(conn).GetSignedCert(ctx, message)
+		resultMsg, err := pb.NewNodeClient(conn).PollNdf(ctx, message)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
@@ -101,6 +101,6 @@ func (g *Comms) PollSignedCerts(host *connect.Host,
 	}
 
 	// Marshall the result
-	result := &pb.SignedCerts{}
+	result := &pb.GatewayNdf{}
 	return result, ptypes.UnmarshalAny(resultMsg, result)
 }

@@ -73,6 +73,6 @@ func TestSendGetUpdatedNDF(t *testing.T) {
 	_, err = c.SendGetUpdatedNDF(host, &pb.NDFHash{})
 
 	if err != nil {
-		t.Errorf("GetUpdatedNDF: Error recieved: %s", err)
+		t.Errorf("PollNdf: Error recieved: %s", err)
 	}
 }

@@ -16,18 +16,18 @@ import (
 type Handler interface {
 	RegisterUser(registrationCode, pubKey string) (signature []byte, err error)
 	GetCurrentClientVersion() (version string, err error)
-	RegisterNode(ID []byte, ServerAddr, ServerTlsCert, GatewayAddr, GatewayTlsCert,
+	RegisterNode(ID []byte, ServerTlsCert, GatewayAddr, GatewayTlsCert,
 		RegistrationCode string) error
-	GetUpdatedNDF(clientNDFHash []byte) ([]byte, error)
+	PollNdf(ndfHash []byte) ([]byte, error)
 }
 
 type implementationFunctions struct {
 	RegisterUser func(registrationCode, pubKey string) (signature []byte,
 		err error)
 	GetCurrentClientVersion func() (version string, err error)
-	RegisterNode            func(ID []byte, ServerAddr, ServerTlsCert,
+	RegisterNode            func(ID []byte, ServerTlsCert,
 		GatewayAddr, GatewayTlsCert, RegistrationCode string) error
-	GetUpdatedNDF func(clientNDFHash []byte) ([]byte, error)
+	PollNdf func(ndfHash []byte) ([]byte, error)
 }
 
 // Implementation allows users of the client library to set the
@@ -56,12 +56,12 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return "", nil
 			},
-			RegisterNode: func(ID []byte, ServerAddr, ServerTlsCert,
+			RegisterNode: func(ID []byte, ServerTlsCert,
 				GatewayAddr, GatewayTlsCert, RegistrationCode string) error {
 				warn(um)
 				return nil
 			},
-			GetUpdatedNDF: func(clientNDFHash []byte) ([]byte, error) {
+			PollNdf: func(ndfHash []byte) ([]byte, error) {
 				warn(um)
 				return nil, nil
 			},
@@ -79,12 +79,12 @@ func (s *Implementation) GetCurrentClientVersion() (string, error) {
 	return s.Functions.GetCurrentClientVersion()
 }
 
-func (s *Implementation) RegisterNode(ID []byte, ServerAddr, ServerTlsCert,
+func (s *Implementation) RegisterNode(ID []byte, ServerTlsCert,
 	GatewayAddr, GatewayTlsCert, RegistrationCode string) error {
-	return s.Functions.RegisterNode(ID, ServerAddr, ServerTlsCert,
+	return s.Functions.RegisterNode(ID, ServerTlsCert,
 		GatewayAddr, GatewayTlsCert, RegistrationCode)
 }
 
-func (s *Implementation) GetUpdatedNDF(clientNDFHash []byte) ([]byte, error) {
-	return s.Functions.GetUpdatedNDF(clientNDFHash)
+func (s *Implementation) PollNdf(ndfHash []byte) ([]byte, error) {
+	return s.Functions.PollNdf(ndfHash)
 }
