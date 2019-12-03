@@ -16,8 +16,8 @@ import (
 type Handler interface {
 	RegisterUser(registrationCode, pubKey string) (signature []byte, err error)
 	GetCurrentClientVersion() (version string, err error)
-	RegisterNode(ID []byte, ServerTlsCert, GatewayAddr, GatewayTlsCert,
-		RegistrationCode string) error
+	RegisterNode(ID []byte, ServerAddr, ServerTlsCert, GatewayAddr,
+		GatewayTlsCert, RegistrationCode string) error
 	PollNdf(ndfHash []byte) ([]byte, error)
 }
 
@@ -25,7 +25,7 @@ type implementationFunctions struct {
 	RegisterUser func(registrationCode, pubKey string) (signature []byte,
 		err error)
 	GetCurrentClientVersion func() (version string, err error)
-	RegisterNode            func(ID []byte, ServerTlsCert,
+	RegisterNode            func(ID []byte, ServerAddr, ServerTlsCert,
 		GatewayAddr, GatewayTlsCert, RegistrationCode string) error
 	PollNdf func(ndfHash []byte) ([]byte, error)
 }
@@ -56,7 +56,7 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return "", nil
 			},
-			RegisterNode: func(ID []byte, ServerTlsCert,
+			RegisterNode: func(ID []byte, ServerAddr, ServerTlsCert,
 				GatewayAddr, GatewayTlsCert, RegistrationCode string) error {
 				warn(um)
 				return nil
@@ -79,9 +79,9 @@ func (s *Implementation) GetCurrentClientVersion() (string, error) {
 	return s.Functions.GetCurrentClientVersion()
 }
 
-func (s *Implementation) RegisterNode(ID []byte, ServerTlsCert,
+func (s *Implementation) RegisterNode(ID []byte, ServerAddr, ServerTlsCert,
 	GatewayAddr, GatewayTlsCert, RegistrationCode string) error {
-	return s.Functions.RegisterNode(ID, ServerTlsCert,
+	return s.Functions.RegisterNode(ID, ServerAddr, ServerTlsCert,
 		GatewayAddr, GatewayTlsCert, RegistrationCode)
 }
 

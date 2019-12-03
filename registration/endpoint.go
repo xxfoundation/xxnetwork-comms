@@ -9,7 +9,9 @@
 package registration
 
 import (
+	"fmt"
 	"github.com/pkg/errors"
+	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"golang.org/x/net/context"
 )
@@ -50,8 +52,15 @@ func (r *Comms) GetCurrentClientVersion(ctx context.Context, msg *pb.Ping) (*pb.
 // Handle a node registration event
 func (r *Comms) RegisterNode(ctx context.Context, msg *pb.NodeRegistration) (
 	*pb.Ack, error) {
+	// Obtain peer IP address
+	ip, port, err := connect.GetAddressFromContext(ctx)
+	if err != nil {
+		return &pb.Ack{}, err
+	}
+	address := fmt.Sprintf("%s:%s", ip, port)
+
 	// Pass information for Node registration
-	err := r.handler.RegisterNode(msg.GetID(), msg.GetServerTlsCert(),
+	err = r.handler.RegisterNode(msg.GetID(), address, msg.GetServerTlsCert(),
 		msg.GetGatewayAddress(), msg.GetGatewayTlsCert(),
 		msg.GetRegistrationCode())
 	return &pb.Ack{}, err
