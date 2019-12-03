@@ -92,6 +92,7 @@ func (h *Host) Send(f func(conn *grpc.ClientConn) (*any.Any, error)) (
 	result *any.Any, err error) {
 
 	// Ensure the connection is running
+	jww.DEBUG.Printf("Attempting to send to host: %s", h)
 	err = h.validateConnection()
 	if err != nil {
 		return
@@ -153,7 +154,6 @@ func (h *Host) disconnect() {
 
 // Connect creates a connection
 func (h *Host) connect() (err error) {
-
 	// Configure TLS options
 	var securityDial grpc.DialOption
 	if h.credentials != nil {
@@ -261,9 +261,9 @@ func (h *Host) String() string {
 		securityProtocol = creds.Info().SecurityProtocol
 	}
 	return fmt.Sprintf(
-		"Addr: %v\tState: %v\tTLS ServerName: %v\t"+
-			"TLS ProtocolVersion: %v\tTLS SecurityVersion: %v\t"+
-			"TLS SecurityProtocol: %v\n",
-		addr, state, serverName, protocolVersion,
+		"Addr: %v\tCertificate: %v\tMaxRetries: %v\tConnState: %v"+
+			"\tTLS ServerName: %v\tTLS ProtocolVersion: %v\t"+
+			"TLS SecurityVersion: %v\tTLS SecurityProtocol: %v\n",
+		addr, h.certificate, h.maxRetries, state, serverName, protocolVersion,
 		securityVersion, securityProtocol)
 }
