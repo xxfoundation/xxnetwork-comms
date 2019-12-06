@@ -63,27 +63,17 @@ service Node {
     rpc GetCompletedBatch (Ping) returns (Batch) {
     }
 
-    // Obtains a network topology from the Permissioning Server
-    rpc DownloadTopology (SignedMessage) returns (Ack) {
-    }
-
     //
     rpc GetMeasure (RoundInfo) returns (RoundMetrics) {
     }
 
-    // Gateway -> Server polling for CA-signed certificates
-    rpc GetSignedCert (Ping) returns (SignedCerts) {
+    // Gateway -> Server polling for NDF
+    rpc PollNdf (Ping) returns (GatewayNdf) {
     }
 
     // Round trip ping comm
     rpc SendRoundTripPing (RoundTripPing) returns (Ack) {
     }
-}
-
-// Response to gateway for providing certs signed by the Permissioning CA
-message SignedCerts {
-    string GatewayCertPEM = 1;
-    string ServerCertPEM = 2;
 }
 
 // The request message asking if server is online
@@ -174,22 +164,28 @@ service Registration {
     }
 
     //Node registration for the permissioning server
-    rpc RegisterNode (NodeRegistration) returns (Ack){
+    rpc RegisterNode (NodeRegistration) returns (Ack) {
     }
 
-    //Client uses this to check it the ndf needs updating on the registration server
-    rpc GetUpdatedNDF(NDFHash) returns (NDF) {
+    // Obtain NDF from the Registration Server
+    rpc PollNdf (NDFHash) returns (NDF) {
     }
 }
 
 //The ndf Hash used to compare ndf on permissioning and client
-message NDFHash{
+message NDFHash {
     bytes Hash = 1;
 }
 
-//Message from permissioning <->client for a dynamic ndf
-message NDF{
+// Message type containing the network definition file
+message NDF {
     bytes Ndf = 1;
+}
+
+// Contains the NDF as well as the corresponding Node ID for the Gateway
+message GatewayNdf {
+    bytes Id = 1;
+    NDF Ndf = 2;
 }
 
 // RegisterNode to register a node with needed attributes
@@ -199,7 +195,6 @@ message NodeRegistration {
       string GatewayTlsCert = 3;
       string GatewayAddress = 4;
       string RegistrationCode = 5;
-      string Port = 6;
 }
 
 // RSASignature is a digital signature for the RSA algorithm

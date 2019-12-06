@@ -47,10 +47,7 @@ type ServerHandler interface {
 	// GetCompletedBatch: gateway uses completed batch from the server
 	GetCompletedBatch() (*mixmessages.Batch, error)
 
-	// DownloadTopology: Obtains network topology from permissioning server
-	DownloadTopology(info *MessageInfo, topology *mixmessages.NodeTopology)
-
-	GetSignedCert(ping *mixmessages.Ping) (*mixmessages.SignedCerts, error)
+	PollNdf(ping *mixmessages.Ping) (*mixmessages.GatewayNdf, error)
 
 	SendRoundTripPing(ping *mixmessages.RoundTripPing) error
 
@@ -90,10 +87,7 @@ type implementationFunctions struct {
 
 	GetCompletedBatch func() (*mixmessages.Batch, error)
 
-	// DownloadTopology: Obtains network topology from permissioning server
-	DownloadTopology func(info *MessageInfo, topology *mixmessages.NodeTopology)
-
-	GetSignedCert func(ping *mixmessages.Ping) (*mixmessages.SignedCerts, error)
+	PollNdf func(ping *mixmessages.Ping) (*mixmessages.GatewayNdf, error)
 
 	SendRoundTripPing func(ping *mixmessages.RoundTripPing) error
 
@@ -168,12 +162,10 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return &mixmessages.Batch{}, nil
 			},
-			DownloadTopology: func(info *MessageInfo, topology *mixmessages.NodeTopology) {
+			PollNdf: func(ping *mixmessages.Ping) (certs *mixmessages.GatewayNdf,
+				e error) {
 				warn(um)
-			},
-			GetSignedCert: func(ping *mixmessages.Ping) (certs *mixmessages.SignedCerts, e error) {
-				warn(um)
-				return &mixmessages.SignedCerts{}, nil
+				return &mixmessages.GatewayNdf{}, nil
 			},
 			SendRoundTripPing: func(ping *mixmessages.RoundTripPing) error {
 				warn(um)
@@ -247,13 +239,9 @@ func (s *Implementation) GetCompletedBatch() (*mixmessages.Batch, error) {
 	return s.Functions.GetCompletedBatch()
 }
 
-// Obtains network topology from permissioning server
-func (s *Implementation) DownloadTopology(info *MessageInfo, topology *mixmessages.NodeTopology) {
-	s.Functions.DownloadTopology(info, topology)
-}
-
-func (s *Implementation) GetSignedCert(ping *mixmessages.Ping) (*mixmessages.SignedCerts, error) {
-	return s.Functions.GetSignedCert(ping)
+func (s *Implementation) PollNdf(ping *mixmessages.Ping) (*mixmessages.
+	GatewayNdf, error) {
+	return s.Functions.PollNdf(ping)
 }
 
 func (s *Implementation) SendRoundTripPing(ping *mixmessages.RoundTripPing) error {

@@ -78,7 +78,7 @@ func (c *Comms) SendGetCurrentClientVersionMessage(
 }
 
 // Client -> Registration Send Function
-func (c *Comms) SendGetUpdatedNDF(host *connect.Host,
+func (c *Comms) RequestNdf(host *connect.Host,
 	message *pb.NDFHash) (*pb.NDF, error) {
 
 	// Create the Send Function
@@ -89,7 +89,7 @@ func (c *Comms) SendGetUpdatedNDF(host *connect.Host,
 
 		// Send the message
 		resultMsg, err := pb.NewRegistrationClient(
-			conn).GetUpdatedNDF(ctx, message)
+			conn).PollNdf(ctx, message)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}

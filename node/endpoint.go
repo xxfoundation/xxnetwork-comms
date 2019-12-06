@@ -12,9 +12,6 @@ package node
 //       errors that can occur are not accounted for.
 
 import (
-	"github.com/golang/protobuf/ptypes"
-	"github.com/pkg/errors"
-	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"golang.org/x/net/context"
 )
@@ -24,48 +21,6 @@ func (s *Comms) AskOnline(ctx context.Context, msg *pb.Ping) (
 	*pb.Ack, error) {
 	err := s.handler.AskOnline(msg)
 	return &pb.Ack{}, err
-}
-
-// DownloadTopology handles an incoming DownloadTopology event
-func (s *Comms) DownloadTopology(ctx context.Context,
-	msg *pb.SignedMessage) (*pb.Ack, error) {
-
-	// fixme: this has got to be bad, we need to review this...
-	go func() {
-		host, ok := s.Manager.GetHost(msg.ID)
-		if !ok {
-			jww.ERROR.Printf("Unable to obtain connection %+v", msg.ID)
-			return
-		}
-
-		// Unmarshal message to its original type
-		original := pb.NodeTopology{}
-		err := ptypes.UnmarshalAny(msg.Message, &original)
-		if err != nil {
-			jww.ERROR.Printf("Failed to unmarshal generic message, "+
-				"check your input message type: %+v", errors.New(err.Error()))
-			return
-		}
-
-		// Verify message contents
-		err = s.Manager.VerifySignature(msg, &original, host)
-		if err != nil {
-			jww.ERROR.Printf("Failed to verify message contents: %+v", err)
-			return
-		}
-
-		senderAddress := host.GetAddress()
-		ci := MessageInfo{
-			Signature:      msg.Signature,
-			ValidSignature: true,
-			Address:        senderAddress,
-			SenderId:       msg.ID,
-		}
-
-		s.handler.DownloadTopology(&ci, &original)
-	}()
-
-	return &pb.Ack{}, nil
 }
 
 // Handle a NewRound event
@@ -191,8 +146,9 @@ func (s *Comms) GetMeasure(ctx context.Context, msg *pb.RoundInfo) (*pb.RoundMet
 	return rm, err
 }
 
-func (s *Comms) GetSignedCert(ctx context.Context, msg *pb.Ping) (*pb.SignedCerts, error) {
-	rm, err := s.handler.GetSignedCert(msg)
+func (s *Comms) PollNdf(ctx context.Context,
+	msg *pb.Ping) (*pb.GatewayNdf, error) {
+	rm, err := s.handler.PollNdf(msg)
 	return rm, err
 }
 

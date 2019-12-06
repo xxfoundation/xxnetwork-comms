@@ -55,7 +55,7 @@ func TestSendCheckClientVersionMessage(t *testing.T) {
 	}
 }
 
-//Smoke test SendGetUpdatedNDF
+//Smoke test RequestNdf
 func TestSendGetUpdatedNDF(t *testing.T) {
 	GatewayAddress := getNextGatewayAddress()
 	rg := registration.StartRegistrationServer(GatewayAddress,
@@ -70,9 +70,9 @@ func TestSendGetUpdatedNDF(t *testing.T) {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
 
-	_, err = c.SendGetUpdatedNDF(host, &pb.NDFHash{})
+	_, err = c.RequestNdf(host, &pb.NDFHash{})
 
 	if err != nil {
-		t.Errorf("GetUpdatedNDF: Error recieved: %s", err)
+		t.Errorf("RequestNdf: Error recieved: %s", err)
 	}
 }

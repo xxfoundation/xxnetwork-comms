@@ -67,7 +67,7 @@ func TestSendConfirmNonceMessage(t *testing.T) {
 	}
 }
 
-func TestPollSignedCerts(t *testing.T) {
+func TestPollNdf(t *testing.T) {
 	GatewayAddress := getNextGatewayAddress()
 	ServerAddress := getNextServerAddress()
 
@@ -83,7 +83,7 @@ func TestPollSignedCerts(t *testing.T) {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
 
-	_, err = gateway.PollSignedCerts(host, &pb.Ping{})
+	_, err = gateway.PollNdf(host, &pb.Ping{})
 	if err != nil {
 		t.Errorf("SendGetSignedCertMessage: Error received: %s", err)
 	}
