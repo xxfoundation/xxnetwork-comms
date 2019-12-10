@@ -84,10 +84,6 @@ service Node {
     }
 }
 
-// The request message asking if server is online
-message Ping {
-}
-
 // The message for Init Round
 message RoundInfo {
     uint64 ID = 1;
@@ -308,21 +304,25 @@ message RegistrationConfirmation {
 
 // GENERAL USE MESSAGES --------------------------------------------------------
 
-// Ack generic message containing an Error field
+// Generic response message providing an error message from remote servers
 message Ack {
     string Error = 1;
+}
+
+// Empty message for requesting action from any type of server
+message Ping {
 }
 
 // Wrapper for authenticated messages that also ensure integrity
 message SecureMessage {
     string ID = 1;
     bytes Signature = 2;
-    int32 Token = 3;
+    bytes Token = 3;
     google.protobuf.Any Message = 4;
 }
 
 // Provides a token to establish reverse identity to any type of client
 message AssignToken {
-    int32 Token = 1;
-    int32 Nonce = 2;
+    bytes Token = 1;
+    bytes Nonce = 2;
 }
