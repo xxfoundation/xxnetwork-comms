@@ -19,21 +19,13 @@ import (
 	"google.golang.org/grpc/reflection"
 	"math"
 	"net"
-	"time"
 )
 
-// Server object containing a gRPC server
+// Registration object used to implement
+// endpoints and top-level comms functionality
 type Comms struct {
-	connect.Manager
-	gs      *grpc.Server
+	connect.ProtoComms
 	handler Handler
-}
-
-// Performs a graceful shutdown of the server
-func (r *Comms) Shutdown() {
-	r.DisconnectAll()
-	r.gs.GracefulStop()
-	time.Sleep(time.Millisecond * 500)
 }
 
 // Starts a new server on the address:port specified by localServer
@@ -72,7 +64,14 @@ func StartRegistrationServer(localServer string, handler Handler,
 		grpcServer = grpc.NewServer(grpc.MaxConcurrentStreams(math.MaxUint32),
 			grpc.MaxRecvMsgSize(math.MaxInt32))
 	}
-	registrationServer := Comms{gs: grpcServer, handler: handler}
+
+	registrationServer := Comms{
+		ProtoComms: connect.ProtoComms{
+			LocalServer:   grpcServer,
+			ListeningAddr: localServer,
+		},
+		handler: handler,
+	}
 
 	if keyPEMblock != nil {
 		err = registrationServer.SetPrivateKey(keyPEMblock)
@@ -84,11 +83,11 @@ func StartRegistrationServer(localServer string, handler Handler,
 	}
 
 	go func() {
-		pb.RegisterRegistrationServer(registrationServer.gs, &registrationServer)
+		pb.RegisterRegistrationServer(registrationServer.LocalServer, &registrationServer)
 
 		// Register reflection service on gRPC server.
-		reflection.Register(registrationServer.gs)
-		if err = registrationServer.gs.Serve(lis); err != nil {
+		reflection.Register(registrationServer.LocalServer)
+		if err = registrationServer.LocalServer.Serve(lis); err != nil {
 			err = errors.New(err.Error())
 			jww.FATAL.Panicf("Failed to serve: %+v", err)
 		}

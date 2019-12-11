@@ -19,23 +19,12 @@ import (
 	"google.golang.org/grpc/reflection"
 	"math"
 	"net"
-	"time"
 )
 
-// Gateway object contains a gRPC server and a connection manager for outgoing
-// connections
+// Gateway object used to implement endpoints and top-level comms functionality
 type Comms struct {
-	connect.Manager
-	gs      *grpc.Server
+	connect.ProtoComms
 	handler Handler
-}
-
-// Performs a graceful shutdown of the gateway
-// TODO Close all connections in the manager
-func (g *Comms) Shutdown() {
-	g.DisconnectAll()
-	g.gs.GracefulStop()
-	time.Sleep(time.Millisecond * 500)
 }
 
 // Starts a new gateway on the address:port specified by localServer
@@ -77,18 +66,22 @@ func StartGateway(localServer string, handler Handler,
 			grpc.MaxRecvMsgSize(33554432)) // 32 MiB
 
 	}
+
 	gatewayServer := Comms{
-		gs:      grpcServer,
+		ProtoComms: connect.ProtoComms{
+			LocalServer:   grpcServer,
+			ListeningAddr: localServer,
+		},
 		handler: handler,
 	}
 
 	go func() {
-		pb.RegisterGatewayServer(gatewayServer.gs, &gatewayServer)
+		pb.RegisterGatewayServer(gatewayServer.LocalServer, &gatewayServer)
 
 		// Register reflection service on gRPC server.
 		// This blocks for the lifetime of the listener.
-		reflection.Register(gatewayServer.gs)
-		if err = gatewayServer.gs.Serve(lis); err != nil {
+		reflection.Register(gatewayServer.LocalServer)
+		if err = gatewayServer.LocalServer.Serve(lis); err != nil {
 			err = errors.New(err.Error())
 			jww.FATAL.Panicf("Failed to serve: %+v", err)
 		}

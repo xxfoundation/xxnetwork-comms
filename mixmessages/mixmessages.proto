@@ -76,7 +76,7 @@ service Node {
     }
 
     // Authenticate a token with the registration server
-    rpc AuthenticateToken (SecureMessage) returns (Ack) {
+    rpc AuthenticateToken (AuthenticatedMessage) returns (Ack) {
     }
 
     // Request a token from the registration server
@@ -223,7 +223,7 @@ service Registration {
     }
 
     // Authenticate a token with the registration server
-    rpc AuthenticateToken (SecureMessage) returns (Ack) {
+    rpc AuthenticateToken (AuthenticatedMessage) returns (Ack) {
     }
 
     // Request a token from the registration server
@@ -314,15 +314,15 @@ message Ping {
 }
 
 // Wrapper for authenticated messages that also ensure integrity
-message SecureMessage {
+message AuthenticatedMessage {
     string ID = 1;
     bytes Signature = 2;
-    bytes Token = 3;
-    google.protobuf.Any Message = 4;
+    bytes Nonce = 3;
+    bytes Token = 4;
+    google.protobuf.Any Message = 5;
 }
 
 // Provides a token to establish reverse identity to any type of client
 message AssignToken {
     bytes Token = 1;
-    bytes Nonce = 2;
 }

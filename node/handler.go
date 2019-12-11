@@ -14,7 +14,7 @@ import (
 	"runtime/debug"
 )
 
-type ServerHandler interface {
+type Handler interface {
 	// Server interface for starting New Rounds
 	CreateNewRound(message *mixmessages.RoundInfo) error
 	// Server interface for sending a new batch

@@ -11,8 +11,6 @@ package connect
 import (
 	"bytes"
 	"fmt"
-	"github.com/pkg/errors"
-	"gitlab.com/elixxir/crypto/signature/rsa"
 	"sync"
 )
 
@@ -21,25 +19,6 @@ import (
 type Manager struct {
 	// A map of string IDs to Hosts
 	connections sync.Map
-	// Private key of the local communication server
-	privateKey *rsa.PrivateKey
-}
-
-// Set private key to data to a PEM block
-func (m *Manager) SetPrivateKey(data []byte) error {
-	key, err := rsa.LoadPrivateKeyFromPem(data)
-	if err != nil {
-		s := fmt.Sprintf("Failed to form private key file from data at %s: %+v", data, err)
-		return errors.New(s)
-	}
-
-	m.privateKey = key
-	return nil
-}
-
-// Get connection manager's private key
-func (m *Manager) GetPrivateKey() *rsa.PrivateKey {
-	return m.privateKey
 }
 
 // Fetch a Host from the internal map

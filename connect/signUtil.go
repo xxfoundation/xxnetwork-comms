@@ -12,17 +12,17 @@ import (
 
 // SignMessage takes a generic-type message and an ID, returns a SignedMessage
 // The message is signed with the Manager's RSA PrivateKey
-func (m *Manager) SignMessage(anyMessage *any.Any, id string) (*pb.SignedMessage, error) {
+func (c *ProtoComms) SignMessage(anyMessage *any.Any, id string) (*pb.AuthenticatedMessage, error) {
 	// Get hashed data
 	options := rsa.NewDefaultOptions()
 	hash := options.Hash.New()
 	data := []byte(anyMessage.String())
 	hashed := hash.Sum(data)[len(data):]
 
-	key := m.GetPrivateKey()
+	key := c.GetPrivateKey()
 	if key == nil {
 		jwalterweatherman.WARN.Printf("Private key was nil, sending message unsigned")
-		return &pb.SignedMessage{
+		return &pb.AuthenticatedMessage{
 			Message:   anyMessage,
 			Signature: nil,
 			ID:        id,
@@ -36,7 +36,7 @@ func (m *Manager) SignMessage(anyMessage *any.Any, id string) (*pb.SignedMessage
 	}
 
 	// Form signed message
-	signedMessage := pb.SignedMessage{
+	signedMessage := pb.AuthenticatedMessage{
 		Message:   anyMessage,
 		Signature: signature,
 		ID:        id,
@@ -47,7 +47,7 @@ func (m *Manager) SignMessage(anyMessage *any.Any, id string) (*pb.SignedMessage
 
 // VerifySignature accepts a signed message, the UnMarshalled message, and RSA PublicKey
 // It verifies the signature, returning an error if invalid
-func (m *Manager) VerifySignature(message *pb.SignedMessage,
+func (c *ProtoComms) VerifySignature(message *pb.AuthenticatedMessage,
 	pb proto.Message, host *Host) error {
 
 	// Get hashed data of the message

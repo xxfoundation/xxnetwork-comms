@@ -19,7 +19,6 @@ import (
 
 // Client -> Gateway Send Function
 func (c *Comms) SendPutMessage(host *connect.Host, message *pb.Slot) error {
-
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context

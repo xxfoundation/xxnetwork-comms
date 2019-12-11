@@ -22,9 +22,15 @@ import (
 	"time"
 )
 
+// Represents a reverse-authentication token
+type Token []byte
+
 // Information used to describe a connection to a host
 type Host struct {
 	// Public Variables ---------------
+	// System-wide ID of the Host
+	id string
+
 	// address:Port being connected to
 	address string
 
@@ -38,19 +44,29 @@ type Host struct {
 	// GRPC connection object
 	connection *grpc.ClientConn
 
-	// Credentials object used to establish the connection
+	// TLS credentials object used to establish the connection
 	credentials credentials.TransportCredentials
 
 	// RSA Public Key corresponding to the TLS Certificate
 	rsaPublicKey *rsa.PublicKey
+
+	// Token shared with this Host establishing reverse authentication
+	token Token
+
+	// If set, reverse authentication will be established with this Host
+	enableAuth bool
 }
 
 // Creates a new Host object
-func NewHost(address string, cert []byte, disableTimeout bool) (host *Host, err error) {
+func NewHost(id, address string, cert []byte, disableTimeout,
+	enableAuth bool) (host *Host, err error) {
+
 	// Initialize the Host object
 	host = &Host{
+		id:          id,
 		address:     address,
 		certificate: cert,
+		enableAuth:  enableAuth,
 	}
 
 	// Set the max number of retries for establishing a connection
@@ -108,6 +124,7 @@ func (h *Host) Stream(f func(conn *grpc.ClientConn) (interface{}, error)) (
 	client interface{}, err error) {
 
 	// Ensure the connection is running
+	jww.DEBUG.Printf("Attempting to stream to host: %s", h)
 	err = h.validateConnection()
 	if err != nil {
 		return
@@ -115,6 +132,11 @@ func (h *Host) Stream(f func(conn *grpc.ClientConn) (interface{}, error)) (
 
 	// Run the stream function
 	return f(h.connection)
+}
+
+// Returns the Host ID
+func (h *Host) GetId() string {
+	return h.id
 }
 
 // Returns the Host address
@@ -154,6 +176,7 @@ func (h *Host) disconnect() {
 
 // Connect creates a connection
 func (h *Host) connect() (err error) {
+	// TODO: Enableauth
 	// Configure TLS options
 	var securityDial grpc.DialOption
 	if h.credentials != nil {

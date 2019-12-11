@@ -11,37 +11,26 @@ package node
 import (
 	"crypto/tls"
 	"github.com/pkg/errors"
+	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/reflection"
-
-	jww "github.com/spf13/jwalterweatherman"
 	"math"
 	"net"
-	"time"
 )
 
-// Server object containing a gRPC server
+// Server object used to implement endpoints and top-level comms functionality
 type Comms struct {
-	connect.Manager
-	gs          *grpc.Server
-	handler     ServerHandler
-	localServer string
+	connect.ProtoComms
+	handler Handler
 }
 
-// Performs a graceful shutdown of the server
-func (s *Comms) Shutdown() {
-	s.DisconnectAll()
-	s.gs.GracefulStop()
-	time.Sleep(time.Millisecond * 500)
-}
-
-// Starts a new server on the address:port specified by localServer
+// Starts a new server on the address:port specified by listeningAddr
 // and a callback interface for server operations
 // with given path to public and private key for TLS connection
-func StartNode(localServer string, handler ServerHandler,
+func StartNode(localServer string, handler Handler,
 	certPEMblock, keyPEMblock []byte) *Comms {
 	var grpcServer *grpc.Server
 
@@ -75,14 +64,21 @@ func StartNode(localServer string, handler ServerHandler,
 		grpcServer = grpc.NewServer(grpc.MaxConcurrentStreams(math.MaxUint32),
 			grpc.MaxRecvMsgSize(math.MaxInt32))
 	}
-	mixmessageServer := Comms{gs: grpcServer, handler: handler, localServer: localServer}
+
+	mixmessageServer := Comms{
+		ProtoComms: connect.ProtoComms{
+			LocalServer:   grpcServer,
+			ListeningAddr: localServer,
+		},
+		handler: handler,
+	}
 
 	go func() {
-		pb.RegisterNodeServer(mixmessageServer.gs, &mixmessageServer)
+		pb.RegisterNodeServer(mixmessageServer.LocalServer, &mixmessageServer)
 
 		// Register reflection service on gRPC server.
-		reflection.Register(mixmessageServer.gs)
-		if err = mixmessageServer.gs.Serve(lis); err != nil {
+		reflection.Register(mixmessageServer.LocalServer)
+		if err = mixmessageServer.LocalServer.Serve(lis); err != nil {
 			err = errors.New(err.Error())
 			jww.FATAL.Panicf("Failed to serve: %+v", err)
 		}
@@ -90,8 +86,4 @@ func StartNode(localServer string, handler ServerHandler,
 	}()
 
 	return &mixmessageServer
-}
-
-func (s *Comms) String() string {
-	return s.localServer
 }
