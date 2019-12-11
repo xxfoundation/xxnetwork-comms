@@ -33,9 +33,9 @@ func (m *Manager) GetHost(hostId string) (*Host, bool) {
 
 // Creates and adds a Host object to the Manager using the given id
 func (m *Manager) AddHost(id, address string,
-	cert []byte, disableTimeout bool) (host *Host, err error) {
+	cert []byte, disableTimeout, enableAuth bool) (host *Host, err error) {
 
-	host, err = NewHost(address, cert, disableTimeout)
+	host, err = NewHost(id, address, cert, disableTimeout, enableAuth)
 	if err != nil {
 		return nil, err
 	}
