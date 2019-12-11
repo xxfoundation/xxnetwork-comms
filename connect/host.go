@@ -37,6 +37,9 @@ type Host struct {
 	// PEM-format TLS Certificate
 	certificate []byte
 
+	// Token shared with this Host establishing reverse authentication
+	token Token
+
 	// Private Variables ---------------
 	// Configure the maximum number of connection attempts
 	maxRetries int
@@ -49,9 +52,6 @@ type Host struct {
 
 	// RSA Public Key corresponding to the TLS Certificate
 	rsaPublicKey *rsa.PublicKey
-
-	// Token shared with this Host establishing reverse authentication
-	token Token
 
 	// If set, reverse authentication will be established with this Host
 	enableAuth bool
@@ -149,6 +149,13 @@ func (h *Host) GetCertificate() []byte {
 	cert := make([]byte, len(h.certificate))
 	copy(h.certificate, cert)
 	return cert
+}
+
+// Returns a copy of the Host authentication token
+func (h *Host) GetToken() Token {
+	token := make([]byte, len(h.token))
+	copy(h.certificate, token)
+	return token
 }
 
 // Returns true if the connection is non-nil and alive

@@ -4,12 +4,15 @@
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
 
-//
+// Handles the basic top-level comms object used across all packages
 
 package connect
 
 import (
+	"github.com/golang/protobuf/proto"
+	"github.com/golang/protobuf/ptypes"
 	"github.com/pkg/errors"
+	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/crypto/signature/rsa"
 	"google.golang.org/grpc"
 	"time"
@@ -56,4 +59,24 @@ func (c *ProtoComms) SetPrivateKey(data []byte) error {
 // Getter for local server's private key
 func (c *ProtoComms) GetPrivateKey() *rsa.PrivateKey {
 	return c.privateKey
+}
+
+// Convert any message type into a authenticated message
+func (c *ProtoComms) Authenticate(msg proto.Message, host *Host) (
+	*pb.AuthenticatedMessage, error) {
+
+	// Marshall the provided message into an Any type
+	anyMsg, err := ptypes.MarshalAny(msg)
+	if err != nil {
+		return nil, errors.New(err.Error())
+	}
+
+	// Build the authenticated message
+	// NOTE: Signature and ID remain unused until needed
+	return &pb.AuthenticatedMessage{
+		ID:        "",
+		Signature: nil,
+		Token:     host.token,
+		Message:   anyMsg,
+	}, nil
 }

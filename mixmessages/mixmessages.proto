@@ -317,9 +317,8 @@ message Ping {
 message AuthenticatedMessage {
     string ID = 1;
     bytes Signature = 2;
-    bytes Nonce = 3;
-    bytes Token = 4;
-    google.protobuf.Any Message = 5;
+    bytes Token = 3;
+    google.protobuf.Any Message = 4;
 }
 
 // Provides a token to establish reverse identity to any type of client
