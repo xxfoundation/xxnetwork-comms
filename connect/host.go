@@ -158,6 +158,11 @@ func (h *Host) GetToken() Token {
 	return token
 }
 
+// Set the Host authentication token
+func (h *Host) SetToken(token Token) {
+	h.token = token
+}
+
 // Returns true if the connection is non-nil and alive
 func (h *Host) isAlive() bool {
 	if h.connection == nil {

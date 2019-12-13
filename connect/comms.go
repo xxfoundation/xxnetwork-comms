@@ -13,8 +13,10 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/pkg/errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
+	"gitlab.com/elixxir/crypto/nonce"
 	"gitlab.com/elixxir/crypto/signature/rsa"
 	"google.golang.org/grpc"
+	"sync"
 	"time"
 )
 
@@ -22,6 +24,9 @@ import (
 type ProtoComms struct {
 	// Inherit the Manager object
 	Manager
+
+	// A map of reverse-authentication tokens
+	tokens sync.Map
 
 	// Local network server
 	LocalServer *grpc.Server
@@ -72,11 +77,40 @@ func (c *ProtoComms) Authenticate(msg proto.Message, host *Host) (
 	}
 
 	// Build the authenticated message
-	// NOTE: Signature and ID remain unused until needed
+	// NOTE: Signature remains unused until needed
 	return &pb.AuthenticatedMessage{
-		ID:        "",
+		ID:        host.id,
 		Signature: nil,
 		Token:     host.token,
 		Message:   anyMsg,
 	}, nil
+}
+
+// Generates a new token and adds it to internal state
+func (c *ProtoComms) GenerateToken() ([]byte, error) {
+	token, err := nonce.NewNonce(nonce.RegistrationTTL)
+	if err != nil {
+		return nil, err
+	}
+
+	c.tokens.Store(token.Bytes(), token)
+	return token.Bytes(), nil
+}
+
+// Validates an authenticated message using internal state
+func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) error {
+	token, ok := c.tokens.Load(msg.Token)
+	if !ok {
+	}
+
+	if !token.(*nonce.Nonce).IsValid() {
+	}
+
+	host, ok := c.GetHost(msg.ID)
+	if !ok {
+
+	}
+
+	host.SetToken(msg.Token)
+	return nil
 }

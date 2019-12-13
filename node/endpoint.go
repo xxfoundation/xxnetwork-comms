@@ -17,10 +17,22 @@ import (
 )
 
 // Handle a Broadcasted Ask Online event
-func (s *Comms) AskOnline(ctx context.Context, msg *pb.Ping) (
-	*pb.Ack, error) {
-	err := s.handler.AskOnline(msg)
-	return &pb.Ack{}, err
+func (s *Comms) AskOnline(ctx context.Context, msg *pb.Ping) (*pb.Ack, error) {
+	return &pb.Ack{}, s.handler.AskOnline(msg)
+}
+
+// Handles validation of reverse-authentication tokens
+func (s *Comms) AuthenticateToken(ctx context.Context,
+	msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
+	panic("implement me")
+}
+
+// Handles reception of reverse-authentication token requests
+func (s *Comms) RequestToken(context.Context, *pb.Ping) (*pb.AssignToken, error) {
+	token, err := s.GenerateToken()
+	return &pb.AssignToken{
+		Token: token,
+	}, err
 }
 
 // Handle a NewRound event
