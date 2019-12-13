@@ -99,16 +99,19 @@ func (c *ProtoComms) GenerateToken() ([]byte, error) {
 
 // Validates an authenticated message using internal state
 func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) error {
+
 	token, ok := c.tokens.Load(msg.Token)
 	if !ok {
+		return errors.Errorf("Unable to locate token: %+v", msg.Token)
 	}
 
 	if !token.(*nonce.Nonce).IsValid() {
+		return errors.Errorf("Invalid or expired token: %+v", msg.Token)
 	}
 
 	host, ok := c.GetHost(msg.ID)
 	if !ok {
-
+		return errors.Errorf("Invalid token for host ID: %+v", msg.ID)
 	}
 
 	host.SetToken(msg.Token)

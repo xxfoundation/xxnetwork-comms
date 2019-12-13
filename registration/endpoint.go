@@ -16,6 +16,20 @@ import (
 	"golang.org/x/net/context"
 )
 
+// Handles validation of reverse-authentication tokens
+func (s *Comms) AuthenticateToken(ctx context.Context,
+	msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
+	return &pb.Ack{}, s.ValidateToken(msg)
+}
+
+// Handles reception of reverse-authentication token requests
+func (s *Comms) RequestToken(context.Context, *pb.Ping) (*pb.AssignToken, error) {
+	token, err := s.GenerateToken()
+	return &pb.AssignToken{
+		Token: token,
+	}, err
+}
+
 // RegisterUser event handler which registers a user with the platform
 func (r *Comms) RegisterUser(ctx context.Context, msg *pb.UserRegistration) (
 	*pb.UserRegistrationConfirmation, error) {

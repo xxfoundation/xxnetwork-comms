@@ -24,7 +24,7 @@ func (s *Comms) AskOnline(ctx context.Context, msg *pb.Ping) (*pb.Ack, error) {
 // Handles validation of reverse-authentication tokens
 func (s *Comms) AuthenticateToken(ctx context.Context,
 	msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
-	panic("implement me")
+	return &pb.Ack{}, s.ValidateToken(msg)
 }
 
 // Handles reception of reverse-authentication token requests
