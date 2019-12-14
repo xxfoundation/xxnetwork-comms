@@ -86,18 +86,30 @@ func NewHost(id, address string, cert []byte, disableTimeout,
 func (h *Host) validateConnection() (err error) {
 	// If Host connection does not exist, open the connection
 	if h.connection == nil {
-		err = h.connect()
-	}
-	if err != nil {
-		return
+		if err = h.connect(); err != nil {
+			return
+		}
 	}
 
 	// If Host connection is not active, attempt to reestablish
 	if !h.isAlive() {
 		jww.WARN.Printf("Bad host connection state, reconnecting: %v", h)
 		h.disconnect()
-		err = h.connect()
+		if err = h.connect(); err != nil {
+			return
+		}
 	}
+
+	// If authentication is enabled and not yet configured, perform handshake
+	if h.enableAuth && h.token == nil {
+		err = h.authenticate()
+	}
+
+	return
+}
+
+// Perform the handshake to establish reverse-authentication
+func (h *Host) authenticate() (err error) {
 
 	return
 }
@@ -109,8 +121,7 @@ func (h *Host) Send(f func(conn *grpc.ClientConn) (*any.Any, error)) (
 
 	// Ensure the connection is running
 	jww.DEBUG.Printf("Attempting to send to host: %s", h)
-	err = h.validateConnection()
-	if err != nil {
+	if err = h.validateConnection(); err != nil {
 		return
 	}
 
@@ -125,8 +136,7 @@ func (h *Host) Stream(f func(conn *grpc.ClientConn) (interface{}, error)) (
 
 	// Ensure the connection is running
 	jww.DEBUG.Printf("Attempting to stream to host: %s", h)
-	err = h.validateConnection()
-	if err != nil {
+	if err = h.validateConnection(); err != nil {
 		return
 	}
 
@@ -188,7 +198,7 @@ func (h *Host) disconnect() {
 
 // Connect creates a connection
 func (h *Host) connect() (err error) {
-	// TODO: Enableauth
+
 	// Configure TLS options
 	var securityDial grpc.DialOption
 	if h.credentials != nil {
