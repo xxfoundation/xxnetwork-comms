@@ -74,14 +74,6 @@ service Node {
     // Round trip ping comm
     rpc SendRoundTripPing (RoundTripPing) returns (Ack) {
     }
-
-    // Authenticate a token with the registration server
-    rpc AuthenticateToken (AuthenticatedMessage) returns (Ack) {
-    }
-
-    // Request a token from the registration server
-    rpc RequestToken (Ping) returns (AssignToken) {
-    }
 }
 
 // The message for Init Round
@@ -221,14 +213,6 @@ service Registration {
     // Obtain NDF from the Registration Server
     rpc PollNdf (NDFHash) returns (NDF) {
     }
-
-    // Authenticate a token with the registration server
-    rpc AuthenticateToken (AuthenticatedMessage) returns (Ack) {
-    }
-
-    // Request a token from the registration server
-    rpc RequestToken (Ping) returns (AssignToken) {
-    }
 }
 
 //The ndf Hash used to compare ndf on permissioning and client
@@ -303,6 +287,17 @@ message RegistrationConfirmation {
 }
 
 // GENERAL USE MESSAGES --------------------------------------------------------
+
+// Generic service definition
+service Generic {
+    // Authenticate a token with the server
+    rpc AuthenticateToken (AuthenticatedMessage) returns (Ack) {
+    }
+
+    // Request a token from the server
+    rpc RequestToken (Ping) returns (AssignToken) {
+    }
+}
 
 // Generic response message providing an error message from remote servers
 message Ack {

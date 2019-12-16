@@ -74,7 +74,9 @@ func StartNode(localServer string, handler Handler,
 	}
 
 	go func() {
+		// Register GRPC services to the listening address
 		pb.RegisterNodeServer(mixmessageServer.LocalServer, &mixmessageServer)
+		pb.RegisterGenericServer(mixmessageServer.LocalServer, &mixmessageServer)
 
 		// Register reflection service on gRPC server.
 		reflection.Register(mixmessageServer.LocalServer)

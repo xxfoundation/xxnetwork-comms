@@ -84,6 +84,7 @@ func StartRegistrationServer(localServer string, handler Handler,
 
 	go func() {
 		pb.RegisterRegistrationServer(registrationServer.LocalServer, &registrationServer)
+		pb.RegisterGenericServer(registrationServer.LocalServer, &registrationServer)
 
 		// Register reflection service on gRPC server.
 		reflection.Register(registrationServer.LocalServer)

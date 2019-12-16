@@ -8,9 +8,6 @@
 
 package node
 
-// TODO: A lot of message types from gRPC are passed through, and a number of
-//       errors that can occur are not accounted for.
-
 import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"golang.org/x/net/context"

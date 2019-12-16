@@ -10,9 +10,11 @@ package connect
 
 import (
 	"fmt"
+	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
+	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/crypto/signature/rsa"
 	tlsCreds "gitlab.com/elixxir/crypto/tls"
 	"google.golang.org/grpc"
@@ -110,6 +112,38 @@ func (h *Host) validateConnection() (err error) {
 
 // Perform the handshake to establish reverse-authentication
 func (h *Host) authenticate() (err error) {
+
+	// Create the Request Token Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := MessagingContext()
+		defer cancel()
+
+		// Send the message
+		resultMsg, err := pb.NewGenericClient(conn).RequestToken(ctx, &pb.Ping{})
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+		return ptypes.MarshalAny(resultMsg)
+	}
+
+	// Execute the Send function
+	resultMsg, err := h.Send(f)
+	if err != nil {
+		return
+	}
+
+	// Unmarshal the message into correct type
+	result := &pb.AssignToken{}
+	err = ptypes.UnmarshalAny(resultMsg, result)
+	if err != nil {
+		return
+	}
+
+	// Assign the host token
+	h.token = result.Token
+
+	// TODO: Need to call ProtoComms.Authenticate
 
 	return
 }

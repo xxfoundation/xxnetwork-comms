@@ -9,8 +9,10 @@
 package connect
 
 import (
+	"crypto/rand"
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/crypto/nonce"
@@ -67,8 +69,8 @@ func (c *ProtoComms) GetPrivateKey() *rsa.PrivateKey {
 }
 
 // Convert any message type into a authenticated message
-func (c *ProtoComms) Authenticate(msg proto.Message, host *Host) (
-	*pb.AuthenticatedMessage, error) {
+func (c *ProtoComms) Authenticate(msg proto.Message, host *Host,
+	enableSignature bool) (*pb.AuthenticatedMessage, error) {
 
 	// Marshall the provided message into an Any type
 	anyMsg, err := ptypes.MarshalAny(msg)
@@ -77,13 +79,22 @@ func (c *ProtoComms) Authenticate(msg proto.Message, host *Host) (
 	}
 
 	// Build the authenticated message
-	// NOTE: Signature remains unused until needed
-	return &pb.AuthenticatedMessage{
+	authMsg := &pb.AuthenticatedMessage{
 		ID:        host.id,
 		Signature: nil,
 		Token:     host.token,
 		Message:   anyMsg,
-	}, nil
+	}
+
+	// If signature is enabled, sign the message and add to payload
+	if enableSignature {
+		authMsg.Signature, err = c.signMessage(anyMsg)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return authMsg, nil
 }
 
 // Generates a new token and adds it to internal state
@@ -100,20 +111,72 @@ func (c *ProtoComms) GenerateToken() ([]byte, error) {
 // Validates an authenticated message using internal state
 func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) error {
 
+	// Verify the token was assigned
 	token, ok := c.tokens.Load(msg.Token)
 	if !ok {
 		return errors.Errorf("Unable to locate token: %+v", msg.Token)
 	}
 
+	// Verify the token is not expired
 	if !token.(*nonce.Nonce).IsValid() {
 		return errors.Errorf("Invalid or expired token: %+v", msg.Token)
 	}
 
+	// Verify the Host exists for the provided ID
 	host, ok := c.GetHost(msg.ID)
 	if !ok {
 		return errors.Errorf("Invalid token for host ID: %+v", msg.ID)
 	}
 
+	// Verify the token signature
+	if err := c.verifyMessage(msg, host); err != nil {
+		return errors.Errorf("Invalid token signature: %+v", err)
+	}
+
+	// Token has been validated and can be safely stored
 	host.SetToken(msg.Token)
+	return nil
+}
+
+// Takes a generic-type message, returns the signature
+// The message is signed with the ProtoComms RSA PrivateKey
+func (c *ProtoComms) signMessage(anyMessage *any.Any) ([]byte, error) {
+	// Hash the message data
+	options := rsa.NewDefaultOptions()
+	hash := options.Hash.New()
+	data := []byte(anyMessage.String())
+	hashed := hash.Sum(data)[len(data):]
+
+	// Obtain the private key
+	key := c.GetPrivateKey()
+	if key == nil {
+		return nil, errors.Errorf("Cannot sign message: No private key")
+	}
+
+	// Sign the message and return the signature
+	signature, err := rsa.Sign(rand.Reader, key, options.Hash, hashed, nil)
+	if err != nil {
+		return nil, errors.New(err.Error())
+	}
+	return signature, nil
+}
+
+// Takes an AuthenticatedMessage and a Host, verifies the signature
+// using Host public key, returning an error if invalid
+func (c *ProtoComms) verifyMessage(msg *pb.AuthenticatedMessage, host *Host) error {
+
+	// Get hashed data of the message
+	options := rsa.NewDefaultOptions()
+	hash := options.Hash.New()
+	s := msg.Message.String()
+	data := []byte(s)
+	hashed := hash.Sum(data)[len(data):]
+
+	// Verify signature of message using host public key
+	err := rsa.Verify(host.rsaPublicKey, options.Hash, hashed, msg.Signature, nil)
+	if err != nil {
+		return errors.New(err.Error())
+	}
+
 	return nil
 }
