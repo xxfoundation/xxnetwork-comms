@@ -22,7 +22,7 @@ func TestSendAskOnline(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -41,7 +41,7 @@ func TestSendFinishRealtime(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -60,7 +60,7 @@ func TestSendNewRound(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -79,7 +79,7 @@ func TestSendPostPhase(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -98,7 +98,7 @@ func TestSendPostRoundPublicKey(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -117,7 +117,7 @@ func TestSendPostPrecompResult(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -146,7 +146,7 @@ func TestSendGetMeasure(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -179,7 +179,7 @@ func TestSendGetMeasureError(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -198,7 +198,7 @@ func TestRoundTripPing(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}

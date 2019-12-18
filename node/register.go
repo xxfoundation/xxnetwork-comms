@@ -33,7 +33,7 @@ func (s *Comms) SendNodeRegistration(host *connect.Host,
 	}
 
 	// Execute the Send function
-	_, err := host.Send(f)
+	_, err := s.Send(host, f)
 	return err
 }
 
@@ -57,7 +57,7 @@ func (s *Comms) RequestNdf(host *connect.Host,
 	}
 
 	// Execute the Send function
-	resultMsg, err := host.Send(f)
+	resultMsg, err := s.Send(host, f)
 	if err != nil {
 		return nil, err
 	}

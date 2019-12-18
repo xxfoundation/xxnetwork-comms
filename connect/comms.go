@@ -9,16 +9,10 @@
 package connect
 
 import (
-	"bytes"
-	"crypto/rand"
 	"crypto/tls"
-	"github.com/golang/protobuf/proto"
-	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
-	pb "gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/elixxir/crypto/nonce"
 	"gitlab.com/elixxir/crypto/signature/rsa"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -119,131 +113,37 @@ func (c *ProtoComms) GetPrivateKey() *rsa.PrivateKey {
 	return c.privateKey
 }
 
-// Convert any message type into a authenticated message
-func (c *ProtoComms) Authenticate(msg proto.Message, host *Host,
-	enableSignature bool) (*pb.AuthenticatedMessage, error) {
+// Sets up or recovers the Host's connection
+// Then runs the given Send function
+func (c *ProtoComms) Send(host *Host, f func(conn *grpc.ClientConn) (*any.Any,
+	error)) (result *any.Any, err error) {
 
-	// Marshall the provided message into an Any type
-	anyMsg, err := ptypes.MarshalAny(msg)
-	if err != nil {
-		return nil, errors.New(err.Error())
+	// Ensure the connection is running
+	jww.DEBUG.Printf("Attempting to send to host: %s", host)
+	if err = host.validateConnection(); err != nil {
+		return
 	}
 
-	// Build the authenticated message
-	authMsg := &pb.AuthenticatedMessage{
-		ID:        host.id,
-		Signature: nil,
-		Token:     host.token,
-		Message:   anyMsg,
+	// If authentication is enabled and not yet configured, perform handshake
+	if host.enableAuth && host.token == nil {
+		err = c.clientHandshake(host)
 	}
 
-	// If signature is enabled, sign the message and add to payload
-	if enableSignature {
-		authMsg.Signature, err = c.signMessage(anyMsg)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return authMsg, nil
+	// Run the send function
+	return f(host.connection)
 }
 
-// Generates a new token and adds it to internal state
-func (c *ProtoComms) GenerateToken() ([]byte, error) {
-	token, err := nonce.NewNonce(nonce.RegistrationTTL)
-	if err != nil {
-		return nil, err
+// Sets up or recovers the Host's connection
+// Then runs the given Stream function
+func (c *ProtoComms) Stream(host *Host, f func(conn *grpc.ClientConn) (
+	interface{}, error)) (client interface{}, err error) {
+
+	// Ensure the connection is running
+	jww.DEBUG.Printf("Attempting to stream to host: %s", host)
+	if err = host.validateConnection(); err != nil {
+		return
 	}
 
-	c.tokens.Store(token.Bytes(), token)
-	return token.Bytes(), nil
-}
-
-// Validates an authenticated message using internal state
-func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) error {
-
-	// Verify the token was assigned
-	token, ok := c.tokens.Load(msg.Token)
-	if !ok {
-		return errors.Errorf("Unable to locate token: %+v", msg.Token)
-	}
-
-	// Verify the token is not expired
-	if !token.(*nonce.Nonce).IsValid() {
-		return errors.Errorf("Invalid or expired token: %+v", msg.Token)
-	}
-
-	// Verify the Host exists for the provided ID
-	host, ok := c.GetHost(msg.ID)
-	if !ok {
-		return errors.Errorf("Invalid token for host ID: %+v", msg.ID)
-	}
-
-	// Verify the token signature
-	if err := c.verifyMessage(msg, host); err != nil {
-		return errors.Errorf("Invalid token signature: %+v", err)
-	}
-
-	// Token has been validated and can be safely stored
-	host.SetToken(msg.Token)
-	return nil
-}
-
-func (c *ProtoComms) AuthenticatedReceiver(msg pb.AuthenticatedMessage, authenticatedTokens sync.Map) *auth {
-	a := &auth{
-		IsAuthenticated: false,
-		Sender:          Host{},
-	}
-	host, ok := c.GetHost(msg.ID)
-	if !ok {
-		return a
-	} else if bytes.Compare(host.token, msg.Token) != 0 {
-		return a
-	}
-	a.Sender = *host
-	a.IsAuthenticated = true
-	return a
-}
-
-// Takes a generic-type message, returns the signature
-// The message is signed with the ProtoComms RSA PrivateKey
-func (c *ProtoComms) signMessage(anyMessage *any.Any) ([]byte, error) {
-	// Hash the message data
-	options := rsa.NewDefaultOptions()
-	hash := options.Hash.New()
-	data := []byte(anyMessage.String())
-	hashed := hash.Sum(data)[len(data):]
-
-	// Obtain the private key
-	key := c.GetPrivateKey()
-	if key == nil {
-		return nil, errors.Errorf("Cannot sign message: No private key")
-	}
-
-	// Sign the message and return the signature
-	signature, err := rsa.Sign(rand.Reader, key, options.Hash, hashed, nil)
-	if err != nil {
-		return nil, errors.New(err.Error())
-	}
-	return signature, nil
-}
-
-// Takes an AuthenticatedMessage and a Host, verifies the signature
-// using Host public key, returning an error if invalid
-func (c *ProtoComms) verifyMessage(msg *pb.AuthenticatedMessage, host *Host) error {
-
-	// Get hashed data of the message
-	options := rsa.NewDefaultOptions()
-	hash := options.Hash.New()
-	s := msg.Message.String()
-	data := []byte(s)
-	hashed := hash.Sum(data)[len(data):]
-
-	// Verify signature of message using host public key
-	err := rsa.Verify(host.rsaPublicKey, options.Hash, hashed, msg.Signature, nil)
-	if err != nil {
-		return errors.New(err.Error())
-	}
-
-	return nil
+	// Run the stream function
+	return f(host.connection)
 }

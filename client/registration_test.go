@@ -23,7 +23,7 @@ func TestSendRegistrationMessage(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := manager.AddHost(testId, GatewayAddress, nil, false)
+	host, err := manager.AddHost(testId, GatewayAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -44,7 +44,7 @@ func TestSendCheckClientVersionMessage(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := manager.AddHost(testId, GatewayAddress, nil, false)
+	host, err := manager.AddHost(testId, GatewayAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -65,7 +65,7 @@ func TestSendGetUpdatedNDF(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := manager.AddHost(testId, GatewayAddress, nil, false)
+	host, err := manager.AddHost(testId, GatewayAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}

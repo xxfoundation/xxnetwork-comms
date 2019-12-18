@@ -24,7 +24,7 @@ func TestSendNodeRegistration(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := manager.AddHost(testId, RegAddress, nil, false)
+	host, err := manager.AddHost(testId, RegAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}

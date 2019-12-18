@@ -36,7 +36,7 @@ func (s *Comms) SendGetMeasure(host *connect.Host,
 	}
 
 	// Execute the Send function
-	resultMsg, err := host.Send(f)
+	resultMsg, err := s.Send(host, f)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +65,7 @@ func (s *Comms) SendAskOnline(host *connect.Host,
 	}
 
 	// Execute the Send function
-	resultMsg, err := host.Send(f)
+	resultMsg, err := s.Send(host, f)
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +94,7 @@ func (s *Comms) SendFinishRealtime(host *connect.Host,
 	}
 
 	// Execute the Send function
-	resultMsg, err := host.Send(f)
+	resultMsg, err := s.Send(host, f)
 	if err != nil {
 		return nil, err
 	}
@@ -123,7 +123,7 @@ func (s *Comms) SendNewRound(host *connect.Host,
 	}
 
 	// Execute the Send function
-	resultMsg, err := host.Send(f)
+	resultMsg, err := s.Send(host, f)
 	if err != nil {
 		return nil, err
 	}
@@ -152,7 +152,7 @@ func (s *Comms) SendPostRoundPublicKey(host *connect.Host,
 	}
 
 	// Execute the Send function
-	resultMsg, err := host.Send(f)
+	resultMsg, err := s.Send(host, f)
 	if err != nil {
 		return nil, err
 	}
@@ -187,7 +187,7 @@ func (s *Comms) SendPostPrecompResult(host *connect.Host,
 	}
 
 	// Execute the Send function
-	resultMsg, err := host.Send(f)
+	resultMsg, err := s.Send(host, f)
 	if err != nil {
 		return nil, err
 	}
@@ -222,7 +222,7 @@ func (s *Comms) RoundTripPing(host *connect.Host,
 	}
 
 	// Execute the Send function
-	resultMsg, err := host.Send(f)
+	resultMsg, err := s.Send(host, f)
 	if err != nil {
 		return nil, err
 	}
