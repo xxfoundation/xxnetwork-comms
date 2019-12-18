@@ -9,9 +9,59 @@
 package registration
 
 import (
+	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
+	"gitlab.com/elixxir/comms/connect"
+	pb "gitlab.com/elixxir/comms/mixmessages"
+	"google.golang.org/grpc/reflection"
 	"runtime/debug"
 )
+
+// Registration object used to implement
+// endpoints and top-level comms functionality
+type Comms struct {
+	connect.ProtoComms
+	handler Handler
+}
+
+// Starts a new server on the address:port specified by localServer
+// and a callback interface for server operations
+// with given path to public and private key for TLS connection
+func StartRegistrationServer(localServer string, handler Handler,
+	certPEMblock, keyPEMblock []byte) *Comms {
+
+	pc, lis := connect.StartGenericServer(localServer, certPEMblock, keyPEMblock)
+
+	registrationServer := Comms{
+		ProtoComms: pc,
+		handler:    handler,
+	}
+
+	if keyPEMblock != nil {
+		err := registrationServer.SetPrivateKey(keyPEMblock)
+		if err != nil {
+			jww.ERROR.Printf("Error setting RSA private key: %+v", err)
+		}
+	} else {
+		jww.WARN.Println("Starting registration server with no private key...")
+	}
+
+	go func() {
+		pb.RegisterRegistrationServer(registrationServer.LocalServer, &registrationServer)
+		pb.RegisterGenericServer(registrationServer.LocalServer, &registrationServer)
+
+		// Register reflection service on gRPC server.
+		reflection.Register(registrationServer.LocalServer)
+		if err := registrationServer.LocalServer.Serve(lis); err != nil {
+			err = errors.New(err.Error())
+			jww.FATAL.Panicf("Failed to serve: %+v", err)
+		}
+		jww.INFO.Printf("Shutting down registration server listener:"+
+			" %s", lis)
+	}()
+
+	return &registrationServer
+}
 
 type Handler interface {
 	RegisterUser(registrationCode, pubKey string) (signature []byte, err error)

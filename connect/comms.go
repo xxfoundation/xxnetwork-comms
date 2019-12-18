@@ -9,15 +9,21 @@
 package connect
 
 import (
+	"bytes"
 	"crypto/rand"
+	"crypto/tls"
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
+	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/crypto/nonce"
 	"gitlab.com/elixxir/crypto/signature/rsa"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
+	"math"
+	"net"
 	"sync"
 	"time"
 )
@@ -38,6 +44,51 @@ type ProtoComms struct {
 
 	// Private key of the local server
 	privateKey *rsa.PrivateKey
+}
+
+type auth struct {
+	IsAuthenticated bool
+	Sender          Host
+}
+
+func StartGenericServer(localServer string, certPEMblock, keyPEMblock []byte) (ProtoComms, net.Listener) {
+	var grpcServer *grpc.Server
+
+	// Listen on the given address
+	lis, err := net.Listen("tcp", localServer)
+	if err != nil {
+		err = errors.New(err.Error())
+		jww.FATAL.Panicf("Failed to listen: %+v", err)
+	}
+
+	// If TLS was specified
+	if certPEMblock != nil && keyPEMblock != nil {
+		// Create the TLS certificate
+		x509cert, err2 := tls.X509KeyPair(certPEMblock, keyPEMblock)
+		if err2 != nil {
+			err = errors.New(err2.Error())
+			jww.FATAL.Panicf("Could not load TLS keys: %+v", err)
+		}
+
+		creds := credentials.NewServerTLSFromCert(&x509cert)
+
+		// Create the gRPC server with TLS
+		jww.INFO.Printf("Starting server with TLS...")
+		grpcServer = grpc.NewServer(grpc.Creds(creds),
+			grpc.MaxConcurrentStreams(math.MaxUint32),
+			grpc.MaxRecvMsgSize(math.MaxInt32))
+	} else {
+		// Create the gRPC server without TLS
+		jww.WARN.Printf("Starting server with TLS disabled...")
+		grpcServer = grpc.NewServer(grpc.MaxConcurrentStreams(math.MaxUint32),
+			grpc.MaxRecvMsgSize(math.MaxInt32))
+	}
+
+	pc := ProtoComms{
+		LocalServer:   grpcServer,
+		ListeningAddr: localServer,
+	}
+	return pc, lis
 }
 
 // Performs a graceful shutdown of the local server
@@ -136,6 +187,22 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) error {
 	// Token has been validated and can be safely stored
 	host.SetToken(msg.Token)
 	return nil
+}
+
+func (c *ProtoComms) AuthenticatedMessageHandler(msg pb.AuthenticatedMessage, authenticatedTokens sync.Map) *auth {
+	a := &auth{
+		IsAuthenticated: false,
+		Sender:          Host{},
+	}
+	host, ok := c.GetHost(msg.ID)
+	if !ok {
+		return a
+	} else if bytes.Compare(host.token, []byte(msg.Token)) != 0 {
+		return a
+	}
+	a.Sender = *host
+	a.IsAuthenticated = true
+	return a
 }
 
 // Takes a generic-type message, returns the signature

@@ -9,10 +9,48 @@
 package node
 
 import (
+	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
+	"gitlab.com/elixxir/comms/connect"
 	"gitlab.com/elixxir/comms/mixmessages"
+	"google.golang.org/grpc/reflection"
 	"runtime/debug"
 )
+
+// Server object used to implement endpoints and top-level comms functionality
+type Comms struct {
+	connect.ProtoComms
+	handler Handler
+}
+
+// Starts a new server on the address:port specified by listeningAddr
+// and a callback interface for server operations
+// with given path to public and private key for TLS connection
+func StartNode(localServer string, handler Handler,
+	certPEMblock, keyPEMblock []byte) *Comms {
+	pc, lis := connect.StartGenericServer(localServer, certPEMblock, keyPEMblock)
+
+	mixmessageServer := Comms{
+		ProtoComms: pc,
+		handler:    handler,
+	}
+
+	go func() {
+		// Register GRPC services to the listening address
+		mixmessages.RegisterNodeServer(mixmessageServer.LocalServer, &mixmessageServer)
+		mixmessages.RegisterGenericServer(mixmessageServer.LocalServer, &mixmessageServer)
+
+		// Register reflection service on gRPC server.
+		reflection.Register(mixmessageServer.LocalServer)
+		if err := mixmessageServer.LocalServer.Serve(lis); err != nil {
+			err = errors.New(err.Error())
+			jww.FATAL.Panicf("Failed to serve: %+v", err)
+		}
+		jww.INFO.Printf("Shutting down node server listener: %s", lis)
+	}()
+
+	return &mixmessageServer
+}
 
 type Handler interface {
 	// Server interface for starting New Rounds
