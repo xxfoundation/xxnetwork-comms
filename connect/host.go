@@ -10,11 +10,8 @@ package connect
 
 import (
 	"fmt"
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
-	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/crypto/signature/rsa"
 	tlsCreds "gitlab.com/elixxir/crypto/tls"
 	"google.golang.org/grpc"
@@ -102,109 +99,7 @@ func (h *Host) validateConnection() (err error) {
 		}
 	}
 
-	// If authentication is enabled and not yet configured, perform handshake
-	if h.enableAuth && h.token == nil {
-		err = h.authenticate()
-	}
-
 	return
-}
-
-// Perform the handshake to establish reverse-authentication
-func (h *Host) authenticate() (err error) {
-
-	// Create the Request Token Send Function
-	f := func(conn *grpc.ClientConn) (*any.Any, error) {
-		// Set up the context
-		ctx, cancel := MessagingContext()
-		defer cancel()
-
-		// Send the message
-		resultMsg, err := pb.NewGenericClient(conn).RequestToken(ctx, &pb.Ping{})
-		if err != nil {
-			return nil, errors.New(err.Error())
-		}
-		return ptypes.MarshalAny(resultMsg)
-	}
-
-	// Execute the Send function
-	resultMsg, err := h.Send(f)
-	if err != nil {
-		return
-	}
-
-	// Unmarshal the message into correct type
-	result := &pb.AssignToken{}
-	err = ptypes.UnmarshalAny(resultMsg, result)
-	if err != nil {
-		return
-	}
-
-	// Assign the host token
-	h.token = result.Token
-
-	// TODO: Need to call ProtoComms.Authenticate
-
-	return
-}
-
-// Sets up or recovers the Host's connection
-// Then runs the given Send function
-func (h *Host) Send(f func(conn *grpc.ClientConn) (*any.Any, error)) (
-	result *any.Any, err error) {
-
-	// Ensure the connection is running
-	jww.DEBUG.Printf("Attempting to send to host: %s", h)
-	if err = h.validateConnection(); err != nil {
-		return
-	}
-
-	// Run the send function
-	return f(h.connection)
-}
-
-// Sets up or recovers the Host's connection
-// Then runs the given Stream function
-func (h *Host) Stream(f func(conn *grpc.ClientConn) (interface{}, error)) (
-	client interface{}, err error) {
-
-	// Ensure the connection is running
-	jww.DEBUG.Printf("Attempting to stream to host: %s", h)
-	if err = h.validateConnection(); err != nil {
-		return
-	}
-
-	// Run the stream function
-	return f(h.connection)
-}
-
-// Returns the Host ID
-func (h *Host) GetId() string {
-	return h.id
-}
-
-// Returns the Host address
-func (h *Host) GetAddress() string {
-	return h.address
-}
-
-// Returns a copy of the Host certificate
-func (h *Host) GetCertificate() []byte {
-	cert := make([]byte, len(h.certificate))
-	copy(h.certificate, cert)
-	return cert
-}
-
-// Returns a copy of the Host authentication token
-func (h *Host) GetToken() Token {
-	token := make([]byte, len(h.token))
-	copy(h.certificate, token)
-	return token
-}
-
-// Set the Host authentication token
-func (h *Host) SetToken(token Token) {
-	h.token = token
 }
 
 // Returns true if the connection is non-nil and alive

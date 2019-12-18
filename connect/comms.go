@@ -14,6 +14,7 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
+	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/crypto/nonce"
 	"gitlab.com/elixxir/crypto/signature/rsa"
@@ -68,8 +69,100 @@ func (c *ProtoComms) GetPrivateKey() *rsa.PrivateKey {
 	return c.privateKey
 }
 
+// Sets up or recovers the Host's connection
+// Then runs the given Send function
+func (c *ProtoComms) Send(host *Host, f func(conn *grpc.ClientConn) (*any.Any,
+	error)) (result *any.Any, err error) {
+
+	// Ensure the connection is running
+	jww.DEBUG.Printf("Attempting to send to host: %s", host)
+	if err = host.validateConnection(); err != nil {
+		return
+	}
+
+	// If authentication is enabled and not yet configured, perform handshake
+	if host.enableAuth && host.token == nil {
+		err = c.clientHandshake(host)
+	}
+
+	// Run the send function
+	return f(host.connection)
+}
+
+// Perform the client handshake to establish reverse-authentication
+func (c *ProtoComms) clientHandshake(host *Host) (err error) {
+
+	// Create the Request Token Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := MessagingContext()
+		defer cancel()
+
+		// Send the message
+		resultMsg, err := pb.NewGenericClient(conn).RequestToken(ctx, &pb.Ping{})
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+		return ptypes.MarshalAny(resultMsg)
+	}
+
+	// Execute the Send function
+	resultMsg, err := c.Send(host, f)
+	if err != nil {
+		return
+	}
+
+	// Unmarshal the message into correct type
+	result := &pb.AssignToken{}
+	err = ptypes.UnmarshalAny(resultMsg, result)
+	if err != nil {
+		return
+	}
+
+	// Assign the host token
+	host.token = result.Token
+
+	// Pack the authenticated message with signature enabled
+	msg, err := c.PackAuthenticatedMessage(&pb.AssignToken{
+		Token: host.token,
+	}, host, true)
+
+	// Create the Authenticate Token Send Function
+	f = func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := MessagingContext()
+		defer cancel()
+
+		// Send the message
+		_, err := pb.NewGenericClient(conn).AuthenticateToken(ctx, msg)
+		if err != nil {
+			err = errors.New(err.Error())
+		}
+		return nil, err
+	}
+
+	// Execute the Send function
+	_, err = c.Send(host, f)
+	return
+}
+
+// Sets up or recovers the Host's connection
+// Then runs the given Stream function
+func (c *ProtoComms) Stream(host *Host, f func(conn *grpc.ClientConn) (
+	interface{}, error)) (client interface{}, err error) {
+
+	// Ensure the connection is running
+	jww.DEBUG.Printf("Attempting to stream to host: %s", host)
+	if err = host.validateConnection(); err != nil {
+		return
+	}
+
+	// Run the stream function
+	return f(host.connection)
+}
+
 // Convert any message type into a authenticated message
-func (c *ProtoComms) Authenticate(msg proto.Message, host *Host,
+func (c *ProtoComms) PackAuthenticatedMessage(msg proto.Message, host *Host,
 	enableSignature bool) (*pb.AuthenticatedMessage, error) {
 
 	// Marshall the provided message into an Any type
@@ -134,7 +227,7 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) error {
 	}
 
 	// Token has been validated and can be safely stored
-	host.SetToken(msg.Token)
+	host.token = msg.Token
 	return nil
 }
 
