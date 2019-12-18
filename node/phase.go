@@ -39,7 +39,7 @@ func (s *Comms) SendPostPhase(host *connect.Host,
 	}
 
 	// Execute the Send function
-	resultMsg, err := host.Send(f)
+	resultMsg, err := s.Send(host, f)
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +97,7 @@ func (s *Comms) getPostPhaseStream(host *connect.Host,
 	}
 
 	// Execute the Stream function
-	resultClient, err := host.Stream(f)
+	resultClient, err := s.Stream(host, f)
 	if err != nil {
 		return nil, err
 	}

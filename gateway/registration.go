@@ -36,7 +36,7 @@ func (g *Comms) SendRequestNonceMessage(host *connect.Host,
 	}
 
 	// Execute the Send function
-	resultMsg, err := host.Send(f)
+	resultMsg, err := g.Send(host, f)
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +66,7 @@ func (g *Comms) SendConfirmNonceMessage(host *connect.Host,
 	}
 
 	// Execute the Send function
-	resultMsg, err := host.Send(f)
+	resultMsg, err := g.Send(host, f)
 	if err != nil {
 		return nil, err
 	}
@@ -95,7 +95,7 @@ func (g *Comms) PollNdf(host *connect.Host,
 	}
 
 	// Execute the Send function
-	resultMsg, err := host.Send(f)
+	resultMsg, err := g.Send(host, f)
 	if err != nil {
 		return nil, err
 	}

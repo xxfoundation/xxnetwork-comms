@@ -35,7 +35,7 @@ func (g *Comms) PostNewBatch(host *connect.Host, messages *pb.Batch) error {
 	}
 
 	// Execute the Send function
-	_, err := host.Send(f)
+	_, err := g.Send(host, f)
 	return err
 }
 
@@ -61,7 +61,7 @@ func (g *Comms) GetRoundBufferInfo(host *connect.Host) (*pb.RoundBufferInfo, err
 	}
 
 	// Execute the Send function
-	resultMsg, err := host.Send(f)
+	resultMsg, err := g.Send(host, f)
 	if err != nil {
 		return nil, err
 	}
@@ -90,7 +90,7 @@ func (g *Comms) GetCompletedBatch(host *connect.Host) (*pb.Batch, error) {
 	}
 
 	// Execute the Send function
-	resultMsg, err := host.Send(f)
+	resultMsg, err := g.Send(host, f)
 	if err != nil {
 		return nil, err
 	}

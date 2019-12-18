@@ -34,7 +34,7 @@ func (c *Comms) SendPutMessage(host *connect.Host, message *pb.Slot) error {
 	}
 
 	// Execute the Send function
-	_, err := host.Send(f)
+	_, err := c.Send(host, f)
 	return err
 }
 
@@ -57,7 +57,7 @@ func (c *Comms) SendCheckMessages(host *connect.Host,
 	}
 
 	// Execute the Send function
-	resultMsg, err := host.Send(f)
+	resultMsg, err := c.Send(host, f)
 	if err != nil {
 		return nil, err
 	}
@@ -86,7 +86,7 @@ func (c *Comms) SendGetMessage(host *connect.Host,
 	}
 
 	// Execute the Send function
-	resultMsg, err := host.Send(f)
+	resultMsg, err := c.Send(host, f)
 	if err != nil {
 		return nil, err
 	}
@@ -117,7 +117,7 @@ func (c *Comms) SendRequestNonceMessage(host *connect.Host,
 	}
 
 	// Execute the Send function
-	resultMsg, err := host.Send(f)
+	resultMsg, err := c.Send(host, f)
 	if err != nil {
 		return nil, err
 	}
@@ -146,7 +146,7 @@ func (c *Comms) SendConfirmNonceMessage(host *connect.Host,
 	}
 
 	// Execute the Send function
-	resultMsg, err := host.Send(f)
+	resultMsg, err := c.Send(host, f)
 	if err != nil {
 		return nil, err
 	}

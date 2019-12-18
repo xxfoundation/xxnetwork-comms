@@ -37,7 +37,7 @@ func (c *Comms) SendRegistrationMessage(host *connect.Host,
 	}
 
 	// Execute the Send function
-	resultMsg, err := host.Send(f)
+	resultMsg, err := c.Send(host, f)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +67,7 @@ func (c *Comms) SendGetCurrentClientVersionMessage(
 	}
 
 	// Execute the Send function
-	resultMsg, err := host.Send(f)
+	resultMsg, err := c.Send(host, f)
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +97,7 @@ func (c *Comms) RequestNdf(host *connect.Host,
 	}
 
 	// Execute the Send function
-	resultMsg, err := host.Send(f)
+	resultMsg, err := c.Send(host, f)
 	if err != nil {
 		return nil, err
 	}
