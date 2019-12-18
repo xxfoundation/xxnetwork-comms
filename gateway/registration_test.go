@@ -25,7 +25,7 @@ func TestSendRequestNonceMessage(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -54,7 +54,7 @@ func TestSendConfirmNonceMessage(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -78,7 +78,7 @@ func TestPollNdf(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}

@@ -25,7 +25,7 @@ func TestPostNewBatch(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -49,7 +49,7 @@ func TestGetRoundBufferInfo(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -75,7 +75,7 @@ func TestGetCompletedBatch(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}

@@ -16,7 +16,7 @@ import (
 
 func TestSignVerify(t *testing.T) {
 
-	c := *new(Manager)
+	c := *new(ProtoComms)
 
 	key := testkeys.GetNodeKeyPath()
 	err := c.SetPrivateKey(testkeys.LoadFromPath(key))
@@ -27,14 +27,8 @@ func TestSignVerify(t *testing.T) {
 	private := c.GetPrivateKey()
 	pub := private.Public().(*rsa.PublicKey)
 
-	message := pb.NodeTopology{
-		Topology: []*pb.NodeInfo{
-			{
-				Id:            []byte("test"),
-				Index:         uint32(3),
-				ServerAddress: "0.0.0.0",
-			},
-		},
+	message := pb.NDF{
+		Ndf: []byte("test"),
 	}
 
 	wrappedMessage, err := ptypes.MarshalAny(&message)
@@ -42,27 +36,22 @@ func TestSignVerify(t *testing.T) {
 		t.Errorf("Error converting to Any type: %+v", err)
 	}
 
-	signed, err := c.SignMessage(wrappedMessage, "test_id")
+	signature, err := c.signMessage(wrappedMessage)
 	if err != nil {
 		t.Errorf("Error signing message: %+v", err)
-	}
-
-	verified := pb.NodeTopology{}
-	err = ptypes.UnmarshalAny(signed.Message, &verified)
-	if err != nil {
-		t.Errorf("Failed to unmarshal generic message, check your input message type: %+v", err)
 	}
 
 	host := &Host{
 		rsaPublicKey: pub,
 	}
 
-	err = c.VerifySignature(signed, &verified, host)
+	err = c.verifyMessage(&pb.AuthenticatedMessage{
+		ID:        "",
+		Signature: signature,
+		Token:     nil,
+		Message:   wrappedMessage,
+	}, host)
 	if err != nil {
 		t.Errorf("Error verifying signature")
-	}
-
-	if len(verified.Topology) != 1 && string(verified.Topology[0].Id) != "test" {
-		t.Errorf("Message contents do not match original: %+v", verified)
 	}
 }

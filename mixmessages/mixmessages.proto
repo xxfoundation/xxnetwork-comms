@@ -93,21 +93,6 @@ message RoundPublicKey {
     bytes Key = 2;
 }
 
-// Contains network information about all Nodes
-message NodeTopology {
-    repeated NodeInfo Topology = 1;
-}
-
-// Contains network information about a single Node
-message NodeInfo {
-    bytes Id = 1;
-    uint32 Index = 2;
-    string ServerAddress = 3;
-    string GatewayAddress = 4;
-    string ServerTlsCert = 5;
-    string GatewayTlsCert = 6;
-}
-
 //
 message RoundMetrics {
     string RoundMetricJSON = 1;

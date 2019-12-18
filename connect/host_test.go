@@ -15,13 +15,13 @@ func TestHost_GetAddress(t *testing.T) {
 	var mgr Manager
 	testId := "test"
 	testAddress := "test"
-	host, err := mgr.AddHost(testId, testAddress, nil, false)
+	host, err := mgr.AddHost(testId, testAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to add host")
 		return
 	}
 
-	if host.GetAddress() != testAddress {
+	if host.address != testAddress {
 		t.Errorf("Expected addresses to match")
 	}
 }
@@ -38,7 +38,7 @@ func TestHost_GetCertificate(t *testing.T) {
 		rsaPublicKey: nil,
 	}
 
-	if bytes.Compare(host.GetCertificate(), testCert) != 0 {
+	if bytes.Compare(host.certificate, testCert) != 0 {
 		t.Errorf("Expected certs to match!")
 	}
 }

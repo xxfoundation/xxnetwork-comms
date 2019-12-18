@@ -42,7 +42,7 @@ func TestTLS(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := manager.AddHost(testId, RegAddress, certData, false)
+	host, err := manager.AddHost(testId, RegAddress, certData, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
