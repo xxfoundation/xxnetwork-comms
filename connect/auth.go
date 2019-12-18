@@ -22,6 +22,12 @@ import (
 	"sync"
 )
 
+// auth represents an authorization state for a message or host
+type auth struct {
+	IsAuthenticated bool
+	Sender          Host
+}
+
 // Perform the client handshake to establish reverse-authentication
 func (c *ProtoComms) clientHandshake(host *Host) (err error) {
 
@@ -149,20 +155,24 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) error {
 	return nil
 }
 
-func (c *ProtoComms) AuthenticatedReceiver(msg pb.AuthenticatedMessage, authenticatedTokens sync.Map) *auth {
-	a := &auth{
+// AuthenticatedReceiver handles reception of an AuthenticatedMessage,
+// checking if the host is authenticated & returning an auth state
+func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage, authenticatedTokens sync.Map) *auth {
+	res := &auth{
 		IsAuthenticated: false,
 		Sender:          Host{},
 	}
+
+	// Check if the sender is authenticated, and if the token is valid
 	host, ok := c.GetHost(msg.ID)
-	if !ok {
-		return a
-	} else if bytes.Compare(host.token, msg.Token) != 0 {
-		return a
+	if ok && bytes.Compare(host.token, msg.Token) == 0 {
+		if err := c.verifyMessage(msg, host); err != nil {
+
+		}
+		res.Sender = *host
+		res.IsAuthenticated = true
 	}
-	a.Sender = *host
-	a.IsAuthenticated = true
-	return a
+	return res
 }
 
 // Takes a generic-type message, returns the signature

@@ -11,6 +11,7 @@ import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/testkeys"
 	"gitlab.com/elixxir/crypto/signature/rsa"
+	"sync"
 	"testing"
 )
 
@@ -53,5 +54,37 @@ func TestSignVerify(t *testing.T) {
 	}, host)
 	if err != nil {
 		t.Errorf("Error verifying signature")
+	}
+}
+
+func TestProtoComms_AuthenticatedReceiver(t *testing.T) {
+	pc := ProtoComms{
+		Manager:       Manager{},
+		tokens:        sync.Map{},
+		LocalServer:   nil,
+		ListeningAddr: "",
+		privateKey:    nil,
+	}
+	id := "testsender"
+	token := []byte("testtoken")
+
+	_, err := pc.AddHost(id, "", nil, false, true)
+	if err != nil {
+		t.Errorf("uh oh")
+	}
+	h, _ := pc.GetHost(id)
+	h.token = token
+
+	var authenticatedTokens sync.Map
+	msg := pb.AuthenticatedMessage{
+		ID:        id,
+		Signature: nil,
+		Token:     token,
+		Message:   nil,
+	}
+
+	auth := pc.AuthenticatedReceiver(msg, authenticatedTokens)
+	if !auth.IsAuthenticated {
+		t.Errorf("Failed")
 	}
 }

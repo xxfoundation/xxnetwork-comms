@@ -40,11 +40,6 @@ type ProtoComms struct {
 	privateKey *rsa.PrivateKey
 }
 
-type auth struct {
-	IsAuthenticated bool
-	Sender          Host
-}
-
 func StartGenericServer(localServer string, certPEMblock, keyPEMblock []byte) (ProtoComms, net.Listener) {
 	var grpcServer *grpc.Server
 
