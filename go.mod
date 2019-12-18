@@ -10,10 +10,10 @@ require (
 	gitlab.com/elixxir/primitives v0.0.0-20191204001459-cef5ed720564
 	golang.org/x/crypto v0.0.0-20191206172530-e9b2fee46413 // indirect
 	golang.org/x/net v0.0.0-20191209160850-c0dbc17a3553
-	golang.org/x/sys v0.0.0-20191210023423-ac6580df4449 // indirect
+	golang.org/x/sys v0.0.0-20191218084908-4a24b4065292 // indirect
 	golang.org/x/text v0.3.2 // indirect
 	google.golang.org/genproto v0.0.0-20191216205247-b31c10ee225f // indirect
-	google.golang.org/grpc v1.25.1
+	google.golang.org/grpc v1.26.0
 	gopkg.in/yaml.v2 v2.2.7 // indirect
 )
 

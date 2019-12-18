@@ -189,7 +189,7 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) error {
 	return nil
 }
 
-func (c *ProtoComms) AuthenticatedMessageHandler(msg pb.AuthenticatedMessage, authenticatedTokens sync.Map) *auth {
+func (c *ProtoComms) AuthenticatedReceiver(msg pb.AuthenticatedMessage, authenticatedTokens sync.Map) *auth {
 	a := &auth{
 		IsAuthenticated: false,
 		Sender:          Host{},
@@ -197,7 +197,7 @@ func (c *ProtoComms) AuthenticatedMessageHandler(msg pb.AuthenticatedMessage, au
 	host, ok := c.GetHost(msg.ID)
 	if !ok {
 		return a
-	} else if bytes.Compare(host.token, []byte(msg.Token)) != 0 {
+	} else if bytes.Compare(host.token, msg.Token) != 0 {
 		return a
 	}
 	a.Sender = *host
