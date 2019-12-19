@@ -75,7 +75,6 @@ func TestProtoComms_AuthenticatedReceiver(t *testing.T) {
 	h, _ := pc.GetHost(id)
 	h.token = token
 
-	var authenticatedTokens sync.Map
 	msg := &pb.AuthenticatedMessage{
 		ID:        id,
 		Signature: nil,
@@ -83,7 +82,7 @@ func TestProtoComms_AuthenticatedReceiver(t *testing.T) {
 		Message:   nil,
 	}
 
-	auth := pc.AuthenticatedReceiver(msg, authenticatedTokens)
+	auth := pc.AuthenticatedReceiver(msg)
 	if !auth.IsAuthenticated {
 		t.Errorf("Failed")
 	}

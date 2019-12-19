@@ -10,6 +10,7 @@ package registration
 
 import (
 	"fmt"
+	"github.com/golang/protobuf/ptypes"
 	"github.com/pkg/errors"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
@@ -30,6 +31,7 @@ func (s *Comms) RequestToken(context.Context, *pb.Ping) (*pb.AssignToken, error)
 	}, err
 }
 
+//Reviewer: Do I add an auth here? flim flam
 // RegisterUser event handler which registers a user with the platform
 func (r *Comms) RegisterUser(ctx context.Context, msg *pb.UserRegistration) (
 	*pb.UserRegistrationConfirmation, error) {
@@ -52,9 +54,11 @@ func (r *Comms) RegisterUser(ctx context.Context, msg *pb.UserRegistration) (
 	}, err
 }
 
+//Reviewer: Do I add an auth here? flim flam
 // CheckClientVersion event handler which checks whether the client library
 // version is compatible with the network
-func (r *Comms) GetCurrentClientVersion(ctx context.Context, msg *pb.Ping) (*pb.ClientVersion, error) {
+func (r *Comms) GetCurrentClientVersion(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.ClientVersion, error) {
+
 	version, err := r.handler.GetCurrentClientVersion()
 
 	// Return the confirmation message
@@ -66,6 +70,7 @@ func (r *Comms) GetCurrentClientVersion(ctx context.Context, msg *pb.Ping) (*pb.
 // Handle a node registration event
 func (r *Comms) RegisterNode(ctx context.Context, msg *pb.NodeRegistration) (
 	*pb.Ack, error) {
+
 	// Obtain peer IP address
 	ip, port, err := connect.GetAddressFromContext(ctx)
 	if err != nil {
@@ -81,8 +86,16 @@ func (r *Comms) RegisterNode(ctx context.Context, msg *pb.NodeRegistration) (
 }
 
 // Handles incoming requests for the NDF
-func (r *Comms) PollNdf(ctx context.Context, msg *pb.NDFHash) (*pb.NDF, error) {
-	newNDF, err := r.handler.PollNdf(msg.Hash)
+func (r *Comms) PollNdf(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.NDF, error) {
+	//Marshall the any message to the message type needed
+	ndfHash := &pb.NDFHash{}
+	err := ptypes.UnmarshalAny(msg.Message, ndfHash)
+	if err != nil {
+		return nil, err
+	}
+	authMsg := r.AuthenticatedReceiver(msg)
+
+	newNDF, err := r.handler.PollNdf(ndfHash.Hash, authMsg)
 	//Return the new ndf
 	return &pb.NDF{Ndf: newNDF}, err
 }

@@ -54,42 +54,42 @@ func StartNode(localServer string, handler Handler,
 
 type Handler interface {
 	// Server interface for starting New Rounds
-	CreateNewRound(message *mixmessages.RoundInfo) error
+	CreateNewRound(message *mixmessages.AuthenticatedMessage, auth *connect.Auth) error
 	// Server interface for sending a new batch
-	PostNewBatch(message *mixmessages.Batch) error
+	PostNewBatch(message *mixmessages.AuthenticatedMessage, auth *connect.Auth) error
 	// Server interface for broadcasting when realtime is complete
-	FinishRealtime(message *mixmessages.RoundInfo) error
+	FinishRealtime(message *mixmessages.AuthenticatedMessage, auth *connect.Auth) error
 	// GetRoundBufferInfo returns # of available precomputations
-	GetRoundBufferInfo() (int, error)
+	GetRoundBufferInfo(auth *connect.Auth) (int, error)
 
-	GetMeasure(message *mixmessages.RoundInfo) (*mixmessages.RoundMetrics, error)
+	GetMeasure(message *mixmessages.AuthenticatedMessage, auth *connect.Auth) (*mixmessages.RoundMetrics, error)
 
 	// Server Interface for all Internode Comms
-	PostPhase(message *mixmessages.Batch)
+	PostPhase(message *mixmessages.AuthenticatedMessage, auth *connect.Auth)
 
-	StreamPostPhase(server mixmessages.Node_StreamPostPhaseServer) error
+	StreamPostPhase(server mixmessages.AuthenticatedMessage, auth *connect.Auth) error
 
 	// Server interface for share broadcast
-	PostRoundPublicKey(message *mixmessages.RoundPublicKey)
+	PostRoundPublicKey(message *mixmessages.AuthenticatedMessage, auth *connect.Auth)
 
 	// Server interface for RequestNonceMessage
 	RequestNonce(salt []byte, RSAPubKey string, DHPubKey,
-		RSASignedByRegistration, DHSignedByClientRSA []byte) ([]byte, []byte, error)
+		RSASignedByRegistration, DHSignedByClientRSA []byte, auth *connect.Auth) ([]byte, []byte, error)
 
 	// Server interface for ConfirmNonceMessage
 	ConfirmRegistration(UserID []byte, Signature []byte) ([]byte, error)
 
 	// PostPrecompResult interface to finalize both payloads' precomps
-	PostPrecompResult(roundID uint64, slots []*mixmessages.Slot) error
+	PostPrecompResult(roundID uint64, slots []*mixmessages.Slot, auth *connect.Auth) error
 
 	// GetCompletedBatch: gateway uses completed batch from the server
-	GetCompletedBatch() (*mixmessages.Batch, error)
+	GetCompletedBatch(auth *connect.Auth) (*mixmessages.Batch, error)
 
-	PollNdf(ping *mixmessages.Ping) (*mixmessages.GatewayNdf, error)
+	PollNdf(ping *mixmessages.AuthenticatedMessage, auth *connect.Auth) (*mixmessages.GatewayNdf, error)
 
-	SendRoundTripPing(ping *mixmessages.RoundTripPing) error
+	SendRoundTripPing(ping *mixmessages.AuthenticatedMessage, auth *connect.Auth) error
 
-	AskOnline(ping *mixmessages.Ping) error
+	AskOnline(ping *mixmessages.AuthenticatedMessage, auth *connect.Auth) error
 }
 
 type implementationFunctions struct {

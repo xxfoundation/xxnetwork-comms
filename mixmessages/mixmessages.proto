@@ -14,65 +14,65 @@ import "google/protobuf/any.proto";
 
 service Node {
     // Handles AskOnline
-    rpc AskOnline (Ping) returns (Ack) {
+    rpc AskOnline (Ping) returns (AuthenticatedMessage) {
     }
 
     // CreatesNewRound makes a new round with a certain ID
-    rpc CreateNewRound (RoundInfo) returns (Ack) {
+    rpc CreateNewRound (RoundInfo) returns (AuthenticatedMessage) {
     }
 
     // PostNewBatch sends a batch to be processed in the server's realtime
-    rpc PostNewBatch (Batch) returns (Ack) {
+    rpc PostNewBatch (Batch) returns (AuthenticatedMessage) {
     }
 
     // FinishRealtime broadcasts when realtime is complete
-    rpc FinishRealtime (RoundInfo) returns (Ack) {
+    rpc FinishRealtime (RoundInfo) returns (AuthenticatedMessage) {
     }
 
     // PostPhase runs a cMix phase on another node
-    rpc PostPhase (Batch) returns (Ack) {
+    rpc PostPhase (Batch) returns (AuthenticatedMessage) {
     }
 
     // StreamPostPhase runs a cMix phase on another node
     // by using unary streaming of slots
-    rpc StreamPostPhase (stream Slot) returns (Ack) {
+    rpc StreamPostPhase (stream Slot) returns (AuthenticatedMessage) {
     }
 
     // GetRoundBufferInfo returns the # of rounds ready for messages
-    rpc GetRoundBufferInfo (RoundBufferInfo) returns (RoundBufferInfo) {
+    rpc GetRoundBufferInfo (RoundBufferInfo) returns (AuthenticatedMessage) {
     }
 
     // RequestNonce generates a nonce for user registration
-    rpc RequestNonce (NonceRequest) returns (Nonce) {
+    rpc RequestNonce (NonceRequest) returns (AuthenticatedMessage) {
     }
 
     // ConfirmRegistration uses a nonce confirmation to finalize user registration
-    rpc ConfirmRegistration (RequestRegistrationConfirmation) returns (RegistrationConfirmation) {
+    rpc ConfirmRegistration (RequestRegistrationConfirmation) returns (AuthenticatedMessage) {
     }
 
     // PostRoundPublicKey sets the public cypher key for a round on other nodes
-    rpc PostRoundPublicKey (RoundPublicKey) returns (Ack) {
+    rpc PostRoundPublicKey (RoundPublicKey) returns (AuthenticatedMessage) {
     }
 
     // PostPrecompResult finalizes the precomputation results with each node from the last node
     // sending the final PayloadA and PayloadB precomputations
-    rpc PostPrecompResult (Batch) returns (Ack) {
+    rpc PostPrecompResult (Batch) returns (AuthenticatedMessage) {
     }
 
     // The gateway calls GetCompletedBatch to get any finished batch from a node
-    rpc GetCompletedBatch (Ping) returns (Batch) {
+    rpc GetCompletedBatch (Ping) returns (AuthenticatedMessage) {
     }
 
     //
-    rpc GetMeasure (RoundInfo) returns (RoundMetrics) {
+    rpc GetMeasure (RoundInfo) returns (AuthenticatedMessage) {
     }
 
     // Gateway -> Server polling for NDF
-    rpc PollNdf (Ping) returns (GatewayNdf) {
+    rpc PollNdf (Ping) returns (AuthenticatedMessage) {
     }
 
     // Round trip ping comm
-    rpc SendRoundTripPing (RoundTripPing) returns (Ack) {
+    rpc SendRoundTripPing (RoundTripPing) returns (AuthenticatedMessage) {
     }
 }
 
@@ -184,19 +184,19 @@ message Slot {
 // Registration service definition
 service Registration {
     // Client uses this to register its user with the system
-    rpc RegisterUser (UserRegistration) returns (UserRegistrationConfirmation) {
+    rpc RegisterUser (UserRegistration) returns (AuthenticatedMessage) {
     }
 
     // Client uses this to check if the version needs to be updated
-    rpc GetCurrentClientVersion (Ping) returns (ClientVersion) {
+    rpc GetCurrentClientVersion (Ping) returns (AuthenticatedMessage) {
     }
 
     // Node registration for the permissioning server
-    rpc RegisterNode (NodeRegistration) returns (Ack) {
+    rpc RegisterNode (NodeRegistration) returns (AuthenticatedMessage) {
     }
 
     // Obtain NDF from the Registration Server
-    rpc PollNdf (NDFHash) returns (NDF) {
+    rpc PollNdf (NDFHash) returns (AuthenticatedMessage) {
     }
 }
 

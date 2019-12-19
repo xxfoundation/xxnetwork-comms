@@ -10,7 +10,6 @@ package connect
 
 import (
 	"bytes"
-	"crypto/rand"
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
@@ -19,11 +18,10 @@ import (
 	"gitlab.com/elixxir/crypto/nonce"
 	"gitlab.com/elixxir/crypto/signature/rsa"
 	"google.golang.org/grpc"
-	"sync"
 )
 
-// auth represents an authorization state for a message or host
-type auth struct {
+// Auth represents an authorization state for a message or host
+type Auth struct {
 	IsAuthenticated bool
 	Sender          Host
 }
@@ -156,9 +154,9 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) error {
 }
 
 // AuthenticatedReceiver handles reception of an AuthenticatedMessage,
-// checking if the host is authenticated & returning an auth state
-func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage, authenticatedTokens sync.Map) *auth {
-	res := &auth{
+// checking if the host is authenticated & returning an Auth state
+func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) *Auth {
+	res := &Auth{
 		IsAuthenticated: false,
 		Sender:          Host{},
 	}
@@ -176,23 +174,6 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage, authent
 // The message is signed with the ProtoComms RSA PrivateKey
 func (c *ProtoComms) signMessage(anyMessage *any.Any) ([]byte, error) {
 	// Hash the message data
-	options := rsa.NewDefaultOptions()
-	hash := options.Hash.New()
-	data := []byte(anyMessage.String())
-	hashed := hash.Sum(data)[len(data):]
-
-	// Obtain the private key
-	key := c.GetPrivateKey()
-	if key == nil {
-		return nil, errors.Errorf("Cannot sign message: No private key")
-	}
-
-	// Sign the message and return the signature
-	signature, err := rsa.Sign(rand.Reader, key, options.Hash, hashed, nil)
-	if err != nil {
-		return nil, errors.New(err.Error())
-	}
-	return signature, nil
 }
 
 // Takes an AuthenticatedMessage and a Host, verifies the signature

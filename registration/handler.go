@@ -68,7 +68,7 @@ type Handler interface {
 	GetCurrentClientVersion() (version string, err error)
 	RegisterNode(ID []byte, ServerAddr, ServerTlsCert, GatewayAddr,
 		GatewayTlsCert, RegistrationCode string) error
-	PollNdf(ndfHash []byte) ([]byte, error)
+	PollNdf(ndfHash []byte, auth *connect.Auth) ([]byte, error)
 }
 
 type implementationFunctions struct {
