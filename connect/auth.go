@@ -19,7 +19,6 @@ import (
 	"gitlab.com/elixxir/crypto/nonce"
 	"gitlab.com/elixxir/crypto/signature/rsa"
 	"google.golang.org/grpc"
-	"sync"
 )
 
 // auth represents an authorization state for a message or host
@@ -121,23 +120,12 @@ func (c *ProtoComms) GenerateToken() ([]byte, error) {
 		return nil, err
 	}
 
-	c.tokens.Store(token.Bytes(), token)
+	c.tokens.Store(string(token.Bytes()), &token)
 	return token.Bytes(), nil
 }
 
-// Validates an authenticated message using internal state
+// Validates a signed token using internal state
 func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) error {
-
-	// Verify the token was assigned
-	token, ok := c.tokens.Load(msg.Token)
-	if !ok {
-		return errors.Errorf("Unable to locate token: %+v", msg.Token)
-	}
-
-	// Verify the token is not expired
-	if !token.(*nonce.Nonce).IsValid() {
-		return errors.Errorf("Invalid or expired token: %+v", msg.Token)
-	}
 
 	// Verify the Host exists for the provided ID
 	host, ok := c.GetHost(msg.ID)
@@ -150,6 +138,24 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) error {
 		return errors.Errorf("Invalid token signature: %+v", err)
 	}
 
+	// Get the signed token
+	tokenMsg := &pb.AssignToken{}
+	err := ptypes.UnmarshalAny(msg.Message, tokenMsg)
+	if err != nil {
+		return errors.Errorf("Unable to unmarshal token: %+v", err)
+	}
+
+	// Verify the signed token was actually assigned
+	token, ok := c.tokens.Load(string(tokenMsg.Token))
+	if !ok {
+		return errors.Errorf("Unable to locate token: %+v", msg.Token)
+	}
+
+	// Verify the signed token is not expired
+	if !token.(*nonce.Nonce).IsValid() {
+		return errors.Errorf("Invalid or expired token: %+v", msg.Token)
+	}
+
 	// Token has been validated and can be safely stored
 	host.token = msg.Token
 	return nil
@@ -157,7 +163,7 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) error {
 
 // AuthenticatedReceiver handles reception of an AuthenticatedMessage,
 // checking if the host is authenticated & returning an auth state
-func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage, authenticatedTokens sync.Map) *auth {
+func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) *auth {
 	res := &auth{
 		IsAuthenticated: false,
 		Sender:          Host{},
