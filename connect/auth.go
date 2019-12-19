@@ -166,9 +166,6 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage, authent
 	// Check if the sender is authenticated, and if the token is valid
 	host, ok := c.GetHost(msg.ID)
 	if ok && bytes.Compare(host.token, msg.Token) == 0 {
-		if err := c.verifyMessage(msg, host); err != nil {
-
-		}
 		res.Sender = *host
 		res.IsAuthenticated = true
 	}

@@ -76,7 +76,7 @@ func TestProtoComms_AuthenticatedReceiver(t *testing.T) {
 	h.token = token
 
 	var authenticatedTokens sync.Map
-	msg := pb.AuthenticatedMessage{
+	msg := &pb.AuthenticatedMessage{
 		ID:        id,
 		Signature: nil,
 		Token:     token,

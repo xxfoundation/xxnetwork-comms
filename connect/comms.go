@@ -40,7 +40,8 @@ type ProtoComms struct {
 	privateKey *rsa.PrivateKey
 }
 
-func StartGenericServer(localServer string, certPEMblock, keyPEMblock []byte) (ProtoComms, net.Listener) {
+// StartCommServer starts a protocomms object, and is used in various intializers
+func StartCommServer(localServer string, certPEMblock, keyPEMblock []byte) (ProtoComms, net.Listener) {
 	var grpcServer *grpc.Server
 
 	// Listen on the given address

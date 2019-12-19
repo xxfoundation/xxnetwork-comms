@@ -44,7 +44,7 @@ type Comms struct {
 // with given path to public and private key for TLS connection
 func StartGateway(localServer string, handler Handler,
 	certPEMblock, keyPEMblock []byte) *Comms {
-	pc, lis := connect.StartGenericServer(localServer, certPEMblock, keyPEMblock)
+	pc, lis := connect.StartCommServer(localServer, certPEMblock, keyPEMblock)
 
 	gatewayServer := Comms{
 		ProtoComms: pc,

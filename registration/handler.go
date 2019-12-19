@@ -30,7 +30,7 @@ type Comms struct {
 func StartRegistrationServer(localServer string, handler Handler,
 	certPEMblock, keyPEMblock []byte) *Comms {
 
-	pc, lis := connect.StartGenericServer(localServer, certPEMblock, keyPEMblock)
+	pc, lis := connect.StartCommServer(localServer, certPEMblock, keyPEMblock)
 
 	registrationServer := Comms{
 		ProtoComms: pc,
