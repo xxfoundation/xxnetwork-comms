@@ -10,6 +10,7 @@ package connect
 
 import (
 	"bytes"
+	"crypto/rand"
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
@@ -181,6 +182,23 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) *Auth {
 // The message is signed with the ProtoComms RSA PrivateKey
 func (c *ProtoComms) signMessage(anyMessage *any.Any) ([]byte, error) {
 	// Hash the message data
+	options := rsa.NewDefaultOptions()
+	hash := options.Hash.New()
+	data := []byte(anyMessage.String())
+	hashed := hash.Sum(data)[len(data):]
+
+	// Obtain the private key
+	key := c.GetPrivateKey()
+	if key == nil {
+		return nil, errors.Errorf("Cannot sign message: No private key")
+	}
+
+	// Sign the message and return the signature
+	signature, err := rsa.Sign(rand.Reader, key, options.Hash, hashed, nil)
+	if err != nil {
+		return nil, errors.New(err.Error())
+	}
+	return signature, nil
 }
 
 // Takes an AuthenticatedMessage and a Host, verifies the signature

@@ -184,15 +184,15 @@ message Slot {
 // Registration service definition
 service Registration {
     // Client uses this to register its user with the system
-    rpc RegisterUser (UserRegistration) returns (AuthenticatedMessage) {
+    rpc RegisterUser (UserRegistration) returns (UserRegistrationConfirmation) {
     }
 
     // Client uses this to check if the version needs to be updated
-    rpc GetCurrentClientVersion (Ping) returns (AuthenticatedMessage) {
+    rpc GetCurrentClientVersion (Ping) returns (ClientVersion) {
     }
 
     // Node registration for the permissioning server
-    rpc RegisterNode (NodeRegistration) returns (AuthenticatedMessage) {
+    rpc RegisterNode (NodeRegistration) returns (Ack) {
     }
 
     // Obtain NDF from the Registration Server
