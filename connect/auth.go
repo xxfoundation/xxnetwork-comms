@@ -119,23 +119,12 @@ func (c *ProtoComms) GenerateToken() ([]byte, error) {
 		return nil, err
 	}
 
-	c.tokens.Store(token.Bytes(), token)
+	c.tokens.Store(string(token.Bytes()), &token)
 	return token.Bytes(), nil
 }
 
-// Validates an authenticated message using internal state
+// Validates a signed token using internal state
 func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) error {
-
-	// Verify the token was assigned
-	token, ok := c.tokens.Load(msg.Token)
-	if !ok {
-		return errors.Errorf("Unable to locate token: %+v", msg.Token)
-	}
-
-	// Verify the token is not expired
-	if !token.(*nonce.Nonce).IsValid() {
-		return errors.Errorf("Invalid or expired token: %+v", msg.Token)
-	}
 
 	// Verify the Host exists for the provided ID
 	host, ok := c.GetHost(msg.ID)
@@ -146,6 +135,24 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) error {
 	// Verify the token signature
 	if err := c.verifyMessage(msg, host); err != nil {
 		return errors.Errorf("Invalid token signature: %+v", err)
+	}
+
+	// Get the signed token
+	tokenMsg := &pb.AssignToken{}
+	err := ptypes.UnmarshalAny(msg.Message, tokenMsg)
+	if err != nil {
+		return errors.Errorf("Unable to unmarshal token: %+v", err)
+	}
+
+	// Verify the signed token was actually assigned
+	token, ok := c.tokens.Load(string(tokenMsg.Token))
+	if !ok {
+		return errors.Errorf("Unable to locate token: %+v", msg.Token)
+	}
+
+	// Verify the signed token is not expired
+	if !token.(*nonce.Nonce).IsValid() {
+		return errors.Errorf("Invalid or expired token: %+v", msg.Token)
 	}
 
 	// Token has been validated and can be safely stored
