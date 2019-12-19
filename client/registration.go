@@ -79,17 +79,20 @@ func (c *Comms) SendGetCurrentClientVersionMessage(
 
 // Client -> Registration Send Function
 func (c *Comms) RequestNdf(host *connect.Host,
-	message *pb.AuthenticatedMessage) (*pb.NDF, error) {
+	message *pb.NDFHash) (*pb.NDF, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
-
+		authenticatedMsg, err := c.PackAuthenticatedMessage(message, host, false)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
 		// Send the message
 		resultMsg, err := pb.NewRegistrationClient(
-			conn).PollNdf(ctx, message)
+			conn).PollNdf(ctx, authenticatedMsg)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}

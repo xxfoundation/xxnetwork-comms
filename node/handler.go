@@ -80,7 +80,7 @@ type Handler interface {
 	ConfirmRegistration(UserID []byte, Signature []byte) ([]byte, error)
 
 	// PostPrecompResult interface to finalize both payloads' precomps
-	PostPrecompResult(roundID uint64, msg []*mixmessages.Slot, auth *connect.Auth) error
+	PostPrecompResult(roundID uint64, msg *mixmessages.AuthenticatedMessage, auth *connect.Auth) error
 
 	// GetCompletedBatch: gateway uses completed batch from the server
 	GetCompletedBatch(auth *connect.Auth) (*mixmessages.Batch, error)

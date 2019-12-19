@@ -19,16 +19,19 @@ import (
 
 // Server -> Server Send Function
 func (s *Comms) SendGetMeasure(host *connect.Host,
-	message *pb.AuthenticatedMessage) (*pb.RoundMetrics, error) {
+	message *pb.RoundInfo) (*pb.RoundMetrics, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
-
+		authMsg, err := s.PackAuthenticatedMessage(message, host, false)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
 		// Send the message
-		resultMsg, err := pb.NewNodeClient(conn).GetMeasure(ctx, message)
+		resultMsg, err := pb.NewNodeClient(conn).GetMeasure(ctx, authMsg)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
@@ -164,7 +167,7 @@ func (s *Comms) SendPostRoundPublicKey(host *connect.Host,
 
 // Server -> Server Send Function
 func (s *Comms) SendPostPrecompResult(host *connect.Host,
-	roundID uint64, msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
+	roundID uint64, slots []*pb.Slot) (*pb.Ack, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
@@ -172,8 +175,21 @@ func (s *Comms) SendPostPrecompResult(host *connect.Host,
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
 		// Send the message
+
+		batchMsg := &pb.Batch{
+			Round: &pb.RoundInfo{
+				ID: roundID,
+			},
+			Slots: slots,
+		}
+		//Pack the message as an authenticated message
+		authMsg, err := s.PackAuthenticatedMessage(batchMsg, host, false)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+
 		resultMsg, err := pb.NewNodeClient(conn).PostPrecompResult(ctx,
-			msg)
+			authMsg)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}

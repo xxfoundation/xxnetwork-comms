@@ -8,7 +8,6 @@ package node
 
 import (
 	"context"
-	"github.com/golang/protobuf/ptypes"
 	"gitlab.com/elixxir/comms/connect"
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/testkeys"
@@ -32,9 +31,10 @@ func TestPhase_StreamPostPhaseSendReceive(t *testing.T) {
 	// Init server receiver
 	servReceiverAddress := getNextServerAddress()
 	receiverImpl := NewImplementation()
-	receiverImpl.Functions.StreamPostPhase = func(server *mixmessages.AuthenticatedMessage, auth *connect.Auth) error {
-		return mockStreamPostPhase(server, auth)
+	receiverImpl.Functions.StreamPostPhase = func(server mixmessages.Node_StreamPostPhaseServer) error {
+		return mockStreamPostPhase(server)
 	}
+
 	serverStreamReceiver := StartNode(servReceiverAddress, receiverImpl,
 		certData, keyData)
 

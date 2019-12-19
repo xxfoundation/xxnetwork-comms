@@ -165,7 +165,7 @@ func (s *Comms) PostPrecompResult(ctx context.Context,
 
 	// Call the server handler to start a new round
 	err = s.handler.PostPrecompResult(batchMsg.GetRound().GetID(),
-		batchMsg.GetSlots(), authMsg)
+		msg, authMsg)
 	return &pb.Ack{}, err
 }
 

@@ -63,7 +63,7 @@ func TestTLS(t *testing.T) {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
 
-	err = gateway.PostNewBatch(host, &mixmessages.AuthenticatedMessage{})
+	err = gateway.PostNewBatch(host, &mixmessages.Batch{})
 	if err != nil {
 		t.Error(err)
 	}
