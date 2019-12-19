@@ -18,7 +18,6 @@ import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/crypto/nonce"
 	"gitlab.com/elixxir/crypto/signature/rsa"
-	"google.golang.org/grpc"
 )
 
 // auth represents an authorization state for a message or host
@@ -30,31 +29,15 @@ type auth struct {
 // Perform the client handshake to establish reverse-authentication
 func (c *ProtoComms) clientHandshake(host *Host) (err error) {
 
-	// Create the Request Token Send Function
-	f := func(conn *grpc.ClientConn) (*any.Any, error) {
-		// Set up the context
-		ctx, cancel := MessagingContext()
-		defer cancel()
+	// Set up the context
+	ctx, cancel := MessagingContext()
+	defer cancel()
 
-		// Send the message
-		resultMsg, err := pb.NewGenericClient(conn).RequestToken(ctx, &pb.Ping{})
-		if err != nil {
-			return nil, errors.New(err.Error())
-		}
-		return ptypes.MarshalAny(resultMsg)
-	}
-
-	// Execute the Send function
-	resultMsg, err := c.Send(host, f)
+	// Send the token request message
+	result, err := pb.NewGenericClient(host.connection).RequestToken(ctx,
+		&pb.Ping{})
 	if err != nil {
-		return
-	}
-
-	// Unmarshal the message into correct type
-	result := &pb.AssignToken{}
-	err = ptypes.UnmarshalAny(resultMsg, result)
-	if err != nil {
-		return
+		return errors.New(err.Error())
 	}
 
 	// Assign the host token
@@ -65,22 +48,16 @@ func (c *ProtoComms) clientHandshake(host *Host) (err error) {
 		Token: host.token,
 	}, host, true)
 
-	// Create the Authenticate Token Send Function
-	f = func(conn *grpc.ClientConn) (*any.Any, error) {
-		// Set up the context
-		ctx, cancel := MessagingContext()
-		defer cancel()
+	// Set up the context
+	ctx, cancel = MessagingContext()
+	defer cancel()
 
-		// Send the message
-		_, err := pb.NewGenericClient(conn).AuthenticateToken(ctx, msg)
-		if err != nil {
-			err = errors.New(err.Error())
-		}
-		return nil, err
+	// Send the authenticate token message
+	_, err = pb.NewGenericClient(host.connection).AuthenticateToken(ctx, msg)
+	if err != nil {
+		err = errors.New(err.Error())
 	}
 
-	// Execute the Send function
-	_, err = c.Send(host, f)
 	return
 }
 
