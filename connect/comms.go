@@ -9,11 +9,15 @@
 package connect
 
 import (
+	"crypto/tls"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/crypto/signature/rsa"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
+	"math"
+	"net"
 	"sync"
 	"time"
 )
@@ -34,6 +38,47 @@ type ProtoComms struct {
 
 	// Private key of the local server
 	privateKey *rsa.PrivateKey
+}
+
+// StartCommServer starts a protocomms object, and is used in various intializers
+func StartCommServer(localServer string, certPEMblock, keyPEMblock []byte) (ProtoComms, net.Listener) {
+	var grpcServer *grpc.Server
+
+	// Listen on the given address
+	lis, err := net.Listen("tcp", localServer)
+	if err != nil {
+		err = errors.New(err.Error())
+		jww.FATAL.Panicf("Failed to listen: %+v", err)
+	}
+
+	// If TLS was specified
+	if certPEMblock != nil && keyPEMblock != nil {
+		// Create the TLS certificate
+		x509cert, err2 := tls.X509KeyPair(certPEMblock, keyPEMblock)
+		if err2 != nil {
+			err = errors.New(err2.Error())
+			jww.FATAL.Panicf("Could not load TLS keys: %+v", err)
+		}
+
+		creds := credentials.NewServerTLSFromCert(&x509cert)
+
+		// Create the gRPC server with TLS
+		jww.INFO.Printf("Starting server with TLS...")
+		grpcServer = grpc.NewServer(grpc.Creds(creds),
+			grpc.MaxConcurrentStreams(math.MaxUint32),
+			grpc.MaxRecvMsgSize(math.MaxInt32))
+	} else {
+		// Create the gRPC server without TLS
+		jww.WARN.Printf("Starting server with TLS disabled...")
+		grpcServer = grpc.NewServer(grpc.MaxConcurrentStreams(math.MaxUint32),
+			grpc.MaxRecvMsgSize(math.MaxInt32))
+	}
+
+	pc := ProtoComms{
+		LocalServer:   grpcServer,
+		ListeningAddr: localServer,
+	}
+	return pc, lis
 }
 
 // Performs a graceful shutdown of the local server
