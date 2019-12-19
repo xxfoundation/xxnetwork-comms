@@ -22,7 +22,7 @@ import (
 
 // Server -> Server Send Function
 func (s *Comms) SendPostPhase(host *connect.Host,
-	message *pb.Batch) (*pb.Ack, error) {
+	message *pb.AuthenticatedMessage) (*pb.Ack, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {

@@ -70,7 +70,7 @@ func TestSendGetUpdatedNDF(t *testing.T) {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
 
-	_, err = c.RequestNdf(host, &pb.NDFHash{})
+	_, err = c.RequestNdf(host, &pb.AuthenticatedMessage{})
 
 	if err != nil {
 		t.Errorf("RequestNdf: Error recieved: %s", err)

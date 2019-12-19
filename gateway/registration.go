@@ -19,7 +19,7 @@ import (
 
 // Gateway -> Server Send Function
 func (g *Comms) SendRequestNonceMessage(host *connect.Host,
-	message *pb.NonceRequest) (*pb.Nonce, error) {
+	message *pb.AuthenticatedMessage) (*pb.Nonce, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
@@ -48,7 +48,7 @@ func (g *Comms) SendRequestNonceMessage(host *connect.Host,
 
 // Gateway -> Server Send Function
 func (g *Comms) SendConfirmNonceMessage(host *connect.Host,
-	message *pb.RequestRegistrationConfirmation) (
+	message *pb.AuthenticatedMessage) (
 	*pb.RegistrationConfirmation, error) {
 
 	// Create the Send Function
@@ -78,7 +78,7 @@ func (g *Comms) SendConfirmNonceMessage(host *connect.Host,
 
 // Gateway -> Server Send Function
 func (g *Comms) PollNdf(host *connect.Host,
-	message *pb.Ping) (*pb.GatewayNdf, error) {
+	message *pb.AuthenticatedMessage) (*pb.GatewayNdf, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {

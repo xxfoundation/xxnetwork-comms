@@ -61,9 +61,8 @@ func (s *Comms) PostPhase(ctx context.Context, msg *pb.AuthenticatedMessage) (*p
 }
 
 // Handle a phase event using a stream server
-func (s *Comms) StreamPostPhase(server pb.AuthenticatedMessage) error {
-	authMsg := s.AuthenticatedReceiver(&server)
-	return s.handler.StreamPostPhase(server, authMsg)
+func (s *Comms) StreamPostPhase(server pb.Node_StreamPostPhaseServer) error {
+	return s.handler.StreamPostPhase(server)
 }
 
 // Handle a PostRoundPublicKey message

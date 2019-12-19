@@ -25,9 +25,12 @@ func (g *Comms) PostNewBatch(host *connect.Host, messages *pb.Batch) error {
 		// Set up the context
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
-
+		authMsg, err := g.PackAuthenticatedMessage(messages, host, false)
+		if err != nil {
+			return nil, err
+		}
 		// Send the message
-		_, err := pb.NewNodeClient(conn).PostNewBatch(ctx, messages)
+		_, err = pb.NewNodeClient(conn).PostNewBatch(ctx, authMsg)
 		if err != nil {
 			err = errors.New(err.Error())
 		}
@@ -53,7 +56,7 @@ func (g *Comms) GetRoundBufferInfo(host *connect.Host) (*pb.RoundBufferInfo, err
 
 		// Send the message
 		resultMsg, err := pb.NewNodeClient(conn).GetRoundBufferInfo(ctx,
-			&pb.RoundBufferInfo{})
+			&pb.AuthenticatedMessage{})
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
@@ -82,7 +85,7 @@ func (g *Comms) GetCompletedBatch(host *connect.Host) (*pb.Batch, error) {
 
 		// Send the message
 		resultMsg, err := pb.NewNodeClient(conn).GetCompletedBatch(ctx,
-			&pb.Ping{})
+			&pb.AuthenticatedMessage{})
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}

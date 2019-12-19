@@ -39,7 +39,7 @@ func (s *Comms) SendNodeRegistration(host *connect.Host,
 
 // Server -> Registration Send Function
 func (s *Comms) RequestNdf(host *connect.Host,
-	message *pb.NDFHash) (*pb.NDF, error) {
+	message *pb.AuthenticatedMessage) (*pb.NDF, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {

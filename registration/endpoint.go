@@ -57,7 +57,7 @@ func (r *Comms) RegisterUser(ctx context.Context, msg *pb.UserRegistration) (
 //Reviewer: Do I add an auth here? flim flam
 // CheckClientVersion event handler which checks whether the client library
 // version is compatible with the network
-func (r *Comms) GetCurrentClientVersion(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.ClientVersion, error) {
+func (r *Comms) GetCurrentClientVersion(ctx context.Context, ping *pb.Ping) (*pb.ClientVersion, error) {
 
 	version, err := r.handler.GetCurrentClientVersion()
 

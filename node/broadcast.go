@@ -19,7 +19,7 @@ import (
 
 // Server -> Server Send Function
 func (s *Comms) SendGetMeasure(host *connect.Host,
-	message *pb.RoundInfo) (*pb.RoundMetrics, error) {
+	message *pb.AuthenticatedMessage) (*pb.RoundMetrics, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
@@ -48,7 +48,7 @@ func (s *Comms) SendGetMeasure(host *connect.Host,
 
 // Server -> Server Send Function
 func (s *Comms) SendAskOnline(host *connect.Host,
-	message *pb.Ping) (*pb.Ack, error) {
+	message *pb.AuthenticatedMessage) (*pb.Ack, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
@@ -77,7 +77,7 @@ func (s *Comms) SendAskOnline(host *connect.Host,
 
 // Server -> Server Send Function
 func (s *Comms) SendFinishRealtime(host *connect.Host,
-	message *pb.RoundInfo) (*pb.Ack, error) {
+	message *pb.AuthenticatedMessage) (*pb.Ack, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
@@ -106,7 +106,7 @@ func (s *Comms) SendFinishRealtime(host *connect.Host,
 
 // Server -> Server Send Function
 func (s *Comms) SendNewRound(host *connect.Host,
-	message *pb.RoundInfo) (*pb.Ack, error) {
+	message *pb.AuthenticatedMessage) (*pb.Ack, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
@@ -135,7 +135,7 @@ func (s *Comms) SendNewRound(host *connect.Host,
 
 // Server -> Server Send Function
 func (s *Comms) SendPostRoundPublicKey(host *connect.Host,
-	message *pb.RoundPublicKey) (*pb.Ack, error) {
+	message *pb.AuthenticatedMessage) (*pb.Ack, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
@@ -164,22 +164,16 @@ func (s *Comms) SendPostRoundPublicKey(host *connect.Host,
 
 // Server -> Server Send Function
 func (s *Comms) SendPostPrecompResult(host *connect.Host,
-	roundID uint64, slots []*pb.Slot) (*pb.Ack, error) {
+	roundID uint64, msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
-
 		// Send the message
 		resultMsg, err := pb.NewNodeClient(conn).PostPrecompResult(ctx,
-			&pb.Batch{
-				Round: &pb.RoundInfo{
-					ID: roundID,
-				},
-				Slots: slots,
-			})
+			msg)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
@@ -199,7 +193,7 @@ func (s *Comms) SendPostPrecompResult(host *connect.Host,
 
 // Server -> Server Send Function
 func (s *Comms) RoundTripPing(host *connect.Host,
-	roundID uint64, payload *any.Any) (*pb.Ack, error) {
+	roundID uint64, msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
@@ -209,12 +203,7 @@ func (s *Comms) RoundTripPing(host *connect.Host,
 
 		// Send the message
 		resultMsg, err := pb.NewNodeClient(conn).SendRoundTripPing(ctx,
-			&pb.RoundTripPing{
-				Round: &pb.RoundInfo{
-					ID: roundID,
-				},
-				Payload: payload,
-			})
+			msg)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
