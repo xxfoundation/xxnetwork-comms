@@ -55,6 +55,7 @@ func TestComms_RequestNdf(t *testing.T) {
 	}
 
 	msgs := &pb.NDFHash{}
+
 	_, err = server.RequestNdf(host, msgs)
 	if err != nil {
 		t.Errorf("RequestNdf: Error received: %s", err)
@@ -83,6 +84,7 @@ func TestComms_RequestNdfWithAuth(t *testing.T) {
 	}
 
 	msgs := &pb.NDFHash{}
+
 	_, err = server.RequestNdf(host, msgs)
 	if err != nil {
 		t.Errorf("RequestNdf: Error received: %s", err)
