@@ -55,7 +55,11 @@ func TestComms_RequestNdf(t *testing.T) {
 	}
 
 	msgs := &pb.NDFHash{}
-	_, err = server.RequestNdf(host, msgs)
+	authMsg, err := server.PackAuthenticatedMessage(msgs, host, false)
+	if err != nil {
+		t.Errorf("Unable to pack an authenticated message: %+v", err)
+	}
+	_, err = server.RequestNdf(host, authMsg)
 	if err != nil {
 		t.Errorf("RequestNdf: Error received: %s", err)
 	}
@@ -83,7 +87,12 @@ func TestComms_RequestNdfWithAuth(t *testing.T) {
 	}
 
 	msgs := &pb.NDFHash{}
-	_, err = server.RequestNdf(host, msgs)
+	authMsg, err := server.PackAuthenticatedMessage(msgs, host, false)
+	if err != nil {
+		t.Errorf("Unable to pack an authenticated message: %+v", err)
+	}
+
+	_, err = server.RequestNdf(host, authMsg)
 	if err != nil {
 		t.Errorf("RequestNdf: Error received: %s", err)
 	}
