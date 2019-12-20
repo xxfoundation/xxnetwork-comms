@@ -6,9 +6,9 @@
 package node
 
 import (
-	"errors"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
+	"github.com/pkg/errors"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"google.golang.org/grpc"
@@ -39,7 +39,7 @@ func (s *Comms) SendNodeRegistration(host *connect.Host,
 
 // Server -> Registration Send Function
 func (s *Comms) RequestNdf(host *connect.Host,
-	message *pb.AuthenticatedMessage) (*pb.NDF, error) {
+	message *pb.NDFHash) (*pb.NDF, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
@@ -47,9 +47,13 @@ func (s *Comms) RequestNdf(host *connect.Host,
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
 
+		authMsg, err := s.PackAuthenticatedMessage(message, host, false)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
 		// Send the message
 		resultMsg, err := pb.NewRegistrationClient(
-			conn).PollNdf(ctx, message)
+			conn).PollNdf(ctx, authMsg)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
