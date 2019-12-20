@@ -10,6 +10,7 @@ package node
 
 import (
 	"github.com/golang/protobuf/ptypes"
+	"github.com/pkg/errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"golang.org/x/net/context"
 )
@@ -17,7 +18,13 @@ import (
 // Handle a Broadcasted Ask Online event
 func (s *Comms) AskOnline(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
 	authMsg := s.AuthenticatedReceiver(msg)
-	return &pb.Ack{}, s.handler.AskOnline(msg, authMsg)
+	//Marshall the any message to the message type needed
+	pingMsg := &pb.Ping{}
+	err := ptypes.UnmarshalAny(msg.Message, pingMsg)
+	if err != nil {
+		return nil, errors.New(err.Error())
+	}
+	return &pb.Ack{}, s.handler.AskOnline(pingMsg, authMsg)
 }
 
 // Handles validation of reverse-authentication tokens
@@ -38,15 +45,29 @@ func (s *Comms) RequestToken(context.Context, *pb.Ping) (*pb.AssignToken, error)
 func (s *Comms) CreateNewRound(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
 
 	authMsg := s.AuthenticatedReceiver(msg)
+	//Marshall the any message to the message type needed
+	roundInfoMsg := &pb.RoundInfo{}
+	err := ptypes.UnmarshalAny(msg.Message, roundInfoMsg)
+	if err != nil {
+		return nil, errors.New(err.Error())
+	}
+
 	// Call the server handler to start a new round
-	return &pb.Ack{}, s.handler.CreateNewRound(msg, authMsg)
+	return &pb.Ack{}, s.handler.CreateNewRound(roundInfoMsg, authMsg)
 }
 
 // PostNewBatch polls the first node and sends a batch when it is ready
 func (s *Comms) PostNewBatch(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
 	authMsg := s.AuthenticatedReceiver(msg)
+	//Marshall the any message to the message type needed
+	batchMsg := &pb.Batch{}
+	err := ptypes.UnmarshalAny(msg.Message, batchMsg)
+	if err != nil {
+		return nil, errors.New(err.Error())
+	}
+
 	// Call the server handler to post a new batch
-	err := s.handler.PostNewBatch(msg, authMsg)
+	err = s.handler.PostNewBatch(batchMsg, authMsg)
 
 	return &pb.Ack{}, err
 }
@@ -56,7 +77,14 @@ func (s *Comms) PostPhase(ctx context.Context, msg *pb.AuthenticatedMessage) (*p
 	error) {
 	// Call the server handler with the msg
 	authMsg := s.AuthenticatedReceiver(msg)
-	s.handler.PostPhase(msg, authMsg)
+	//Marshall the any message to the message type needed
+	batchMsg := &pb.Batch{}
+	err := ptypes.UnmarshalAny(msg.Message, batchMsg)
+	if err != nil {
+		return nil, errors.New(err.Error())
+	}
+
+	s.handler.PostPhase(batchMsg, authMsg)
 	return &pb.Ack{}, nil
 }
 
@@ -70,7 +98,14 @@ func (s *Comms) PostRoundPublicKey(ctx context.Context,
 	msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
 	// Call the server handler that receives the key share
 	authMsg := s.AuthenticatedReceiver(msg)
-	s.handler.PostRoundPublicKey(msg, authMsg)
+	//Marshall the any message to the message type needed
+	publicKeyMsg := &pb.RoundPublicKey{}
+	err := ptypes.UnmarshalAny(msg.Message, publicKeyMsg)
+	if err != nil {
+		return nil, errors.New(err.Error())
+	}
+
+	s.handler.PostRoundPublicKey(publicKeyMsg, authMsg)
 	return &pb.Ack{}, nil
 }
 
@@ -124,6 +159,7 @@ func (s *Comms) RequestNonce(ctx context.Context,
 // Handles Registration Nonce Confirmation
 func (s *Comms) ConfirmRegistration(ctx context.Context,
 	msg *pb.AuthenticatedMessage) (*pb.RegistrationConfirmation, error) {
+	authMsg := s.AuthenticatedReceiver(msg)
 
 	//Marshall the any message to the message type needed
 	regConfirmRequest := &pb.RequestRegistrationConfirmation{}
@@ -134,7 +170,7 @@ func (s *Comms) ConfirmRegistration(ctx context.Context,
 
 	// Obtain signed client public key by passing to server
 	signature, err := s.handler.ConfirmRegistration(regConfirmRequest.GetUserID(),
-		regConfirmRequest.NonceSignedByClient.Signature)
+		regConfirmRequest.NonceSignedByClient.Signature, authMsg)
 
 	// Obtain the error message, if any
 	errMsg := ""
@@ -155,17 +191,18 @@ func (s *Comms) ConfirmRegistration(ctx context.Context,
 func (s *Comms) PostPrecompResult(ctx context.Context,
 	msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
 
+	authMsg := s.AuthenticatedReceiver(msg)
+
 	//Marshall the any message to the message type needed
 	batchMsg := &pb.Batch{}
 	err := ptypes.UnmarshalAny(msg.Message, batchMsg)
 	if err != nil {
 		return nil, err
 	}
-	authMsg := s.AuthenticatedReceiver(msg)
 
 	// Call the server handler to start a new round
 	err = s.handler.PostPrecompResult(batchMsg.GetRound().GetID(),
-		msg, authMsg)
+		batchMsg.Slots, authMsg)
 	return &pb.Ack{}, err
 }
 
@@ -173,7 +210,15 @@ func (s *Comms) PostPrecompResult(ctx context.Context,
 func (s *Comms) FinishRealtime(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
 	// Call the server handler to finish realtime
 	authMsg := s.AuthenticatedReceiver(msg)
-	err := s.handler.FinishRealtime(msg, authMsg)
+
+	//Marshall the any message to the message type needed
+	roundInfoMsg := &pb.RoundInfo{}
+	err := ptypes.UnmarshalAny(msg.Message, roundInfoMsg)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.handler.FinishRealtime(roundInfoMsg, authMsg)
 
 	return &pb.Ack{}, err
 }
@@ -190,18 +235,39 @@ func (s *Comms) GetCompletedBatch(ctx context.Context,
 func (s *Comms) GetMeasure(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.RoundMetrics, error) {
 	authMsg := s.AuthenticatedReceiver(msg)
 
-	rm, err := s.handler.GetMeasure(msg, authMsg)
+	//Marshall the any message to the message type needed
+	roundInfoMsg := &pb.RoundInfo{}
+	err := ptypes.UnmarshalAny(msg.Message, roundInfoMsg)
+	if err != nil {
+		return nil, err
+	}
+
+	rm, err := s.handler.GetMeasure(roundInfoMsg, authMsg)
 	return rm, err
 }
 
 func (s *Comms) PollNdf(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.GatewayNdf, error) {
 	authMsg := s.AuthenticatedReceiver(msg)
-	rm, err := s.handler.PollNdf(msg, authMsg)
+	//Marshall the any message to the message type needed
+	pingMsg := &pb.Ping{}
+	err := ptypes.UnmarshalAny(msg.Message, pingMsg)
+	if err != nil {
+		return nil, err
+	}
+
+	rm, err := s.handler.PollNdf(pingMsg, authMsg)
 	return rm, err
 }
 
-func (s *Comms) SendRoundTripPing(ctx context.Context, ping *pb.AuthenticatedMessage) (*pb.Ack, error) {
-	authMsg := s.AuthenticatedReceiver(ping)
-	err := s.handler.SendRoundTripPing(ping, authMsg)
+func (s *Comms) SendRoundTripPing(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
+	authMsg := s.AuthenticatedReceiver(msg)
+	//Marshall the any message to the message type needed
+	roundTripPing := &pb.RoundTripPing{}
+	err := ptypes.UnmarshalAny(msg.Message, roundTripPing)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.handler.SendRoundTripPing(roundTripPing, authMsg)
 	return &pb.Ack{}, err
 }

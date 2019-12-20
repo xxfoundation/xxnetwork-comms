@@ -27,7 +27,7 @@ func TestSendAskOnline(t *testing.T) {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
 
-	_, err = server.SendAskOnline(host, &pb.AuthenticatedMessage{})
+	_, err = server.SendAskOnline(host, &pb.Ping{})
 	if err != nil {
 		t.Errorf("AskOnline: Error received: %s", err)
 	}
@@ -46,7 +46,7 @@ func TestSendFinishRealtime(t *testing.T) {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
 
-	_, err = server.SendFinishRealtime(host, &pb.AuthenticatedMessage{})
+	_, err = server.SendFinishRealtime(host, &pb.RoundInfo{ID: 0})
 	if err != nil {
 		t.Errorf("FinishRealtime: Error received: %s", err)
 	}
@@ -65,7 +65,7 @@ func TestSendNewRound(t *testing.T) {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
 
-	_, err = server.SendNewRound(host, &pb.AuthenticatedMessage{})
+	_, err = server.SendNewRound(host, &pb.RoundInfo{})
 	if err != nil {
 		t.Errorf("NewRound: Error received: %s", err)
 	}
@@ -84,7 +84,7 @@ func TestSendPostPhase(t *testing.T) {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
 
-	_, err = server.SendPostPhase(host, &pb.AuthenticatedMessage{})
+	_, err = server.SendPostPhase(host, &pb.Batch{})
 	if err != nil {
 		t.Errorf("Phase: Error received: %s", err)
 	}
@@ -103,7 +103,7 @@ func TestSendPostRoundPublicKey(t *testing.T) {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
 
-	_, err = server.SendPostRoundPublicKey(host, &pb.AuthenticatedMessage{})
+	_, err = server.SendPostRoundPublicKey(host, &pb.RoundPublicKey{})
 	if err != nil {
 		t.Errorf("PostRoundPublicKey: Error received: %s", err)
 	}
@@ -133,7 +133,7 @@ func TestSendGetMeasure(t *testing.T) {
 
 	// GRPC complains if this doesn't return something nice, so I mocked it
 	impl := NewImplementation()
-	mockMeasure := func(message *pb.AuthenticatedMessage, auth *connect.Auth) (*pb.RoundMetrics, error) {
+	mockMeasure := func(message *pb.RoundInfo, auth *connect.Auth) (*pb.RoundMetrics, error) {
 		mockReturn := pb.RoundMetrics{
 			RoundMetricJSON: "{'actual':'json'}",
 		}
@@ -165,7 +165,7 @@ func TestSendGetMeasureError(t *testing.T) {
 	// GRPC complains if this doesn't return something nice, so I mocked it
 	impl := NewImplementation()
 
-	mockMeasureError := func(message *pb.AuthenticatedMessage, auth *connect.Auth) (*pb.RoundMetrics, error) {
+	mockMeasureError := func(message *pb.RoundInfo, auth *connect.Auth) (*pb.RoundMetrics, error) {
 		return nil, errors.New("Test error")
 	}
 	impl.Functions.GetMeasure = mockMeasureError
@@ -207,7 +207,7 @@ func TestRoundTripPing(t *testing.T) {
 		t.Errorf("SendRoundTripPing: failed attempting to marshall any type: %+v", err)
 	}
 
-	_, err = server.RoundTripPing(host, uint64(1), &pb.AuthenticatedMessage{Message: any})
+	_, err = server.RoundTripPing(host, uint64(1), any)
 	if err != nil {
 		t.Errorf("Received error from RoundTripPing: %+v", err)
 	}

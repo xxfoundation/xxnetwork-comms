@@ -54,82 +54,82 @@ func StartNode(localServer string, handler Handler,
 
 type Handler interface {
 	// Server interface for starting New Rounds
-	CreateNewRound(message *mixmessages.AuthenticatedMessage, auth *connect.Auth) error
+	CreateNewRound(message *mixmessages.RoundInfo, auth *connect.Auth) error
 	// Server interface for sending a new batch
-	PostNewBatch(message *mixmessages.AuthenticatedMessage, auth *connect.Auth) error
+	PostNewBatch(message *mixmessages.Batch, auth *connect.Auth) error
 	// Server interface for broadcasting when realtime is complete
-	FinishRealtime(message *mixmessages.AuthenticatedMessage, auth *connect.Auth) error
+	FinishRealtime(message *mixmessages.RoundInfo, auth *connect.Auth) error
 	// GetRoundBufferInfo returns # of available precomputations
 	GetRoundBufferInfo(auth *connect.Auth) (int, error)
 
-	GetMeasure(message *mixmessages.AuthenticatedMessage, auth *connect.Auth) (*mixmessages.RoundMetrics, error)
+	GetMeasure(message *mixmessages.RoundInfo, auth *connect.Auth) (*mixmessages.RoundMetrics, error)
 
 	// Server Interface for all Internode Comms
-	PostPhase(message *mixmessages.AuthenticatedMessage, auth *connect.Auth)
+	PostPhase(message *mixmessages.Batch, auth *connect.Auth)
 
 	StreamPostPhase(server mixmessages.Node_StreamPostPhaseServer) error
 
 	// Server interface for share broadcast
-	PostRoundPublicKey(message *mixmessages.AuthenticatedMessage, auth *connect.Auth)
+	PostRoundPublicKey(message *mixmessages.RoundPublicKey, auth *connect.Auth)
 
 	// Server interface for RequestNonceMessage
 	RequestNonce(salt []byte, RSAPubKey string, DHPubKey,
 		RSASignedByRegistration, DHSignedByClientRSA []byte, auth *connect.Auth) ([]byte, []byte, error)
 
 	// Server interface for ConfirmNonceMessage
-	ConfirmRegistration(UserID []byte, Signature []byte) ([]byte, error)
+	ConfirmRegistration(UserID []byte, Signature []byte, auth *connect.Auth) ([]byte, error)
 
 	// PostPrecompResult interface to finalize both payloads' precomps
-	PostPrecompResult(roundID uint64, msg *mixmessages.AuthenticatedMessage, auth *connect.Auth) error
+	PostPrecompResult(roundID uint64, slots []*mixmessages.Slot, auth *connect.Auth) error
 
 	// GetCompletedBatch: gateway uses completed batch from the server
 	GetCompletedBatch(auth *connect.Auth) (*mixmessages.Batch, error)
 
-	PollNdf(ping *mixmessages.AuthenticatedMessage, auth *connect.Auth) (*mixmessages.GatewayNdf, error)
+	PollNdf(ping *mixmessages.Ping, auth *connect.Auth) (*mixmessages.GatewayNdf, error)
 
-	SendRoundTripPing(ping *mixmessages.AuthenticatedMessage, auth *connect.Auth) error
+	SendRoundTripPing(ping *mixmessages.RoundTripPing, auth *connect.Auth) error
 
-	AskOnline(ping *mixmessages.AuthenticatedMessage, auth *connect.Auth) error
+	AskOnline(ping *mixmessages.Ping, auth *connect.Auth) error
 }
 
 type implementationFunctions struct {
 	// Server Interface for starting New Rounds
-	CreateNewRound func(message *mixmessages.AuthenticatedMessage, auth *connect.Auth) error
+	CreateNewRound func(message *mixmessages.RoundInfo, auth *connect.Auth) error
 	// Server interface for sending a new batch
-	PostNewBatch func(message *mixmessages.AuthenticatedMessage, auth *connect.Auth) error
+	PostNewBatch func(message *mixmessages.Batch, auth *connect.Auth) error
 	// Server interface for finishing the realtime phase
-	FinishRealtime func(message *mixmessages.AuthenticatedMessage, auth *connect.Auth) error
+	FinishRealtime func(message *mixmessages.RoundInfo, auth *connect.Auth) error
 	// GetRoundBufferInfo returns # of available precomputations completed
 	GetRoundBufferInfo func(auth *connect.Auth) (int, error)
 
-	GetMeasure func(message *mixmessages.AuthenticatedMessage, auth *connect.Auth) (*mixmessages.RoundMetrics, error)
+	GetMeasure func(message *mixmessages.RoundInfo, auth *connect.Auth) (*mixmessages.RoundMetrics, error)
 
 	// Server Interface for the Internode Messages
-	PostPhase func(message *mixmessages.AuthenticatedMessage, auth *connect.Auth)
+	PostPhase func(message *mixmessages.Batch, auth *connect.Auth)
 
 	// Server interface for internode streaming messages
 	StreamPostPhase func(message mixmessages.Node_StreamPostPhaseServer) error
 
 	// Server interface for share broadcast
-	PostRoundPublicKey func(message *mixmessages.AuthenticatedMessage, auth *connect.Auth)
+	PostRoundPublicKey func(message *mixmessages.RoundPublicKey, auth *connect.Auth)
 
 	// Server interface for RequestNonceMessage
 	RequestNonce func(salt []byte, RSAPubKey string, DHPubKey,
 		RSASigFromReg, RSASigDH []byte, auth *connect.Auth) ([]byte, []byte, error)
 	// Server interface for ConfirmNonceMessage
-	ConfirmRegistration func(UserID, Signature []byte) ([]byte, error)
+	ConfirmRegistration func(UserID, Signature []byte, auth *connect.Auth) ([]byte, error)
 
 	// PostPrecompResult interface to finalize both payloads' precomputations
 	PostPrecompResult func(roundID uint64,
-		slots *mixmessages.AuthenticatedMessage, auth *connect.Auth) error
+		slots []*mixmessages.Slot, auth *connect.Auth) error
 
 	GetCompletedBatch func(auth *connect.Auth) (*mixmessages.Batch, error)
 
-	PollNdf func(ping *mixmessages.AuthenticatedMessage, auth *connect.Auth) (*mixmessages.GatewayNdf, error)
+	PollNdf func(ping *mixmessages.Ping, auth *connect.Auth) (*mixmessages.GatewayNdf, error)
 
-	SendRoundTripPing func(ping *mixmessages.AuthenticatedMessage, auth *connect.Auth) error
+	SendRoundTripPing func(ping *mixmessages.RoundTripPing, auth *connect.Auth) error
 
-	AskOnline func(ping *mixmessages.AuthenticatedMessage, auth *connect.Auth) error
+	AskOnline func(ping *mixmessages.Ping, auth *connect.Auth) error
 }
 
 // Implementation allows users of the client library to set the
@@ -151,29 +151,29 @@ func NewImplementation() *Implementation {
 	}
 	return &Implementation{
 		Functions: implementationFunctions{
-			CreateNewRound: func(m *mixmessages.AuthenticatedMessage, auth *connect.Auth) error {
+			CreateNewRound: func(m *mixmessages.RoundInfo, auth *connect.Auth) error {
 				warn(um)
 				return nil
 			},
-			PostPhase: func(m *mixmessages.AuthenticatedMessage, auth *connect.Auth) {
+			PostPhase: func(m *mixmessages.Batch, auth *connect.Auth) {
 				warn(um)
 			},
 			StreamPostPhase: func(message mixmessages.Node_StreamPostPhaseServer) error {
 				warn(um)
 				return nil
 			},
-			PostRoundPublicKey: func(message *mixmessages.AuthenticatedMessage, auth *connect.Auth) {
+			PostRoundPublicKey: func(message *mixmessages.RoundPublicKey, auth *connect.Auth) {
 				warn(um)
 			},
-			PostNewBatch: func(message *mixmessages.AuthenticatedMessage, auth *connect.Auth) error {
-				warn(um)
-				return nil
-			},
-			FinishRealtime: func(message *mixmessages.AuthenticatedMessage, auth *connect.Auth) error {
+			PostNewBatch: func(message *mixmessages.Batch, auth *connect.Auth) error {
 				warn(um)
 				return nil
 			},
-			GetMeasure: func(message *mixmessages.AuthenticatedMessage, auth *connect.Auth) (*mixmessages.RoundMetrics, error) {
+			FinishRealtime: func(message *mixmessages.RoundInfo, auth *connect.Auth) error {
+				warn(um)
+				return nil
+			},
+			GetMeasure: func(message *mixmessages.RoundInfo, auth *connect.Auth) (*mixmessages.RoundMetrics, error) {
 				warn(um)
 				return nil, nil
 			},
@@ -187,12 +187,12 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return nil, nil, nil
 			},
-			ConfirmRegistration: func(UserID, Signature []byte) ([]byte, error) {
+			ConfirmRegistration: func(UserID, Signature []byte, auth *connect.Auth) ([]byte, error) {
 				warn(um)
 				return nil, nil
 			},
 			PostPrecompResult: func(roundID uint64,
-				slots *mixmessages.AuthenticatedMessage, auth *connect.Auth) error {
+				slots []*mixmessages.Slot, auth *connect.Auth) error {
 				warn(um)
 				return nil
 			},
@@ -200,16 +200,16 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return &mixmessages.Batch{}, nil
 			},
-			PollNdf: func(ping *mixmessages.AuthenticatedMessage, auth *connect.Auth) (certs *mixmessages.GatewayNdf,
+			PollNdf: func(ping *mixmessages.Ping, auth *connect.Auth) (certs *mixmessages.GatewayNdf,
 				e error) {
 				warn(um)
 				return &mixmessages.GatewayNdf{}, nil
 			},
-			SendRoundTripPing: func(ping *mixmessages.AuthenticatedMessage, auth *connect.Auth) error {
+			SendRoundTripPing: func(ping *mixmessages.RoundTripPing, auth *connect.Auth) error {
 				warn(um)
 				return nil
 			},
-			AskOnline: func(ping *mixmessages.AuthenticatedMessage, auth *connect.Auth) error {
+			AskOnline: func(ping *mixmessages.Ping, auth *connect.Auth) error {
 				warn(um)
 				return nil
 			},
@@ -218,16 +218,16 @@ func NewImplementation() *Implementation {
 }
 
 // Server Interface for starting New Rounds
-func (s *Implementation) CreateNewRound(msg *mixmessages.AuthenticatedMessage, auth *connect.Auth) error {
+func (s *Implementation) CreateNewRound(msg *mixmessages.RoundInfo, auth *connect.Auth) error {
 	return s.Functions.CreateNewRound(msg, auth)
 }
 
-func (s *Implementation) PostNewBatch(msg *mixmessages.AuthenticatedMessage, auth *connect.Auth) error {
+func (s *Implementation) PostNewBatch(msg *mixmessages.Batch, auth *connect.Auth) error {
 	return s.Functions.PostNewBatch(msg, auth)
 }
 
 // Server Interface for the phase messages
-func (s *Implementation) PostPhase(m *mixmessages.AuthenticatedMessage, auth *connect.Auth) {
+func (s *Implementation) PostPhase(m *mixmessages.Batch, auth *connect.Auth) {
 	s.Functions.PostPhase(m, auth)
 }
 
@@ -238,7 +238,7 @@ func (s *Implementation) StreamPostPhase(m mixmessages.Node_StreamPostPhaseServe
 
 // Server Interface for the share message
 func (s *Implementation) PostRoundPublicKey(message *mixmessages.
-	AuthenticatedMessage, auth *connect.Auth) {
+	RoundPublicKey, auth *connect.Auth) {
 	s.Functions.PostRoundPublicKey(message, auth)
 }
 
@@ -254,21 +254,21 @@ func (s *Implementation) RequestNonce(salt []byte, RSAPubKey string, DHPubKey,
 }
 
 // Server interface for ConfirmNonceMessage
-func (s *Implementation) ConfirmRegistration(UserID, Signature []byte) ([]byte, error) {
-	return s.Functions.ConfirmRegistration(UserID, Signature)
+func (s *Implementation) ConfirmRegistration(UserID, Signature []byte, auth *connect.Auth) ([]byte, error) {
+	return s.Functions.ConfirmRegistration(UserID, Signature, auth)
 }
 
 // PostPrecompResult interface to finalize both payloads' precomputations
 func (s *Implementation) PostPrecompResult(roundID uint64,
-	slots *mixmessages.AuthenticatedMessage, auth *connect.Auth) error {
+	slots []*mixmessages.Slot, auth *connect.Auth) error {
 	return s.Functions.PostPrecompResult(roundID, slots, auth)
 }
 
-func (s *Implementation) FinishRealtime(message *mixmessages.AuthenticatedMessage, auth *connect.Auth) error {
+func (s *Implementation) FinishRealtime(message *mixmessages.RoundInfo, auth *connect.Auth) error {
 	return s.Functions.FinishRealtime(message, auth)
 }
 
-func (s *Implementation) GetMeasure(message *mixmessages.AuthenticatedMessage, auth *connect.Auth) (*mixmessages.RoundMetrics, error) {
+func (s *Implementation) GetMeasure(message *mixmessages.RoundInfo, auth *connect.Auth) (*mixmessages.RoundMetrics, error) {
 	return s.Functions.GetMeasure(message, auth)
 }
 
@@ -277,16 +277,16 @@ func (s *Implementation) GetCompletedBatch(auth *connect.Auth) (*mixmessages.Bat
 	return s.Functions.GetCompletedBatch(auth)
 }
 
-func (s *Implementation) PollNdf(ping *mixmessages.AuthenticatedMessage, auth *connect.Auth) (*mixmessages.
+func (s *Implementation) PollNdf(ping *mixmessages.Ping, auth *connect.Auth) (*mixmessages.
 	GatewayNdf, error) {
 	return s.Functions.PollNdf(ping, auth)
 }
 
-func (s *Implementation) SendRoundTripPing(ping *mixmessages.AuthenticatedMessage, auth *connect.Auth) error {
+func (s *Implementation) SendRoundTripPing(ping *mixmessages.RoundTripPing, auth *connect.Auth) error {
 	return s.Functions.SendRoundTripPing(ping, auth)
 }
 
 // AskOnline blocks until the server is online, or returns an error
-func (s *Implementation) AskOnline(ping *mixmessages.AuthenticatedMessage, auth *connect.Auth) error {
+func (s *Implementation) AskOnline(ping *mixmessages.Ping, auth *connect.Auth) error {
 	return s.Functions.AskOnline(ping, auth)
 }

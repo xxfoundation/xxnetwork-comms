@@ -51,7 +51,7 @@ func TestTLS(t *testing.T) {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
 
-	_, err = server2.SendAskOnline(host, &mixmessages.AuthenticatedMessage{})
+	_, err = server2.SendAskOnline(host, &mixmessages.Ping{})
 	if err != nil {
 		t.Error(err)
 	}

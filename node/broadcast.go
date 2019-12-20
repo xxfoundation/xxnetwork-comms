@@ -26,6 +26,7 @@ func (s *Comms) SendGetMeasure(host *connect.Host,
 		// Set up the context
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
+		//Format to authenticated message type
 		authMsg, err := s.PackAuthenticatedMessage(message, host, false)
 		if err != nil {
 			return nil, errors.New(err.Error())
@@ -51,16 +52,21 @@ func (s *Comms) SendGetMeasure(host *connect.Host,
 
 // Server -> Server Send Function
 func (s *Comms) SendAskOnline(host *connect.Host,
-	message *pb.AuthenticatedMessage) (*pb.Ack, error) {
+	message *pb.Ping) (*pb.Ack, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
+		//Format to authenticated message type
+		authMsg, err := s.PackAuthenticatedMessage(message, host, false)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
 
 		// Send the message
-		resultMsg, err := pb.NewNodeClient(conn).AskOnline(ctx, message)
+		resultMsg, err := pb.NewNodeClient(conn).AskOnline(ctx, authMsg)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
@@ -80,7 +86,7 @@ func (s *Comms) SendAskOnline(host *connect.Host,
 
 // Server -> Server Send Function
 func (s *Comms) SendFinishRealtime(host *connect.Host,
-	message *pb.AuthenticatedMessage) (*pb.Ack, error) {
+	message *pb.RoundInfo) (*pb.Ack, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
@@ -88,8 +94,14 @@ func (s *Comms) SendFinishRealtime(host *connect.Host,
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
 
+		//Format to authenticated message type
+		authMsg, err := s.PackAuthenticatedMessage(message, host, false)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+
 		// Send the message
-		resultMsg, err := pb.NewNodeClient(conn).FinishRealtime(ctx, message)
+		resultMsg, err := pb.NewNodeClient(conn).FinishRealtime(ctx, authMsg)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
@@ -109,16 +121,21 @@ func (s *Comms) SendFinishRealtime(host *connect.Host,
 
 // Server -> Server Send Function
 func (s *Comms) SendNewRound(host *connect.Host,
-	message *pb.AuthenticatedMessage) (*pb.Ack, error) {
+	message *pb.RoundInfo) (*pb.Ack, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
+		//Format to authenticated message type
+		authMsg, err := s.PackAuthenticatedMessage(message, host, false)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
 
 		// Send the message
-		resultMsg, err := pb.NewNodeClient(conn).CreateNewRound(ctx, message)
+		resultMsg, err := pb.NewNodeClient(conn).CreateNewRound(ctx, authMsg)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
@@ -138,16 +155,21 @@ func (s *Comms) SendNewRound(host *connect.Host,
 
 // Server -> Server Send Function
 func (s *Comms) SendPostRoundPublicKey(host *connect.Host,
-	message *pb.AuthenticatedMessage) (*pb.Ack, error) {
+	message *pb.RoundPublicKey) (*pb.Ack, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
+		//Format to authenticated message type
+		authMsg, err := s.PackAuthenticatedMessage(message, host, false)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
 
 		// Send the message
-		resultMsg, err := pb.NewNodeClient(conn).PostRoundPublicKey(ctx, message)
+		resultMsg, err := pb.NewNodeClient(conn).PostRoundPublicKey(ctx, authMsg)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
@@ -174,20 +196,20 @@ func (s *Comms) SendPostPrecompResult(host *connect.Host,
 		// Set up the context
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
-		// Send the message
 
+		//Pack the message as an authenticated message
 		batchMsg := &pb.Batch{
 			Round: &pb.RoundInfo{
 				ID: roundID,
 			},
 			Slots: slots,
 		}
-		//Pack the message as an authenticated message
 		authMsg, err := s.PackAuthenticatedMessage(batchMsg, host, false)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
 
+		// Send the message
 		resultMsg, err := pb.NewNodeClient(conn).PostPrecompResult(ctx,
 			authMsg)
 		if err != nil {
@@ -209,7 +231,7 @@ func (s *Comms) SendPostPrecompResult(host *connect.Host,
 
 // Server -> Server Send Function
 func (s *Comms) RoundTripPing(host *connect.Host,
-	roundID uint64, msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
+	roundID uint64, payload *any.Any) (*pb.Ack, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
@@ -217,9 +239,15 @@ func (s *Comms) RoundTripPing(host *connect.Host,
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
 
+		//Pack the message as an authenticated message
+		authMsg, err := s.PackAuthenticatedMessage(payload, host, false)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+
 		// Send the message
 		resultMsg, err := pb.NewNodeClient(conn).SendRoundTripPing(ctx,
-			msg)
+			authMsg)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}

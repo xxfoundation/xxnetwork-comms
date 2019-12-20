@@ -31,7 +31,6 @@ func (s *Comms) RequestToken(context.Context, *pb.Ping) (*pb.AssignToken, error)
 	}, err
 }
 
-//Reviewer: Do I add an auth here? flim flam
 // RegisterUser event handler which registers a user with the platform
 func (r *Comms) RegisterUser(ctx context.Context, msg *pb.UserRegistration) (
 	*pb.UserRegistrationConfirmation, error) {
@@ -54,7 +53,6 @@ func (r *Comms) RegisterUser(ctx context.Context, msg *pb.UserRegistration) (
 	}, err
 }
 
-//Reviewer: Do I add an auth here? flim flam
 // CheckClientVersion event handler which checks whether the client library
 // version is compatible with the network
 func (r *Comms) GetCurrentClientVersion(ctx context.Context, ping *pb.Ping) (*pb.ClientVersion, error) {
