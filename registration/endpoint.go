@@ -85,16 +85,17 @@ func (r *Comms) RegisterNode(ctx context.Context, msg *pb.NodeRegistration) (
 
 // Handles incoming requests for the NDF
 func (r *Comms) PollNdf(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.NDF, error) {
-	authObj := r.AuthenticatedReceiver(msg)
+	//Create an auth object
+	authState := r.AuthenticatedReceiver(msg)
 
-	//Marshall the any message to the message type needed
+	//Unmarshall the any message to the message type needed
 	ndfHash := &pb.NDFHash{}
 	err := ptypes.UnmarshalAny(msg.Message, ndfHash)
 	if err != nil {
 		return nil, err
 	}
 
-	newNDF, err := r.handler.PollNdf(ndfHash.Hash, authObj)
+	newNDF, err := r.handler.PollNdf(ndfHash.Hash, authState)
 	//Return the new ndf
 	return &pb.NDF{Ndf: newNDF}, err
 }

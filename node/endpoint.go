@@ -17,14 +17,15 @@ import (
 
 // Handle a Broadcasted Ask Online event
 func (s *Comms) AskOnline(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
-	authObj := s.AuthenticatedReceiver(msg)
-	//Marshall the any message to the message type needed
+	//Create an auth object
+	authState := s.AuthenticatedReceiver(msg)
+	//Unmarshall the any message to the message type needed
 	pingMsg := &pb.Ping{}
 	err := ptypes.UnmarshalAny(msg.Message, pingMsg)
 	if err != nil {
 		return nil, errors.New(err.Error())
 	}
-	return &pb.Ack{}, s.handler.AskOnline(pingMsg, authObj)
+	return &pb.Ack{}, s.handler.AskOnline(pingMsg, authState)
 }
 
 // Handles validation of reverse-authentication tokens
@@ -43,9 +44,9 @@ func (s *Comms) RequestToken(context.Context, *pb.Ping) (*pb.AssignToken, error)
 
 // Handle a NewRound event
 func (s *Comms) CreateNewRound(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
-
-	authObj := s.AuthenticatedReceiver(msg)
-	//Marshall the any message to the message type needed
+	//Create an auth object
+	authState := s.AuthenticatedReceiver(msg)
+	//Unnmarshall the any message to the message type needed
 	roundInfoMsg := &pb.RoundInfo{}
 	err := ptypes.UnmarshalAny(msg.Message, roundInfoMsg)
 	if err != nil {
@@ -53,13 +54,13 @@ func (s *Comms) CreateNewRound(ctx context.Context, msg *pb.AuthenticatedMessage
 	}
 
 	// Call the server handler to start a new round
-	return &pb.Ack{}, s.handler.CreateNewRound(roundInfoMsg, authObj)
+	return &pb.Ack{}, s.handler.CreateNewRound(roundInfoMsg, authState)
 }
 
 // PostNewBatch polls the first node and sends a batch when it is ready
 func (s *Comms) PostNewBatch(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
-	authObj := s.AuthenticatedReceiver(msg)
-	//Marshall the any message to the message type needed
+	authState := s.AuthenticatedReceiver(msg)
+	//Unmarshall the any message to the message type needed
 	batchMsg := &pb.Batch{}
 	err := ptypes.UnmarshalAny(msg.Message, batchMsg)
 	if err != nil {
@@ -67,7 +68,7 @@ func (s *Comms) PostNewBatch(ctx context.Context, msg *pb.AuthenticatedMessage) 
 	}
 
 	// Call the server handler to post a new batch
-	err = s.handler.PostNewBatch(batchMsg, authObj)
+	err = s.handler.PostNewBatch(batchMsg, authState)
 
 	return &pb.Ack{}, err
 }
@@ -75,16 +76,16 @@ func (s *Comms) PostNewBatch(ctx context.Context, msg *pb.AuthenticatedMessage) 
 // Handle a Phase event
 func (s *Comms) PostPhase(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.Ack,
 	error) {
-	// Call the server handler with the msg
-	authObj := s.AuthenticatedReceiver(msg)
-	//Marshall the any message to the message type needed
+	//Create an auth object
+	authState := s.AuthenticatedReceiver(msg)
+	//Unmarshall the any message to the message type needed
 	batchMsg := &pb.Batch{}
 	err := ptypes.UnmarshalAny(msg.Message, batchMsg)
 	if err != nil {
 		return nil, errors.New(err.Error())
 	}
-
-	s.handler.PostPhase(batchMsg, authObj)
+	// Call the server handler with the msg
+	s.handler.PostPhase(batchMsg, authState)
 	return &pb.Ack{}, nil
 }
 
@@ -96,8 +97,9 @@ func (s *Comms) StreamPostPhase(server pb.Node_StreamPostPhaseServer) error {
 // Handle a PostRoundPublicKey message
 func (s *Comms) PostRoundPublicKey(ctx context.Context,
 	msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
-	// Call the server handler that receives the key share
-	authObj := s.AuthenticatedReceiver(msg)
+
+	//Create an auth object
+	authState := s.AuthenticatedReceiver(msg)
 	//Marshall the any message to the message type needed
 	publicKeyMsg := &pb.RoundPublicKey{}
 	err := ptypes.UnmarshalAny(msg.Message, publicKeyMsg)
@@ -105,7 +107,7 @@ func (s *Comms) PostRoundPublicKey(ctx context.Context,
 		return nil, errors.New(err.Error())
 	}
 
-	s.handler.PostRoundPublicKey(publicKeyMsg, authObj)
+	s.handler.PostRoundPublicKey(publicKeyMsg, authState)
 	return &pb.Ack{}, nil
 }
 
@@ -114,8 +116,9 @@ func (s *Comms) GetRoundBufferInfo(ctx context.Context,
 	msg *pb.AuthenticatedMessage) (
 	*pb.RoundBufferInfo, error) {
 
-	authObj := s.AuthenticatedReceiver(msg)
-	bufSize, err := s.handler.GetRoundBufferInfo(authObj)
+	//Create an auth object
+	authState := s.AuthenticatedReceiver(msg)
+	bufSize, err := s.handler.GetRoundBufferInfo(authState)
 	if bufSize < 0 {
 		bufSize = 0
 	}
@@ -126,8 +129,9 @@ func (s *Comms) GetRoundBufferInfo(ctx context.Context,
 // Handles Registration Nonce Communication
 func (s *Comms) RequestNonce(ctx context.Context,
 	msg *pb.AuthenticatedMessage) (*pb.Nonce, error) {
+
 	//Create an auth object
-	authObj := s.AuthenticatedReceiver(msg)
+	authState := s.AuthenticatedReceiver(msg)
 
 	//Marshall the any message to the message type needed
 	nonceRequest := &pb.NonceRequest{}
@@ -140,7 +144,7 @@ func (s *Comms) RequestNonce(ctx context.Context,
 	nonce, pk, err := s.handler.RequestNonce(nonceRequest.GetSalt(),
 		nonceRequest.GetClientRSAPubKey(), nonceRequest.GetClientDHPubKey(),
 		nonceRequest.GetClientSignedByServer().Signature,
-		nonceRequest.GetRequestSignature().Signature, authObj)
+		nonceRequest.GetRequestSignature().Signature, authState)
 
 	// Obtain the error message, if any
 	errMsg := ""
@@ -159,9 +163,11 @@ func (s *Comms) RequestNonce(ctx context.Context,
 // Handles Registration Nonce Confirmation
 func (s *Comms) ConfirmRegistration(ctx context.Context,
 	msg *pb.AuthenticatedMessage) (*pb.RegistrationConfirmation, error) {
-	authObj := s.AuthenticatedReceiver(msg)
 
-	//Marshall the any message to the message type needed
+	//Create an auth object
+	authState := s.AuthenticatedReceiver(msg)
+
+	//Unmarshall the any message to the message type needed
 	regConfirmRequest := &pb.RequestRegistrationConfirmation{}
 	err := ptypes.UnmarshalAny(msg.Message, regConfirmRequest)
 	if err != nil {
@@ -170,7 +176,7 @@ func (s *Comms) ConfirmRegistration(ctx context.Context,
 
 	// Obtain signed client public key by passing to server
 	signature, err := s.handler.ConfirmRegistration(regConfirmRequest.GetUserID(),
-		regConfirmRequest.NonceSignedByClient.Signature, authObj)
+		regConfirmRequest.NonceSignedByClient.Signature, authState)
 
 	// Obtain the error message, if any
 	errMsg := ""
@@ -191,9 +197,9 @@ func (s *Comms) ConfirmRegistration(ctx context.Context,
 func (s *Comms) PostPrecompResult(ctx context.Context,
 	msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
 
-	authObj := s.AuthenticatedReceiver(msg)
+	authState := s.AuthenticatedReceiver(msg)
 
-	//Marshall the any message to the message type needed
+	//Unmarshall the any message to the message type needed
 	batchMsg := &pb.Batch{}
 	err := ptypes.UnmarshalAny(msg.Message, batchMsg)
 	if err != nil {
@@ -202,23 +208,23 @@ func (s *Comms) PostPrecompResult(ctx context.Context,
 
 	// Call the server handler to start a new round
 	err = s.handler.PostPrecompResult(batchMsg.GetRound().GetID(),
-		batchMsg.Slots, authObj)
+		batchMsg.Slots, authState)
 	return &pb.Ack{}, err
 }
 
 // FinishRealtime broadcasts to all nodes when the realtime is completed
 func (s *Comms) FinishRealtime(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
 	// Call the server handler to finish realtime
-	authObj := s.AuthenticatedReceiver(msg)
+	authState := s.AuthenticatedReceiver(msg)
 
-	//Marshall the any message to the message type needed
+	//Unmarshall the any message to the message type needed
 	roundInfoMsg := &pb.RoundInfo{}
 	err := ptypes.UnmarshalAny(msg.Message, roundInfoMsg)
 	if err != nil {
 		return nil, err
 	}
 
-	err = s.handler.FinishRealtime(roundInfoMsg, authObj)
+	err = s.handler.FinishRealtime(roundInfoMsg, authState)
 
 	return &pb.Ack{}, err
 }
@@ -228,40 +234,39 @@ func (s *Comms) FinishRealtime(ctx context.Context, msg *pb.AuthenticatedMessage
 func (s *Comms) GetCompletedBatch(ctx context.Context,
 	msg *pb.AuthenticatedMessage) (*pb.Batch, error) {
 
-	authObj := s.AuthenticatedReceiver(msg)
-	return s.handler.GetCompletedBatch(authObj)
+	authState := s.AuthenticatedReceiver(msg)
+	return s.handler.GetCompletedBatch(authState)
 }
 
 func (s *Comms) GetMeasure(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.RoundMetrics, error) {
-	authObj := s.AuthenticatedReceiver(msg)
+	authState := s.AuthenticatedReceiver(msg)
 
-	//Marshall the any message to the message type needed
+	//Unmarshall the any message to the message type needed
 	roundInfoMsg := &pb.RoundInfo{}
 	err := ptypes.UnmarshalAny(msg.Message, roundInfoMsg)
 	if err != nil {
 		return nil, err
 	}
 
-	rm, err := s.handler.GetMeasure(roundInfoMsg, authObj)
+	rm, err := s.handler.GetMeasure(roundInfoMsg, authState)
 	return rm, err
 }
 
 func (s *Comms) PollNdf(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.GatewayNdf, error) {
-	authObj := s.AuthenticatedReceiver(msg)
-	//Marshall the any message to the message type needed
+	authState := s.AuthenticatedReceiver(msg)
+	//Unmarshall the any message to the message type needed
 	pingMsg := &pb.Ping{}
 	err := ptypes.UnmarshalAny(msg.Message, pingMsg)
 	if err != nil {
 		return nil, err
 	}
 
-	rm, err := s.handler.PollNdf(pingMsg, authObj)
+	rm, err := s.handler.PollNdf(pingMsg, authState)
 	return rm, err
 }
 
 func (s *Comms) SendRoundTripPing(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
-	// FIXME: Change misleading var name
-	authObj := s.AuthenticatedReceiver(msg)
+	authState := s.AuthenticatedReceiver(msg)
 	//Marshall the any message to the message type needed
 	roundTripPing := &pb.RoundTripPing{}
 	err := ptypes.UnmarshalAny(msg.Message, roundTripPing)
@@ -269,6 +274,6 @@ func (s *Comms) SendRoundTripPing(ctx context.Context, msg *pb.AuthenticatedMess
 		return nil, err
 	}
 
-	err = s.handler.SendRoundTripPing(roundTripPing, authObj)
+	err = s.handler.SendRoundTripPing(roundTripPing, authState)
 	return &pb.Ack{}, err
 }
