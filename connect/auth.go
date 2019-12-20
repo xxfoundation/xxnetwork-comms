@@ -20,8 +20,8 @@ import (
 	"gitlab.com/elixxir/crypto/signature/rsa"
 )
 
-// auth represents an authorization state for a message or host
-type auth struct {
+// Auth represents an authorization state for a message or host
+type Auth struct {
 	IsAuthenticated bool
 	Sender          Host
 }
@@ -139,9 +139,9 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) error {
 }
 
 // AuthenticatedReceiver handles reception of an AuthenticatedMessage,
-// checking if the host is authenticated & returning an auth state
-func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) *auth {
-	res := &auth{
+// checking if the host is authenticated & returning an Auth state
+func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) *Auth {
+	res := &Auth{
 		IsAuthenticated: false,
 		Sender:          Host{},
 	}

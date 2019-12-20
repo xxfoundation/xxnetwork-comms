@@ -34,6 +34,7 @@ func TestPhase_StreamPostPhaseSendReceive(t *testing.T) {
 	receiverImpl.Functions.StreamPostPhase = func(server mixmessages.Node_StreamPostPhaseServer) error {
 		return mockStreamPostPhase(server)
 	}
+
 	serverStreamReceiver := StartNode(servReceiverAddress, receiverImpl,
 		certData, keyData)
 
@@ -161,10 +162,9 @@ func TestGetPostPhaseStream_ErrorsWhenContextCanceled(t *testing.T) {
 
 var receivedBatch mixmessages.Batch
 
-func mockStreamPostPhase(stream mixmessages.Node_StreamPostPhaseServer) error {
-
+func mockStreamPostPhase(server mixmessages.Node_StreamPostPhaseServer) error {
 	// Get header from stream
-	batchInfo, err := GetPostPhaseStreamHeader(stream)
+	batchInfo, err := GetPostPhaseStreamHeader(server)
 	if err != nil {
 		return err
 	}
@@ -174,7 +174,7 @@ func mockStreamPostPhase(stream mixmessages.Node_StreamPostPhaseServer) error {
 	// send ack back to client.
 	var slots []*mixmessages.Slot
 	for {
-		slot, err := stream.Recv()
+		slot, err := server.Recv()
 		// If we are at end of receiving
 		// send ack and finish
 		if err == io.EOF {
@@ -189,7 +189,7 @@ func mockStreamPostPhase(stream mixmessages.Node_StreamPostPhaseServer) error {
 				Slots:     slots,
 			}
 
-			err = stream.SendAndClose(&ack)
+			err = server.SendAndClose(&ack)
 
 			return err
 		}

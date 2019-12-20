@@ -68,7 +68,7 @@ type Handler interface {
 	GetCurrentClientVersion() (version string, err error)
 	RegisterNode(ID []byte, ServerAddr, ServerTlsCert, GatewayAddr,
 		GatewayTlsCert, RegistrationCode string) error
-	PollNdf(ndfHash []byte) ([]byte, error)
+	PollNdf(ndfHash []byte, auth *connect.Auth) ([]byte, error)
 }
 
 type implementationFunctions struct {
@@ -77,7 +77,7 @@ type implementationFunctions struct {
 	GetCurrentClientVersion func() (version string, err error)
 	RegisterNode            func(ID []byte, ServerAddr, ServerTlsCert,
 		GatewayAddr, GatewayTlsCert, RegistrationCode string) error
-	PollNdf func(ndfHash []byte) ([]byte, error)
+	PollNdf func(ndfHash []byte, auth *connect.Auth) ([]byte, error)
 }
 
 // Implementation allows users of the client library to set the
@@ -111,7 +111,7 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return nil
 			},
-			PollNdf: func(ndfHash []byte) ([]byte, error) {
+			PollNdf: func(ndfHash []byte, auth *connect.Auth) ([]byte, error) {
 				warn(um)
 				return nil, nil
 			},
@@ -135,6 +135,6 @@ func (s *Implementation) RegisterNode(ID []byte, ServerAddr, ServerTlsCert,
 		GatewayAddr, GatewayTlsCert, RegistrationCode)
 }
 
-func (s *Implementation) PollNdf(ndfHash []byte) ([]byte, error) {
-	return s.Functions.PollNdf(ndfHash)
+func (s *Implementation) PollNdf(ndfHash []byte, auth *connect.Auth) ([]byte, error) {
+	return s.Functions.PollNdf(ndfHash, auth)
 }

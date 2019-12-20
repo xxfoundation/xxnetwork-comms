@@ -121,7 +121,6 @@ func TestSendPostPrecompResult(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
-
 	slots := make([]*pb.Slot, 0)
 	_, err = server.SendPostPrecompResult(host, 0, slots)
 	if err != nil {
@@ -134,7 +133,7 @@ func TestSendGetMeasure(t *testing.T) {
 
 	// GRPC complains if this doesn't return something nice, so I mocked it
 	impl := NewImplementation()
-	mockMeasure := func(msg *pb.RoundInfo) (*pb.RoundMetrics, error) {
+	mockMeasure := func(message *pb.RoundInfo, auth *connect.Auth) (*pb.RoundMetrics, error) {
 		mockReturn := pb.RoundMetrics{
 			RoundMetricJSON: "{'actual':'json'}",
 		}
@@ -166,7 +165,7 @@ func TestSendGetMeasureError(t *testing.T) {
 	// GRPC complains if this doesn't return something nice, so I mocked it
 	impl := NewImplementation()
 
-	mockMeasureError := func(msg *pb.RoundInfo) (*pb.RoundMetrics, error) {
+	mockMeasureError := func(message *pb.RoundInfo, auth *connect.Auth) (*pb.RoundMetrics, error) {
 		return nil, errors.New("Test error")
 	}
 	impl.Functions.GetMeasure = mockMeasureError

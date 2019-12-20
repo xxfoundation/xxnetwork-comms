@@ -29,9 +29,13 @@ func (s *Comms) SendPostPhase(host *connect.Host,
 		// Set up the context
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
-
+		//Format to authenticated message type
+		authMsg, err := s.PackAuthenticatedMessage(message, host, false)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
 		// Send the message
-		resultMsg, err := pb.NewNodeClient(conn).PostPhase(ctx, message)
+		resultMsg, err := pb.NewNodeClient(conn).PostPhase(ctx, authMsg)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}

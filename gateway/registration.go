@@ -26,9 +26,13 @@ func (g *Comms) SendRequestNonceMessage(host *connect.Host,
 		// Set up the context
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
-
+		//Pack the message for server
+		authMsg, err := g.PackAuthenticatedMessage(message, host, false)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
 		// Send the message
-		resultMsg, err := pb.NewNodeClient(conn).RequestNonce(ctx, message)
+		resultMsg, err := pb.NewNodeClient(conn).RequestNonce(ctx, authMsg)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
@@ -56,9 +60,13 @@ func (g *Comms) SendConfirmNonceMessage(host *connect.Host,
 		// Set up the context
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
-
+		//Pack the message for server
+		authMsg, err := g.PackAuthenticatedMessage(message, host, false)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
 		// Send the message
-		resultMsg, err := pb.NewNodeClient(conn).ConfirmRegistration(ctx, message)
+		resultMsg, err := pb.NewNodeClient(conn).ConfirmRegistration(ctx, authMsg)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
@@ -85,9 +93,14 @@ func (g *Comms) PollNdf(host *connect.Host,
 		// Set up the context
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
+		//Pack the message for server
+		authMsg, err := g.PackAuthenticatedMessage(message, host, false)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
 
 		// Send the message
-		resultMsg, err := pb.NewNodeClient(conn).PollNdf(ctx, message)
+		resultMsg, err := pb.NewNodeClient(conn).PollNdf(ctx, authMsg)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}

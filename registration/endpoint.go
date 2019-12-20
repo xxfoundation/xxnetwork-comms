@@ -10,6 +10,7 @@ package registration
 
 import (
 	"fmt"
+	"github.com/golang/protobuf/ptypes"
 	"github.com/pkg/errors"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
@@ -54,7 +55,8 @@ func (r *Comms) RegisterUser(ctx context.Context, msg *pb.UserRegistration) (
 
 // CheckClientVersion event handler which checks whether the client library
 // version is compatible with the network
-func (r *Comms) GetCurrentClientVersion(ctx context.Context, msg *pb.Ping) (*pb.ClientVersion, error) {
+func (r *Comms) GetCurrentClientVersion(ctx context.Context, ping *pb.Ping) (*pb.ClientVersion, error) {
+
 	version, err := r.handler.GetCurrentClientVersion()
 
 	// Return the confirmation message
@@ -66,6 +68,7 @@ func (r *Comms) GetCurrentClientVersion(ctx context.Context, msg *pb.Ping) (*pb.
 // Handle a node registration event
 func (r *Comms) RegisterNode(ctx context.Context, msg *pb.NodeRegistration) (
 	*pb.Ack, error) {
+
 	// Obtain peer IP address
 	ip, port, err := connect.GetAddressFromContext(ctx)
 	if err != nil {
@@ -81,8 +84,18 @@ func (r *Comms) RegisterNode(ctx context.Context, msg *pb.NodeRegistration) (
 }
 
 // Handles incoming requests for the NDF
-func (r *Comms) PollNdf(ctx context.Context, msg *pb.NDFHash) (*pb.NDF, error) {
-	newNDF, err := r.handler.PollNdf(msg.Hash)
+func (r *Comms) PollNdf(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.NDF, error) {
+	//Create an auth object
+	authState := r.AuthenticatedReceiver(msg)
+
+	//Unmarshall the any message to the message type needed
+	ndfHash := &pb.NDFHash{}
+	err := ptypes.UnmarshalAny(msg.Message, ndfHash)
+	if err != nil {
+		return nil, err
+	}
+
+	newNDF, err := r.handler.PollNdf(ndfHash.Hash, authState)
 	//Return the new ndf
 	return &pb.NDF{Ndf: newNDF}, err
 }

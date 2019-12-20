@@ -26,9 +26,13 @@ func (s *Comms) SendGetMeasure(host *connect.Host,
 		// Set up the context
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
-
+		//Format to authenticated message type
+		authMsg, err := s.PackAuthenticatedMessage(message, host, false)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
 		// Send the message
-		resultMsg, err := pb.NewNodeClient(conn).GetMeasure(ctx, message)
+		resultMsg, err := pb.NewNodeClient(conn).GetMeasure(ctx, authMsg)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
@@ -55,9 +59,14 @@ func (s *Comms) SendAskOnline(host *connect.Host,
 		// Set up the context
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
+		//Format to authenticated message type
+		authMsg, err := s.PackAuthenticatedMessage(message, host, false)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
 
 		// Send the message
-		resultMsg, err := pb.NewNodeClient(conn).AskOnline(ctx, message)
+		resultMsg, err := pb.NewNodeClient(conn).AskOnline(ctx, authMsg)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
@@ -85,8 +94,14 @@ func (s *Comms) SendFinishRealtime(host *connect.Host,
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
 
+		//Format to authenticated message type
+		authMsg, err := s.PackAuthenticatedMessage(message, host, false)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+
 		// Send the message
-		resultMsg, err := pb.NewNodeClient(conn).FinishRealtime(ctx, message)
+		resultMsg, err := pb.NewNodeClient(conn).FinishRealtime(ctx, authMsg)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
@@ -113,9 +128,14 @@ func (s *Comms) SendNewRound(host *connect.Host,
 		// Set up the context
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
+		//Format to authenticated message type
+		authMsg, err := s.PackAuthenticatedMessage(message, host, false)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
 
 		// Send the message
-		resultMsg, err := pb.NewNodeClient(conn).CreateNewRound(ctx, message)
+		resultMsg, err := pb.NewNodeClient(conn).CreateNewRound(ctx, authMsg)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
@@ -142,9 +162,14 @@ func (s *Comms) SendPostRoundPublicKey(host *connect.Host,
 		// Set up the context
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
+		//Format to authenticated message type
+		authMsg, err := s.PackAuthenticatedMessage(message, host, false)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
 
 		// Send the message
-		resultMsg, err := pb.NewNodeClient(conn).PostRoundPublicKey(ctx, message)
+		resultMsg, err := pb.NewNodeClient(conn).PostRoundPublicKey(ctx, authMsg)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
@@ -172,14 +197,21 @@ func (s *Comms) SendPostPrecompResult(host *connect.Host,
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
 
+		//Pack the message as an authenticated message
+		batchMsg := &pb.Batch{
+			Round: &pb.RoundInfo{
+				ID: roundID,
+			},
+			Slots: slots,
+		}
+		authMsg, err := s.PackAuthenticatedMessage(batchMsg, host, false)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+
 		// Send the message
 		resultMsg, err := pb.NewNodeClient(conn).PostPrecompResult(ctx,
-			&pb.Batch{
-				Round: &pb.RoundInfo{
-					ID: roundID,
-				},
-				Slots: slots,
-			})
+			authMsg)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
@@ -206,15 +238,22 @@ func (s *Comms) RoundTripPing(host *connect.Host,
 		// Set up the context
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
+		rtPing := &pb.RoundTripPing{
+			Round: &pb.RoundInfo{
+				ID: roundID,
+			},
+			Payload: payload,
+		}
+
+		//Pack the message as an authenticated message
+		authMsg, err := s.PackAuthenticatedMessage(rtPing, host, false)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
 
 		// Send the message
 		resultMsg, err := pb.NewNodeClient(conn).SendRoundTripPing(ctx,
-			&pb.RoundTripPing{
-				Round: &pb.RoundInfo{
-					ID: roundID,
-				},
-				Payload: payload,
-			})
+			authMsg)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
