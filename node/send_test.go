@@ -27,7 +27,7 @@ func TestSendAskOnline(t *testing.T) {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
 
-	_, err = server.SendAskOnline(host, &pb.Ping{})
+	_, err = server.SendAskOnline(host)
 	if err != nil {
 		t.Errorf("AskOnline: Error received: %s", err)
 	}

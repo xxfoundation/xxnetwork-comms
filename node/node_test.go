@@ -9,7 +9,6 @@ package node
 import (
 	"fmt"
 	"gitlab.com/elixxir/comms/connect"
-	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/testkeys"
 	"sync"
 	"testing"
@@ -51,7 +50,7 @@ func TestTLS(t *testing.T) {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
 
-	_, err = server2.SendAskOnline(host, &mixmessages.Ping{})
+	_, err = server2.SendAskOnline(host)
 	if err != nil {
 		t.Error(err)
 	}
