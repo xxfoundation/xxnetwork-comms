@@ -30,11 +30,12 @@ type Auth struct {
 func (c *ProtoComms) clientHandshake(host *Host) (err error) {
 
 	// Set up the context
+	client := pb.NewGenericClient(host.connection)
 	ctx, cancel := MessagingContext()
 	defer cancel()
 
 	// Send the token request message
-	result, err := pb.NewGenericClient(host.connection).RequestToken(ctx,
+	result, err := client.RequestToken(ctx,
 		&pb.Ping{})
 	if err != nil {
 		return errors.New(err.Error())
@@ -53,7 +54,7 @@ func (c *ProtoComms) clientHandshake(host *Host) (err error) {
 	defer cancel()
 
 	// Send the authenticate token message
-	_, err = pb.NewGenericClient(host.connection).AuthenticateToken(ctx, msg)
+	_, err = client.AuthenticateToken(ctx, msg)
 	if err != nil {
 		err = errors.New(err.Error())
 	}
@@ -161,8 +162,8 @@ func (c *ProtoComms) signMessage(anyMessage *any.Any) ([]byte, error) {
 	// Hash the message data
 	options := rsa.NewDefaultOptions()
 	hash := options.Hash.New()
-	data := []byte(anyMessage.String())
-	hashed := hash.Sum(data)[len(data):]
+	hash.Write([]byte(anyMessage.String()))
+	hashed := hash.Sum(nil)
 
 	// Obtain the private key
 	key := c.GetPrivateKey()
@@ -185,9 +186,8 @@ func (c *ProtoComms) verifyMessage(msg *pb.AuthenticatedMessage, host *Host) err
 	// Get hashed data of the message
 	options := rsa.NewDefaultOptions()
 	hash := options.Hash.New()
-	s := msg.Message.String()
-	data := []byte(s)
-	hashed := hash.Sum(data)[len(data):]
+	hash.Write([]byte(msg.Message.String()))
+	hashed := hash.Sum(nil)
 
 	// Verify signature of message using host public key
 	err := rsa.Verify(host.rsaPublicKey, options.Hash, hashed, msg.Signature, nil)
