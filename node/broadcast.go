@@ -238,9 +238,15 @@ func (s *Comms) RoundTripPing(host *connect.Host,
 		// Set up the context
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
+		rtPing := &pb.RoundTripPing{
+			Round: &pb.RoundInfo{
+				ID: roundID,
+			},
+			Payload: payload,
+		}
 
 		//Pack the message as an authenticated message
-		authMsg, err := s.PackAuthenticatedMessage(payload, host, false)
+		authMsg, err := s.PackAuthenticatedMessage(rtPing, host, false)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
