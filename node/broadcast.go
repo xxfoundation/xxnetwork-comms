@@ -51,8 +51,7 @@ func (s *Comms) SendGetMeasure(host *connect.Host,
 }
 
 // Server -> Server Send Function
-func (s *Comms) SendAskOnline(host *connect.Host,
-	message *pb.Ping) (*pb.Ack, error) {
+func (s *Comms) SendAskOnline(host *connect.Host) (*pb.Ack, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
@@ -60,7 +59,7 @@ func (s *Comms) SendAskOnline(host *connect.Host,
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
 		//Format to authenticated message type
-		authMsg, err := s.PackAuthenticatedMessage(message, host, false)
+		authMsg, err := s.PackAuthenticatedMessage(&pb.Ping{}, host, false)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
