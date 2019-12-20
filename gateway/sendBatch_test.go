@@ -54,7 +54,7 @@ func TestGetRoundBufferInfo(t *testing.T) {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
 
-	bufSize, err := gateway.GetRoundBufferInfo(&pb.Ping{}, host)
+	bufSize, err := gateway.GetRoundBufferInfo(host)
 	if err != nil {
 		t.Errorf("GetRoundBufferInfo: Error received: %s", err)
 	}
@@ -80,7 +80,7 @@ func TestGetCompletedBatch(t *testing.T) {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
 
-	batch, err := gateway.GetCompletedBatch(&pb.Ping{}, host)
+	batch, err := gateway.GetCompletedBatch(host)
 	if err != nil {
 		t.Errorf("GetCompletedBatch: Error received: %s", err)
 	}

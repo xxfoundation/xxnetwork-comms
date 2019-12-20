@@ -46,7 +46,7 @@ func (g *Comms) PostNewBatch(host *connect.Host, messages *pb.Batch) error {
 // many rounds have gone through precomputation.
 // Note that this function should block if the buffer size is 0
 // This allows the caller to continuously poll without spinning too much.
-func (g *Comms) GetRoundBufferInfo(message *pb.Ping, host *connect.Host) (*pb.RoundBufferInfo, error) {
+func (g *Comms) GetRoundBufferInfo(host *connect.Host) (*pb.RoundBufferInfo, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
@@ -54,7 +54,7 @@ func (g *Comms) GetRoundBufferInfo(message *pb.Ping, host *connect.Host) (*pb.Ro
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
 		//Pack message into an authenticated message
-		authMsg, err := g.PackAuthenticatedMessage(message, host, false)
+		authMsg, err := g.PackAuthenticatedMessage(&pb.Ping{}, host, false)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
@@ -79,7 +79,7 @@ func (g *Comms) GetRoundBufferInfo(message *pb.Ping, host *connect.Host) (*pb.Ro
 }
 
 // Gateway -> Server Send Function
-func (g *Comms) GetCompletedBatch(message *pb.Ping, host *connect.Host) (*pb.Batch, error) {
+func (g *Comms) GetCompletedBatch(host *connect.Host) (*pb.Batch, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
@@ -87,7 +87,7 @@ func (g *Comms) GetCompletedBatch(message *pb.Ping, host *connect.Host) (*pb.Bat
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
 		//Pack message into an authenticated message
-		authMsg, err := g.PackAuthenticatedMessage(message, host, false)
+		authMsg, err := g.PackAuthenticatedMessage(&pb.Ping{}, host, false)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
