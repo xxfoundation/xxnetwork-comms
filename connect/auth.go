@@ -15,6 +15,7 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
+	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/crypto/nonce"
 	"gitlab.com/elixxir/crypto/signature/rsa"
@@ -149,10 +150,14 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) *Auth {
 
 	// Check if the sender is authenticated, and if the token is valid
 	host, ok := c.GetHost(msg.ID)
-	if ok && bytes.Compare(host.token, msg.Token) == 0 {
+	validToken := bytes.Compare(host.token, msg.Token) == 0
+	if ok && validToken {
 		res.Sender = *host
 		res.IsAuthenticated = true
 	}
+
+	jww.DEBUG.Printf("Authentication status: %v, ValidId: %v, ValidToken: %v, ProvidedToken: %v",
+		res.IsAuthenticated, ok, validToken, msg.Token)
 	return res
 }
 
