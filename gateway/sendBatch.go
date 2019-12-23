@@ -12,6 +12,7 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
+	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"google.golang.org/grpc"
@@ -38,6 +39,7 @@ func (g *Comms) PostNewBatch(host *connect.Host, messages *pb.Batch) error {
 	}
 
 	// Execute the Send function
+	jww.DEBUG.Printf("Sending Post New Batch message: %+v", messages)
 	_, err := g.Send(host, f)
 	return err
 }
@@ -68,6 +70,7 @@ func (g *Comms) GetRoundBufferInfo(host *connect.Host) (*pb.RoundBufferInfo, err
 	}
 
 	// Execute the Send function
+	jww.DEBUG.Printf("Sending Get Round Buffer info message...")
 	resultMsg, err := g.Send(host, f)
 	if err != nil {
 		return nil, err

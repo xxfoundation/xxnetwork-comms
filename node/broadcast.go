@@ -12,6 +12,7 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
+	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"google.golang.org/grpc"
@@ -40,6 +41,7 @@ func (s *Comms) SendGetMeasure(host *connect.Host,
 	}
 
 	// Execute the Send function
+	jww.DEBUG.Printf("Sending Get Measure message: %+v", message)
 	resultMsg, err := s.Send(host, f)
 	if err != nil {
 		return nil, err
@@ -73,6 +75,7 @@ func (s *Comms) SendAskOnline(host *connect.Host) (*pb.Ack, error) {
 	}
 
 	// Execute the Send function
+	jww.DEBUG.Printf("Sending Ask Online message...")
 	resultMsg, err := s.Send(host, f)
 	if err != nil {
 		return nil, err
@@ -108,6 +111,7 @@ func (s *Comms) SendFinishRealtime(host *connect.Host,
 	}
 
 	// Execute the Send function
+	jww.DEBUG.Printf("Sending Finish Realtime message: %+v", message)
 	resultMsg, err := s.Send(host, f)
 	if err != nil {
 		return nil, err
@@ -142,6 +146,7 @@ func (s *Comms) SendNewRound(host *connect.Host,
 	}
 
 	// Execute the Send function
+	jww.DEBUG.Printf("Sending New Round message: %+v", message)
 	resultMsg, err := s.Send(host, f)
 	if err != nil {
 		return nil, err
@@ -176,6 +181,7 @@ func (s *Comms) SendPostRoundPublicKey(host *connect.Host,
 	}
 
 	// Execute the Send function
+	jww.DEBUG.Printf("Sending Post Round Public Key message: %+v", message)
 	resultMsg, err := s.Send(host, f)
 	if err != nil {
 		return nil, err
@@ -218,6 +224,7 @@ func (s *Comms) SendPostPrecompResult(host *connect.Host,
 	}
 
 	// Execute the Send function
+	jww.DEBUG.Printf("Sending Post Precomp Result message: %+v", slots)
 	resultMsg, err := s.Send(host, f)
 	if err != nil {
 		return nil, err
@@ -260,6 +267,7 @@ func (s *Comms) RoundTripPing(host *connect.Host,
 	}
 
 	// Execute the Send function
+	jww.DEBUG.Printf("Sending Round Trip Ping message: %+v", payload)
 	resultMsg, err := s.Send(host, f)
 	if err != nil {
 		return nil, err

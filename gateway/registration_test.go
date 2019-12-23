@@ -83,7 +83,7 @@ func TestPollNdf(t *testing.T) {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
 
-	_, err = gateway.PollNdf(host, &pb.Ping{})
+	_, err = gateway.PollNdf(host)
 	if err != nil {
 		t.Errorf("SendGetSignedCertMessage: Error received: %s", err)
 	}

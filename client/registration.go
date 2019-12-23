@@ -12,6 +12,7 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
+	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"google.golang.org/grpc"
@@ -37,6 +38,7 @@ func (c *Comms) SendRegistrationMessage(host *connect.Host,
 	}
 
 	// Execute the Send function
+	jww.DEBUG.Printf("Sending Registration message: %+v", message)
 	resultMsg, err := c.Send(host, f)
 	if err != nil {
 		return nil, err
@@ -67,6 +69,7 @@ func (c *Comms) SendGetCurrentClientVersionMessage(
 	}
 
 	// Execute the Send function
+	jww.DEBUG.Printf("Sending Get Client Version message...")
 	resultMsg, err := c.Send(host, f)
 	if err != nil {
 		return nil, err
@@ -100,6 +103,7 @@ func (c *Comms) RequestNdf(host *connect.Host,
 	}
 
 	// Execute the Send function
+	jww.DEBUG.Printf("Sending Request Ndf message: %+v", message)
 	resultMsg, err := c.Send(host, f)
 	if err != nil {
 		return nil, err

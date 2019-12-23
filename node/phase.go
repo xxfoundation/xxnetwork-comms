@@ -14,6 +14,7 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
+	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"google.golang.org/grpc"
@@ -43,6 +44,7 @@ func (s *Comms) SendPostPhase(host *connect.Host,
 	}
 
 	// Execute the Send function
+	jww.DEBUG.Printf("Sending Post Phase message: %+v", message)
 	resultMsg, err := s.Send(host, f)
 	if err != nil {
 		return nil, err

@@ -9,6 +9,7 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
+	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"google.golang.org/grpc"
@@ -33,6 +34,7 @@ func (s *Comms) SendNodeRegistration(host *connect.Host,
 	}
 
 	// Execute the Send function
+	jww.DEBUG.Printf("Sending Node Registration message: %+v", message)
 	_, err := s.Send(host, f)
 	return err
 }
@@ -61,6 +63,7 @@ func (s *Comms) RequestNdf(host *connect.Host,
 	}
 
 	// Execute the Send function
+	jww.DEBUG.Printf("Sending Request Ndf message: %+v", message)
 	resultMsg, err := s.Send(host, f)
 	if err != nil {
 		return nil, err
