@@ -21,7 +21,7 @@ func TestSignVerify(t *testing.T) {
 	c := *new(ProtoComms)
 
 	key := testkeys.GetNodeKeyPath()
-	err := c.SetPrivateKey(testkeys.LoadFromPath(key))
+	err := c.setPrivateKey(testkeys.LoadFromPath(key))
 	if err != nil {
 		t.Errorf("Error setting private key: %+v", err)
 	}
@@ -152,7 +152,7 @@ func TestProtoComms_ValidateToken(t *testing.T) {
 		ListeningAddr: "",
 		privateKey:    nil,
 	}
-	err := comm.SetPrivateKey(testkeys.LoadFromPath(testkeys.GetNodeKeyPath()))
+	err := comm.setPrivateKey(testkeys.LoadFromPath(testkeys.GetNodeKeyPath()))
 	if err != nil {
 		t.Errorf("Expected to set private key: %+v", err)
 	}

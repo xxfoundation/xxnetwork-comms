@@ -75,10 +75,13 @@ func TestComms_RequestNdfWithAuth(t *testing.T) {
 
 	defer server.Shutdown()
 	defer reg.Shutdown()
-	var manager connect.Manager
 
 	testId := "test"
-	host, err := manager.AddHost(testId, RegAddress, pub, false, true)
+	host, err := server.AddHost(testId, RegAddress, pub, false, true)
+	if err != nil {
+		t.Errorf("Unable to call NewHost: %+v", err)
+	}
+	host, err = reg.AddHost(testId, RegAddress, pub, false, true)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
