@@ -100,7 +100,7 @@ func (c *ProtoComms) GenerateToken() ([]byte, error) {
 	}
 
 	c.tokens.Store(string(token.Bytes()), &token)
-	jww.DEBUG.Printf("Token generated: %+v", token.Bytes())
+	jww.DEBUG.Printf("Token generated: %v", token.Bytes())
 	return token.Bytes(), nil
 }
 
@@ -138,7 +138,7 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) error {
 
 	// Token has been validated and can be safely stored
 	host.token = msg.Token
-	jww.DEBUG.Printf("Token validated: %+v", host.token)
+	jww.DEBUG.Printf("Token validated: %v", host.token)
 	return nil
 }
 
@@ -159,8 +159,8 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) *Auth {
 		res.IsAuthenticated = true
 	}
 
-	jww.DEBUG.Printf("Authentication status: %v, ValidId: %v, ValidToken: %v, ProvidedToken: %v",
-		res.IsAuthenticated, ok, validToken, msg.Token)
+	jww.DEBUG.Printf("Authentication status: %v, ValidId: %v, ValidToken: %v, ProvidedId: %v ProvidedToken: %v",
+		res.IsAuthenticated, ok, validToken, msg.ID, msg.Token)
 	return res
 }
 
