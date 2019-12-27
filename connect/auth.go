@@ -47,7 +47,7 @@ func (c *ProtoComms) clientHandshake(host *Host) (err error) {
 		Token: result.Token,
 	}, host, true)
 	if err != nil {
-		err = errors.New(err.Error())
+		return errors.New(err.Error())
 	}
 
 	// Set up the context
