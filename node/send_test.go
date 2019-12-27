@@ -17,7 +17,7 @@ import (
 // Smoke test SendAskOnline
 func TestSendAskOnline(t *testing.T) {
 	ServerAddress := getNextServerAddress()
-	server := StartNode(ServerAddress, NewImplementation(), nil, nil)
+	server := StartNode("test", ServerAddress, NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	var manager connect.Manager
 
@@ -36,7 +36,7 @@ func TestSendAskOnline(t *testing.T) {
 // Smoke test SendFinishRealtime
 func TestSendFinishRealtime(t *testing.T) {
 	ServerAddress := getNextServerAddress()
-	server := StartNode(ServerAddress, NewImplementation(), nil, nil)
+	server := StartNode("test", ServerAddress, NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	var manager connect.Manager
 
@@ -55,7 +55,7 @@ func TestSendFinishRealtime(t *testing.T) {
 // Smoke test SendNewRound
 func TestSendNewRound(t *testing.T) {
 	ServerAddress := getNextServerAddress()
-	server := StartNode(ServerAddress, NewImplementation(), nil, nil)
+	server := StartNode("test", ServerAddress, NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	var manager connect.Manager
 
@@ -74,7 +74,7 @@ func TestSendNewRound(t *testing.T) {
 // Smoke test SendPhase
 func TestSendPostPhase(t *testing.T) {
 	ServerAddress := getNextServerAddress()
-	server := StartNode(ServerAddress, NewImplementation(), nil, nil)
+	server := StartNode("test", ServerAddress, NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	var manager connect.Manager
 
@@ -93,7 +93,7 @@ func TestSendPostPhase(t *testing.T) {
 // Smoke test SendPostRoundPublicKey
 func TestSendPostRoundPublicKey(t *testing.T) {
 	ServerAddress := getNextServerAddress()
-	server := StartNode(ServerAddress, NewImplementation(), nil, nil)
+	server := StartNode("test", ServerAddress, NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	var manager connect.Manager
 
@@ -112,7 +112,7 @@ func TestSendPostRoundPublicKey(t *testing.T) {
 // TestPostPrecompResult Smoke test
 func TestSendPostPrecompResult(t *testing.T) {
 	ServerAddress := getNextServerAddress()
-	server := StartNode(ServerAddress, NewImplementation(), nil, nil)
+	server := StartNode("test", ServerAddress, NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	var manager connect.Manager
 
@@ -140,7 +140,7 @@ func TestSendGetMeasure(t *testing.T) {
 		return &mockReturn, nil
 	}
 	impl.Functions.GetMeasure = mockMeasure
-	server := StartNode(ServerAddress, impl, nil, nil)
+	server := StartNode("test", ServerAddress, impl, nil, nil)
 	defer server.Shutdown()
 	var manager connect.Manager
 
@@ -169,7 +169,7 @@ func TestSendGetMeasureError(t *testing.T) {
 		return nil, errors.New("Test error")
 	}
 	impl.Functions.GetMeasure = mockMeasureError
-	server := StartNode(ServerAddress, impl, nil, nil)
+	server := StartNode("test", ServerAddress, impl, nil, nil)
 	defer server.Shutdown()
 
 	ri := pb.RoundInfo{
@@ -192,7 +192,7 @@ func TestSendGetMeasureError(t *testing.T) {
 func TestRoundTripPing(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	impl := NewImplementation()
-	server := StartNode(ServerAddress, impl, nil, nil)
+	server := StartNode("test", ServerAddress, impl, nil, nil)
 	defer server.Shutdown()
 	var manager connect.Manager
 

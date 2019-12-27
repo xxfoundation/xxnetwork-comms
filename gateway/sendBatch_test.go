@@ -17,8 +17,9 @@ import (
 func TestPostNewBatch(t *testing.T) {
 	GatewayAddress := getNextGatewayAddress()
 	ServerAddress := getNextServerAddress()
-	gateway := StartGateway(GatewayAddress, NewImplementation(), nil, nil)
-	server := node.StartNode(ServerAddress, node.NewImplementation(),
+	gateway := StartGateway("test", GatewayAddress, NewImplementation(), nil,
+		nil)
+	server := node.StartNode("test", ServerAddress, node.NewImplementation(),
 		nil, nil)
 	defer gateway.Shutdown()
 	defer server.Shutdown()
@@ -41,8 +42,9 @@ func TestPostNewBatch(t *testing.T) {
 func TestGetRoundBufferInfo(t *testing.T) {
 	GatewayAddress := getNextGatewayAddress()
 	ServerAddress := getNextServerAddress()
-	gateway := StartGateway(GatewayAddress, NewImplementation(), nil, nil)
-	server := node.StartNode(ServerAddress, node.NewImplementation(),
+	gateway := StartGateway("test", GatewayAddress, NewImplementation(), nil,
+		nil)
+	server := node.StartNode("test", ServerAddress, node.NewImplementation(),
 		nil, nil)
 	defer gateway.Shutdown()
 	defer server.Shutdown()
@@ -67,8 +69,9 @@ func TestGetRoundBufferInfo(t *testing.T) {
 func TestGetCompletedBatch(t *testing.T) {
 	GatewayAddress := getNextGatewayAddress()
 	ServerAddress := getNextServerAddress()
-	gateway := StartGateway(GatewayAddress, NewImplementation(), nil, nil)
-	server := node.StartNode(ServerAddress, node.NewImplementation(),
+	gateway := StartGateway("test", GatewayAddress, NewImplementation(), nil,
+		nil)
+	server := node.StartNode("test", ServerAddress, node.NewImplementation(),
 		nil, nil)
 	defer gateway.Shutdown()
 	defer server.Shutdown()

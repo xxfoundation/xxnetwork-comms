@@ -35,10 +35,10 @@ func TestTLS(t *testing.T) {
 	certPath := testkeys.GetNodeCertPath()
 	certData := testkeys.LoadFromPath(certPath)
 
-	server := StartNode(serverAddress, NewImplementation(),
+	server := StartNode("test", serverAddress, NewImplementation(),
 		certData, keyData)
 	serverAddress2 := getNextServerAddress()
-	server2 := StartNode(serverAddress2, NewImplementation(),
+	server2 := StartNode("test", serverAddress2, NewImplementation(),
 		certData, keyData)
 	defer server.Shutdown()
 	defer server2.Shutdown()
@@ -64,6 +64,6 @@ func TestBadCerts(t *testing.T) {
 	}()
 	Address := getNextServerAddress()
 
-	_ = StartNode(Address, NewImplementation(),
+	_ = StartNode("test", Address, NewImplementation(),
 		[]byte("bad cert"), []byte("bad key"))
 }

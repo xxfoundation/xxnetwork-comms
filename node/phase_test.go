@@ -35,12 +35,13 @@ func TestPhase_StreamPostPhaseSendReceive(t *testing.T) {
 		return mockStreamPostPhase(server)
 	}
 
-	serverStreamReceiver := StartNode(servReceiverAddress, receiverImpl,
+	serverStreamReceiver := StartNode("test", servReceiverAddress, receiverImpl,
 		certData, keyData)
 
 	// Init server sender
 	servSenderAddress := getNextServerAddress()
-	serverStreamSender := StartNode(servSenderAddress, NewImplementation(),
+	serverStreamSender := StartNode("test", servSenderAddress,
+		NewImplementation(),
 		certData, keyData)
 
 	// Reset TLS-related global variables
@@ -133,12 +134,13 @@ func TestGetPostPhaseStream_ErrorsWhenContextCanceled(t *testing.T) {
 
 	// Init server receiver
 	servReceiverAddress := getNextServerAddress()
-	_ = StartNode(servReceiverAddress, NewImplementation(),
+	_ = StartNode("test", servReceiverAddress, NewImplementation(),
 		certData, keyData)
 
 	// Init server sender
 	servSenderAddress := getNextServerAddress()
-	serverStreamSender := StartNode(servSenderAddress, NewImplementation(),
+	serverStreamSender := StartNode("test", servSenderAddress,
+		NewImplementation(),
 		certData, keyData)
 
 	// Get credentials and connect to node

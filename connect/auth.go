@@ -24,7 +24,7 @@ import (
 // Auth represents an authorization state for a message or host
 type Auth struct {
 	IsAuthenticated bool
-	Sender          Host
+	Sender          *Host
 }
 
 // Perform the client handshake to establish reverse-authentication
@@ -42,12 +42,9 @@ func (c *ProtoComms) clientHandshake(host *Host) (err error) {
 		return errors.New(err.Error())
 	}
 
-	// Assign the host token
-	host.token = result.Token
-
 	// Pack the authenticated message with signature enabled
 	msg, err := c.PackAuthenticatedMessage(&pb.AssignToken{
-		Token: host.token,
+		Token: result.Token,
 	}, host, true)
 
 	// Set up the context
@@ -59,6 +56,9 @@ func (c *ProtoComms) clientHandshake(host *Host) (err error) {
 	if err != nil {
 		err = errors.New(err.Error())
 	}
+
+	// Assign the host token
+	host.token = result.Token
 
 	return
 }
@@ -109,7 +109,7 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) error {
 	// Verify the Host exists for the provided ID
 	host, ok := c.GetHost(msg.ID)
 	if !ok {
-		return errors.Errorf("Invalid token for host ID: %+v", msg.ID)
+		return errors.Errorf("Invalid host ID: %+v", msg.ID)
 	}
 
 	// Verify the token signature
@@ -146,7 +146,7 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) error {
 func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) *Auth {
 	res := &Auth{
 		IsAuthenticated: false,
-		Sender:          Host{},
+		Sender:          &Host{},
 	}
 
 	// Check if the sender is authenticated, and if the token is valid
@@ -154,7 +154,7 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) *Auth {
 	validToken := ok && host.token != nil && msg.Token != nil &&
 		bytes.Compare(host.token, msg.Token) == 0
 	if ok && validToken {
-		res.Sender = *host
+		res.Sender = host
 		res.IsAuthenticated = true
 	}
 

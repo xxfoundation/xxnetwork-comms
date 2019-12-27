@@ -16,9 +16,9 @@ import (
 // Smoke test SendNodeRegistration
 func TestSendNodeRegistration(t *testing.T) {
 	RegAddress := getNextServerAddress()
-	server := StartNode(getNextServerAddress(), NewImplementation(),
+	server := StartNode("test", getNextServerAddress(), NewImplementation(),
 		nil, nil)
-	reg := registration.StartRegistrationServer(RegAddress,
+	reg := registration.StartRegistrationServer("test", RegAddress,
 		registration.NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	defer reg.Shutdown()
@@ -40,9 +40,9 @@ func TestSendNodeRegistration(t *testing.T) {
 // Smoke test
 func TestComms_RequestNdf(t *testing.T) {
 	RegAddress := getNextServerAddress()
-	server := StartNode(getNextServerAddress(), NewImplementation(),
+	server := StartNode("test", getNextServerAddress(), NewImplementation(),
 		nil, nil)
-	reg := registration.StartRegistrationServer(RegAddress,
+	reg := registration.StartRegistrationServer("test", RegAddress,
 		registration.NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	defer reg.Shutdown()
@@ -68,9 +68,9 @@ func TestComms_RequestNdfWithAuth(t *testing.T) {
 	pub := testkeys.LoadFromPath(testkeys.GetNodeCertPath())
 
 	RegAddress := getNextServerAddress()
-	server := StartNode(getNextServerAddress(), NewImplementation(),
+	server := StartNode("test", getNextServerAddress(), NewImplementation(),
 		pub, priv)
-	reg := registration.StartRegistrationServer(RegAddress,
+	reg := registration.StartRegistrationServer("test", RegAddress,
 		registration.NewImplementation(), pub, priv)
 
 	defer server.Shutdown()
@@ -83,7 +83,7 @@ func TestComms_RequestNdfWithAuth(t *testing.T) {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
 
-	msgs := &pb.NDFHash{}
+	msgs := &pb.NDFHash{Hash: make([]byte, 0)}
 
 	_, err = server.RequestNdf(host, msgs)
 	if err != nil {

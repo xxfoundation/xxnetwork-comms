@@ -48,11 +48,11 @@ func TestTLS(t *testing.T) {
 	certData := testkeys.LoadFromPath(certPath)
 
 	GatewayAddress := getNextGatewayAddress()
-	gateway := StartGateway(GatewayAddress, NewImplementation(),
+	gateway := StartGateway("test", GatewayAddress, NewImplementation(),
 		certData, keyData)
 	defer gateway.Shutdown()
 	ServerAddress := getNextServerAddress()
-	server := node.StartNode(ServerAddress, node.NewImplementation(),
+	server := node.StartNode("test", ServerAddress, node.NewImplementation(),
 		certData, keyData)
 	defer server.Shutdown()
 	var manager connect.Manager
@@ -77,6 +77,6 @@ func TestBadCerts(t *testing.T) {
 	}()
 	Address := getNextServerAddress()
 
-	_ = StartGateway(Address, NewImplementation(),
+	_ = StartGateway("test", Address, NewImplementation(),
 		[]byte("bad cert"), []byte("bad key"))
 }

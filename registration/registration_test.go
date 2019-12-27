@@ -31,7 +31,7 @@ func TestTLS(t *testing.T) {
 	certPath := testkeys.GetNodeCertPath()
 	certData := testkeys.LoadFromPath(certPath)
 
-	rg := StartRegistrationServer(RegAddress,
+	rg := StartRegistrationServer("test", RegAddress,
 		NewImplementation(),
 		certData, keyData)
 	// Well, client shouldn't have a server type because it's not a server
@@ -61,6 +61,6 @@ func TestBadCerts(t *testing.T) {
 	}()
 	RegAddress := getNextServerAddress()
 
-	_ = StartRegistrationServer(RegAddress, NewImplementation(),
+	_ = StartRegistrationServer("test", RegAddress, NewImplementation(),
 		[]byte("bad cert"), []byte("bad key"))
 }

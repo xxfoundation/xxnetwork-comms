@@ -109,7 +109,9 @@ func TestProtoComms_GenerateToken(t *testing.T) {
 
 // Happy path
 func TestProtoComms_PackAuthenticatedMessage(t *testing.T) {
+	testServerId := "test12345"
 	comm := ProtoComms{
+		id:            testServerId,
 		LocalServer:   nil,
 		ListeningAddr: "",
 		privateKey:    nil,
@@ -135,7 +137,7 @@ func TestProtoComms_PackAuthenticatedMessage(t *testing.T) {
 	if err != nil {
 		t.Errorf("Expected no error packing authenticated message: %+v", err)
 	}
-	if bytes.Compare(msg.Token, tokenBytes) != 0 || msg.ID != testId {
+	if bytes.Compare(msg.Token, tokenBytes) != 0 || msg.ID != testServerId {
 		t.Errorf("Expected packed message to have correct ID and Token: %+v",
 			msg)
 	}
@@ -143,7 +145,9 @@ func TestProtoComms_PackAuthenticatedMessage(t *testing.T) {
 
 // Happy path
 func TestProtoComms_ValidateToken(t *testing.T) {
+	testId := "test"
 	comm := ProtoComms{
+		id:            testId,
 		LocalServer:   nil,
 		ListeningAddr: "",
 		privateKey:    nil,
@@ -159,7 +163,6 @@ func TestProtoComms_ValidateToken(t *testing.T) {
 	}
 
 	pub := testkeys.LoadFromPath(testkeys.GetNodeCertPath())
-	testId := "test"
 	host, err := comm.AddHost(testId, testId, pub, false, true)
 	if err != nil {
 		t.Errorf("Unable to create host: %+v", err)
