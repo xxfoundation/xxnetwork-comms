@@ -45,14 +45,13 @@ type ProtoComms struct {
 
 // StartCommServer starts a protocomms object, and is used in various intializers
 func StartCommServer(id string, localServer string, certPEMblock,
-	keyPEMblock []byte) (ProtoComms, net.Listener) {
+	keyPEMblock []byte) (*ProtoComms, net.Listener, error) {
 
 	// Listen on the given address
 	var grpcServer *grpc.Server
 	lis, err := net.Listen("tcp", localServer)
 	if err != nil {
-		err = errors.New(err.Error())
-		jww.FATAL.Panicf("Failed to listen: %+v", err)
+		return nil, nil, errors.New(err.Error())
 	}
 
 	// If TLS was specified
@@ -78,12 +77,18 @@ func StartCommServer(id string, localServer string, certPEMblock,
 			grpc.MaxRecvMsgSize(math.MaxInt32))
 	}
 
-	pc := ProtoComms{
+	pc := &ProtoComms{
 		id:            id,
 		LocalServer:   grpcServer,
 		ListeningAddr: localServer,
 	}
-	return pc, lis
+	if len(keyPEMblock) > 0 {
+		err = pc.setPrivateKey(keyPEMblock)
+		if err != nil {
+			return nil, nil, errors.New(err.Error())
+		}
+	}
+	return pc, lis, nil
 }
 
 // Performs a graceful shutdown of the local server
@@ -99,7 +104,7 @@ func (c *ProtoComms) String() string {
 }
 
 // Setter for local server's private key
-func (c *ProtoComms) SetPrivateKey(data []byte) error {
+func (c *ProtoComms) setPrivateKey(data []byte) error {
 	key, err := rsa.LoadPrivateKeyFromPem(data)
 	if err != nil {
 		return errors.Errorf("Failed to form private key file from data at %s: %+v", data, err)

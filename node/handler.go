@@ -19,7 +19,7 @@ import (
 
 // Server object used to implement endpoints and top-level comms functionality
 type Comms struct {
-	connect.ProtoComms
+	*connect.ProtoComms
 	handler Handler
 }
 
@@ -28,8 +28,11 @@ type Comms struct {
 // with given path to public and private key for TLS connection
 func StartNode(id, localServer string, handler Handler,
 	certPEMblock, keyPEMblock []byte) *Comms {
-	pc, lis := connect.StartCommServer(id, localServer,
+	pc, lis, err := connect.StartCommServer(id, localServer,
 		certPEMblock, keyPEMblock)
+	if err != nil {
+		jww.FATAL.Printf("Unable to start comms server: %+v", err)
+	}
 
 	mixmessageServer := Comms{
 		ProtoComms: pc,
@@ -44,8 +47,8 @@ func StartNode(id, localServer string, handler Handler,
 		// Register reflection service on gRPC server.
 		reflection.Register(mixmessageServer.LocalServer)
 		if err := mixmessageServer.LocalServer.Serve(lis); err != nil {
-			err = errors.New(err.Error())
-			jww.FATAL.Panicf("Failed to serve: %+v", err)
+			jww.FATAL.Panicf("Failed to serve: %+v",
+				errors.New(err.Error()))
 		}
 		jww.INFO.Printf("Shutting down node server listener: %s", lis)
 	}()

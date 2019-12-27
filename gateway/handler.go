@@ -35,7 +35,7 @@ type Handler interface {
 
 // Gateway object used to implement endpoints and top-level comms functionality
 type Comms struct {
-	connect.ProtoComms
+	*connect.ProtoComms
 	handler Handler
 }
 
@@ -44,8 +44,11 @@ type Comms struct {
 // with given path to public and private key for TLS connection
 func StartGateway(id, localServer string, handler Handler,
 	certPEMblock, keyPEMblock []byte) *Comms {
-	pc, lis := connect.StartCommServer(id, localServer,
+	pc, lis, err := connect.StartCommServer(id, localServer,
 		certPEMblock, keyPEMblock)
+	if err != nil {
+		jww.FATAL.Printf("Unable to start comms server: %+v", err)
+	}
 
 	gatewayServer := Comms{
 		ProtoComms: pc,
@@ -59,8 +62,8 @@ func StartGateway(id, localServer string, handler Handler,
 		// This blocks for the lifetime of the listener.
 		reflection.Register(gatewayServer.LocalServer)
 		if err := gatewayServer.LocalServer.Serve(lis); err != nil {
-			err = errors.New(err.Error())
-			jww.FATAL.Panicf("Failed to serve: %+v", err)
+			jww.FATAL.Panicf("Failed to serve: %+v",
+				errors.New(err.Error()))
 		}
 		jww.INFO.Printf("Shutting down gateway server listener: %s",
 			lis)

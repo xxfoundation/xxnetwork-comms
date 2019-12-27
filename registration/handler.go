@@ -20,7 +20,7 @@ import (
 // Registration object used to implement
 // endpoints and top-level comms functionality
 type Comms struct {
-	connect.ProtoComms
+	*connect.ProtoComms
 	handler Handler
 }
 
@@ -30,21 +30,15 @@ type Comms struct {
 func StartRegistrationServer(id, localServer string, handler Handler,
 	certPEMblock, keyPEMblock []byte) *Comms {
 
-	pc, lis := connect.StartCommServer(id, localServer,
+	pc, lis, err := connect.StartCommServer(id, localServer,
 		certPEMblock, keyPEMblock)
+	if err != nil {
+		jww.FATAL.Printf("Unable to start comms server: %+v", err)
+	}
 
 	registrationServer := Comms{
 		ProtoComms: pc,
 		handler:    handler,
-	}
-
-	if keyPEMblock != nil {
-		err := registrationServer.SetPrivateKey(keyPEMblock)
-		if err != nil {
-			jww.ERROR.Printf("Error setting RSA private key: %+v", err)
-		}
-	} else {
-		jww.WARN.Println("Starting registration server with no private key...")
 	}
 
 	go func() {
