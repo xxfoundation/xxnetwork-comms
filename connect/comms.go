@@ -43,7 +43,7 @@ type ProtoComms struct {
 	privateKey *rsa.PrivateKey
 }
 
-// StartCommServer starts a protocomms object, and is used in various intializers
+// Starts a ProtoComms object and is used in various initializers
 func StartCommServer(id string, localServer string, certPEMblock,
 	keyPEMblock []byte) (*ProtoComms, net.Listener, error) {
 
@@ -77,17 +77,21 @@ func StartCommServer(id string, localServer string, certPEMblock,
 			grpc.MaxRecvMsgSize(math.MaxInt32))
 	}
 
+	// Build the ProtoComms object
 	pc := &ProtoComms{
 		id:            id,
 		LocalServer:   grpcServer,
 		ListeningAddr: localServer,
 	}
-	if len(keyPEMblock) > 0 {
+
+	// Set the private key if it is specified
+	if keyPEMblock != nil && len(keyPEMblock) > 0 {
 		err = pc.setPrivateKey(keyPEMblock)
 		if err != nil {
 			return nil, nil, errors.New(err.Error())
 		}
 	}
+
 	return pc, lis, nil
 }
 
