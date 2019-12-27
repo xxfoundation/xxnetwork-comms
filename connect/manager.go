@@ -11,6 +11,7 @@ package connect
 import (
 	"bytes"
 	"fmt"
+	jww "github.com/spf13/jwalterweatherman"
 	"sync"
 )
 
@@ -40,6 +41,7 @@ func (m *Manager) AddHost(id, address string,
 		return nil, err
 	}
 
+	jww.DEBUG.Printf("Adding host: %+v", host)
 	m.connections.Store(id, host)
 	return
 }
