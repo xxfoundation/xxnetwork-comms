@@ -47,7 +47,7 @@ func (m *Manager) AddHost(id, address string,
 // Closes all client connections and removes them from Manager
 func (m *Manager) DisconnectAll() {
 	m.connections.Range(func(key interface{}, value interface{}) bool {
-		value.(*Host).disconnect()
+		value.(*Host).Disconnect()
 		return true
 	})
 }

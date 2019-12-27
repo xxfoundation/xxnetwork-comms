@@ -93,7 +93,7 @@ func (h *Host) validateConnection() (err error) {
 	// If Host connection is not active, attempt to reestablish
 	if !h.isAlive() {
 		jww.WARN.Printf("Bad host connection state, reconnecting: %v", h)
-		h.disconnect()
+		h.Disconnect()
 		if err = h.connect(); err != nil {
 			return
 		}
@@ -113,7 +113,7 @@ func (h *Host) isAlive() bool {
 }
 
 // Closes a the Host connection
-func (h *Host) disconnect() {
+func (h *Host) Disconnect() {
 	if h.connection == nil {
 		return
 	}

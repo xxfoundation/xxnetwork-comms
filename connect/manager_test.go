@@ -75,7 +75,7 @@ func TestConnectionManager_Disconnect(t *testing.T) {
 	if err != nil {
 		t.Error("Unable to connect")
 	}
-	host.disconnect()
+	host.Disconnect()
 
 	if host.isAlive() {
 		t.Errorf("Disconnect Function not working properly")
