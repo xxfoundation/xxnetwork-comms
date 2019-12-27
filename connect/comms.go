@@ -28,7 +28,7 @@ type ProtoComms struct {
 	Manager
 
 	// The network ID of this comms server
-	id []byte
+	id string
 
 	// A map of reverse-authentication tokens
 	tokens sync.Map
@@ -44,7 +44,7 @@ type ProtoComms struct {
 }
 
 // StartCommServer starts a protocomms object, and is used in various intializers
-func StartCommServer(id []byte, localServer string, certPEMblock,
+func StartCommServer(id string, localServer string, certPEMblock,
 	keyPEMblock []byte) (ProtoComms, net.Listener) {
 
 	// Listen on the given address

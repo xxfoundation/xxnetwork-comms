@@ -75,7 +75,7 @@ func (c *ProtoComms) PackAuthenticatedMessage(msg proto.Message, host *Host,
 
 	// Build the authenticated message
 	authMsg := &pb.AuthenticatedMessage{
-		ID:      string(c.id),
+		ID:      c.id,
 		Token:   host.token,
 		Message: anyMsg,
 	}
