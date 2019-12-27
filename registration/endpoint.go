@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/pkg/errors"
+	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"golang.org/x/net/context"
@@ -20,7 +21,11 @@ import (
 // Handles validation of reverse-authentication tokens
 func (s *Comms) AuthenticateToken(ctx context.Context,
 	msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
-	return &pb.Ack{}, s.ValidateToken(msg)
+	err := s.ValidateToken(msg)
+	if err != nil {
+		jww.ERROR.Printf("Unable to authenticate token: %+v", err)
+	}
+	return &pb.Ack{}, err
 }
 
 // Handles reception of reverse-authentication token requests
