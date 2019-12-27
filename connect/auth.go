@@ -46,6 +46,9 @@ func (c *ProtoComms) clientHandshake(host *Host) (err error) {
 	msg, err := c.PackAuthenticatedMessage(&pb.AssignToken{
 		Token: result.Token,
 	}, host, true)
+	if err != nil {
+		err = errors.New(err.Error())
+	}
 
 	// Set up the context
 	ctx, cancel = MessagingContext()
