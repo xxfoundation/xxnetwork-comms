@@ -127,7 +127,9 @@ func (c *ProtoComms) Send(host *Host, f func(conn *grpc.ClientConn) (*any.Any,
 
 	// If authentication is enabled and not yet configured, perform handshake
 	if host.enableAuth && host.token == nil {
-		err = c.clientHandshake(host)
+		if err = c.clientHandshake(host); err != nil {
+			return
+		}
 	}
 
 	// Run the send function
