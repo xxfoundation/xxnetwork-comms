@@ -27,6 +27,9 @@ type ProtoComms struct {
 	// Inherit the Manager object
 	Manager
 
+	// The network ID of this comms server
+	id []byte
+
 	// A map of reverse-authentication tokens
 	tokens sync.Map
 
@@ -41,10 +44,11 @@ type ProtoComms struct {
 }
 
 // StartCommServer starts a protocomms object, and is used in various intializers
-func StartCommServer(localServer string, certPEMblock, keyPEMblock []byte) (ProtoComms, net.Listener) {
-	var grpcServer *grpc.Server
+func StartCommServer(id []byte, localServer string, certPEMblock,
+	keyPEMblock []byte) (ProtoComms, net.Listener) {
 
 	// Listen on the given address
+	var grpcServer *grpc.Server
 	lis, err := net.Listen("tcp", localServer)
 	if err != nil {
 		err = errors.New(err.Error())
@@ -75,6 +79,7 @@ func StartCommServer(localServer string, certPEMblock, keyPEMblock []byte) (Prot
 	}
 
 	pc := ProtoComms{
+		id:            id,
 		LocalServer:   grpcServer,
 		ListeningAddr: localServer,
 	}

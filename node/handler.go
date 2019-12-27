@@ -26,9 +26,10 @@ type Comms struct {
 // Starts a new server on the address:port specified by listeningAddr
 // and a callback interface for server operations
 // with given path to public and private key for TLS connection
-func StartNode(localServer string, handler Handler,
+func StartNode(id []byte, localServer string, handler Handler,
 	certPEMblock, keyPEMblock []byte) *Comms {
-	pc, lis := connect.StartCommServer(localServer, certPEMblock, keyPEMblock)
+	pc, lis := connect.StartCommServer(id, localServer,
+		certPEMblock, keyPEMblock)
 
 	mixmessageServer := Comms{
 		ProtoComms: pc,

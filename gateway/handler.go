@@ -42,9 +42,10 @@ type Comms struct {
 // Starts a new gateway on the address:port specified by localServer
 // and a callback interface for gateway operations
 // with given path to public and private key for TLS connection
-func StartGateway(localServer string, handler Handler,
+func StartGateway(id []byte, localServer string, handler Handler,
 	certPEMblock, keyPEMblock []byte) *Comms {
-	pc, lis := connect.StartCommServer(localServer, certPEMblock, keyPEMblock)
+	pc, lis := connect.StartCommServer(id, localServer,
+		certPEMblock, keyPEMblock)
 
 	gatewayServer := Comms{
 		ProtoComms: pc,

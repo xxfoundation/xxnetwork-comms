@@ -75,10 +75,9 @@ func (c *ProtoComms) PackAuthenticatedMessage(msg proto.Message, host *Host,
 
 	// Build the authenticated message
 	authMsg := &pb.AuthenticatedMessage{
-		ID:        host.id,
-		Signature: nil,
-		Token:     host.token,
-		Message:   anyMsg,
+		ID:      string(c.id),
+		Token:   host.token,
+		Message: anyMsg,
 	}
 
 	// If signature is enabled, sign the message and add to payload
