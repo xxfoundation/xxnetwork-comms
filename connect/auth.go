@@ -47,7 +47,7 @@ func (c *ProtoComms) clientHandshake(host *Host) (err error) {
 		Token: result.Token,
 	}, host, true)
 	if err != nil {
-		err = errors.New(err.Error())
+		return errors.New(err.Error())
 	}
 
 	// Set up the context
@@ -57,7 +57,7 @@ func (c *ProtoComms) clientHandshake(host *Host) (err error) {
 	// Send the authenticate token message
 	_, err = client.AuthenticateToken(ctx, msg)
 	if err != nil {
-		err = errors.New(err.Error())
+		return errors.New(err.Error())
 	}
 
 	// Assign the host token
