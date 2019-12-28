@@ -135,12 +135,12 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) error {
 
 	// Verify the signed token is not expired
 	if !token.(*nonce.Nonce).IsValid() {
-		return errors.Errorf("Invalid or expired token: %+v", msg.Token)
+		return errors.Errorf("Invalid or expired token: %+v", tokenMsg.Token)
 	}
 
 	// Token has been validated and can be safely stored
-	host.token = msg.Token
-	jww.DEBUG.Printf("Token validated: %v", host.token)
+	host.token = tokenMsg.Token
+	jww.DEBUG.Printf("Token validated: %v", tokenMsg.Token)
 	return nil
 }
 
