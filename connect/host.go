@@ -18,6 +18,7 @@ import (
 	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/credentials"
 	"math"
+	"sync"
 	"time"
 )
 
@@ -26,7 +27,6 @@ type Token []byte
 
 // Information used to describe a connection to a host
 type Host struct {
-	// Public Variables ---------------
 	// System-wide ID of the Host
 	id string
 
@@ -39,7 +39,6 @@ type Host struct {
 	// Token shared with this Host establishing reverse authentication
 	token Token
 
-	// Private Variables ---------------
 	// Configure the maximum number of connection attempts
 	maxRetries int
 
@@ -54,6 +53,9 @@ type Host struct {
 
 	// If set, reverse authentication will be established with this Host
 	enableAuth bool
+
+	// Read/Write Mutex for thread safety
+	mux sync.Mutex
 }
 
 // Creates a new Host object
@@ -83,6 +85,10 @@ func NewHost(id, address string, cert []byte, disableTimeout,
 // Ensures the given Host's connection is alive
 // and attempts to recover if not
 func (h *Host) validateConnection() (err error) {
+	// Handle thread safety
+	h.mux.Lock()
+	defer h.mux.Unlock()
+
 	// If Host connection does not exist, open the connection
 	if h.connection == nil {
 		if err = h.connect(); err != nil {
