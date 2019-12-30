@@ -135,10 +135,14 @@ func (c *ProtoComms) Send(host *Host, f func(conn *grpc.ClientConn) (*any.Any,
 	}
 
 	// If authentication is enabled and not yet configured, perform handshake
-	if host.enableAuth && host.token == nil {
-		if err = c.clientHandshake(host); err != nil {
-			return
+	if c.privateKey != nil {
+		if host.enableAuth && host.token == nil {
+			if err = c.clientHandshake(host); err != nil {
+				return
+			}
 		}
+	} else {
+		jww.WARN.Printf("Authentication disabled, no TLS key!")
 	}
 
 	// Run the send function
