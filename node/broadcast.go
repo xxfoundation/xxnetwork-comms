@@ -60,14 +60,9 @@ func (s *Comms) SendAskOnline(host *connect.Host) (*pb.Ack, error) {
 		// Set up the context
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
-		//Format to authenticated message type
-		authMsg, err := s.PackAuthenticatedMessage(&pb.Ping{}, host, false)
-		if err != nil {
-			return nil, errors.New(err.Error())
-		}
 
 		// Send the message
-		resultMsg, err := pb.NewNodeClient(conn).AskOnline(ctx, authMsg)
+		resultMsg, err := pb.NewNodeClient(conn).AskOnline(ctx, &pb.Ping{})
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}

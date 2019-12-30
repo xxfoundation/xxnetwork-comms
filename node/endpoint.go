@@ -16,16 +16,8 @@ import (
 )
 
 // Handle a Broadcasted Ask Online event
-func (s *Comms) AskOnline(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
-	//Create an auth object
-	authState := s.AuthenticatedReceiver(msg)
-	//Unmarshall the any message to the message type needed
-	pingMsg := &pb.Ping{}
-	err := ptypes.UnmarshalAny(msg.Message, pingMsg)
-	if err != nil {
-		return nil, errors.New(err.Error())
-	}
-	return &pb.Ack{}, s.handler.AskOnline(pingMsg, authState)
+func (s *Comms) AskOnline(ctx context.Context, ping *pb.Ping) (*pb.Ack, error) {
+	return &pb.Ack{}, s.handler.AskOnline()
 }
 
 // Handles validation of reverse-authentication tokens

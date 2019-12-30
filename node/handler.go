@@ -93,7 +93,7 @@ type Handler interface {
 
 	SendRoundTripPing(ping *mixmessages.RoundTripPing, auth *connect.Auth) error
 
-	AskOnline(ping *mixmessages.Ping, auth *connect.Auth) error
+	AskOnline() error
 }
 
 type implementationFunctions struct {
@@ -133,7 +133,7 @@ type implementationFunctions struct {
 
 	SendRoundTripPing func(ping *mixmessages.RoundTripPing, auth *connect.Auth) error
 
-	AskOnline func(ping *mixmessages.Ping, auth *connect.Auth) error
+	AskOnline func() error
 }
 
 // Implementation allows users of the client library to set the
@@ -213,7 +213,7 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return nil
 			},
-			AskOnline: func(ping *mixmessages.Ping, auth *connect.Auth) error {
+			AskOnline: func() error {
 				warn(um)
 				return nil
 			},
@@ -291,6 +291,6 @@ func (s *Implementation) SendRoundTripPing(ping *mixmessages.RoundTripPing, auth
 }
 
 // AskOnline blocks until the server is online, or returns an error
-func (s *Implementation) AskOnline(ping *mixmessages.Ping, auth *connect.Auth) error {
-	return s.Functions.AskOnline(ping, auth)
+func (s *Implementation) AskOnline() error {
+	return s.Functions.AskOnline()
 }
