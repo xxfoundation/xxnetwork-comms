@@ -85,9 +85,6 @@ func NewHost(id, address string, cert []byte, disableTimeout,
 // Ensures the given Host's connection is alive
 // and attempts to recover if not
 func (h *Host) validateConnection() (err error) {
-	// Handle thread safety
-	h.mux.Lock()
-	defer h.mux.Unlock()
 
 	// If Host connection does not exist, open the connection
 	if h.connection == nil {

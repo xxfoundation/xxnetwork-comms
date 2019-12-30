@@ -128,6 +128,10 @@ func (c *ProtoComms) GetPrivateKey() *rsa.PrivateKey {
 func (c *ProtoComms) Send(host *Host, f func(conn *grpc.ClientConn) (*any.Any,
 	error)) (result *any.Any, err error) {
 
+	// Handle thread safety
+	host.mux.Lock()
+	defer host.mux.Unlock()
+
 	// Ensure the connection is running
 	jww.DEBUG.Printf("Attempting to send to host: %s", host)
 	if err = host.validateConnection(); err != nil {
