@@ -47,8 +47,13 @@ type ProtoComms struct {
 func StartCommServer(id string, localServer string, certPEMblock,
 	keyPEMblock []byte) (*ProtoComms, net.Listener, error) {
 
+	// Build the ProtoComms object
+	pc := &ProtoComms{
+		id:            id,
+		ListeningAddr: localServer,
+	}
+
 	// Listen on the given address
-	var grpcServer *grpc.Server
 	lis, err := net.Listen("tcp", localServer)
 	if err != nil {
 		return nil, nil, errors.New(err.Error())
@@ -56,40 +61,31 @@ func StartCommServer(id string, localServer string, certPEMblock,
 
 	// If TLS was specified
 	if certPEMblock != nil && keyPEMblock != nil {
+
 		// Create the TLS certificate
-		x509cert, err2 := tls.X509KeyPair(certPEMblock, keyPEMblock)
-		if err2 != nil {
-			err = errors.New(err2.Error())
-			jww.FATAL.Panicf("Could not load TLS keys: %+v", err)
+		x509cert, err := tls.X509KeyPair(certPEMblock, keyPEMblock)
+		if err != nil {
+			return nil, nil, errors.Errorf("Could not load TLS keys: %+v", err)
 		}
 
-		creds := credentials.NewServerTLSFromCert(&x509cert)
+		// Set the private key
+		err = pc.setPrivateKey(keyPEMblock)
+		if err != nil {
+			return nil, nil, errors.Errorf("Could not set private key: %+v", err)
+		}
 
 		// Create the gRPC server with TLS
 		jww.INFO.Printf("Starting server with TLS...")
-		grpcServer = grpc.NewServer(grpc.Creds(creds),
+		creds := credentials.NewServerTLSFromCert(&x509cert)
+		pc.LocalServer = grpc.NewServer(grpc.Creds(creds),
 			grpc.MaxConcurrentStreams(math.MaxUint32),
 			grpc.MaxRecvMsgSize(math.MaxInt32))
+
 	} else {
 		// Create the gRPC server without TLS
 		jww.WARN.Printf("Starting server with TLS disabled...")
-		grpcServer = grpc.NewServer(grpc.MaxConcurrentStreams(math.MaxUint32),
+		pc.LocalServer = grpc.NewServer(grpc.MaxConcurrentStreams(math.MaxUint32),
 			grpc.MaxRecvMsgSize(math.MaxInt32))
-	}
-
-	// Build the ProtoComms object
-	pc := &ProtoComms{
-		id:            id,
-		LocalServer:   grpcServer,
-		ListeningAddr: localServer,
-	}
-
-	// Set the private key if it is specified
-	if keyPEMblock != nil && len(keyPEMblock) > 0 {
-		err = pc.setPrivateKey(keyPEMblock)
-		if err != nil {
-			return nil, nil, errors.New(err.Error())
-		}
 	}
 
 	return pc, lis, nil

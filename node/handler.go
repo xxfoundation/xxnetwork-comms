@@ -31,7 +31,7 @@ func StartNode(id, localServer string, handler Handler,
 	pc, lis, err := connect.StartCommServer(id, localServer,
 		certPEMblock, keyPEMblock)
 	if err != nil {
-		jww.FATAL.Printf("Unable to start comms server: %+v", err)
+		jww.FATAL.Panicf("Unable to start comms server: %+v", err)
 	}
 
 	mixmessageServer := Comms{
