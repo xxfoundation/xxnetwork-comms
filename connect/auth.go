@@ -11,6 +11,7 @@ package connect
 import (
 	"bytes"
 	"crypto/rand"
+	"fmt"
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
@@ -198,6 +199,7 @@ func (c *ProtoComms) verifyMessage(msg *pb.AuthenticatedMessage, host *Host) err
 	hash := options.Hash.New()
 	hash.Write([]byte(msg.Message.String()))
 	hashed := hash.Sum(nil)
+	jww.INFO.Printf("VERIFYMSG: host pubKey: %+v", host.rsaPublicKey)
 
 	// Verify signature of message using host public key
 	err := rsa.Verify(host.rsaPublicKey, options.Hash, hashed, msg.Signature, nil)
