@@ -180,7 +180,6 @@ func (c *ProtoComms) signMessage(anyMessage *any.Any) ([]byte, error) {
 	if key == nil {
 		return nil, errors.Errorf("Cannot sign message: No private key")
 	}
-	jww.INFO.Printf("SIGNMSG: signed with pubKey: %+v", key)
 	// Sign the message and return the signature
 	signature, err := rsa.Sign(rand.Reader, key, options.Hash, hashed, nil)
 	if err != nil {
@@ -198,7 +197,6 @@ func (c *ProtoComms) verifyMessage(msg *pb.AuthenticatedMessage, host *Host) err
 	hash := options.Hash.New()
 	hash.Write([]byte(msg.Message.String()))
 	hashed := hash.Sum(nil)
-	jww.INFO.Printf("VERIFYMSG: host pubKey: %+v", host.rsaPublicKey)
 
 	// Verify signature of message using host public key
 	err := rsa.Verify(host.rsaPublicKey, options.Hash, hashed, msg.Signature, nil)
