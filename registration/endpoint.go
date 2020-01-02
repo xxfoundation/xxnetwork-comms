@@ -16,12 +16,13 @@ import (
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"golang.org/x/net/context"
+	"net"
 )
 
 // Handles validation of reverse-authentication tokens
-func (s *Comms) AuthenticateToken(ctx context.Context,
+func (r *Comms) AuthenticateToken(ctx context.Context,
 	msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
-	err := s.ValidateToken(msg)
+	err := r.ValidateToken(msg)
 	if err != nil {
 		jww.ERROR.Printf("Unable to authenticate token: %+v", err)
 	}
@@ -29,8 +30,8 @@ func (s *Comms) AuthenticateToken(ctx context.Context,
 }
 
 // Handles reception of reverse-authentication token requests
-func (s *Comms) RequestToken(context.Context, *pb.Ping) (*pb.AssignToken, error) {
-	token, err := s.GenerateToken()
+func (r *Comms) RequestToken(context.Context, *pb.Ping) (*pb.AssignToken, error) {
+	token, err := r.GenerateToken()
 	return &pb.AssignToken{
 		Token: token,
 	}, err
@@ -75,7 +76,13 @@ func (r *Comms) RegisterNode(ctx context.Context, msg *pb.NodeRegistration) (
 	*pb.Ack, error) {
 
 	// Obtain peer IP address
-	ip, port, err := connect.GetAddressFromContext(ctx)
+	ip, _, err := connect.GetAddressFromContext(ctx)
+	if err != nil {
+		return &pb.Ack{}, err
+	}
+
+	// Obtain local IP address
+	_, port, err := net.SplitHostPort(r.ListeningAddr)
 	if err != nil {
 		return &pb.Ack{}, err
 	}
