@@ -180,7 +180,7 @@ func (c *ProtoComms) signMessage(anyMessage *any.Any) ([]byte, error) {
 	if key == nil {
 		return nil, errors.Errorf("Cannot sign message: No private key")
 	}
-
+	jww.INFO.Printf("SIGNMSG: signed with pubKey: %+v", key)
 	// Sign the message and return the signature
 	signature, err := rsa.Sign(rand.Reader, key, options.Hash, hashed, nil)
 	if err != nil {
