@@ -11,7 +11,6 @@ package connect
 import (
 	"bytes"
 	"crypto/rand"
-	"fmt"
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
