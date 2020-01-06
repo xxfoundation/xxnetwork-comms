@@ -19,6 +19,7 @@ import (
 	"math"
 	"net"
 	"sync"
+	"testing"
 	"time"
 )
 
@@ -41,6 +42,9 @@ type ProtoComms struct {
 
 	// Private key of the local server
 	privateKey *rsa.PrivateKey
+
+	//Disables the checking of authentication signatures for testing setups
+	fakeAuth bool
 }
 
 // Starts a ProtoComms object and is used in various initializers
@@ -125,28 +129,28 @@ func (c *ProtoComms) Send(host *Host, f func(conn *grpc.ClientConn) (*any.Any,
 	error)) (result *any.Any, err error) {
 
 	// Handle thread safety
-	host.mux.Lock()
-	defer host.mux.Unlock()
+	host.mux.RLock()
 
 	// Ensure the connection is running
 	jww.DEBUG.Printf("Attempting to send to host: %s", host)
 	if err = host.validateConnection(); err != nil {
+		host.mux.RUnlock()
 		return
 	}
 
 	// If authentication is enabled and not yet configured, perform handshake
-	if c.privateKey != nil {
-		if host.enableAuth && host.token == nil {
-			if err = c.clientHandshake(host); err != nil {
-				return
-			}
+	if host.enableAuth && host.token == nil {
+		host.mux.RUnlock()
+		if err = c.clientHandshake(host); err != nil {
+			return
 		}
-	} else {
-		jww.WARN.Printf("Authentication disabled, no TLS key!")
+		host.mux.RLock()
 	}
 
 	// Run the send function
-	return f(host.connection)
+	result, err = f(host.connection)
+	host.mux.RUnlock()
+	return result, err
 }
 
 // Sets up or recovers the Host's connection
@@ -162,4 +166,17 @@ func (c *ProtoComms) Stream(host *Host, f func(conn *grpc.ClientConn) (
 
 	// Run the stream function
 	return f(host.connection)
+}
+
+// Makes the authentication code skip signing and signature verification if the
+// set.  Can only be set while in a testing structure.  Is not thread safe.
+func (c *ProtoComms) FakeAuth(t interface{}) {
+	switch t.(type) {
+	case testing.B:
+	case testing.T:
+	case testing.M:
+	default:
+		jww.FATAL.Panicf("Cannot ")
+	}
+	c.fakeAuth = true
 }

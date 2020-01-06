@@ -55,7 +55,7 @@ type Host struct {
 	enableAuth bool
 
 	// Read/Write Mutex for thread safety
-	mux sync.Mutex
+	mux sync.RWMutex
 }
 
 // Creates a new Host object

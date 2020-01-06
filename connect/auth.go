@@ -84,7 +84,7 @@ func (c *ProtoComms) PackAuthenticatedMessage(msg proto.Message, host *Host,
 	}
 
 	// If signature is enabled, sign the message and add to payload
-	if enableSignature {
+	if enableSignature && !c.fakeAuth{
 		authMsg.Signature, err = c.signMessage(anyMsg)
 		if err != nil {
 			return nil, err
@@ -111,13 +111,17 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) error {
 
 	// Verify the Host exists for the provided ID
 	host, ok := c.GetHost(msg.ID)
+	host.mux.Lock()
+	defer host.mux.Unlock()
 	if !ok {
 		return errors.Errorf("Invalid host ID: %+v", msg.ID)
 	}
 
-	// Verify the token signature
-	if err := c.verifyMessage(msg, host); err != nil {
-		return errors.Errorf("Invalid token signature: %+v", err)
+	// Verify the token signature unless fakeAuth has been set for testing
+	if !c.fakeAuth{
+		if err := c.verifyMessage(msg, host); err != nil {
+			return errors.Errorf("Invalid token signature: %+v", err)
+		}
 	}
 
 	// Get the signed token
@@ -154,6 +158,12 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) *Auth {
 
 	// Check if the sender is authenticated, and if the token is valid
 	host, ok := c.GetHost(msg.ID)
+
+	if ok{
+		host.mux.RLock()
+		defer host.mux.RUnlock()
+	}
+
 	validToken := ok && host.token != nil && msg.Token != nil &&
 		bytes.Compare(host.token, msg.Token) == 0
 	if ok && validToken {
