@@ -9,120 +9,150 @@
 package client
 
 import (
-	"fmt"
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
-	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
+	"google.golang.org/grpc"
 )
 
-// Send a message to the gateway
-func (c *ClientComms) SendPutMessage(id fmt.Stringer, message *pb.Slot) error {
-	// Attempt to connect to addr
-	connection := c.GetGatewayConnection(id)
-	ctx, cancel := connect.MessagingContext()
+// Client -> Gateway Send Function
+func (c *Comms) SendPutMessage(host *connect.Host, message *pb.Slot) error {
 
-	// Send the message
-	_, err := connection.PutMessage(ctx, message)
+	// Create the Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := connect.MessagingContext()
+		defer cancel()
 
-	// Make sure there are no errors with sending the message
-	if err != nil {
-		err = errors.New(err.Error())
+		// Send the message
+		_, err := pb.NewGatewayClient(conn).PutMessage(ctx, message)
+		if err != nil {
+			err = errors.New(err.Error())
+		}
+		return nil, err
 	}
 
-	cancel()
+	// Execute the Send function
+	_, err := host.Send(f)
 	return err
 }
 
-// Request MessageIDs of new messages in the buffer from the gateway
-func (c *ClientComms) SendCheckMessages(id fmt.Stringer,
+// Client -> Gateway Send Function
+func (c *Comms) SendCheckMessages(host *connect.Host,
 	message *pb.ClientRequest) (*pb.IDList, error) {
-	// Attempt to connect to addr
-	connection := c.GetGatewayConnection(id)
-	ctx, cancel := connect.MessagingContext()
 
-	// Send the message
-	result, err := connection.CheckMessages(ctx, message)
+	// Create the Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := connect.MessagingContext()
+		defer cancel()
 
-	// Make sure there are no errors with sending the message
-	if err != nil {
-		err = errors.New(err.Error())
+		// Send the message
+		resultMsg, err := pb.NewGatewayClient(conn).CheckMessages(ctx, message)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+		return ptypes.MarshalAny(resultMsg)
 	}
 
-	cancel()
-	return result, err
+	// Execute the Send function
+	resultMsg, err := host.Send(f)
+	if err != nil {
+		return nil, err
+	}
+
+	// Marshall the result
+	result := &pb.IDList{}
+	return result, ptypes.UnmarshalAny(resultMsg, result)
 }
 
-// Request a message with a specific ID from the gateway
-func (c *ClientComms) SendGetMessage(id fmt.Stringer,
+// Client -> Gateway Send Function
+func (c *Comms) SendGetMessage(host *connect.Host,
 	message *pb.ClientRequest) (*pb.Slot, error) {
-	// Attempt to connect to addr
-	connection := c.GetGatewayConnection(id)
-	ctx, cancel := connect.MessagingContext()
 
-	// Send the message
-	result, err := connection.GetMessage(ctx, message)
+	// Create the Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := connect.MessagingContext()
+		defer cancel()
 
-	// Make sure there are no errors with sending the message
-	if err != nil {
-		err = errors.New(err.Error())
+		// Send the message
+		resultMsg, err := pb.NewGatewayClient(conn).GetMessage(ctx, message)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+		return ptypes.MarshalAny(resultMsg)
 	}
 
-	cancel()
-	return result, err
+	// Execute the Send function
+	resultMsg, err := host.Send(f)
+	if err != nil {
+		return nil, err
+	}
+
+	// Marshall the result
+	result := &pb.Slot{}
+	return result, ptypes.UnmarshalAny(resultMsg, result)
 }
 
-// Send a RequestNonceMessage to the gateway
-func (c *ClientComms) SendRequestNonceMessage(id fmt.Stringer,
+// Client -> Gateway Send Function
+func (c *Comms) SendRequestNonceMessage(host *connect.Host,
 	message *pb.NonceRequest) (*pb.Nonce, error) {
 
-	// Attempt to connect to addr
-	connection := c.GetGatewayConnection(id)
-	ctx, cancel := connect.MessagingContext()
+	// Create the Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := connect.MessagingContext()
+		defer cancel()
 
-	// Send the message
-	response, err := connection.RequestNonce(ctx, message)
+		// Send the message
+		resultMsg, err := pb.NewGatewayClient(conn).RequestNonce(ctx, message)
 
-	// Handle comms errors
+		// Make sure there are no errors with sending the message
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+		return ptypes.MarshalAny(resultMsg)
+	}
+
+	// Execute the Send function
+	resultMsg, err := host.Send(f)
 	if err != nil {
-		err = errors.New(err.Error())
-		jww.ERROR.Printf("RequestNonceMessage: Error received: %+v", err)
+		return nil, err
 	}
 
-	// Handle logic errors
-	errMsg := response.GetError()
-	if errMsg != "" {
-		err = errors.New(errMsg)
-	}
-
-	cancel()
-	return response, err
+	// Marshall the result
+	result := &pb.Nonce{}
+	return result, ptypes.UnmarshalAny(resultMsg, result)
 }
 
-// Send a ConfirmNonceMessage to the gateway
-func (c *ClientComms) SendConfirmNonceMessage(id fmt.Stringer,
+// Client -> Gateway Send Function
+func (c *Comms) SendConfirmNonceMessage(host *connect.Host,
 	message *pb.RequestRegistrationConfirmation) (*pb.RegistrationConfirmation, error) {
 
-	// Attempt to connect to addr
-	connection := c.GetGatewayConnection(id)
-	ctx, cancel := connect.MessagingContext()
+	// Create the Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := connect.MessagingContext()
+		defer cancel()
 
-	// Send the message
+		// Send the message
+		resultMsg, err := pb.NewGatewayClient(conn).ConfirmNonce(ctx, message)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+		return ptypes.MarshalAny(resultMsg)
+	}
 
-	response, err := connection.ConfirmNonce(ctx, message)
-
-	// Handle comms errors
+	// Execute the Send function
+	resultMsg, err := host.Send(f)
 	if err != nil {
-		err = errors.New(err.Error())
-		jww.ERROR.Printf("ConfirmNonceMessage: Error received: %+v", err)
+		return nil, err
 	}
 
-	// Handle logic errors
-	errMsg := response.GetError()
-	if errMsg != "" {
-		err = errors.New(errMsg)
-	}
-
-	cancel()
-	return response, err
+	// Marshall the result
+	result := &pb.RegistrationConfirmation{}
+	return result, ptypes.UnmarshalAny(resultMsg, result)
 }

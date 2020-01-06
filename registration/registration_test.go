@@ -3,6 +3,7 @@ package registration
 import (
 	"fmt"
 	"gitlab.com/elixxir/comms/client"
+	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/testkeys"
 	"sync"
@@ -21,12 +22,6 @@ func getNextServerAddress() string {
 	return fmt.Sprintf("localhost:%d", serverPort)
 }
 
-type MockID string
-
-func (m MockID) String() string {
-	return string(m)
-}
-
 // Tests whether the server can be connected to and run an RPC with TLS enabled
 func TestTLS(t *testing.T) {
 	RegAddress := getNextServerAddress()
@@ -43,12 +38,16 @@ func TestTLS(t *testing.T) {
 	// It's a client
 	// So, we need some way to add a connection to the manager for the client
 	defer rg.Shutdown()
-	var c client.ClientComms
-	connID := MockID("clientToRegistration")
-	_ = c.ConnectToRemote(connID,
-		RegAddress, certData, false)
+	var c client.Comms
+	var manager connect.Manager
 
-	_, err := c.SendRegistrationMessage(connID, &pb.UserRegistration{})
+	testId := "test"
+	host, err := manager.AddHost(testId, RegAddress, certData, false)
+	if err != nil {
+		t.Errorf("Unable to call NewHost: %+v", err)
+	}
+
+	_, err = c.SendRegistrationMessage(host, &pb.UserRegistration{})
 	if err != nil {
 		t.Errorf("RegistrationMessage: Error received: %s", err)
 	}

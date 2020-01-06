@@ -23,14 +23,14 @@ import (
 )
 
 // Server object containing a gRPC server
-type RegistrationComms struct {
-	connect.ConnectionManager
+type Comms struct {
+	connect.Manager
 	gs      *grpc.Server
 	handler Handler
 }
 
 // Performs a graceful shutdown of the server
-func (r *RegistrationComms) Shutdown() {
+func (r *Comms) Shutdown() {
 	r.DisconnectAll()
 	r.gs.GracefulStop()
 	time.Sleep(time.Millisecond * 500)
@@ -40,7 +40,7 @@ func (r *RegistrationComms) Shutdown() {
 // and a callback interface for server operations
 // with given path to public and private key for TLS connection
 func StartRegistrationServer(localServer string, handler Handler,
-	certPEMblock, keyPEMblock []byte) *RegistrationComms {
+	certPEMblock, keyPEMblock []byte) *Comms {
 	var grpcServer *grpc.Server
 
 	// Listen on the given address
@@ -72,7 +72,7 @@ func StartRegistrationServer(localServer string, handler Handler,
 		grpcServer = grpc.NewServer(grpc.MaxConcurrentStreams(math.MaxUint32),
 			grpc.MaxRecvMsgSize(math.MaxInt32))
 	}
-	registrationServer := RegistrationComms{gs: grpcServer, handler: handler}
+	registrationServer := Comms{gs: grpcServer, handler: handler}
 
 	if keyPEMblock != nil {
 		err = registrationServer.SetPrivateKey(keyPEMblock)

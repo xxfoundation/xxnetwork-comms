@@ -7,6 +7,7 @@
 package gateway
 
 import (
+	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/node"
 	"testing"
@@ -21,11 +22,16 @@ func TestPostNewBatch(t *testing.T) {
 		nil, nil)
 	defer gateway.Shutdown()
 	defer server.Shutdown()
-	connID := MockID("gatewayToServer")
-	gateway.ConnectToRemote(connID, ServerAddress, nil, false)
+	var manager connect.Manager
+
+	testId := "test"
+	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	if err != nil {
+		t.Errorf("Unable to call NewHost: %+v", err)
+	}
 
 	msgs := &pb.Batch{}
-	err := gateway.PostNewBatch(connID, msgs)
+	err = gateway.PostNewBatch(host, msgs)
 	if err != nil {
 		t.Errorf("PostNewBatch: Error received: %s", err)
 	}
@@ -40,14 +46,19 @@ func TestGetRoundBufferInfo(t *testing.T) {
 		nil, nil)
 	defer gateway.Shutdown()
 	defer server.Shutdown()
-	connID := MockID("gatewayToServer")
-	gateway.ConnectToRemote(connID, ServerAddress, nil, false)
+	var manager connect.Manager
 
-	bufSize, err := gateway.GetRoundBufferInfo(connID)
+	testId := "test"
+	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	if err != nil {
+		t.Errorf("Unable to call NewHost: %+v", err)
+	}
+
+	bufSize, err := gateway.GetRoundBufferInfo(host)
 	if err != nil {
 		t.Errorf("GetRoundBufferInfo: Error received: %s", err)
 	}
-	if bufSize != 0 {
+	if bufSize.RoundBufferSize != 0 {
 		t.Errorf("GetRoundBufferInfo: Unexpected buffer size.")
 	}
 }
@@ -61,10 +72,15 @@ func TestGetCompletedBatch(t *testing.T) {
 		nil, nil)
 	defer gateway.Shutdown()
 	defer server.Shutdown()
-	connID := MockID("gatewayToServer")
-	gateway.ConnectToRemote(connID, ServerAddress, nil, false)
+	var manager connect.Manager
 
-	batch, err := gateway.GetCompletedBatch(connID)
+	testId := "test"
+	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	if err != nil {
+		t.Errorf("Unable to call NewHost: %+v", err)
+	}
+
+	batch, err := gateway.GetCompletedBatch(host)
 	if err != nil {
 		t.Errorf("GetCompletedBatch: Error received: %s", err)
 	}

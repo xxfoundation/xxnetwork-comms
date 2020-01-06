@@ -8,6 +8,7 @@ package node
 
 import (
 	"fmt"
+	"gitlab.com/elixxir/comms/connect"
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/testkeys"
 	"sync"
@@ -16,13 +17,6 @@ import (
 
 var serverPortLock sync.Mutex
 var serverPort = 5000
-
-// Basic implementation of Stringer for connection ID
-type MockID string
-
-func (m MockID) String() string {
-	return string(m)
-}
 
 func getNextServerAddress() string {
 	serverPortLock.Lock()
@@ -47,14 +41,17 @@ func TestTLS(t *testing.T) {
 	serverAddress2 := getNextServerAddress()
 	server2 := StartNode(serverAddress2, NewImplementation(),
 		certData, keyData)
-	connectionID := MockID("server2toserver")
-	// It might make more sense to call the RPC on the connection object
-	// that's returned from this
-	server2.ConnectToRemote(connectionID, serverAddress, certData, false)
-	// Reset TLS-related global variables
 	defer server.Shutdown()
 	defer server2.Shutdown()
-	_, err := server2.SendAskOnline(connectionID, &mixmessages.Ping{})
+	var manager connect.Manager
+
+	testId := "test"
+	host, err := manager.AddHost(testId, serverAddress, certData, false)
+	if err != nil {
+		t.Errorf("Unable to call NewHost: %+v", err)
+	}
+
+	_, err = server2.SendAskOnline(host, &mixmessages.Ping{})
 	if err != nil {
 		t.Error(err)
 	}

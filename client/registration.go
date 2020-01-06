@@ -9,68 +9,100 @@
 package client
 
 import (
-	"fmt"
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
-	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
+	"google.golang.org/grpc"
 )
 
-// Send a RegisterUserMessage to the RegistrationServer
-func (c *ClientComms) SendRegistrationMessage(id fmt.Stringer,
+// Client -> Registration Send Function
+func (c *Comms) SendRegistrationMessage(host *connect.Host,
 	message *pb.UserRegistration) (*pb.UserRegistrationConfirmation, error) {
-	// Attempt to connect to addr
-	connection := c.GetRegistrationConnection(id)
-	ctx, cancel := connect.MessagingContext()
 
-	// Send the message
-	response, err := connection.RegisterUser(ctx, message)
+	// Create the Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := connect.MessagingContext()
+		defer cancel()
 
-	// Make sure there are no errors with sending the message
-	if err != nil {
-		err = errors.New(err.Error())
-		jww.ERROR.Printf("RegistrationMessage: Error received: %+v", err)
+		// Send the message
+		resultMsg, err := pb.NewRegistrationClient(conn).RegisterUser(ctx,
+			message)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+		return ptypes.MarshalAny(resultMsg)
 	}
 
-	cancel()
-	return response, err
+	// Execute the Send function
+	resultMsg, err := host.Send(f)
+	if err != nil {
+		return nil, err
+	}
+
+	// Marshall the result
+	result := &pb.UserRegistrationConfirmation{}
+	return result, ptypes.UnmarshalAny(resultMsg, result)
 }
 
-// Call CheckClientVersion on the registration server
-func (c *ClientComms) SendGetCurrentClientVersionMessage(id fmt.Stringer) (*pb.ClientVersion, error) {
-	// Get the connection
-	connection := c.GetRegistrationConnection(id)
-	ctx, cancel := connect.MessagingContext()
+// Client -> Registration Send Function
+func (c *Comms) SendGetCurrentClientVersionMessage(
+	host *connect.Host) (*pb.ClientVersion, error) {
 
-	// Send the message
-	response, err := connection.GetCurrentClientVersion(ctx, &pb.Ping{})
+	// Create the Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := connect.MessagingContext()
+		defer cancel()
 
-	// Log if we got an error
-	if err != nil {
-		err = errors.New(err.Error())
-		jww.ERROR.Printf("CheckClientVersion: Error received: %+v", err)
+		// Send the message
+		resultMsg, err := pb.NewRegistrationClient(
+			conn).GetCurrentClientVersion(ctx, &pb.Ping{})
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+		return ptypes.MarshalAny(resultMsg)
 	}
 
-	// Finish up
-	cancel()
-	return response, err
+	// Execute the Send function
+	resultMsg, err := host.Send(f)
+	if err != nil {
+		return nil, err
+	}
+
+	// Marshall the result
+	result := &pb.ClientVersion{}
+	return result, ptypes.UnmarshalAny(resultMsg, result)
 }
 
-//Call GetUpdatedNDF on the registration server
-func (c *ClientComms) SendGetUpdatedNDF(id fmt.Stringer, message *pb.NDFHash) (*pb.NDF, error) {
-	//Get the connection
-	connection := c.GetRegistrationConnection(id)
-	ctx, cancel := connect.MessagingContext()
+// Client -> Registration Send Function
+func (c *Comms) RequestNdf(host *connect.Host,
+	message *pb.NDFHash) (*pb.NDF, error) {
 
-	//Send message
-	response, err := connection.GetUpdatedNDF(ctx, message)
+	// Create the Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := connect.MessagingContext()
+		defer cancel()
 
-	// Make sure there are no errors with sending the message
-	if err != nil {
-		err = errors.New(err.Error())
-		jww.ERROR.Printf("GetUpdatedNDf: Error received: %v", err)
+		// Send the message
+		resultMsg, err := pb.NewRegistrationClient(
+			conn).PollNdf(ctx, message)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+		return ptypes.MarshalAny(resultMsg)
 	}
 
-	cancel()
-	return response, err
+	// Execute the Send function
+	resultMsg, err := host.Send(f)
+	if err != nil {
+		return nil, err
+	}
+
+	// Marshall the result
+	result := &pb.NDF{}
+	return result, ptypes.UnmarshalAny(resultMsg, result)
 }

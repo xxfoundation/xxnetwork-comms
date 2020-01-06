@@ -16,9 +16,9 @@ import (
 type Handler interface {
 	RegisterUser(registrationCode, pubKey string) (signature []byte, err error)
 	GetCurrentClientVersion() (version string, err error)
-	RegisterNode(ID []byte, ServerAddr, ServerTlsCert, GatewayAddr, GatewayTlsCert,
-		RegistrationCode string) error
-	GetUpdatedNDF(clientNDFHash []byte) ([]byte, error)
+	RegisterNode(ID []byte, ServerAddr, ServerTlsCert, GatewayAddr,
+		GatewayTlsCert, RegistrationCode string) error
+	PollNdf(ndfHash []byte) ([]byte, error)
 }
 
 type implementationFunctions struct {
@@ -27,7 +27,7 @@ type implementationFunctions struct {
 	GetCurrentClientVersion func() (version string, err error)
 	RegisterNode            func(ID []byte, ServerAddr, ServerTlsCert,
 		GatewayAddr, GatewayTlsCert, RegistrationCode string) error
-	GetUpdatedNDF func(clientNDFHash []byte) ([]byte, error)
+	PollNdf func(ndfHash []byte) ([]byte, error)
 }
 
 // Implementation allows users of the client library to set the
@@ -61,7 +61,7 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return nil
 			},
-			GetUpdatedNDF: func(clientNDFHash []byte) ([]byte, error) {
+			PollNdf: func(ndfHash []byte) ([]byte, error) {
 				warn(um)
 				return nil, nil
 			},
@@ -85,6 +85,6 @@ func (s *Implementation) RegisterNode(ID []byte, ServerAddr, ServerTlsCert,
 		GatewayAddr, GatewayTlsCert, RegistrationCode)
 }
 
-func (s *Implementation) GetUpdatedNDF(clientNDFHash []byte) ([]byte, error) {
-	return s.Functions.GetUpdatedNDF(clientNDFHash)
+func (s *Implementation) PollNdf(ndfHash []byte) ([]byte, error) {
+	return s.Functions.PollNdf(ndfHash)
 }

@@ -24,15 +24,15 @@ import (
 )
 
 // Server object containing a gRPC server
-type NodeComms struct {
-	connect.ConnectionManager
+type Comms struct {
+	connect.Manager
 	gs          *grpc.Server
 	handler     ServerHandler
 	localServer string
 }
 
 // Performs a graceful shutdown of the server
-func (s *NodeComms) Shutdown() {
+func (s *Comms) Shutdown() {
 	s.DisconnectAll()
 	s.gs.GracefulStop()
 	time.Sleep(time.Millisecond * 500)
@@ -42,7 +42,7 @@ func (s *NodeComms) Shutdown() {
 // and a callback interface for server operations
 // with given path to public and private key for TLS connection
 func StartNode(localServer string, handler ServerHandler,
-	certPEMblock, keyPEMblock []byte) *NodeComms {
+	certPEMblock, keyPEMblock []byte) *Comms {
 	var grpcServer *grpc.Server
 
 	// Listen on the given address
@@ -75,7 +75,7 @@ func StartNode(localServer string, handler ServerHandler,
 		grpcServer = grpc.NewServer(grpc.MaxConcurrentStreams(math.MaxUint32),
 			grpc.MaxRecvMsgSize(math.MaxInt32))
 	}
-	mixmessageServer := NodeComms{gs: grpcServer, handler: handler, localServer: localServer}
+	mixmessageServer := Comms{gs: grpcServer, handler: handler, localServer: localServer}
 
 	go func() {
 		pb.RegisterNodeServer(mixmessageServer.gs, &mixmessageServer)
@@ -92,6 +92,6 @@ func StartNode(localServer string, handler ServerHandler,
 	return &mixmessageServer
 }
 
-func (s *NodeComms) String() string {
+func (s *Comms) String() string {
 	return s.localServer
 }

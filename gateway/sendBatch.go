@@ -9,27 +9,33 @@
 package gateway
 
 import (
-	"fmt"
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
-	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
+	"google.golang.org/grpc"
 )
 
-// Sends a batch of messages from the gateway to a server
-func (g *GatewayComms) PostNewBatch(nodeID fmt.Stringer, messages *pb.Batch) error {
-	c := g.GetNodeConnection(nodeID)
-	ctx, cancel := connect.MessagingContext()
+// Gateway -> Server Send Function
+func (g *Comms) PostNewBatch(host *connect.Host, messages *pb.Batch) error {
 
-	_, err := c.PostNewBatch(ctx, messages)
+	// Create the Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := connect.MessagingContext()
+		defer cancel()
 
-	// Make sure there are no errors with sending the message
-	if err != nil {
-		err = errors.New(err.Error())
-		jww.ERROR.Printf("PostNewBatch: Error received: %+v", err)
+		// Send the message
+		_, err := pb.NewNodeClient(conn).PostNewBatch(ctx, messages)
+		if err != nil {
+			err = errors.New(err.Error())
+		}
+		return nil, err
 	}
 
-	cancel()
+	// Execute the Send function
+	_, err := host.Send(f)
 	return err
 }
 
@@ -37,40 +43,59 @@ func (g *GatewayComms) PostNewBatch(nodeID fmt.Stringer, messages *pb.Batch) err
 // many rounds have gone through precomputation.
 // Note that this function should block if the buffer size is 0
 // This allows the caller to continuously poll without spinning too much.
-func (g *GatewayComms) GetRoundBufferInfo(nodeID fmt.Stringer) (int,
-	error) {
-	c := g.GetNodeConnection(nodeID)
-	ctx, cancel := connect.MessagingContext()
+func (g *Comms) GetRoundBufferInfo(host *connect.Host) (*pb.RoundBufferInfo, error) {
 
-	msg := &pb.RoundBufferInfo{}
-	bufSize := int(0)
-	bufInfo, err := c.GetRoundBufferInfo(ctx, msg)
+	// Create the Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := connect.MessagingContext()
+		defer cancel()
 
-	// Make sure there are no errors with sending the message
-	if err != nil {
-		err = errors.New(err.Error())
-		jww.ERROR.Printf("GetRoundBufferInfo: Error received: %+v", err)
-	} else {
-		bufSize = int(bufInfo.RoundBufferSize)
+		// Send the message
+		resultMsg, err := pb.NewNodeClient(conn).GetRoundBufferInfo(ctx,
+			&pb.RoundBufferInfo{})
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+		return ptypes.MarshalAny(resultMsg)
 	}
 
-	cancel()
-	return bufSize, err
+	// Execute the Send function
+	resultMsg, err := host.Send(f)
+	if err != nil {
+		return nil, err
+	}
+
+	// Marshall the result
+	result := &pb.RoundBufferInfo{}
+	return result, ptypes.UnmarshalAny(resultMsg, result)
 }
 
-// Gateway polls server for processed batches
-func (g *GatewayComms) GetCompletedBatch(nodeID fmt.Stringer) (*pb.Batch,
-	error) {
-	c := g.GetNodeConnection(nodeID)
-	ctx, cancel := connect.MessagingContext()
+// Gateway -> Server Send Function
+func (g *Comms) GetCompletedBatch(host *connect.Host) (*pb.Batch, error) {
 
-	msg := &pb.Ping{}
-	batch, err := c.GetCompletedBatch(ctx, msg)
-	if err != nil {
-		err = errors.New(err.Error())
-		jww.ERROR.Printf("GetCompletedBatch: Error received: %+v", err)
+	// Create the Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := connect.MessagingContext()
+		defer cancel()
+
+		// Send the message
+		resultMsg, err := pb.NewNodeClient(conn).GetCompletedBatch(ctx,
+			&pb.Ping{})
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+		return ptypes.MarshalAny(resultMsg)
 	}
 
-	cancel()
-	return batch, err
+	// Execute the Send function
+	resultMsg, err := host.Send(f)
+	if err != nil {
+		return nil, err
+	}
+
+	// Marshall the result
+	result := &pb.Batch{}
+	return result, ptypes.UnmarshalAny(resultMsg, result)
 }

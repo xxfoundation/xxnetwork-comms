@@ -7,6 +7,7 @@
 package gateway
 
 import (
+	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/node"
 	"testing"
@@ -21,14 +22,19 @@ func TestSendRequestNonceMessage(t *testing.T) {
 		nil, nil)
 	defer gateway.Shutdown()
 	defer server.Shutdown()
-	connID := MockID("gatewayToServer")
-	gateway.ConnectToRemote(connID, ServerAddress, nil, true)
+	var manager connect.Manager
+
+	testId := "test"
+	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	if err != nil {
+		t.Errorf("Unable to call NewHost: %+v", err)
+	}
 
 	RSASignature := &pb.RSASignature{
 		Signature: []byte{},
 	}
 
-	_, err := gateway.SendRequestNonceMessage(connID,
+	_, err = gateway.SendRequestNonceMessage(host,
 		&pb.NonceRequest{ClientSignedByServer: RSASignature,
 			RequestSignature: RSASignature})
 	if err != nil {
@@ -45,18 +51,23 @@ func TestSendConfirmNonceMessage(t *testing.T) {
 		nil, nil)
 	defer gateway.Shutdown()
 	defer server.Shutdown()
-	connID := MockID("gatewayToServer")
-	gateway.ConnectToRemote(connID, ServerAddress, nil, true)
+	var manager connect.Manager
+
+	testId := "test"
+	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	if err != nil {
+		t.Errorf("Unable to call NewHost: %+v", err)
+	}
 
 	reg := &pb.RequestRegistrationConfirmation{}
 	reg.NonceSignedByClient = &pb.RSASignature{}
-	_, err := gateway.SendConfirmNonceMessage(connID, reg)
+	_, err = gateway.SendConfirmNonceMessage(host, reg)
 	if err != nil {
 		t.Errorf("SendConfirmNonceMessage: Error received: %s", err)
 	}
 }
 
-func TestPollSignedCerts(t *testing.T) {
+func TestPollNdf(t *testing.T) {
 	GatewayAddress := getNextGatewayAddress()
 	ServerAddress := getNextServerAddress()
 
@@ -64,10 +75,15 @@ func TestPollSignedCerts(t *testing.T) {
 	server := node.StartNode(ServerAddress, node.NewImplementation(), nil, nil)
 	defer gateway.Shutdown()
 	defer server.Shutdown()
-	connID := MockID("gatewayToServer")
-	gateway.ConnectToRemote(connID, ServerAddress, nil, true)
+	var manager connect.Manager
 
-	_, err := gateway.PollSignedCerts(connID, &pb.Ping{})
+	testId := "test"
+	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	if err != nil {
+		t.Errorf("Unable to call NewHost: %+v", err)
+	}
+
+	_, err = gateway.PollNdf(host, &pb.Ping{})
 	if err != nil {
 		t.Errorf("SendGetSignedCertMessage: Error received: %s", err)
 	}
