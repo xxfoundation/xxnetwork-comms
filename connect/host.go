@@ -10,7 +10,6 @@ package connect
 
 import (
 	"fmt"
-	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/crypto/signature/rsa"
@@ -19,38 +18,56 @@ import (
 	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/credentials"
 	"math"
+	"sync"
 	"time"
 )
 
+// Represents a reverse-authentication token
+type Token []byte
+
 // Information used to describe a connection to a host
 type Host struct {
-	// Public Variables ---------------
+	// System-wide ID of the Host
+	id string
+
 	// address:Port being connected to
 	address string
 
 	// PEM-format TLS Certificate
 	certificate []byte
 
-	// Private Variables ---------------
+	// Token shared with this Host establishing reverse authentication
+	token Token
+
 	// Configure the maximum number of connection attempts
 	maxRetries int
 
 	// GRPC connection object
 	connection *grpc.ClientConn
 
-	// Credentials object used to establish the connection
+	// TLS credentials object used to establish the connection
 	credentials credentials.TransportCredentials
 
 	// RSA Public Key corresponding to the TLS Certificate
 	rsaPublicKey *rsa.PublicKey
+
+	// If set, reverse authentication will be established with this Host
+	enableAuth bool
+
+	// Read/Write Mutex for thread safety
+	mux sync.Mutex
 }
 
 // Creates a new Host object
-func NewHost(address string, cert []byte, disableTimeout bool) (host *Host, err error) {
+func NewHost(id, address string, cert []byte, disableTimeout,
+	enableAuth bool) (host *Host, err error) {
+
 	// Initialize the Host object
 	host = &Host{
+		id:          id,
 		address:     address,
 		certificate: cert,
+		enableAuth:  enableAuth,
 	}
 
 	// Set the max number of retries for establishing a connection
@@ -68,65 +85,24 @@ func NewHost(address string, cert []byte, disableTimeout bool) (host *Host, err 
 // Ensures the given Host's connection is alive
 // and attempts to recover if not
 func (h *Host) validateConnection() (err error) {
+
 	// If Host connection does not exist, open the connection
 	if h.connection == nil {
-		err = h.connect()
-	}
-	if err != nil {
-		return
+		if err = h.connect(); err != nil {
+			return
+		}
 	}
 
 	// If Host connection is not active, attempt to reestablish
 	if !h.isAlive() {
 		jww.WARN.Printf("Bad host connection state, reconnecting: %v", h)
-		h.disconnect()
-		err = h.connect()
+		h.Disconnect()
+		if err = h.connect(); err != nil {
+			return
+		}
 	}
 
 	return
-}
-
-// Sets up or recovers the Host's connection
-// Then runs the given Send function
-func (h *Host) Send(f func(conn *grpc.ClientConn) (*any.Any, error)) (
-	result *any.Any, err error) {
-
-	// Ensure the connection is running
-	jww.DEBUG.Printf("Attempting to send to host: %s", h)
-	err = h.validateConnection()
-	if err != nil {
-		return
-	}
-
-	// Run the send function
-	return f(h.connection)
-}
-
-// Sets up or recovers the Host's connection
-// Then runs the given Stream function
-func (h *Host) Stream(f func(conn *grpc.ClientConn) (interface{}, error)) (
-	client interface{}, err error) {
-
-	// Ensure the connection is running
-	err = h.validateConnection()
-	if err != nil {
-		return
-	}
-
-	// Run the stream function
-	return f(h.connection)
-}
-
-// Returns the Host address
-func (h *Host) GetAddress() string {
-	return h.address
-}
-
-// Returns a copy of the Host certificate
-func (h *Host) GetCertificate() []byte {
-	cert := make([]byte, len(h.certificate))
-	copy(h.certificate, cert)
-	return cert
 }
 
 // Returns true if the connection is non-nil and alive
@@ -140,7 +116,7 @@ func (h *Host) isAlive() bool {
 }
 
 // Closes a the Host connection
-func (h *Host) disconnect() {
+func (h *Host) Disconnect() {
 	if h.connection == nil {
 		return
 	}
@@ -154,6 +130,7 @@ func (h *Host) disconnect() {
 
 // Connect creates a connection
 func (h *Host) connect() (err error) {
+
 	// Configure TLS options
 	var securityDial grpc.DialOption
 	if h.credentials != nil {
@@ -261,9 +238,10 @@ func (h *Host) String() string {
 		securityProtocol = creds.Info().SecurityProtocol
 	}
 	return fmt.Sprintf(
-		"Addr: %v\tCertificate: %v\tMaxRetries: %v\tConnState: %v"+
+		"ID: %v\tAddr: %v\tCertificate: %v\tToken: %v\tEnableAuth: %v"+
+			"\tMaxRetries: %v\tConnState: %v"+
 			"\tTLS ServerName: %v\tTLS ProtocolVersion: %v\t"+
 			"TLS SecurityVersion: %v\tTLS SecurityProtocol: %v\n",
-		addr, h.certificate, h.maxRetries, state, serverName, protocolVersion,
-		securityVersion, securityProtocol)
+		h.id, addr, h.certificate, h.token, h.enableAuth, h.maxRetries, state,
+		serverName, protocolVersion, securityVersion, securityProtocol)
 }

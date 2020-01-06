@@ -18,19 +18,19 @@ service Node {
     }
 
     // CreatesNewRound makes a new round with a certain ID
-    rpc CreateNewRound (RoundInfo) returns (Ack) {
+    rpc CreateNewRound (AuthenticatedMessage) returns (Ack) {
     }
 
     // PostNewBatch sends a batch to be processed in the server's realtime
-    rpc PostNewBatch (Batch) returns (Ack) {
+    rpc PostNewBatch (AuthenticatedMessage) returns (Ack) {
     }
 
     // FinishRealtime broadcasts when realtime is complete
-    rpc FinishRealtime (RoundInfo) returns (Ack) {
+    rpc FinishRealtime (AuthenticatedMessage) returns (Ack) {
     }
 
     // PostPhase runs a cMix phase on another node
-    rpc PostPhase (Batch) returns (Ack) {
+    rpc PostPhase (AuthenticatedMessage) returns (Ack) {
     }
 
     // StreamPostPhase runs a cMix phase on another node
@@ -39,45 +39,41 @@ service Node {
     }
 
     // GetRoundBufferInfo returns the # of rounds ready for messages
-    rpc GetRoundBufferInfo (RoundBufferInfo) returns (RoundBufferInfo) {
+    rpc GetRoundBufferInfo (AuthenticatedMessage) returns (RoundBufferInfo) {
     }
 
     // RequestNonce generates a nonce for user registration
-    rpc RequestNonce (NonceRequest) returns (Nonce) {
+    rpc RequestNonce (AuthenticatedMessage) returns (Nonce) {
     }
 
     // ConfirmRegistration uses a nonce confirmation to finalize user registration
-    rpc ConfirmRegistration (RequestRegistrationConfirmation) returns (RegistrationConfirmation) {
+    rpc ConfirmRegistration (AuthenticatedMessage) returns (RegistrationConfirmation) {
     }
 
     // PostRoundPublicKey sets the public cypher key for a round on other nodes
-    rpc PostRoundPublicKey (RoundPublicKey) returns (Ack) {
+    rpc PostRoundPublicKey (AuthenticatedMessage) returns (Ack) {
     }
 
     // PostPrecompResult finalizes the precomputation results with each node from the last node
     // sending the final PayloadA and PayloadB precomputations
-    rpc PostPrecompResult (Batch) returns (Ack) {
+    rpc PostPrecompResult (AuthenticatedMessage) returns (Ack) {
     }
 
     // The gateway calls GetCompletedBatch to get any finished batch from a node
-    rpc GetCompletedBatch (Ping) returns (Batch) {
+    rpc GetCompletedBatch (AuthenticatedMessage) returns (Batch) {
     }
 
     //
-    rpc GetMeasure (RoundInfo) returns (RoundMetrics) {
+    rpc GetMeasure (AuthenticatedMessage) returns (RoundMetrics) {
     }
 
     // Gateway -> Server polling for NDF
-    rpc PollNdf (Ping) returns (GatewayNdf) {
+    rpc PollNdf (AuthenticatedMessage) returns (GatewayNdf) {
     }
 
     // Round trip ping comm
-    rpc SendRoundTripPing (RoundTripPing) returns (Ack) {
+    rpc SendRoundTripPing (AuthenticatedMessage) returns (Ack) {
     }
-}
-
-// The request message asking if server is online
-message Ping {
 }
 
 // The message for Init Round
@@ -97,23 +93,35 @@ message RoundPublicKey {
     bytes Key = 2;
 }
 
-// Contains network information about all Nodes
-message NodeTopology {
-    repeated NodeInfo Topology = 1;
-}
-
-// Contains network information about a single Node
-message NodeInfo {
-    bytes Id = 1;
-    uint32 Index = 2;
-    string ServerAddress = 3;
-    string GatewayAddress = 4;
-    string ServerTlsCert = 5;
-    string GatewayTlsCert = 6;
-}
-
+//
 message RoundMetrics {
     string RoundMetricJSON = 1;
+}
+
+// Contains the complete set of messages/slots for a round
+message Batch {
+    RoundInfo Round = 1;
+    int32 FromPhase = 2;
+    repeated Slot slots = 3;
+}
+
+// Used as part of header for streaming post phase
+message BatchInfo {
+    RoundInfo Round = 1;
+    int32 FromPhase = 2;
+    uint32 BatchSize = 3;
+}
+
+// Contains the NDF as well as the corresponding Node ID for the Gateway
+message GatewayNdf {
+    bytes Id = 1;
+    NDF Ndf = 2;
+}
+
+// Used for collecting metrics on a round trip of the system
+message RoundTripPing {
+    google.protobuf.Any Payload = 1;
+    RoundInfo Round = 2;
 }
 
 // GATEWAY MESSAGE SERVICE -----------------------------------------------------
@@ -151,6 +159,26 @@ message IDList {
     repeated string IDs = 1;
 }
 
+// Represents a single encrypted message in a batch
+message Slot {
+    // Index in batch this slot belongs in
+    uint32 Index = 1;
+
+    // Precomputation fields
+    bytes EncryptedPayloadAKeys = 2;
+    bytes EncryptedPayloadBKeys = 3;
+    bytes PartialPayloadACypherText = 4;
+    bytes PartialPayloadBCypherText = 5;
+    bytes PartialRoundPublicCypherKey = 6;
+
+    // Realtime/client fields
+    bytes SenderID = 7; // 256 bit Sender Id
+    bytes PayloadA = 8; // Len(Prime) bit length payload A (contains part of encrypted payload)
+    bytes PayloadB = 9; // Len(Prime) bit length payload B (contains part of encrypted payload, and associated data)
+    bytes Salt = 10; // Salt to identify message key
+    repeated bytes KMACs = 11; // Individual Key MAC for each node in network
+}
+
 // REGISTRATION MESSAGE SERVICE ------------------------------------------------
 
 // Registration service definition
@@ -163,12 +191,12 @@ service Registration {
     rpc GetCurrentClientVersion (Ping) returns (ClientVersion) {
     }
 
-    //Node registration for the permissioning server
+    // Node registration for the permissioning server
     rpc RegisterNode (NodeRegistration) returns (Ack) {
     }
 
     // Obtain NDF from the Registration Server
-    rpc PollNdf (NDFHash) returns (NDF) {
+    rpc PollNdf (AuthenticatedMessage) returns (NDF) {
     }
 }
 
@@ -180,12 +208,6 @@ message NDFHash {
 // Message type containing the network definition file
 message NDF {
     bytes Ndf = 1;
-}
-
-// Contains the NDF as well as the corresponding Node ID for the Gateway
-message GatewayNdf {
-    bytes Id = 1;
-    NDF Ndf = 2;
 }
 
 // RegisterNode to register a node with needed attributes
@@ -251,50 +273,35 @@ message RegistrationConfirmation {
 
 // GENERAL USE MESSAGES --------------------------------------------------------
 
-// Ack generic message containing an Error field
+// Generic service definition
+service Generic {
+    // Authenticate a token with the server
+    rpc AuthenticateToken (AuthenticatedMessage) returns (Ack) {
+    }
+
+    // Request a token from the server
+    rpc RequestToken (Ping) returns (AssignToken) {
+    }
+}
+
+// Generic response message providing an error message from remote servers
 message Ack {
     string Error = 1;
 }
 
-message Batch {
-    RoundInfo Round = 1;
-    int32 FromPhase = 2;
-    repeated Slot slots = 3;
+// Empty message for requesting action from any type of server
+message Ping {
 }
 
-// Used as part of header for streaming post phase
-message BatchInfo {
-    RoundInfo Round = 1;
-    int32 FromPhase = 2;
-    uint32 BatchSize = 3;
+// Wrapper for authenticated messages that also ensure integrity
+message AuthenticatedMessage {
+    string ID = 1;
+    bytes Signature = 2;
+    bytes Token = 3;
+    google.protobuf.Any Message = 4;
 }
 
-message Slot {
-    // Index in batch this slot belongs in
-    uint32 Index = 1;
-
-    // Precomputation fields
-    bytes EncryptedPayloadAKeys = 2;
-    bytes EncryptedPayloadBKeys = 3;
-    bytes PartialPayloadACypherText = 4;
-    bytes PartialPayloadBCypherText = 5;
-    bytes PartialRoundPublicCypherKey = 6;
-
-    // Realtime/client fields
-    bytes SenderID = 7;        // 256 bit Sender Id
-    bytes PayloadA = 8;  // Len(Prime) bit length payload A (contains part of encrypted payload)
-    bytes PayloadB = 9;  // Len(Prime) bit length payload B (contains part of encrypted payload, and associated data)
-    bytes Salt = 10;           // Salt to identify message key
-    repeated bytes KMACs = 11; // Individual Key MAC for each node in network
-}
-
-message SignedMessage {
-    bytes Signature = 1;
-    string ID = 2;
-    google.protobuf.Any Message = 3;
-}
-
-message RoundTripPing {
-    google.protobuf.Any Payload = 1;
-    RoundInfo Round = 2;
+// Provides a token to establish reverse identity to any type of client
+message AssignToken {
+    bytes Token = 1;
 }

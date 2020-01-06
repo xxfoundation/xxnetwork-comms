@@ -16,14 +16,14 @@ import (
 // Smoke test SendRegistrationMessage
 func TestSendRegistrationMessage(t *testing.T) {
 	GatewayAddress := getNextGatewayAddress()
-	rg := registration.StartRegistrationServer(GatewayAddress,
+	rg := registration.StartRegistrationServer("test", GatewayAddress,
 		registration.NewImplementation(), nil, nil)
 	defer rg.Shutdown()
 	var c Comms
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := manager.AddHost(testId, GatewayAddress, nil, false)
+	host, err := manager.AddHost(testId, GatewayAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -37,14 +37,14 @@ func TestSendRegistrationMessage(t *testing.T) {
 // Smoke test SendCheckClientVersion
 func TestSendCheckClientVersionMessage(t *testing.T) {
 	GatewayAddress := getNextGatewayAddress()
-	rg := registration.StartRegistrationServer(GatewayAddress,
+	rg := registration.StartRegistrationServer("test", GatewayAddress,
 		registration.NewImplementation(), nil, nil)
 	defer rg.Shutdown()
 	var c Comms
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := manager.AddHost(testId, GatewayAddress, nil, false)
+	host, err := manager.AddHost(testId, GatewayAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -58,14 +58,14 @@ func TestSendCheckClientVersionMessage(t *testing.T) {
 //Smoke test RequestNdf
 func TestSendGetUpdatedNDF(t *testing.T) {
 	GatewayAddress := getNextGatewayAddress()
-	rg := registration.StartRegistrationServer(GatewayAddress,
+	rg := registration.StartRegistrationServer("test", GatewayAddress,
 		registration.NewImplementation(), nil, nil)
 	defer rg.Shutdown()
 	var c Comms
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := manager.AddHost(testId, GatewayAddress, nil, false)
+	host, err := manager.AddHost(testId, GatewayAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}

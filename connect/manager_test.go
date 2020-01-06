@@ -38,14 +38,6 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
-func TestManager_SetPrivateKey_Invalid(t *testing.T) {
-	var manager Manager
-	err := manager.SetPrivateKey(make([]byte, 0))
-	if err == nil {
-		t.Errorf("Expected error!")
-	}
-}
-
 func TestSetCredentials_InvalidCert(t *testing.T) {
 	host := &Host{
 		address:     "",
@@ -66,7 +58,7 @@ func TestConnectionManager_Disconnect(t *testing.T) {
 	address := SERVER_ADDRESS
 	var manager Manager
 	testId := "testId"
-	host, err := manager.AddHost(testId, address, nil, false)
+	host, err := manager.AddHost(testId, address, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call connnect: %+v", err)
 	}
@@ -83,7 +75,7 @@ func TestConnectionManager_Disconnect(t *testing.T) {
 	if err != nil {
 		t.Error("Unable to connect")
 	}
-	host.disconnect()
+	host.Disconnect()
 
 	if host.isAlive() {
 		t.Errorf("Disconnect Function not working properly")
@@ -106,7 +98,7 @@ func TestConnectionManager_DisconnectAll(t *testing.T) {
 	testId := "testId"
 	testId2 := "TestId2"
 
-	host, err := manager.AddHost(testId, address, nil, false)
+	host, err := manager.AddHost(testId, address, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -119,7 +111,7 @@ func TestConnectionManager_DisconnectAll(t *testing.T) {
 		pass++
 	}
 
-	host2, err := manager.AddHost(testId2, address2, nil, false)
+	host2, err := manager.AddHost(testId2, address2, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -163,7 +155,7 @@ func TestConnectionManager_String(t *testing.T) {
 
 	certPath := testkeys.GetNodeCertPath()
 	certData := testkeys.LoadFromPath(certPath)
-	_, err := manager.AddHost("test", "test", certData, false)
+	_, err := manager.AddHost("test", "test", certData, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}

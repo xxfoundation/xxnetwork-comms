@@ -11,7 +11,7 @@ import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 )
 
-// Blank struct implementing ServerHandler interface for testing purposes (Passing to StartNode)
+// Blank struct implementing Handler interface for testing purposes (Passing to StartNode)
 type TestInterface struct{}
 
 func (m TestInterface) NewRound(roundID string) {}

@@ -9,9 +9,12 @@
 package gateway
 
 import (
+	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
+	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/primitives/id"
+	"google.golang.org/grpc/reflection"
 	"runtime/debug"
 )
 
@@ -28,6 +31,46 @@ type Handler interface {
 	// Pass-through for Registration Nonce Confirmation
 	ConfirmNonce(message *pb.RequestRegistrationConfirmation, ipAddress string) (*pb.
 		RegistrationConfirmation, error)
+}
+
+// Gateway object used to implement endpoints and top-level comms functionality
+type Comms struct {
+	*connect.ProtoComms
+	handler Handler
+}
+
+// Starts a new gateway on the address:port specified by localServer
+// and a callback interface for gateway operations
+// with given path to public and private key for TLS connection
+func StartGateway(id, localServer string, handler Handler,
+	certPEMblock, keyPEMblock []byte) *Comms {
+	pc, lis, err := connect.StartCommServer(id, localServer,
+		certPEMblock, keyPEMblock)
+	if err != nil {
+		jww.FATAL.Panicf("Unable to start comms server: %+v", err)
+	}
+
+	gatewayServer := Comms{
+		ProtoComms: pc,
+		handler:    handler,
+	}
+
+	go func() {
+		pb.RegisterGatewayServer(gatewayServer.LocalServer, &gatewayServer)
+
+		// Register reflection service on gRPC server.
+		// This blocks for the lifetime of the listener.
+		reflection.Register(gatewayServer.LocalServer)
+		if err := gatewayServer.LocalServer.Serve(lis); err != nil {
+			jww.FATAL.Panicf("Failed to serve: %+v",
+				errors.New(err.Error()))
+		}
+		jww.INFO.Printf("Shutting down gateway server listener: %s",
+			lis)
+
+	}()
+
+	return &gatewayServer
 }
 
 // Handler implementation for the Gateway

@@ -12,6 +12,7 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
+	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"google.golang.org/grpc"
@@ -19,7 +20,6 @@ import (
 
 // Client -> Gateway Send Function
 func (c *Comms) SendPutMessage(host *connect.Host, message *pb.Slot) error {
-
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
@@ -35,7 +35,8 @@ func (c *Comms) SendPutMessage(host *connect.Host, message *pb.Slot) error {
 	}
 
 	// Execute the Send function
-	_, err := host.Send(f)
+	jww.DEBUG.Printf("Sending Put message: %+v", message)
+	_, err := c.Send(host, f)
 	return err
 }
 
@@ -58,7 +59,8 @@ func (c *Comms) SendCheckMessages(host *connect.Host,
 	}
 
 	// Execute the Send function
-	resultMsg, err := host.Send(f)
+	jww.DEBUG.Printf("Sending Check message: %+v", message)
+	resultMsg, err := c.Send(host, f)
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +89,8 @@ func (c *Comms) SendGetMessage(host *connect.Host,
 	}
 
 	// Execute the Send function
-	resultMsg, err := host.Send(f)
+	jww.DEBUG.Printf("Sending Get message: %+v", message)
+	resultMsg, err := c.Send(host, f)
 	if err != nil {
 		return nil, err
 	}
@@ -118,7 +121,8 @@ func (c *Comms) SendRequestNonceMessage(host *connect.Host,
 	}
 
 	// Execute the Send function
-	resultMsg, err := host.Send(f)
+	jww.DEBUG.Printf("Sending Request Nonce message: %+v", message)
+	resultMsg, err := c.Send(host, f)
 	if err != nil {
 		return nil, err
 	}
@@ -147,7 +151,8 @@ func (c *Comms) SendConfirmNonceMessage(host *connect.Host,
 	}
 
 	// Execute the Send function
-	resultMsg, err := host.Send(f)
+	jww.DEBUG.Printf("Sending Confirm Nonce message: %+v", message)
+	resultMsg, err := c.Send(host, f)
 	if err != nil {
 		return nil, err
 	}

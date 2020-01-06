@@ -25,38 +25,6 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
-// The request message asking if server is online
-type Ping struct {
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *Ping) Reset()         { *m = Ping{} }
-func (m *Ping) String() string { return proto.CompactTextString(m) }
-func (*Ping) ProtoMessage()    {}
-func (*Ping) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f858aeec3eb2fbf5, []int{0}
-}
-
-func (m *Ping) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_Ping.Unmarshal(m, b)
-}
-func (m *Ping) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_Ping.Marshal(b, m, deterministic)
-}
-func (m *Ping) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Ping.Merge(m, src)
-}
-func (m *Ping) XXX_Size() int {
-	return xxx_messageInfo_Ping.Size(m)
-}
-func (m *Ping) XXX_DiscardUnknown() {
-	xxx_messageInfo_Ping.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_Ping proto.InternalMessageInfo
-
 // The message for Init Round
 type RoundInfo struct {
 	ID                   uint64   `protobuf:"varint,1,opt,name=ID,proto3" json:"ID,omitempty"`
@@ -69,7 +37,7 @@ func (m *RoundInfo) Reset()         { *m = RoundInfo{} }
 func (m *RoundInfo) String() string { return proto.CompactTextString(m) }
 func (*RoundInfo) ProtoMessage()    {}
 func (*RoundInfo) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f858aeec3eb2fbf5, []int{1}
+	return fileDescriptor_f858aeec3eb2fbf5, []int{0}
 }
 
 func (m *RoundInfo) XXX_Unmarshal(b []byte) error {
@@ -110,7 +78,7 @@ func (m *RoundBufferInfo) Reset()         { *m = RoundBufferInfo{} }
 func (m *RoundBufferInfo) String() string { return proto.CompactTextString(m) }
 func (*RoundBufferInfo) ProtoMessage()    {}
 func (*RoundBufferInfo) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f858aeec3eb2fbf5, []int{2}
+	return fileDescriptor_f858aeec3eb2fbf5, []int{1}
 }
 
 func (m *RoundBufferInfo) XXX_Unmarshal(b []byte) error {
@@ -151,7 +119,7 @@ func (m *RoundPublicKey) Reset()         { *m = RoundPublicKey{} }
 func (m *RoundPublicKey) String() string { return proto.CompactTextString(m) }
 func (*RoundPublicKey) ProtoMessage()    {}
 func (*RoundPublicKey) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f858aeec3eb2fbf5, []int{3}
+	return fileDescriptor_f858aeec3eb2fbf5, []int{2}
 }
 
 func (m *RoundPublicKey) XXX_Unmarshal(b []byte) error {
@@ -186,126 +154,7 @@ func (m *RoundPublicKey) GetKey() []byte {
 	return nil
 }
 
-// Contains network information about all Nodes
-type NodeTopology struct {
-	Topology             []*NodeInfo `protobuf:"bytes,1,rep,name=Topology,proto3" json:"Topology,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}    `json:"-"`
-	XXX_unrecognized     []byte      `json:"-"`
-	XXX_sizecache        int32       `json:"-"`
-}
-
-func (m *NodeTopology) Reset()         { *m = NodeTopology{} }
-func (m *NodeTopology) String() string { return proto.CompactTextString(m) }
-func (*NodeTopology) ProtoMessage()    {}
-func (*NodeTopology) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f858aeec3eb2fbf5, []int{4}
-}
-
-func (m *NodeTopology) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_NodeTopology.Unmarshal(m, b)
-}
-func (m *NodeTopology) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_NodeTopology.Marshal(b, m, deterministic)
-}
-func (m *NodeTopology) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_NodeTopology.Merge(m, src)
-}
-func (m *NodeTopology) XXX_Size() int {
-	return xxx_messageInfo_NodeTopology.Size(m)
-}
-func (m *NodeTopology) XXX_DiscardUnknown() {
-	xxx_messageInfo_NodeTopology.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_NodeTopology proto.InternalMessageInfo
-
-func (m *NodeTopology) GetTopology() []*NodeInfo {
-	if m != nil {
-		return m.Topology
-	}
-	return nil
-}
-
-// Contains network information about a single Node
-type NodeInfo struct {
-	Id                   []byte   `protobuf:"bytes,1,opt,name=Id,proto3" json:"Id,omitempty"`
-	Index                uint32   `protobuf:"varint,2,opt,name=Index,proto3" json:"Index,omitempty"`
-	ServerAddress        string   `protobuf:"bytes,3,opt,name=ServerAddress,proto3" json:"ServerAddress,omitempty"`
-	GatewayAddress       string   `protobuf:"bytes,4,opt,name=GatewayAddress,proto3" json:"GatewayAddress,omitempty"`
-	ServerTlsCert        string   `protobuf:"bytes,5,opt,name=ServerTlsCert,proto3" json:"ServerTlsCert,omitempty"`
-	GatewayTlsCert       string   `protobuf:"bytes,6,opt,name=GatewayTlsCert,proto3" json:"GatewayTlsCert,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *NodeInfo) Reset()         { *m = NodeInfo{} }
-func (m *NodeInfo) String() string { return proto.CompactTextString(m) }
-func (*NodeInfo) ProtoMessage()    {}
-func (*NodeInfo) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f858aeec3eb2fbf5, []int{5}
-}
-
-func (m *NodeInfo) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_NodeInfo.Unmarshal(m, b)
-}
-func (m *NodeInfo) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_NodeInfo.Marshal(b, m, deterministic)
-}
-func (m *NodeInfo) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_NodeInfo.Merge(m, src)
-}
-func (m *NodeInfo) XXX_Size() int {
-	return xxx_messageInfo_NodeInfo.Size(m)
-}
-func (m *NodeInfo) XXX_DiscardUnknown() {
-	xxx_messageInfo_NodeInfo.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_NodeInfo proto.InternalMessageInfo
-
-func (m *NodeInfo) GetId() []byte {
-	if m != nil {
-		return m.Id
-	}
-	return nil
-}
-
-func (m *NodeInfo) GetIndex() uint32 {
-	if m != nil {
-		return m.Index
-	}
-	return 0
-}
-
-func (m *NodeInfo) GetServerAddress() string {
-	if m != nil {
-		return m.ServerAddress
-	}
-	return ""
-}
-
-func (m *NodeInfo) GetGatewayAddress() string {
-	if m != nil {
-		return m.GatewayAddress
-	}
-	return ""
-}
-
-func (m *NodeInfo) GetServerTlsCert() string {
-	if m != nil {
-		return m.ServerTlsCert
-	}
-	return ""
-}
-
-func (m *NodeInfo) GetGatewayTlsCert() string {
-	if m != nil {
-		return m.GatewayTlsCert
-	}
-	return ""
-}
-
+//
 type RoundMetrics struct {
 	RoundMetricJSON      string   `protobuf:"bytes,1,opt,name=RoundMetricJSON,proto3" json:"RoundMetricJSON,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -317,7 +166,7 @@ func (m *RoundMetrics) Reset()         { *m = RoundMetrics{} }
 func (m *RoundMetrics) String() string { return proto.CompactTextString(m) }
 func (*RoundMetrics) ProtoMessage()    {}
 func (*RoundMetrics) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f858aeec3eb2fbf5, []int{6}
+	return fileDescriptor_f858aeec3eb2fbf5, []int{3}
 }
 
 func (m *RoundMetrics) XXX_Unmarshal(b []byte) error {
@@ -345,743 +194,7 @@ func (m *RoundMetrics) GetRoundMetricJSON() string {
 	return ""
 }
 
-// ClientRequest message for clients to poll new CMIX messages
-type ClientRequest struct {
-	UserID               []byte   `protobuf:"bytes,1,opt,name=UserID,proto3" json:"UserID,omitempty"`
-	LastMessageID        string   `protobuf:"bytes,2,opt,name=LastMessageID,proto3" json:"LastMessageID,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *ClientRequest) Reset()         { *m = ClientRequest{} }
-func (m *ClientRequest) String() string { return proto.CompactTextString(m) }
-func (*ClientRequest) ProtoMessage()    {}
-func (*ClientRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f858aeec3eb2fbf5, []int{7}
-}
-
-func (m *ClientRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_ClientRequest.Unmarshal(m, b)
-}
-func (m *ClientRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_ClientRequest.Marshal(b, m, deterministic)
-}
-func (m *ClientRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ClientRequest.Merge(m, src)
-}
-func (m *ClientRequest) XXX_Size() int {
-	return xxx_messageInfo_ClientRequest.Size(m)
-}
-func (m *ClientRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_ClientRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_ClientRequest proto.InternalMessageInfo
-
-func (m *ClientRequest) GetUserID() []byte {
-	if m != nil {
-		return m.UserID
-	}
-	return nil
-}
-
-func (m *ClientRequest) GetLastMessageID() string {
-	if m != nil {
-		return m.LastMessageID
-	}
-	return ""
-}
-
-// The message for clients to poll the gateway for Message IDs
-type IDList struct {
-	IDs                  []string `protobuf:"bytes,1,rep,name=IDs,proto3" json:"IDs,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *IDList) Reset()         { *m = IDList{} }
-func (m *IDList) String() string { return proto.CompactTextString(m) }
-func (*IDList) ProtoMessage()    {}
-func (*IDList) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f858aeec3eb2fbf5, []int{8}
-}
-
-func (m *IDList) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_IDList.Unmarshal(m, b)
-}
-func (m *IDList) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_IDList.Marshal(b, m, deterministic)
-}
-func (m *IDList) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_IDList.Merge(m, src)
-}
-func (m *IDList) XXX_Size() int {
-	return xxx_messageInfo_IDList.Size(m)
-}
-func (m *IDList) XXX_DiscardUnknown() {
-	xxx_messageInfo_IDList.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_IDList proto.InternalMessageInfo
-
-func (m *IDList) GetIDs() []string {
-	if m != nil {
-		return m.IDs
-	}
-	return nil
-}
-
-//The ndf Hash used to compare ndf on permissioning and client
-type NDFHash struct {
-	Hash                 []byte   `protobuf:"bytes,1,opt,name=Hash,proto3" json:"Hash,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *NDFHash) Reset()         { *m = NDFHash{} }
-func (m *NDFHash) String() string { return proto.CompactTextString(m) }
-func (*NDFHash) ProtoMessage()    {}
-func (*NDFHash) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f858aeec3eb2fbf5, []int{9}
-}
-
-func (m *NDFHash) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_NDFHash.Unmarshal(m, b)
-}
-func (m *NDFHash) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_NDFHash.Marshal(b, m, deterministic)
-}
-func (m *NDFHash) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_NDFHash.Merge(m, src)
-}
-func (m *NDFHash) XXX_Size() int {
-	return xxx_messageInfo_NDFHash.Size(m)
-}
-func (m *NDFHash) XXX_DiscardUnknown() {
-	xxx_messageInfo_NDFHash.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_NDFHash proto.InternalMessageInfo
-
-func (m *NDFHash) GetHash() []byte {
-	if m != nil {
-		return m.Hash
-	}
-	return nil
-}
-
-// Message type containing the network definition file
-type NDF struct {
-	Ndf                  []byte   `protobuf:"bytes,1,opt,name=Ndf,proto3" json:"Ndf,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *NDF) Reset()         { *m = NDF{} }
-func (m *NDF) String() string { return proto.CompactTextString(m) }
-func (*NDF) ProtoMessage()    {}
-func (*NDF) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f858aeec3eb2fbf5, []int{10}
-}
-
-func (m *NDF) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_NDF.Unmarshal(m, b)
-}
-func (m *NDF) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_NDF.Marshal(b, m, deterministic)
-}
-func (m *NDF) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_NDF.Merge(m, src)
-}
-func (m *NDF) XXX_Size() int {
-	return xxx_messageInfo_NDF.Size(m)
-}
-func (m *NDF) XXX_DiscardUnknown() {
-	xxx_messageInfo_NDF.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_NDF proto.InternalMessageInfo
-
-func (m *NDF) GetNdf() []byte {
-	if m != nil {
-		return m.Ndf
-	}
-	return nil
-}
-
-// Contains the NDF as well as the corresponding Node ID for the Gateway
-type GatewayNdf struct {
-	Id                   []byte   `protobuf:"bytes,1,opt,name=Id,proto3" json:"Id,omitempty"`
-	Ndf                  *NDF     `protobuf:"bytes,2,opt,name=Ndf,proto3" json:"Ndf,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *GatewayNdf) Reset()         { *m = GatewayNdf{} }
-func (m *GatewayNdf) String() string { return proto.CompactTextString(m) }
-func (*GatewayNdf) ProtoMessage()    {}
-func (*GatewayNdf) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f858aeec3eb2fbf5, []int{11}
-}
-
-func (m *GatewayNdf) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_GatewayNdf.Unmarshal(m, b)
-}
-func (m *GatewayNdf) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_GatewayNdf.Marshal(b, m, deterministic)
-}
-func (m *GatewayNdf) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_GatewayNdf.Merge(m, src)
-}
-func (m *GatewayNdf) XXX_Size() int {
-	return xxx_messageInfo_GatewayNdf.Size(m)
-}
-func (m *GatewayNdf) XXX_DiscardUnknown() {
-	xxx_messageInfo_GatewayNdf.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_GatewayNdf proto.InternalMessageInfo
-
-func (m *GatewayNdf) GetId() []byte {
-	if m != nil {
-		return m.Id
-	}
-	return nil
-}
-
-func (m *GatewayNdf) GetNdf() *NDF {
-	if m != nil {
-		return m.Ndf
-	}
-	return nil
-}
-
-// RegisterNode to register a node with needed attributes
-type NodeRegistration struct {
-	ID                   []byte   `protobuf:"bytes,1,opt,name=ID,proto3" json:"ID,omitempty"`
-	ServerTlsCert        string   `protobuf:"bytes,2,opt,name=ServerTlsCert,proto3" json:"ServerTlsCert,omitempty"`
-	GatewayTlsCert       string   `protobuf:"bytes,3,opt,name=GatewayTlsCert,proto3" json:"GatewayTlsCert,omitempty"`
-	GatewayAddress       string   `protobuf:"bytes,4,opt,name=GatewayAddress,proto3" json:"GatewayAddress,omitempty"`
-	RegistrationCode     string   `protobuf:"bytes,5,opt,name=RegistrationCode,proto3" json:"RegistrationCode,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *NodeRegistration) Reset()         { *m = NodeRegistration{} }
-func (m *NodeRegistration) String() string { return proto.CompactTextString(m) }
-func (*NodeRegistration) ProtoMessage()    {}
-func (*NodeRegistration) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f858aeec3eb2fbf5, []int{12}
-}
-
-func (m *NodeRegistration) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_NodeRegistration.Unmarshal(m, b)
-}
-func (m *NodeRegistration) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_NodeRegistration.Marshal(b, m, deterministic)
-}
-func (m *NodeRegistration) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_NodeRegistration.Merge(m, src)
-}
-func (m *NodeRegistration) XXX_Size() int {
-	return xxx_messageInfo_NodeRegistration.Size(m)
-}
-func (m *NodeRegistration) XXX_DiscardUnknown() {
-	xxx_messageInfo_NodeRegistration.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_NodeRegistration proto.InternalMessageInfo
-
-func (m *NodeRegistration) GetID() []byte {
-	if m != nil {
-		return m.ID
-	}
-	return nil
-}
-
-func (m *NodeRegistration) GetServerTlsCert() string {
-	if m != nil {
-		return m.ServerTlsCert
-	}
-	return ""
-}
-
-func (m *NodeRegistration) GetGatewayTlsCert() string {
-	if m != nil {
-		return m.GatewayTlsCert
-	}
-	return ""
-}
-
-func (m *NodeRegistration) GetGatewayAddress() string {
-	if m != nil {
-		return m.GatewayAddress
-	}
-	return ""
-}
-
-func (m *NodeRegistration) GetRegistrationCode() string {
-	if m != nil {
-		return m.RegistrationCode
-	}
-	return ""
-}
-
-// RSASignature is a digital signature for the RSA algorithm
-type RSASignature struct {
-	Signature            []byte   `protobuf:"bytes,1,opt,name=Signature,proto3" json:"Signature,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *RSASignature) Reset()         { *m = RSASignature{} }
-func (m *RSASignature) String() string { return proto.CompactTextString(m) }
-func (*RSASignature) ProtoMessage()    {}
-func (*RSASignature) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f858aeec3eb2fbf5, []int{13}
-}
-
-func (m *RSASignature) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_RSASignature.Unmarshal(m, b)
-}
-func (m *RSASignature) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_RSASignature.Marshal(b, m, deterministic)
-}
-func (m *RSASignature) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_RSASignature.Merge(m, src)
-}
-func (m *RSASignature) XXX_Size() int {
-	return xxx_messageInfo_RSASignature.Size(m)
-}
-func (m *RSASignature) XXX_DiscardUnknown() {
-	xxx_messageInfo_RSASignature.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_RSASignature proto.InternalMessageInfo
-
-func (m *RSASignature) GetSignature() []byte {
-	if m != nil {
-		return m.Signature
-	}
-	return nil
-}
-
-// UserRegistration message to initialize registration process
-type UserRegistration struct {
-	RegistrationCode     string   `protobuf:"bytes,1,opt,name=RegistrationCode,proto3" json:"RegistrationCode,omitempty"`
-	ClientRSAPubKey      string   `protobuf:"bytes,2,opt,name=ClientRSAPubKey,proto3" json:"ClientRSAPubKey,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *UserRegistration) Reset()         { *m = UserRegistration{} }
-func (m *UserRegistration) String() string { return proto.CompactTextString(m) }
-func (*UserRegistration) ProtoMessage()    {}
-func (*UserRegistration) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f858aeec3eb2fbf5, []int{14}
-}
-
-func (m *UserRegistration) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_UserRegistration.Unmarshal(m, b)
-}
-func (m *UserRegistration) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_UserRegistration.Marshal(b, m, deterministic)
-}
-func (m *UserRegistration) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_UserRegistration.Merge(m, src)
-}
-func (m *UserRegistration) XXX_Size() int {
-	return xxx_messageInfo_UserRegistration.Size(m)
-}
-func (m *UserRegistration) XXX_DiscardUnknown() {
-	xxx_messageInfo_UserRegistration.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_UserRegistration proto.InternalMessageInfo
-
-func (m *UserRegistration) GetRegistrationCode() string {
-	if m != nil {
-		return m.RegistrationCode
-	}
-	return ""
-}
-
-func (m *UserRegistration) GetClientRSAPubKey() string {
-	if m != nil {
-		return m.ClientRSAPubKey
-	}
-	return ""
-}
-
-// UserRegistrationConfirmation to confirm registration with users
-type UserRegistrationConfirmation struct {
-	// RegistrationServer-Signed Client Public Key
-	ClientSignedByServer *RSASignature `protobuf:"bytes,1,opt,name=ClientSignedByServer,proto3" json:"ClientSignedByServer,omitempty"`
-	Error                string        `protobuf:"bytes,2,opt,name=Error,proto3" json:"Error,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}      `json:"-"`
-	XXX_unrecognized     []byte        `json:"-"`
-	XXX_sizecache        int32         `json:"-"`
-}
-
-func (m *UserRegistrationConfirmation) Reset()         { *m = UserRegistrationConfirmation{} }
-func (m *UserRegistrationConfirmation) String() string { return proto.CompactTextString(m) }
-func (*UserRegistrationConfirmation) ProtoMessage()    {}
-func (*UserRegistrationConfirmation) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f858aeec3eb2fbf5, []int{15}
-}
-
-func (m *UserRegistrationConfirmation) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_UserRegistrationConfirmation.Unmarshal(m, b)
-}
-func (m *UserRegistrationConfirmation) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_UserRegistrationConfirmation.Marshal(b, m, deterministic)
-}
-func (m *UserRegistrationConfirmation) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_UserRegistrationConfirmation.Merge(m, src)
-}
-func (m *UserRegistrationConfirmation) XXX_Size() int {
-	return xxx_messageInfo_UserRegistrationConfirmation.Size(m)
-}
-func (m *UserRegistrationConfirmation) XXX_DiscardUnknown() {
-	xxx_messageInfo_UserRegistrationConfirmation.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_UserRegistrationConfirmation proto.InternalMessageInfo
-
-func (m *UserRegistrationConfirmation) GetClientSignedByServer() *RSASignature {
-	if m != nil {
-		return m.ClientSignedByServer
-	}
-	return nil
-}
-
-func (m *UserRegistrationConfirmation) GetError() string {
-	if m != nil {
-		return m.Error
-	}
-	return ""
-}
-
-// ClientVersion contains a version string for the client
-type ClientVersion struct {
-	Version              string   `protobuf:"bytes,1,opt,name=Version,proto3" json:"Version,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *ClientVersion) Reset()         { *m = ClientVersion{} }
-func (m *ClientVersion) String() string { return proto.CompactTextString(m) }
-func (*ClientVersion) ProtoMessage()    {}
-func (*ClientVersion) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f858aeec3eb2fbf5, []int{16}
-}
-
-func (m *ClientVersion) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_ClientVersion.Unmarshal(m, b)
-}
-func (m *ClientVersion) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_ClientVersion.Marshal(b, m, deterministic)
-}
-func (m *ClientVersion) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ClientVersion.Merge(m, src)
-}
-func (m *ClientVersion) XXX_Size() int {
-	return xxx_messageInfo_ClientVersion.Size(m)
-}
-func (m *ClientVersion) XXX_DiscardUnknown() {
-	xxx_messageInfo_ClientVersion.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_ClientVersion proto.InternalMessageInfo
-
-func (m *ClientVersion) GetVersion() string {
-	if m != nil {
-		return m.Version
-	}
-	return ""
-}
-
-// NonceRequest message to request nonce from client to server
-type NonceRequest struct {
-	Salt                 []byte        `protobuf:"bytes,1,opt,name=Salt,proto3" json:"Salt,omitempty"`
-	ClientRSAPubKey      string        `protobuf:"bytes,2,opt,name=ClientRSAPubKey,proto3" json:"ClientRSAPubKey,omitempty"`
-	ClientSignedByServer *RSASignature `protobuf:"bytes,3,opt,name=ClientSignedByServer,proto3" json:"ClientSignedByServer,omitempty"`
-	ClientDHPubKey       []byte        `protobuf:"bytes,4,opt,name=ClientDHPubKey,proto3" json:"ClientDHPubKey,omitempty"`
-	RequestSignature     *RSASignature `protobuf:"bytes,5,opt,name=RequestSignature,proto3" json:"RequestSignature,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}      `json:"-"`
-	XXX_unrecognized     []byte        `json:"-"`
-	XXX_sizecache        int32         `json:"-"`
-}
-
-func (m *NonceRequest) Reset()         { *m = NonceRequest{} }
-func (m *NonceRequest) String() string { return proto.CompactTextString(m) }
-func (*NonceRequest) ProtoMessage()    {}
-func (*NonceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f858aeec3eb2fbf5, []int{17}
-}
-
-func (m *NonceRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_NonceRequest.Unmarshal(m, b)
-}
-func (m *NonceRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_NonceRequest.Marshal(b, m, deterministic)
-}
-func (m *NonceRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_NonceRequest.Merge(m, src)
-}
-func (m *NonceRequest) XXX_Size() int {
-	return xxx_messageInfo_NonceRequest.Size(m)
-}
-func (m *NonceRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_NonceRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_NonceRequest proto.InternalMessageInfo
-
-func (m *NonceRequest) GetSalt() []byte {
-	if m != nil {
-		return m.Salt
-	}
-	return nil
-}
-
-func (m *NonceRequest) GetClientRSAPubKey() string {
-	if m != nil {
-		return m.ClientRSAPubKey
-	}
-	return ""
-}
-
-func (m *NonceRequest) GetClientSignedByServer() *RSASignature {
-	if m != nil {
-		return m.ClientSignedByServer
-	}
-	return nil
-}
-
-func (m *NonceRequest) GetClientDHPubKey() []byte {
-	if m != nil {
-		return m.ClientDHPubKey
-	}
-	return nil
-}
-
-func (m *NonceRequest) GetRequestSignature() *RSASignature {
-	if m != nil {
-		return m.RequestSignature
-	}
-	return nil
-}
-
-// Nonce message to reply to client from server
-type Nonce struct {
-	Nonce                []byte   `protobuf:"bytes,1,opt,name=Nonce,proto3" json:"Nonce,omitempty"`
-	DHPubKey             []byte   `protobuf:"bytes,2,opt,name=DHPubKey,proto3" json:"DHPubKey,omitempty"`
-	Error                string   `protobuf:"bytes,3,opt,name=Error,proto3" json:"Error,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *Nonce) Reset()         { *m = Nonce{} }
-func (m *Nonce) String() string { return proto.CompactTextString(m) }
-func (*Nonce) ProtoMessage()    {}
-func (*Nonce) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f858aeec3eb2fbf5, []int{18}
-}
-
-func (m *Nonce) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_Nonce.Unmarshal(m, b)
-}
-func (m *Nonce) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_Nonce.Marshal(b, m, deterministic)
-}
-func (m *Nonce) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Nonce.Merge(m, src)
-}
-func (m *Nonce) XXX_Size() int {
-	return xxx_messageInfo_Nonce.Size(m)
-}
-func (m *Nonce) XXX_DiscardUnknown() {
-	xxx_messageInfo_Nonce.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_Nonce proto.InternalMessageInfo
-
-func (m *Nonce) GetNonce() []byte {
-	if m != nil {
-		return m.Nonce
-	}
-	return nil
-}
-
-func (m *Nonce) GetDHPubKey() []byte {
-	if m != nil {
-		return m.DHPubKey
-	}
-	return nil
-}
-
-func (m *Nonce) GetError() string {
-	if m != nil {
-		return m.Error
-	}
-	return ""
-}
-
-// RequestRegistrationConfirmation returning proof of registration
-type RequestRegistrationConfirmation struct {
-	UserID               []byte        `protobuf:"bytes,1,opt,name=userID,proto3" json:"userID,omitempty"`
-	NonceSignedByClient  *RSASignature `protobuf:"bytes,2,opt,name=NonceSignedByClient,proto3" json:"NonceSignedByClient,omitempty"`
-	Error                string        `protobuf:"bytes,3,opt,name=Error,proto3" json:"Error,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}      `json:"-"`
-	XXX_unrecognized     []byte        `json:"-"`
-	XXX_sizecache        int32         `json:"-"`
-}
-
-func (m *RequestRegistrationConfirmation) Reset()         { *m = RequestRegistrationConfirmation{} }
-func (m *RequestRegistrationConfirmation) String() string { return proto.CompactTextString(m) }
-func (*RequestRegistrationConfirmation) ProtoMessage()    {}
-func (*RequestRegistrationConfirmation) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f858aeec3eb2fbf5, []int{19}
-}
-
-func (m *RequestRegistrationConfirmation) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_RequestRegistrationConfirmation.Unmarshal(m, b)
-}
-func (m *RequestRegistrationConfirmation) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_RequestRegistrationConfirmation.Marshal(b, m, deterministic)
-}
-func (m *RequestRegistrationConfirmation) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_RequestRegistrationConfirmation.Merge(m, src)
-}
-func (m *RequestRegistrationConfirmation) XXX_Size() int {
-	return xxx_messageInfo_RequestRegistrationConfirmation.Size(m)
-}
-func (m *RequestRegistrationConfirmation) XXX_DiscardUnknown() {
-	xxx_messageInfo_RequestRegistrationConfirmation.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_RequestRegistrationConfirmation proto.InternalMessageInfo
-
-func (m *RequestRegistrationConfirmation) GetUserID() []byte {
-	if m != nil {
-		return m.UserID
-	}
-	return nil
-}
-
-func (m *RequestRegistrationConfirmation) GetNonceSignedByClient() *RSASignature {
-	if m != nil {
-		return m.NonceSignedByClient
-	}
-	return nil
-}
-
-func (m *RequestRegistrationConfirmation) GetError() string {
-	if m != nil {
-		return m.Error
-	}
-	return ""
-}
-
-// RegistrationConfirmation returning proof of registration
-type RegistrationConfirmation struct {
-	ClientSignedByServer *RSASignature `protobuf:"bytes,1,opt,name=ClientSignedByServer,proto3" json:"ClientSignedByServer,omitempty"`
-	Error                string        `protobuf:"bytes,2,opt,name=Error,proto3" json:"Error,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}      `json:"-"`
-	XXX_unrecognized     []byte        `json:"-"`
-	XXX_sizecache        int32         `json:"-"`
-}
-
-func (m *RegistrationConfirmation) Reset()         { *m = RegistrationConfirmation{} }
-func (m *RegistrationConfirmation) String() string { return proto.CompactTextString(m) }
-func (*RegistrationConfirmation) ProtoMessage()    {}
-func (*RegistrationConfirmation) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f858aeec3eb2fbf5, []int{20}
-}
-
-func (m *RegistrationConfirmation) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_RegistrationConfirmation.Unmarshal(m, b)
-}
-func (m *RegistrationConfirmation) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_RegistrationConfirmation.Marshal(b, m, deterministic)
-}
-func (m *RegistrationConfirmation) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_RegistrationConfirmation.Merge(m, src)
-}
-func (m *RegistrationConfirmation) XXX_Size() int {
-	return xxx_messageInfo_RegistrationConfirmation.Size(m)
-}
-func (m *RegistrationConfirmation) XXX_DiscardUnknown() {
-	xxx_messageInfo_RegistrationConfirmation.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_RegistrationConfirmation proto.InternalMessageInfo
-
-func (m *RegistrationConfirmation) GetClientSignedByServer() *RSASignature {
-	if m != nil {
-		return m.ClientSignedByServer
-	}
-	return nil
-}
-
-func (m *RegistrationConfirmation) GetError() string {
-	if m != nil {
-		return m.Error
-	}
-	return ""
-}
-
-// Ack generic message containing an Error field
-type Ack struct {
-	Error                string   `protobuf:"bytes,1,opt,name=Error,proto3" json:"Error,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *Ack) Reset()         { *m = Ack{} }
-func (m *Ack) String() string { return proto.CompactTextString(m) }
-func (*Ack) ProtoMessage()    {}
-func (*Ack) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f858aeec3eb2fbf5, []int{21}
-}
-
-func (m *Ack) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_Ack.Unmarshal(m, b)
-}
-func (m *Ack) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_Ack.Marshal(b, m, deterministic)
-}
-func (m *Ack) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Ack.Merge(m, src)
-}
-func (m *Ack) XXX_Size() int {
-	return xxx_messageInfo_Ack.Size(m)
-}
-func (m *Ack) XXX_DiscardUnknown() {
-	xxx_messageInfo_Ack.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_Ack proto.InternalMessageInfo
-
-func (m *Ack) GetError() string {
-	if m != nil {
-		return m.Error
-	}
-	return ""
-}
-
+// Contains the complete set of messages/slots for a round
 type Batch struct {
 	Round                *RoundInfo `protobuf:"bytes,1,opt,name=Round,proto3" json:"Round,omitempty"`
 	FromPhase            int32      `protobuf:"varint,2,opt,name=FromPhase,proto3" json:"FromPhase,omitempty"`
@@ -1095,7 +208,7 @@ func (m *Batch) Reset()         { *m = Batch{} }
 func (m *Batch) String() string { return proto.CompactTextString(m) }
 func (*Batch) ProtoMessage()    {}
 func (*Batch) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f858aeec3eb2fbf5, []int{22}
+	return fileDescriptor_f858aeec3eb2fbf5, []int{4}
 }
 
 func (m *Batch) XXX_Unmarshal(b []byte) error {
@@ -1151,7 +264,7 @@ func (m *BatchInfo) Reset()         { *m = BatchInfo{} }
 func (m *BatchInfo) String() string { return proto.CompactTextString(m) }
 func (*BatchInfo) ProtoMessage()    {}
 func (*BatchInfo) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f858aeec3eb2fbf5, []int{23}
+	return fileDescriptor_f858aeec3eb2fbf5, []int{5}
 }
 
 func (m *BatchInfo) XXX_Unmarshal(b []byte) error {
@@ -1193,6 +306,191 @@ func (m *BatchInfo) GetBatchSize() uint32 {
 	return 0
 }
 
+// Contains the NDF as well as the corresponding Node ID for the Gateway
+type GatewayNdf struct {
+	Id                   []byte   `protobuf:"bytes,1,opt,name=Id,proto3" json:"Id,omitempty"`
+	Ndf                  *NDF     `protobuf:"bytes,2,opt,name=Ndf,proto3" json:"Ndf,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *GatewayNdf) Reset()         { *m = GatewayNdf{} }
+func (m *GatewayNdf) String() string { return proto.CompactTextString(m) }
+func (*GatewayNdf) ProtoMessage()    {}
+func (*GatewayNdf) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f858aeec3eb2fbf5, []int{6}
+}
+
+func (m *GatewayNdf) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GatewayNdf.Unmarshal(m, b)
+}
+func (m *GatewayNdf) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GatewayNdf.Marshal(b, m, deterministic)
+}
+func (m *GatewayNdf) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GatewayNdf.Merge(m, src)
+}
+func (m *GatewayNdf) XXX_Size() int {
+	return xxx_messageInfo_GatewayNdf.Size(m)
+}
+func (m *GatewayNdf) XXX_DiscardUnknown() {
+	xxx_messageInfo_GatewayNdf.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GatewayNdf proto.InternalMessageInfo
+
+func (m *GatewayNdf) GetId() []byte {
+	if m != nil {
+		return m.Id
+	}
+	return nil
+}
+
+func (m *GatewayNdf) GetNdf() *NDF {
+	if m != nil {
+		return m.Ndf
+	}
+	return nil
+}
+
+// Used for collecting metrics on a round trip of the system
+type RoundTripPing struct {
+	Payload              *any.Any   `protobuf:"bytes,1,opt,name=Payload,proto3" json:"Payload,omitempty"`
+	Round                *RoundInfo `protobuf:"bytes,2,opt,name=Round,proto3" json:"Round,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}   `json:"-"`
+	XXX_unrecognized     []byte     `json:"-"`
+	XXX_sizecache        int32      `json:"-"`
+}
+
+func (m *RoundTripPing) Reset()         { *m = RoundTripPing{} }
+func (m *RoundTripPing) String() string { return proto.CompactTextString(m) }
+func (*RoundTripPing) ProtoMessage()    {}
+func (*RoundTripPing) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f858aeec3eb2fbf5, []int{7}
+}
+
+func (m *RoundTripPing) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_RoundTripPing.Unmarshal(m, b)
+}
+func (m *RoundTripPing) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_RoundTripPing.Marshal(b, m, deterministic)
+}
+func (m *RoundTripPing) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RoundTripPing.Merge(m, src)
+}
+func (m *RoundTripPing) XXX_Size() int {
+	return xxx_messageInfo_RoundTripPing.Size(m)
+}
+func (m *RoundTripPing) XXX_DiscardUnknown() {
+	xxx_messageInfo_RoundTripPing.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RoundTripPing proto.InternalMessageInfo
+
+func (m *RoundTripPing) GetPayload() *any.Any {
+	if m != nil {
+		return m.Payload
+	}
+	return nil
+}
+
+func (m *RoundTripPing) GetRound() *RoundInfo {
+	if m != nil {
+		return m.Round
+	}
+	return nil
+}
+
+// ClientRequest message for clients to poll new CMIX messages
+type ClientRequest struct {
+	UserID               []byte   `protobuf:"bytes,1,opt,name=UserID,proto3" json:"UserID,omitempty"`
+	LastMessageID        string   `protobuf:"bytes,2,opt,name=LastMessageID,proto3" json:"LastMessageID,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *ClientRequest) Reset()         { *m = ClientRequest{} }
+func (m *ClientRequest) String() string { return proto.CompactTextString(m) }
+func (*ClientRequest) ProtoMessage()    {}
+func (*ClientRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f858aeec3eb2fbf5, []int{8}
+}
+
+func (m *ClientRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ClientRequest.Unmarshal(m, b)
+}
+func (m *ClientRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ClientRequest.Marshal(b, m, deterministic)
+}
+func (m *ClientRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ClientRequest.Merge(m, src)
+}
+func (m *ClientRequest) XXX_Size() int {
+	return xxx_messageInfo_ClientRequest.Size(m)
+}
+func (m *ClientRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ClientRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ClientRequest proto.InternalMessageInfo
+
+func (m *ClientRequest) GetUserID() []byte {
+	if m != nil {
+		return m.UserID
+	}
+	return nil
+}
+
+func (m *ClientRequest) GetLastMessageID() string {
+	if m != nil {
+		return m.LastMessageID
+	}
+	return ""
+}
+
+// The message for clients to poll the gateway for Message IDs
+type IDList struct {
+	IDs                  []string `protobuf:"bytes,1,rep,name=IDs,proto3" json:"IDs,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *IDList) Reset()         { *m = IDList{} }
+func (m *IDList) String() string { return proto.CompactTextString(m) }
+func (*IDList) ProtoMessage()    {}
+func (*IDList) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f858aeec3eb2fbf5, []int{9}
+}
+
+func (m *IDList) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_IDList.Unmarshal(m, b)
+}
+func (m *IDList) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_IDList.Marshal(b, m, deterministic)
+}
+func (m *IDList) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_IDList.Merge(m, src)
+}
+func (m *IDList) XXX_Size() int {
+	return xxx_messageInfo_IDList.Size(m)
+}
+func (m *IDList) XXX_DiscardUnknown() {
+	xxx_messageInfo_IDList.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_IDList proto.InternalMessageInfo
+
+func (m *IDList) GetIDs() []string {
+	if m != nil {
+		return m.IDs
+	}
+	return nil
+}
+
+// Represents a single encrypted message in a batch
 type Slot struct {
 	// Index in batch this slot belongs in
 	Index uint32 `protobuf:"varint,1,opt,name=Index,proto3" json:"Index,omitempty"`
@@ -1217,7 +515,7 @@ func (m *Slot) Reset()         { *m = Slot{} }
 func (m *Slot) String() string { return proto.CompactTextString(m) }
 func (*Slot) ProtoMessage()    {}
 func (*Slot) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f858aeec3eb2fbf5, []int{24}
+	return fileDescriptor_f858aeec3eb2fbf5, []int{10}
 }
 
 func (m *Slot) XXX_Unmarshal(b []byte) error {
@@ -1315,121 +613,757 @@ func (m *Slot) GetKMACs() [][]byte {
 	return nil
 }
 
-type SignedMessage struct {
-	Signature            []byte   `protobuf:"bytes,1,opt,name=Signature,proto3" json:"Signature,omitempty"`
-	ID                   string   `protobuf:"bytes,2,opt,name=ID,proto3" json:"ID,omitempty"`
-	Message              *any.Any `protobuf:"bytes,3,opt,name=Message,proto3" json:"Message,omitempty"`
+//The ndf Hash used to compare ndf on permissioning and client
+type NDFHash struct {
+	Hash                 []byte   `protobuf:"bytes,1,opt,name=Hash,proto3" json:"Hash,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *SignedMessage) Reset()         { *m = SignedMessage{} }
-func (m *SignedMessage) String() string { return proto.CompactTextString(m) }
-func (*SignedMessage) ProtoMessage()    {}
-func (*SignedMessage) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f858aeec3eb2fbf5, []int{25}
+func (m *NDFHash) Reset()         { *m = NDFHash{} }
+func (m *NDFHash) String() string { return proto.CompactTextString(m) }
+func (*NDFHash) ProtoMessage()    {}
+func (*NDFHash) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f858aeec3eb2fbf5, []int{11}
 }
 
-func (m *SignedMessage) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_SignedMessage.Unmarshal(m, b)
+func (m *NDFHash) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_NDFHash.Unmarshal(m, b)
 }
-func (m *SignedMessage) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_SignedMessage.Marshal(b, m, deterministic)
+func (m *NDFHash) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_NDFHash.Marshal(b, m, deterministic)
 }
-func (m *SignedMessage) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_SignedMessage.Merge(m, src)
+func (m *NDFHash) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_NDFHash.Merge(m, src)
 }
-func (m *SignedMessage) XXX_Size() int {
-	return xxx_messageInfo_SignedMessage.Size(m)
+func (m *NDFHash) XXX_Size() int {
+	return xxx_messageInfo_NDFHash.Size(m)
 }
-func (m *SignedMessage) XXX_DiscardUnknown() {
-	xxx_messageInfo_SignedMessage.DiscardUnknown(m)
+func (m *NDFHash) XXX_DiscardUnknown() {
+	xxx_messageInfo_NDFHash.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_SignedMessage proto.InternalMessageInfo
+var xxx_messageInfo_NDFHash proto.InternalMessageInfo
 
-func (m *SignedMessage) GetSignature() []byte {
+func (m *NDFHash) GetHash() []byte {
+	if m != nil {
+		return m.Hash
+	}
+	return nil
+}
+
+// Message type containing the network definition file
+type NDF struct {
+	Ndf                  []byte   `protobuf:"bytes,1,opt,name=Ndf,proto3" json:"Ndf,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *NDF) Reset()         { *m = NDF{} }
+func (m *NDF) String() string { return proto.CompactTextString(m) }
+func (*NDF) ProtoMessage()    {}
+func (*NDF) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f858aeec3eb2fbf5, []int{12}
+}
+
+func (m *NDF) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_NDF.Unmarshal(m, b)
+}
+func (m *NDF) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_NDF.Marshal(b, m, deterministic)
+}
+func (m *NDF) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_NDF.Merge(m, src)
+}
+func (m *NDF) XXX_Size() int {
+	return xxx_messageInfo_NDF.Size(m)
+}
+func (m *NDF) XXX_DiscardUnknown() {
+	xxx_messageInfo_NDF.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_NDF proto.InternalMessageInfo
+
+func (m *NDF) GetNdf() []byte {
+	if m != nil {
+		return m.Ndf
+	}
+	return nil
+}
+
+// RegisterNode to register a node with needed attributes
+type NodeRegistration struct {
+	ID                   []byte   `protobuf:"bytes,1,opt,name=ID,proto3" json:"ID,omitempty"`
+	ServerTlsCert        string   `protobuf:"bytes,2,opt,name=ServerTlsCert,proto3" json:"ServerTlsCert,omitempty"`
+	GatewayTlsCert       string   `protobuf:"bytes,3,opt,name=GatewayTlsCert,proto3" json:"GatewayTlsCert,omitempty"`
+	GatewayAddress       string   `protobuf:"bytes,4,opt,name=GatewayAddress,proto3" json:"GatewayAddress,omitempty"`
+	RegistrationCode     string   `protobuf:"bytes,5,opt,name=RegistrationCode,proto3" json:"RegistrationCode,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *NodeRegistration) Reset()         { *m = NodeRegistration{} }
+func (m *NodeRegistration) String() string { return proto.CompactTextString(m) }
+func (*NodeRegistration) ProtoMessage()    {}
+func (*NodeRegistration) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f858aeec3eb2fbf5, []int{13}
+}
+
+func (m *NodeRegistration) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_NodeRegistration.Unmarshal(m, b)
+}
+func (m *NodeRegistration) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_NodeRegistration.Marshal(b, m, deterministic)
+}
+func (m *NodeRegistration) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_NodeRegistration.Merge(m, src)
+}
+func (m *NodeRegistration) XXX_Size() int {
+	return xxx_messageInfo_NodeRegistration.Size(m)
+}
+func (m *NodeRegistration) XXX_DiscardUnknown() {
+	xxx_messageInfo_NodeRegistration.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_NodeRegistration proto.InternalMessageInfo
+
+func (m *NodeRegistration) GetID() []byte {
+	if m != nil {
+		return m.ID
+	}
+	return nil
+}
+
+func (m *NodeRegistration) GetServerTlsCert() string {
+	if m != nil {
+		return m.ServerTlsCert
+	}
+	return ""
+}
+
+func (m *NodeRegistration) GetGatewayTlsCert() string {
+	if m != nil {
+		return m.GatewayTlsCert
+	}
+	return ""
+}
+
+func (m *NodeRegistration) GetGatewayAddress() string {
+	if m != nil {
+		return m.GatewayAddress
+	}
+	return ""
+}
+
+func (m *NodeRegistration) GetRegistrationCode() string {
+	if m != nil {
+		return m.RegistrationCode
+	}
+	return ""
+}
+
+// RSASignature is a digital signature for the RSA algorithm
+type RSASignature struct {
+	Signature            []byte   `protobuf:"bytes,1,opt,name=Signature,proto3" json:"Signature,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *RSASignature) Reset()         { *m = RSASignature{} }
+func (m *RSASignature) String() string { return proto.CompactTextString(m) }
+func (*RSASignature) ProtoMessage()    {}
+func (*RSASignature) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f858aeec3eb2fbf5, []int{14}
+}
+
+func (m *RSASignature) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_RSASignature.Unmarshal(m, b)
+}
+func (m *RSASignature) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_RSASignature.Marshal(b, m, deterministic)
+}
+func (m *RSASignature) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RSASignature.Merge(m, src)
+}
+func (m *RSASignature) XXX_Size() int {
+	return xxx_messageInfo_RSASignature.Size(m)
+}
+func (m *RSASignature) XXX_DiscardUnknown() {
+	xxx_messageInfo_RSASignature.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RSASignature proto.InternalMessageInfo
+
+func (m *RSASignature) GetSignature() []byte {
 	if m != nil {
 		return m.Signature
 	}
 	return nil
 }
 
-func (m *SignedMessage) GetID() string {
+// UserRegistration message to initialize registration process
+type UserRegistration struct {
+	RegistrationCode     string   `protobuf:"bytes,1,opt,name=RegistrationCode,proto3" json:"RegistrationCode,omitempty"`
+	ClientRSAPubKey      string   `protobuf:"bytes,2,opt,name=ClientRSAPubKey,proto3" json:"ClientRSAPubKey,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *UserRegistration) Reset()         { *m = UserRegistration{} }
+func (m *UserRegistration) String() string { return proto.CompactTextString(m) }
+func (*UserRegistration) ProtoMessage()    {}
+func (*UserRegistration) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f858aeec3eb2fbf5, []int{15}
+}
+
+func (m *UserRegistration) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_UserRegistration.Unmarshal(m, b)
+}
+func (m *UserRegistration) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_UserRegistration.Marshal(b, m, deterministic)
+}
+func (m *UserRegistration) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UserRegistration.Merge(m, src)
+}
+func (m *UserRegistration) XXX_Size() int {
+	return xxx_messageInfo_UserRegistration.Size(m)
+}
+func (m *UserRegistration) XXX_DiscardUnknown() {
+	xxx_messageInfo_UserRegistration.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_UserRegistration proto.InternalMessageInfo
+
+func (m *UserRegistration) GetRegistrationCode() string {
+	if m != nil {
+		return m.RegistrationCode
+	}
+	return ""
+}
+
+func (m *UserRegistration) GetClientRSAPubKey() string {
+	if m != nil {
+		return m.ClientRSAPubKey
+	}
+	return ""
+}
+
+// UserRegistrationConfirmation to confirm registration with users
+type UserRegistrationConfirmation struct {
+	// RegistrationServer-Signed Client Public Key
+	ClientSignedByServer *RSASignature `protobuf:"bytes,1,opt,name=ClientSignedByServer,proto3" json:"ClientSignedByServer,omitempty"`
+	Error                string        `protobuf:"bytes,2,opt,name=Error,proto3" json:"Error,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}      `json:"-"`
+	XXX_unrecognized     []byte        `json:"-"`
+	XXX_sizecache        int32         `json:"-"`
+}
+
+func (m *UserRegistrationConfirmation) Reset()         { *m = UserRegistrationConfirmation{} }
+func (m *UserRegistrationConfirmation) String() string { return proto.CompactTextString(m) }
+func (*UserRegistrationConfirmation) ProtoMessage()    {}
+func (*UserRegistrationConfirmation) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f858aeec3eb2fbf5, []int{16}
+}
+
+func (m *UserRegistrationConfirmation) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_UserRegistrationConfirmation.Unmarshal(m, b)
+}
+func (m *UserRegistrationConfirmation) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_UserRegistrationConfirmation.Marshal(b, m, deterministic)
+}
+func (m *UserRegistrationConfirmation) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UserRegistrationConfirmation.Merge(m, src)
+}
+func (m *UserRegistrationConfirmation) XXX_Size() int {
+	return xxx_messageInfo_UserRegistrationConfirmation.Size(m)
+}
+func (m *UserRegistrationConfirmation) XXX_DiscardUnknown() {
+	xxx_messageInfo_UserRegistrationConfirmation.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_UserRegistrationConfirmation proto.InternalMessageInfo
+
+func (m *UserRegistrationConfirmation) GetClientSignedByServer() *RSASignature {
+	if m != nil {
+		return m.ClientSignedByServer
+	}
+	return nil
+}
+
+func (m *UserRegistrationConfirmation) GetError() string {
+	if m != nil {
+		return m.Error
+	}
+	return ""
+}
+
+// ClientVersion contains a version string for the client
+type ClientVersion struct {
+	Version              string   `protobuf:"bytes,1,opt,name=Version,proto3" json:"Version,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *ClientVersion) Reset()         { *m = ClientVersion{} }
+func (m *ClientVersion) String() string { return proto.CompactTextString(m) }
+func (*ClientVersion) ProtoMessage()    {}
+func (*ClientVersion) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f858aeec3eb2fbf5, []int{17}
+}
+
+func (m *ClientVersion) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ClientVersion.Unmarshal(m, b)
+}
+func (m *ClientVersion) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ClientVersion.Marshal(b, m, deterministic)
+}
+func (m *ClientVersion) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ClientVersion.Merge(m, src)
+}
+func (m *ClientVersion) XXX_Size() int {
+	return xxx_messageInfo_ClientVersion.Size(m)
+}
+func (m *ClientVersion) XXX_DiscardUnknown() {
+	xxx_messageInfo_ClientVersion.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ClientVersion proto.InternalMessageInfo
+
+func (m *ClientVersion) GetVersion() string {
+	if m != nil {
+		return m.Version
+	}
+	return ""
+}
+
+// NonceRequest message to request nonce from client to server
+type NonceRequest struct {
+	Salt                 []byte        `protobuf:"bytes,1,opt,name=Salt,proto3" json:"Salt,omitempty"`
+	ClientRSAPubKey      string        `protobuf:"bytes,2,opt,name=ClientRSAPubKey,proto3" json:"ClientRSAPubKey,omitempty"`
+	ClientSignedByServer *RSASignature `protobuf:"bytes,3,opt,name=ClientSignedByServer,proto3" json:"ClientSignedByServer,omitempty"`
+	ClientDHPubKey       []byte        `protobuf:"bytes,4,opt,name=ClientDHPubKey,proto3" json:"ClientDHPubKey,omitempty"`
+	RequestSignature     *RSASignature `protobuf:"bytes,5,opt,name=RequestSignature,proto3" json:"RequestSignature,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}      `json:"-"`
+	XXX_unrecognized     []byte        `json:"-"`
+	XXX_sizecache        int32         `json:"-"`
+}
+
+func (m *NonceRequest) Reset()         { *m = NonceRequest{} }
+func (m *NonceRequest) String() string { return proto.CompactTextString(m) }
+func (*NonceRequest) ProtoMessage()    {}
+func (*NonceRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f858aeec3eb2fbf5, []int{18}
+}
+
+func (m *NonceRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_NonceRequest.Unmarshal(m, b)
+}
+func (m *NonceRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_NonceRequest.Marshal(b, m, deterministic)
+}
+func (m *NonceRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_NonceRequest.Merge(m, src)
+}
+func (m *NonceRequest) XXX_Size() int {
+	return xxx_messageInfo_NonceRequest.Size(m)
+}
+func (m *NonceRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_NonceRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_NonceRequest proto.InternalMessageInfo
+
+func (m *NonceRequest) GetSalt() []byte {
+	if m != nil {
+		return m.Salt
+	}
+	return nil
+}
+
+func (m *NonceRequest) GetClientRSAPubKey() string {
+	if m != nil {
+		return m.ClientRSAPubKey
+	}
+	return ""
+}
+
+func (m *NonceRequest) GetClientSignedByServer() *RSASignature {
+	if m != nil {
+		return m.ClientSignedByServer
+	}
+	return nil
+}
+
+func (m *NonceRequest) GetClientDHPubKey() []byte {
+	if m != nil {
+		return m.ClientDHPubKey
+	}
+	return nil
+}
+
+func (m *NonceRequest) GetRequestSignature() *RSASignature {
+	if m != nil {
+		return m.RequestSignature
+	}
+	return nil
+}
+
+// Nonce message to reply to client from server
+type Nonce struct {
+	Nonce                []byte   `protobuf:"bytes,1,opt,name=Nonce,proto3" json:"Nonce,omitempty"`
+	DHPubKey             []byte   `protobuf:"bytes,2,opt,name=DHPubKey,proto3" json:"DHPubKey,omitempty"`
+	Error                string   `protobuf:"bytes,3,opt,name=Error,proto3" json:"Error,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *Nonce) Reset()         { *m = Nonce{} }
+func (m *Nonce) String() string { return proto.CompactTextString(m) }
+func (*Nonce) ProtoMessage()    {}
+func (*Nonce) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f858aeec3eb2fbf5, []int{19}
+}
+
+func (m *Nonce) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Nonce.Unmarshal(m, b)
+}
+func (m *Nonce) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Nonce.Marshal(b, m, deterministic)
+}
+func (m *Nonce) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Nonce.Merge(m, src)
+}
+func (m *Nonce) XXX_Size() int {
+	return xxx_messageInfo_Nonce.Size(m)
+}
+func (m *Nonce) XXX_DiscardUnknown() {
+	xxx_messageInfo_Nonce.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Nonce proto.InternalMessageInfo
+
+func (m *Nonce) GetNonce() []byte {
+	if m != nil {
+		return m.Nonce
+	}
+	return nil
+}
+
+func (m *Nonce) GetDHPubKey() []byte {
+	if m != nil {
+		return m.DHPubKey
+	}
+	return nil
+}
+
+func (m *Nonce) GetError() string {
+	if m != nil {
+		return m.Error
+	}
+	return ""
+}
+
+// RequestRegistrationConfirmation returning proof of registration
+type RequestRegistrationConfirmation struct {
+	UserID               []byte        `protobuf:"bytes,1,opt,name=userID,proto3" json:"userID,omitempty"`
+	NonceSignedByClient  *RSASignature `protobuf:"bytes,2,opt,name=NonceSignedByClient,proto3" json:"NonceSignedByClient,omitempty"`
+	Error                string        `protobuf:"bytes,3,opt,name=Error,proto3" json:"Error,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}      `json:"-"`
+	XXX_unrecognized     []byte        `json:"-"`
+	XXX_sizecache        int32         `json:"-"`
+}
+
+func (m *RequestRegistrationConfirmation) Reset()         { *m = RequestRegistrationConfirmation{} }
+func (m *RequestRegistrationConfirmation) String() string { return proto.CompactTextString(m) }
+func (*RequestRegistrationConfirmation) ProtoMessage()    {}
+func (*RequestRegistrationConfirmation) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f858aeec3eb2fbf5, []int{20}
+}
+
+func (m *RequestRegistrationConfirmation) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_RequestRegistrationConfirmation.Unmarshal(m, b)
+}
+func (m *RequestRegistrationConfirmation) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_RequestRegistrationConfirmation.Marshal(b, m, deterministic)
+}
+func (m *RequestRegistrationConfirmation) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RequestRegistrationConfirmation.Merge(m, src)
+}
+func (m *RequestRegistrationConfirmation) XXX_Size() int {
+	return xxx_messageInfo_RequestRegistrationConfirmation.Size(m)
+}
+func (m *RequestRegistrationConfirmation) XXX_DiscardUnknown() {
+	xxx_messageInfo_RequestRegistrationConfirmation.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RequestRegistrationConfirmation proto.InternalMessageInfo
+
+func (m *RequestRegistrationConfirmation) GetUserID() []byte {
+	if m != nil {
+		return m.UserID
+	}
+	return nil
+}
+
+func (m *RequestRegistrationConfirmation) GetNonceSignedByClient() *RSASignature {
+	if m != nil {
+		return m.NonceSignedByClient
+	}
+	return nil
+}
+
+func (m *RequestRegistrationConfirmation) GetError() string {
+	if m != nil {
+		return m.Error
+	}
+	return ""
+}
+
+// RegistrationConfirmation returning proof of registration
+type RegistrationConfirmation struct {
+	ClientSignedByServer *RSASignature `protobuf:"bytes,1,opt,name=ClientSignedByServer,proto3" json:"ClientSignedByServer,omitempty"`
+	Error                string        `protobuf:"bytes,2,opt,name=Error,proto3" json:"Error,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}      `json:"-"`
+	XXX_unrecognized     []byte        `json:"-"`
+	XXX_sizecache        int32         `json:"-"`
+}
+
+func (m *RegistrationConfirmation) Reset()         { *m = RegistrationConfirmation{} }
+func (m *RegistrationConfirmation) String() string { return proto.CompactTextString(m) }
+func (*RegistrationConfirmation) ProtoMessage()    {}
+func (*RegistrationConfirmation) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f858aeec3eb2fbf5, []int{21}
+}
+
+func (m *RegistrationConfirmation) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_RegistrationConfirmation.Unmarshal(m, b)
+}
+func (m *RegistrationConfirmation) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_RegistrationConfirmation.Marshal(b, m, deterministic)
+}
+func (m *RegistrationConfirmation) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RegistrationConfirmation.Merge(m, src)
+}
+func (m *RegistrationConfirmation) XXX_Size() int {
+	return xxx_messageInfo_RegistrationConfirmation.Size(m)
+}
+func (m *RegistrationConfirmation) XXX_DiscardUnknown() {
+	xxx_messageInfo_RegistrationConfirmation.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RegistrationConfirmation proto.InternalMessageInfo
+
+func (m *RegistrationConfirmation) GetClientSignedByServer() *RSASignature {
+	if m != nil {
+		return m.ClientSignedByServer
+	}
+	return nil
+}
+
+func (m *RegistrationConfirmation) GetError() string {
+	if m != nil {
+		return m.Error
+	}
+	return ""
+}
+
+// Generic response message providing an error message from remote servers
+type Ack struct {
+	Error                string   `protobuf:"bytes,1,opt,name=Error,proto3" json:"Error,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *Ack) Reset()         { *m = Ack{} }
+func (m *Ack) String() string { return proto.CompactTextString(m) }
+func (*Ack) ProtoMessage()    {}
+func (*Ack) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f858aeec3eb2fbf5, []int{22}
+}
+
+func (m *Ack) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Ack.Unmarshal(m, b)
+}
+func (m *Ack) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Ack.Marshal(b, m, deterministic)
+}
+func (m *Ack) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Ack.Merge(m, src)
+}
+func (m *Ack) XXX_Size() int {
+	return xxx_messageInfo_Ack.Size(m)
+}
+func (m *Ack) XXX_DiscardUnknown() {
+	xxx_messageInfo_Ack.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Ack proto.InternalMessageInfo
+
+func (m *Ack) GetError() string {
+	if m != nil {
+		return m.Error
+	}
+	return ""
+}
+
+// Empty message for requesting action from any type of server
+type Ping struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *Ping) Reset()         { *m = Ping{} }
+func (m *Ping) String() string { return proto.CompactTextString(m) }
+func (*Ping) ProtoMessage()    {}
+func (*Ping) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f858aeec3eb2fbf5, []int{23}
+}
+
+func (m *Ping) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Ping.Unmarshal(m, b)
+}
+func (m *Ping) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Ping.Marshal(b, m, deterministic)
+}
+func (m *Ping) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Ping.Merge(m, src)
+}
+func (m *Ping) XXX_Size() int {
+	return xxx_messageInfo_Ping.Size(m)
+}
+func (m *Ping) XXX_DiscardUnknown() {
+	xxx_messageInfo_Ping.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Ping proto.InternalMessageInfo
+
+// Wrapper for authenticated messages that also ensure integrity
+type AuthenticatedMessage struct {
+	ID                   string   `protobuf:"bytes,1,opt,name=ID,proto3" json:"ID,omitempty"`
+	Signature            []byte   `protobuf:"bytes,2,opt,name=Signature,proto3" json:"Signature,omitempty"`
+	Token                []byte   `protobuf:"bytes,3,opt,name=Token,proto3" json:"Token,omitempty"`
+	Message              *any.Any `protobuf:"bytes,4,opt,name=Message,proto3" json:"Message,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *AuthenticatedMessage) Reset()         { *m = AuthenticatedMessage{} }
+func (m *AuthenticatedMessage) String() string { return proto.CompactTextString(m) }
+func (*AuthenticatedMessage) ProtoMessage()    {}
+func (*AuthenticatedMessage) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f858aeec3eb2fbf5, []int{24}
+}
+
+func (m *AuthenticatedMessage) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_AuthenticatedMessage.Unmarshal(m, b)
+}
+func (m *AuthenticatedMessage) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_AuthenticatedMessage.Marshal(b, m, deterministic)
+}
+func (m *AuthenticatedMessage) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AuthenticatedMessage.Merge(m, src)
+}
+func (m *AuthenticatedMessage) XXX_Size() int {
+	return xxx_messageInfo_AuthenticatedMessage.Size(m)
+}
+func (m *AuthenticatedMessage) XXX_DiscardUnknown() {
+	xxx_messageInfo_AuthenticatedMessage.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AuthenticatedMessage proto.InternalMessageInfo
+
+func (m *AuthenticatedMessage) GetID() string {
 	if m != nil {
 		return m.ID
 	}
 	return ""
 }
 
-func (m *SignedMessage) GetMessage() *any.Any {
+func (m *AuthenticatedMessage) GetSignature() []byte {
+	if m != nil {
+		return m.Signature
+	}
+	return nil
+}
+
+func (m *AuthenticatedMessage) GetToken() []byte {
+	if m != nil {
+		return m.Token
+	}
+	return nil
+}
+
+func (m *AuthenticatedMessage) GetMessage() *any.Any {
 	if m != nil {
 		return m.Message
 	}
 	return nil
 }
 
-type RoundTripPing struct {
-	Payload              *any.Any   `protobuf:"bytes,1,opt,name=Payload,proto3" json:"Payload,omitempty"`
-	Round                *RoundInfo `protobuf:"bytes,2,opt,name=Round,proto3" json:"Round,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}   `json:"-"`
-	XXX_unrecognized     []byte     `json:"-"`
-	XXX_sizecache        int32      `json:"-"`
+// Provides a token to establish reverse identity to any type of client
+type AssignToken struct {
+	Token                []byte   `protobuf:"bytes,1,opt,name=Token,proto3" json:"Token,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *RoundTripPing) Reset()         { *m = RoundTripPing{} }
-func (m *RoundTripPing) String() string { return proto.CompactTextString(m) }
-func (*RoundTripPing) ProtoMessage()    {}
-func (*RoundTripPing) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f858aeec3eb2fbf5, []int{26}
+func (m *AssignToken) Reset()         { *m = AssignToken{} }
+func (m *AssignToken) String() string { return proto.CompactTextString(m) }
+func (*AssignToken) ProtoMessage()    {}
+func (*AssignToken) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f858aeec3eb2fbf5, []int{25}
 }
 
-func (m *RoundTripPing) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_RoundTripPing.Unmarshal(m, b)
+func (m *AssignToken) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_AssignToken.Unmarshal(m, b)
 }
-func (m *RoundTripPing) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_RoundTripPing.Marshal(b, m, deterministic)
+func (m *AssignToken) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_AssignToken.Marshal(b, m, deterministic)
 }
-func (m *RoundTripPing) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_RoundTripPing.Merge(m, src)
+func (m *AssignToken) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AssignToken.Merge(m, src)
 }
-func (m *RoundTripPing) XXX_Size() int {
-	return xxx_messageInfo_RoundTripPing.Size(m)
+func (m *AssignToken) XXX_Size() int {
+	return xxx_messageInfo_AssignToken.Size(m)
 }
-func (m *RoundTripPing) XXX_DiscardUnknown() {
-	xxx_messageInfo_RoundTripPing.DiscardUnknown(m)
+func (m *AssignToken) XXX_DiscardUnknown() {
+	xxx_messageInfo_AssignToken.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_RoundTripPing proto.InternalMessageInfo
+var xxx_messageInfo_AssignToken proto.InternalMessageInfo
 
-func (m *RoundTripPing) GetPayload() *any.Any {
+func (m *AssignToken) GetToken() []byte {
 	if m != nil {
-		return m.Payload
-	}
-	return nil
-}
-
-func (m *RoundTripPing) GetRound() *RoundInfo {
-	if m != nil {
-		return m.Round
+		return m.Token
 	}
 	return nil
 }
 
 func init() {
-	proto.RegisterType((*Ping)(nil), "mixmessages.Ping")
 	proto.RegisterType((*RoundInfo)(nil), "mixmessages.RoundInfo")
 	proto.RegisterType((*RoundBufferInfo)(nil), "mixmessages.RoundBufferInfo")
 	proto.RegisterType((*RoundPublicKey)(nil), "mixmessages.RoundPublicKey")
-	proto.RegisterType((*NodeTopology)(nil), "mixmessages.NodeTopology")
-	proto.RegisterType((*NodeInfo)(nil), "mixmessages.NodeInfo")
 	proto.RegisterType((*RoundMetrics)(nil), "mixmessages.RoundMetrics")
+	proto.RegisterType((*Batch)(nil), "mixmessages.Batch")
+	proto.RegisterType((*BatchInfo)(nil), "mixmessages.BatchInfo")
+	proto.RegisterType((*GatewayNdf)(nil), "mixmessages.GatewayNdf")
+	proto.RegisterType((*RoundTripPing)(nil), "mixmessages.RoundTripPing")
 	proto.RegisterType((*ClientRequest)(nil), "mixmessages.ClientRequest")
 	proto.RegisterType((*IDList)(nil), "mixmessages.IDList")
+	proto.RegisterType((*Slot)(nil), "mixmessages.Slot")
 	proto.RegisterType((*NDFHash)(nil), "mixmessages.NDFHash")
 	proto.RegisterType((*NDF)(nil), "mixmessages.NDF")
-	proto.RegisterType((*GatewayNdf)(nil), "mixmessages.GatewayNdf")
 	proto.RegisterType((*NodeRegistration)(nil), "mixmessages.NodeRegistration")
 	proto.RegisterType((*RSASignature)(nil), "mixmessages.RSASignature")
 	proto.RegisterType((*UserRegistration)(nil), "mixmessages.UserRegistration")
@@ -1440,107 +1374,105 @@ func init() {
 	proto.RegisterType((*RequestRegistrationConfirmation)(nil), "mixmessages.RequestRegistrationConfirmation")
 	proto.RegisterType((*RegistrationConfirmation)(nil), "mixmessages.RegistrationConfirmation")
 	proto.RegisterType((*Ack)(nil), "mixmessages.Ack")
-	proto.RegisterType((*Batch)(nil), "mixmessages.Batch")
-	proto.RegisterType((*BatchInfo)(nil), "mixmessages.BatchInfo")
-	proto.RegisterType((*Slot)(nil), "mixmessages.Slot")
-	proto.RegisterType((*SignedMessage)(nil), "mixmessages.SignedMessage")
-	proto.RegisterType((*RoundTripPing)(nil), "mixmessages.RoundTripPing")
+	proto.RegisterType((*Ping)(nil), "mixmessages.Ping")
+	proto.RegisterType((*AuthenticatedMessage)(nil), "mixmessages.AuthenticatedMessage")
+	proto.RegisterType((*AssignToken)(nil), "mixmessages.AssignToken")
 }
 
 func init() { proto.RegisterFile("mixmessages.proto", fileDescriptor_f858aeec3eb2fbf5) }
 
 var fileDescriptor_f858aeec3eb2fbf5 = []byte{
-	// 1425 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xc4, 0x18, 0xdb, 0x6e, 0x1b, 0x45,
-	0xdb, 0xeb, 0x63, 0xfc, 0xc5, 0x49, 0x93, 0x69, 0xda, 0x3a, 0x4e, 0xaa, 0x3f, 0x1a, 0xfd, 0x94,
-	0x14, 0x55, 0xa9, 0x48, 0x11, 0x20, 0x5a, 0x44, 0x7d, 0x48, 0x52, 0x37, 0x8d, 0x6b, 0xad, 0x03,
-	0x17, 0xdc, 0x6d, 0xbc, 0x63, 0x7b, 0x95, 0xf5, 0xae, 0x99, 0x1d, 0xd3, 0x1a, 0x21, 0x71, 0xc1,
-	0x1d, 0xcf, 0xc0, 0x33, 0xf0, 0x14, 0xbd, 0xe4, 0x35, 0xb8, 0xe0, 0x2d, 0xd0, 0x1c, 0xd6, 0x7b,
-	0xb4, 0x71, 0x38, 0x88, 0x2b, 0xef, 0x7c, 0xe7, 0x6f, 0xbe, 0xd3, 0x7c, 0x86, 0xed, 0xb1, 0xf5,
-	0x76, 0x4c, 0x3c, 0xcf, 0x18, 0x12, 0xef, 0x68, 0x42, 0x5d, 0xe6, 0xa2, 0xf5, 0x10, 0xa8, 0xb6,
-	0x3b, 0x74, 0xdd, 0xa1, 0x4d, 0x1e, 0x0b, 0xd4, 0xd5, 0x74, 0xf0, 0xd8, 0x70, 0x66, 0x92, 0x0e,
-	0x17, 0x21, 0xdf, 0xb5, 0x9c, 0x21, 0xde, 0x83, 0xb2, 0xee, 0x4e, 0x1d, 0xb3, 0xed, 0x0c, 0x5c,
-	0xb4, 0x09, 0xd9, 0x76, 0xab, 0xaa, 0x1d, 0x68, 0x87, 0x79, 0x3d, 0xdb, 0x6e, 0xe1, 0xa7, 0x70,
-	0x4b, 0x20, 0x1b, 0xd3, 0xc1, 0x80, 0x50, 0x41, 0x72, 0x18, 0x01, 0xf5, 0xac, 0xef, 0x88, 0xa0,
-	0xdf, 0xd0, 0xe3, 0x60, 0xdc, 0x85, 0x4d, 0x01, 0xea, 0x4e, 0xaf, 0x6c, 0xab, 0x7f, 0x4e, 0x66,
-	0xe8, 0x11, 0x14, 0x04, 0x44, 0x70, 0xac, 0x1f, 0xdf, 0x3d, 0x0a, 0x9b, 0x3f, 0xb7, 0x42, 0x97,
-	0x44, 0x68, 0x0b, 0x72, 0xe7, 0x64, 0x56, 0xcd, 0x1e, 0x68, 0x87, 0x15, 0x9d, 0x7f, 0xe2, 0x3a,
-	0x54, 0x3a, 0xae, 0x49, 0x2e, 0xdd, 0x89, 0x6b, 0xbb, 0xc3, 0x19, 0xfa, 0x10, 0xd6, 0xfc, 0xef,
-	0xaa, 0x76, 0x90, 0x3b, 0x5c, 0x3f, 0xbe, 0x13, 0x11, 0xc9, 0x89, 0x85, 0xc4, 0x39, 0x19, 0xfe,
-	0x55, 0x83, 0x35, 0x1f, 0x2c, 0xdc, 0x95, 0xc6, 0x54, 0xf4, 0x6c, 0xdb, 0x44, 0x3b, 0x50, 0x68,
-	0x3b, 0x26, 0x79, 0x2b, 0x74, 0x6e, 0xe8, 0xf2, 0x80, 0xfe, 0x0f, 0x1b, 0x3d, 0x42, 0xbf, 0x25,
-	0xb4, 0x6e, 0x9a, 0x94, 0x78, 0x5e, 0x35, 0x77, 0xa0, 0x1d, 0x96, 0xf5, 0x28, 0x10, 0x3d, 0x80,
-	0xcd, 0x33, 0x83, 0x91, 0x37, 0xc6, 0xcc, 0x27, 0xcb, 0x0b, 0xb2, 0x18, 0x34, 0x90, 0x76, 0x69,
-	0x7b, 0x4d, 0x42, 0x59, 0xb5, 0x10, 0x96, 0xa6, 0x80, 0x21, 0x69, 0x3e, 0x59, 0x31, 0x22, 0x4d,
-	0x41, 0xf1, 0xa7, 0x50, 0x11, 0x97, 0x75, 0x41, 0x18, 0xb5, 0xfa, 0xde, 0x3c, 0x3a, 0xf2, 0xfc,
-	0xb2, 0xf7, 0xba, 0x23, 0xdc, 0x2b, 0xeb, 0x71, 0x30, 0xbe, 0x80, 0x8d, 0xa6, 0x6d, 0x11, 0x87,
-	0xe9, 0xe4, 0x9b, 0x29, 0xf1, 0x18, 0xba, 0x0b, 0xc5, 0x2f, 0x3d, 0x42, 0x55, 0xfc, 0x2b, 0xba,
-	0x3a, 0x71, 0x83, 0x5f, 0x19, 0x1e, 0xbb, 0x90, 0x97, 0xda, 0x6e, 0x89, 0xcb, 0x29, 0xeb, 0x51,
-	0x20, 0xae, 0x41, 0xb1, 0xdd, 0x7a, 0x65, 0x79, 0x8c, 0x87, 0xad, 0xdd, 0xf2, 0x44, 0x3c, 0xca,
-	0x3a, 0xff, 0xc4, 0xf7, 0xa1, 0xd4, 0x69, 0x9d, 0xbe, 0x30, 0xbc, 0x11, 0x42, 0x90, 0xe7, 0xbf,
-	0x4a, 0x85, 0xf8, 0xc6, 0xf7, 0x20, 0xd7, 0x69, 0x9d, 0x72, 0xbe, 0x8e, 0x39, 0x50, 0x18, 0xfe,
-	0x89, 0x9f, 0x03, 0x28, 0x77, 0x3b, 0xe6, 0x20, 0x11, 0x2c, 0x2c, 0xe9, 0xb3, 0x22, 0x95, 0xb6,
-	0xa2, 0x71, 0x6f, 0x9d, 0x4a, 0x09, 0xef, 0x34, 0xd8, 0xe2, 0xd1, 0xd6, 0xc9, 0xd0, 0xf2, 0x18,
-	0x35, 0x98, 0xe5, 0x3a, 0xa1, 0x24, 0xe7, 0x82, 0x5a, 0xc9, 0x88, 0x64, 0x57, 0x8b, 0x48, 0x2e,
-	0x2d, 0x22, 0x2b, 0xe7, 0xc1, 0x07, 0xb0, 0x15, 0xb6, 0xaa, 0xe9, 0x9a, 0x44, 0xa5, 0x42, 0x02,
-	0x8e, 0x1f, 0x41, 0x45, 0xef, 0xd5, 0x7b, 0xd6, 0xd0, 0x31, 0xd8, 0x94, 0x12, 0xb4, 0x0f, 0xe5,
-	0xf9, 0x41, 0x39, 0x12, 0x00, 0xf0, 0x08, 0xb6, 0x78, 0xe8, 0x22, 0x3e, 0xa7, 0x69, 0xd3, 0xd2,
-	0xb5, 0xf1, 0x1c, 0x52, 0x99, 0xd1, 0xab, 0x77, 0xa7, 0x57, 0x7e, 0x0d, 0x96, 0xf5, 0x38, 0x18,
-	0xff, 0xa8, 0xc1, 0x7e, 0x5c, 0x55, 0xd3, 0x75, 0x06, 0x16, 0x1d, 0x4b, 0xb5, 0x17, 0xb0, 0x23,
-	0x79, 0xb8, 0x75, 0xc4, 0x6c, 0xcc, 0xe4, 0x9d, 0xaa, 0xfa, 0xdf, 0x8d, 0xd6, 0x7f, 0xc8, 0x43,
-	0x3d, 0x95, 0x8d, 0xd7, 0xe7, 0x09, 0xa5, 0x2e, 0x55, 0xf6, 0xc8, 0x03, 0x7e, 0xe8, 0x67, 0xf2,
-	0x57, 0x84, 0x7a, 0x5c, 0x6b, 0x15, 0x4a, 0xea, 0x53, 0xf9, 0xe8, 0x1f, 0xf1, 0x4f, 0x59, 0xde,
-	0x41, 0x9c, 0x3e, 0xf1, 0x93, 0x1e, 0x41, 0xbe, 0x67, 0xd8, 0xcc, 0xcf, 0x47, 0xfe, 0xbd, 0xba,
-	0xff, 0x0b, 0xdd, 0xcb, 0xfd, 0x35, 0xf7, 0x1e, 0xc0, 0xa6, 0x84, 0xb7, 0x5e, 0x28, 0xbd, 0x79,
-	0x61, 0x56, 0x0c, 0x8a, 0x4e, 0x78, 0x30, 0x85, 0xfd, 0x41, 0x16, 0x14, 0xfe, 0x4c, 0x65, 0x82,
-	0x05, 0xbf, 0x86, 0x82, 0xb8, 0x0b, 0x7e, 0xad, 0xe2, 0x43, 0xdd, 0x82, 0x82, 0xd6, 0x60, 0x6d,
-	0x6e, 0x87, 0xec, 0xc1, 0xf3, 0x73, 0x10, 0x88, 0x5c, 0x38, 0x10, 0x3f, 0x6b, 0xf0, 0x3f, 0xa5,
-	0x65, 0x61, 0x46, 0xdc, 0x85, 0xe2, 0x34, 0xd2, 0x65, 0xe4, 0x09, 0x9d, 0xc3, 0x6d, 0xa1, 0xd6,
-	0xbf, 0x12, 0xe9, 0xb2, 0xaa, 0xee, 0x25, 0x6e, 0xa5, 0x71, 0x2d, 0x30, 0xef, 0x07, 0xa8, 0xfe,
-	0xb7, 0x89, 0xba, 0x07, 0xb9, 0x7a, 0xff, 0x3a, 0x40, 0x6a, 0x61, 0xe4, 0xf7, 0x50, 0x68, 0x18,
-	0xac, 0x3f, 0xba, 0xe1, 0x90, 0xdc, 0x87, 0xf2, 0x29, 0x75, 0xc7, 0xdd, 0x91, 0xe1, 0x11, 0xa1,
-	0xad, 0xa0, 0x07, 0x00, 0xf4, 0x3e, 0x14, 0x3c, 0xdb, 0x65, 0x7c, 0x64, 0xf1, 0xe9, 0xb8, 0x1d,
-	0x91, 0xd5, 0xb3, 0x5d, 0xa6, 0x4b, 0x3c, 0x9e, 0x42, 0x59, 0x68, 0x17, 0x63, 0xf1, 0x9f, 0xb4,
-	0x60, 0x5f, 0x09, 0x16, 0x0f, 0x85, 0x9c, 0x18, 0xab, 0x01, 0x00, 0xbf, 0xcb, 0x41, 0x9e, 0x9b,
-	0x11, 0x4c, 0x5e, 0x2d, 0x3c, 0x79, 0x3f, 0x82, 0x3b, 0x27, 0x4e, 0x9f, 0xce, 0x26, 0x8c, 0x98,
-	0x5d, 0x63, 0x66, 0xbb, 0x86, 0x59, 0x3f, 0x27, 0x33, 0x4f, 0xe5, 0x63, 0x3a, 0x32, 0x8d, 0xab,
-	0x21, 0xb8, 0x72, 0xe9, 0x5c, 0x02, 0x89, 0x9e, 0xc1, 0x6e, 0xd7, 0xa0, 0xcc, 0x32, 0x6c, 0x5f,
-	0x58, 0x73, 0x36, 0x19, 0x11, 0x7a, 0x49, 0xde, 0x32, 0x55, 0x87, 0x8b, 0x09, 0x92, 0xdc, 0x8d,
-	0x10, 0x77, 0x21, 0x8d, 0x3b, 0x44, 0x80, 0x9e, 0xc3, 0x9e, 0x42, 0x86, 0x1e, 0x4c, 0x12, 0xcf,
-	0xab, 0xaf, 0x28, 0xf8, 0x97, 0x91, 0xf0, 0x62, 0xed, 0x11, 0xc7, 0x14, 0x85, 0x55, 0x92, 0xc5,
-	0xea, 0x9f, 0x39, 0xce, 0xb7, 0xb8, 0xba, 0x26, 0x71, 0xfe, 0x39, 0x84, 0x6b, 0x54, 0xcb, 0x11,
-	0x5c, 0x63, 0xde, 0x1b, 0x21, 0xd4, 0x1b, 0x77, 0xa0, 0x70, 0x7e, 0x51, 0x6f, 0x7a, 0xd5, 0xf5,
-	0x83, 0x1c, 0x6f, 0x15, 0xe2, 0x80, 0xc7, 0xb0, 0x21, 0x0b, 0x40, 0xbd, 0x07, 0x96, 0x0f, 0x28,
-	0x35, 0x80, 0x65, 0x69, 0xf0, 0x01, 0x7c, 0x04, 0x25, 0xc5, 0xa8, 0x3a, 0xe7, 0xce, 0x91, 0x7c,
-	0xb7, 0x1e, 0xf9, 0xef, 0xd6, 0xa3, 0xba, 0x33, 0xd3, 0x7d, 0x22, 0xae, 0x4e, 0x5c, 0xc2, 0x25,
-	0xb5, 0x26, 0xfc, 0x0d, 0xcb, 0x05, 0x28, 0xab, 0x55, 0xca, 0x2e, 0x10, 0xa0, 0x88, 0x82, 0x04,
-	0xcf, 0xae, 0x90, 0xe0, 0xc7, 0xbf, 0x95, 0x20, 0xcf, 0x1f, 0x11, 0xe8, 0x18, 0xca, 0x75, 0xef,
-	0xfa, 0xb5, 0x63, 0x5b, 0x0e, 0x41, 0xd1, 0x5a, 0xe2, 0x66, 0xd4, 0xa2, 0x8f, 0x90, 0x7a, 0xff,
-	0x1a, 0x67, 0xd0, 0x33, 0xd8, 0x6c, 0x52, 0x62, 0x30, 0xd2, 0x21, 0x6f, 0x64, 0xbd, 0x2c, 0xd0,
-	0x96, 0xca, 0xfd, 0x31, 0x54, 0xba, 0xae, 0xc7, 0x3a, 0xe4, 0x8d, 0xec, 0x0d, 0x28, 0x42, 0x23,
-	0x60, 0x8b, 0xb4, 0x9e, 0x5a, 0x8e, 0xe5, 0x8d, 0x74, 0x62, 0xd8, 0xcc, 0x1a, 0x93, 0x1b, 0x69,
-	0x7d, 0x02, 0x65, 0xae, 0x55, 0x16, 0xf0, 0xaa, 0x2a, 0x3f, 0x83, 0x5b, 0x3d, 0x46, 0x89, 0x31,
-	0x0e, 0x58, 0x93, 0xed, 0x26, 0x8d, 0xf3, 0x50, 0x43, 0x3a, 0xa0, 0x33, 0xc2, 0xe2, 0x9b, 0xc6,
-	0x7e, 0xd2, 0xe4, 0x00, 0x5b, 0x5b, 0x8a, 0xc5, 0x19, 0xf4, 0x05, 0x54, 0xd4, 0x2c, 0x92, 0xe3,
-	0x6c, 0x37, 0xb6, 0x19, 0x04, 0x8f, 0x80, 0x1a, 0x4a, 0xa2, 0x70, 0x06, 0xd9, 0x70, 0x5b, 0x8d,
-	0x88, 0xc8, 0x4b, 0xea, 0x51, 0x54, 0xef, 0xf2, 0x71, 0x57, 0x7b, 0x2f, 0x46, 0x9d, 0x4e, 0x86,
-	0x33, 0xe8, 0x04, 0x10, 0xbf, 0xb8, 0xd8, 0xc2, 0xb4, 0x97, 0x74, 0x72, 0x8e, 0x4c, 0x8d, 0xc2,
-	0x53, 0xd8, 0x16, 0xf7, 0x4f, 0x49, 0xdf, 0x1d, 0x4f, 0x74, 0xe2, 0x4d, 0x6d, 0x76, 0x83, 0xac,
-	0xd9, 0x3e, 0x23, 0xac, 0xe9, 0x8e, 0x27, 0x36, 0x61, 0xc4, 0x94, 0x29, 0x97, 0x92, 0xe7, 0x29,
-	0xf2, 0x70, 0x06, 0xd5, 0x01, 0xce, 0x08, 0xbb, 0x20, 0x86, 0xc7, 0x6b, 0x7c, 0x51, 0xbe, 0xed,
-	0x26, 0xe1, 0x6a, 0x77, 0xc1, 0x19, 0xf4, 0x09, 0x94, 0xba, 0xae, 0x6d, 0xf3, 0xd7, 0x7e, 0x8a,
-	0xda, 0x7b, 0x11, 0x50, 0xb0, 0x19, 0xe0, 0x0c, 0x6a, 0xc2, 0x36, 0x6f, 0x77, 0xd1, 0xae, 0x50,
-	0x4b, 0xaa, 0xf2, 0x71, 0x69, 0xee, 0x1f, 0xff, 0x9e, 0x85, 0x92, 0x92, 0x8a, 0x1a, 0xb0, 0xd1,
-	0x1c, 0x91, 0xfe, 0xb5, 0x6a, 0x39, 0x5e, 0x4c, 0x58, 0x64, 0x73, 0xaa, 0xdd, 0x8e, 0xe0, 0xe4,
-	0x1a, 0x84, 0x33, 0xe8, 0x73, 0x75, 0x21, 0xb2, 0x25, 0x2e, 0x13, 0x90, 0x2c, 0x14, 0x51, 0x85,
-	0xd0, 0x9d, 0xce, 0xd9, 0x57, 0xab, 0xa5, 0xbf, 0x9f, 0xf5, 0x04, 0x2a, 0x2a, 0x33, 0xa5, 0x80,
-	0x7f, 0x27, 0xdd, 0x8f, 0x7f, 0xc9, 0x72, 0x43, 0x43, 0x65, 0xf5, 0xb5, 0x7f, 0x26, 0x94, 0x6f,
-	0x14, 0xe8, 0x7e, 0x44, 0x52, 0x7c, 0xc9, 0xa8, 0x3d, 0x5c, 0x8a, 0x8e, 0xd5, 0xd6, 0x4b, 0xb8,
-	0xc7, 0xf3, 0x7a, 0x4a, 0x29, 0x71, 0x58, 0x74, 0x55, 0x48, 0x49, 0xb3, 0xb4, 0x40, 0xf9, 0xfb,
-	0x03, 0xcf, 0xf2, 0xb9, 0x9d, 0x62, 0x26, 0xdc, 0x4f, 0xfc, 0xe1, 0x10, 0xb1, 0x33, 0xbd, 0xbd,
-	0xce, 0xb3, 0x7c, 0x27, 0xbe, 0xb6, 0xf2, 0x85, 0xb8, 0x96, 0x58, 0x66, 0x71, 0xe6, 0xaa, 0x28,
-	0x26, 0xd9, 0x93, 0x3f, 0x02, 0x00, 0x00, 0xff, 0xff, 0x96, 0x4b, 0xab, 0x47, 0xf2, 0x11, 0x00,
-	0x00,
+	// 1433 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xc4, 0x57, 0x4b, 0x6f, 0xdb, 0xc6,
+	0x13, 0x17, 0x45, 0xcb, 0xb6, 0xc6, 0xb2, 0x63, 0x6f, 0xfc, 0x4f, 0x64, 0xc5, 0xc1, 0xdf, 0xdd,
+	0xb6, 0xa9, 0x53, 0x04, 0x0e, 0xa0, 0xf4, 0x50, 0xb4, 0x0d, 0x1a, 0x3d, 0x6c, 0x47, 0x71, 0xac,
+	0x08, 0x94, 0xdb, 0x02, 0xbd, 0xd1, 0xe2, 0x58, 0x22, 0x4c, 0x91, 0x2e, 0x77, 0xd5, 0x44, 0x45,
+	0x81, 0x1e, 0x7a, 0xcb, 0xb9, 0xc7, 0x7e, 0x93, 0x5e, 0xf3, 0x49, 0x7a, 0xeb, 0xb7, 0x28, 0xf6,
+	0x41, 0x89, 0xa4, 0x68, 0x57, 0x11, 0x0a, 0xf4, 0x44, 0xee, 0x3c, 0x7e, 0x3b, 0x3b, 0xaf, 0x9d,
+	0x85, 0xad, 0xa1, 0xfb, 0x66, 0x88, 0x8c, 0xd9, 0x7d, 0x64, 0x07, 0x57, 0x61, 0xc0, 0x03, 0xb2,
+	0x16, 0x23, 0x55, 0x76, 0xfa, 0x41, 0xd0, 0xf7, 0xf0, 0xb1, 0x64, 0x9d, 0x8f, 0x2e, 0x1e, 0xdb,
+	0xfe, 0x58, 0xc9, 0xd1, 0x7b, 0x50, 0xb4, 0x82, 0x91, 0xef, 0xb4, 0xfc, 0x8b, 0x80, 0x6c, 0x40,
+	0xbe, 0xd5, 0x2c, 0x1b, 0x7b, 0xc6, 0xfe, 0x92, 0x95, 0x6f, 0x35, 0xe9, 0x97, 0x70, 0x4b, 0x32,
+	0xeb, 0xa3, 0x8b, 0x0b, 0x0c, 0xa5, 0xc8, 0x7e, 0x82, 0xd4, 0x75, 0x7f, 0x42, 0x29, 0xbf, 0x6e,
+	0xa5, 0xc9, 0xb4, 0x03, 0x1b, 0x92, 0xd4, 0x19, 0x9d, 0x7b, 0x6e, 0xef, 0x04, 0xc7, 0xe4, 0x11,
+	0x14, 0x24, 0x45, 0x6a, 0xac, 0x55, 0xef, 0x1c, 0xc4, 0xcd, 0x9e, 0x58, 0x61, 0x29, 0x21, 0xb2,
+	0x09, 0xe6, 0x09, 0x8e, 0xcb, 0xf9, 0x3d, 0x63, 0xbf, 0x64, 0x89, 0x5f, 0xfa, 0x39, 0x94, 0x24,
+	0xeb, 0x14, 0x79, 0xe8, 0xf6, 0xd8, 0xc4, 0x16, 0xb5, 0x7e, 0xd1, 0x7d, 0xd5, 0x96, 0xc8, 0x45,
+	0x2b, 0x4d, 0xa6, 0x3f, 0x43, 0xa1, 0x6e, 0xf3, 0xde, 0xe0, 0x3d, 0x4d, 0xd8, 0x85, 0xe2, 0x51,
+	0x18, 0x0c, 0x3b, 0x03, 0x9b, 0xa1, 0x34, 0xa4, 0x60, 0x4d, 0x09, 0xe4, 0x13, 0x28, 0x30, 0x2f,
+	0xe0, 0xac, 0x6c, 0xee, 0x99, 0xfb, 0x6b, 0xd5, 0xad, 0x04, 0x56, 0xd7, 0x0b, 0xb8, 0xa5, 0xf8,
+	0x74, 0x04, 0x45, 0xb9, 0xbb, 0x74, 0xe0, 0xbf, 0x69, 0xc1, 0xae, 0x06, 0x96, 0x61, 0x30, 0x65,
+	0x18, 0xa6, 0x04, 0xfa, 0x0c, 0xe0, 0xd8, 0xe6, 0xf8, 0xda, 0x1e, 0xb7, 0x9d, 0x0b, 0x19, 0x5b,
+	0xb5, 0x69, 0xc9, 0xca, 0xb7, 0x1c, 0x42, 0xc1, 0x6c, 0x3b, 0x17, 0x12, 0x73, 0xad, 0xba, 0x99,
+	0xb0, 0xa2, 0xdd, 0x3c, 0xb2, 0x04, 0x93, 0x0e, 0x61, 0x5d, 0x9a, 0x71, 0x16, 0xba, 0x57, 0x1d,
+	0xd7, 0xef, 0x93, 0x03, 0x58, 0xe9, 0xd8, 0x63, 0x2f, 0xb0, 0x23, 0xf3, 0xb7, 0x0f, 0x54, 0x6a,
+	0x1d, 0x44, 0xa9, 0x75, 0x50, 0xf3, 0xc7, 0x56, 0x24, 0x34, 0x3d, 0x6c, 0x7e, 0x8e, 0xc3, 0xd2,
+	0x53, 0x58, 0x6f, 0x78, 0x2e, 0xfa, 0xdc, 0xc2, 0x1f, 0x46, 0xc8, 0x38, 0xb9, 0x03, 0xcb, 0xdf,
+	0x30, 0x0c, 0x75, 0x4e, 0x96, 0x2c, 0xbd, 0x22, 0x1f, 0xc1, 0xfa, 0x4b, 0x9b, 0xf1, 0x53, 0x85,
+	0xd4, 0x6a, 0x4a, 0xf8, 0xa2, 0x95, 0x24, 0xd2, 0x0a, 0x2c, 0xb7, 0x9a, 0x2f, 0x5d, 0xc6, 0x45,
+	0x2a, 0xb5, 0x9a, 0xac, 0x6c, 0xec, 0x99, 0xfb, 0x45, 0x4b, 0xfc, 0xd2, 0x77, 0x26, 0x2c, 0x89,
+	0x10, 0x91, 0x6d, 0x28, 0xb4, 0x7c, 0x07, 0xdf, 0xe8, 0x2c, 0x56, 0x0b, 0xf2, 0x19, 0xfc, 0xef,
+	0xd0, 0xef, 0x85, 0xe3, 0x2b, 0x8e, 0x8e, 0x3e, 0x4b, 0xed, 0x04, 0xc7, 0x4c, 0x67, 0x63, 0x36,
+	0x33, 0x4b, 0xab, 0x2e, 0xb5, 0xcc, 0x6c, 0x2d, 0xc9, 0x24, 0x5f, 0xc1, 0x4e, 0xc7, 0x0e, 0xb9,
+	0x6b, 0x7b, 0x11, 0x58, 0x63, 0x7c, 0x35, 0xc0, 0xf0, 0x0c, 0xdf, 0xf0, 0xf2, 0x92, 0xd4, 0xbc,
+	0x5e, 0x60, 0x56, 0xbb, 0x1e, 0xd3, 0x2e, 0x64, 0x69, 0xc7, 0x04, 0xc8, 0x33, 0xb8, 0xa7, 0x99,
+	0xb1, 0x52, 0x55, 0x7c, 0x51, 0x7b, 0xcb, 0x52, 0xff, 0x26, 0x11, 0x52, 0x81, 0xd5, 0x2e, 0xfa,
+	0x8e, 0x0c, 0xd2, 0x8a, 0x14, 0x9f, 0xac, 0x05, 0x2f, 0xb2, 0xb8, 0xbc, 0xaa, 0x78, 0xd1, 0x3a,
+	0xc6, 0xab, 0x97, 0x8b, 0x09, 0x5e, 0x9d, 0x10, 0x58, 0xea, 0xda, 0x1e, 0x2f, 0x83, 0xa4, 0xcb,
+	0x7f, 0x11, 0xa7, 0x93, 0xd3, 0x5a, 0x83, 0x95, 0xd7, 0xf6, 0xcc, 0xfd, 0x92, 0xa5, 0x16, 0xf4,
+	0x3e, 0xac, 0xb4, 0x9b, 0x47, 0xcf, 0x6d, 0x36, 0x10, 0x4a, 0xe2, 0xab, 0x33, 0x45, 0xfe, 0xd3,
+	0xbb, 0x60, 0xb6, 0x9b, 0x47, 0x22, 0xfc, 0x22, 0xd5, 0x15, 0x47, 0x26, 0xf6, 0x3b, 0x03, 0x36,
+	0xdb, 0x81, 0x83, 0x16, 0xf6, 0x5d, 0xc6, 0x43, 0x9b, 0xbb, 0x81, 0x1f, 0xeb, 0x7e, 0xa2, 0x42,
+	0x64, 0x96, 0x75, 0x31, 0xfc, 0x11, 0xc3, 0x33, 0x8f, 0x35, 0x30, 0xe4, 0x51, 0x96, 0x25, 0x88,
+	0xe4, 0x01, 0x6c, 0xe8, 0x2a, 0x8b, 0xc4, 0x4c, 0x29, 0x96, 0xa2, 0xc6, 0xe4, 0x6a, 0x8e, 0x13,
+	0x22, 0x63, 0x32, 0xb6, 0x53, 0x39, 0x4d, 0x25, 0x9f, 0xc2, 0x66, 0xdc, 0xaa, 0x46, 0xe0, 0xa0,
+	0x8c, 0x63, 0xd1, 0x9a, 0xa1, 0xd3, 0x47, 0x50, 0xb2, 0xba, 0xb5, 0xae, 0xdb, 0xf7, 0x6d, 0x3e,
+	0x0a, 0x65, 0x3f, 0x98, 0x2c, 0xf4, 0x41, 0xa6, 0x04, 0x3a, 0x80, 0x4d, 0x51, 0x3f, 0x89, 0x33,
+	0x67, 0xed, 0x66, 0x64, 0xef, 0x26, 0xda, 0xad, 0x2e, 0xcf, 0x6e, 0xad, 0x33, 0x3a, 0x8f, 0x9a,
+	0x73, 0xd1, 0x4a, 0x93, 0xe9, 0xaf, 0x06, 0xec, 0xa6, 0xb7, 0x6a, 0x04, 0xfe, 0x85, 0x1b, 0x0e,
+	0xd5, 0xb6, 0xa7, 0xb0, 0xad, 0x74, 0x84, 0x75, 0xe8, 0xd4, 0xc7, 0xca, 0xa7, 0xba, 0xa9, 0xec,
+	0x24, 0xdb, 0x44, 0xec, 0x84, 0x56, 0xa6, 0x9a, 0x48, 0x8e, 0xc3, 0x30, 0x0c, 0x42, 0x6d, 0x8f,
+	0x5a, 0xd0, 0x87, 0x51, 0x3b, 0xf9, 0x16, 0x43, 0x26, 0x76, 0x2d, 0xc3, 0x8a, 0xfe, 0xd5, 0x67,
+	0x8c, 0x96, 0xf4, 0x6d, 0x1e, 0x4a, 0xed, 0xc0, 0xef, 0x61, 0xd4, 0x79, 0xa2, 0x14, 0x34, 0x62,
+	0x29, 0x38, 0xf7, 0xf9, 0xaf, 0x3d, 0x9e, 0xb9, 0xd8, 0xf1, 0x1e, 0xc0, 0x86, 0xa2, 0x37, 0x9f,
+	0xeb, 0x7d, 0x55, 0x5b, 0x48, 0x51, 0xc9, 0xa1, 0x08, 0xa6, 0xb4, 0x7f, 0x9a, 0x05, 0x85, 0x7f,
+	0xda, 0x72, 0x46, 0x85, 0xbe, 0x82, 0x82, 0xf4, 0x85, 0x70, 0xab, 0xfc, 0xd1, 0x5e, 0xd0, 0xd4,
+	0x0a, 0xac, 0x4e, 0xec, 0x50, 0xed, 0x70, 0xb2, 0x9e, 0x06, 0xc2, 0x8c, 0x07, 0xe2, 0x77, 0x03,
+	0xfe, 0xaf, 0x77, 0xb9, 0x36, 0x23, 0xee, 0xc0, 0xf2, 0x28, 0xd1, 0xea, 0xd5, 0x8a, 0x9c, 0xc0,
+	0x6d, 0xb9, 0x6d, 0xe4, 0x12, 0x75, 0x64, 0x7d, 0x9f, 0xdc, 0x70, 0xac, 0x2c, 0xad, 0x6b, 0xcc,
+	0xfb, 0x05, 0xca, 0xff, 0x6d, 0xa2, 0xde, 0x03, 0xb3, 0xd6, 0xbb, 0x9c, 0x32, 0x8d, 0x38, 0x73,
+	0x19, 0x96, 0xc4, 0xd5, 0x4b, 0xdf, 0x1a, 0xb0, 0x5d, 0x1b, 0xf1, 0x01, 0xfa, 0xdc, 0xed, 0xd9,
+	0x1c, 0x1d, 0x7d, 0xd1, 0xc5, 0xda, 0x56, 0x51, 0xb6, 0xad, 0x44, 0x13, 0xc8, 0xa7, 0x9a, 0x80,
+	0xd8, 0xe4, 0x2c, 0xb8, 0x44, 0x5f, 0xdf, 0x49, 0x6a, 0x21, 0xee, 0x75, 0x0d, 0x27, 0x53, 0xeb,
+	0xda, 0x7b, 0x5d, 0x0b, 0xd1, 0x0f, 0x61, 0xad, 0xc6, 0x98, 0xdb, 0xf7, 0x95, 0xfa, 0x04, 0xd4,
+	0x88, 0x81, 0x56, 0xff, 0x5c, 0x85, 0x25, 0xd1, 0x64, 0x49, 0x15, 0x8a, 0x35, 0x76, 0xf9, 0xca,
+	0xf7, 0x5c, 0x1f, 0x49, 0x72, 0x4c, 0x12, 0x47, 0xab, 0x24, 0xa7, 0x8f, 0x5a, 0xef, 0x92, 0xe6,
+	0xc8, 0x31, 0x6c, 0x34, 0x42, 0xb4, 0x39, 0xb6, 0xf1, 0xb5, 0x1a, 0x85, 0x3e, 0x48, 0x4a, 0x65,
+	0xb8, 0x22, 0x13, 0xe8, 0x10, 0x4a, 0x9d, 0x80, 0xf1, 0x36, 0xbe, 0x56, 0x13, 0xe0, 0x82, 0x30,
+	0xc7, 0xb0, 0x71, 0xe4, 0xfa, 0x2e, 0x1b, 0x58, 0x68, 0x7b, 0xdc, 0x1d, 0xe2, 0xa2, 0x40, 0x75,
+	0x28, 0x0a, 0x7b, 0xd4, 0x00, 0xb7, 0x20, 0xc6, 0x17, 0x70, 0xab, 0xcb, 0x43, 0xb4, 0x87, 0x53,
+	0xa4, 0xd9, 0xe9, 0x33, 0x4b, 0x73, 0xdf, 0x20, 0xdf, 0x01, 0x39, 0x46, 0x9e, 0x1e, 0xeb, 0xe7,
+	0x30, 0x64, 0x77, 0x76, 0x78, 0x9b, 0x02, 0x48, 0x0f, 0x95, 0x74, 0x91, 0xab, 0x3e, 0x31, 0x07,
+	0x24, 0x49, 0x8e, 0x9d, 0x42, 0x8d, 0xe6, 0x88, 0x0d, 0xb7, 0x75, 0x0d, 0x26, 0xae, 0xaa, 0x39,
+	0xf0, 0x3e, 0x4e, 0x9a, 0x78, 0x4d, 0x51, 0xd3, 0x1c, 0x39, 0x01, 0x22, 0x5c, 0x97, 0x7a, 0x9f,
+	0x2c, 0x18, 0x8d, 0x17, 0xb0, 0x25, 0xe3, 0x10, 0x62, 0x2f, 0x18, 0x5e, 0x59, 0xc8, 0x46, 0x1e,
+	0x5f, 0x14, 0xeb, 0x25, 0x6c, 0x1d, 0x23, 0x6f, 0x04, 0xc3, 0x2b, 0x0f, 0x39, 0x3a, 0x73, 0xa7,
+	0x6c, 0xd2, 0x93, 0x52, 0x4d, 0xa2, 0xc1, 0x31, 0xf2, 0x53, 0xb4, 0x99, 0x28, 0xfd, 0x39, 0x60,
+	0x76, 0x66, 0x63, 0xac, 0x1f, 0x5b, 0x32, 0xc0, 0x2b, 0x9d, 0xc0, 0xf3, 0xc4, 0x63, 0x62, 0x0e,
+	0xa8, 0xbb, 0x09, 0x91, 0xe9, 0x43, 0x44, 0x39, 0x4c, 0xcc, 0x88, 0xc9, 0xa7, 0xc5, 0x62, 0x0e,
+	0xab, 0xfe, 0x95, 0x87, 0x15, 0x0d, 0x4e, 0xea, 0xb0, 0xde, 0x18, 0x60, 0xef, 0x52, 0xcb, 0x33,
+	0x52, 0x49, 0x28, 0x24, 0xde, 0x16, 0x95, 0xdb, 0x09, 0x9e, 0x7a, 0x28, 0xd0, 0x1c, 0x79, 0xaa,
+	0x5d, 0xa6, 0x7a, 0xeb, 0x4d, 0x00, 0xb3, 0x15, 0x47, 0x73, 0xe4, 0x09, 0x40, 0x67, 0x34, 0x51,
+	0x9f, 0xaf, 0x28, 0xc9, 0xd7, 0xa9, 0xca, 0xd9, 0x99, 0x2d, 0x8b, 0x68, 0xd3, 0xec, 0x8a, 0x41,
+	0x28, 0xe9, 0x04, 0x57, 0x00, 0x8f, 0x52, 0x75, 0x70, 0xe3, 0xd5, 0x3b, 0x77, 0xd5, 0x54, 0xff,
+	0xc8, 0x0b, 0x43, 0x63, 0x25, 0xf9, 0x7d, 0xb4, 0xc6, 0x50, 0x8c, 0x7b, 0xe4, 0x7e, 0x02, 0x29,
+	0x3d, 0x01, 0x56, 0x1e, 0xde, 0xc8, 0x4e, 0x95, 0xe8, 0x0b, 0xb8, 0x2b, 0x2a, 0x61, 0x14, 0x86,
+	0xe8, 0xf3, 0xe4, 0x1c, 0x97, 0x71, 0x85, 0x64, 0x05, 0x2a, 0x1a, 0xee, 0x72, 0xa4, 0x36, 0xb5,
+	0x53, 0x5e, 0x48, 0xf7, 0x53, 0x5e, 0x4c, 0x3e, 0x04, 0x32, 0x63, 0xf4, 0xec, 0xbd, 0x92, 0x7f,
+	0xe6, 0x3d, 0x4d, 0x73, 0xd5, 0xdf, 0x0c, 0x58, 0x39, 0x46, 0x1f, 0x43, 0xb7, 0x27, 0x2a, 0x20,
+	0xae, 0xa7, 0x6e, 0xd1, 0x05, 0x5b, 0xc6, 0xd3, 0x49, 0xf6, 0x28, 0x98, 0x0c, 0xef, 0x94, 0x93,
+	0x6a, 0xd3, 0x9b, 0x9b, 0xe6, 0xce, 0x97, 0xe5, 0x0d, 0xff, 0xe4, 0xef, 0x00, 0x00, 0x00, 0xff,
+	0xff, 0x30, 0x38, 0xe5, 0xee, 0x44, 0x12, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -1558,35 +1490,35 @@ type NodeClient interface {
 	// Handles AskOnline
 	AskOnline(ctx context.Context, in *Ping, opts ...grpc.CallOption) (*Ack, error)
 	// CreatesNewRound makes a new round with a certain ID
-	CreateNewRound(ctx context.Context, in *RoundInfo, opts ...grpc.CallOption) (*Ack, error)
+	CreateNewRound(ctx context.Context, in *AuthenticatedMessage, opts ...grpc.CallOption) (*Ack, error)
 	// PostNewBatch sends a batch to be processed in the server's realtime
-	PostNewBatch(ctx context.Context, in *Batch, opts ...grpc.CallOption) (*Ack, error)
+	PostNewBatch(ctx context.Context, in *AuthenticatedMessage, opts ...grpc.CallOption) (*Ack, error)
 	// FinishRealtime broadcasts when realtime is complete
-	FinishRealtime(ctx context.Context, in *RoundInfo, opts ...grpc.CallOption) (*Ack, error)
+	FinishRealtime(ctx context.Context, in *AuthenticatedMessage, opts ...grpc.CallOption) (*Ack, error)
 	// PostPhase runs a cMix phase on another node
-	PostPhase(ctx context.Context, in *Batch, opts ...grpc.CallOption) (*Ack, error)
+	PostPhase(ctx context.Context, in *AuthenticatedMessage, opts ...grpc.CallOption) (*Ack, error)
 	// StreamPostPhase runs a cMix phase on another node
 	// by using unary streaming of slots
 	StreamPostPhase(ctx context.Context, opts ...grpc.CallOption) (Node_StreamPostPhaseClient, error)
 	// GetRoundBufferInfo returns the # of rounds ready for messages
-	GetRoundBufferInfo(ctx context.Context, in *RoundBufferInfo, opts ...grpc.CallOption) (*RoundBufferInfo, error)
+	GetRoundBufferInfo(ctx context.Context, in *AuthenticatedMessage, opts ...grpc.CallOption) (*RoundBufferInfo, error)
 	// RequestNonce generates a nonce for user registration
-	RequestNonce(ctx context.Context, in *NonceRequest, opts ...grpc.CallOption) (*Nonce, error)
+	RequestNonce(ctx context.Context, in *AuthenticatedMessage, opts ...grpc.CallOption) (*Nonce, error)
 	// ConfirmRegistration uses a nonce confirmation to finalize user registration
-	ConfirmRegistration(ctx context.Context, in *RequestRegistrationConfirmation, opts ...grpc.CallOption) (*RegistrationConfirmation, error)
+	ConfirmRegistration(ctx context.Context, in *AuthenticatedMessage, opts ...grpc.CallOption) (*RegistrationConfirmation, error)
 	// PostRoundPublicKey sets the public cypher key for a round on other nodes
-	PostRoundPublicKey(ctx context.Context, in *RoundPublicKey, opts ...grpc.CallOption) (*Ack, error)
+	PostRoundPublicKey(ctx context.Context, in *AuthenticatedMessage, opts ...grpc.CallOption) (*Ack, error)
 	// PostPrecompResult finalizes the precomputation results with each node from the last node
 	// sending the final PayloadA and PayloadB precomputations
-	PostPrecompResult(ctx context.Context, in *Batch, opts ...grpc.CallOption) (*Ack, error)
+	PostPrecompResult(ctx context.Context, in *AuthenticatedMessage, opts ...grpc.CallOption) (*Ack, error)
 	// The gateway calls GetCompletedBatch to get any finished batch from a node
-	GetCompletedBatch(ctx context.Context, in *Ping, opts ...grpc.CallOption) (*Batch, error)
+	GetCompletedBatch(ctx context.Context, in *AuthenticatedMessage, opts ...grpc.CallOption) (*Batch, error)
 	//
-	GetMeasure(ctx context.Context, in *RoundInfo, opts ...grpc.CallOption) (*RoundMetrics, error)
+	GetMeasure(ctx context.Context, in *AuthenticatedMessage, opts ...grpc.CallOption) (*RoundMetrics, error)
 	// Gateway -> Server polling for NDF
-	PollNdf(ctx context.Context, in *Ping, opts ...grpc.CallOption) (*GatewayNdf, error)
+	PollNdf(ctx context.Context, in *AuthenticatedMessage, opts ...grpc.CallOption) (*GatewayNdf, error)
 	// Round trip ping comm
-	SendRoundTripPing(ctx context.Context, in *RoundTripPing, opts ...grpc.CallOption) (*Ack, error)
+	SendRoundTripPing(ctx context.Context, in *AuthenticatedMessage, opts ...grpc.CallOption) (*Ack, error)
 }
 
 type nodeClient struct {
@@ -1606,7 +1538,7 @@ func (c *nodeClient) AskOnline(ctx context.Context, in *Ping, opts ...grpc.CallO
 	return out, nil
 }
 
-func (c *nodeClient) CreateNewRound(ctx context.Context, in *RoundInfo, opts ...grpc.CallOption) (*Ack, error) {
+func (c *nodeClient) CreateNewRound(ctx context.Context, in *AuthenticatedMessage, opts ...grpc.CallOption) (*Ack, error) {
 	out := new(Ack)
 	err := c.cc.Invoke(ctx, "/mixmessages.Node/CreateNewRound", in, out, opts...)
 	if err != nil {
@@ -1615,7 +1547,7 @@ func (c *nodeClient) CreateNewRound(ctx context.Context, in *RoundInfo, opts ...
 	return out, nil
 }
 
-func (c *nodeClient) PostNewBatch(ctx context.Context, in *Batch, opts ...grpc.CallOption) (*Ack, error) {
+func (c *nodeClient) PostNewBatch(ctx context.Context, in *AuthenticatedMessage, opts ...grpc.CallOption) (*Ack, error) {
 	out := new(Ack)
 	err := c.cc.Invoke(ctx, "/mixmessages.Node/PostNewBatch", in, out, opts...)
 	if err != nil {
@@ -1624,7 +1556,7 @@ func (c *nodeClient) PostNewBatch(ctx context.Context, in *Batch, opts ...grpc.C
 	return out, nil
 }
 
-func (c *nodeClient) FinishRealtime(ctx context.Context, in *RoundInfo, opts ...grpc.CallOption) (*Ack, error) {
+func (c *nodeClient) FinishRealtime(ctx context.Context, in *AuthenticatedMessage, opts ...grpc.CallOption) (*Ack, error) {
 	out := new(Ack)
 	err := c.cc.Invoke(ctx, "/mixmessages.Node/FinishRealtime", in, out, opts...)
 	if err != nil {
@@ -1633,7 +1565,7 @@ func (c *nodeClient) FinishRealtime(ctx context.Context, in *RoundInfo, opts ...
 	return out, nil
 }
 
-func (c *nodeClient) PostPhase(ctx context.Context, in *Batch, opts ...grpc.CallOption) (*Ack, error) {
+func (c *nodeClient) PostPhase(ctx context.Context, in *AuthenticatedMessage, opts ...grpc.CallOption) (*Ack, error) {
 	out := new(Ack)
 	err := c.cc.Invoke(ctx, "/mixmessages.Node/PostPhase", in, out, opts...)
 	if err != nil {
@@ -1676,7 +1608,7 @@ func (x *nodeStreamPostPhaseClient) CloseAndRecv() (*Ack, error) {
 	return m, nil
 }
 
-func (c *nodeClient) GetRoundBufferInfo(ctx context.Context, in *RoundBufferInfo, opts ...grpc.CallOption) (*RoundBufferInfo, error) {
+func (c *nodeClient) GetRoundBufferInfo(ctx context.Context, in *AuthenticatedMessage, opts ...grpc.CallOption) (*RoundBufferInfo, error) {
 	out := new(RoundBufferInfo)
 	err := c.cc.Invoke(ctx, "/mixmessages.Node/GetRoundBufferInfo", in, out, opts...)
 	if err != nil {
@@ -1685,7 +1617,7 @@ func (c *nodeClient) GetRoundBufferInfo(ctx context.Context, in *RoundBufferInfo
 	return out, nil
 }
 
-func (c *nodeClient) RequestNonce(ctx context.Context, in *NonceRequest, opts ...grpc.CallOption) (*Nonce, error) {
+func (c *nodeClient) RequestNonce(ctx context.Context, in *AuthenticatedMessage, opts ...grpc.CallOption) (*Nonce, error) {
 	out := new(Nonce)
 	err := c.cc.Invoke(ctx, "/mixmessages.Node/RequestNonce", in, out, opts...)
 	if err != nil {
@@ -1694,7 +1626,7 @@ func (c *nodeClient) RequestNonce(ctx context.Context, in *NonceRequest, opts ..
 	return out, nil
 }
 
-func (c *nodeClient) ConfirmRegistration(ctx context.Context, in *RequestRegistrationConfirmation, opts ...grpc.CallOption) (*RegistrationConfirmation, error) {
+func (c *nodeClient) ConfirmRegistration(ctx context.Context, in *AuthenticatedMessage, opts ...grpc.CallOption) (*RegistrationConfirmation, error) {
 	out := new(RegistrationConfirmation)
 	err := c.cc.Invoke(ctx, "/mixmessages.Node/ConfirmRegistration", in, out, opts...)
 	if err != nil {
@@ -1703,7 +1635,7 @@ func (c *nodeClient) ConfirmRegistration(ctx context.Context, in *RequestRegistr
 	return out, nil
 }
 
-func (c *nodeClient) PostRoundPublicKey(ctx context.Context, in *RoundPublicKey, opts ...grpc.CallOption) (*Ack, error) {
+func (c *nodeClient) PostRoundPublicKey(ctx context.Context, in *AuthenticatedMessage, opts ...grpc.CallOption) (*Ack, error) {
 	out := new(Ack)
 	err := c.cc.Invoke(ctx, "/mixmessages.Node/PostRoundPublicKey", in, out, opts...)
 	if err != nil {
@@ -1712,7 +1644,7 @@ func (c *nodeClient) PostRoundPublicKey(ctx context.Context, in *RoundPublicKey,
 	return out, nil
 }
 
-func (c *nodeClient) PostPrecompResult(ctx context.Context, in *Batch, opts ...grpc.CallOption) (*Ack, error) {
+func (c *nodeClient) PostPrecompResult(ctx context.Context, in *AuthenticatedMessage, opts ...grpc.CallOption) (*Ack, error) {
 	out := new(Ack)
 	err := c.cc.Invoke(ctx, "/mixmessages.Node/PostPrecompResult", in, out, opts...)
 	if err != nil {
@@ -1721,7 +1653,7 @@ func (c *nodeClient) PostPrecompResult(ctx context.Context, in *Batch, opts ...g
 	return out, nil
 }
 
-func (c *nodeClient) GetCompletedBatch(ctx context.Context, in *Ping, opts ...grpc.CallOption) (*Batch, error) {
+func (c *nodeClient) GetCompletedBatch(ctx context.Context, in *AuthenticatedMessage, opts ...grpc.CallOption) (*Batch, error) {
 	out := new(Batch)
 	err := c.cc.Invoke(ctx, "/mixmessages.Node/GetCompletedBatch", in, out, opts...)
 	if err != nil {
@@ -1730,7 +1662,7 @@ func (c *nodeClient) GetCompletedBatch(ctx context.Context, in *Ping, opts ...gr
 	return out, nil
 }
 
-func (c *nodeClient) GetMeasure(ctx context.Context, in *RoundInfo, opts ...grpc.CallOption) (*RoundMetrics, error) {
+func (c *nodeClient) GetMeasure(ctx context.Context, in *AuthenticatedMessage, opts ...grpc.CallOption) (*RoundMetrics, error) {
 	out := new(RoundMetrics)
 	err := c.cc.Invoke(ctx, "/mixmessages.Node/GetMeasure", in, out, opts...)
 	if err != nil {
@@ -1739,7 +1671,7 @@ func (c *nodeClient) GetMeasure(ctx context.Context, in *RoundInfo, opts ...grpc
 	return out, nil
 }
 
-func (c *nodeClient) PollNdf(ctx context.Context, in *Ping, opts ...grpc.CallOption) (*GatewayNdf, error) {
+func (c *nodeClient) PollNdf(ctx context.Context, in *AuthenticatedMessage, opts ...grpc.CallOption) (*GatewayNdf, error) {
 	out := new(GatewayNdf)
 	err := c.cc.Invoke(ctx, "/mixmessages.Node/PollNdf", in, out, opts...)
 	if err != nil {
@@ -1748,7 +1680,7 @@ func (c *nodeClient) PollNdf(ctx context.Context, in *Ping, opts ...grpc.CallOpt
 	return out, nil
 }
 
-func (c *nodeClient) SendRoundTripPing(ctx context.Context, in *RoundTripPing, opts ...grpc.CallOption) (*Ack, error) {
+func (c *nodeClient) SendRoundTripPing(ctx context.Context, in *AuthenticatedMessage, opts ...grpc.CallOption) (*Ack, error) {
 	out := new(Ack)
 	err := c.cc.Invoke(ctx, "/mixmessages.Node/SendRoundTripPing", in, out, opts...)
 	if err != nil {
@@ -1762,35 +1694,35 @@ type NodeServer interface {
 	// Handles AskOnline
 	AskOnline(context.Context, *Ping) (*Ack, error)
 	// CreatesNewRound makes a new round with a certain ID
-	CreateNewRound(context.Context, *RoundInfo) (*Ack, error)
+	CreateNewRound(context.Context, *AuthenticatedMessage) (*Ack, error)
 	// PostNewBatch sends a batch to be processed in the server's realtime
-	PostNewBatch(context.Context, *Batch) (*Ack, error)
+	PostNewBatch(context.Context, *AuthenticatedMessage) (*Ack, error)
 	// FinishRealtime broadcasts when realtime is complete
-	FinishRealtime(context.Context, *RoundInfo) (*Ack, error)
+	FinishRealtime(context.Context, *AuthenticatedMessage) (*Ack, error)
 	// PostPhase runs a cMix phase on another node
-	PostPhase(context.Context, *Batch) (*Ack, error)
+	PostPhase(context.Context, *AuthenticatedMessage) (*Ack, error)
 	// StreamPostPhase runs a cMix phase on another node
 	// by using unary streaming of slots
 	StreamPostPhase(Node_StreamPostPhaseServer) error
 	// GetRoundBufferInfo returns the # of rounds ready for messages
-	GetRoundBufferInfo(context.Context, *RoundBufferInfo) (*RoundBufferInfo, error)
+	GetRoundBufferInfo(context.Context, *AuthenticatedMessage) (*RoundBufferInfo, error)
 	// RequestNonce generates a nonce for user registration
-	RequestNonce(context.Context, *NonceRequest) (*Nonce, error)
+	RequestNonce(context.Context, *AuthenticatedMessage) (*Nonce, error)
 	// ConfirmRegistration uses a nonce confirmation to finalize user registration
-	ConfirmRegistration(context.Context, *RequestRegistrationConfirmation) (*RegistrationConfirmation, error)
+	ConfirmRegistration(context.Context, *AuthenticatedMessage) (*RegistrationConfirmation, error)
 	// PostRoundPublicKey sets the public cypher key for a round on other nodes
-	PostRoundPublicKey(context.Context, *RoundPublicKey) (*Ack, error)
+	PostRoundPublicKey(context.Context, *AuthenticatedMessage) (*Ack, error)
 	// PostPrecompResult finalizes the precomputation results with each node from the last node
 	// sending the final PayloadA and PayloadB precomputations
-	PostPrecompResult(context.Context, *Batch) (*Ack, error)
+	PostPrecompResult(context.Context, *AuthenticatedMessage) (*Ack, error)
 	// The gateway calls GetCompletedBatch to get any finished batch from a node
-	GetCompletedBatch(context.Context, *Ping) (*Batch, error)
+	GetCompletedBatch(context.Context, *AuthenticatedMessage) (*Batch, error)
 	//
-	GetMeasure(context.Context, *RoundInfo) (*RoundMetrics, error)
+	GetMeasure(context.Context, *AuthenticatedMessage) (*RoundMetrics, error)
 	// Gateway -> Server polling for NDF
-	PollNdf(context.Context, *Ping) (*GatewayNdf, error)
+	PollNdf(context.Context, *AuthenticatedMessage) (*GatewayNdf, error)
 	// Round trip ping comm
-	SendRoundTripPing(context.Context, *RoundTripPing) (*Ack, error)
+	SendRoundTripPing(context.Context, *AuthenticatedMessage) (*Ack, error)
 }
 
 // UnimplementedNodeServer can be embedded to have forward compatible implementations.
@@ -1800,46 +1732,46 @@ type UnimplementedNodeServer struct {
 func (*UnimplementedNodeServer) AskOnline(ctx context.Context, req *Ping) (*Ack, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AskOnline not implemented")
 }
-func (*UnimplementedNodeServer) CreateNewRound(ctx context.Context, req *RoundInfo) (*Ack, error) {
+func (*UnimplementedNodeServer) CreateNewRound(ctx context.Context, req *AuthenticatedMessage) (*Ack, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateNewRound not implemented")
 }
-func (*UnimplementedNodeServer) PostNewBatch(ctx context.Context, req *Batch) (*Ack, error) {
+func (*UnimplementedNodeServer) PostNewBatch(ctx context.Context, req *AuthenticatedMessage) (*Ack, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PostNewBatch not implemented")
 }
-func (*UnimplementedNodeServer) FinishRealtime(ctx context.Context, req *RoundInfo) (*Ack, error) {
+func (*UnimplementedNodeServer) FinishRealtime(ctx context.Context, req *AuthenticatedMessage) (*Ack, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FinishRealtime not implemented")
 }
-func (*UnimplementedNodeServer) PostPhase(ctx context.Context, req *Batch) (*Ack, error) {
+func (*UnimplementedNodeServer) PostPhase(ctx context.Context, req *AuthenticatedMessage) (*Ack, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PostPhase not implemented")
 }
 func (*UnimplementedNodeServer) StreamPostPhase(srv Node_StreamPostPhaseServer) error {
 	return status.Errorf(codes.Unimplemented, "method StreamPostPhase not implemented")
 }
-func (*UnimplementedNodeServer) GetRoundBufferInfo(ctx context.Context, req *RoundBufferInfo) (*RoundBufferInfo, error) {
+func (*UnimplementedNodeServer) GetRoundBufferInfo(ctx context.Context, req *AuthenticatedMessage) (*RoundBufferInfo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetRoundBufferInfo not implemented")
 }
-func (*UnimplementedNodeServer) RequestNonce(ctx context.Context, req *NonceRequest) (*Nonce, error) {
+func (*UnimplementedNodeServer) RequestNonce(ctx context.Context, req *AuthenticatedMessage) (*Nonce, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RequestNonce not implemented")
 }
-func (*UnimplementedNodeServer) ConfirmRegistration(ctx context.Context, req *RequestRegistrationConfirmation) (*RegistrationConfirmation, error) {
+func (*UnimplementedNodeServer) ConfirmRegistration(ctx context.Context, req *AuthenticatedMessage) (*RegistrationConfirmation, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ConfirmRegistration not implemented")
 }
-func (*UnimplementedNodeServer) PostRoundPublicKey(ctx context.Context, req *RoundPublicKey) (*Ack, error) {
+func (*UnimplementedNodeServer) PostRoundPublicKey(ctx context.Context, req *AuthenticatedMessage) (*Ack, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PostRoundPublicKey not implemented")
 }
-func (*UnimplementedNodeServer) PostPrecompResult(ctx context.Context, req *Batch) (*Ack, error) {
+func (*UnimplementedNodeServer) PostPrecompResult(ctx context.Context, req *AuthenticatedMessage) (*Ack, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PostPrecompResult not implemented")
 }
-func (*UnimplementedNodeServer) GetCompletedBatch(ctx context.Context, req *Ping) (*Batch, error) {
+func (*UnimplementedNodeServer) GetCompletedBatch(ctx context.Context, req *AuthenticatedMessage) (*Batch, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCompletedBatch not implemented")
 }
-func (*UnimplementedNodeServer) GetMeasure(ctx context.Context, req *RoundInfo) (*RoundMetrics, error) {
+func (*UnimplementedNodeServer) GetMeasure(ctx context.Context, req *AuthenticatedMessage) (*RoundMetrics, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMeasure not implemented")
 }
-func (*UnimplementedNodeServer) PollNdf(ctx context.Context, req *Ping) (*GatewayNdf, error) {
+func (*UnimplementedNodeServer) PollNdf(ctx context.Context, req *AuthenticatedMessage) (*GatewayNdf, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PollNdf not implemented")
 }
-func (*UnimplementedNodeServer) SendRoundTripPing(ctx context.Context, req *RoundTripPing) (*Ack, error) {
+func (*UnimplementedNodeServer) SendRoundTripPing(ctx context.Context, req *AuthenticatedMessage) (*Ack, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendRoundTripPing not implemented")
 }
 
@@ -1866,7 +1798,7 @@ func _Node_AskOnline_Handler(srv interface{}, ctx context.Context, dec func(inte
 }
 
 func _Node_CreateNewRound_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RoundInfo)
+	in := new(AuthenticatedMessage)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -1878,13 +1810,13 @@ func _Node_CreateNewRound_Handler(srv interface{}, ctx context.Context, dec func
 		FullMethod: "/mixmessages.Node/CreateNewRound",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NodeServer).CreateNewRound(ctx, req.(*RoundInfo))
+		return srv.(NodeServer).CreateNewRound(ctx, req.(*AuthenticatedMessage))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Node_PostNewBatch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Batch)
+	in := new(AuthenticatedMessage)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -1896,13 +1828,13 @@ func _Node_PostNewBatch_Handler(srv interface{}, ctx context.Context, dec func(i
 		FullMethod: "/mixmessages.Node/PostNewBatch",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NodeServer).PostNewBatch(ctx, req.(*Batch))
+		return srv.(NodeServer).PostNewBatch(ctx, req.(*AuthenticatedMessage))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Node_FinishRealtime_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RoundInfo)
+	in := new(AuthenticatedMessage)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -1914,13 +1846,13 @@ func _Node_FinishRealtime_Handler(srv interface{}, ctx context.Context, dec func
 		FullMethod: "/mixmessages.Node/FinishRealtime",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NodeServer).FinishRealtime(ctx, req.(*RoundInfo))
+		return srv.(NodeServer).FinishRealtime(ctx, req.(*AuthenticatedMessage))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Node_PostPhase_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Batch)
+	in := new(AuthenticatedMessage)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -1932,7 +1864,7 @@ func _Node_PostPhase_Handler(srv interface{}, ctx context.Context, dec func(inte
 		FullMethod: "/mixmessages.Node/PostPhase",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NodeServer).PostPhase(ctx, req.(*Batch))
+		return srv.(NodeServer).PostPhase(ctx, req.(*AuthenticatedMessage))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1964,7 +1896,7 @@ func (x *nodeStreamPostPhaseServer) Recv() (*Slot, error) {
 }
 
 func _Node_GetRoundBufferInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RoundBufferInfo)
+	in := new(AuthenticatedMessage)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -1976,13 +1908,13 @@ func _Node_GetRoundBufferInfo_Handler(srv interface{}, ctx context.Context, dec 
 		FullMethod: "/mixmessages.Node/GetRoundBufferInfo",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NodeServer).GetRoundBufferInfo(ctx, req.(*RoundBufferInfo))
+		return srv.(NodeServer).GetRoundBufferInfo(ctx, req.(*AuthenticatedMessage))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Node_RequestNonce_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(NonceRequest)
+	in := new(AuthenticatedMessage)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -1994,13 +1926,13 @@ func _Node_RequestNonce_Handler(srv interface{}, ctx context.Context, dec func(i
 		FullMethod: "/mixmessages.Node/RequestNonce",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NodeServer).RequestNonce(ctx, req.(*NonceRequest))
+		return srv.(NodeServer).RequestNonce(ctx, req.(*AuthenticatedMessage))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Node_ConfirmRegistration_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RequestRegistrationConfirmation)
+	in := new(AuthenticatedMessage)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -2012,13 +1944,13 @@ func _Node_ConfirmRegistration_Handler(srv interface{}, ctx context.Context, dec
 		FullMethod: "/mixmessages.Node/ConfirmRegistration",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NodeServer).ConfirmRegistration(ctx, req.(*RequestRegistrationConfirmation))
+		return srv.(NodeServer).ConfirmRegistration(ctx, req.(*AuthenticatedMessage))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Node_PostRoundPublicKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RoundPublicKey)
+	in := new(AuthenticatedMessage)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -2030,13 +1962,13 @@ func _Node_PostRoundPublicKey_Handler(srv interface{}, ctx context.Context, dec 
 		FullMethod: "/mixmessages.Node/PostRoundPublicKey",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NodeServer).PostRoundPublicKey(ctx, req.(*RoundPublicKey))
+		return srv.(NodeServer).PostRoundPublicKey(ctx, req.(*AuthenticatedMessage))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Node_PostPrecompResult_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Batch)
+	in := new(AuthenticatedMessage)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -2048,13 +1980,13 @@ func _Node_PostPrecompResult_Handler(srv interface{}, ctx context.Context, dec f
 		FullMethod: "/mixmessages.Node/PostPrecompResult",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NodeServer).PostPrecompResult(ctx, req.(*Batch))
+		return srv.(NodeServer).PostPrecompResult(ctx, req.(*AuthenticatedMessage))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Node_GetCompletedBatch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Ping)
+	in := new(AuthenticatedMessage)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -2066,13 +1998,13 @@ func _Node_GetCompletedBatch_Handler(srv interface{}, ctx context.Context, dec f
 		FullMethod: "/mixmessages.Node/GetCompletedBatch",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NodeServer).GetCompletedBatch(ctx, req.(*Ping))
+		return srv.(NodeServer).GetCompletedBatch(ctx, req.(*AuthenticatedMessage))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Node_GetMeasure_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RoundInfo)
+	in := new(AuthenticatedMessage)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -2084,13 +2016,13 @@ func _Node_GetMeasure_Handler(srv interface{}, ctx context.Context, dec func(int
 		FullMethod: "/mixmessages.Node/GetMeasure",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NodeServer).GetMeasure(ctx, req.(*RoundInfo))
+		return srv.(NodeServer).GetMeasure(ctx, req.(*AuthenticatedMessage))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Node_PollNdf_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Ping)
+	in := new(AuthenticatedMessage)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -2102,13 +2034,13 @@ func _Node_PollNdf_Handler(srv interface{}, ctx context.Context, dec func(interf
 		FullMethod: "/mixmessages.Node/PollNdf",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NodeServer).PollNdf(ctx, req.(*Ping))
+		return srv.(NodeServer).PollNdf(ctx, req.(*AuthenticatedMessage))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Node_SendRoundTripPing_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RoundTripPing)
+	in := new(AuthenticatedMessage)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -2120,7 +2052,7 @@ func _Node_SendRoundTripPing_Handler(srv interface{}, ctx context.Context, dec f
 		FullMethod: "/mixmessages.Node/SendRoundTripPing",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NodeServer).SendRoundTripPing(ctx, req.(*RoundTripPing))
+		return srv.(NodeServer).SendRoundTripPing(ctx, req.(*AuthenticatedMessage))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -2430,10 +2362,10 @@ type RegistrationClient interface {
 	RegisterUser(ctx context.Context, in *UserRegistration, opts ...grpc.CallOption) (*UserRegistrationConfirmation, error)
 	// Client uses this to check if the version needs to be updated
 	GetCurrentClientVersion(ctx context.Context, in *Ping, opts ...grpc.CallOption) (*ClientVersion, error)
-	//Node registration for the permissioning server
+	// Node registration for the permissioning server
 	RegisterNode(ctx context.Context, in *NodeRegistration, opts ...grpc.CallOption) (*Ack, error)
 	// Obtain NDF from the Registration Server
-	PollNdf(ctx context.Context, in *NDFHash, opts ...grpc.CallOption) (*NDF, error)
+	PollNdf(ctx context.Context, in *AuthenticatedMessage, opts ...grpc.CallOption) (*NDF, error)
 }
 
 type registrationClient struct {
@@ -2471,7 +2403,7 @@ func (c *registrationClient) RegisterNode(ctx context.Context, in *NodeRegistrat
 	return out, nil
 }
 
-func (c *registrationClient) PollNdf(ctx context.Context, in *NDFHash, opts ...grpc.CallOption) (*NDF, error) {
+func (c *registrationClient) PollNdf(ctx context.Context, in *AuthenticatedMessage, opts ...grpc.CallOption) (*NDF, error) {
 	out := new(NDF)
 	err := c.cc.Invoke(ctx, "/mixmessages.Registration/PollNdf", in, out, opts...)
 	if err != nil {
@@ -2486,10 +2418,10 @@ type RegistrationServer interface {
 	RegisterUser(context.Context, *UserRegistration) (*UserRegistrationConfirmation, error)
 	// Client uses this to check if the version needs to be updated
 	GetCurrentClientVersion(context.Context, *Ping) (*ClientVersion, error)
-	//Node registration for the permissioning server
+	// Node registration for the permissioning server
 	RegisterNode(context.Context, *NodeRegistration) (*Ack, error)
 	// Obtain NDF from the Registration Server
-	PollNdf(context.Context, *NDFHash) (*NDF, error)
+	PollNdf(context.Context, *AuthenticatedMessage) (*NDF, error)
 }
 
 // UnimplementedRegistrationServer can be embedded to have forward compatible implementations.
@@ -2505,7 +2437,7 @@ func (*UnimplementedRegistrationServer) GetCurrentClientVersion(ctx context.Cont
 func (*UnimplementedRegistrationServer) RegisterNode(ctx context.Context, req *NodeRegistration) (*Ack, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RegisterNode not implemented")
 }
-func (*UnimplementedRegistrationServer) PollNdf(ctx context.Context, req *NDFHash) (*NDF, error) {
+func (*UnimplementedRegistrationServer) PollNdf(ctx context.Context, req *AuthenticatedMessage) (*NDF, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PollNdf not implemented")
 }
 
@@ -2568,7 +2500,7 @@ func _Registration_RegisterNode_Handler(srv interface{}, ctx context.Context, de
 }
 
 func _Registration_PollNdf_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(NDFHash)
+	in := new(AuthenticatedMessage)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -2580,7 +2512,7 @@ func _Registration_PollNdf_Handler(srv interface{}, ctx context.Context, dec fun
 		FullMethod: "/mixmessages.Registration/PollNdf",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RegistrationServer).PollNdf(ctx, req.(*NDFHash))
+		return srv.(RegistrationServer).PollNdf(ctx, req.(*AuthenticatedMessage))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -2604,6 +2536,118 @@ var _Registration_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "PollNdf",
 			Handler:    _Registration_PollNdf_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "mixmessages.proto",
+}
+
+// GenericClient is the client API for Generic service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
+type GenericClient interface {
+	// Authenticate a token with the server
+	AuthenticateToken(ctx context.Context, in *AuthenticatedMessage, opts ...grpc.CallOption) (*Ack, error)
+	// Request a token from the server
+	RequestToken(ctx context.Context, in *Ping, opts ...grpc.CallOption) (*AssignToken, error)
+}
+
+type genericClient struct {
+	cc *grpc.ClientConn
+}
+
+func NewGenericClient(cc *grpc.ClientConn) GenericClient {
+	return &genericClient{cc}
+}
+
+func (c *genericClient) AuthenticateToken(ctx context.Context, in *AuthenticatedMessage, opts ...grpc.CallOption) (*Ack, error) {
+	out := new(Ack)
+	err := c.cc.Invoke(ctx, "/mixmessages.Generic/AuthenticateToken", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *genericClient) RequestToken(ctx context.Context, in *Ping, opts ...grpc.CallOption) (*AssignToken, error) {
+	out := new(AssignToken)
+	err := c.cc.Invoke(ctx, "/mixmessages.Generic/RequestToken", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// GenericServer is the server API for Generic service.
+type GenericServer interface {
+	// Authenticate a token with the server
+	AuthenticateToken(context.Context, *AuthenticatedMessage) (*Ack, error)
+	// Request a token from the server
+	RequestToken(context.Context, *Ping) (*AssignToken, error)
+}
+
+// UnimplementedGenericServer can be embedded to have forward compatible implementations.
+type UnimplementedGenericServer struct {
+}
+
+func (*UnimplementedGenericServer) AuthenticateToken(ctx context.Context, req *AuthenticatedMessage) (*Ack, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AuthenticateToken not implemented")
+}
+func (*UnimplementedGenericServer) RequestToken(ctx context.Context, req *Ping) (*AssignToken, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RequestToken not implemented")
+}
+
+func RegisterGenericServer(s *grpc.Server, srv GenericServer) {
+	s.RegisterService(&_Generic_serviceDesc, srv)
+}
+
+func _Generic_AuthenticateToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AuthenticatedMessage)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GenericServer).AuthenticateToken(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/mixmessages.Generic/AuthenticateToken",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GenericServer).AuthenticateToken(ctx, req.(*AuthenticatedMessage))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Generic_RequestToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Ping)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GenericServer).RequestToken(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/mixmessages.Generic/RequestToken",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GenericServer).RequestToken(ctx, req.(*Ping))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+var _Generic_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "mixmessages.Generic",
+	HandlerType: (*GenericServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "AuthenticateToken",
+			Handler:    _Generic_AuthenticateToken_Handler,
+		},
+		{
+			MethodName: "RequestToken",
+			Handler:    _Generic_RequestToken_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -6,9 +6,10 @@
 package node
 
 import (
-	"errors"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
+	"github.com/pkg/errors"
+	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"google.golang.org/grpc"
@@ -33,7 +34,8 @@ func (s *Comms) SendNodeRegistration(host *connect.Host,
 	}
 
 	// Execute the Send function
-	_, err := host.Send(f)
+	jww.DEBUG.Printf("Sending Node Registration message: %+v", message)
+	_, err := s.Send(host, f)
 	return err
 }
 
@@ -47,9 +49,13 @@ func (s *Comms) RequestNdf(host *connect.Host,
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
 
+		authMsg, err := s.PackAuthenticatedMessage(message, host, false)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
 		// Send the message
 		resultMsg, err := pb.NewRegistrationClient(
-			conn).PollNdf(ctx, message)
+			conn).PollNdf(ctx, authMsg)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
@@ -57,7 +63,8 @@ func (s *Comms) RequestNdf(host *connect.Host,
 	}
 
 	// Execute the Send function
-	resultMsg, err := host.Send(f)
+	jww.DEBUG.Printf("Sending Request Ndf message: %+v", message)
+	resultMsg, err := s.Send(host, f)
 	if err != nil {
 		return nil, err
 	}

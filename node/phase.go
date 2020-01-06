@@ -14,6 +14,7 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
+	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"google.golang.org/grpc"
@@ -29,9 +30,13 @@ func (s *Comms) SendPostPhase(host *connect.Host,
 		// Set up the context
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
-
+		//Format to authenticated message type
+		authMsg, err := s.PackAuthenticatedMessage(message, host, false)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
 		// Send the message
-		resultMsg, err := pb.NewNodeClient(conn).PostPhase(ctx, message)
+		resultMsg, err := pb.NewNodeClient(conn).PostPhase(ctx, authMsg)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
@@ -39,7 +44,8 @@ func (s *Comms) SendPostPhase(host *connect.Host,
 	}
 
 	// Execute the Send function
-	resultMsg, err := host.Send(f)
+	jww.DEBUG.Printf("Sending Post Phase message: %+v", message)
+	resultMsg, err := s.Send(host, f)
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +103,7 @@ func (s *Comms) getPostPhaseStream(host *connect.Host,
 	}
 
 	// Execute the Stream function
-	resultClient, err := host.Stream(f)
+	resultClient, err := s.Stream(host, f)
 	if err != nil {
 		return nil, err
 	}

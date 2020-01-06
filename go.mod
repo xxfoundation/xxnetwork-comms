@@ -6,14 +6,14 @@ require (
 	github.com/golang/protobuf v1.3.2
 	github.com/pkg/errors v0.8.1
 	github.com/spf13/jwalterweatherman v1.1.0
-	gitlab.com/elixxir/crypto v0.0.0-20191029164123-324be42ee600
-	gitlab.com/elixxir/primitives v0.0.0-20191029164023-7f6b4088b191
-	golang.org/x/crypto v0.0.0-20191117063200-497ca9f6d64f // indirect
-	golang.org/x/net v0.0.0-20191119073136-fc4aabc6c914
-	golang.org/x/sys v0.0.0-20191119195528-f068ffe820e4 // indirect
+	gitlab.com/elixxir/crypto v0.0.0-20191121235352-86d305a9b253
+	gitlab.com/elixxir/primitives v0.0.0-20191204001459-cef5ed720564
+	golang.org/x/crypto v0.0.0-20191206172530-e9b2fee46413 // indirect
+	golang.org/x/net v0.0.0-20191209160850-c0dbc17a3553
+	golang.org/x/sys v0.0.0-20191218084908-4a24b4065292 // indirect
 	golang.org/x/text v0.3.2 // indirect
-	google.golang.org/genproto v0.0.0-20191115221424-83cc0476cb11 // indirect
-	google.golang.org/grpc v1.25.1
+	google.golang.org/genproto v0.0.0-20191216205247-b31c10ee225f // indirect
+	google.golang.org/grpc v1.26.0
 	gopkg.in/yaml.v2 v2.2.7 // indirect
 )
 

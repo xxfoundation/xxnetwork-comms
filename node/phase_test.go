@@ -34,12 +34,14 @@ func TestPhase_StreamPostPhaseSendReceive(t *testing.T) {
 	receiverImpl.Functions.StreamPostPhase = func(server mixmessages.Node_StreamPostPhaseServer) error {
 		return mockStreamPostPhase(server)
 	}
-	serverStreamReceiver := StartNode(servReceiverAddress, receiverImpl,
+
+	serverStreamReceiver := StartNode("test", servReceiverAddress, receiverImpl,
 		certData, keyData)
 
 	// Init server sender
 	servSenderAddress := getNextServerAddress()
-	serverStreamSender := StartNode(servSenderAddress, NewImplementation(),
+	serverStreamSender := StartNode("test", servSenderAddress,
+		NewImplementation(),
 		certData, keyData)
 
 	// Reset TLS-related global variables
@@ -62,7 +64,8 @@ func TestPhase_StreamPostPhaseSendReceive(t *testing.T) {
 	// Init host/manager
 	var manager connect.Manager
 	testId := "test"
-	host, err := manager.AddHost(testId, servReceiverAddress, certData, false)
+	host, err := manager.AddHost(testId, servReceiverAddress, certData,
+		false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -131,12 +134,13 @@ func TestGetPostPhaseStream_ErrorsWhenContextCanceled(t *testing.T) {
 
 	// Init server receiver
 	servReceiverAddress := getNextServerAddress()
-	_ = StartNode(servReceiverAddress, NewImplementation(),
+	_ = StartNode("test", servReceiverAddress, NewImplementation(),
 		certData, keyData)
 
 	// Init server sender
 	servSenderAddress := getNextServerAddress()
-	serverStreamSender := StartNode(servSenderAddress, NewImplementation(),
+	serverStreamSender := StartNode("test", servSenderAddress,
+		NewImplementation(),
 		certData, keyData)
 
 	// Get credentials and connect to node
@@ -146,7 +150,8 @@ func TestGetPostPhaseStream_ErrorsWhenContextCanceled(t *testing.T) {
 	// Init host/manager
 	var manager connect.Manager
 	testId := "test"
-	host, err := manager.AddHost(testId, servReceiverAddress, certData, false)
+	host, err := manager.AddHost(testId, servReceiverAddress, certData,
+		false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -159,10 +164,9 @@ func TestGetPostPhaseStream_ErrorsWhenContextCanceled(t *testing.T) {
 
 var receivedBatch mixmessages.Batch
 
-func mockStreamPostPhase(stream mixmessages.Node_StreamPostPhaseServer) error {
-
+func mockStreamPostPhase(server mixmessages.Node_StreamPostPhaseServer) error {
 	// Get header from stream
-	batchInfo, err := GetPostPhaseStreamHeader(stream)
+	batchInfo, err := GetPostPhaseStreamHeader(server)
 	if err != nil {
 		return err
 	}
@@ -172,7 +176,7 @@ func mockStreamPostPhase(stream mixmessages.Node_StreamPostPhaseServer) error {
 	// send ack back to client.
 	var slots []*mixmessages.Slot
 	for {
-		slot, err := stream.Recv()
+		slot, err := server.Recv()
 		// If we are at end of receiving
 		// send ack and finish
 		if err == io.EOF {
@@ -187,7 +191,7 @@ func mockStreamPostPhase(stream mixmessages.Node_StreamPostPhaseServer) error {
 				Slots:     slots,
 			}
 
-			err = stream.SendAndClose(&ack)
+			err = server.SendAndClose(&ack)
 
 			return err
 		}
