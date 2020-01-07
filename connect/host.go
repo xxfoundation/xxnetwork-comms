@@ -10,6 +10,7 @@ package connect
 
 import (
 	"fmt"
+	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/crypto/signature/rsa"
@@ -82,47 +83,95 @@ func NewHost(id, address string, cert []byte, disableTimeout,
 	return
 }
 
-// Ensures the given Host's connection is alive
-// and attempts to recover if not
-func (h *Host) validateConnection() (err error) {
+// CheckAndSend checks that the host has a connection and sends if it does.
+// Operates under the host's read lock.
+func (h *Host) CheckAndSend(f func(conn *grpc.ClientConn) (*any.Any,
+	error)) ( bool, *any.Any, error){
+
 	h.mux.RLock()
+	defer h.mux.RUnlock()
 
-	// If Host connection does not exist, open the connection
-	if h.connection == nil {
-		h.mux.RUnlock()
-		if err = h.connect(); err != nil {
-			return
-		}
-		h.mux.RLock()
+	if h.isAlive()!=alive{
+		return false, nil, nil
 	}
 
-	// If Host connection is not active, attempt to reestablish
-	if !h.isAlive() {
-		jww.WARN.Printf("Bad host connection state, reconnecting: %v", h)
-		h.Disconnect()
-		h.mux.RUnlock()
-		if err = h.connect(); err != nil {
-			return
-		}
-	}else{
-		h.mux.RUnlock()
-	}
-
-	return
+	a, err := f(h.connection)
+	return true, a, err
 }
 
-// Returns true if the connection is non-nil and alive
-func (h *Host) isAlive() bool {
+// CheckAndStream checks that the host has a connection and streams if it does.
+// Operates under the host's read lock.
+func (h *Host) CheckAndStream(f func(conn *grpc.ClientConn) (
+	interface{}, error)) ( bool, interface{}, error){
+
+	h.mux.RLock()
+	defer h.mux.RUnlock()
+
+	if h.isAlive()!=alive{
+		return false, nil, nil
+	}
+
+	a, err := f(h.connection)
+	return true, a, err
+}
+
+
+// Attempts to connect to the host if it does not have a valid connection
+func (h *Host) Connect(handshake func(host *Host)error) error {
+	h.mux.Lock()
+	defer h.mux.Unlock()
+
+	switch h.isAlive(){
+	case alive:
+		return nil
+	}
+
+	//connect to remote
+	if err := h.connect(); err != nil {
+		return err
+	}
+
+	//establish authentication if required
+	if h.enableAuth && h.token == nil {
+		if err := handshake(h); err != nil {
+			h.Disconnect()
+			return err
+		}
+	}
+
+	return nil
+}
+
+const (
+	none = iota
+	dead
+	alive
+)
+
+// isAlive returns true if the connection is non-nil and alive
+func (h *Host) isAlive() int {
 	if h.connection == nil {
-		return false
+		return none
 	}
 	state := h.connection.GetState()
-	return state == connectivity.Idle || state == connectivity.Connecting ||
-		state == connectivity.Ready
+	if state == connectivity.Idle || state == connectivity.Connecting ||
+		state == connectivity.Ready{
+		return alive
+	}
+	return dead
 }
 
-// Closes a the Host connection
+// Disconnect closes a the Host connection under the write lock
 func (h *Host) Disconnect() {
+	h.mux.Lock()
+	defer h.mux.Unlock()
+
+	h.disconnect()
+}
+
+// disconnect closes a the Host connection while not under a write lock.
+// undefined behavior if the caller had not taken the write lock
+func (h *Host) disconnect() {
 	if h.connection == nil {
 		return
 	}
@@ -136,9 +185,6 @@ func (h *Host) Disconnect() {
 
 // Connect creates a connection
 func (h *Host) connect() (err error) {
-	h.mux.Lock()
-	defer h.mux.Unlock()
-
 	// Configure TLS options
 	var securityDial grpc.DialOption
 	if h.credentials != nil {
@@ -151,7 +197,7 @@ func (h *Host) connect() (err error) {
 	}
 
 	// Attempt to establish a new connection
-	for numRetries := 0; numRetries < h.maxRetries && !h.isAlive(); numRetries++ {
+	for numRetries := 0; numRetries < h.maxRetries && h.isAlive()!=alive; numRetries++ {
 
 		jww.INFO.Printf("Connecting to address %+v. Attempt number %+v of %+v",
 			h.address, numRetries, h.maxRetries)
@@ -175,7 +221,7 @@ func (h *Host) connect() (err error) {
 	}
 
 	// Verify that the connection was established successfully
-	if !h.isAlive() {
+	if h.isAlive()!=alive {
 		return errors.New(fmt.Sprintf(
 			"Last try to connect to %s failed. Giving up", h.address))
 	}

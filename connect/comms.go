@@ -19,7 +19,6 @@ import (
 	"math"
 	"net"
 	"sync"
-	"testing"
 	"time"
 )
 
@@ -44,7 +43,7 @@ type ProtoComms struct {
 	privateKey *rsa.PrivateKey
 
 	//Disables the checking of authentication signatures for testing setups
-	fakeAuth bool
+	disableAuth bool
 }
 
 // Starts a ProtoComms object and is used in various initializers
@@ -128,27 +127,25 @@ func (c *ProtoComms) GetPrivateKey() *rsa.PrivateKey {
 func (c *ProtoComms) Send(host *Host, f func(conn *grpc.ClientConn) (*any.Any,
 	error)) (result *any.Any, err error) {
 
-	// Handle thread safety
+	// Check the state of the host and send if valid, otherwise return a bool
+	// asking for a reconnect
+	validConnection, responce, err := host.CheckAndSend(f)
 
-	// Ensure the connection is running
-	jww.DEBUG.Printf("Attempting to send to host: %s", host)
-	if err = host.validateConnection(); err != nil {
-		return
-	}
-
-	// If authentication is enabled and not yet configured, perform handshake
-	if host.enableAuth && host.token == nil {
-		if err = c.clientHandshake(host); err != nil {
-			return
+	// reconnect if the connection isn't in an acceptable state
+	if !validConnection{
+		err := host.Connect(c.clientHandshake)
+		if err!=nil{
+			return nil, err
 		}
-
 	}
 
-	host.mux.RLock()
-	// Run the send function
-	result, err = f(host.connection)
-	host.mux.RUnlock()
-	return result, err
+	// resend after connecting
+	validConnection, responce, err = host.CheckAndSend(f)
+	if !validConnection{
+		return nil, errors.New("Unspecificed connection error")
+	}
+
+	return responce, err
 }
 
 // Sets up or recovers the Host's connection
@@ -156,28 +153,30 @@ func (c *ProtoComms) Send(host *Host, f func(conn *grpc.ClientConn) (*any.Any,
 func (c *ProtoComms) Stream(host *Host, f func(conn *grpc.ClientConn) (
 	interface{}, error)) (client interface{}, err error) {
 
-	// Ensure the connection is running
-	jww.DEBUG.Printf("Attempting to stream to host: %s", host)
-	if err = host.validateConnection(); err != nil {
-		return
+	// Check the state of the host and send if valid, otherwise return a bool
+	// asking for a reconnect
+	validConnection, responce, err := host.CheckAndStream(f)
+
+	// reconnect if the connection isn't in an acceptable state
+	if !validConnection{
+		err := host.Connect(c.clientHandshake)
+		if err!=nil{
+			return nil, err
+		}
 	}
 
-	host.mux.RLock()
-	// Run the stream function
-	client, err = f(host.connection)
-	host.mux.RUnlock()
-	return
+	// resend after connecting
+	validConnection, responce, err = host.CheckAndStream(f)
+	if !validConnection{
+		return nil, errors.New("Unspecificed connection error")
+	}
+
+	return responce, err
 }
 
-// Makes the authentication code skip signing and signature verification if the
+// DisableAuth makes the authentication code skip signing and signature verification if the
 // set.  Can only be set while in a testing structure.  Is not thread safe.
-func (c *ProtoComms) FakeAuth(t interface{}) {
-	switch t.(type) {
-	case testing.B:
-	case testing.T:
-	case testing.M:
-	default:
-		jww.FATAL.Panicf("Cannot ")
-	}
-	c.fakeAuth = true
+func (c *ProtoComms) DisableAuth() {
+	jww.WARN.Print("Auth checking disabled, running insecurely")
+	c.disableAuth = true
 }

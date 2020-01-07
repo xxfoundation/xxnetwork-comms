@@ -77,7 +77,7 @@ func TestConnectionManager_Disconnect(t *testing.T) {
 	}
 	host.Disconnect()
 
-	if host.isAlive() {
+	if host.isAlive()==alive {
 		t.Errorf("Disconnect Function not working properly")
 	} else {
 		pass++
@@ -135,12 +135,12 @@ func TestConnectionManager_DisconnectAll(t *testing.T) {
 
 	manager.DisconnectAll()
 
-	if host.isAlive() {
+	if host.isAlive()==alive {
 		t.Errorf("Disconnect Function not working properly")
 	} else {
 		pass++
 	}
-	if host2.isAlive() {
+	if host2.isAlive()==alive {
 		t.Errorf("Disconnect Function not working properly")
 	} else {
 		pass++

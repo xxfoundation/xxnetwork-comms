@@ -84,7 +84,7 @@ func (c *ProtoComms) PackAuthenticatedMessage(msg proto.Message, host *Host,
 	}
 
 	// If signature is enabled, sign the message and add to payload
-	if enableSignature && !c.fakeAuth{
+	if enableSignature && !c.disableAuth {
 		authMsg.Signature, err = c.signMessage(anyMsg)
 		if err != nil {
 			return nil, err
@@ -117,8 +117,8 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) error {
 		return errors.Errorf("Invalid host ID: %+v", msg.ID)
 	}
 
-	// Verify the token signature unless fakeAuth has been set for testing
-	if !c.fakeAuth{
+	// Verify the token signature unless disableAuth has been set for testing
+	if !c.disableAuth {
 		if err := c.verifyMessage(msg, host); err != nil {
 			return errors.Errorf("Invalid token signature: %+v", err)
 		}
