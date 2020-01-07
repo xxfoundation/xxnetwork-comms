@@ -176,6 +176,13 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) *Auth {
 	return res
 }
 
+// DisableAuth makes the authentication code skip signing and signature verification if the
+// set.  Can only be set while in a testing structure.  Is not thread safe.
+func (c *ProtoComms) DisableAuth() {
+	jww.WARN.Print("Auth checking disabled, running insecurely")
+	c.disableAuth = true
+}
+
 // Takes a generic-type message, returns the signature
 // The message is signed with the ProtoComms RSA PrivateKey
 func (c *ProtoComms) signMessage(anyMessage *any.Any) ([]byte, error) {

@@ -159,7 +159,6 @@ func (h *Host) Connect(handshake func(host *Host) error) error {
 	//establish authentication if required
 	if h.enableAuth && h.token == nil {
 		if err := handshake(h); err != nil {
-			h.Disconnect()
 			return err
 		}
 	}

@@ -155,10 +155,3 @@ func (c *ProtoComms) Stream(host *Host, f func(conn *grpc.ClientConn) (
 	// Run the send function
 	return host.Stream(f)
 }
-
-// DisableAuth makes the authentication code skip signing and signature verification if the
-// set.  Can only be set while in a testing structure.  Is not thread safe.
-func (c *ProtoComms) DisableAuth() {
-	jww.WARN.Print("Auth checking disabled, running insecurely")
-	c.disableAuth = true
-}
