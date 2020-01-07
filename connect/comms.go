@@ -127,25 +127,16 @@ func (c *ProtoComms) GetPrivateKey() *rsa.PrivateKey {
 func (c *ProtoComms) Send(host *Host, f func(conn *grpc.ClientConn) (*any.Any,
 	error)) (result *any.Any, err error) {
 
-	// Check the state of the host and send if valid, otherwise return a bool
-	// asking for a reconnect
-	validConnection, responce, err := host.CheckAndSend(f)
-
-	// reconnect if the connection isn't in an acceptable state
-	if !validConnection{
-		err := host.Connect(c.clientHandshake)
-		if err!=nil{
-			return nil, err
+	// Ensure the connection is running
+	jww.DEBUG.Printf("Attempting to send to host: %s", host)
+	if !host.Connected() {
+		if err = host.Connect(c.clientHandshake); err != nil {
+			return
 		}
 	}
 
-	// resend after connecting
-	validConnection, responce, err = host.CheckAndSend(f)
-	if !validConnection{
-		return nil, errors.New("Unspecificed connection error")
-	}
-
-	return responce, err
+	// Run the send function
+	return host.Send(f)
 }
 
 // Sets up or recovers the Host's connection
@@ -153,25 +144,16 @@ func (c *ProtoComms) Send(host *Host, f func(conn *grpc.ClientConn) (*any.Any,
 func (c *ProtoComms) Stream(host *Host, f func(conn *grpc.ClientConn) (
 	interface{}, error)) (client interface{}, err error) {
 
-	// Check the state of the host and send if valid, otherwise return a bool
-	// asking for a reconnect
-	validConnection, responce, err := host.CheckAndStream(f)
-
-	// reconnect if the connection isn't in an acceptable state
-	if !validConnection{
-		err := host.Connect(c.clientHandshake)
-		if err!=nil{
-			return nil, err
+	// Ensure the connection is running
+	jww.DEBUG.Printf("Attempting to send to host: %s", host)
+	if !host.Connected() {
+		if err = host.Connect(c.clientHandshake); err != nil {
+			return
 		}
 	}
 
-	// resend after connecting
-	validConnection, responce, err = host.CheckAndStream(f)
-	if !validConnection{
-		return nil, errors.New("Unspecificed connection error")
-	}
-
-	return responce, err
+	// Run the send function
+	return host.Stream(f)
 }
 
 // DisableAuth makes the authentication code skip signing and signature verification if the

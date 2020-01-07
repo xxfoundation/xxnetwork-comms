@@ -159,7 +159,7 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) *Auth {
 	// Check if the sender is authenticated, and if the token is valid
 	host, ok := c.GetHost(msg.ID)
 
-	if ok{
+	if ok {
 		host.mux.RLock()
 		defer host.mux.RUnlock()
 	}
