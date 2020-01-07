@@ -129,24 +129,22 @@ func (c *ProtoComms) Send(host *Host, f func(conn *grpc.ClientConn) (*any.Any,
 	error)) (result *any.Any, err error) {
 
 	// Handle thread safety
-	host.mux.RLock()
 
 	// Ensure the connection is running
 	jww.DEBUG.Printf("Attempting to send to host: %s", host)
 	if err = host.validateConnection(); err != nil {
-		host.mux.RUnlock()
 		return
 	}
 
 	// If authentication is enabled and not yet configured, perform handshake
 	if host.enableAuth && host.token == nil {
-		host.mux.RUnlock()
 		if err = c.clientHandshake(host); err != nil {
 			return
 		}
-		host.mux.RLock()
+
 	}
 
+	host.mux.RLock()
 	// Run the send function
 	result, err = f(host.connection)
 	host.mux.RUnlock()
@@ -164,8 +162,11 @@ func (c *ProtoComms) Stream(host *Host, f func(conn *grpc.ClientConn) (
 		return
 	}
 
+	host.mux.RLock()
 	// Run the stream function
-	return f(host.connection)
+	client, err = f(host.connection)
+	host.mux.RUnlock()
+	return
 }
 
 // Makes the authentication code skip signing and signature verification if the

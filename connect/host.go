@@ -85,21 +85,27 @@ func NewHost(id, address string, cert []byte, disableTimeout,
 // Ensures the given Host's connection is alive
 // and attempts to recover if not
 func (h *Host) validateConnection() (err error) {
+	h.mux.RLock()
 
 	// If Host connection does not exist, open the connection
 	if h.connection == nil {
+		h.mux.RUnlock()
 		if err = h.connect(); err != nil {
 			return
 		}
+		h.mux.RLock()
 	}
 
 	// If Host connection is not active, attempt to reestablish
 	if !h.isAlive() {
 		jww.WARN.Printf("Bad host connection state, reconnecting: %v", h)
 		h.Disconnect()
+		h.mux.RUnlock()
 		if err = h.connect(); err != nil {
 			return
 		}
+	}else{
+		h.mux.RUnlock()
 	}
 
 	return
@@ -130,6 +136,8 @@ func (h *Host) Disconnect() {
 
 // Connect creates a connection
 func (h *Host) connect() (err error) {
+	h.mux.Lock()
+	defer h.mux.Unlock()
 
 	// Configure TLS options
 	var securityDial grpc.DialOption
