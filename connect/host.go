@@ -57,15 +57,7 @@ type Host struct {
 
 	// Read/Write Mutex for thread safety
 	mux sync.RWMutex
-
-	//tracks the state of the host to determine if the host is available or closed
-	state uint32
 }
-
-const (
-	available = uint32(1)
-	closed    = uint32(2)
-)
 
 // Creates a new Host object
 func NewHost(id, address string, cert []byte, disableTimeout,
@@ -77,7 +69,6 @@ func NewHost(id, address string, cert []byte, disableTimeout,
 		address:     address,
 		certificate: cert,
 		enableAuth:  enableAuth,
-		state:       available,
 	}
 
 	// Set the max number of retries for establishing a connection
@@ -97,22 +88,18 @@ func (h *Host) Connected() bool {
 	h.mux.RLock()
 	defer h.mux.RUnlock()
 
-	if h.state != available {
-		return false
-	}
-
 	return h.isAlive()
 }
 
 // CheckAndSend checks that the host has a connection and sends if it does.
 // Operates under the host's read lock.
-func (h *Host) Send(f func(conn *grpc.ClientConn) (*any.Any,
+func (h *Host) send(f func(conn *grpc.ClientConn) (*any.Any,
 	error)) (*any.Any, error) {
 
 	h.mux.RLock()
 	defer h.mux.RUnlock()
 
-	if h.state != available || !h.isAlive() {
+	if !h.isAlive() {
 		return nil, errors.New("Could not send, connection is not alive")
 	}
 
@@ -122,13 +109,13 @@ func (h *Host) Send(f func(conn *grpc.ClientConn) (*any.Any,
 
 // CheckAndStream checks that the host has a connection and streams if it does.
 // Operates under the host's read lock.
-func (h *Host) Stream(f func(conn *grpc.ClientConn) (
+func (h *Host) stream(f func(conn *grpc.ClientConn) (
 	interface{}, error)) (interface{}, error) {
 
 	h.mux.RLock()
 	defer h.mux.RUnlock()
 
-	if h.state != available || !h.isAlive() {
+	if !h.isAlive() {
 		return nil, errors.New("Could not stream, connection is not alive")
 	}
 
@@ -137,14 +124,9 @@ func (h *Host) Stream(f func(conn *grpc.ClientConn) (
 }
 
 // Attempts to connect to the host if it does not have a valid connection
-func (h *Host) Connect(handshake func(host *Host) error) error {
+func (h *Host) connect(handshake func(host *Host) error) error {
 	h.mux.Lock()
 	defer h.mux.Unlock()
-
-	// checks if the host has been closed, and returns an error if it has
-	if h.state != available {
-		return errors.New("Host is permanently closed, cannot connect")
-	}
 
 	//checks if the connection is active and skips reconnecting if it is
 	if h.isAlive() {
@@ -152,7 +134,7 @@ func (h *Host) Connect(handshake func(host *Host) error) error {
 	}
 
 	//connect to remote
-	if err := h.connect(); err != nil {
+	if err := h.connectInternal(); err != nil {
 		return err
 	}
 
@@ -187,9 +169,6 @@ func (h *Host) Disconnect() {
 // disconnect closes a the Host connection while not under a write lock.
 // undefined behavior if the caller has not taken the write lock
 func (h *Host) disconnect() {
-	if h.state == closed {
-		return
-	}
 	// its possible to close a host which never sent so it never made a
 	// connection. In that case, we should not close a connection which does not
 	// exist
@@ -201,13 +180,13 @@ func (h *Host) disconnect() {
 		}
 	}
 
-	// set the host state to closed, it cannot be used again
-	h.state = closed
+	h.token = nil
+
 }
 
-// Connect creates a connection while not under a write lock.
+// connect creates a connection while not under a write lock.
 // undefined behavior if the caller has not taken the write lock
-func (h *Host) connect() (err error) {
+func (h *Host) connectInternal() (err error) {
 	// Configure TLS options
 	var securityDial grpc.DialOption
 	if h.credentials != nil {

@@ -50,7 +50,7 @@ func TestSetCredentials_InvalidCert(t *testing.T) {
 }
 
 // Function to test the Disconnect
-// Checks if conn established in Connect() is deleted.
+// Checks if conn established in connect() is deleted.
 func TestConnectionManager_Disconnect(t *testing.T) {
 
 	test := 2
@@ -66,12 +66,16 @@ func TestConnectionManager_Disconnect(t *testing.T) {
 	_, inMap := manager.connections.Load(testId)
 
 	if !inMap {
-		t.Errorf("Connect Function didn't add connection to map")
+		t.Errorf("connect Function didn't add connection to map")
 	} else {
 		pass++
 	}
 
-	err = host.connect()
+	f := func(host *Host) error{
+		return nil
+	}
+
+	err = host.connect(f)
 	if err != nil {
 		t.Error("Unable to connect")
 	}
@@ -87,7 +91,7 @@ func TestConnectionManager_Disconnect(t *testing.T) {
 }
 
 // Function to test the Disconnect
-// Checks if conn established in Connect() is deleted.
+// Checks if conn established in connect() is deleted.
 func TestConnectionManager_DisconnectAll(t *testing.T) {
 
 	test := 4
@@ -106,7 +110,7 @@ func TestConnectionManager_DisconnectAll(t *testing.T) {
 	_, inMap := manager.GetHost(testId)
 
 	if !inMap {
-		t.Errorf("Connect Function didn't add connection to map")
+		t.Errorf("connect Function didn't add connection to map")
 	} else {
 		pass++
 	}
@@ -116,11 +120,15 @@ func TestConnectionManager_DisconnectAll(t *testing.T) {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
 
-	err = host.connect()
+	f := func(host *Host) error{
+		return nil
+	}
+
+	err = host.connect(f)
 	if err != nil {
 		t.Errorf("Unable to call connnect: %+v", err)
 	}
-	err = host2.connect()
+	err = host2.connect(f)
 	if err != nil {
 		t.Errorf("Unable to call connnect: %+v", err)
 	}
@@ -128,7 +136,7 @@ func TestConnectionManager_DisconnectAll(t *testing.T) {
 	_, inMap = manager.connections.Load(testId2)
 
 	if !inMap {
-		t.Errorf("Connect Function didn't add connection to map")
+		t.Errorf("connect Function didn't add connection to map")
 	} else {
 		pass++
 	}

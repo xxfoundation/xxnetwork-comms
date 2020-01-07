@@ -130,13 +130,13 @@ func (c *ProtoComms) Send(host *Host, f func(conn *grpc.ClientConn) (*any.Any,
 	// Ensure the connection is running
 	jww.DEBUG.Printf("Attempting to send to host: %s", host)
 	if !host.Connected() {
-		if err = host.Connect(c.clientHandshake); err != nil {
+		if err = host.connect(c.clientHandshake); err != nil {
 			return
 		}
 	}
 
 	// Run the send function
-	return host.Send(f)
+	return host.send(f)
 }
 
 // Sets up or recovers the Host's connection
@@ -147,11 +147,11 @@ func (c *ProtoComms) Stream(host *Host, f func(conn *grpc.ClientConn) (
 	// Ensure the connection is running
 	jww.DEBUG.Printf("Attempting to send to host: %s", host)
 	if !host.Connected() {
-		if err = host.Connect(c.clientHandshake); err != nil {
+		if err = host.connect(c.clientHandshake); err != nil {
 			return
 		}
 	}
 
 	// Run the send function
-	return host.Stream(f)
+	return host.stream(f)
 }
