@@ -134,7 +134,7 @@ func (h *Host) connect(handshake func(host *Host) error) error {
 	}
 
 	//connect to remote
-	if err := h.connectInternal(); err != nil {
+	if err := h.connectHelper(); err != nil {
 		return err
 	}
 
@@ -164,6 +164,7 @@ func (h *Host) Disconnect() {
 	defer h.mux.Unlock()
 
 	h.disconnect()
+	h.token = nil
 }
 
 // disconnect closes a the Host connection while not under a write lock.
@@ -179,14 +180,13 @@ func (h *Host) disconnect() {
 				h.address, errors.New(err.Error()))
 		}
 	}
-
-	h.token = nil
-
 }
 
 // connect creates a connection while not under a write lock.
 // undefined behavior if the caller has not taken the write lock
-func (h *Host) connectInternal() (err error) {
+func (h *Host) connectHelper() (err error) {
+	//attempts to disconnect to clean up an existing connection
+	h.disconnect()
 	// Configure TLS options
 	var securityDial grpc.DialOption
 	if h.credentials != nil {
