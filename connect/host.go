@@ -173,7 +173,7 @@ func (h *Host) disconnect() {
 	// its possible to close a host which never sent so it never made a
 	// connection. In that case, we should not close a connection which does not
 	// exist
-	if h.connection !=nil{
+	if h.connection != nil {
 		err := h.connection.Close()
 		if err != nil {
 			jww.ERROR.Printf("Unable to close connection to %s: %+v",

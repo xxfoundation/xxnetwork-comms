@@ -195,7 +195,7 @@ func TestProtoComms_DisableAuth(t *testing.T) {
 
 	comm.DisableAuth()
 
-	if !comm.disableAuth{
+	if !comm.disableAuth {
 		t.Error("Auth was not disabled when DisableAuth was called")
 	}
 }

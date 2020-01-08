@@ -71,7 +71,7 @@ func TestConnectionManager_Disconnect(t *testing.T) {
 		pass++
 	}
 
-	f := func(host *Host) error{
+	f := func(host *Host) error {
 		return nil
 	}
 
@@ -120,7 +120,7 @@ func TestConnectionManager_DisconnectAll(t *testing.T) {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
 
-	f := func(host *Host) error{
+	f := func(host *Host) error {
 		return nil
 	}
 
