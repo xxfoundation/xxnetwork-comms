@@ -124,7 +124,7 @@ func (h *Host) stream(f func(conn *grpc.ClientConn) (
 }
 
 // Attempts to connect to the host if it does not have a valid connection
-func (h *Host) connect(handshake func(host *Host) error) error {
+func (h *Host) connect() error {
 	h.mux.Lock()
 	defer h.mux.Unlock()
 
@@ -138,14 +138,24 @@ func (h *Host) connect(handshake func(host *Host) error) error {
 		return err
 	}
 
-	//establish authentication if required
-	if h.enableAuth && h.token == nil {
-		if err := handshake(h); err != nil {
-			return err
-		}
-	}
-
 	return nil
+}
+
+// authenticationRequired Checks if new authentication is required with
+// the remote
+func (h *Host) authenticationRequired() bool {
+	h.mux.RLock()
+	defer h.mux.RUnlock()
+
+	return h.enableAuth && h.token==nil
+}
+
+// Checks if the given Host's connection is alive
+func (h *Host) authenticate(handshake func(host *Host) error) error {
+	h.mux.Lock()
+	defer h.mux.Unlock()
+
+	return handshake(h)
 }
 
 // isAlive returns true if the connection is non-nil and alive

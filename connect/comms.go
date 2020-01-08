@@ -130,10 +130,16 @@ func (c *ProtoComms) Send(host *Host, f func(conn *grpc.ClientConn) (*any.Any,
 	// Ensure the connection is running
 	jww.DEBUG.Printf("Attempting to send to host: %s", host)
 	if !host.Connected() {
-		if err = host.connect(c.clientHandshake); err != nil {
-			host.Disconnect()
-			jww.WARN.Printf("Connecting to host %s failed due to " +
-			"failed authentication: %v", host.String(), err)
+		err = host.connect()
+		if err != nil {
+			return
+		}
+	}
+
+	//establish authentication if required
+	if host.authenticationRequired(){
+		err = host.authenticate(c.clientHandshake)
+		if err != nil {
 			return
 		}
 	}
@@ -150,10 +156,16 @@ func (c *ProtoComms) Stream(host *Host, f func(conn *grpc.ClientConn) (
 	// Ensure the connection is running
 	jww.DEBUG.Printf("Attempting to send to host: %s", host)
 	if !host.Connected() {
-		if err = host.connect(c.clientHandshake); err != nil {
-			host.Disconnect()
-			jww.WARN.Printf("Connecting to host %s failed due to " +
-				"failed authentication: %v", host.String(), err)
+		err = host.connect()
+		if err != nil {
+			return
+		}
+	}
+
+	//establish authentication if required
+	if host.authenticationRequired(){
+		err = host.authenticate(c.clientHandshake)
+		if err != nil {
 			return
 		}
 	}
