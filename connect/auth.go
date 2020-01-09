@@ -10,6 +10,7 @@ package connect
 
 import (
 	"bytes"
+	"context"
 	"crypto/rand"
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
@@ -19,6 +20,7 @@ import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/crypto/nonce"
 	"gitlab.com/elixxir/crypto/signature/rsa"
+	"google.golang.org/grpc/metadata"
 )
 
 // Auth represents an authorization state for a message or host
@@ -94,6 +96,16 @@ func (c *ProtoComms) PackAuthenticatedMessage(msg proto.Message, host *Host,
 	return authMsg, nil
 }
 
+// Add authentication fields to a given context and return it
+func (c *ProtoComms) PackAuthenticatedContext(host *Host,
+	ctx context.Context) context.Context {
+	authMsg := &pb.AuthenticatedMessage{
+		ID:    c.id,
+		Token: host.token,
+	}
+	return metadata.AppendToOutgoingContext(ctx, "auth", authMsg.String())
+}
+
 // Generates a new token and adds it to internal state
 func (c *ProtoComms) GenerateToken() ([]byte, error) {
 	token, err := nonce.NewNonce(nonce.RegistrationTTL)
@@ -156,14 +168,15 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) *Auth {
 		Sender:          &Host{},
 	}
 
-	// Check if the sender is authenticated, and if the token is valid
+	// Try to obtain the Host for the specified ID
 	host, ok := c.GetHost(msg.ID)
-
 	if ok {
+		// If host is found, mutex must be locked
 		host.mux.RLock()
 		defer host.mux.RUnlock()
 	}
 
+	// Check the token's validity
 	validToken := ok && host.token != nil && msg.Token != nil &&
 		bytes.Compare(host.token, msg.Token) == 0
 	if ok && validToken {

@@ -36,9 +36,9 @@ func (s *Comms) RequestToken(context.Context, *pb.Ping) (*pb.AssignToken, error)
 
 // Handle a NewRound event
 func (s *Comms) CreateNewRound(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
-	//Create an auth object
+	// Verify the message authentication
 	authState := s.AuthenticatedReceiver(msg)
-	//Unnmarshall the any message to the message type needed
+	// Unnmarshall the any message to the message type needed
 	roundInfoMsg := &pb.RoundInfo{}
 	err := ptypes.UnmarshalAny(msg.Message, roundInfoMsg)
 	if err != nil {
@@ -51,8 +51,9 @@ func (s *Comms) CreateNewRound(ctx context.Context, msg *pb.AuthenticatedMessage
 
 // PostNewBatch polls the first node and sends a batch when it is ready
 func (s *Comms) PostNewBatch(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
+	// Verify the message authentication
 	authState := s.AuthenticatedReceiver(msg)
-	//Unmarshall the any message to the message type needed
+	// Unmarshall the any message to the message type needed
 	batchMsg := &pb.Batch{}
 	err := ptypes.UnmarshalAny(msg.Message, batchMsg)
 	if err != nil {
@@ -68,9 +69,9 @@ func (s *Comms) PostNewBatch(ctx context.Context, msg *pb.AuthenticatedMessage) 
 // Handle a Phase event
 func (s *Comms) PostPhase(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.Ack,
 	error) {
-	//Create an auth object
+	// Verify the message authentication
 	authState := s.AuthenticatedReceiver(msg)
-	//Unmarshall the any message to the message type needed
+	// Unmarshall the any message to the message type needed
 	batchMsg := &pb.Batch{}
 	err := ptypes.UnmarshalAny(msg.Message, batchMsg)
 	if err != nil {
@@ -83,14 +84,21 @@ func (s *Comms) PostPhase(ctx context.Context, msg *pb.AuthenticatedMessage) (*p
 
 // Handle a phase event using a stream server
 func (s *Comms) StreamPostPhase(server pb.Node_StreamPostPhaseServer) error {
-	return s.handler.StreamPostPhase(server)
+	// Extract the authentication info
+	authMsg, err := GetPostPhaseAuthHeaders(server)
+	if err != nil {
+		return errors.Errorf("Unable to extract authentication info: %+v", err)
+	}
+
+	// Verify the message authentication
+	return s.handler.StreamPostPhase(server, s.AuthenticatedReceiver(authMsg))
 }
 
 // Handle a PostRoundPublicKey message
 func (s *Comms) PostRoundPublicKey(ctx context.Context,
 	msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
 
-	//Create an auth object
+	// Verify the message authentication
 	authState := s.AuthenticatedReceiver(msg)
 	//Marshall the any message to the message type needed
 	publicKeyMsg := &pb.RoundPublicKey{}
@@ -108,7 +116,7 @@ func (s *Comms) GetRoundBufferInfo(ctx context.Context,
 	msg *pb.AuthenticatedMessage) (
 	*pb.RoundBufferInfo, error) {
 
-	//Create an auth object
+	// Verify the message authentication
 	authState := s.AuthenticatedReceiver(msg)
 	bufSize, err := s.handler.GetRoundBufferInfo(authState)
 	if bufSize < 0 {
@@ -122,7 +130,7 @@ func (s *Comms) GetRoundBufferInfo(ctx context.Context,
 func (s *Comms) RequestNonce(ctx context.Context,
 	msg *pb.AuthenticatedMessage) (*pb.Nonce, error) {
 
-	//Create an auth object
+	// Verify the message authentication
 	authState := s.AuthenticatedReceiver(msg)
 
 	//Marshall the any message to the message type needed
@@ -156,7 +164,7 @@ func (s *Comms) RequestNonce(ctx context.Context,
 func (s *Comms) ConfirmRegistration(ctx context.Context,
 	msg *pb.AuthenticatedMessage) (*pb.RegistrationConfirmation, error) {
 
-	//Create an auth object
+	// Verify the message authentication
 	authState := s.AuthenticatedReceiver(msg)
 
 	//Unmarshall the any message to the message type needed
@@ -189,6 +197,7 @@ func (s *Comms) ConfirmRegistration(ctx context.Context,
 func (s *Comms) PostPrecompResult(ctx context.Context,
 	msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
 
+	// Verify the message authentication
 	authState := s.AuthenticatedReceiver(msg)
 
 	//Unmarshall the any message to the message type needed
@@ -206,7 +215,7 @@ func (s *Comms) PostPrecompResult(ctx context.Context,
 
 // FinishRealtime broadcasts to all nodes when the realtime is completed
 func (s *Comms) FinishRealtime(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
-	// Call the server handler to finish realtime
+	// Verify the message authentication
 	authState := s.AuthenticatedReceiver(msg)
 
 	//Unmarshall the any message to the message type needed
@@ -231,6 +240,7 @@ func (s *Comms) GetCompletedBatch(ctx context.Context,
 }
 
 func (s *Comms) GetMeasure(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.RoundMetrics, error) {
+	// Verify the message authentication
 	authState := s.AuthenticatedReceiver(msg)
 
 	//Unmarshall the any message to the message type needed
@@ -258,6 +268,7 @@ func (s *Comms) PollNdf(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.
 }
 
 func (s *Comms) SendRoundTripPing(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
+	// Verify the message authentication
 	authState := s.AuthenticatedReceiver(msg)
 	//Marshall the any message to the message type needed
 	roundTripPing := &pb.RoundTripPing{}

@@ -31,7 +31,7 @@ func TestPhase_StreamPostPhaseSendReceive(t *testing.T) {
 	// Init server receiver
 	servReceiverAddress := getNextServerAddress()
 	receiverImpl := NewImplementation()
-	receiverImpl.Functions.StreamPostPhase = func(server mixmessages.Node_StreamPostPhaseServer) error {
+	receiverImpl.Functions.StreamPostPhase = func(server mixmessages.Node_StreamPostPhaseServer, auth *connect.Auth) error {
 		return mockStreamPostPhase(server)
 	}
 
