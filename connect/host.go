@@ -83,7 +83,7 @@ func NewHost(id, address string, cert []byte, disableTimeout,
 	return
 }
 
-// Checks if the given Host's connection is alive
+// Connected checks if the given Host's connection is alive
 func (h *Host) Connected() bool {
 	h.mux.RLock()
 	defer h.mux.RUnlock()
@@ -91,7 +91,21 @@ func (h *Host) Connected() bool {
 	return h.isAlive()
 }
 
-// CheckAndSend checks that the host has a connection and sends if it does.
+// GetId  returns the id of the host
+func (h *Host) GetId() string {
+	return h.id
+}
+
+// Disconnect closes a the Host connection under the write lock
+func (h *Host) Disconnect() {
+	h.mux.Lock()
+	defer h.mux.Unlock()
+
+	h.disconnect()
+	h.token = nil
+}
+
+// send checks that the host has a connection and sends if it does.
 // Operates under the host's read lock.
 func (h *Host) send(f func(conn *grpc.ClientConn) (*any.Any,
 	error)) (*any.Any, error) {
@@ -107,7 +121,7 @@ func (h *Host) send(f func(conn *grpc.ClientConn) (*any.Any,
 	return a, err
 }
 
-// CheckAndStream checks that the host has a connection and streams if it does.
+// stream checks that the host has a connection and streams if it does.
 // Operates under the host's read lock.
 func (h *Host) stream(f func(conn *grpc.ClientConn) (
 	interface{}, error)) (interface{}, error) {
@@ -123,7 +137,7 @@ func (h *Host) stream(f func(conn *grpc.ClientConn) (
 	return a, err
 }
 
-// Attempts to connect to the host if it does not have a valid connection
+// connect attempts to connect to the host if it does not have a valid connection
 func (h *Host) connect() error {
 	h.mux.Lock()
 	defer h.mux.Unlock()
@@ -168,15 +182,6 @@ func (h *Host) isAlive() bool {
 		state == connectivity.Ready
 }
 
-// Disconnect closes a the Host connection under the write lock
-func (h *Host) Disconnect() {
-	h.mux.Lock()
-	defer h.mux.Unlock()
-
-	h.disconnect()
-	h.token = nil
-}
-
 // disconnect closes a the Host connection while not under a write lock.
 // undefined behavior if the caller has not taken the write lock
 func (h *Host) disconnect() {
@@ -192,7 +197,7 @@ func (h *Host) disconnect() {
 	}
 }
 
-// connect creates a connection while not under a write lock.
+// connectHelper creates a connection while not under a write lock.
 // undefined behavior if the caller has not taken the write lock
 func (h *Host) connectHelper() (err error) {
 	//attempts to disconnect to clean up an existing connection
@@ -243,7 +248,7 @@ func (h *Host) connectHelper() (err error) {
 	return
 }
 
-// Sets TransportCredentials and RSA PublicKey objects
+// setCredentials sets TransportCredentials and RSA PublicKey objects
 // using a PEM-encoded TLS Certificate
 func (h *Host) setCredentials() error {
 
