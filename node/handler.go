@@ -71,7 +71,7 @@ type Handler interface {
 	// Server Interface for all Internode Comms
 	PostPhase(message *mixmessages.Batch, auth *connect.Auth)
 
-	StreamPostPhase(server mixmessages.Node_StreamPostPhaseServer) error
+	StreamPostPhase(server mixmessages.Node_StreamPostPhaseServer, auth *connect.Auth) error
 
 	// Server interface for share broadcast
 	PostRoundPublicKey(message *mixmessages.RoundPublicKey, auth *connect.Auth)
@@ -112,7 +112,7 @@ type implementationFunctions struct {
 	PostPhase func(message *mixmessages.Batch, auth *connect.Auth)
 
 	// Server interface for internode streaming messages
-	StreamPostPhase func(message mixmessages.Node_StreamPostPhaseServer) error
+	StreamPostPhase func(message mixmessages.Node_StreamPostPhaseServer, auth *connect.Auth) error
 
 	// Server interface for share broadcast
 	PostRoundPublicKey func(message *mixmessages.RoundPublicKey, auth *connect.Auth)
@@ -162,7 +162,7 @@ func NewImplementation() *Implementation {
 			PostPhase: func(m *mixmessages.Batch, auth *connect.Auth) {
 				warn(um)
 			},
-			StreamPostPhase: func(message mixmessages.Node_StreamPostPhaseServer) error {
+			StreamPostPhase: func(message mixmessages.Node_StreamPostPhaseServer, auth *connect.Auth) error {
 				warn(um)
 				return nil
 			},
@@ -236,8 +236,8 @@ func (s *Implementation) PostPhase(m *mixmessages.Batch, auth *connect.Auth) {
 }
 
 // Server Interface for streaming phase messages
-func (s *Implementation) StreamPostPhase(m mixmessages.Node_StreamPostPhaseServer) error {
-	return s.Functions.StreamPostPhase(m)
+func (s *Implementation) StreamPostPhase(m mixmessages.Node_StreamPostPhaseServer, auth *connect.Auth) error {
+	return s.Functions.StreamPostPhase(m, auth)
 }
 
 // Server Interface for the share message

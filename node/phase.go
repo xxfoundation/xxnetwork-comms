@@ -62,6 +62,10 @@ func (s *Comms) GetPostPhaseStreamClient(host *connect.Host,
 	header pb.BatchInfo) (pb.Node_StreamPostPhaseClient, context.CancelFunc, error) {
 
 	ctx, cancel := s.getPostPhaseStreamContext(header)
+
+	// Add authentication information to streaming context
+	ctx = s.PackAuthenticatedContext(host, ctx)
+
 	streamClient, err := s.getPostPhaseStream(host, ctx)
 	if err != nil {
 		return nil, nil, err
@@ -79,8 +83,7 @@ func (s *Comms) getPostPhaseStreamContext(batchInfo pb.BatchInfo) (
 	// Create streaming context so you can close stream later
 	ctx, cancel := connect.StreamingContext()
 
-	// Create a new context with some metadata
-	// using the batch info batchInfo
+	// Add batch information to streaming context
 	ctx = metadata.AppendToOutgoingContext(ctx, "batchinfo", batchInfo.String())
 
 	return ctx, cancel
@@ -113,23 +116,43 @@ func (s *Comms) getPostPhaseStream(host *connect.Host,
 	return result, nil
 }
 
-// GetPostPhaseStreamHeader gets the header
-// in the metadata from the server stream
-// and returns it with an error if it fails.
+// Gets the header in the metadata from the server stream
+// and returns it or an error if it fails.
 func GetPostPhaseStreamHeader(stream pb.Node_StreamPostPhaseServer) (*pb.BatchInfo, error) {
 
-	// Unmarshal header into batch info
-	batchInfo := pb.BatchInfo{}
-
+	// Obtain the headers from server metadata
 	md, ok := metadata.FromIncomingContext(stream.Context())
 	if !ok {
-		return nil, errors.New("unable to retrieve meta data / header %v")
+		return nil, errors.New("unable to retrieve meta data / header")
 	}
 
-	err := proto.UnmarshalText(md.Get("batchinfo")[0], &batchInfo)
+	// Unmarshall the header into a message
+	batchInfo := &pb.BatchInfo{}
+	err := proto.UnmarshalText(md.Get("batchinfo")[0], batchInfo)
 	if err != nil {
 		return nil, err
 	}
 
-	return &batchInfo, nil
+	return batchInfo, nil
+}
+
+// Gets the authentication header in the metadata from the server stream
+// and returns it or an error if it fails.
+func GetPostPhaseAuthHeaders(stream pb.Node_StreamPostPhaseServer) (
+	*pb.AuthenticatedMessage, error) {
+
+	// Obtain the headers from server metadata
+	md, ok := metadata.FromIncomingContext(stream.Context())
+	if !ok {
+		return nil, errors.New("unable to retrieve meta data / header")
+	}
+
+	// Unmarshall the header into a message
+	authMsg := &pb.AuthenticatedMessage{}
+	err := proto.UnmarshalText(md.Get("auth")[0], authMsg)
+	if err != nil {
+		return nil, err
+	}
+
+	return authMsg, nil
 }
