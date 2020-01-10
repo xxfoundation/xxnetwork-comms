@@ -81,7 +81,7 @@ func TestComms_RequestNdfWithAuth(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
-	host, err = reg.AddHost(testId, RegAddress, pub, false, true)
+	_, err = reg.AddHost(testId, RegAddress, pub, false, true)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}

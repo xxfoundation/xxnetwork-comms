@@ -41,6 +41,9 @@ type ProtoComms struct {
 
 	// Private key of the local server
 	privateKey *rsa.PrivateKey
+
+	//Disables the checking of authentication signatures for testing setups
+	disableAuth bool
 }
 
 // Starts a ProtoComms object and is used in various initializers
@@ -124,29 +127,25 @@ func (c *ProtoComms) GetPrivateKey() *rsa.PrivateKey {
 func (c *ProtoComms) Send(host *Host, f func(conn *grpc.ClientConn) (*any.Any,
 	error)) (result *any.Any, err error) {
 
-	// Handle thread safety
-	host.mux.Lock()
-	defer host.mux.Unlock()
-
 	// Ensure the connection is running
 	jww.DEBUG.Printf("Attempting to send to host: %s", host)
-	if err = host.validateConnection(); err != nil {
-		return
+	if !host.Connected() {
+		err = host.connect()
+		if err != nil {
+			return
+		}
 	}
 
-	// If authentication is enabled and not yet configured, perform handshake
-	if c.privateKey != nil {
-		if host.enableAuth && host.token == nil {
-			if err = c.clientHandshake(host); err != nil {
-				return
-			}
+	//establish authentication if required
+	if host.authenticationRequired(){
+		err = host.authenticate(c.clientHandshake)
+		if err != nil {
+			return
 		}
-	} else {
-		jww.WARN.Printf("Authentication disabled, no TLS key!")
 	}
 
 	// Run the send function
-	return f(host.connection)
+	return host.send(f)
 }
 
 // Sets up or recovers the Host's connection
@@ -155,11 +154,22 @@ func (c *ProtoComms) Stream(host *Host, f func(conn *grpc.ClientConn) (
 	interface{}, error)) (client interface{}, err error) {
 
 	// Ensure the connection is running
-	jww.DEBUG.Printf("Attempting to stream to host: %s", host)
-	if err = host.validateConnection(); err != nil {
-		return
+	jww.DEBUG.Printf("Attempting to send to host: %s", host)
+	if !host.Connected() {
+		err = host.connect()
+		if err != nil {
+			return
+		}
 	}
 
-	// Run the stream function
-	return f(host.connection)
+	//establish authentication if required
+	if host.authenticationRequired(){
+		err = host.authenticate(c.clientHandshake)
+		if err != nil {
+			return
+		}
+	}
+
+	// Run the send function
+	return host.stream(f)
 }

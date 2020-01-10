@@ -42,3 +42,19 @@ func TestHost_GetCertificate(t *testing.T) {
 		t.Errorf("Expected certs to match!")
 	}
 }
+
+//tests that getID returns the correct ID
+func TestHost_GetId(t *testing.T) {
+
+	id := "xXx_420No1337ScopeH4xx0r_xXx"
+
+	host := Host{
+		id: id,
+	}
+
+	if host.GetId()!=id{
+		t.Errorf("Correct id not returned.  Expected %s, got %s",
+			id, host.id)
+	}
+}
+

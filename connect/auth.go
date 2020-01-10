@@ -84,7 +84,7 @@ func (c *ProtoComms) PackAuthenticatedMessage(msg proto.Message, host *Host,
 	}
 
 	// If signature is enabled, sign the message and add to payload
-	if enableSignature {
+	if enableSignature && !c.disableAuth {
 		authMsg.Signature, err = c.signMessage(anyMsg)
 		if err != nil {
 			return nil, err
@@ -114,10 +114,14 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) error {
 	if !ok {
 		return errors.Errorf("Invalid host ID: %+v", msg.ID)
 	}
+	host.mux.Lock()
+	defer host.mux.Unlock()
 
-	// Verify the token signature
-	if err := c.verifyMessage(msg, host); err != nil {
-		return errors.Errorf("Invalid token signature: %+v", err)
+	// Verify the token signature unless disableAuth has been set for testing
+	if !c.disableAuth {
+		if err := c.verifyMessage(msg, host); err != nil {
+			return errors.Errorf("Invalid token signature: %+v", err)
+		}
 	}
 
 	// Get the signed token
@@ -154,6 +158,12 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) *Auth {
 
 	// Check if the sender is authenticated, and if the token is valid
 	host, ok := c.GetHost(msg.ID)
+
+	if ok {
+		host.mux.RLock()
+		defer host.mux.RUnlock()
+	}
+
 	validToken := ok && host.token != nil && msg.Token != nil &&
 		bytes.Compare(host.token, msg.Token) == 0
 	if ok && validToken {
@@ -164,6 +174,13 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) *Auth {
 	jww.DEBUG.Printf("Authentication status: %v, ValidId: %v, ValidToken: %v, ProvidedId: %v ProvidedToken: %v",
 		res.IsAuthenticated, ok, validToken, msg.ID, msg.Token)
 	return res
+}
+
+// DisableAuth makes the authentication code skip signing and signature verification if the
+// set.  Can only be set while in a testing structure.  Is not thread safe.
+func (c *ProtoComms) DisableAuth() {
+	jww.WARN.Print("Auth checking disabled, running insecurely")
+	c.disableAuth = true
 }
 
 // Takes a generic-type message, returns the signature

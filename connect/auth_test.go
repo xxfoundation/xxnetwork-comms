@@ -184,39 +184,18 @@ func TestProtoComms_ValidateToken(t *testing.T) {
 	}
 }
 
-// Happy path
-//func TestProtoComms_clientHandshake(t *testing.T) {
-//	// Server Setup
-//	serverAddr := "0.0.0.0:6850"
-//	testId := "test"
-//	comm := registration.StartRegistrationServer(serverAddr,
-//		registration.NewImplementation(), nil, nil)
-//	defer comm.Shutdown()
-//
-//	priv := testkeys.LoadFromPath(testkeys.GetNodeKeyPath())
-//	err := comm.SetPrivateKey(priv)
-//	if err != nil {
-//		t.Errorf("Expected to set private key: %+v", err)
-//	}
-//	pub := testkeys.LoadFromPath(testkeys.GetNodeCertPath())
-//
-//	host, err := comm.AddHost(testId, serverAddr, pub, false, true)
-//	if err != nil {
-//		t.Errorf("Expected to successfully add host: %+v", err)
-//	}
-//
-//	// Client setup
-//	commSender := &client.Comms{}
-//	err = commSender.SetPrivateKey(priv)
-//	if err != nil {
-//		t.Errorf("Expected to set private key: %+v", err)
-//	}
-//	hostSender, err := comm.AddHost(testId, serverAddr, pub, false, true)
-//	if err != nil {
-//		t.Errorf("Expected to successfully add host: %+v", err)
-//	}
-//	_, err = commSender.RequestNdf(hostSender, &pb.NDFHash{})
-//	if err != nil {
-//		t.Errorf("Expected to send successfully: %+v", err)
-//	}
-//}
+func TestProtoComms_DisableAuth(t *testing.T) {
+	testId := "test"
+	comm := ProtoComms{
+		id:            testId,
+		LocalServer:   nil,
+		ListeningAddr: "",
+		privateKey:    nil,
+	}
+
+	comm.DisableAuth()
+
+	if !comm.disableAuth {
+		t.Error("Auth was not disabled when DisableAuth was called")
+	}
+}
