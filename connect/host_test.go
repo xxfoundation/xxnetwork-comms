@@ -52,7 +52,7 @@ func TestHost_GetId(t *testing.T) {
 		id: id,
 	}
 
-	if host.id!=id{
+	if host.GetId()!=id{
 		t.Errorf("Correct id not returned.  Expected %s, got %s",
 			id, host.id)
 	}
