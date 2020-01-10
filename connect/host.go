@@ -83,7 +83,7 @@ func NewHost(id, address string, cert []byte, disableTimeout,
 	return
 }
 
-// Checks if the given Host's connection is alive
+// Connected checks if the given Host's connection is alive
 func (h *Host) Connected() bool {
 	h.mux.RLock()
 	defer h.mux.RUnlock()
@@ -91,7 +91,21 @@ func (h *Host) Connected() bool {
 	return h.isAlive()
 }
 
-// Checks that the host has a connection and sends if it does.
+// GetId  returns the id of the host
+func (h *Host) GetId() string {
+	return h.id
+}
+
+// Disconnect closes a the Host connection under the write lock
+func (h *Host) Disconnect() {
+	h.mux.Lock()
+	defer h.mux.Unlock()
+
+	h.disconnect()
+	h.token = nil
+}
+
+// send checks that the host has a connection and sends if it does.
 // Operates under the host's read lock.
 func (h *Host) send(f func(conn *grpc.ClientConn) (*any.Any,
 	error)) (*any.Any, error) {
@@ -107,7 +121,7 @@ func (h *Host) send(f func(conn *grpc.ClientConn) (*any.Any,
 	return a, err
 }
 
-// Checks that the host has a connection and streams if it does.
+// stream checks that the host has a connection and streams if it does.
 // Operates under the host's read lock.
 func (h *Host) stream(f func(conn *grpc.ClientConn) (
 	interface{}, error)) (interface{}, error) {
@@ -123,7 +137,7 @@ func (h *Host) stream(f func(conn *grpc.ClientConn) (
 	return a, err
 }
 
-// Attempts to connect to the host if it does not have a valid connection
+// connect attempts to connect to the host if it does not have a valid connection
 func (h *Host) connect() error {
 	h.mux.Lock()
 	defer h.mux.Unlock()
@@ -141,13 +155,13 @@ func (h *Host) connect() error {
 	return nil
 }
 
-// Checks if new authentication is required with
+// authenticationRequired Checks if new authentication is required with
 // the remote
 func (h *Host) authenticationRequired() bool {
 	h.mux.RLock()
 	defer h.mux.RUnlock()
 
-	return h.enableAuth && h.token == nil
+	return h.enableAuth && h.token==nil
 }
 
 // Checks if the given Host's connection is alive
@@ -158,7 +172,7 @@ func (h *Host) authenticate(handshake func(host *Host) error) error {
 	return handshake(h)
 }
 
-// Returns true if the connection is non-nil and alive
+// isAlive returns true if the connection is non-nil and alive
 func (h *Host) isAlive() bool {
 	if h.connection == nil {
 		return false
@@ -168,16 +182,7 @@ func (h *Host) isAlive() bool {
 		state == connectivity.Ready
 }
 
-// Closes a the Host connection under the write lock
-func (h *Host) Disconnect() {
-	h.mux.Lock()
-	defer h.mux.Unlock()
-
-	h.disconnect()
-	h.token = nil
-}
-
-// Closes a the Host connection while not under a write lock.
+// disconnect closes a the Host connection while not under a write lock.
 // undefined behavior if the caller has not taken the write lock
 func (h *Host) disconnect() {
 	// its possible to close a host which never sent so it never made a
@@ -192,7 +197,7 @@ func (h *Host) disconnect() {
 	}
 }
 
-// Creates a connection while not under a write lock.
+// connectHelper creates a connection while not under a write lock.
 // undefined behavior if the caller has not taken the write lock
 func (h *Host) connectHelper() (err error) {
 	//attempts to disconnect to clean up an existing connection
@@ -243,7 +248,7 @@ func (h *Host) connectHelper() (err error) {
 	return
 }
 
-// Sets TransportCredentials and RSA PublicKey objects
+// setCredentials sets TransportCredentials and RSA PublicKey objects
 // using a PEM-encoded TLS Certificate
 func (h *Host) setCredentials() error {
 

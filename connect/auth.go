@@ -123,11 +123,11 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) error {
 
 	// Verify the Host exists for the provided ID
 	host, ok := c.GetHost(msg.ID)
-	host.mux.Lock()
-	defer host.mux.Unlock()
 	if !ok {
 		return errors.Errorf("Invalid host ID: %+v", msg.ID)
 	}
+	host.mux.Lock()
+	defer host.mux.Unlock()
 
 	// Verify the token signature unless disableAuth has been set for testing
 	if !c.disableAuth {
