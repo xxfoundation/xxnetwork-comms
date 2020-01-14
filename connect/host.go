@@ -161,7 +161,7 @@ func (h *Host) authenticationRequired() bool {
 	h.mux.RLock()
 	defer h.mux.RUnlock()
 
-	return h.enableAuth && h.token==nil
+	return h.enableAuth && h.token == nil
 }
 
 // Checks if the given Host's connection is alive
@@ -200,8 +200,7 @@ func (h *Host) disconnect() {
 // connectHelper creates a connection while not under a write lock.
 // undefined behavior if the caller has not taken the write lock
 func (h *Host) connectHelper() (err error) {
-	//attempts to disconnect to clean up an existing connection
-	h.disconnect()
+
 	// Configure TLS options
 	var securityDial grpc.DialOption
 	if h.credentials != nil {
@@ -213,10 +212,13 @@ func (h *Host) connectHelper() (err error) {
 		securityDial = grpc.WithInsecure()
 	}
 
+	jww.DEBUG.Printf("Attempting to establish connection to %s using"+
+		" credentials: %+v", h.address, securityDial)
+
 	// Attempt to establish a new connection
 	for numRetries := 0; numRetries < h.maxRetries && !h.isAlive(); numRetries++ {
 
-		jww.INFO.Printf("Connecting to address %+v. Attempt number %+v of %+v",
+		jww.INFO.Printf("Connecting to %+v. Attempt number %+v of %+v",
 			h.address, numRetries, h.maxRetries)
 
 		// If timeout is enabled, the max wait time becomes
