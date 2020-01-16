@@ -226,6 +226,16 @@ func TestCircuit_GetHostAtIndex(t *testing.T) {
 
 }
 
+//Tests to see if node retrieved is in fact the last node
+func TestCircuit_GetLastNode(t *testing.T) {
+	nodeIdList := makeTestingNodeIdList(23)
+	circuit := NewCircuit(nodeIdList)
+	if !circuit.IsLastNode(circuit.GetLastNode()){
+		t.Logf("Node selected is not the last node")
+		t.Fail()
+	}
+}
+
 //Tests that len returns the correct length
 func TestCircuit_Len(t *testing.T) {
 	for i := 1; i < 100; i++ {
@@ -462,3 +472,4 @@ func makeNodeId(b byte) *id.Node {
 	invalidNodeID := id.NewNodeFromBytes(invalidNodeIdBytes)
 	return invalidNodeID
 }
+

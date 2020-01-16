@@ -69,6 +69,12 @@ func (c *Circuit) GetNodeAtIndex(index int) *id.Node {
 	return c.nodes[index].DeepCopy()
 }
 
+// GetNodeAtIndex returns the node at the given index.  Panics
+// if the index does not exist within the circuit
+func (c *Circuit) GetLastNode() *id.Node {
+	return c.GetNodeAtIndex(c.Len()-1)
+}
+
 // Len returns the number of nodes in the circuit
 func (c *Circuit) Len() int {
 	return len(c.nodes)
