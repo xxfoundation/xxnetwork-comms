@@ -9,16 +9,61 @@
 package registration
 
 import (
+	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
+	"gitlab.com/elixxir/comms/connect"
+	pb "gitlab.com/elixxir/comms/mixmessages"
+	"google.golang.org/grpc/reflection"
 	"runtime/debug"
 )
+
+// Registration object used to implement
+// endpoints and top-level comms functionality
+type Comms struct {
+	*connect.ProtoComms
+	handler Handler
+}
+
+// Starts a new server on the address:port specified by localServer
+// and a callback interface for server operations
+// with given path to public and private key for TLS connection
+func StartRegistrationServer(id, localServer string, handler Handler,
+	certPEMblock, keyPEMblock []byte) *Comms {
+
+	pc, lis, err := connect.StartCommServer(id, localServer,
+		certPEMblock, keyPEMblock)
+	if err != nil {
+		jww.FATAL.Panicf("Unable to start comms server: %+v", err)
+	}
+
+	registrationServer := Comms{
+		ProtoComms: pc,
+		handler:    handler,
+	}
+
+	go func() {
+		pb.RegisterRegistrationServer(registrationServer.LocalServer, &registrationServer)
+		pb.RegisterGenericServer(registrationServer.LocalServer, &registrationServer)
+
+		// Register reflection service on gRPC server.
+		reflection.Register(registrationServer.LocalServer)
+		if err := registrationServer.LocalServer.Serve(lis); err != nil {
+			err = errors.New(err.Error())
+			jww.FATAL.Panicf("Failed to serve: %+v", err)
+		}
+		jww.INFO.Printf("Shutting down registration server listener:"+
+			" %s", lis)
+	}()
+
+	return &registrationServer
+}
 
 type Handler interface {
 	RegisterUser(registrationCode, pubKey string) (signature []byte, err error)
 	GetCurrentClientVersion() (version string, err error)
 	RegisterNode(ID []byte, ServerAddr, ServerTlsCert, GatewayAddr,
 		GatewayTlsCert, RegistrationCode string) error
-	PollNdf(ndfHash []byte) ([]byte, error)
+	PollNdf(ndfHash []byte, auth *connect.Auth) ([]byte, error)
 }
 
 type implementationFunctions struct {
@@ -27,7 +72,7 @@ type implementationFunctions struct {
 	GetCurrentClientVersion func() (version string, err error)
 	RegisterNode            func(ID []byte, ServerAddr, ServerTlsCert,
 		GatewayAddr, GatewayTlsCert, RegistrationCode string) error
-	PollNdf func(ndfHash []byte) ([]byte, error)
+	PollNdf func(ndfHash []byte, auth *connect.Auth) ([]byte, error)
 }
 
 // Implementation allows users of the client library to set the
@@ -61,7 +106,7 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return nil
 			},
-			PollNdf: func(ndfHash []byte) ([]byte, error) {
+			PollNdf: func(ndfHash []byte, auth *connect.Auth) ([]byte, error) {
 				warn(um)
 				return nil, nil
 			},
@@ -85,6 +130,6 @@ func (s *Implementation) RegisterNode(ID []byte, ServerAddr, ServerTlsCert,
 		GatewayAddr, GatewayTlsCert, RegistrationCode)
 }
 
-func (s *Implementation) PollNdf(ndfHash []byte) ([]byte, error) {
-	return s.Functions.PollNdf(ndfHash)
+func (s *Implementation) PollNdf(ndfHash []byte, auth *connect.Auth) ([]byte, error) {
+	return s.Functions.PollNdf(ndfHash, auth)
 }

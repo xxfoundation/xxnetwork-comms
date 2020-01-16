@@ -16,14 +16,14 @@ import (
 // Smoke test SendGetMessage
 func TestSendPutMessage(t *testing.T) {
 	gatewayAddress := getNextGatewayAddress()
-	gw := gateway.StartGateway(gatewayAddress,
+	gw := gateway.StartGateway("test", gatewayAddress,
 		gateway.NewImplementation(), nil, nil)
 	defer gw.Shutdown()
 	var c Comms
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := manager.AddHost(testId, gatewayAddress, nil, false)
+	host, err := manager.AddHost(testId, gatewayAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -37,14 +37,14 @@ func TestSendPutMessage(t *testing.T) {
 // Smoke test SendCheckMessages
 func TestSendCheckMessages(t *testing.T) {
 	gatewayAddress := getNextGatewayAddress()
-	gw := gateway.StartGateway(gatewayAddress,
+	gw := gateway.StartGateway("test", gatewayAddress,
 		gateway.NewImplementation(), nil, nil)
 	var c Comms
 	defer gw.Shutdown()
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := manager.AddHost(testId, gatewayAddress, nil, false)
+	host, err := manager.AddHost(testId, gatewayAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -58,7 +58,7 @@ func TestSendCheckMessages(t *testing.T) {
 // Smoke test SendGetMessage
 func TestSendGetMessage(t *testing.T) {
 	gatewayAddress := getNextGatewayAddress()
-	gw := gateway.StartGateway(gatewayAddress,
+	gw := gateway.StartGateway("test", gatewayAddress,
 		gateway.NewImplementation(), nil, nil)
 	var c Comms
 	defer gw.Shutdown()
@@ -66,7 +66,7 @@ func TestSendGetMessage(t *testing.T) {
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := manager.AddHost(testId, gatewayAddress, nil, false)
+	host, err := manager.AddHost(testId, gatewayAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -80,14 +80,14 @@ func TestSendGetMessage(t *testing.T) {
 // Smoke test SendRequestNonceMessage
 func TestSendRequestNonceMessage(t *testing.T) {
 	gatewayAddress := getNextGatewayAddress()
-	gw := gateway.StartGateway(gatewayAddress,
+	gw := gateway.StartGateway("test", gatewayAddress,
 		gateway.NewImplementation(), nil, nil)
 	defer gw.Shutdown()
 	var c Comms
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := manager.AddHost(testId, gatewayAddress, nil, false)
+	host, err := manager.AddHost(testId, gatewayAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -101,14 +101,14 @@ func TestSendRequestNonceMessage(t *testing.T) {
 // Smoke test SendConfirmNonceMessage
 func TestSendConfirmNonceMessage(t *testing.T) {
 	gatewayAddress := getNextGatewayAddress()
-	gw := gateway.StartGateway(gatewayAddress,
+	gw := gateway.StartGateway("test", gatewayAddress,
 		gateway.NewImplementation(), nil, nil)
 	defer gw.Shutdown()
 	var c Comms
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := manager.AddHost(testId, gatewayAddress, nil, false)
+	host, err := manager.AddHost(testId, gatewayAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}

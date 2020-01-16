@@ -17,15 +17,16 @@ import (
 func TestSendRequestNonceMessage(t *testing.T) {
 	GatewayAddress := getNextGatewayAddress()
 	ServerAddress := getNextServerAddress()
-	gateway := StartGateway(GatewayAddress, NewImplementation(), nil, nil)
-	server := node.StartNode(ServerAddress, node.NewImplementation(),
+	gateway := StartGateway("test", GatewayAddress, NewImplementation(), nil,
+		nil)
+	server := node.StartNode("test", ServerAddress, node.NewImplementation(),
 		nil, nil)
 	defer gateway.Shutdown()
 	defer server.Shutdown()
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -46,15 +47,16 @@ func TestSendRequestNonceMessage(t *testing.T) {
 func TestSendConfirmNonceMessage(t *testing.T) {
 	GatewayAddress := getNextGatewayAddress()
 	ServerAddress := getNextServerAddress()
-	gateway := StartGateway(GatewayAddress, NewImplementation(), nil, nil)
-	server := node.StartNode(ServerAddress, node.NewImplementation(),
+	gateway := StartGateway("test", GatewayAddress, NewImplementation(), nil,
+		nil)
+	server := node.StartNode("test", ServerAddress, node.NewImplementation(),
 		nil, nil)
 	defer gateway.Shutdown()
 	defer server.Shutdown()
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -71,19 +73,21 @@ func TestPollNdf(t *testing.T) {
 	GatewayAddress := getNextGatewayAddress()
 	ServerAddress := getNextServerAddress()
 
-	gateway := StartGateway(GatewayAddress, NewImplementation(), nil, nil)
-	server := node.StartNode(ServerAddress, node.NewImplementation(), nil, nil)
+	gateway := StartGateway("test", GatewayAddress, NewImplementation(), nil,
+		nil)
+	server := node.StartNode("test", ServerAddress, node.NewImplementation(),
+		nil, nil)
 	defer gateway.Shutdown()
 	defer server.Shutdown()
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := manager.AddHost(testId, ServerAddress, nil, false)
+	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
 
-	_, err = gateway.PollNdf(host, &pb.Ping{})
+	_, err = gateway.PollNdf(host)
 	if err != nil {
 		t.Errorf("SendGetSignedCertMessage: Error received: %s", err)
 	}

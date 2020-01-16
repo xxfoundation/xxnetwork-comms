@@ -11,8 +11,7 @@ package connect
 import (
 	"bytes"
 	"fmt"
-	"github.com/pkg/errors"
-	"gitlab.com/elixxir/crypto/signature/rsa"
+	jww "github.com/spf13/jwalterweatherman"
 	"sync"
 )
 
@@ -21,25 +20,6 @@ import (
 type Manager struct {
 	// A map of string IDs to Hosts
 	connections sync.Map
-	// Private key of the local communication server
-	privateKey *rsa.PrivateKey
-}
-
-// Set private key to data to a PEM block
-func (m *Manager) SetPrivateKey(data []byte) error {
-	key, err := rsa.LoadPrivateKeyFromPem(data)
-	if err != nil {
-		s := fmt.Sprintf("Failed to form private key file from data at %s: %+v", data, err)
-		return errors.New(s)
-	}
-
-	m.privateKey = key
-	return nil
-}
-
-// Get connection manager's private key
-func (m *Manager) GetPrivateKey() *rsa.PrivateKey {
-	return m.privateKey
 }
 
 // Fetch a Host from the internal map
@@ -54,13 +34,14 @@ func (m *Manager) GetHost(hostId string) (*Host, bool) {
 
 // Creates and adds a Host object to the Manager using the given id
 func (m *Manager) AddHost(id, address string,
-	cert []byte, disableTimeout bool) (host *Host, err error) {
+	cert []byte, disableTimeout, enableAuth bool) (host *Host, err error) {
 
-	host, err = NewHost(address, cert, disableTimeout)
+	host, err = NewHost(id, address, cert, disableTimeout, enableAuth)
 	if err != nil {
 		return nil, err
 	}
 
+	jww.DEBUG.Printf("Adding host: %+v", host)
 	m.connections.Store(id, host)
 	return
 }
@@ -68,7 +49,7 @@ func (m *Manager) AddHost(id, address string,
 // Closes all client connections and removes them from Manager
 func (m *Manager) DisconnectAll() {
 	m.connections.Range(func(key interface{}, value interface{}) bool {
-		value.(*Host).disconnect()
+		value.(*Host).Disconnect()
 		return true
 	})
 }

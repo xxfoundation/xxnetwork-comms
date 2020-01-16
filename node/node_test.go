@@ -9,7 +9,6 @@ package node
 import (
 	"fmt"
 	"gitlab.com/elixxir/comms/connect"
-	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/testkeys"
 	"sync"
 	"testing"
@@ -36,22 +35,22 @@ func TestTLS(t *testing.T) {
 	certPath := testkeys.GetNodeCertPath()
 	certData := testkeys.LoadFromPath(certPath)
 
-	server := StartNode(serverAddress, NewImplementation(),
+	server := StartNode("test", serverAddress, NewImplementation(),
 		certData, keyData)
 	serverAddress2 := getNextServerAddress()
-	server2 := StartNode(serverAddress2, NewImplementation(),
+	server2 := StartNode("test", serverAddress2, NewImplementation(),
 		certData, keyData)
 	defer server.Shutdown()
 	defer server2.Shutdown()
 	var manager connect.Manager
 
 	testId := "test"
-	host, err := manager.AddHost(testId, serverAddress, certData, false)
+	host, err := manager.AddHost(testId, serverAddress, certData, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
 
-	_, err = server2.SendAskOnline(host, &mixmessages.Ping{})
+	_, err = server2.SendAskOnline(host)
 	if err != nil {
 		t.Error(err)
 	}
@@ -65,6 +64,6 @@ func TestBadCerts(t *testing.T) {
 	}()
 	Address := getNextServerAddress()
 
-	_ = StartNode(Address, NewImplementation(),
+	_ = StartNode("test", Address, NewImplementation(),
 		[]byte("bad cert"), []byte("bad key"))
 }

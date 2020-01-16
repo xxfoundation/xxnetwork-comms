@@ -19,38 +19,56 @@ import (
 	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/credentials"
 	"math"
+	"sync"
 	"time"
 )
 
+// Represents a reverse-authentication token
+type Token []byte
+
 // Information used to describe a connection to a host
 type Host struct {
-	// Public Variables ---------------
+	// System-wide ID of the Host
+	id string
+
 	// address:Port being connected to
 	address string
 
 	// PEM-format TLS Certificate
 	certificate []byte
 
-	// Private Variables ---------------
+	// Token shared with this Host establishing reverse authentication
+	token Token
+
 	// Configure the maximum number of connection attempts
 	maxRetries int
 
 	// GRPC connection object
 	connection *grpc.ClientConn
 
-	// Credentials object used to establish the connection
+	// TLS credentials object used to establish the connection
 	credentials credentials.TransportCredentials
 
 	// RSA Public Key corresponding to the TLS Certificate
 	rsaPublicKey *rsa.PublicKey
+
+	// If set, reverse authentication will be established with this Host
+	enableAuth bool
+
+	// Read/Write Mutex for thread safety
+	mux sync.RWMutex
 }
 
 // Creates a new Host object
-func NewHost(address string, cert []byte, disableTimeout bool) (host *Host, err error) {
+func NewHost(id, address string, cert []byte, disableTimeout,
+	enableAuth bool) (host *Host, err error) {
+
 	// Initialize the Host object
 	host = &Host{
+		id:          id,
 		address:     address,
 		certificate: cert,
+		enableAuth:  enableAuth,
 	}
 
 	// Set the max number of retries for establishing a connection
@@ -65,71 +83,96 @@ func NewHost(address string, cert []byte, disableTimeout bool) (host *Host, err 
 	return
 }
 
-// Ensures the given Host's connection is alive
-// and attempts to recover if not
-func (h *Host) validateConnection() (err error) {
-	// If Host connection does not exist, open the connection
-	if h.connection == nil {
-		err = h.connect()
-	}
-	if err != nil {
-		return
-	}
+// Connected checks if the given Host's connection is alive
+func (h *Host) Connected() bool {
+	h.mux.RLock()
+	defer h.mux.RUnlock()
 
-	// If Host connection is not active, attempt to reestablish
+	return h.isAlive()
+}
+
+// GetId  returns the id of the host
+func (h *Host) GetId() string {
+	return h.id
+}
+
+// Disconnect closes a the Host connection under the write lock
+func (h *Host) Disconnect() {
+	h.mux.Lock()
+	defer h.mux.Unlock()
+
+	h.disconnect()
+	h.token = nil
+}
+
+// send checks that the host has a connection and sends if it does.
+// Operates under the host's read lock.
+func (h *Host) send(f func(conn *grpc.ClientConn) (*any.Any,
+	error)) (*any.Any, error) {
+
+	h.mux.RLock()
+	defer h.mux.RUnlock()
+
 	if !h.isAlive() {
-		jww.WARN.Printf("Bad host connection state, reconnecting: %v", h)
-		h.disconnect()
-		err = h.connect()
+		return nil, errors.New("Could not send, connection is not alive")
 	}
 
-	return
+	a, err := f(h.connection)
+	return a, err
 }
 
-// Sets up or recovers the Host's connection
-// Then runs the given Send function
-func (h *Host) Send(f func(conn *grpc.ClientConn) (*any.Any, error)) (
-	result *any.Any, err error) {
+// stream checks that the host has a connection and streams if it does.
+// Operates under the host's read lock.
+func (h *Host) stream(f func(conn *grpc.ClientConn) (
+	interface{}, error)) (interface{}, error) {
 
-	// Ensure the connection is running
-	jww.DEBUG.Printf("Attempting to send to host: %s", h)
-	err = h.validateConnection()
-	if err != nil {
-		return
+	h.mux.RLock()
+	defer h.mux.RUnlock()
+
+	if !h.isAlive() {
+		return nil, errors.New("Could not stream, connection is not alive")
 	}
 
-	// Run the send function
-	return f(h.connection)
+	a, err := f(h.connection)
+	return a, err
 }
 
-// Sets up or recovers the Host's connection
-// Then runs the given Stream function
-func (h *Host) Stream(f func(conn *grpc.ClientConn) (interface{}, error)) (
-	client interface{}, err error) {
+// connect attempts to connect to the host if it does not have a valid connection
+func (h *Host) connect() error {
+	h.mux.Lock()
+	defer h.mux.Unlock()
 
-	// Ensure the connection is running
-	err = h.validateConnection()
-	if err != nil {
-		return
+	//checks if the connection is active and skips reconnecting if it is
+	if h.isAlive() {
+		return nil
 	}
 
-	// Run the stream function
-	return f(h.connection)
+	//connect to remote
+	if err := h.connectHelper(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
-// Returns the Host address
-func (h *Host) GetAddress() string {
-	return h.address
+// authenticationRequired Checks if new authentication is required with
+// the remote
+func (h *Host) authenticationRequired() bool {
+	h.mux.RLock()
+	defer h.mux.RUnlock()
+
+	return h.enableAuth && h.token == nil
 }
 
-// Returns a copy of the Host certificate
-func (h *Host) GetCertificate() []byte {
-	cert := make([]byte, len(h.certificate))
-	copy(h.certificate, cert)
-	return cert
+// Checks if the given Host's connection is alive
+func (h *Host) authenticate(handshake func(host *Host) error) error {
+	h.mux.Lock()
+	defer h.mux.Unlock()
+
+	return handshake(h)
 }
 
-// Returns true if the connection is non-nil and alive
+// isAlive returns true if the connection is non-nil and alive
 func (h *Host) isAlive() bool {
 	if h.connection == nil {
 		return false
@@ -139,21 +182,25 @@ func (h *Host) isAlive() bool {
 		state == connectivity.Ready
 }
 
-// Closes a the Host connection
+// disconnect closes a the Host connection while not under a write lock.
+// undefined behavior if the caller has not taken the write lock
 func (h *Host) disconnect() {
-	if h.connection == nil {
-		return
+	// its possible to close a host which never sent so it never made a
+	// connection. In that case, we should not close a connection which does not
+	// exist
+	if h.connection != nil {
+		err := h.connection.Close()
+		if err != nil {
+			jww.ERROR.Printf("Unable to close connection to %s: %+v",
+				h.address, errors.New(err.Error()))
+		}
 	}
-	err := h.connection.Close()
-	if err != nil {
-		jww.ERROR.Printf("Unable to close connection to %s: %+v",
-			h.address, errors.New(err.Error()))
-	}
-	h.connection = nil
 }
 
-// Connect creates a connection
-func (h *Host) connect() (err error) {
+// connectHelper creates a connection while not under a write lock.
+// undefined behavior if the caller has not taken the write lock
+func (h *Host) connectHelper() (err error) {
+
 	// Configure TLS options
 	var securityDial grpc.DialOption
 	if h.credentials != nil {
@@ -165,10 +212,13 @@ func (h *Host) connect() (err error) {
 		securityDial = grpc.WithInsecure()
 	}
 
+	jww.DEBUG.Printf("Attempting to establish connection to %s using"+
+		" credentials: %+v", h.address, securityDial)
+
 	// Attempt to establish a new connection
 	for numRetries := 0; numRetries < h.maxRetries && !h.isAlive(); numRetries++ {
 
-		jww.INFO.Printf("Connecting to address %+v. Attempt number %+v of %+v",
+		jww.INFO.Printf("Connecting to %+v. Attempt number %+v of %+v",
 			h.address, numRetries, h.maxRetries)
 
 		// If timeout is enabled, the max wait time becomes
@@ -200,7 +250,7 @@ func (h *Host) connect() (err error) {
 	return
 }
 
-// Sets TransportCredentials and RSA PublicKey objects
+// setCredentials sets TransportCredentials and RSA PublicKey objects
 // using a PEM-encoded TLS Certificate
 func (h *Host) setCredentials() error {
 
@@ -261,9 +311,10 @@ func (h *Host) String() string {
 		securityProtocol = creds.Info().SecurityProtocol
 	}
 	return fmt.Sprintf(
-		"Addr: %v\tCertificate: %v\tMaxRetries: %v\tConnState: %v"+
+		"ID: %v\tAddr: %v\tCertificate: %v\tToken: %v\tEnableAuth: %v"+
+			"\tMaxRetries: %v\tConnState: %v"+
 			"\tTLS ServerName: %v\tTLS ProtocolVersion: %v\t"+
 			"TLS SecurityVersion: %v\tTLS SecurityProtocol: %v\n",
-		addr, h.certificate, h.maxRetries, state, serverName, protocolVersion,
-		securityVersion, securityProtocol)
+		h.id, addr, h.certificate, h.token, h.enableAuth, h.maxRetries, state,
+		serverName, protocolVersion, securityVersion, securityProtocol)
 }

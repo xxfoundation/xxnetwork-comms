@@ -12,6 +12,7 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
+	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"google.golang.org/grpc"
@@ -37,7 +38,8 @@ func (c *Comms) SendRegistrationMessage(host *connect.Host,
 	}
 
 	// Execute the Send function
-	resultMsg, err := host.Send(f)
+	jww.DEBUG.Printf("Sending Registration message: %+v", message)
+	resultMsg, err := c.Send(host, f)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +69,8 @@ func (c *Comms) SendGetCurrentClientVersionMessage(
 	}
 
 	// Execute the Send function
-	resultMsg, err := host.Send(f)
+	jww.DEBUG.Printf("Sending Get Client Version message...")
+	resultMsg, err := c.Send(host, f)
 	if err != nil {
 		return nil, err
 	}
@@ -86,10 +89,13 @@ func (c *Comms) RequestNdf(host *connect.Host,
 		// Set up the context
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
-
+		authenticatedMsg, err := c.PackAuthenticatedMessage(message, host, false)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
 		// Send the message
 		resultMsg, err := pb.NewRegistrationClient(
-			conn).PollNdf(ctx, message)
+			conn).PollNdf(ctx, authenticatedMsg)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
@@ -97,7 +103,8 @@ func (c *Comms) RequestNdf(host *connect.Host,
 	}
 
 	// Execute the Send function
-	resultMsg, err := host.Send(f)
+	jww.DEBUG.Printf("Sending Request Ndf message: %+v", message)
+	resultMsg, err := c.Send(host, f)
 	if err != nil {
 		return nil, err
 	}
