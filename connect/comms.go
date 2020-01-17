@@ -137,7 +137,7 @@ func (c *ProtoComms) Send(host *Host, f func(conn *grpc.ClientConn) (*any.Any,
 	}
 
 	//establish authentication if required
-	if host.authenticationRequired(){
+	if host.authenticationRequired() {
 		err = host.authenticate(c.clientHandshake)
 		if err != nil {
 			return
@@ -163,7 +163,7 @@ func (c *ProtoComms) Stream(host *Host, f func(conn *grpc.ClientConn) (
 	}
 
 	//establish authentication if required
-	if host.authenticationRequired(){
+	if host.authenticationRequired() {
 		err = host.authenticate(c.clientHandshake)
 		if err != nil {
 			return
