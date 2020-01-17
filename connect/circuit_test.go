@@ -230,7 +230,7 @@ func TestCircuit_GetHostAtIndex(t *testing.T) {
 func TestCircuit_GetLastNode(t *testing.T) {
 	nodeIdList := makeTestingNodeIdList(23)
 	circuit := NewCircuit(nodeIdList)
-	if !circuit.IsLastNode(circuit.GetLastNode()){
+	if !circuit.IsLastNode(circuit.GetLastNode()) {
 		t.Logf("Node selected is not the last node")
 		t.Fail()
 	}
@@ -472,4 +472,3 @@ func makeNodeId(b byte) *id.Node {
 	invalidNodeID := id.NewNodeFromBytes(invalidNodeIdBytes)
 	return invalidNodeID
 }
-
