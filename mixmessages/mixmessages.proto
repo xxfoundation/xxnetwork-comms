@@ -305,3 +305,20 @@ message AuthenticatedMessage {
 message AssignToken {
     bytes Token = 1;
 }
+
+// NOTIFICATION BOT MESSAGES --------------------------------------------------------
+
+// NotificationBot service definition
+service NotificationBot {
+    // Unregister for notifications from gateway
+    rpc UnregisterForNotifications(AuthenticatedMessage) returns (Ack) {
+    }
+
+    // Register for notification checks from gateway
+    rpc RegisterForNotifications (AuthenticatedMessage) returns (Ack) {
+    }
+}
+
+message NotificationToken {
+    bytes Token = 1;
+}
