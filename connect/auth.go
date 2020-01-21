@@ -126,8 +126,13 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) error {
 	if !ok {
 		return errors.Errorf("Invalid host ID: %+v", msg.ID)
 	}
-	host.mux.Lock()
-	defer host.mux.Unlock()
+
+	// This logic prevents deadlocks when performing authentication with self
+	// TODO: This may require further review in the future
+	if msg.ID != c.id || bytes.Compare(host.token, msg.Token) != 0 {
+		host.mux.Lock()
+		defer host.mux.Unlock()
+	}
 
 	// Verify the token signature unless disableAuth has been set for testing
 	if !c.disableAuth {
