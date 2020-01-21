@@ -14,6 +14,14 @@ import (
 	"runtime/debug"
 )
 
+// Handler interface for the Notification Bot
+type Handler interface {
+	// RegisterForNotifications event handler which registers a client with the notification bot
+	RegisterForNotifications(clientToken []byte, auth *connect.Auth) error
+	// UnregisterForNotifications event handler which unregisters a client with the notification bot
+	UnregisterForNotifications(auth *connect.Auth) error
+}
+
 // Registration object used to implement
 // endpoints and top-level comms functionality
 type Comms struct {
@@ -39,9 +47,7 @@ func StartNotificationBot(id, localServer string, handler Handler,
 	}
 
 	go func() {
-		//Change func calls
 		pb.RegisterNotificationBotServer(notificationBot.LocalServer, &notificationBot)
-		//Need this?
 		pb.RegisterGenericServer(notificationBot.LocalServer, &notificationBot)
 
 		// Register reflection service on gRPC server.
@@ -57,11 +63,7 @@ func StartNotificationBot(id, localServer string, handler Handler,
 	return &notificationBot
 }
 
-type Handler interface {
-	RegisterForNotifications(clientToken []byte, auth *connect.Auth) error
-	UnregisterForNotifications(auth *connect.Auth) error
-}
-
+// Handler implementation for the Gateway
 type implementationFunctions struct {
 	RegisterForNotifications   func(clientToken []byte, auth *connect.Auth) error
 	UnregisterForNotifications func(auth *connect.Auth) error
@@ -94,4 +96,14 @@ func NewImplementation() *Implementation {
 			},
 		},
 	}
+}
+
+// RegisterForNotifications event handler which registers a client with the notification bot
+func (s *Implementation) RegisterForNotifications(clientToken []byte, auth *connect.Auth) error {
+	return s.Functions.RegisterForNotifications(clientToken, auth)
+}
+
+// UnregisterForNotifications event handler which unregisters a client with the notification bot
+func (s *Implementation) UnregisterForNotifications(auth *connect.Auth) error {
+	return s.Functions.UnregisterForNotifications(auth)
 }
