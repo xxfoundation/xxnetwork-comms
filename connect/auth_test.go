@@ -111,7 +111,7 @@ func TestProtoComms_GenerateToken(t *testing.T) {
 func TestProtoComms_PackAuthenticatedMessage(t *testing.T) {
 	testServerId := "test12345"
 	comm := ProtoComms{
-		id:            testServerId,
+		Id:            testServerId,
 		LocalServer:   nil,
 		ListeningAddr: "",
 		privateKey:    nil,
@@ -147,7 +147,7 @@ func TestProtoComms_PackAuthenticatedMessage(t *testing.T) {
 func TestProtoComms_ValidateToken(t *testing.T) {
 	testId := "test"
 	comm := ProtoComms{
-		id:            testId,
+		Id:            testId,
 		LocalServer:   nil,
 		ListeningAddr: "",
 		privateKey:    nil,
@@ -187,7 +187,7 @@ func TestProtoComms_ValidateToken(t *testing.T) {
 func TestProtoComms_DisableAuth(t *testing.T) {
 	testId := "test"
 	comm := ProtoComms{
-		id:            testId,
+		Id:            testId,
 		LocalServer:   nil,
 		ListeningAddr: "",
 		privateKey:    nil,
