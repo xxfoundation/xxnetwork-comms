@@ -311,15 +311,16 @@ message AssignToken {
 
 // NotificationBot service definition
 service NotificationBot {
-    // Unregister for notifications from gateway
+    // Unregister clients from push notifications
     rpc UnregisterForNotifications(AuthenticatedMessage) returns (Ack) {
     }
 
-    // Register for notification checks from gateway
+    // Register clients from push notifications
     rpc RegisterForNotifications (AuthenticatedMessage) returns (Ack) {
     }
 }
 
+// Registration token to be associated with the client
 message NotificationToken {
     bytes Token = 1;
 }
