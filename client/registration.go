@@ -81,35 +81,7 @@ func (c *Comms) SendGetCurrentClientVersionMessage(
 }
 
 // Client -> Registration Send Function
-func (c *Comms) RequestNdf(host *connect.Host,
-	message *pb.NDFHash) (*pb.NDF, error) {
-
-	// Create the Send Function
-	f := func(conn *grpc.ClientConn) (*any.Any, error) {
-		// Set up the context
-		ctx, cancel := connect.MessagingContext()
-		defer cancel()
-		authenticatedMsg, err := c.PackAuthenticatedMessage(message, host, false)
-		if err != nil {
-			return nil, errors.New(err.Error())
-		}
-		// Send the message
-		resultMsg, err := pb.NewRegistrationClient(
-			conn).PollNdf(ctx, authenticatedMsg)
-		if err != nil {
-			return nil, errors.New(err.Error())
-		}
-		return ptypes.MarshalAny(resultMsg)
-	}
-
-	// Execute the Send function
-	jww.DEBUG.Printf("Sending Request Ndf message: %+v", message)
-	resultMsg, err := c.Send(host, f)
-	if err != nil {
-		return nil, err
-	}
-
-	// Marshall the result
-	result := &pb.NDF{}
-	return result, ptypes.UnmarshalAny(resultMsg, result)
+func (c *Comms) RequestNdf(host *connect.Host, message *pb.NDFHash) (*pb.NDF, error) {
+	// Call Protocomms Request NDF
+	return c.ProtoComms.RequestNdf(host, message)
 }
