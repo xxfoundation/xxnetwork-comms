@@ -7,6 +7,10 @@ package notificationBot
 
 import (
 	"fmt"
+	"gitlab.com/elixxir/comms/connect"
+	"gitlab.com/elixxir/comms/mixmessages"
+	"gitlab.com/elixxir/comms/registration"
+	"gitlab.com/elixxir/comms/testkeys"
 	"sync"
 	"testing"
 )
@@ -24,7 +28,7 @@ func getNextBotAddress() string {
 }
 
 var registrationAddressLock sync.Mutex
-var registrationAddress = 5600
+var registrationAddress = 1600
 
 func getRegistrationAddress() string {
 	registrationAddressLock.Lock()
@@ -35,9 +39,7 @@ func getRegistrationAddress() string {
 	return fmt.Sprintf("0.0.0.0:%d", registrationAddress)
 }
 
-//TODO: Add this test back when nb supports pollNDF
-/**
-// Tests whether the gateway can be connected to and run an RPC with TLS enabled
+// Tests whether the notifcationBot can be connected to and run an RPC with TLS enabled
 func TestTLS(t *testing.T) {
 	// Pull certs & keys
 	keyPath := testkeys.GetNodeKeyPath()
@@ -65,15 +67,16 @@ func TestTLS(t *testing.T) {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
 
-
 	// Attempt to poll NDF
-	err = notificationBot.PollNdf(host, &mixmessages.ndf{})
+	_, err = notificationBot.RequestNdf(host, &mixmessages.NDFHash{})
 	if err != nil {
 		t.Error(err)
 	}
-}
-*/
 
+	notificationBot.UnregisterForNotifications()
+}
+
+// Error path: Start bot with bad certs
 func TestBadCerts(t *testing.T) {
 	defer func() {
 		if r := recover(); r == nil {
@@ -82,6 +85,7 @@ func TestBadCerts(t *testing.T) {
 	}()
 	Address := getNextBotAddress()
 
+	// This should panic and cause the defer func above to run
 	_ = StartNotificationBot("test", Address, NewImplementation(),
 		[]byte("bad cert"), []byte("bad key"))
 }
