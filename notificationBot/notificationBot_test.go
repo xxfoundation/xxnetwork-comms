@@ -16,8 +16,9 @@ import (
 )
 
 var botPortLock sync.Mutex
-var botPort = 5500
+var botPort = 1500
 
+// Helper function to prevent port collisions
 func getNextBotAddress() string {
 	botPortLock.Lock()
 	defer func() {
@@ -30,6 +31,7 @@ func getNextBotAddress() string {
 var registrationAddressLock sync.Mutex
 var registrationAddress = 1600
 
+// Helper function to prevent port collisions
 func getRegistrationAddress() string {
 	registrationAddressLock.Lock()
 	defer func() {
@@ -73,7 +75,6 @@ func TestTLS(t *testing.T) {
 		t.Error(err)
 	}
 
-	notificationBot.UnregisterForNotifications()
 }
 
 // Error path: Start bot with bad certs

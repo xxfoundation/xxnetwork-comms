@@ -54,7 +54,7 @@ func (nb *Comms) RegisterForNotifications(ctx context.Context, msg *pb.Authentic
 
 // UnregisterForNotifications event handler which unregisters a client with the notification bot
 func (nb *Comms) UnregisterForNotifications(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
-	//Check the authState of the message
+	// Check the authState of the message
 	authState := nb.AuthenticatedReceiver(msg)
 
 	err := nb.handler.UnregisterForNotifications(authState)
