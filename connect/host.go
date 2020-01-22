@@ -55,6 +55,10 @@ type Host struct {
 	// If set, reverse authentication will be established with this Host
 	enableAuth bool
 
+	// If set, host was added dynamically by the auth protocol
+	// This is useful for determining whether a host's key was hardcoded
+	dynamicHost bool
+
 	// Read/Write Mutex for thread safety
 	mux sync.RWMutex
 }

@@ -19,6 +19,7 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/crypto/nonce"
+	"gitlab.com/elixxir/crypto/registration"
 	"gitlab.com/elixxir/crypto/signature/rsa"
 	"google.golang.org/grpc/metadata"
 )
@@ -118,18 +119,56 @@ func (c *ProtoComms) GenerateToken() ([]byte, error) {
 	return token.Bytes(), nil
 }
 
+//
+func (c *ProtoComms) dynamicAuth(msg *pb.AuthenticatedMessage) (err error) {
+	// Process the public key
+	pubKey, err := rsa.LoadPublicKeyFromPem([]byte(msg.Client.PublicKey))
+	if err != nil {
+		return
+	}
+
+	// Generate the UserId from supplied Client information
+	uid := registration.GenUserID(pubKey, msg.Client.Salt)
+
+	// Verify the Id provided correctly matches the generated Id
+	if msg.ID != uid.String() {
+		return errors.Errorf(
+			"Provided ID does not match. Expected: %s, Actual: %s",
+			uid.String(), msg.ID)
+	}
+
+	// Add the new host
+	// NOTE: Address is left empty as we do not communicate backwards
+	host, err := c.AddHost(uid.String(), "", rsa.CreatePublicKeyPem(pubKey),
+		false, true)
+	if err != nil {
+		return
+	}
+
+	// IMPORTANT: This flag must be set to true for all dynamic hosts
+	//            because security properties differ
+	host.dynamicHost = true
+	return
+}
+
 // Validates a signed token using internal state
 func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) error {
 
 	// Verify the Host exists for the provided ID
 	host, ok := c.GetHost(msg.ID)
 	if !ok {
-		return errors.Errorf("Invalid host ID: %+v", msg.ID)
+		// If the host does not already exist, attempt dynamic authentication
+		jww.DEBUG.Printf("Attempting dynamic authentication: %s", msg.ID)
+		err := c.dynamicAuth(msg)
+		if err != nil {
+			return errors.Errorf(
+				"Unable to complete dynamic authentication: %+v", err)
+		}
 	}
 
 	// This logic prevents deadlocks when performing authentication with self
-	// TODO: This may require further review in the future
-	if msg.ID != c.id || bytes.Compare(host.token, msg.Token) != 0 {
+	// TODO: This may require further review
+	if msg.ID != c.Id || bytes.Compare(host.token, msg.Token) != 0 {
 		host.mux.Lock()
 		defer host.mux.Unlock()
 	}
