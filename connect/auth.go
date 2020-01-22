@@ -26,8 +26,9 @@ import (
 
 // Auth represents an authorization state for a message or host
 type Auth struct {
-	IsAuthenticated bool
-	Sender          *Host
+	IsDynamicAuthenticated bool
+	IsAuthenticated        bool
+	Sender                 *Host
 }
 
 // Perform the client handshake to establish reverse-authentication
@@ -119,7 +120,8 @@ func (c *ProtoComms) GenerateToken() ([]byte, error) {
 	return token.Bytes(), nil
 }
 
-//
+// Performs the dynamic authentication process, such that Hosts that were not
+// already added to the Manager can establish authentication
 func (c *ProtoComms) dynamicAuth(msg *pb.AuthenticatedMessage) (err error) {
 	// Process the public key
 	pubKey, err := rsa.LoadPublicKeyFromPem([]byte(msg.Client.PublicKey))
@@ -145,8 +147,8 @@ func (c *ProtoComms) dynamicAuth(msg *pb.AuthenticatedMessage) (err error) {
 		return
 	}
 
-	// IMPORTANT: This flag must be set to true for all dynamic hosts
-	//            because security properties differ
+	// IMPORTANT: This flag must be set to true for all dynamic Hosts
+	//            because the security properties for these Hosts differ
 	host.dynamicHost = true
 	return
 }
@@ -207,29 +209,33 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) error {
 // AuthenticatedReceiver handles reception of an AuthenticatedMessage,
 // checking if the host is authenticated & returning an Auth state
 func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) *Auth {
-	res := &Auth{
-		IsAuthenticated: false,
-		Sender:          &Host{},
-	}
 
 	// Try to obtain the Host for the specified ID
 	host, ok := c.GetHost(msg.ID)
-	if ok {
-		// If host is found, mutex must be locked
-		host.mux.RLock()
-		defer host.mux.RUnlock()
+	if !ok {
+		return &Auth{
+			IsAuthenticated: false,
+			Sender:          &Host{},
+		}
 	}
+
+	// If host is found, mutex must be locked
+	host.mux.RLock()
+	defer host.mux.RUnlock()
 
 	// Check the token's validity
-	validToken := ok && host.token != nil && msg.Token != nil &&
+	validToken := host.token != nil && msg.Token != nil &&
 		bytes.Compare(host.token, msg.Token) == 0
-	if ok && validToken {
-		res.Sender = host
-		res.IsAuthenticated = true
+
+	// Assemble the Auth object
+	res := &Auth{
+		IsDynamicAuthenticated: host.dynamicHost,
+		IsAuthenticated:        validToken,
+		Sender:                 host,
 	}
 
-	jww.DEBUG.Printf("Authentication status: %v, ValidId: %v, ValidToken: %v, ProvidedId: %v ProvidedToken: %v",
-		res.IsAuthenticated, ok, validToken, msg.ID, msg.Token)
+	jww.DEBUG.Printf("Authentication status: %v, ValidToken: %v, ProvidedId: %v ProvidedToken: %v",
+		res.IsAuthenticated, validToken, msg.ID, msg.Token)
 	return res
 }
 
