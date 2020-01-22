@@ -26,9 +26,12 @@ import (
 
 // Auth represents an authorization state for a message or host
 type Auth struct {
+	// Indicates whether dynamic authentication was used
 	IsDynamicAuthenticated bool
-	IsAuthenticated        bool
-	Sender                 *Host
+	// Indicates whether authentication was successful
+	IsAuthenticated bool
+	// The information about the Host that sent the authenticated communication
+	Sender *Host
 }
 
 // Perform the client handshake to establish reverse-authentication

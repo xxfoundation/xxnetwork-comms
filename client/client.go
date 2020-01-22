@@ -18,7 +18,7 @@ import (
 type Comms struct {
 	connect.ProtoComms
 
-	// USed to store the public key used for generating Client Id
+	// Used to store the public key used for generating Client Id
 	publicKey []byte
 	// Used to store the salt used for generating Client Id
 	salt []byte
