@@ -80,7 +80,7 @@ func (c *ProtoComms) PackAuthenticatedMessage(msg proto.Message, host *Host,
 
 	// Build the authenticated message
 	authMsg := &pb.AuthenticatedMessage{
-		ID:      c.id,
+		ID:      c.Id,
 		Token:   host.token,
 		Message: anyMsg,
 	}
@@ -100,7 +100,7 @@ func (c *ProtoComms) PackAuthenticatedMessage(msg proto.Message, host *Host,
 func (c *ProtoComms) PackAuthenticatedContext(host *Host,
 	ctx context.Context) context.Context {
 	authMsg := &pb.AuthenticatedMessage{
-		ID:    c.id,
+		ID:    c.Id,
 		Token: host.token,
 	}
 	return metadata.AppendToOutgoingContext(ctx, "auth", authMsg.String())

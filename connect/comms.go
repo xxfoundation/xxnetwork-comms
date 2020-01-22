@@ -28,7 +28,7 @@ type ProtoComms struct {
 	Manager
 
 	// The network ID of this comms server
-	id string
+	Id string
 
 	// A map of reverse-authentication tokens
 	tokens sync.Map
@@ -52,7 +52,7 @@ func StartCommServer(id string, localServer string, certPEMblock,
 
 	// Build the ProtoComms object
 	pc := &ProtoComms{
-		id:            id,
+		Id:            id,
 		ListeningAddr: localServer,
 	}
 
