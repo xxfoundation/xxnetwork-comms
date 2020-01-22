@@ -125,7 +125,9 @@ func (c *ProtoComms) GenerateToken() ([]byte, error) {
 
 // Performs the dynamic authentication process, such that Hosts that were not
 // already added to the Manager can establish authentication
-func (c *ProtoComms) dynamicAuth(msg *pb.AuthenticatedMessage) (err error) {
+func (c *ProtoComms) dynamicAuth(msg *pb.AuthenticatedMessage) (
+	host *Host, err error) {
+
 	// Process the public key
 	pubKey, err := rsa.LoadPublicKeyFromPem([]byte(msg.Client.PublicKey))
 	if err != nil {
@@ -137,14 +139,14 @@ func (c *ProtoComms) dynamicAuth(msg *pb.AuthenticatedMessage) (err error) {
 
 	// Verify the Id provided correctly matches the generated Id
 	if msg.ID != uid.String() {
-		return errors.Errorf(
+		return nil, errors.Errorf(
 			"Provided ID does not match. Expected: %s, Actual: %s",
 			uid.String(), msg.ID)
 	}
 
 	// Add the new host
 	// NOTE: Address is left empty as we do not communicate backwards
-	host, err := c.AddHost(uid.String(), "", rsa.CreatePublicKeyPem(pubKey),
+	host, err = c.AddHost(uid.String(), "", rsa.CreatePublicKeyPem(pubKey),
 		false, true)
 	if err != nil {
 		return
@@ -157,14 +159,14 @@ func (c *ProtoComms) dynamicAuth(msg *pb.AuthenticatedMessage) (err error) {
 }
 
 // Validates a signed token using internal state
-func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) error {
+func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) (err error) {
 
 	// Verify the Host exists for the provided ID
 	host, ok := c.GetHost(msg.ID)
 	if !ok {
 		// If the host does not already exist, attempt dynamic authentication
 		jww.DEBUG.Printf("Attempting dynamic authentication: %s", msg.ID)
-		err := c.dynamicAuth(msg)
+		host, err = c.dynamicAuth(msg)
 		if err != nil {
 			return errors.Errorf(
 				"Unable to complete dynamic authentication: %+v", err)
@@ -187,7 +189,7 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) error {
 
 	// Get the signed token
 	tokenMsg := &pb.AssignToken{}
-	err := ptypes.UnmarshalAny(msg.Message, tokenMsg)
+	err = ptypes.UnmarshalAny(msg.Message, tokenMsg)
 	if err != nil {
 		return errors.Errorf("Unable to unmarshal token: %+v", err)
 	}
@@ -206,7 +208,7 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) error {
 	// Token has been validated and can be safely stored
 	host.token = tokenMsg.Token
 	jww.DEBUG.Printf("Token validated: %v", tokenMsg.Token)
-	return nil
+	return
 }
 
 // AuthenticatedReceiver handles reception of an AuthenticatedMessage,
@@ -237,8 +239,9 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) *Auth {
 		Sender:                 host,
 	}
 
-	jww.DEBUG.Printf("Authentication status: %v, ValidToken: %v, ProvidedId: %v ProvidedToken: %v",
-		res.IsAuthenticated, validToken, msg.ID, msg.Token)
+	jww.DEBUG.Printf("Authentication status: %v, "+
+		"Dynamic: %v, ProvidedId: %v ProvidedToken: %v",
+		res.IsAuthenticated, res.IsDynamicAuthenticated, msg.ID, msg.Token)
 	return res
 }
 
