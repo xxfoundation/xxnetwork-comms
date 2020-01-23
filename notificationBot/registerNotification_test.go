@@ -97,29 +97,3 @@ func TestUnRegisterForNotifications(t *testing.T) {
 		t.Errorf("Failed to unregister: %+v", err)
 	}
 }
-
-// Smoke test for PollForNotifications
-func TestPollForNotifications(t *testing.T) {
-	// Get keys and certs
-	keyPath := testkeys.GetNodeKeyPath()
-	keyData := testkeys.LoadFromPath(keyPath)
-	certPath := testkeys.GetNodeCertPath()
-	certData := testkeys.LoadFromPath(certPath)
-	// Get Id
-	testId := "test"
-	// Get available port
-	notificationBotAddress := getNextBotAddress()
-
-	//Init Notification bot
-	notificationBot := StartNotificationBot(testId, notificationBotAddress,
-		NewImplementation(), certData, keyData)
-	defer notificationBot.Shutdown()
-	ctx, _ := context.WithCancel(context.Background())
-
-	// Run comm
-	_, err := notificationBot.PollForNotifications(ctx, &mixmessages.Ping{})
-	if err != nil {
-		t.Errorf("Failed to unregister: %+v", err)
-	}
-
-}

@@ -10,7 +10,6 @@ import (
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/node"
-	"golang.org/x/net/context"
 	"testing"
 )
 
@@ -89,23 +88,6 @@ func TestPollNdf(t *testing.T) {
 	}
 
 	_, err = gateway.PollNdf(host)
-	if err != nil {
-		t.Errorf("SendGetSignedCertMessage: Error received: %s", err)
-	}
-}
-
-// Smoke test for PollForNotifications
-func TestPollForNotifications(t *testing.T) {
-	GatewayAddress := getNextGatewayAddress()
-	testId := "test"
-
-	gateway := StartGateway(testId, GatewayAddress, NewImplementation(), nil,
-		nil)
-	defer gateway.Shutdown()
-
-	ctx, cancel := context.WithCancel(context.Background())
-	cancel()
-	_, err := gateway.PollForNotifications(ctx, &pb.Ping{})
 	if err != nil {
 		t.Errorf("SendGetSignedCertMessage: Error received: %s", err)
 	}
