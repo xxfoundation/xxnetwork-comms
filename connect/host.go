@@ -55,8 +55,8 @@ type Host struct {
 	// If set, reverse authentication will be established with this Host
 	enableAuth bool
 
-	// If set, host was added dynamically by the auth protocol
-	// This is useful for determining whether a host's key was hardcoded
+	// Indicates whether dynamic authentication was used for this Host
+	// This is useful for determining whether a Host's key was hardcoded
 	dynamicHost bool
 
 	// Read/Write Mutex for thread safety
@@ -85,6 +85,11 @@ func NewHost(id, address string, cert []byte, disableTimeout,
 	// Configure the host credentials
 	err = host.setCredentials()
 	return
+}
+
+// Simple getter for the dynamicHost value
+func (h *Host) IsDynamicHost() bool {
+	return h.dynamicHost
 }
 
 // Connected checks if the given Host's connection is alive

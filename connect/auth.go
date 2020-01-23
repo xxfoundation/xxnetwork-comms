@@ -26,8 +26,6 @@ import (
 
 // Auth represents an authorization state for a message or host
 type Auth struct {
-	// Indicates whether dynamic authentication was used
-	IsDynamicAuthenticated bool
 	// Indicates whether authentication was successful
 	IsAuthenticated bool
 	// The information about the Host that sent the authenticated communication
@@ -123,7 +121,7 @@ func (c *ProtoComms) GenerateToken() ([]byte, error) {
 	return token.Bytes(), nil
 }
 
-// Performs the dynamic authentication process, such that Hosts that were not
+// Performs the dynamic authentication process such that Hosts that were not
 // already added to the Manager can establish authentication
 func (c *ProtoComms) dynamicAuth(msg *pb.AuthenticatedMessage) (
 	host *Host, err error) {
@@ -234,14 +232,12 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) *Auth {
 
 	// Assemble the Auth object
 	res := &Auth{
-		IsDynamicAuthenticated: host.dynamicHost,
-		IsAuthenticated:        validToken,
-		Sender:                 host,
+		IsAuthenticated: validToken,
+		Sender:          host,
 	}
 
-	jww.DEBUG.Printf("Authentication status: %v, "+
-		"Dynamic: %v, ProvidedId: %v ProvidedToken: %v",
-		res.IsAuthenticated, res.IsDynamicAuthenticated, msg.ID, msg.Token)
+	jww.DEBUG.Printf("Authentication status: %v, ProvidedId: %v ProvidedToken: %v",
+		res.IsAuthenticated, msg.ID, msg.Token)
 	return res
 }
 
