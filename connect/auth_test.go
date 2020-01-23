@@ -11,9 +11,9 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/testkeys"
+	"gitlab.com/elixxir/crypto/csprng"
 	"gitlab.com/elixxir/crypto/registration"
 	"gitlab.com/elixxir/crypto/signature/rsa"
-	"gitlab.com/elixxir/crypto/tls"
 	"sync"
 	"testing"
 )
@@ -189,21 +189,14 @@ func TestProtoComms_ValidateToken(t *testing.T) {
 // Dynamic authentication happy path (e.g. host not pre-added)
 func TestProtoComms_ValidateTokenDynamic(t *testing.T) {
 	// All of this is setup for UID ----
-	//privKey, err := rsa.GenerateKey(csprng.NewSystemRNG(), rsa.DefaultRSABitLen)
-	//if err != nil {
-	//	t.Errorf("Could not generate private key: %+v", err)
-	//}
-
-	privKey := testkeys.LoadFromPath(testkeys.GetNodeKeyPath())
-	pub, err := tls.NewPublicKeyFromFile(testkeys.GetNodeCertPath())
+	privKey, err := rsa.GenerateKey(csprng.NewSystemRNG(), rsa.DefaultRSABitLen)
 	if err != nil {
-		t.Errorf("Can't create public cert: %+v", err)
+		t.Errorf("Could not generate private key: %+v", err)
 	}
-	pub2 := testkeys.LoadFromPath(testkeys.
-		GetNodeCertPath())
+	pubKey := privKey.GetPublic()
 
 	salt := []byte("0123456789ABCDEF0123456789ABCDEF")
-	uid := registration.GenUserID(pub, salt)
+	uid := registration.GenUserID(pubKey, salt)
 	testId := uid.String()
 	// ------
 
@@ -212,7 +205,7 @@ func TestProtoComms_ValidateTokenDynamic(t *testing.T) {
 		Id:            testId,
 		ListeningAddr: "",
 	}
-	err = comm.setPrivateKey(privKey)
+	err = comm.setPrivateKey(rsa.CreatePrivateKeyPem(privKey))
 	if err != nil {
 		t.Errorf("Expected to set private key: %+v", err)
 	}
@@ -224,8 +217,7 @@ func TestProtoComms_ValidateTokenDynamic(t *testing.T) {
 
 	// For this test we won't addHost to Manager, we'll just create a host
 	// so we can compare to the dynamic one later
-	host, err := NewHost(testId, "", pub2,
-		false, true)
+	host, err := newDynamicHost(testId, rsa.CreatePublicKeyPem(pubKey))
 	if err != nil {
 		t.Errorf("Unable to create host: %+v", err)
 	}
@@ -241,7 +233,7 @@ func TestProtoComms_ValidateTokenDynamic(t *testing.T) {
 	}
 	msg.Client = &pb.ClientID{
 		Salt:      salt,
-		PublicKey: string(pub2),
+		PublicKey: string(rsa.CreatePublicKeyPem(pubKey)),
 	}
 
 	// Here's the method we're testing

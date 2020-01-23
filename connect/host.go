@@ -87,6 +87,22 @@ func NewHost(id, address string, cert []byte, disableTimeout,
 	return
 }
 
+// Creates a new dynamic-authenticated Host object
+func newDynamicHost(id string, publicKey []byte) (host *Host, err error) {
+
+	// Initialize the Host object
+	host = &Host{
+		id: id,
+	}
+
+	// Create the RSA Public Key object
+	host.rsaPublicKey, err = rsa.LoadPublicKeyFromPem(publicKey)
+	if err != nil {
+		err = errors.Errorf("Error extracting PublicKey: %+v", err)
+	}
+	return
+}
+
 // Simple getter for the dynamicHost value
 func (h *Host) IsDynamicHost() bool {
 	return h.dynamicHost
@@ -273,8 +289,7 @@ func (h *Host) setCredentials() error {
 	dnsName := ""
 	cert, err := tlsCreds.LoadCertificate(string(h.certificate))
 	if err != nil {
-		s := fmt.Sprintf("Error forming transportCredentials: %+v", err)
-		return errors.New(s)
+		return errors.Errorf("Error forming transportCredentials: %+v", err)
 	}
 	if len(cert.DNSNames) > 0 {
 		dnsName = cert.DNSNames[0]
@@ -284,18 +299,16 @@ func (h *Host) setCredentials() error {
 	h.credentials, err = tlsCreds.NewCredentialsFromPEM(string(h.certificate),
 		dnsName)
 	if err != nil {
-		s := fmt.Sprintf("Error forming transportCredentials: %+v", err)
-		return errors.New(s)
+		return errors.Errorf("Error forming transportCredentials: %+v", err)
 	}
 
 	// Create the RSA Public Key object
 	h.rsaPublicKey, err = tlsCreds.NewPublicKeyFromPEM(h.certificate)
 	if err != nil {
-		s := fmt.Sprintf("Error extracting PublicKey: %+v", err)
-		return errors.New(s)
+		err = errors.Errorf("Error extracting PublicKey: %+v", err)
 	}
 
-	return nil
+	return err
 }
 
 // Stringer interface for connection

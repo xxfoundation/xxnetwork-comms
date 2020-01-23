@@ -21,7 +21,6 @@ import (
 	"gitlab.com/elixxir/crypto/nonce"
 	"gitlab.com/elixxir/crypto/registration"
 	"gitlab.com/elixxir/crypto/signature/rsa"
-	"gitlab.com/elixxir/crypto/tls"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -128,7 +127,7 @@ func (c *ProtoComms) dynamicAuth(msg *pb.AuthenticatedMessage) (
 	host *Host, err error) {
 
 	// Process the public key
-	pubKey, err := tls.NewPublicKeyFromPEM([]byte(msg.Client.PublicKey))
+	pubKey, err := rsa.LoadPublicKeyFromPem([]byte(msg.Client.PublicKey))
 	if err != nil {
 		return nil, errors.New(err.Error())
 	}
@@ -143,13 +142,12 @@ func (c *ProtoComms) dynamicAuth(msg *pb.AuthenticatedMessage) (
 			uid.String(), msg.ID)
 	}
 
-	// Add the new host
-	// NOTE: Address is left empty as we do not communicate backwards
-	host, err = c.AddHost(uid.String(), "", []byte(msg.Client.PublicKey),
-		false, true)
+	// Create and add the new host to the manager
+	host, err = newDynamicHost(uid.String(), []byte(msg.Client.PublicKey))
 	if err != nil {
 		return
 	}
+	c.addHost(host)
 
 	// IMPORTANT: This flag must be set to true for all dynamic Hosts
 	//            because the security properties for these Hosts differ
