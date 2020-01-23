@@ -129,7 +129,7 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) error {
 
 	// This logic prevents deadlocks when performing authentication with self
 	// TODO: This may require further review in the future
-	if msg.ID != c.id || bytes.Compare(host.token, msg.Token) != 0 {
+	if msg.ID != c.Id || bytes.Compare(host.token, msg.Token) != 0 {
 		host.mux.Lock()
 		defer host.mux.Unlock()
 	}

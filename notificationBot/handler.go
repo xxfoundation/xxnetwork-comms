@@ -20,6 +20,8 @@ type Handler interface {
 	RegisterForNotifications(clientToken []byte, auth *connect.Auth) error
 	// UnregisterForNotifications event handler which unregisters a client with the notification bot
 	UnregisterForNotifications(auth *connect.Auth) error
+	// Ping gateway to ask for users to notify
+	PollForNotifications() ([]string, error)
 }
 
 // Registration object used to implement
@@ -67,6 +69,7 @@ func StartNotificationBot(id, localServer string, handler Handler,
 type implementationFunctions struct {
 	RegisterForNotifications   func(clientToken []byte, auth *connect.Auth) error
 	UnregisterForNotifications func(auth *connect.Auth) error
+	PollForNotifications       func() ([]string, error)
 }
 
 // Implementation allows users of the client library to set the
@@ -94,6 +97,10 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return nil
 			},
+			PollForNotifications: func() ([]string, error) {
+				warn(um)
+				return nil, nil
+			},
 		},
 	}
 }
@@ -106,4 +113,9 @@ func (s *Implementation) RegisterForNotifications(clientToken []byte, auth *conn
 // UnregisterForNotifications event handler which unregisters a client with the notification bot
 func (s *Implementation) UnregisterForNotifications(auth *connect.Auth) error {
 	return s.Functions.UnregisterForNotifications(auth)
+}
+
+// Ping gateway to ask for users to notify
+func (s *Implementation) PollForNotifications() ([]string, error) {
+	return s.Functions.PollForNotifications()
 }

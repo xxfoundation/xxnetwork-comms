@@ -66,3 +66,12 @@ func (nb *Comms) UnregisterForNotifications(ctx context.Context, msg *pb.Authent
 	// Return the confirmation message
 	return &pb.Ack{}, err
 }
+
+//
+func (s *Comms) PollForNotifications(ctx context.Context, msg *pb.Ping) (*pb.IDList, error) {
+
+	ids, err := s.handler.PollForNotifications()
+	return &pb.IDList{
+		IDs: ids,
+	}, err
+}
