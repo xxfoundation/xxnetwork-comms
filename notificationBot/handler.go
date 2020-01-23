@@ -22,7 +22,7 @@ type Handler interface {
 	UnregisterForNotifications(auth *connect.Auth) error
 }
 
-// Registration object used to implement
+// NotificationBot object used to implement
 // endpoints and top-level comms functionality
 type Comms struct {
 	*connect.ProtoComms
@@ -63,7 +63,7 @@ func StartNotificationBot(id, localServer string, handler Handler,
 	return &notificationBot
 }
 
-// Handler implementation for the Gateway
+// Handler implementation for the NotificationBot
 type implementationFunctions struct {
 	RegisterForNotifications   func(clientToken []byte, auth *connect.Auth) error
 	UnregisterForNotifications func(auth *connect.Auth) error
