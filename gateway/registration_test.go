@@ -104,7 +104,7 @@ func TestPollForNotifications(t *testing.T) {
 	defer gateway.Shutdown()
 
 	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	cancel()
 	_, err := gateway.PollForNotifications(ctx, &pb.Ping{})
 	if err != nil {
 		t.Errorf("SendGetSignedCertMessage: Error received: %s", err)
