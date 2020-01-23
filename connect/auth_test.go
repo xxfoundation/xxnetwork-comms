@@ -11,7 +11,9 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/testkeys"
+	"gitlab.com/elixxir/crypto/registration"
 	"gitlab.com/elixxir/crypto/signature/rsa"
+	"gitlab.com/elixxir/crypto/tls"
 	"sync"
 	"testing"
 )
@@ -182,6 +184,81 @@ func TestProtoComms_ValidateToken(t *testing.T) {
 	if err != nil {
 		t.Errorf("Expected to validate token: %+v", err)
 	}
+}
+
+// Dynamic authentication happy path (e.g. host not pre-added)
+func TestProtoComms_ValidateTokenDynamic(t *testing.T) {
+	// All of this is setup for UID ----
+	//privKey, err := rsa.GenerateKey(csprng.NewSystemRNG(), rsa.DefaultRSABitLen)
+	//if err != nil {
+	//	t.Errorf("Could not generate private key: %+v", err)
+	//}
+
+	privKey := testkeys.LoadFromPath(testkeys.GetNodeKeyPath())
+	pub, err := tls.NewPublicKeyFromFile(testkeys.GetNodeCertPath())
+	if err != nil {
+		t.Errorf("Can't create public cert: %+v", err)
+	}
+	pub2 := testkeys.LoadFromPath(testkeys.
+		GetNodeCertPath())
+
+	salt := []byte("0123456789ABCDEF0123456789ABCDEF")
+	uid := registration.GenUserID(pub, salt)
+	testId := uid.String()
+	// ------
+
+	// Now we set up the client comms object
+	comm := ProtoComms{
+		Id:            testId,
+		ListeningAddr: "",
+	}
+	err = comm.setPrivateKey(privKey)
+	if err != nil {
+		t.Errorf("Expected to set private key: %+v", err)
+	}
+
+	tokenBytes, err := comm.GenerateToken()
+	if err != nil || tokenBytes == nil {
+		t.Errorf("Unable to generate token: %+v", err)
+	}
+
+	// For this test we won't addHost to Manager, we'll just create a host
+	// so we can compare to the dynamic one later
+	host, err := NewHost(testId, "", pub2,
+		false, true)
+	if err != nil {
+		t.Errorf("Unable to create host: %+v", err)
+	}
+	host.token = tokenBytes
+	tokenMsg := &pb.AssignToken{
+		Token: tokenBytes,
+	}
+
+	// Set up auth msg
+	msg, err := comm.PackAuthenticatedMessage(tokenMsg, host, true)
+	if err != nil {
+		t.Errorf("Expected no error packing authenticated message: %+v", err)
+	}
+	msg.Client = &pb.ClientID{
+		Salt:      salt,
+		PublicKey: string(pub2),
+	}
+
+	// Here's the method we're testing
+	err = comm.ValidateToken(msg)
+	if err != nil {
+		t.Errorf("Expected to validate token: %+v", err)
+	}
+
+	// Check the output values behaved as expected
+	host, ok := comm.GetHost(testId)
+	if !ok {
+		t.Errorf("Expected dynamic auth to add host %s!", testId)
+	}
+	if !host.IsDynamicHost() {
+		t.Errorf("Expected host to be dynamic!")
+	}
+
 }
 
 func TestProtoComms_DisableAuth(t *testing.T) {

@@ -21,6 +21,7 @@ import (
 	"gitlab.com/elixxir/crypto/nonce"
 	"gitlab.com/elixxir/crypto/registration"
 	"gitlab.com/elixxir/crypto/signature/rsa"
+	"gitlab.com/elixxir/crypto/tls"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -127,9 +128,9 @@ func (c *ProtoComms) dynamicAuth(msg *pb.AuthenticatedMessage) (
 	host *Host, err error) {
 
 	// Process the public key
-	pubKey, err := rsa.LoadPublicKeyFromPem([]byte(msg.Client.PublicKey))
+	pubKey, err := tls.NewPublicKeyFromPEM([]byte(msg.Client.PublicKey))
 	if err != nil {
-		return
+		return nil, errors.New(err.Error())
 	}
 
 	// Generate the UserId from supplied Client information
@@ -144,7 +145,7 @@ func (c *ProtoComms) dynamicAuth(msg *pb.AuthenticatedMessage) (
 
 	// Add the new host
 	// NOTE: Address is left empty as we do not communicate backwards
-	host, err = c.AddHost(uid.String(), "", rsa.CreatePublicKeyPem(pubKey),
+	host, err = c.AddHost(uid.String(), "", []byte(msg.Client.PublicKey),
 		false, true)
 	if err != nil {
 		return
