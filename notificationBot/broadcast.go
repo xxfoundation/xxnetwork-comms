@@ -23,7 +23,7 @@ func (nb *Comms) RequestNdf(host *connect.Host, message *pb.NDFHash) (*pb.NDF, e
 }
 
 // Notification Bot -> Gateway
-func (nb *Comms) PollNotifications(host *connect.Host, message *pb.Ping) (*pb.IDList, error) {
+func (nb *Comms) RequestNotifications(host *connect.Host, message *pb.Ping) (*pb.IDList, error) {
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context

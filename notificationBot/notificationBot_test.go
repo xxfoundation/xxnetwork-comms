@@ -41,6 +41,19 @@ func getRegistrationAddress() string {
 	return fmt.Sprintf("0.0.0.0:%d", registrationAddress)
 }
 
+var gatewayAddressLock sync.Mutex
+var gatewayAddress = 1700
+
+func getGatewayAddress() string {
+	gatewayAddressLock.Lock()
+	defer func() {
+		gatewayAddress++
+		gatewayAddressLock.Unlock()
+	}()
+	return fmt.Sprintf("0.0.0.0:%d", gatewayAddress)
+
+}
+
 // Tests whether the notifcationBot can be connected to and run an RPC with TLS enabled
 func TestTLS(t *testing.T) {
 	// Pull certs & keys

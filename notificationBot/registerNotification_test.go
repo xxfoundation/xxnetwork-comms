@@ -8,6 +8,7 @@ package notificationBot
 import (
 	"context"
 	"gitlab.com/elixxir/comms/connect"
+	"gitlab.com/elixxir/comms/gateway"
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/testkeys"
 	"testing"
@@ -28,6 +29,10 @@ func TestRegisterForNotifications(t *testing.T) {
 	//Init Notification bot
 	notificationBot := StartNotificationBot(testId, notificationBotAddress,
 		NewImplementation(), certData, keyData)
+	defer notificationBot.Shutdown()
+	//Init Gateway
+	gw := gateway.StartGateway(testId, getNextBotAddress(), gateway.NewImplementation(), nil, nil)
+	defer gw.Shutdown()
 
 	ctx, _ := context.WithCancel(context.Background())
 
@@ -68,7 +73,7 @@ func TestUnRegisterForNotifications(t *testing.T) {
 	//Init Notification bot
 	notificationBot := StartNotificationBot(testId, notificationBotAddress,
 		NewImplementation(), certData, keyData)
-
+	defer notificationBot.Shutdown()
 	ctx, _ := context.WithCancel(context.Background())
 
 	//Init host and manager
@@ -91,4 +96,30 @@ func TestUnRegisterForNotifications(t *testing.T) {
 	if err != nil {
 		t.Errorf("Failed to unregister: %+v", err)
 	}
+}
+
+// Smoke test for PollForNotifications
+func TestPollForNotifications(t *testing.T) {
+	// Get keys and certs
+	keyPath := testkeys.GetNodeKeyPath()
+	keyData := testkeys.LoadFromPath(keyPath)
+	certPath := testkeys.GetNodeCertPath()
+	certData := testkeys.LoadFromPath(certPath)
+	// Get Id
+	testId := "test"
+	// Get available port
+	notificationBotAddress := getNextBotAddress()
+
+	//Init Notification bot
+	notificationBot := StartNotificationBot(testId, notificationBotAddress,
+		NewImplementation(), certData, keyData)
+	defer notificationBot.Shutdown()
+	ctx, _ := context.WithCancel(context.Background())
+
+	// Run comm
+	_, err := notificationBot.PollForNotifications(ctx, &mixmessages.Ping{})
+	if err != nil {
+		t.Errorf("Failed to unregister: %+v", err)
+	}
+
 }
