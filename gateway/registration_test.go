@@ -97,15 +97,11 @@ func TestPollNdf(t *testing.T) {
 // Smoke test for PollForNotifications
 func TestPollForNotifications(t *testing.T) {
 	GatewayAddress := getNextGatewayAddress()
-	ServerAddress := getNextServerAddress()
 	testId := "test"
 
 	gateway := StartGateway(testId, GatewayAddress, NewImplementation(), nil,
 		nil)
-	server := node.StartNode(testId, ServerAddress, node.NewImplementation(),
-		nil, nil)
 	defer gateway.Shutdown()
-	defer server.Shutdown()
 
 	ctx, _ := context.WithCancel(context.Background())
 
