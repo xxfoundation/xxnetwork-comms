@@ -148,10 +148,6 @@ func (c *ProtoComms) dynamicAuth(msg *pb.AuthenticatedMessage) (
 		return
 	}
 	c.addHost(host)
-
-	// IMPORTANT: This flag must be set to true for all dynamic Hosts
-	//            because the security properties for these Hosts differ
-	host.dynamicHost = true
 	return
 }
 

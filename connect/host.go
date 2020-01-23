@@ -91,8 +91,11 @@ func NewHost(id, address string, cert []byte, disableTimeout,
 func newDynamicHost(id string, publicKey []byte) (host *Host, err error) {
 
 	// Initialize the Host object
+	// IMPORTANT: This flag must be set to true for all dynamic Hosts
+	//            because the security properties for these Hosts differ
 	host = &Host{
-		id: id,
+		id:          id,
+		dynamicHost: true,
 	}
 
 	// Create the RSA Public Key object
