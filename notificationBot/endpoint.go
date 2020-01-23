@@ -68,9 +68,11 @@ func (nb *Comms) UnregisterForNotifications(ctx context.Context, msg *pb.Authent
 }
 
 // Ping gateway to ask for users to notify
-func (s *Comms) PollForNotifications(ctx context.Context, msg *pb.Ping) (*pb.IDList, error) {
+func (nb *Comms) PollForNotifications(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.IDList, error) {
+	// Check the authState of the message
+	authState := nb.AuthenticatedReceiver(msg)
 
-	ids, err := s.handler.PollForNotifications()
+	ids, err := nb.handler.PollForNotifications(authState)
 	return &pb.IDList{
 		IDs: ids,
 	}, err

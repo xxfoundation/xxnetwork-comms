@@ -148,7 +148,7 @@ service Gateway {
     }
 
     // Ping gateway to ask for users to notify
-    rpc PollForNotifications (Ping) returns (IDList) {
+    rpc PollForNotifications (AuthenticatedMessage) returns (IDList) {
     }
 }
 
@@ -324,7 +324,7 @@ service NotificationBot {
     }
 
     // Polls for notifications from gateways
-    rpc PollForNotifications (Ping) returns (IDList) {
+    rpc PollForNotifications (AuthenticatedMessage) returns (IDList) {
     }
 }
 

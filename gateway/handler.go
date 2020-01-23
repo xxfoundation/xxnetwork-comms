@@ -32,7 +32,7 @@ type Handler interface {
 	ConfirmNonce(message *pb.RequestRegistrationConfirmation, ipAddress string) (*pb.
 		RegistrationConfirmation, error)
 	// Ping gateway to ask for users to notify
-	PollForNotifications() ([]string, error)
+	PollForNotifications(auth *connect.Auth) ([]string, error)
 }
 
 // Gateway object used to implement endpoints and top-level comms functionality
@@ -89,7 +89,7 @@ type implementationFunctions struct {
 	ConfirmNonce func(message *pb.RequestRegistrationConfirmation, ipAddress string) (*pb.
 			RegistrationConfirmation, error)
 	// Ping gateway to ask for users to notify
-	PollForNotifications func() ([]string, error)
+	PollForNotifications func(auth *connect.Auth) ([]string, error)
 }
 
 // Implementation allows users of the client library to set the
@@ -127,7 +127,7 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return new(pb.RegistrationConfirmation), nil
 			},
-			PollForNotifications: func() ([]string, error) {
+			PollForNotifications: func(auth *connect.Auth) ([]string, error) {
 				warn(um)
 				return nil, nil
 			},
@@ -165,6 +165,6 @@ func (s *Implementation) ConfirmNonce(message *pb.RequestRegistrationConfirmatio
 }
 
 // Ping gateway to ask for users to notify
-func (s *Implementation) PollForNotifications() ([]string, error) {
-	return s.Functions.PollForNotifications()
+func (s *Implementation) PollForNotifications(auth *connect.Auth) ([]string, error) {
+	return s.Functions.PollForNotifications(auth)
 }

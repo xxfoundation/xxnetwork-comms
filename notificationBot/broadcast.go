@@ -30,8 +30,13 @@ func (nb *Comms) RequestNotifications(host *connect.Host, message *pb.Ping) (*pb
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
 
+		authMsg, err := nb.PackAuthenticatedMessage(message, host, false)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+
 		// Send the message
-		resultMsg, err := pb.NewGatewayClient(conn).PollForNotifications(ctx, &pb.Ping{})
+		resultMsg, err := pb.NewGatewayClient(conn).PollForNotifications(ctx, authMsg)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
