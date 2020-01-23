@@ -94,6 +94,7 @@ func TestPollNdf(t *testing.T) {
 	}
 }
 
+// Smoke test for PollForNotifications
 func TestPollForNotifications(t *testing.T) {
 	GatewayAddress := getNextGatewayAddress()
 	ServerAddress := getNextServerAddress()

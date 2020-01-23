@@ -22,7 +22,6 @@ func (nb *Comms) RequestNdf(host *connect.Host, message *pb.NDFHash) (*pb.NDF, e
 	return nb.ProtoComms.RequestNdf(host, message)
 }
 
-// TODO: Uncomment when XX-1777 is done (Add PollForNotifications to Gateways)
 // Notification Bot -> Gateway
 func (nb *Comms) PollNotifications(host *connect.Host, message *pb.Ping) (*pb.IDList, error) {
 	// Create the Send Function

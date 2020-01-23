@@ -67,7 +67,7 @@ func (nb *Comms) UnregisterForNotifications(ctx context.Context, msg *pb.Authent
 	return &pb.Ack{}, err
 }
 
-//
+// Ping gateway to ask for users to notify
 func (s *Comms) PollForNotifications(ctx context.Context, msg *pb.Ping) (*pb.IDList, error) {
 
 	ids, err := s.handler.PollForNotifications()

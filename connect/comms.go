@@ -176,6 +176,8 @@ func (c *ProtoComms) Stream(host *Host, f func(conn *grpc.ClientConn) (
 	return host.stream(f)
 }
 
+// RequestNdf is used to Request an ndf from permissioning
+// Used by gateway, client, nodes and gateways
 func (c *ProtoComms) RequestNdf(host *Host,
 	message *mixmessages.NDFHash) (*mixmessages.NDF, error) {
 
