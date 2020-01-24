@@ -55,6 +55,10 @@ type Host struct {
 	// If set, reverse authentication will be established with this Host
 	enableAuth bool
 
+	// Indicates whether dynamic authentication was used for this Host
+	// This is useful for determining whether a Host's key was hardcoded
+	dynamicHost bool
+
 	// Read/Write Mutex for thread safety
 	mux sync.RWMutex
 }
@@ -81,6 +85,30 @@ func NewHost(id, address string, cert []byte, disableTimeout,
 	// Configure the host credentials
 	err = host.setCredentials()
 	return
+}
+
+// Creates a new dynamic-authenticated Host object
+func newDynamicHost(id string, publicKey []byte) (host *Host, err error) {
+
+	// Initialize the Host object
+	// IMPORTANT: This flag must be set to true for all dynamic Hosts
+	//            because the security properties for these Hosts differ
+	host = &Host{
+		id:          id,
+		dynamicHost: true,
+	}
+
+	// Create the RSA Public Key object
+	host.rsaPublicKey, err = rsa.LoadPublicKeyFromPem(publicKey)
+	if err != nil {
+		err = errors.Errorf("Error extracting PublicKey: %+v", err)
+	}
+	return
+}
+
+// Simple getter for the dynamicHost value
+func (h *Host) IsDynamicHost() bool {
+	return h.dynamicHost
 }
 
 // Connected checks if the given Host's connection is alive
@@ -264,8 +292,7 @@ func (h *Host) setCredentials() error {
 	dnsName := ""
 	cert, err := tlsCreds.LoadCertificate(string(h.certificate))
 	if err != nil {
-		s := fmt.Sprintf("Error forming transportCredentials: %+v", err)
-		return errors.New(s)
+		return errors.Errorf("Error forming transportCredentials: %+v", err)
 	}
 	if len(cert.DNSNames) > 0 {
 		dnsName = cert.DNSNames[0]
@@ -275,18 +302,16 @@ func (h *Host) setCredentials() error {
 	h.credentials, err = tlsCreds.NewCredentialsFromPEM(string(h.certificate),
 		dnsName)
 	if err != nil {
-		s := fmt.Sprintf("Error forming transportCredentials: %+v", err)
-		return errors.New(s)
+		return errors.Errorf("Error forming transportCredentials: %+v", err)
 	}
 
 	// Create the RSA Public Key object
 	h.rsaPublicKey, err = tlsCreds.NewPublicKeyFromPEM(h.certificate)
 	if err != nil {
-		s := fmt.Sprintf("Error extracting PublicKey: %+v", err)
-		return errors.New(s)
+		err = errors.Errorf("Error extracting PublicKey: %+v", err)
 	}
 
-	return nil
+	return err
 }
 
 // Stringer interface for connection

@@ -57,3 +57,21 @@ func TestHost_GetId(t *testing.T) {
 			id, host.id)
 	}
 }
+
+// Validate that dynamic host defaults to false and can be set to true
+func TestHost_IsDynamicHost(t *testing.T) {
+
+	host := Host{}
+
+	if host.IsDynamicHost() != false {
+		t.Errorf("Correct bool not returned. Expected false, got %v",
+			host.dynamicHost)
+	}
+
+	host.dynamicHost = true
+
+	if host.IsDynamicHost() != true {
+		t.Errorf("Correct bool not returned. Expected true, got %v",
+			host.dynamicHost)
+	}
+}
