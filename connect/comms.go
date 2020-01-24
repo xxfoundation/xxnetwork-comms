@@ -10,9 +10,11 @@ package connect
 
 import (
 	"crypto/tls"
+	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
+	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/crypto/signature/rsa"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -172,4 +174,40 @@ func (c *ProtoComms) Stream(host *Host, f func(conn *grpc.ClientConn) (
 
 	// Run the send function
 	return host.stream(f)
+}
+
+// RequestNdf is used to Request an ndf from permissioning
+// Used by gateway, client, nodes and gateways
+func (c *ProtoComms) RequestNdf(host *Host,
+	message *mixmessages.NDFHash) (*mixmessages.NDF, error) {
+
+	// Create the Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := MessagingContext()
+		defer cancel()
+
+		authMsg, err := c.PackAuthenticatedMessage(message, host, false)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+		// Send the message
+		resultMsg, err := mixmessages.NewRegistrationClient(
+			conn).PollNdf(ctx, authMsg)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+		return ptypes.MarshalAny(resultMsg)
+	}
+
+	// Execute the Send function
+	jww.DEBUG.Printf("Sending Request Ndf message: %+v", message)
+	resultMsg, err := c.Send(host, f)
+	if err != nil {
+		return nil, err
+	}
+
+	result := &mixmessages.NDF{}
+	return result, ptypes.UnmarshalAny(resultMsg, result)
+
 }
