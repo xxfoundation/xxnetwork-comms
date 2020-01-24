@@ -13,14 +13,14 @@ import (
 	"sync"
 )
 
-var gatewayPortLock sync.Mutex
-var gatewayPort = 5800
+var portLock sync.Mutex
+var port = 5800
 
-func getNextGatewayAddress() string {
-	gatewayPortLock.Lock()
+func getNextAddress() string {
+	portLock.Lock()
 	defer func() {
-		gatewayPort++
-		gatewayPortLock.Unlock()
+		port++
+		portLock.Unlock()
 	}()
-	return fmt.Sprintf("0.0.0.0:%d", gatewayPort)
+	return fmt.Sprintf("0.0.0.0:%d", port)
 }

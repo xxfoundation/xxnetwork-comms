@@ -24,14 +24,14 @@ func TestRegisterForNotifications(t *testing.T) {
 	// Get ID
 	testId := "test"
 	// Get available port
-	notificationBotAddress := getNextBotAddress()
+	notificationBotAddress := getNextAddress()
 
 	//Init Notification bot
 	notificationBot := StartNotificationBot(testId, notificationBotAddress,
 		NewImplementation(), certData, keyData)
 	defer notificationBot.Shutdown()
 	//Init Gateway
-	gw := gateway.StartGateway(testId, getNextBotAddress(), gateway.NewImplementation(), nil, nil)
+	gw := gateway.StartGateway(testId, getNextAddress(), gateway.NewImplementation(), nil, nil)
 	defer gw.Shutdown()
 
 	ctx, _ := context.WithCancel(context.Background())
@@ -68,7 +68,7 @@ func TestUnRegisterForNotifications(t *testing.T) {
 	// Get Id
 	testId := "test"
 	// Get available port
-	notificationBotAddress := getNextBotAddress()
+	notificationBotAddress := getNextAddress()
 
 	//Init Notification bot
 	notificationBot := StartNotificationBot(testId, notificationBotAddress,

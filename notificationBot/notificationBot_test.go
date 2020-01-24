@@ -20,39 +20,13 @@ var botPortLock sync.Mutex
 var botPort = 1500
 
 // Helper function to prevent port collisions
-func getNextBotAddress() string {
+func getNextAddress() string {
 	botPortLock.Lock()
 	defer func() {
 		botPort++
 		botPortLock.Unlock()
 	}()
 	return fmt.Sprintf("0.0.0.0:%d", botPort)
-}
-
-var registrationAddressLock sync.Mutex
-var registrationAddress = 1600
-
-// Helper function to prevent port collisions
-func getRegistrationAddress() string {
-	registrationAddressLock.Lock()
-	defer func() {
-		registrationAddress++
-		registrationAddressLock.Unlock()
-	}()
-	return fmt.Sprintf("0.0.0.0:%d", registrationAddress)
-}
-
-var gatewayAddressLock sync.Mutex
-var gatewayAddress = 1700
-
-func getGatewayAddress() string {
-	gatewayAddressLock.Lock()
-	defer func() {
-		gatewayAddress++
-		gatewayAddressLock.Unlock()
-	}()
-	return fmt.Sprintf("0.0.0.0:%d", gatewayAddress)
-
 }
 
 // Tests whether the notifcationBot can be connected to and run an RPC with TLS enabled
@@ -65,13 +39,13 @@ func TestTLS(t *testing.T) {
 	testId := "test"
 
 	// Start up a registration server
-	regAddress := getRegistrationAddress()
+	regAddress := getNextAddress()
 	gw := registration.StartRegistrationServer(testId, regAddress, registration.NewImplementation(),
 		certData, keyData)
 	defer gw.Shutdown()
 
 	// Start up the notification bot
-	notificationBotAddress := getNextBotAddress()
+	notificationBotAddress := getNextAddress()
 	notificationBot := StartNotificationBot(testId, notificationBotAddress, NewImplementation(),
 		certData, keyData)
 	defer notificationBot.Shutdown()
@@ -98,7 +72,7 @@ func TestBadCerts(t *testing.T) {
 			t.Errorf("The code did not panic")
 		}
 	}()
-	Address := getNextBotAddress()
+	Address := getNextAddress()
 
 	// This should panic and cause the defer func above to run
 	_ = StartNotificationBot("test", Address, NewImplementation(),
@@ -106,8 +80,8 @@ func TestBadCerts(t *testing.T) {
 }
 
 func TestComms_RequestNotifications(t *testing.T) {
-	GatewayAddress := getGatewayAddress()
-	nbAddress := getNextBotAddress()
+	GatewayAddress := getNextAddress()
+	nbAddress := getNextAddress()
 	testId := "test"
 
 	gw := gateway.StartGateway("test", GatewayAddress, gateway.NewImplementation(), nil,
