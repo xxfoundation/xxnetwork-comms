@@ -298,8 +298,14 @@ message AuthenticatedMessage {
     string ID = 1;
     bytes Signature = 2;
     bytes Token = 3;
-    string PublicKey = 4;
+    ClientID Client = 4;
     google.protobuf.Any Message = 5;
+}
+
+// Message used for assembly of Client IDs in the system
+message ClientID {
+    bytes Salt = 1;
+    string PublicKey = 2;
 }
 
 // Provides a token to establish reverse identity to any type of client
