@@ -15,7 +15,7 @@ import (
 
 // Smoke test SendRegistrationMessage
 func TestSendRegistrationMessage(t *testing.T) {
-	GatewayAddress := getNextGatewayAddress()
+	GatewayAddress := getNextAddress()
 	rg := registration.StartRegistrationServer("test", GatewayAddress,
 		registration.NewImplementation(), nil, nil)
 	defer rg.Shutdown()
@@ -36,7 +36,7 @@ func TestSendRegistrationMessage(t *testing.T) {
 
 // Smoke test SendCheckClientVersion
 func TestSendCheckClientVersionMessage(t *testing.T) {
-	GatewayAddress := getNextGatewayAddress()
+	GatewayAddress := getNextAddress()
 	rg := registration.StartRegistrationServer("test", GatewayAddress,
 		registration.NewImplementation(), nil, nil)
 	defer rg.Shutdown()
@@ -57,7 +57,7 @@ func TestSendCheckClientVersionMessage(t *testing.T) {
 
 //Smoke test RequestNdf
 func TestSendGetUpdatedNDF(t *testing.T) {
-	GatewayAddress := getNextGatewayAddress()
+	GatewayAddress := getNextAddress()
 	rg := registration.StartRegistrationServer("test", GatewayAddress,
 		registration.NewImplementation(), nil, nil)
 	defer rg.Shutdown()
