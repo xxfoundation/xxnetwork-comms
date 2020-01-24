@@ -95,3 +95,16 @@ func (g *Comms) ConfirmNonce(ctx context.Context,
 
 	return g.handler.ConfirmNonce(msg, addr)
 }
+
+// Ping gateway to ask for users to notify
+func (g *Comms) PollForNotifications(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.IDList, error) {
+
+	authState := g.AuthenticatedReceiver(msg)
+
+	ids, err := g.handler.PollForNotifications(authState)
+	returnMsg := &pb.IDList{}
+	if err == nil {
+		returnMsg.IDs = ids
+	}
+	return returnMsg, err
+}

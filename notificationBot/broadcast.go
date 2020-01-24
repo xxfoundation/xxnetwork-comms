@@ -6,8 +6,13 @@
 package notificationBot
 
 import (
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/any"
+	"github.com/pkg/errors"
+	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
+	"google.golang.org/grpc"
 )
 
 // NotificationBot -> Permissioning
@@ -17,9 +22,8 @@ func (nb *Comms) RequestNdf(host *connect.Host, message *pb.NDFHash) (*pb.NDF, e
 	return nb.ProtoComms.RequestNdf(host, message)
 }
 
-/* TODO: Uncomment when XX-1777 is done (Add PollForNotifications to Gateways)
 // Notification Bot -> Gateway
-func (nb *Comms) PollNotifications(host *connect.Host, message *pb.Ping) (*pb.IDList, error) {
+func (nb *Comms) RequestNotifications(host *connect.Host, message *pb.Ping) (*pb.IDList, error) {
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
@@ -30,9 +34,9 @@ func (nb *Comms) PollNotifications(host *connect.Host, message *pb.Ping) (*pb.ID
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
+
 		// Send the message
-		resultMsg, err := pb.GatewayClient(
-			conn).PollNotifications(ctx, authMsg)
+		resultMsg, err := pb.NewGatewayClient(conn).PollForNotifications(ctx, authMsg)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
@@ -50,6 +54,4 @@ func (nb *Comms) PollNotifications(host *connect.Host, message *pb.Ping) (*pb.ID
 	result := &pb.IDList{}
 	return result, ptypes.UnmarshalAny(resultMsg, result)
 
-
 }
-*/

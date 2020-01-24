@@ -8,6 +8,7 @@ package notificationBot
 import (
 	"fmt"
 	"gitlab.com/elixxir/comms/connect"
+	"gitlab.com/elixxir/comms/gateway"
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/registration"
 	"gitlab.com/elixxir/comms/testkeys"
@@ -39,6 +40,19 @@ func getRegistrationAddress() string {
 		registrationAddressLock.Unlock()
 	}()
 	return fmt.Sprintf("0.0.0.0:%d", registrationAddress)
+}
+
+var gatewayAddressLock sync.Mutex
+var gatewayAddress = 1700
+
+func getGatewayAddress() string {
+	gatewayAddressLock.Lock()
+	defer func() {
+		gatewayAddress++
+		gatewayAddressLock.Unlock()
+	}()
+	return fmt.Sprintf("0.0.0.0:%d", gatewayAddress)
+
 }
 
 // Tests whether the notifcationBot can be connected to and run an RPC with TLS enabled
@@ -89,4 +103,29 @@ func TestBadCerts(t *testing.T) {
 	// This should panic and cause the defer func above to run
 	_ = StartNotificationBot("test", Address, NewImplementation(),
 		[]byte("bad cert"), []byte("bad key"))
+}
+
+func TestComms_RequestNotifications(t *testing.T) {
+	GatewayAddress := getGatewayAddress()
+	nbAddress := getNextBotAddress()
+	testId := "test"
+
+	gw := gateway.StartGateway("test", GatewayAddress, gateway.NewImplementation(), nil,
+		nil)
+	notificationBot := StartNotificationBot("test", nbAddress, NewImplementation(),
+		nil, nil)
+	defer gw.Shutdown()
+	defer notificationBot.Shutdown()
+	var manager connect.Manager
+
+	host, err := manager.AddHost(testId, GatewayAddress, nil, false, false)
+	if err != nil {
+		t.Errorf("Unable to call NewHost: %+v", err)
+	}
+
+	_, err = notificationBot.RequestNotifications(host, &mixmessages.Ping{})
+	if err != nil {
+		t.Errorf("SendGetSignedCertMessage: Error received: %s", err)
+	}
+
 }
