@@ -134,6 +134,6 @@ func TestPollForNotifications(t *testing.T) {
 	// Run comm
 	_, err = notificationBot.PollForNotifications(ctx, authMsg)
 	if err != nil {
-		t.Errorf("Failed to unregister: %+v", err)
+		t.Errorf("Failed to poll: %+v", err)
 	}
 }
