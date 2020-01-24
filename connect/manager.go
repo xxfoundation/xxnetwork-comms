@@ -41,9 +41,14 @@ func (m *Manager) AddHost(id, address string,
 		return nil, err
 	}
 
-	jww.DEBUG.Printf("Adding host: %+v", host)
-	m.connections.Store(id, host)
+	m.addHost(host)
 	return
+}
+
+// Internal helper function that can add Hosts directly
+func (m *Manager) addHost(host *Host) {
+	jww.DEBUG.Printf("Adding host: %+v", host)
+	m.connections.Store(host.id, host)
 }
 
 // Closes all client connections and removes them from Manager

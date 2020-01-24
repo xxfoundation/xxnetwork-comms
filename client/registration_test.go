@@ -19,7 +19,7 @@ func TestSendRegistrationMessage(t *testing.T) {
 	rg := registration.StartRegistrationServer("test", GatewayAddress,
 		registration.NewImplementation(), nil, nil)
 	defer rg.Shutdown()
-	c := NewClientComms("client")
+	c := NewClientComms("client", nil, nil)
 	var manager connect.Manager
 
 	testId := "test"
@@ -40,7 +40,7 @@ func TestSendCheckClientVersionMessage(t *testing.T) {
 	rg := registration.StartRegistrationServer("test", GatewayAddress,
 		registration.NewImplementation(), nil, nil)
 	defer rg.Shutdown()
-	c := NewClientComms("client")
+	c := NewClientComms("client", nil, nil)
 	var manager connect.Manager
 
 	testId := "test"
@@ -61,7 +61,7 @@ func TestSendGetUpdatedNDF(t *testing.T) {
 	rg := registration.StartRegistrationServer("test", GatewayAddress,
 		registration.NewImplementation(), nil, nil)
 	defer rg.Shutdown()
-	c := NewClientComms("client")
+	c := NewClientComms("client", nil, nil)
 	var manager connect.Manager
 
 	testId := "test"
