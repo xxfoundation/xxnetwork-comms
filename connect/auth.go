@@ -19,14 +19,17 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/crypto/nonce"
+	"gitlab.com/elixxir/crypto/registration"
 	"gitlab.com/elixxir/crypto/signature/rsa"
 	"google.golang.org/grpc/metadata"
 )
 
 // Auth represents an authorization state for a message or host
 type Auth struct {
+	// Indicates whether authentication was successful
 	IsAuthenticated bool
-	Sender          *Host
+	// The information about the Host that sent the authenticated communication
+	Sender *Host
 }
 
 // Perform the client handshake to establish reverse-authentication
@@ -118,18 +121,54 @@ func (c *ProtoComms) GenerateToken() ([]byte, error) {
 	return token.Bytes(), nil
 }
 
+// Performs the dynamic authentication process such that Hosts that were not
+// already added to the Manager can establish authentication
+func (c *ProtoComms) dynamicAuth(msg *pb.AuthenticatedMessage) (
+	host *Host, err error) {
+
+	// Process the public key
+	pubKey, err := rsa.LoadPublicKeyFromPem([]byte(msg.Client.PublicKey))
+	if err != nil {
+		return nil, errors.New(err.Error())
+	}
+
+	// Generate the UserId from supplied Client information
+	uid := registration.GenUserID(pubKey, msg.Client.Salt)
+
+	// Verify the Id provided correctly matches the generated Id
+	if msg.ID != uid.String() {
+		return nil, errors.Errorf(
+			"Provided ID does not match. Expected: %s, Actual: %s",
+			uid.String(), msg.ID)
+	}
+
+	// Create and add the new host to the manager
+	host, err = newDynamicHost(uid.String(), []byte(msg.Client.PublicKey))
+	if err != nil {
+		return
+	}
+	c.addHost(host)
+	return
+}
+
 // Validates a signed token using internal state
-func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) error {
+func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) (err error) {
 
 	// Verify the Host exists for the provided ID
 	host, ok := c.GetHost(msg.ID)
 	if !ok {
-		return errors.Errorf("Invalid host ID: %+v", msg.ID)
+		// If the host does not already exist, attempt dynamic authentication
+		jww.DEBUG.Printf("Attempting dynamic authentication: %s", msg.ID)
+		host, err = c.dynamicAuth(msg)
+		if err != nil {
+			return errors.Errorf(
+				"Unable to complete dynamic authentication: %+v", err)
+		}
 	}
 
 	// This logic prevents deadlocks when performing authentication with self
-	// TODO: This may require further review in the future
-	if msg.ID != c.id || bytes.Compare(host.token, msg.Token) != 0 {
+	// TODO: This may require further review
+	if msg.ID != c.Id || bytes.Compare(host.token, msg.Token) != 0 {
 		host.mux.Lock()
 		defer host.mux.Unlock()
 	}
@@ -143,7 +182,7 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) error {
 
 	// Get the signed token
 	tokenMsg := &pb.AssignToken{}
-	err := ptypes.UnmarshalAny(msg.Message, tokenMsg)
+	err = ptypes.UnmarshalAny(msg.Message, tokenMsg)
 	if err != nil {
 		return errors.Errorf("Unable to unmarshal token: %+v", err)
 	}
@@ -162,35 +201,38 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) error {
 	// Token has been validated and can be safely stored
 	host.token = tokenMsg.Token
 	jww.DEBUG.Printf("Token validated: %v", tokenMsg.Token)
-	return nil
+	return
 }
 
 // AuthenticatedReceiver handles reception of an AuthenticatedMessage,
 // checking if the host is authenticated & returning an Auth state
 func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) *Auth {
-	res := &Auth{
-		IsAuthenticated: false,
-		Sender:          &Host{},
-	}
 
 	// Try to obtain the Host for the specified ID
 	host, ok := c.GetHost(msg.ID)
-	if ok {
-		// If host is found, mutex must be locked
-		host.mux.RLock()
-		defer host.mux.RUnlock()
+	if !ok {
+		return &Auth{
+			IsAuthenticated: false,
+			Sender:          &Host{},
+		}
 	}
+
+	// If host is found, mutex must be locked
+	host.mux.RLock()
+	defer host.mux.RUnlock()
 
 	// Check the token's validity
-	validToken := ok && host.token != nil && msg.Token != nil &&
+	validToken := host.token != nil && msg.Token != nil &&
 		bytes.Compare(host.token, msg.Token) == 0
-	if ok && validToken {
-		res.Sender = host
-		res.IsAuthenticated = true
+
+	// Assemble the Auth object
+	res := &Auth{
+		IsAuthenticated: validToken,
+		Sender:          host,
 	}
 
-	jww.DEBUG.Printf("Authentication status: %v, ValidId: %v, ValidToken: %v, ProvidedId: %v ProvidedToken: %v",
-		res.IsAuthenticated, ok, validToken, msg.ID, msg.Token)
+	jww.DEBUG.Printf("Authentication status: %v, ProvidedId: %v ProvidedToken: %v",
+		res.IsAuthenticated, msg.ID, msg.Token)
 	return res
 }
 
