@@ -3,6 +3,9 @@
 //                                                                             /
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
+
+// Contains notificationBot -> all servers functionality
+
 package notificationBot
 
 import (

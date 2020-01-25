@@ -3,6 +3,9 @@
 //                                                                             /
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
+
+// Contains notificationBot gRPC endpoints
+
 package notificationBot
 
 import (

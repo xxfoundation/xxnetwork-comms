@@ -3,6 +3,9 @@
 //                                                                             /
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
+
+// Contains callback interface for notificationBot functionality
+
 package notificationBot
 
 import (
