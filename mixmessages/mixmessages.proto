@@ -328,10 +328,6 @@ service NotificationBot {
     // Register clients from push notifications
     rpc RegisterForNotifications (AuthenticatedMessage) returns (Ack) {
     }
-
-    // Polls for notifications from gateways
-    rpc PollForNotifications (AuthenticatedMessage) returns (IDList) {
-    }
 }
 
 // Registration token to be associated with the client
