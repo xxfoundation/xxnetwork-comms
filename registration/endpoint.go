@@ -16,7 +16,6 @@ import (
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"golang.org/x/net/context"
-	"net"
 )
 
 // Handles validation of reverse-authentication tokens
