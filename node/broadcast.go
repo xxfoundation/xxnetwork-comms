@@ -57,10 +57,8 @@ func (s *Comms) SendAskOnline(host *connect.Host) (*pb.Ack, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
-		// Set up the context, and note that this is a custom
-		// timeout because we want it to error out quickly
-		ctx, cancel := context.WithTimeout(context.Background(),
-			3*time.Second)
+		// Set up the context
+		ctx, cancel := connect.MessagingContext()
 		defer cancel()
 
 		// Send the message
