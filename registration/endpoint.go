@@ -16,7 +16,6 @@ import (
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"golang.org/x/net/context"
-	"net"
 )
 
 // Handles validation of reverse-authentication tokens
@@ -75,22 +74,22 @@ func (r *Comms) GetCurrentClientVersion(ctx context.Context, ping *pb.Ping) (*pb
 func (r *Comms) RegisterNode(ctx context.Context, msg *pb.NodeRegistration) (
 	*pb.Ack, error) {
 
-	// Obtain peer IP address
+	// Infer peer IP address (do not use msg.GetServerAddress())
 	ip, _, err := connect.GetAddressFromContext(ctx)
 	if err != nil {
 		return &pb.Ack{}, err
 	}
 
-	// Obtain local IP address
-	_, port, err := net.SplitHostPort(r.ListeningAddr)
-	if err != nil {
-		return &pb.Ack{}, err
-	}
-	address := fmt.Sprintf("%s:%s", ip, port)
+	port := msg.GetServerPort()
+	address := fmt.Sprintf("%s:%d", ip, port)
+
+	gwAddress := fmt.Sprintf("%s:%d", msg.GetGatewayAddress(),
+		msg.GetGatewayPort())
 
 	// Pass information for Node registration
-	err = r.handler.RegisterNode(msg.GetID(), address, msg.GetServerTlsCert(),
-		msg.GetGatewayAddress(), msg.GetGatewayTlsCert(),
+	err = r.handler.RegisterNode(msg.GetID(), address,
+		msg.GetServerTlsCert(),
+		gwAddress, msg.GetGatewayTlsCert(),
 		msg.GetRegistrationCode())
 	return &pb.Ack{}, err
 }
