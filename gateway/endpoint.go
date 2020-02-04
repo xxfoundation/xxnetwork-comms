@@ -15,6 +15,20 @@ import (
 	"golang.org/x/net/context"
 )
 
+// Handles validation of reverse-authentication tokens
+func (s *Comms) AuthenticateToken(ctx context.Context,
+	msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
+	return &pb.Ack{}, s.ValidateToken(msg)
+}
+
+// Handles reception of reverse-authentication token requests
+func (s *Comms) RequestToken(context.Context, *pb.Ping) (*pb.AssignToken, error) {
+	token, err := s.GenerateToken()
+	return &pb.AssignToken{
+		Token: token,
+	}, err
+}
+
 // Sends new MessageIDs in the buffer to a client
 func (g *Comms) CheckMessages(ctx context.Context,
 	msg *pb.ClientRequest) (*pb.IDList, error) {
