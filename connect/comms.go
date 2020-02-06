@@ -148,8 +148,8 @@ authenticate:
 		}
 	}
 	result, err = host.send(f)
-	// If failed to authenticate
 
+	// If failed to authenticate, retry negotiation
 	if err != nil && strings.Contains(err.Error(), "Failed to authenticate") && numTries > 0 {
 		jww.WARN.Printf("Failed to authenticate, %d retries left", numTries)
 		goto authenticate
