@@ -18,6 +18,7 @@ import (
 	"google.golang.org/grpc/credentials"
 	"math"
 	"net"
+	"strings"
 	"sync"
 	"time"
 )
@@ -128,13 +129,16 @@ func (c *ProtoComms) Send(host *Host, f func(conn *grpc.ClientConn) (*any.Any,
 	error)) (result *any.Any, err error) {
 
 	// Ensure the connection is running
-	jww.DEBUG.Printf("Attempting to send to host: %s", host)
 	if !host.Connected() {
 		err = host.connect()
 		if err != nil {
 			return
 		}
 	}
+	numTries := 1
+
+authenticate:
+	numTries--
 
 	//establish authentication if required
 	if host.authenticationRequired() {
@@ -143,9 +147,16 @@ func (c *ProtoComms) Send(host *Host, f func(conn *grpc.ClientConn) (*any.Any,
 			return
 		}
 	}
+	result, err = host.send(f)
+	// If failed to authenticate
+
+	if err != nil && strings.Contains(err.Error(), "Failed to authenticate") && numTries > 0 {
+		jww.WARN.Printf("Failed to authenticate, %d retries left", numTries)
+		goto authenticate
+	}
 
 	// Run the send function
-	return host.send(f)
+	return result, err
 }
 
 // Sets up or recovers the Host's connection
