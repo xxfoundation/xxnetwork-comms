@@ -97,7 +97,7 @@ func TestComms_RequestNotifications(t *testing.T) {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
 
-	_, err = notificationBot.RequestNotifications(host, &mixmessages.Ping{})
+	_, err = notificationBot.RequestNotifications(host)
 	if err != nil {
 		t.Errorf("SendGetSignedCertMessage: Error received: %s", err)
 	}

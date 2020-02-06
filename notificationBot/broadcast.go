@@ -26,14 +26,14 @@ func (nb *Comms) RequestNdf(host *connect.Host, message *pb.NDFHash) (*pb.NDF, e
 }
 
 // Notification Bot -> Gateway
-func (nb *Comms) RequestNotifications(host *connect.Host, message *pb.Ping) (*pb.IDList, error) {
+func (nb *Comms) RequestNotifications(host *connect.Host) (*pb.IDList, error) {
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
 
-		authMsg, err := nb.PackAuthenticatedMessage(message, host, false)
+		authMsg, err := nb.PackAuthenticatedMessage(&pb.Ping{}, host, false)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
@@ -47,7 +47,7 @@ func (nb *Comms) RequestNotifications(host *connect.Host, message *pb.Ping) (*pb
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Request Notification message: %+v", message)
+	jww.DEBUG.Printf("Sending Request Notification message")
 	resultMsg, err := nb.Send(host, f)
 	if err != nil {
 		return nil, err
