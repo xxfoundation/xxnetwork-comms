@@ -55,15 +55,14 @@ func (c *Comms) RegisterForNotifications(host *connect.Host,
 }
 
 // Client -> NotificationBot
-func (c *Comms) UnregisterForNotifications(host *connect.Host,
-	message *pb.NotificationToken) (*pb.Ack, error) {
+func (c *Comms) UnregisterForNotifications(host *connect.Host) (*pb.Ack, error) {
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
 
-		authMsg, err := c.PackAuthenticatedMessage(message, host, false)
+		authMsg, err := c.PackAuthenticatedMessage(&pb.Ping{}, host, false)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
@@ -78,7 +77,7 @@ func (c *Comms) UnregisterForNotifications(host *connect.Host,
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending UnregisterForNotification message: %+v", message)
+	jww.DEBUG.Printf("Sending UnregisterForNotification message")
 	resultMsg, err := c.Send(host, f)
 	if err != nil {
 		return nil, err

@@ -61,7 +61,7 @@ func TestUnregisterForNotifications(t *testing.T) {
 	}
 
 	// Unregister client with notification bot
-	_, err = c.UnregisterForNotifications(host, &pb.NotificationToken{})
+	_, err = c.UnregisterForNotifications(host)
 	if err != nil {
 		t.Errorf("RegistrationMessage: Error received: %s", err)
 	}
