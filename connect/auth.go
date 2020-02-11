@@ -126,6 +126,11 @@ func (c *ProtoComms) GenerateToken() ([]byte, error) {
 func (c *ProtoComms) dynamicAuth(msg *pb.AuthenticatedMessage) (
 	host *Host, err error) {
 
+	// Verify the client is attempting a dynamic authentication
+	if msg.Client == nil {
+		return nil, errors.New("Invalid dynamic authentication attempt!")
+	}
+
 	// Process the public key
 	pubKey, err := rsa.LoadPublicKeyFromPem([]byte(msg.Client.PublicKey))
 	if err != nil {
