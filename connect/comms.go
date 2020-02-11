@@ -146,8 +146,8 @@ func (c *ProtoComms) Send(host *Host, f func(conn *grpc.ClientConn) (*any.Any,
 	numTries := 1
 
 	// Authentication loop
-authenticate:
-	numTries--
+	authenticate:
+		numTries--
 
 	// Establish authentication if required
 	if host.authenticationRequired() {
@@ -234,15 +234,19 @@ func (c *ProtoComms) RequestNdf(host *Host,
 // PollNdf, attempts to connect to the permissioning server to retrieve the latest ndf for the notifications bot
 func (comms *ProtoComms) PollNdf(currentDef *ndf.NetworkDefinition) (*ndf.NetworkDefinition, error) {
 	//Hash the notifications bot ndf for comparison with registration's ndf
-	hash := sha256.New()
-	ndfBytes := currentDef.Serialize()
-	hash.Write(ndfBytes)
-	ndfHash := hash.Sum(nil)
-
+	var ndfHash []byte
+	// If the ndf passed not nil, serialize and hash it
+	if currentDef != nil {
+		//Hash the notifications bot ndf for comparison with registration's ndf
+		hash := sha256.New()
+		ndfBytes := currentDef.Serialize()
+		hash.Write(ndfBytes)
+		ndfHash = hash.Sum(nil)
+	}
 	//Put the hash in a message
 	msg := &mixmessages.NDFHash{Hash: ndfHash}
 
-	regHost, ok := comms.GetHost(id.PERMISSIONING)
+	regHost, ok := comms.Manager.GetHost(id.PERMISSIONING)
 	if !ok {
 		return nil, errors.New("Failed to find permissioning host")
 	}
