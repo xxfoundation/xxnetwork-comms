@@ -9,6 +9,7 @@
 package connect
 
 import (
+	"crypto/sha256"
 	"crypto/tls"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
@@ -16,6 +17,8 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/crypto/signature/rsa"
+	"gitlab.com/elixxir/primitives/id"
+	"gitlab.com/elixxir/primitives/ndf"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"math"
@@ -226,4 +229,51 @@ func (c *ProtoComms) RequestNdf(host *Host,
 	result := &mixmessages.NDF{}
 	return result, ptypes.UnmarshalAny(resultMsg, result)
 
+}
+
+// PollNdf, attempts to connect to the permissioning server to retrieve the latest ndf for the notifications bot
+func (comms *ProtoComms) PollNdf(currentDef *ndf.NetworkDefinition) (*ndf.NetworkDefinition, error) {
+	//Hash the notifications bot ndf for comparison with registration's ndf
+	hash := sha256.New()
+	ndfBytes := currentDef.Serialize()
+	hash.Write(ndfBytes)
+	ndfHash := hash.Sum(nil)
+
+	//Put the hash in a message
+	msg := &mixmessages.NDFHash{Hash: ndfHash}
+
+	regHost, ok := comms.GetHost(id.PERMISSIONING)
+	if !ok {
+		return nil, errors.New("Failed to find permissioning host")
+	}
+
+	//Send the hash to registration
+	response, err := comms.RequestNdf(regHost, msg)
+	if err != nil {
+		for err != nil && strings.Contains(err.Error(), ndf.NO_NDF) {
+			jww.WARN.Println("Failed to get an ndf, possibly not ready yet. Retying now...")
+			time.Sleep(50 * time.Millisecond)
+			response, err = comms.RequestNdf(regHost, msg)
+		}
+		// If it is not an issue with no ndf, return the error up the stack
+		errMsg := errors.Errorf("Failed to get ndf from permissioning: %v", err)
+		return nil, errMsg
+	}
+
+	//If there was no error and the response is nil, client's ndf is up-to-date
+	if response == nil || response.Ndf == nil {
+		jww.DEBUG.Printf("Notification Bot NDF up-to-date")
+		return nil, nil
+	}
+
+	jww.INFO.Printf("Remote NDF: %s", string(response.Ndf))
+
+	//Otherwise pull the ndf out of the response
+	updatedNdf, _, err := ndf.DecodeNDF(string(response.Ndf))
+	if err != nil {
+		//If there was an error decoding ndf
+		errMsg := errors.Errorf("Failed to decode response to ndf: %v", err)
+		return nil, errMsg
+	}
+	return updatedNdf, nil
 }
