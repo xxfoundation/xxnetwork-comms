@@ -27,7 +27,7 @@ func (c *Comms) RegisterForNotifications(host *connect.Host,
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
 
-		authMsg, err := c.PackAuthenticatedMessage(message, host, false)
+		authMsg, err := c.PackAuthenticatedClientMessage(message, host, false)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
@@ -62,7 +62,7 @@ func (c *Comms) UnregisterForNotifications(host *connect.Host) (*pb.Ack, error) 
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
 
-		authMsg, err := c.PackAuthenticatedMessage(&pb.Ping{}, host, false)
+		authMsg, err := c.PackAuthenticatedClientMessage(&pb.Ping{}, host, false)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
