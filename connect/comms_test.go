@@ -38,7 +38,7 @@ func TestProtoComms_PollNdf(t *testing.T) {
 	GetHostErrBool = false
 	RequestNdfErr = nil
 
-	_, err = comms.PollNdf(newNdf)
+	_, err = comms.RetrieveNdf(newNdf)
 
 	if err == nil {
 		t.Errorf("GetHost should have failed but it didnt't: %+v", err)
@@ -52,7 +52,7 @@ func TestProtoComms_PollNdf(t *testing.T) {
 	RequestNdfErr = nil
 	GetHostErrBool = true
 	NdfToreturn.Ndf = []byte(ExampleBadNdfJSON)
-	_, err = comms.PollNdf(newNdf)
+	_, err = comms.RetrieveNdf(newNdf)
 
 	if err == nil {
 		t.Logf("RequestNdf should have failed to parse bad ndf: %+v", err)
@@ -67,7 +67,7 @@ func TestProtoComms_PollNdf(t *testing.T) {
 	RequestNdfErr = nil
 	GetHostErrBool = true
 	NdfToreturn.Ndf = []byte(ExampleNdfJSON)
-	_, err = comms.PollNdf(newNdf)
+	_, err = comms.RetrieveNdf(newNdf)
 	//comms.mockManager.AddHost()
 	if err != nil {
 		t.Logf("Ndf failed to parse: %+v", err)
@@ -96,7 +96,7 @@ func TestProtoComms_PollNdfRepeatedly(t *testing.T) {
 	newNdf := &ndf.NetworkDefinition{}
 
 	// This should hit the loop until the number of retries is satisfied in the error handler
-	_, err = comms.PollNdf(newNdf)
+	_, err = comms.RetrieveNdf(newNdf)
 	if err != nil {
 		t.Errorf("Expected error case, should not return non-error until attempt #5")
 	}

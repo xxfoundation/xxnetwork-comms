@@ -231,8 +231,8 @@ func (c *ProtoComms) RequestNdf(host *Host,
 
 }
 
-// PollNdf, attempts to connect to the permissioning server to retrieve the latest ndf for the notifications bot
-func (c *ProtoComms) PollNdf(currentDef *ndf.NetworkDefinition) (*ndf.NetworkDefinition, error) {
+// RetrieveNdf, attempts to connect to the permissioning server to retrieve the latest ndf for the notifications bot
+func (c *ProtoComms) RetrieveNdf(currentDef *ndf.NetworkDefinition) (*ndf.NetworkDefinition, error) {
 	//Hash the notifications bot ndf for comparison with registration's ndf
 	var ndfHash []byte
 	// If the ndf passed not nil, serialize and hash it
