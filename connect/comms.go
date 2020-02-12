@@ -272,7 +272,7 @@ func (c *ProtoComms) PollNdf(currentDef *ndf.NetworkDefinition) (*ndf.NetworkDef
 
 	//If there was no error and the response is nil, client's ndf is up-to-date
 	if response == nil || response.Ndf == nil {
-		jww.DEBUG.Printf("Notification Bot NDF up-to-date")
+		jww.DEBUG.Printf("Our NDF is up-to-date")
 		return nil, nil
 	}
 
