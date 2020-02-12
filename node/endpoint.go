@@ -254,7 +254,7 @@ func (s *Comms) GetMeasure(ctx context.Context, msg *pb.AuthenticatedMessage) (*
 	return rm, err
 }
 
-func (s *Comms) SupplyNdf(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.GatewayNdf, error) {
+func (s *Comms) DemandNdf(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.GatewayNdf, error) {
 	authState := s.AuthenticatedReceiver(msg)
 	//Unmarshall the any message to the message type needed
 	pingMsg := &pb.Ping{}

@@ -1853,7 +1853,7 @@ type NodeServer interface {
 	//
 	GetMeasure(context.Context, *AuthenticatedMessage) (*RoundMetrics, error)
 	// Gateway -> Server polling for NDF
-	SupplyNdf(context.Context, *AuthenticatedMessage) (*GatewayNdf, error)
+	DemandNdf(context.Context, *AuthenticatedMessage) (*GatewayNdf, error)
 	// Round trip ping comm
 	SendRoundTripPing(context.Context, *AuthenticatedMessage) (*Ack, error)
 }
@@ -1901,7 +1901,7 @@ func (*UnimplementedNodeServer) GetCompletedBatch(ctx context.Context, req *Auth
 func (*UnimplementedNodeServer) GetMeasure(ctx context.Context, req *AuthenticatedMessage) (*RoundMetrics, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMeasure not implemented")
 }
-func (*UnimplementedNodeServer) SupplyNdf(ctx context.Context, req *AuthenticatedMessage) (*GatewayNdf, error) {
+func (*UnimplementedNodeServer) DemandNdf(ctx context.Context, req *AuthenticatedMessage) (*GatewayNdf, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SupplyNdf not implemented")
 }
 func (*UnimplementedNodeServer) SendRoundTripPing(ctx context.Context, req *AuthenticatedMessage) (*Ack, error) {
@@ -2160,14 +2160,14 @@ func _Node_SupplyNdf_Handler(srv interface{}, ctx context.Context, dec func(inte
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(NodeServer).SupplyNdf(ctx, in)
+		return srv.(NodeServer).DemandNdf(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
 		FullMethod: "/mixmessages.Node/SupplyNdf",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NodeServer).SupplyNdf(ctx, req.(*AuthenticatedMessage))
+		return srv.(NodeServer).DemandNdf(ctx, req.(*AuthenticatedMessage))
 	}
 	return interceptor(ctx, in, info, handler)
 }

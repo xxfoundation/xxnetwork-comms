@@ -129,7 +129,7 @@ type implementationFunctions struct {
 
 	GetCompletedBatch func(auth *connect.Auth) (*mixmessages.Batch, error)
 
-	PollNdf func(ping *mixmessages.Ping, auth *connect.Auth) (*mixmessages.GatewayNdf, error)
+	SupplyNdf func(ping *mixmessages.Ping, auth *connect.Auth) (*mixmessages.GatewayNdf, error)
 
 	SendRoundTripPing func(ping *mixmessages.RoundTripPing, auth *connect.Auth) error
 
@@ -204,7 +204,7 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return &mixmessages.Batch{}, nil
 			},
-			PollNdf: func(ping *mixmessages.Ping, auth *connect.Auth) (certs *mixmessages.GatewayNdf,
+			SupplyNdf: func(ping *mixmessages.Ping, auth *connect.Auth) (certs *mixmessages.GatewayNdf,
 				e error) {
 				warn(um)
 				return &mixmessages.GatewayNdf{}, nil
@@ -283,7 +283,7 @@ func (s *Implementation) GetCompletedBatch(auth *connect.Auth) (*mixmessages.Bat
 
 func (s *Implementation) SupplyNdf(ping *mixmessages.Ping, auth *connect.Auth) (*mixmessages.
 	GatewayNdf, error) {
-	return s.Functions.PollNdf(ping, auth)
+	return s.Functions.SupplyNdf(ping, auth)
 }
 
 func (s *Implementation) SendRoundTripPing(ping *mixmessages.RoundTripPing, auth *connect.Auth) error {
