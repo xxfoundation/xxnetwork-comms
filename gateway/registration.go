@@ -101,7 +101,7 @@ func (g *Comms) PollNdf(host *connect.Host) (*pb.GatewayNdf, error) {
 		}
 
 		// Send the message
-		resultMsg, err := pb.NewNodeClient(conn).SupplyNdf(ctx, authMsg)
+		resultMsg, err := pb.NewNodeClient(conn).PollNdf(ctx, authMsg)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
