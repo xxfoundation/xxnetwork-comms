@@ -254,7 +254,7 @@ func (s *Comms) GetMeasure(ctx context.Context, msg *pb.AuthenticatedMessage) (*
 	return rm, err
 }
 
-func (s *Comms) PollNdf(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.GatewayNdf, error) {
+func (s *Comms) SupplyNdf(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.GatewayNdf, error) {
 	authState := s.AuthenticatedReceiver(msg)
 	//Unmarshall the any message to the message type needed
 	pingMsg := &pb.Ping{}
@@ -263,7 +263,7 @@ func (s *Comms) PollNdf(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.
 		return nil, err
 	}
 
-	rm, err := s.handler.PollNdf(pingMsg, authState)
+	rm, err := s.handler.SupplyNdf(pingMsg, authState)
 	return rm, err
 }
 

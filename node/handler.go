@@ -89,7 +89,7 @@ type Handler interface {
 	// GetCompletedBatch: gateway uses completed batch from the server
 	GetCompletedBatch(auth *connect.Auth) (*mixmessages.Batch, error)
 
-	PollNdf(ping *mixmessages.Ping, auth *connect.Auth) (*mixmessages.GatewayNdf, error)
+	SupplyNdf(ping *mixmessages.Ping, auth *connect.Auth) (*mixmessages.GatewayNdf, error)
 
 	SendRoundTripPing(ping *mixmessages.RoundTripPing, auth *connect.Auth) error
 
@@ -281,7 +281,7 @@ func (s *Implementation) GetCompletedBatch(auth *connect.Auth) (*mixmessages.Bat
 	return s.Functions.GetCompletedBatch(auth)
 }
 
-func (s *Implementation) PollNdf(ping *mixmessages.Ping, auth *connect.Auth) (*mixmessages.
+func (s *Implementation) SupplyNdf(ping *mixmessages.Ping, auth *connect.Auth) (*mixmessages.
 	GatewayNdf, error) {
 	return s.Functions.PollNdf(ping, auth)
 }

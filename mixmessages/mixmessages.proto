@@ -68,7 +68,7 @@ service Node {
     }
 
     // Gateway -> Server polling for NDF
-    rpc PollNdf (AuthenticatedMessage) returns (GatewayNdf) {
+    rpc SupplyNdf (AuthenticatedMessage) returns (GatewayNdf) {
     }
 
     // Round trip ping comm
