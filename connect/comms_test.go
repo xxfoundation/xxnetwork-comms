@@ -20,20 +20,6 @@ var RegistrationHandler = &MockRegistration{}
 var RegistrationError = &MockRegistrationError{}
 var Retries = 0
 
-/*
-func testAsynch(t testing.T){
-	RequestNdfErr = errors.New("Permissioning server does not have an ndf to give to client")
-	GetHostErrBool = true
-	testNdf ,err := comms.PollNdf(newNdf)
-
-	if err != nil && testNdf != nil {
-		t.Logf("RequestNdf should have returned nil for everything because there is no new ndf but didnt")
-		t.Fail()
-	}
-}
-
-*/
-
 // Test that Poll NDF handles all comms errors returned properly, and that it decodes and successfully returns an ndf
 func TestProtoComms_PollNdf(t *testing.T) {
 
