@@ -87,7 +87,7 @@ func TestDemandNdf(t *testing.T) {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
 
-	_, err = gateway.DemndNdf(host)
+	_, err = gateway.PollNdf(host)
 	if err != nil {
 		t.Errorf("TestDemandNdf: Error received: %s", err)
 	}

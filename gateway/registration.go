@@ -87,7 +87,7 @@ func (g *Comms) SendConfirmNonceMessage(host *connect.Host,
 }
 
 // Gateway -> Server Send Function
-func (g *Comms) DemndNdf(host *connect.Host) (*pb.GatewayNdf, error) {
+func (g *Comms) PollNdf(host *connect.Host) (*pb.GatewayNdf, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {

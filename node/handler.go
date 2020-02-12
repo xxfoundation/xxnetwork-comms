@@ -89,7 +89,7 @@ type Handler interface {
 	// GetCompletedBatch: gateway uses completed batch from the server
 	GetCompletedBatch(auth *connect.Auth) (*mixmessages.Batch, error)
 
-	SupplyNdf(ping *mixmessages.Ping, auth *connect.Auth) (*mixmessages.GatewayNdf, error)
+	PollNdf(ping *mixmessages.Ping, auth *connect.Auth) (*mixmessages.GatewayNdf, error)
 
 	SendRoundTripPing(ping *mixmessages.RoundTripPing, auth *connect.Auth) error
 
@@ -129,7 +129,7 @@ type implementationFunctions struct {
 
 	GetCompletedBatch func(auth *connect.Auth) (*mixmessages.Batch, error)
 
-	SupplyNdf func(ping *mixmessages.Ping, auth *connect.Auth) (*mixmessages.GatewayNdf, error)
+	PollNdf func(ping *mixmessages.Ping, auth *connect.Auth) (*mixmessages.GatewayNdf, error)
 
 	SendRoundTripPing func(ping *mixmessages.RoundTripPing, auth *connect.Auth) error
 
@@ -204,7 +204,7 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return &mixmessages.Batch{}, nil
 			},
-			SupplyNdf: func(ping *mixmessages.Ping, auth *connect.Auth) (certs *mixmessages.GatewayNdf,
+			PollNdf: func(ping *mixmessages.Ping, auth *connect.Auth) (certs *mixmessages.GatewayNdf,
 				e error) {
 				warn(um)
 				return &mixmessages.GatewayNdf{}, nil
@@ -281,9 +281,9 @@ func (s *Implementation) GetCompletedBatch(auth *connect.Auth) (*mixmessages.Bat
 	return s.Functions.GetCompletedBatch(auth)
 }
 
-func (s *Implementation) SupplyNdf(ping *mixmessages.Ping, auth *connect.Auth) (*mixmessages.
+func (s *Implementation) PollNdf(ping *mixmessages.Ping, auth *connect.Auth) (*mixmessages.
 	GatewayNdf, error) {
-	return s.Functions.SupplyNdf(ping, auth)
+	return s.Functions.PollNdf(ping, auth)
 }
 
 func (s *Implementation) SendRoundTripPing(ping *mixmessages.RoundTripPing, auth *connect.Auth) error {
