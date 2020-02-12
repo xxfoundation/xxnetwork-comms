@@ -69,7 +69,7 @@ func TestSendConfirmNonceMessage(t *testing.T) {
 	}
 }
 
-func TestDemandNdf(t *testing.T) {
+func TestPollNdf(t *testing.T) {
 	GatewayAddress := getNextGatewayAddress()
 	ServerAddress := getNextServerAddress()
 
