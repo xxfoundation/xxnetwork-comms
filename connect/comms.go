@@ -146,8 +146,8 @@ func (c *ProtoComms) Send(host *Host, f func(conn *grpc.ClientConn) (*any.Any,
 	numTries := 1
 
 	// Authentication loop
-	authenticate:
-		numTries--
+authenticate:
+	numTries--
 
 	// Establish authentication if required
 	if host.authenticationRequired() {
@@ -232,7 +232,7 @@ func (c *ProtoComms) RequestNdf(host *Host,
 }
 
 // PollNdf, attempts to connect to the permissioning server to retrieve the latest ndf for the notifications bot
-func (comms *ProtoComms) PollNdf(currentDef *ndf.NetworkDefinition) (*ndf.NetworkDefinition, error) {
+func (c *ProtoComms) PollNdf(currentDef *ndf.NetworkDefinition) (*ndf.NetworkDefinition, error) {
 	//Hash the notifications bot ndf for comparison with registration's ndf
 	var ndfHash []byte
 	// If the ndf passed not nil, serialize and hash it
@@ -246,22 +246,28 @@ func (comms *ProtoComms) PollNdf(currentDef *ndf.NetworkDefinition) (*ndf.Networ
 	//Put the hash in a message
 	msg := &mixmessages.NDFHash{Hash: ndfHash}
 
-	regHost, ok := comms.Manager.GetHost(id.PERMISSIONING)
+	regHost, ok := c.Manager.GetHost(id.PERMISSIONING)
 	if !ok {
 		return nil, errors.New("Failed to find permissioning host")
 	}
 
 	//Send the hash to registration
-	response, err := comms.RequestNdf(regHost, msg)
-	if err != nil {
-		for err != nil && strings.Contains(err.Error(), ndf.NO_NDF) {
-			jww.WARN.Println("Failed to get an ndf, possibly not ready yet. Retying now...")
-			time.Sleep(50 * time.Millisecond)
-			response, err = comms.RequestNdf(regHost, msg)
+	response, err := c.RequestNdf(regHost, msg)
+
+	// Keep going until we get a grpc error or we get an ndf
+	for err != nil {
+		// If there is an unexpected error
+		if !strings.Contains(err.Error(), ndf.NO_NDF) {
+			// If it is not an issue with no ndf, return the error up the stack
+			errMsg := errors.Errorf("Failed to get ndf from permissioning: %v", err)
+			return nil, errMsg
 		}
-		// If it is not an issue with no ndf, return the error up the stack
-		errMsg := errors.Errorf("Failed to get ndf from permissioning: %v", err)
-		return nil, errMsg
+
+		// If the error is that the permissioning server is not ready, ask again
+		jww.WARN.Println("Failed to get an ndf, possibly not ready yet. Retying now...")
+		time.Sleep(250 * time.Millisecond)
+		response, err = c.RequestNdf(regHost, msg)
+
 	}
 
 	//If there was no error and the response is nil, client's ndf is up-to-date

@@ -15,12 +15,14 @@ import (
 	"testing"
 )
 
-const SERVER_ADDRESS = "0.0.0.0:5556"
-const SERVER_ADDRESS2 = "0.0.0.0:5557"
+const ServerAddress = "0.0.0.0:5556"
+const ServerAddress2 = "0.0.0.0:5557"
+const RegistrationAddr = "0.0.0.0:5558"
+const RegistrationAddrErr = "0.0.0.0:5559"
 
 func TestMain(m *testing.M) {
-	lis1, _ := net.Listen("tcp", SERVER_ADDRESS)
-	lis2, _ := net.Listen("tcp", SERVER_ADDRESS2)
+	lis1, _ := net.Listen("tcp", ServerAddress)
+	lis2, _ := net.Listen("tcp", ServerAddress2)
 
 	grpcServer1 := grpc.NewServer(grpc.MaxConcurrentStreams(math.MaxUint32),
 		grpc.MaxRecvMsgSize(33554432))
@@ -55,7 +57,7 @@ func TestConnectionManager_Disconnect(t *testing.T) {
 
 	test := 2
 	pass := 0
-	address := SERVER_ADDRESS
+	address := ServerAddress
 	var manager Manager
 	testId := "testId"
 	host, err := manager.AddHost(testId, address, nil, false, false)
@@ -92,8 +94,8 @@ func TestConnectionManager_DisconnectAll(t *testing.T) {
 
 	test := 4
 	pass := 0
-	address := SERVER_ADDRESS
-	address2 := SERVER_ADDRESS2
+	address := ServerAddress
+	address2 := ServerAddress2
 	var manager Manager
 	testId := "testId"
 	testId2 := "TestId2"
