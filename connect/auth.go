@@ -55,6 +55,15 @@ func (c *ProtoComms) clientHandshake(host *Host) (err error) {
 		return errors.New(err.Error())
 	}
 
+	// Add special client-specific info to the
+	// newly generated authenticated message if needed
+	if c.pubKeyPem != nil && c.salt != nil {
+		msg.Client = &pb.ClientID{
+			Salt:      c.salt,
+			PublicKey: string(c.pubKeyPem),
+		}
+	}
+
 	// Set up the context
 	ctx, cancel = MessagingContext()
 	defer cancel()
