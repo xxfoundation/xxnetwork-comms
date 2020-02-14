@@ -23,7 +23,10 @@ func TestRegisterForNotifications(t *testing.T) {
 	defer notificationBot.Shutdown()
 
 	// Create client's comms object
-	c := NewClientComms("client", nil, nil)
+	c, err := NewClientComms("client", nil, nil, nil)
+	if err != nil {
+		t.Errorf("Can't create client comms: %+v", err)
+	}
 	var manager connect.Manager
 
 	// Add notification bot to comm's manager
@@ -51,7 +54,10 @@ func TestUnregisterForNotifications(t *testing.T) {
 	defer notificationBot.Shutdown()
 
 	// Create client's comms object
-	c := NewClientComms("client", nil, nil)
+	c, err := NewClientComms("client", nil, nil, nil)
+	if err != nil {
+		t.Errorf("Can't create client comms: %+v", err)
+	}
 	var manager connect.Manager
 
 	// Add notification bot to comm's manager

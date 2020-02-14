@@ -19,7 +19,10 @@ func TestSendRegistrationMessage(t *testing.T) {
 	rg := registration.StartRegistrationServer("test", GatewayAddress,
 		registration.NewImplementation(), nil, nil)
 	defer rg.Shutdown()
-	c := NewClientComms("client", nil, nil)
+	c, err := NewClientComms("client", nil, nil, nil)
+	if err != nil {
+		t.Errorf("Can't create client comms: %+v", err)
+	}
 	var manager connect.Manager
 
 	testId := "test"
@@ -40,7 +43,10 @@ func TestSendCheckClientVersionMessage(t *testing.T) {
 	rg := registration.StartRegistrationServer("test", GatewayAddress,
 		registration.NewImplementation(), nil, nil)
 	defer rg.Shutdown()
-	c := NewClientComms("client", nil, nil)
+	c, err := NewClientComms("client", nil, nil, nil)
+	if err != nil {
+		t.Errorf("Can't create client comms: %+v", err)
+	}
 	var manager connect.Manager
 
 	testId := "test"
@@ -61,7 +67,10 @@ func TestSendGetUpdatedNDF(t *testing.T) {
 	rg := registration.StartRegistrationServer("test", GatewayAddress,
 		registration.NewImplementation(), nil, nil)
 	defer rg.Shutdown()
-	c := NewClientComms("client", nil, nil)
+	c, err := NewClientComms("client", nil, nil, nil)
+	if err != nil {
+		t.Errorf("Can't create client comms: %+v", err)
+	}
 	var manager connect.Manager
 
 	testId := "test"
