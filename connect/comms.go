@@ -36,6 +36,14 @@ type ProtoComms struct {
 	// The network ID of this comms server
 	Id string
 
+	// Private key of the local comms instance
+	privateKey *rsa.PrivateKey
+
+	// Disables the checking of authentication signatures for testing setups
+	disableAuth bool
+
+	// SERVER-ONLY FIELDS ------------------------------------------------------
+
 	// A map of reverse-authentication tokens
 	tokens sync.Map
 
@@ -45,18 +53,24 @@ type ProtoComms struct {
 	// Listening address of the local server
 	ListeningAddr string
 
-	// Private key of the local server
-	privateKey *rsa.PrivateKey
+	// CLIENT-ONLY FIELDS ------------------------------------------------------
 
-	//Disables the checking of authentication signatures for testing setups
-	disableAuth bool
+	// Used to store the public key used for generating Client Id
+	pubKeyPem []byte
+
+	// Used to store the salt used for generating Client Id
+	salt []byte
+
+	// -------------------------------------------------------------------------
 }
 
 // Creates a ProtoComms client-type object to be used in various initializers
-func CreateCommClient(id string, privKeyPem []byte) (*ProtoComms, error) {
+func CreateCommClient(id string, pubKeyPem, privKeyPem, salt []byte) (*ProtoComms, error) {
 	// Build the ProtoComms object
 	pc := &ProtoComms{
-		Id: id,
+		Id:        id,
+		pubKeyPem: pubKeyPem,
+		salt:      salt,
 	}
 
 	// Set the private key if specified
