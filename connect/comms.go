@@ -52,7 +52,24 @@ type ProtoComms struct {
 	disableAuth bool
 }
 
-// Starts a ProtoComms object and is used in various initializers
+// Creates a ProtoComms client-type object to be used in various initializers
+func CreateCommClient(id string, privKeyPem []byte) (*ProtoComms, error) {
+	// Build the ProtoComms object
+	pc := &ProtoComms{
+		Id: id,
+	}
+
+	// Set the private key if specified
+	if privKeyPem != nil {
+		err := pc.setPrivateKey(privKeyPem)
+		if err != nil {
+			return nil, errors.Errorf("Could not set private key: %+v", err)
+		}
+	}
+	return pc, nil
+}
+
+// Creates a ProtoComms server-type object to be used in various initializers
 func StartCommServer(id string, localServer string, certPEMblock,
 	keyPEMblock []byte) (*ProtoComms, net.Listener, error) {
 
