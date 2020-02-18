@@ -58,10 +58,8 @@ func (c *ProtoComms) clientHandshake(host *Host) (err error) {
 	// Add special client-specific info to the
 	// newly generated authenticated message if needed
 	if c.pubKeyPem != nil && c.salt != nil {
-		msg.Client = &pb.ClientID{
-			Salt:      c.salt,
-			PublicKey: string(c.pubKeyPem),
-		}
+		msg.Client.Salt = c.salt
+		msg.Client.PublicKey = string(c.pubKeyPem)
 	}
 
 	// Set up the context
@@ -95,6 +93,10 @@ func (c *ProtoComms) PackAuthenticatedMessage(msg proto.Message, host *Host,
 		ID:      c.Id,
 		Token:   host.token,
 		Message: anyMsg,
+		Client: &pb.ClientID{
+			Salt:      make([]byte, 0),
+			PublicKey: "",
+		},
 	}
 
 	// If signature is enabled, sign the message and add to payload
@@ -136,7 +138,7 @@ func (c *ProtoComms) dynamicAuth(msg *pb.AuthenticatedMessage) (
 	host *Host, err error) {
 
 	// Verify the client is attempting a dynamic authentication
-	if msg.Client == nil {
+	if msg.Client == nil || msg.Client.PublicKey == "" || msg.Client.Salt == nil {
 		return nil, errors.New("Invalid dynamic authentication attempt!")
 	}
 
