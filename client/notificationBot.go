@@ -4,7 +4,7 @@
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
 
-// Contains client -> registration server functionality
+// Contains client -> notificationBot functionality
 
 package client
 
@@ -18,19 +18,23 @@ import (
 	"google.golang.org/grpc"
 )
 
-// Client -> Registration Send Function
-func (c *Comms) SendRegistrationMessage(host *connect.Host,
-	message *pb.UserRegistration) (*pb.UserRegistrationConfirmation, error) {
-
+// Client -> NotificationBot
+func (c *Comms) RegisterForNotifications(host *connect.Host,
+	message *pb.NotificationToken) (*pb.Ack, error) {
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
 
+		authMsg, err := c.PackAuthenticatedMessage(message, host, false)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+
 		// Send the message
-		resultMsg, err := pb.NewRegistrationClient(conn).RegisterUser(ctx,
-			message)
+		resultMsg, err := pb.NewNotificationBotClient(conn).RegisterForNotifications(ctx,
+			authMsg)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
@@ -38,30 +42,34 @@ func (c *Comms) SendRegistrationMessage(host *connect.Host,
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Registration message: %+v", message)
+	jww.DEBUG.Printf("Sending RegisterForNotification message: %+v", message)
 	resultMsg, err := c.Send(host, f)
 	if err != nil {
 		return nil, err
 	}
 
 	// Marshall the result
-	result := &pb.UserRegistrationConfirmation{}
+	result := &pb.Ack{}
 	return result, ptypes.UnmarshalAny(resultMsg, result)
+
 }
 
-// Client -> Registration Send Function
-func (c *Comms) SendGetCurrentClientVersionMessage(
-	host *connect.Host) (*pb.ClientVersion, error) {
-
+// Client -> NotificationBot
+func (c *Comms) UnregisterForNotifications(host *connect.Host) (*pb.Ack, error) {
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
 
+		authMsg, err := c.PackAuthenticatedMessage(&pb.Ping{}, host, false)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+
 		// Send the message
-		resultMsg, err := pb.NewRegistrationClient(
-			conn).GetCurrentClientVersion(ctx, &pb.Ping{})
+		resultMsg, err := pb.NewNotificationBotClient(conn).UnregisterForNotifications(ctx,
+			authMsg)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
@@ -69,19 +77,14 @@ func (c *Comms) SendGetCurrentClientVersionMessage(
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Get Client Version message...")
+	jww.DEBUG.Printf("Sending UnregisterForNotification message")
 	resultMsg, err := c.Send(host, f)
 	if err != nil {
 		return nil, err
 	}
 
 	// Marshall the result
-	result := &pb.ClientVersion{}
+	result := &pb.Ack{}
 	return result, ptypes.UnmarshalAny(resultMsg, result)
-}
 
-// Client -> Registration Send Function
-func (c *Comms) RequestNdf(host *connect.Host, message *pb.NDFHash) (*pb.NDF, error) {
-	// Call Protocomms Request NDF
-	return c.ProtoComms.RequestNdf(host, message)
 }

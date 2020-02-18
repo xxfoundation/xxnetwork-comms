@@ -15,11 +15,14 @@ import (
 
 // Smoke test SendRegistrationMessage
 func TestSendRegistrationMessage(t *testing.T) {
-	GatewayAddress := getNextGatewayAddress()
+	GatewayAddress := getNextAddress()
 	rg := registration.StartRegistrationServer("test", GatewayAddress,
 		registration.NewImplementation(), nil, nil)
 	defer rg.Shutdown()
-	var c Comms
+	c, err := NewClientComms("client", nil, nil, nil)
+	if err != nil {
+		t.Errorf("Can't create client comms: %+v", err)
+	}
 	var manager connect.Manager
 
 	testId := "test"
@@ -36,11 +39,14 @@ func TestSendRegistrationMessage(t *testing.T) {
 
 // Smoke test SendCheckClientVersion
 func TestSendCheckClientVersionMessage(t *testing.T) {
-	GatewayAddress := getNextGatewayAddress()
+	GatewayAddress := getNextAddress()
 	rg := registration.StartRegistrationServer("test", GatewayAddress,
 		registration.NewImplementation(), nil, nil)
 	defer rg.Shutdown()
-	var c Comms
+	c, err := NewClientComms("client", nil, nil, nil)
+	if err != nil {
+		t.Errorf("Can't create client comms: %+v", err)
+	}
 	var manager connect.Manager
 
 	testId := "test"
@@ -57,11 +63,14 @@ func TestSendCheckClientVersionMessage(t *testing.T) {
 
 //Smoke test RequestNdf
 func TestSendGetUpdatedNDF(t *testing.T) {
-	GatewayAddress := getNextGatewayAddress()
+	GatewayAddress := getNextAddress()
 	rg := registration.StartRegistrationServer("test", GatewayAddress,
 		registration.NewImplementation(), nil, nil)
 	defer rg.Shutdown()
-	var c Comms
+	c, err := NewClientComms("client", nil, nil, nil)
+	if err != nil {
+		t.Errorf("Can't create client comms: %+v", err)
+	}
 	var manager connect.Manager
 
 	testId := "test"

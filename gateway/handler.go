@@ -31,6 +31,8 @@ type Handler interface {
 	// Pass-through for Registration Nonce Confirmation
 	ConfirmNonce(message *pb.RequestRegistrationConfirmation, ipAddress string) (*pb.
 		RegistrationConfirmation, error)
+	// Ping gateway to ask for users to notify
+	PollForNotifications(auth *connect.Auth) ([]string, error)
 }
 
 // Gateway object used to implement endpoints and top-level comms functionality
@@ -57,6 +59,7 @@ func StartGateway(id, localServer string, handler Handler,
 
 	go func() {
 		pb.RegisterGatewayServer(gatewayServer.LocalServer, &gatewayServer)
+		pb.RegisterGenericServer(gatewayServer.LocalServer, &gatewayServer)
 
 		// Register reflection service on gRPC server.
 		// This blocks for the lifetime of the listener.
@@ -86,6 +89,8 @@ type implementationFunctions struct {
 	// Pass-through for Registration Nonce Confirmation
 	ConfirmNonce func(message *pb.RequestRegistrationConfirmation, ipAddress string) (*pb.
 			RegistrationConfirmation, error)
+	// Ping gateway to ask for users to notify
+	PollForNotifications func(auth *connect.Auth) ([]string, error)
 }
 
 // Implementation allows users of the client library to set the
@@ -123,6 +128,10 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return new(pb.RegistrationConfirmation), nil
 			},
+			PollForNotifications: func(auth *connect.Auth) ([]string, error) {
+				warn(um)
+				return nil, nil
+			},
 		},
 	}
 }
@@ -154,4 +163,9 @@ func (s *Implementation) RequestNonce(message *pb.NonceRequest, ipAddress string
 func (s *Implementation) ConfirmNonce(message *pb.RequestRegistrationConfirmation,
 	ipAddress string) (*pb.RegistrationConfirmation, error) {
 	return s.Functions.ConfirmNonce(message, ipAddress)
+}
+
+// Ping gateway to ask for users to notify
+func (s *Implementation) PollForNotifications(auth *connect.Auth) ([]string, error) {
+	return s.Functions.PollForNotifications(auth)
 }

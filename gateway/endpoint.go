@@ -15,6 +15,20 @@ import (
 	"golang.org/x/net/context"
 )
 
+// Handles validation of reverse-authentication tokens
+func (s *Comms) AuthenticateToken(ctx context.Context,
+	msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
+	return &pb.Ack{}, s.ValidateToken(msg)
+}
+
+// Handles reception of reverse-authentication token requests
+func (s *Comms) RequestToken(context.Context, *pb.Ping) (*pb.AssignToken, error) {
+	token, err := s.GenerateToken()
+	return &pb.AssignToken{
+		Token: token,
+	}, err
+}
+
 // Sends new MessageIDs in the buffer to a client
 func (g *Comms) CheckMessages(ctx context.Context,
 	msg *pb.ClientRequest) (*pb.IDList, error) {
@@ -94,4 +108,17 @@ func (g *Comms) ConfirmNonce(ctx context.Context,
 	}
 
 	return g.handler.ConfirmNonce(msg, addr)
+}
+
+// Ping gateway to ask for users to notify
+func (g *Comms) PollForNotifications(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.IDList, error) {
+
+	authState := g.AuthenticatedReceiver(msg)
+
+	ids, err := g.handler.PollForNotifications(authState)
+	returnMsg := &pb.IDList{}
+	if err == nil {
+		returnMsg.IDs = ids
+	}
+	return returnMsg, err
 }
