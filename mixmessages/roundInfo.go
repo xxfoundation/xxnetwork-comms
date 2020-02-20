@@ -25,8 +25,12 @@ func (m *RoundInfo) Marshal() []byte {
 	// Serialize the boolean value
 	b = strconv.AppendBool(b, m.Realtime)
 
-	// Serialize the batchsize
-	binary.LittleEndian.PutUint32(b, m.BatchSize)
+	// Serialize the batchSize into a temp buffer of uint32 size (ie 4 bytes)
+	tmp := make([]byte, 4)
+	binary.LittleEndian.PutUint32(tmp, m.BatchSize)
+
+	// Append that temp buffer into the return buffer
+	b = append(b, tmp...)
 
 	// Serialize the entire topology
 	for _, val := range m.Topology {
