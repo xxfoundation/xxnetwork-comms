@@ -79,6 +79,11 @@ service Node {
 // The message for Init Round
 message RoundInfo {
     uint64 ID = 1;
+    bool Realtime = 2; //true = realtime, false = precomputation
+    uint32 BatchSize = 3;
+    repeated string Topology = 4;
+    uint64 StartTime = 5;
+    bytes Signature = 6; //Hash of ID, Stage, Topology, and StartTime
 }
 
 // RoundInfo contains the # of precomputations ready for messages, among other
@@ -122,6 +127,15 @@ message GatewayNdf {
 message RoundTripPing {
     google.protobuf.Any Payload = 1;
     RoundInfo Round = 2;
+}
+
+// RoundError will be used to describe a round error
+// Passed along to gateways (level 2) and clients (level 3)
+message RoundError{
+    RoundInfo Info = 1;
+    string Error = 2;
+    string SourceID = 3; //ID of entity where error originated
+    bytes Signature = 4; //Hash of Info and Error
 }
 
 // GATEWAY MESSAGE SERVICE -----------------------------------------------------
@@ -209,10 +223,13 @@ message NDFHash {
     bytes Hash = 1;
 }
 
-// Message type containing the network definition file
-message NDF {
+// The Network Definition File is defined as a
+// JSON structure in primitives/ndf
+message NDF{
     bytes Ndf = 1;
+    bytes Signature = 2; //Signature of the Hash of Ndf
 }
+
 
 // NodeRegistration contains information to register a node.
 // Note: this includes the desired server and gateway addresses.
