@@ -4,6 +4,9 @@
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
 
+// Contains functions to make the RoundInfo message type conform to a generic
+// signing interface
+
 package mixmessages
 
 import (

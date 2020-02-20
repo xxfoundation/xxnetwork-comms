@@ -4,6 +4,9 @@
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
 
+// Contains functions to make the RoundError message type conform to a generic
+// signing interface
+
 package mixmessages
 
 // Marshal serializes all the data needed for a signature
@@ -25,8 +28,7 @@ func (m *RoundError) SetSignature(newSig []byte) {
 	m.Signature = newSig
 }
 
-// ClearSignature clears out RoundError's signature by
-// setting it to nil
+// ClearSignature clears out RoundError's signature by setting it to nil
 func (m *RoundError) ClearSignature() {
 	m.Signature = nil
 }

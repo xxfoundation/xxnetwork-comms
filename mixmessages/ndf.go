@@ -3,6 +3,10 @@
 //                                                                             /
 // All rights reserved.                                                        /
 ////////////////////////////////////////////////////////////////////////////////
+
+// Contains functions to make the ndf message type conform to a generic
+// signing interface
+
 package mixmessages
 
 // Marshal serializes all the data needed for a signature
