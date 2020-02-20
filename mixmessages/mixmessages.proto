@@ -71,14 +71,13 @@ service Node {
     rpc PollNdf (AuthenticatedMessage) returns (GatewayNdf) {
     }
 
+    // Gateway -> Server unified polling
+    rpc Poll (AuthenticatedMessage) returns (ServerPollResponse) {
+    }
+
     // Round trip ping comm
     rpc SendRoundTripPing (AuthenticatedMessage) returns (Ack) {
     }
-}
-
-// The message for Init Round
-message RoundInfo {
-    uint64 ID = 1;
 }
 
 // RoundInfo contains the # of precomputations ready for messages, among other
@@ -124,6 +123,27 @@ message RoundTripPing {
     RoundInfo Round = 2;
 }
 
+// Unified Gateway->Server polling message
+message ServerPoll {
+    NDFHash Full = 1;
+    NDFHash Partial = 2;
+    uint64 LastPrecompKnown = 3;
+    uint64 LastRealtimeKnown = 4;
+    string Error = 6; //Only Populated in the event of errors
+    uint64 LastKilledRound = 5;
+}
+
+// Unified Gateway->Server polling response
+message ServerPollResponse {
+    NDF FullNDF = 1; //Empty if no update needed
+    NDF PartialNDF = 2; //Empty if no update needed
+    repeated RoundInfo NewPrecomps = 3; //Empty if no update needed
+    repeated RoundInfo NewRealtimes = 4; //Empty if no update needed
+    repeated RoundError NewErrors = 5; //Empty if no update needed
+    RoundInfo BatchRequest = 6; //Empty if no update needed
+    repeated Slot slots = 7; //Empty if no update needed
+}
+
 // GATEWAY MESSAGE SERVICE -----------------------------------------------------
 
 service Gateway {
@@ -149,6 +169,10 @@ service Gateway {
 
     // Ping gateway to ask for users to notify
     rpc PollForNotifications (AuthenticatedMessage) returns (IDList) {
+    }
+
+    // Client -> Gateway unified polling
+    rpc Poll (AuthenticatedMessage) returns (GatewayPollResponse) {
     }
 }
 
@@ -183,6 +207,23 @@ message Slot {
     repeated bytes KMACs = 11; // Individual Key MAC for each node in network
 }
 
+// Unified Client->Gateway polling message
+message GatewayPoll {
+    NDFHash Partial = 1;
+    uint64 LastRealtimeKnown = 2;
+    uint64 LastKilledRound = 3;
+    string LastMessageID = 4;
+}
+
+// Unified Client->Gateway polling response
+message GatewayPollResponse {
+    NDF PartialNDF = 1; //Empty if no update needed
+    RoundInfo LastRound = 2; //Last round the gateway has messages from
+    repeated RoundInfo NewRealtimes = 3; //Empty if no update needed
+    repeated RoundError NewErrors = 4; //Empty if no update needed
+    repeated string NewMessageIDs = 5; //Empty if no update needed
+}
+
 // REGISTRATION MESSAGE SERVICE ------------------------------------------------
 
 // Registration service definition
@@ -202,6 +243,10 @@ service Registration {
     // Obtain NDF from the Registration Server
     rpc PollNdf (AuthenticatedMessage) returns (NDF) {
     }
+
+    // Server -> Permissioning unified polling
+    rpc Poll (AuthenticatedMessage) returns (PermissionPollResponse) {
+    }
 }
 
 //The ndf Hash used to compare ndf on permissioning and client
@@ -212,6 +257,7 @@ message NDFHash {
 // Message type containing the network definition file
 message NDF {
     bytes Ndf = 1;
+    bytes Signature = 2;
 }
 
 // NodeRegistration contains information to register a node.
@@ -281,6 +327,33 @@ message RegistrationConfirmation {
     string Error = 2;
 }
 
+// Unified Server->Permissioning polling message
+message PermissioningPoll {
+    NDFHash Full = 1;
+    NDFHash Partial = 2;
+    uint64 LastPrecompKnown = 3;
+    uint64 LastRealtimeKnown = 4;
+    uint64 LastKilledRound = 5;
+    // NOT_STARTED = 0
+    // WAITING = 1
+    // PRECOMPUTING= 2
+    // STANDBY = 3
+    // REALTIME = 4
+    // ERROR_FATAL = 5
+    // ERROR_RECOVERABLE = 6
+    uint32 State = 6;
+    string Error = 7; //Only Populated in the event of errors
+}
+
+// Unified Server->Permissioning polling response
+message PermissionPollResponse {
+    NDF FullNDF = 1; //Empty if no update needed
+    NDF PartialNDF = 2; //Empty if no update needed
+    repeated RoundInfo NewPrecomps = 3; //Empty if no update needed
+    repeated RoundInfo NewRealtimes = 4; //Empty if no update needed
+    repeated RoundError NewErrors = 5; //Empty if no update needed
+}
+
 // GENERAL USE MESSAGES --------------------------------------------------------
 
 // Generic service definition
@@ -323,12 +396,30 @@ message AssignToken {
     bytes Token = 1;
 }
 
+// Describes a round
+message RoundInfo {
+    uint64 ID = 1;
+    bool Realtime = 2; //true = realtime, false = precomputation
+    uint32 BatchSize = 3;
+    repeated string Topology = 4;
+    uint64 StartTime = 5;
+    bytes Signature = 6; //Hash of ID, Stage, Topology, and StartTime
+}
+
+// Describes an error during a round
+message RoundError {
+    RoundInfo Info = 1;
+    string Error = 2;
+    string SourceID = 3; //ID of entity where error originated
+    bytes Signature = 4; //Hash of Info and Error
+}
+
 // NOTIFICATION BOT MESSAGES --------------------------------------------------------
 
 // NotificationBot service definition
 service NotificationBot {
     // Unregister clients from push notifications
-    rpc UnregisterForNotifications(AuthenticatedMessage) returns (Ack) {
+    rpc UnregisterForNotifications (AuthenticatedMessage) returns (Ack) {
     }
 
     // Register clients from push notifications
