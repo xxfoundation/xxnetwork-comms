@@ -76,7 +76,7 @@ func TestProtoComms_AuthenticatedReceiver(t *testing.T) {
 		t.Errorf("uh oh")
 	}
 	h, _ := pc.GetHost(id)
-	h.token = token
+	h.receptionToken = token
 
 	msg := &pb.AuthenticatedMessage{
 		ID:        id,
@@ -129,7 +129,7 @@ func TestProtoComms_PackAuthenticatedMessage(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unable to create host: %+v", err)
 	}
-	host.token = tokenBytes
+	host.transmissionToken = tokenBytes
 
 	tokenMsg := &pb.AssignToken{
 		Token: tokenBytes,
@@ -169,7 +169,7 @@ func TestProtoComms_ValidateToken(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unable to create host: %+v", err)
 	}
-	host.token = tokenBytes
+	host.transmissionToken = tokenBytes
 
 	tokenMsg := &pb.AssignToken{
 		Token: tokenBytes,
@@ -221,7 +221,7 @@ func TestProtoComms_ValidateTokenDynamic(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unable to create host: %+v", err)
 	}
-	host.token = tokenBytes
+	host.transmissionToken = tokenBytes
 	tokenMsg := &pb.AssignToken{
 		Token: tokenBytes,
 	}
