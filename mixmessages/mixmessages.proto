@@ -224,10 +224,12 @@ message NDFHash {
 }
 
 // The Network Definition File is defined as a
-// JSON structure in primitives/ndf
+// JSON structure in primitives/ndf. Can be provided in a
+// "complete" and "incomplete" format. An incomplete
+// NDF is provided to level 4 (ie clients) to protect the inner levels
 message NDF{
     bytes Ndf = 1;
-    bytes Signature = 2; //Signature of the Hash of Ndf
+    bytes Signature = 2; // Hash of Ndf
 }
 
 

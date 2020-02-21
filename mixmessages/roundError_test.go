@@ -7,6 +7,7 @@ package mixmessages
 
 import (
 	"bytes"
+	"gitlab.com/elixxir/crypto/signature"
 	"testing"
 )
 
@@ -30,7 +31,6 @@ func TestRoundError_ClearSignature(t *testing.T) {
 // Happy path
 func TestRoundError_SetSignature(t *testing.T) {
 	testSign := []byte{1, 2, 45, 67, 42}
-
 	testRoundError := &RoundError{}
 
 	// Set the sig
@@ -44,10 +44,11 @@ func TestRoundError_SetSignature(t *testing.T) {
 	}
 }
 
+// Error path
 func TestRoundError_SetSignature_Error(t *testing.T) {
 	testRoundError := &RoundError{}
 
-	// Set the sig
+	// Set the sig to nil (error case)
 	err := testRoundError.SetSignature(nil)
 	if err != nil {
 		return
@@ -57,6 +58,7 @@ func TestRoundError_SetSignature_Error(t *testing.T) {
 
 }
 
+// Happy path
 func TestRoundError_Marshal(t *testing.T) {
 	// ------ Set fields -----------
 	testId := uint64(25)
@@ -102,6 +104,7 @@ func TestRoundError_Marshal(t *testing.T) {
 
 // Error path
 func TestRoundError_Marshal_Error(t *testing.T) {
+	// Create roundInfo object (to be used for roundError object)
 	testId := uint64(25)
 	testTopology := []string{"test", "te", "st", "testtest"}
 	testRealtime := false
@@ -115,8 +118,8 @@ func TestRoundError_Marshal_Error(t *testing.T) {
 		BatchSize: testBatch,
 	}
 
+	// Create RoundError object
 	testError := "I failed. Fix me now!"
-
 	testRoundError := &RoundError{
 		Info:  testRoundInfo,
 		Error: testError,
@@ -139,6 +142,7 @@ func TestRoundError_Marshal_Error(t *testing.T) {
 
 	*/
 
+	// Compare an incomplete serialization to the marsalled data
 	if bytes.Compare(serializedData, badSerializedData) != 0 {
 		return
 	}
@@ -147,17 +151,92 @@ func TestRoundError_Marshal_Error(t *testing.T) {
 		"manually locally serialized data")
 }
 
+// Happy path
 func TestRoundError_GetSignature(t *testing.T) {
-	testSign := []byte{1, 2, 45, 67, 42}
+	// Create roundErr and set signature
+	expectedSig := []byte{1, 2, 45, 67, 42}
 	testRoundError := &RoundError{
-		Signature: testSign,
+		Signature: expectedSig,
 	}
 
-	ourSig := testRoundError.GetSignature()
+	// Fetch signature
+	receivedSig := testRoundError.GetSignature()
 
-	if bytes.Compare(testSign, ourSig) != 0 {
+	// Compare fetched value to expected value
+	if bytes.Compare(expectedSig, receivedSig) != 0 {
 		t.Errorf("Signature does not match one that was set!"+
 			"Expected: %+v \n\t"+
-			"Received: %+v", testSign, ourSig)
+			"Received: %+v", expectedSig, receivedSig)
 	}
+}
+
+// Happy path
+func TestRoundError_Sign(t *testing.T) {
+	// Create roundInfo object (to be used for roundError object)
+	testId := uint64(25)
+	testTopology := []string{"test", "te", "st", "testtest"}
+	testRealtime := false
+	testTime := uint64(49)
+	testBatch := uint32(23)
+	testRoundInfo := &RoundInfo{
+		ID:        testId,
+		Realtime:  testRealtime,
+		Topology:  testTopology,
+		StartTime: testTime,
+		BatchSize: testBatch,
+	}
+
+	// Create RoundError object
+	testError := "I failed. Fix me now!"
+	testRoundError := &RoundError{
+		Info:  testRoundInfo,
+		Error: testError,
+	}
+
+	// Ensure message type conforms to genericSignable interface
+	signature.Sign(testRoundError)
+
+	// Verify signature
+	if !signature.Verify(testRoundError) {
+		t.Error("Expected happy path: Failed to verify!")
+	}
+
+}
+
+// Error path
+func TestRoundError_Sign_Error(t *testing.T) {
+	// Create roundInfo object (to be used for roundError object)
+	testId := uint64(25)
+	testTopology := []string{"test", "te", "st", "testtest"}
+	testRealtime := false
+	testTime := uint64(49)
+	testBatch := uint32(23)
+	testRoundInfo := &RoundInfo{
+		ID:        testId,
+		Realtime:  testRealtime,
+		Topology:  testTopology,
+		StartTime: testTime,
+		BatchSize: testBatch,
+	}
+
+	// Create RoundError object
+	testError := "I failed. Fix me now!"
+	testRoundError := &RoundError{
+		Info:  testRoundInfo,
+		Error: testError,
+	}
+
+	// Ensure message type conforms to genericSignable interface
+	signature.Sign(testRoundError)
+
+	// Reset Error value so verify()'s signature won't match
+	testRoundError.Error = "Not an expected error message"
+
+	// Verify signature
+	if !signature.Verify(testRoundError) {
+		return
+	}
+
+	t.Error("Expected error path: Should not have verified!")
+
 }

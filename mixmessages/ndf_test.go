@@ -7,6 +7,7 @@ package mixmessages
 
 import (
 	"bytes"
+	"gitlab.com/elixxir/crypto/signature"
 	"testing"
 )
 
@@ -30,7 +31,6 @@ func TestNDF_ClearSignature(t *testing.T) {
 // Happy path
 func TestNDF_SetSignature(t *testing.T) {
 	testSign := []byte{1, 2, 45, 67, 42}
-
 	testNdf := &NDF{}
 
 	// Set the sig
@@ -44,10 +44,11 @@ func TestNDF_SetSignature(t *testing.T) {
 	}
 }
 
+// Error path
 func TestNDF_SetSignature_Error(t *testing.T) {
 	testNdf := &NDF{}
 
-	// Set the sig
+	// Set the sig to nil (error case)
 	err := testNdf.SetSignature(nil)
 	if err != nil {
 		return
@@ -57,12 +58,15 @@ func TestNDF_SetSignature_Error(t *testing.T) {
 
 }
 
+// Happy path
 func TestNDF_Marshal(t *testing.T) {
+	// Create ndf object
 	ourNdf := []byte{25, 254, 123, 42}
 	testNdf := &NDF{
 		Ndf: ourNdf,
 	}
 
+	// Marshal and compare to the original ndf bytes
 	serializedData := testNdf.Marshal()
 
 	// This test assumes serialized ndf message is just an ndf
@@ -74,17 +78,61 @@ func TestNDF_Marshal(t *testing.T) {
 	}
 }
 
+// Happy path
 func TestNDF_GetSignature(t *testing.T) {
-	testSign := []byte{1, 2, 45, 67, 42}
+	// Create ndf and set signature
+	expectedSig := []byte{1, 2, 45, 67, 42}
 	testNdf := &NDF{
-		Signature: testSign,
+		Signature: expectedSig,
 	}
 
-	ourSig := testNdf.GetSignature()
+	// Fetch signature
+	receivedSig := testNdf.GetSignature()
 
-	if bytes.Compare(testSign, ourSig) != 0 {
+	// Compare fetched value to expected value
+	if bytes.Compare(expectedSig, receivedSig) != 0 {
 		t.Errorf("Signature does not match one that was set!"+
 			"Expected: %+v \n\t"+
-			"Received: %+v", testSign, ourSig)
+			"Received: %+v", expectedSig, receivedSig)
 	}
+}
+
+// Happy path
+func TestNdf_Sign(t *testing.T) {
+	// Create ndf object
+	ourNdf := []byte{25, 254, 123, 42}
+	testNdf := &NDF{
+		Ndf: ourNdf,
+	}
+
+	// Ensure message type conforms to genericSignable interface
+	signature.Sign(testNdf)
+
+	// Verify signature
+	if !signature.Verify(testNdf) {
+		t.Error("Expected happy path: Failed to verify!")
+	}
+}
+
+// Error path
+func TestNdf_Sign_Error(t *testing.T) {
+	// Create ndf object
+	ourNdf := []byte{25, 254, 123, 42}
+	testNdf := &NDF{
+		Ndf: ourNdf,
+	}
+
+	// Ensure message type conforms to genericSignable interface
+	signature.Sign(testNdf)
+
+	// Reset ndf value so verify()'s signature won't match
+	testNdf.Ndf = []byte{1}
+
+	// Verify signature
+	if !signature.Verify(testNdf) {
+		return
+	}
+
+	t.Error("Expected error path: Should not have verified!")
+
 }

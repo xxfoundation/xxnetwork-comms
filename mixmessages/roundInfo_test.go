@@ -8,6 +8,7 @@ package mixmessages
 import (
 	"bytes"
 	"encoding/binary"
+	"gitlab.com/elixxir/crypto/signature"
 	"strconv"
 	"testing"
 )
@@ -46,6 +47,7 @@ func TestRoundInfo_SetSignature(t *testing.T) {
 	}
 }
 
+// Error path
 func TestRoundInfo_SetSignature_Error(t *testing.T) {
 	testRoundInfo := &RoundInfo{}
 
@@ -59,6 +61,7 @@ func TestRoundInfo_SetSignature_Error(t *testing.T) {
 
 }
 
+// Happy path
 func TestRoundInfo_Marshal(t *testing.T) {
 	testId := uint64(25)
 	testTopology := []string{"test", "te", "st", "testtest"}
@@ -171,6 +174,7 @@ func TestRoundInfo_Marshal_Error(t *testing.T) {
 	// Append that temp buffer into the return buffer
 	badSerializedData = append(badSerializedData, tmp...)
 
+	// Compare an incomplete serialization to the marsalled data
 	if bytes.Compare(serializedData, badSerializedData) != 0 {
 		return
 	}
@@ -179,17 +183,76 @@ func TestRoundInfo_Marshal_Error(t *testing.T) {
 		"manually locally serialized data")
 }
 
+// Happy path
 func TestRoundInfo_GetSignature(t *testing.T) {
-	testSign := []byte{1, 2, 45, 67, 42}
+	// Create roundInfo and set signature
+	expectedSig := []byte{1, 2, 45, 67, 42}
 	testRoundInfo := &RoundInfo{
-		Signature: testSign,
+		Signature: expectedSig,
 	}
 
-	ourSig := testRoundInfo.GetSignature()
+	// Fetch signature
+	receivedSig := testRoundInfo.GetSignature()
 
-	if bytes.Compare(testSign, ourSig) != 0 {
+	// Compare fetched value to expected value
+	if bytes.Compare(expectedSig, receivedSig) != 0 {
 		t.Errorf("Signature does not match one that was set!"+
 			"Expected: %+v \n\t"+
-			"Received: %+v", testSign, ourSig)
+			"Received: %+v", expectedSig, receivedSig)
 	}
+}
+
+// Happy path
+func TestRoundInfo_Sign(t *testing.T) {
+	// Create roundInfo object (to be used for roundError object)
+	testId := uint64(25)
+	testTopology := []string{"test", "te", "st", "testtest"}
+	testRealtime := false
+	testTime := uint64(49)
+	testBatch := uint32(23)
+	testRoundInfo := &RoundInfo{
+		ID:        testId,
+		Realtime:  testRealtime,
+		Topology:  testTopology,
+		StartTime: testTime,
+		BatchSize: testBatch,
+	}
+
+	// Ensure message type conforms to genericSignable interface
+	signature.Sign(testRoundInfo)
+
+	// Verify signature
+	if !signature.Verify(testRoundInfo) {
+		t.Error("Expected happy path: Failed to verify!")
+	}
+}
+
+// Error path
+func TestRoundInfo_Sign_Error(t *testing.T) {
+	// Create roundInfo object
+	testId := uint64(25)
+	testTopology := []string{"test", "te", "st", "testtest"}
+	testRealtime := false
+	testTime := uint64(49)
+	testBatch := uint32(23)
+	testRoundInfo := &RoundInfo{
+		ID:        testId,
+		Realtime:  testRealtime,
+		Topology:  testTopology,
+		StartTime: testTime,
+		BatchSize: testBatch,
+	}
+
+	// Ensure message type conforms to genericSignable interface
+	signature.Sign(testRoundInfo)
+
+	// Reset Topology value so verify()'s signature won't match
+	testRoundInfo.Topology = []string{"fail", "fa", "il", "failfail"}
+	// Verify signature
+	if !signature.Verify(testRoundInfo) {
+		return
+	}
+
+	t.Error("Expected error path: Should not have verified!")
+
 }
