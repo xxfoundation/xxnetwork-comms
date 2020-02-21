@@ -120,31 +120,31 @@ func TestSendConfirmNonceMessage(t *testing.T) {
 	}
 }
 
-//// Smoke test SendPoll
-//func TestComms_SendPoll(t *testing.T) {
-//	gatewayAddress := getNextAddress()
-//	gw := gateway.StartGateway("test", gatewayAddress,
-//		gateway.NewImplementation(), nil, nil)
-//	defer gw.Shutdown()
-//	var c Comms
-//	var manager connect.Manager
-//
-//	testId := "test"
-//	host, err := manager.AddHost(testId, gatewayAddress, nil, false, false)
-//	if err != nil {
-//		t.Errorf("Unable to call NewHost: %+v", err)
-//	}
-//
-//	_, err = c.SendPoll(host,
-//		&pb.GatewayPoll{
-//			Partial: &pb.NDFHash{
-//				Hash: make([]byte, 0),
-//			},
-//			LastRealtimeKnown: 0,
-//			LastKilledRound:   0,
-//			LastMessageID:     "",
-//		})
-//	if err != nil {
-//		t.Errorf("SendPoll: Error received: %+v", err)
-//	}
-//}
+// Smoke test SendPoll
+func TestComms_SendPoll(t *testing.T) {
+	gatewayAddress := getNextAddress()
+	gw := gateway.StartGateway("test", gatewayAddress,
+		gateway.NewImplementation(), nil, nil)
+	defer gw.Shutdown()
+	var c Comms
+	var manager connect.Manager
+
+	testId := "test"
+	host, err := manager.AddHost(testId, gatewayAddress, nil, false, false)
+	if err != nil {
+		t.Errorf("Unable to call NewHost: %+v", err)
+	}
+
+	_, err = c.SendPoll(host,
+		&pb.GatewayPoll{
+			Partial: &pb.NDFHash{
+				Hash: make([]byte, 0),
+			},
+			LastRealtimeKnown: 0,
+			LastKilledRound:   0,
+			LastMessageID:     "",
+		})
+	if err != nil {
+		t.Errorf("SendPoll: Error received: %+v", err)
+	}
+}

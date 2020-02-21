@@ -172,11 +172,11 @@ func (c *Comms) SendPoll(host *connect.Host,
 		defer cancel()
 
 		// Send the message
-		_, err := pb.NewGatewayClient(conn).Poll(ctx, message)
+		resultMsg, err := pb.NewGatewayClient(conn).Poll(ctx, message)
 		if err != nil {
-			err = errors.New(err.Error())
+			return nil, errors.New(err.Error())
 		}
-		return nil, err
+		return ptypes.MarshalAny(resultMsg)
 	}
 
 	// Execute the Send function

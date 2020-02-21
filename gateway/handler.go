@@ -138,13 +138,7 @@ func NewImplementation() *Implementation {
 			},
 			Poll: func(msg *pb.GatewayPoll) (*pb.GatewayPollResponse, error) {
 				warn(um)
-				return &pb.GatewayPollResponse{
-					PartialNDF:    nil,
-					LastRound:     nil,
-					NewRealtimes:  nil,
-					NewErrors:     nil,
-					NewMessageIDs: nil,
-				}, nil
+				return &pb.GatewayPollResponse{}, nil
 			},
 		},
 	}
