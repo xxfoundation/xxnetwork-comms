@@ -171,7 +171,7 @@ func TestRoundError_GetSignature(t *testing.T) {
 }
 
 // Happy path
-func TestRoundError_Sign(t *testing.T) {
+func TestRoundError_SignVerify(t *testing.T) {
 	// Create roundInfo object (to be used for roundError object)
 	testId := uint64(25)
 	testTopology := []string{"test", "te", "st", "testtest"}
@@ -204,7 +204,7 @@ func TestRoundError_Sign(t *testing.T) {
 }
 
 // Error path
-func TestRoundError_Sign_Error(t *testing.T) {
+func TestRoundError_SignVerify_Error(t *testing.T) {
 	// Create roundInfo object (to be used for roundError object)
 	testId := uint64(25)
 	testTopology := []string{"test", "te", "st", "testtest"}

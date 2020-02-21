@@ -98,7 +98,7 @@ func TestNDF_GetSignature(t *testing.T) {
 }
 
 // Happy path
-func TestNdf_Sign(t *testing.T) {
+func TestNdf_SignVerify(t *testing.T) {
 	// Create ndf object
 	ourNdf := []byte{25, 254, 123, 42}
 	testNdf := &NDF{
@@ -115,7 +115,7 @@ func TestNdf_Sign(t *testing.T) {
 }
 
 // Error path
-func TestNdf_Sign_Error(t *testing.T) {
+func TestNdf_SignVerify_Error(t *testing.T) {
 	// Create ndf object
 	ourNdf := []byte{25, 254, 123, 42}
 	testNdf := &NDF{

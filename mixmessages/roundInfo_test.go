@@ -203,7 +203,7 @@ func TestRoundInfo_GetSignature(t *testing.T) {
 }
 
 // Happy path
-func TestRoundInfo_Sign(t *testing.T) {
+func TestRoundInfo_SignVerify(t *testing.T) {
 	// Create roundInfo object (to be used for roundError object)
 	testId := uint64(25)
 	testTopology := []string{"test", "te", "st", "testtest"}
@@ -228,7 +228,7 @@ func TestRoundInfo_Sign(t *testing.T) {
 }
 
 // Error path
-func TestRoundInfo_Sign_Error(t *testing.T) {
+func TestRoundInfo_SignVerify_Error(t *testing.T) {
 	// Create roundInfo object
 	testId := uint64(25)
 	testTopology := []string{"test", "te", "st", "testtest"}
