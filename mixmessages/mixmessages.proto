@@ -247,7 +247,7 @@ message NDFHash {
 // Message type containing the network definition file
 message NDF {
     bytes Ndf = 1;
-    bytes Signature = 2;
+    RSASignature Signature = 2;
 }
 
 // NodeRegistration contains information to register a node.
@@ -263,11 +263,6 @@ message NodeRegistration {
       string GatewayAddress   = 6;
       uint32 GatewayPort      = 7; // Note: there is no uint16
       string RegistrationCode = 8;
-}
-
-// RSASignature is a digital signature for the RSA algorithm
-message RSASignature {
-    bytes Signature = 1;
 }
 
 // UserRegistration message to initialize registration process
@@ -344,6 +339,24 @@ message PermissionPollResponse {
     repeated RoundError NewErrors = 5; //Empty if no update needed
 }
 
+// NOTIFICATION BOT MESSAGES --------------------------------------------------------
+
+// NotificationBot service definition
+service NotificationBot {
+    // Unregister clients from push notifications
+    rpc UnregisterForNotifications (AuthenticatedMessage) returns (Ack) {
+    }
+
+    // Register clients from push notifications
+    rpc RegisterForNotifications (AuthenticatedMessage) returns (Ack) {
+    }
+}
+
+// Registration token to be associated with the client
+message NotificationToken {
+    bytes Token = 1;
+}
+
 // GENERAL USE MESSAGES --------------------------------------------------------
 
 // Generic service definition
@@ -364,6 +377,12 @@ message Ack {
 
 // Empty message for requesting action from any type of server
 message Ping {
+}
+
+// RSASignature is a digital signature for the RSA algorithm
+message RSASignature {
+    bytes Signature = 1;
+    bytes Nonce = 2;
 }
 
 // Wrapper for authenticated messages that also ensure integrity
@@ -393,7 +412,7 @@ message RoundInfo {
     uint32 BatchSize = 3;
     repeated string Topology = 4;
     uint64 StartTime = 5;
-    bytes Signature = 6; //Hash of ID, Stage, Topology, and StartTime
+    RSASignature Signature = 6; //Hash of ID, Stage, Topology, and StartTime
 }
 
 // Describes an error during a round
@@ -401,23 +420,5 @@ message RoundError {
     RoundInfo Info = 1;
     string Error = 2;
     string SourceID = 3; //ID of entity where error originated
-    bytes Signature = 4; //Hash of Info and Error
-}
-
-// NOTIFICATION BOT MESSAGES --------------------------------------------------------
-
-// NotificationBot service definition
-service NotificationBot {
-    // Unregister clients from push notifications
-    rpc UnregisterForNotifications (AuthenticatedMessage) returns (Ack) {
-    }
-
-    // Register clients from push notifications
-    rpc RegisterForNotifications (AuthenticatedMessage) returns (Ack) {
-    }
-}
-
-// Registration token to be associated with the client
-message NotificationToken {
-    bytes Token = 1;
+    RSASignature Signature = 4; //Hash of Info and Error
 }
