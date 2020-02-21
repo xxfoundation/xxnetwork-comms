@@ -9,6 +9,8 @@
 
 package mixmessages
 
+import "github.com/pkg/errors"
+
 // Marshal serializes all the data needed for a signature
 func (m *NDF) Marshal() []byte {
 	// Create the byte array
@@ -21,8 +23,12 @@ func (m *NDF) Marshal() []byte {
 }
 
 // SetSignature sets NDF's signature to the newSig argument
-func (m *NDF) SetSignature(newSig []byte) {
+func (m *NDF) SetSignature(newSig []byte) error {
+	if newSig == nil {
+		return errors.Errorf("Cannot set signature to nil value")
+	}
 	m.Signature = newSig
+	return nil
 }
 
 // ClearSignature clears out NDF's signature by setting it to nil

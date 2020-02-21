@@ -9,6 +9,8 @@
 
 package mixmessages
 
+import "github.com/pkg/errors"
+
 // Marshal serializes all the data needed for a signature
 func (m *RoundError) Marshal() []byte {
 	// Create the byte array
@@ -24,8 +26,12 @@ func (m *RoundError) Marshal() []byte {
 }
 
 // SetSignature sets RoundError's signature to the newSig argument
-func (m *RoundError) SetSignature(newSig []byte) {
+func (m *RoundError) SetSignature(newSig []byte) error {
+	if newSig == nil {
+		return errors.Errorf("Cannot set signature to nil value")
+	}
 	m.Signature = newSig
+	return nil
 }
 
 // ClearSignature clears out RoundError's signature by setting it to nil
