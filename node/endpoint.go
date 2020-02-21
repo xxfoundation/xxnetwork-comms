@@ -254,16 +254,17 @@ func (s *Comms) GetMeasure(ctx context.Context, msg *pb.AuthenticatedMessage) (*
 	return rm, err
 }
 
-func (s *Comms) PollNdf(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.GatewayNdf, error) {
+// Gateway -> Server unified polling
+func (s *Comms) Poll(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.ServerPollResponse, error) {
 	authState := s.AuthenticatedReceiver(msg)
 	//Unmarshall the any message to the message type needed
-	pingMsg := &pb.Ping{}
-	err := ptypes.UnmarshalAny(msg.Message, pingMsg)
+	pollMsg := &pb.ServerPoll{}
+	err := ptypes.UnmarshalAny(msg.Message, pollMsg)
 	if err != nil {
 		return nil, err
 	}
 
-	rm, err := s.handler.PollNdf(pingMsg, authState)
+	rm, err := s.handler.Poll(pollMsg, authState)
 	return rm, err
 }
 

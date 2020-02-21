@@ -33,6 +33,8 @@ type Handler interface {
 		RegistrationConfirmation, error)
 	// Ping gateway to ask for users to notify
 	PollForNotifications(auth *connect.Auth) ([]string, error)
+	// Client -> Gateway unified polling
+	Poll(msg *pb.GatewayPoll) (*pb.GatewayPollResponse, error)
 }
 
 // Gateway object used to implement endpoints and top-level comms functionality
@@ -91,6 +93,8 @@ type implementationFunctions struct {
 			RegistrationConfirmation, error)
 	// Ping gateway to ask for users to notify
 	PollForNotifications func(auth *connect.Auth) ([]string, error)
+	// Client -> Gateway unified polling
+	Poll func(msg *pb.GatewayPoll) (*pb.GatewayPollResponse, error)
 }
 
 // Implementation allows users of the client library to set the
@@ -132,6 +136,16 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return nil, nil
 			},
+			Poll: func(msg *pb.GatewayPoll) (*pb.GatewayPollResponse, error) {
+				warn(um)
+				return &pb.GatewayPollResponse{
+					PartialNDF:    nil,
+					LastRound:     nil,
+					NewRealtimes:  nil,
+					NewErrors:     nil,
+					NewMessageIDs: nil,
+				}, nil
+			},
 		},
 	}
 }
@@ -168,4 +182,9 @@ func (s *Implementation) ConfirmNonce(message *pb.RequestRegistrationConfirmatio
 // Ping gateway to ask for users to notify
 func (s *Implementation) PollForNotifications(auth *connect.Auth) ([]string, error) {
 	return s.Functions.PollForNotifications(auth)
+}
+
+// Client -> Gateway unified polling
+func (s *Implementation) Poll(msg *pb.GatewayPoll) (*pb.GatewayPollResponse, error) {
+	return s.Functions.Poll(msg)
 }

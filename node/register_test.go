@@ -93,3 +93,40 @@ func TestComms_RequestNdfWithAuth(t *testing.T) {
 		t.Errorf("RequestNdf: Error received: %s", err)
 	}
 }
+
+// Smoke test
+func TestComms_SendPoll(t *testing.T) {
+	RegAddress := getNextServerAddress()
+	server := StartNode("test", getNextServerAddress(), NewImplementation(),
+		nil, nil)
+	reg := registration.StartRegistrationServer("test", RegAddress,
+		registration.NewImplementation(), nil, nil)
+	defer server.Shutdown()
+	defer reg.Shutdown()
+	var manager connect.Manager
+
+	testId := "test"
+	host, err := manager.AddHost(testId, RegAddress, nil, false, false)
+	if err != nil {
+		t.Errorf("Unable to call NewHost: %+v", err)
+	}
+
+	msgs := &pb.PermissioningPoll{
+		Full: &pb.NDFHash{
+			Hash: make([]byte, 0),
+		},
+		Partial: &pb.NDFHash{
+			Hash: make([]byte, 0),
+		},
+		LastPrecompKnown:  0,
+		LastRealtimeKnown: 0,
+		LastKilledRound:   0,
+		State:             0,
+		Error:             "",
+	}
+
+	_, err = server.SendPoll(host, msgs)
+	if err != nil {
+		t.Errorf("SendPoll: Error received: %+v", err)
+	}
+}

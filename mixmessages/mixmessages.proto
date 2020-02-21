@@ -67,10 +67,6 @@ service Node {
     rpc GetMeasure (AuthenticatedMessage) returns (RoundMetrics) {
     }
 
-    // Gateway -> Server polling for NDF
-    rpc PollNdf (AuthenticatedMessage) returns (GatewayNdf) {
-    }
-
     // Gateway -> Server unified polling
     rpc Poll (AuthenticatedMessage) returns (ServerPollResponse) {
     }
@@ -109,12 +105,6 @@ message BatchInfo {
     RoundInfo Round = 1;
     int32 FromPhase = 2;
     uint32 BatchSize = 3;
-}
-
-// Contains the NDF as well as the corresponding Node ID for the Gateway
-message GatewayNdf {
-    bytes Id = 1;
-    NDF Ndf = 2;
 }
 
 // Used for collecting metrics on a round trip of the system
@@ -167,12 +157,12 @@ service Gateway {
     rpc ConfirmNonce (RequestRegistrationConfirmation) returns (RegistrationConfirmation) {
     }
 
-    // Ping gateway to ask for users to notify
+    // Notifications->Gateway request for users with pending notifications
     rpc PollForNotifications (AuthenticatedMessage) returns (IDList) {
     }
 
     // Client -> Gateway unified polling
-    rpc Poll (AuthenticatedMessage) returns (GatewayPollResponse) {
+    rpc Poll (GatewayPoll) returns (GatewayPollResponse) {
     }
 }
 

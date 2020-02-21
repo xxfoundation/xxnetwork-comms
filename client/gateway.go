@@ -161,3 +161,32 @@ func (c *Comms) SendConfirmNonceMessage(host *connect.Host,
 	result := &pb.RegistrationConfirmation{}
 	return result, ptypes.UnmarshalAny(resultMsg, result)
 }
+
+// Client -> Gateway Send Function
+func (c *Comms) SendPoll(host *connect.Host,
+	message *pb.GatewayPoll) (*pb.GatewayPollResponse, error) {
+	// Create the Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := connect.MessagingContext()
+		defer cancel()
+
+		// Send the message
+		_, err := pb.NewGatewayClient(conn).Poll(ctx, message)
+		if err != nil {
+			err = errors.New(err.Error())
+		}
+		return nil, err
+	}
+
+	// Execute the Send function
+	jww.DEBUG.Printf("Sending Poll message: %+v", message)
+	resultMsg, err := c.Send(host, f)
+	if err != nil {
+		return nil, err
+	}
+
+	// Marshall the result
+	result := &pb.GatewayPollResponse{}
+	return result, ptypes.UnmarshalAny(resultMsg, result)
+}
