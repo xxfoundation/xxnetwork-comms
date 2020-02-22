@@ -14,33 +14,35 @@ import (
 // Happy path
 func TestRoundError_ClearSignature(t *testing.T) {
 	// Create an ndf and set it's signature
-	testSign := []byte{1, 2, 45, 67, 42}
+	expectedSig := []byte{1, 2, 45, 67, 42}
+	sig := &RSASignature{Signature: expectedSig}
+
 	testRoundError := &RoundError{
-		Signature: testSign,
+		RsaSignature: sig,
 	}
 
 	// Clear the signature
 	testRoundError.ClearSignature()
 
 	// Check that the signature is indeed nil after clearing
-	if testRoundError.Signature != nil {
+	if testRoundError.RsaSignature != nil {
 		t.Errorf("Signature should be nil after a clear signature call")
 	}
 }
 
 // Happy path
 func TestRoundError_SetSignature(t *testing.T) {
-	testSign := []byte{1, 2, 45, 67, 42}
+	expectedSig := []byte{1, 2, 45, 67, 42}
 	testRoundError := &RoundError{}
 
 	// Set the sig
-	testRoundError.SetSignature(testSign)
+	testRoundError.SetSignature(expectedSig)
 
 	// Check that the ndf's signature is identical to the one set
-	if bytes.Compare(testRoundError.Signature, testSign) != 0 {
+	if bytes.Compare(testRoundError.GetSignature(), expectedSig) != 0 {
 		t.Errorf("Signature should match value it was set to! "+
 			"Expected: %+v \n\t"+
-			"Received: %+v", testSign, testRoundError.Signature)
+			"Received: %+v", expectedSig, testRoundError.GetSignature())
 	}
 }
 
@@ -155,8 +157,10 @@ func TestRoundError_Marshal_Error(t *testing.T) {
 func TestRoundError_GetSignature(t *testing.T) {
 	// Create roundErr and set signature
 	expectedSig := []byte{1, 2, 45, 67, 42}
+	sig := &RSASignature{Signature: expectedSig}
+
 	testRoundError := &RoundError{
-		Signature: expectedSig,
+		RsaSignature: sig,
 	}
 
 	// Fetch signature

@@ -16,16 +16,18 @@ import (
 // Happy path
 func TestRoundInfo_ClearSignature(t *testing.T) {
 	// Create an ndf and set it's signature
-	testSign := []byte{1, 2, 45, 67, 42}
+	expectedSig := []byte{1, 2, 45, 67, 42}
+	sig := &RSASignature{Signature: expectedSig}
+
 	testRoundInfo := &RoundInfo{
-		Signature: testSign,
+		RsaSignature: sig,
 	}
 
 	// Clear the signature
 	testRoundInfo.ClearSignature()
 
 	// Check that the signature is indeed nil after clearing
-	if testRoundInfo.Signature != nil {
+	if testRoundInfo.RsaSignature != nil {
 		t.Errorf("Signature should be nil after a clear signature call")
 	}
 }
@@ -40,10 +42,10 @@ func TestRoundInfo_SetSignature(t *testing.T) {
 	testRoundInfo.SetSignature(testSign)
 
 	// Check that the ndf's signature is identical to the one set
-	if bytes.Compare(testRoundInfo.Signature, testSign) != 0 {
+	if bytes.Compare(testRoundInfo.GetSignature(), testSign) != 0 {
 		t.Errorf("Signature should match value it was set to! "+
 			"Expected: %+v \n\t"+
-			"Received: %+v", testSign, testRoundInfo.Signature)
+			"Received: %+v", testSign, testRoundInfo.GetSignature())
 	}
 }
 
@@ -187,8 +189,10 @@ func TestRoundInfo_Marshal_Error(t *testing.T) {
 func TestRoundInfo_GetSignature(t *testing.T) {
 	// Create roundInfo and set signature
 	expectedSig := []byte{1, 2, 45, 67, 42}
+	sig := &RSASignature{Signature: expectedSig}
+
 	testRoundInfo := &RoundInfo{
-		Signature: expectedSig,
+		RsaSignature: sig,
 	}
 
 	// Fetch signature

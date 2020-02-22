@@ -14,16 +14,18 @@ import (
 // Happy path
 func TestNDF_ClearSignature(t *testing.T) {
 	// Create an ndf and set it's signature
-	testSign := []byte{1, 2, 45, 67, 42}
+
+	expectedSig := []byte{1, 2, 45, 67, 42}
+	sig := &RSASignature{Signature: expectedSig}
 	testNdf := &NDF{
-		Signature: testSign,
+		RsaSignature: sig,
 	}
 
 	// Clear the signature
 	testNdf.ClearSignature()
 
 	// Check that the signature is indeed nil after clearing
-	if testNdf.Signature != nil {
+	if testNdf.RsaSignature != nil {
 		t.Errorf("Signature should be nil after a clear signature call")
 	}
 }
@@ -37,10 +39,10 @@ func TestNDF_SetSignature(t *testing.T) {
 	testNdf.SetSignature(testSign)
 
 	// Check that the ndf's signature is identical to the one set
-	if bytes.Compare(testNdf.Signature, testSign) != 0 {
+	if bytes.Compare(testNdf.RsaSignature.Signature, testSign) != 0 {
 		t.Errorf("Signature should match value it was set to! "+
 			"Expected: %+v \n\t"+
-			"Received: %+v", testSign, testNdf.Signature)
+			"Received: %+v", testSign, testNdf.RsaSignature.Signature)
 	}
 }
 
@@ -82,8 +84,9 @@ func TestNDF_Marshal(t *testing.T) {
 func TestNDF_GetSignature(t *testing.T) {
 	// Create ndf and set signature
 	expectedSig := []byte{1, 2, 45, 67, 42}
+	sig := &RSASignature{Signature: expectedSig}
 	testNdf := &NDF{
-		Signature: expectedSig,
+		RsaSignature: sig,
 	}
 
 	// Fetch signature

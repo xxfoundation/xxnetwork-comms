@@ -25,13 +25,48 @@ func (m *NDF) Marshal() []byte {
 // SetSignature sets NDF's signature to the newSig argument
 func (m *NDF) SetSignature(newSig []byte) error {
 	if newSig == nil {
-		return errors.Errorf("Cannot set signature to nil value")
+		return errors.Errorf("Cannot set signature to nil")
 	}
-	m.Signature = newSig
+	if m.RsaSignature == nil {
+		m.RsaSignature = &RSASignature{Signature: newSig}
+	}
+	m.RsaSignature.Signature = newSig
 	return nil
 }
 
 // ClearSignature clears out NDF's signature by setting it to nil
 func (m *NDF) ClearSignature() {
-	m.Signature = nil
+	m.RsaSignature = nil
+}
+
+// GetNonce gets the value of the nonce
+func (m *NDF) GetNonce() []byte {
+	if m.RsaSignature == nil {
+		return nil
+	}
+
+	return m.RsaSignature.GetNonce()
+}
+
+// SetSignature sets NDF's nonce to the newNonce argument
+func (m *NDF) SetNonce(newNonce []byte) error {
+	if newNonce == nil {
+		return errors.Errorf("Cannot set nonce to nil")
+	}
+	if m.RsaSignature == nil {
+		return nil
+	}
+
+	m.GetRsaSignature().Nonce = newNonce
+
+	return nil
+}
+
+//GetSignature
+func (m *NDF) GetSignature() []byte {
+	if m.RsaSignature == nil {
+		return nil
+	}
+
+	return m.GetRsaSignature().GetSignature()
 }
