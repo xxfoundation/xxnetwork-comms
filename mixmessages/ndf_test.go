@@ -13,10 +13,14 @@ import (
 
 // Happy path
 func TestNDF_ClearSignature(t *testing.T) {
-	// Create an ndf and set it's signature
-
+	// Create signature object
 	expectedSig := []byte{1, 2, 45, 67, 42}
-	sig := &RSASignature{Signature: expectedSig}
+	sig := &RSASignature{
+		Signature: expectedSig,
+		Nonce:     expectedSig,
+	}
+
+	// Create ndf message
 	testNdf := &NDF{
 		RsaSignature: sig,
 	}
@@ -24,31 +28,62 @@ func TestNDF_ClearSignature(t *testing.T) {
 	// Clear the signature
 	testNdf.ClearSignature()
 
-	// Check that the signature is indeed nil after clearing
-	if testNdf.RsaSignature != nil {
-		t.Errorf("Signature should be nil after a clear signature call")
+	// Check that the signature's values are nil after clearing
+	if testNdf.GetSignature() != nil && testNdf.GetNonce() != nil {
+		t.Errorf("Signature's values should be nil after a ClearSignature() call!"+
+			"\n\tSignature is: %+v", testNdf.RsaSignature)
+	}
+}
+
+// ------------------------------------ Signature tests ------------------------------------------
+
+// Happy path
+func TestNDF_SetSignature(t *testing.T) {
+	// Create ndf message
+	tempVal := []byte("fail Fail fail")
+	tempSig := &RSASignature{Signature: tempVal}
+	testNdf := &NDF{RsaSignature: tempSig}
+
+	// Set the sig
+	expectedSig := []byte{1, 2, 45, 67, 42}
+	testNdf.SetSignature(expectedSig)
+
+	// Check that the ndf's signature is identical to the one set
+	if bytes.Compare(testNdf.RsaSignature.Signature, expectedSig) != 0 {
+		t.Errorf("Signature should match value it was set to! "+
+			"Expected: %+v \n\t"+
+			"Received: %+v", expectedSig, testNdf.RsaSignature.Signature)
 	}
 }
 
 // Happy path
-func TestNDF_SetSignature(t *testing.T) {
-	testSign := []byte{1, 2, 45, 67, 42}
+func TestNDF_SetSignature_NilObject(t *testing.T) {
 	testNdf := &NDF{}
 
-	// Set the sig
-	testNdf.SetSignature(testSign)
+	// Set the sig w/o signature being initialized
+	expectedSig := []byte{1, 2, 45, 67, 42}
+	testNdf.SetSignature(expectedSig)
 
-	// Check that the ndf's signature is identical to the one set
-	if bytes.Compare(testNdf.RsaSignature.Signature, testSign) != 0 {
+	// Sig should be set to expected value
+	if bytes.Compare(testNdf.RsaSignature.Signature, expectedSig) != 0 {
 		t.Errorf("Signature should match value it was set to! "+
 			"Expected: %+v \n\t"+
-			"Received: %+v", testSign, testNdf.RsaSignature.Signature)
+			"Received: %+v", expectedSig, testNdf.RsaSignature.Signature)
 	}
+
 }
 
 // Error path
-func TestNDF_SetSignature_Error(t *testing.T) {
-	testNdf := &NDF{}
+func TestNDF_SetSignature_SetNil(t *testing.T) {
+	// Create signature object
+	expectedSig := []byte{1, 2, 45, 67, 42}
+	sig := &RSASignature{
+		Signature: expectedSig,
+		Nonce:     expectedSig,
+	}
+
+	// Create ndf message
+	testNdf := &NDF{RsaSignature: sig}
 
 	// Set the sig to nil (error case)
 	err := testNdf.SetSignature(nil)
@@ -79,6 +114,119 @@ func TestNDF_GetSignature(t *testing.T) {
 			"Received: %+v", expectedSig, receivedSig)
 	}
 }
+
+// Error path (nil signature)
+func TestNDF_GetSignature_NilCase(t *testing.T) {
+	// Create ndf w/o signature object
+	testNdf := &NDF{}
+
+	// Attempt to get signature
+	receivedSig := testNdf.GetSignature()
+
+	// Received sig should be nil
+	if receivedSig != nil {
+		t.Errorf("Signature should default to nil if not set!")
+	}
+
+}
+
+// ----------------------------------------- Nonce tests ------------------------------------------------
+
+// Happy path
+func TestNDF_GetNonce(t *testing.T) {
+	expectedNonce := []byte{1, 2, 45, 67, 42}
+
+	// Create message with nonce value
+	sig := &RSASignature{Nonce: expectedNonce}
+	testNdf := &NDF{
+		RsaSignature: sig,
+	}
+
+	// Retrieve the nonce
+	receivedNonce := testNdf.GetNonce()
+
+	// Compare to the value originally set
+	if bytes.Compare(expectedNonce, receivedNonce) != 0 {
+		t.Errorf("Nonce does not match one that was set!"+
+			"Expected: %+v \n\t"+
+			"Received: %+v", expectedNonce, receivedNonce)
+
+	}
+}
+
+// Error path (nil object)
+func TestNDF_GetNonce_NilObject(t *testing.T) {
+	// Create ndf w/o signature object
+	testNdf := &NDF{}
+
+	// Attempt to get nonce
+	receivedSig := testNdf.GetNonce()
+
+	// Received nonce should be nil
+	if receivedSig != nil {
+		t.Errorf("Nonce should default to nil if not set!")
+	}
+
+}
+
+//
+func TestNDF_SetNonce(t *testing.T) {
+	// Create ndf message
+	tempVal := []byte("fail Fail fail")
+	tempSig := &RSASignature{Nonce: tempVal}
+	testNdf := &NDF{RsaSignature: tempSig}
+
+	// Set the sig
+	expectedNonce := []byte{1, 2, 45, 67, 42}
+	testNdf.SetNonce(expectedNonce)
+
+	// Check that the ndf's signature is identical to the one set
+	if bytes.Compare(testNdf.RsaSignature.Nonce, expectedNonce) != 0 {
+		t.Errorf("Signature should match value it was set to! "+
+			"Expected: %+v \n\t"+
+			"Received: %+v", expectedNonce, testNdf.RsaSignature.Nonce)
+	}
+}
+
+// Happy path
+func TestNDF_SetNonce_NilObject(t *testing.T) {
+	testNdf := &NDF{}
+
+	// Set the sig w/o signature being initialized
+	expectedNonce := []byte{1, 2, 45, 67, 42}
+	testNdf.SetNonce(expectedNonce)
+
+	// Sig should be set to expected value
+	if bytes.Compare(testNdf.RsaSignature.Nonce, expectedNonce) != 0 {
+		t.Errorf("Signature should match value it was set to! "+
+			"Expected: %+v \n\t"+
+			"Received: %+v", expectedNonce, testNdf.RsaSignature.Nonce)
+	}
+}
+
+// Error path
+func TestNDF_SetNonce_SetNil(t *testing.T) {
+	// Create signature object
+	expectedSig := []byte{1, 2, 45, 67, 42}
+	sig := &RSASignature{
+		Signature: expectedSig,
+		Nonce:     expectedSig,
+	}
+
+	// Create ndf message
+	testNdf := &NDF{RsaSignature: sig}
+
+	// Set the sig to nil (error case)
+	err := testNdf.SetNonce(nil)
+	if err != nil {
+		return
+	}
+
+	t.Errorf("Expected error path: Should not be able to set signature as nil")
+
+}
+
+// -------------------- Sign/Verify tests -------------------------------
 
 // Happy path
 func TestNdf_SignVerify(t *testing.T) {
