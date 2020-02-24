@@ -11,17 +11,6 @@ package mixmessages
 
 import "github.com/pkg/errors"
 
-// Marshal serializes all the data needed for a signature
-func (m *NDF) Marshal() []byte {
-	// Create the byte array
-	b := make([]byte, 0)
-
-	// Marshall the roundInfo data and append to byte array
-	b = append(b, m.Ndf...)
-
-	return b
-}
-
 // SetSignature sets NDF's signature to the newSig argument
 func (m *NDF) SetSignature(newSig []byte) error {
 	if newSig == nil {

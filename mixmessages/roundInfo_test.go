@@ -7,9 +7,7 @@ package mixmessages
 
 import (
 	"bytes"
-	"encoding/binary"
 	"gitlab.com/elixxir/crypto/signature"
-	"strconv"
 	"testing"
 )
 
@@ -61,128 +59,6 @@ func TestRoundInfo_SetSignature_Error(t *testing.T) {
 
 	t.Errorf("Expected error path: Should not be able to set signature as nil")
 
-}
-
-// Happy path
-func TestRoundInfo_Marshal(t *testing.T) {
-	testId := uint64(25)
-	testTopology := []string{"test", "te", "st", "testtest"}
-	testRealtime := false
-	testTime := uint64(49)
-	testBatch := uint32(23)
-	testRoundInfo := &RoundInfo{
-		ID:        testId,
-		Realtime:  testRealtime,
-		Topology:  testTopology,
-		StartTime: testTime,
-		BatchSize: testBatch,
-	}
-
-	serializedData := testRoundInfo.Marshal()
-
-	// ------------- Replicate marshal logic ------------------
-
-	// Create the byte array
-	testData := make([]byte, 0)
-
-	// Serialize the id into a temp buffer of uint64 size (ie 8 bytes)
-	tmp := make([]byte, 8)
-	binary.PutUvarint(tmp, testId)
-
-	// Append that temp buffer into the return buffer
-	testData = append(testData, tmp...)
-
-	// Serialize the boolean value
-	testData = strconv.AppendBool(testData, testRealtime)
-
-	// Serialize the batchSize into a temp buffer of uint32 size (ie 4 bytes)
-	tmp = make([]byte, 4)
-	binary.LittleEndian.PutUint32(tmp, testBatch)
-
-	// Append that temp buffer into the return buffer
-	testData = append(testData, tmp...)
-
-	// Serialize the entire topology
-	for _, val := range testTopology {
-		testData = append(testData, []byte(val)...)
-	}
-
-	// Serialize the StartTime into a temp buffer of uint64 size (ie 8 bytes)
-	tmp = make([]byte, 8)
-	binary.PutUvarint(tmp, testTime)
-
-	// Append that temp buffer into the return buffer
-	testData = append(testData, tmp...)
-
-	// Compare the replicated data and the actual data
-	if bytes.Compare(serializedData, testData) != 0 {
-		t.Errorf("Marshalled data does not match contents!"+
-			"Expected: %+v \n\t"+
-			"Recieved: %+v", testData, serializedData)
-	}
-}
-
-// Error path
-func TestRoundInfo_Marshal_Error(t *testing.T) {
-	testId := uint64(25)
-	testTopology := []string{"test", "te", "st", "testtest"}
-	testRealtime := false
-	testTime := uint64(49)
-	testBatch := uint32(23)
-	testRoundInfo := &RoundInfo{
-		ID:        testId,
-		Realtime:  testRealtime,
-		Topology:  testTopology,
-		StartTime: testTime,
-		BatchSize: testBatch,
-	}
-
-	serializedData := testRoundInfo.Marshal()
-
-	// ------------- Replicate marshal logic ------------------
-
-	// Create the byte array
-	badSerializedData := make([]byte, 0)
-
-	// Serialize the id into a temp buffer of uint64 size (ie 8 bytes)
-	tmp := make([]byte, 8)
-	binary.PutUvarint(tmp, testId)
-
-	// Append that temp buffer into the return buffer
-	badSerializedData = append(badSerializedData, tmp...)
-
-	/* Omit serializing arbitrary fields
-
-	// Serialize the boolean value
-	b = strconv.AppendBool(b, testRealtime)
-
-	// Serialize the batchSize into a temp buffer of uint32 size (ie 4 bytes)
-	tmp = make([]byte, 4)
-	binary.LittleEndian.PutUint32(tmp, testBatch)
-
-	// Append that temp buffer into the return buffer
-	b = append(b, tmp...)
-
-	// Serialize the entire topology
-	for _, val := range testTopology {
-		b = append(b, []byte(val)...)
-	}
-	*/
-
-	// Serialize the StartTime into a temp buffer of uint64 size (ie 8 bytes)
-	tmp = make([]byte, 8)
-	binary.PutUvarint(tmp, testTime)
-
-	// Append that temp buffer into the return buffer
-	badSerializedData = append(badSerializedData, tmp...)
-
-	// Compare an incomplete serialization to the marsalled data
-	if bytes.Compare(serializedData, badSerializedData) != 0 {
-		return
-	}
-
-	t.Errorf("Expected error path: Marshaled data should not match " +
-		"manually locally serialized data")
 }
 
 // Happy path

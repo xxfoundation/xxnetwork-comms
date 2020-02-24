@@ -61,26 +61,6 @@ func TestNDF_SetSignature_Error(t *testing.T) {
 }
 
 // Happy path
-func TestNDF_Marshal(t *testing.T) {
-	// Create ndf object
-	ourNdf := []byte{25, 254, 123, 42}
-	testNdf := &NDF{
-		Ndf: ourNdf,
-	}
-
-	// Marshal and compare to the original ndf bytes
-	serializedData := testNdf.Marshal()
-
-	// This test assumes serialized ndf message is just an ndf
-	// If the Marshal() logic ever changes, this test may fail
-	if bytes.Compare(serializedData, ourNdf) != 0 {
-		t.Errorf("Marshalled data does not match contents!"+
-			"Expected: %+v \n\t"+
-			"Recieved: %+v", ourNdf, serializedData)
-	}
-}
-
-// Happy path
 func TestNDF_GetSignature(t *testing.T) {
 	// Create ndf and set signature
 	expectedSig := []byte{1, 2, 45, 67, 42}
