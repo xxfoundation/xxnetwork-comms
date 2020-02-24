@@ -37,9 +37,12 @@ type Host struct {
 	// PEM-format TLS Certificate
 	certificate []byte
 
-	// Token shared with this Host establishing reverse authentication
+	/* Tokens shared with this Host establishing reverse authentication */
+
+	//  Token used for receiving from this host
 	receptionToken Token
 
+	// Token used for sending to this host
 	transmissionToken Token
 
 	// Configure the maximum number of connection attempts
