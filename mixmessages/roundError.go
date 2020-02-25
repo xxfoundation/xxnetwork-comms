@@ -15,7 +15,7 @@ import "github.com/pkg/errors"
 func (m *RoundError) SetSignature(newSig []byte) error {
 	// Cannot set signature to nil
 	if newSig == nil {
-		return errors.Errorf("Cannot set signature to nil value")
+		return errors.New("Cannot set signature to nil value")
 	}
 
 	// If the signature object is nil, create it and set value
@@ -48,7 +48,7 @@ func (m *RoundError) GetNonce() []byte {
 func (m *RoundError) SetNonce(newNonce []byte) error {
 	// Cannot set nonce to nil
 	if newNonce == nil {
-		return errors.Errorf("Cannot set nonce to nil")
+		return errors.New("Cannot set nonce to nil")
 	}
 
 	// If the signature object is nil, create it and set value
