@@ -250,7 +250,7 @@ message NDFHash {
 // NDF is provided to level 4 (ie clients) to protect the inner levels
 message NDF{
     bytes Ndf = 1;
-    RSASignature Signature = 2;
+    RSASignature RsaSignature = 2;
 }
 
 
@@ -416,7 +416,7 @@ message RoundInfo {
     uint32 BatchSize = 3;
     repeated string Topology = 4;
     uint64 StartTime = 5;
-    RSASignature Signature = 6; //Hash of ID, Stage, Topology, and StartTime
+    RSASignature RsaSignature = 6; //Hash of ID, Stage, Topology, and StartTime
 }
 
 // RoundError will be used to describe a round error
@@ -425,5 +425,5 @@ message RoundError {
     RoundInfo Info = 1;
     string Error = 2;
     string SourceID = 3; //ID of entity where error originated
-    RSASignature Signature = 4; //Hash of Info and Error
+    RSASignature RsaSignature = 4; //Hash of Info and Error
 }

@@ -7,9 +7,16 @@ package mixmessages
 
 import (
 	"bytes"
+	"crypto/rand"
 	"gitlab.com/elixxir/crypto/signature"
+	"gitlab.com/elixxir/crypto/signature/rsa"
 	"testing"
 )
+
+// Ensure message type conforms to genericSignable interface
+// If this ever fails, check for modifications in the crypto library
+//  as well as for this message type
+var _ = signature.GenericSignable(&RoundError{})
 
 // Happy path
 func TestRoundError_ClearSignature(t *testing.T) {
@@ -220,12 +227,23 @@ func TestRoundError_SignVerify(t *testing.T) {
 		Error: testError,
 	}
 
-	// Ensure message type conforms to genericSignable interface
-	signature.Sign(testRoundError)
+	// Generate keys
+	privateKey, err := rsa.GenerateKey(rand.Reader, 1024)
+	if err != nil {
+		t.Errorf("Failed to generate key: %+v", err)
+	}
+	pubKey := privateKey.GetPublic()
+
+	// Sign message
+	err = signature.Sign(testRoundError, privateKey)
+	if err != nil {
+		t.Errorf("Unable to sign message: %+v", err)
+	}
 
 	// Verify signature
-	if !signature.Verify(testRoundError) {
-		t.Error("Expected happy path: Failed to verify!")
+	err = signature.Verify(testRoundError, pubKey)
+	if err != nil {
+		t.Errorf("Expected happy path! Failed to verify: %+v", err)
 	}
 
 }
@@ -253,14 +271,25 @@ func TestRoundError_SignVerify_Error(t *testing.T) {
 		Error: testError,
 	}
 
+	// Generate keys
+	privateKey, err := rsa.GenerateKey(rand.Reader, 1024)
+	if err != nil {
+		t.Errorf("Failed to generate key: %+v", err)
+	}
+	pubKey := privateKey.GetPublic()
+
 	// Ensure message type conforms to genericSignable interface
-	signature.Sign(testRoundError)
+	err = signature.Sign(testRoundError, privateKey)
+	if err != nil {
+		t.Errorf("Unable to sign message: %+v", err)
+	}
 
 	// Reset Error value so verify()'s signature won't match
 	testRoundError.Error = "Not an expected error message"
 
 	// Verify signature
-	if !signature.Verify(testRoundError) {
+	err = signature.Verify(testRoundError, pubKey)
+	if err != nil {
 		return
 	}
 

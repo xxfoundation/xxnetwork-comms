@@ -7,9 +7,16 @@ package mixmessages
 
 import (
 	"bytes"
+	"crypto/rand"
 	"gitlab.com/elixxir/crypto/signature"
+	"gitlab.com/elixxir/crypto/signature/rsa"
 	"testing"
 )
+
+// Ensure message type conforms to genericSignable interface
+// If this ever fails, check for modifications in the crypto library
+//  as well as for this message type
+var _ = signature.GenericSignable(&RoundInfo{})
 
 // Happy path
 func TestRoundInfo_ClearSignature(t *testing.T) {
@@ -214,13 +221,25 @@ func TestRoundInfo_SignVerify(t *testing.T) {
 		BatchSize: testBatch,
 	}
 
+	// Generate keys
+	privateKey, err := rsa.GenerateKey(rand.Reader, 1024)
+	if err != nil {
+		t.Errorf("Failed to generate key: %+v", err)
+	}
+	pubKey := privateKey.GetPublic()
+
 	// Ensure message type conforms to genericSignable interface
-	signature.Sign(testRoundInfo)
+	err = signature.Sign(testRoundInfo, privateKey)
+	if err != nil {
+		t.Errorf("Unable to sign message: %+v", err)
+	}
 
 	// Verify signature
-	if !signature.Verify(testRoundInfo) {
-		t.Error("Expected happy path: Failed to verify!")
+	err = signature.Verify(testRoundInfo, pubKey)
+	if err != nil {
+		t.Errorf("Expected happy path! Failed to verify: %+v", err)
 	}
+
 }
 
 // Error path
@@ -239,13 +258,24 @@ func TestRoundInfo_SignVerify_Error(t *testing.T) {
 		BatchSize: testBatch,
 	}
 
+	// Generate keys
+	privateKey, err := rsa.GenerateKey(rand.Reader, 1024)
+	if err != nil {
+		t.Errorf("Failed to generate key: %+v", err)
+	}
+	pubKey := privateKey.GetPublic()
+
 	// Ensure message type conforms to genericSignable interface
-	signature.Sign(testRoundInfo)
+	err = signature.Sign(testRoundInfo, privateKey)
+	if err != nil {
+		t.Errorf("Unable to sign message: %+v", err)
+	}
 
 	// Reset Topology value so verify()'s signature won't match
-	testRoundInfo.Topology = []string{"fail", "fa", "il", "failfail"}
+	testRoundInfo.Topology = []string{"I", "am", "totally", "failing right now"}
 	// Verify signature
-	if !signature.Verify(testRoundInfo) {
+	err = signature.Verify(testRoundInfo, pubKey)
+	if err != nil {
 		return
 	}
 

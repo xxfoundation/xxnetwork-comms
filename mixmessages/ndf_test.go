@@ -7,9 +7,16 @@ package mixmessages
 
 import (
 	"bytes"
+	"crypto/rand"
 	"gitlab.com/elixxir/crypto/signature"
+	"gitlab.com/elixxir/crypto/signature/rsa"
 	"testing"
 )
+
+// Ensure message type conforms to genericSignable interface
+// If this ever fails, check for modifications in the crypto library
+//  as well as for this message type
+var _ = signature.GenericSignable(&NDF{})
 
 // Happy path
 func TestNDF_ClearSignature(t *testing.T) {
@@ -235,13 +242,23 @@ func TestNdf_SignVerify(t *testing.T) {
 	testNdf := &NDF{
 		Ndf: ourNdf,
 	}
+	// Generate keys
+	privateKey, err := rsa.GenerateKey(rand.Reader, 1024)
+	if err != nil {
+		t.Errorf("Failed to generate key: %+v", err)
+	}
+	pubKey := privateKey.GetPublic()
 
-	// Ensure message type conforms to genericSignable interface
-	signature.Sign(testNdf)
+	// Sign message
+	err = signature.Sign(testNdf, privateKey)
+	if err != nil {
+		t.Errorf("Unable to sign message: %+v", err)
+	}
 
 	// Verify signature
-	if !signature.Verify(testNdf) {
-		t.Error("Expected happy path: Failed to verify!")
+	err = signature.Verify(testNdf, pubKey)
+	if err != nil {
+		t.Errorf("Expected happy path! Failed to verify: %+v", err)
 	}
 }
 
@@ -253,14 +270,26 @@ func TestNdf_SignVerify_Error(t *testing.T) {
 		Ndf: ourNdf,
 	}
 
-	// Ensure message type conforms to genericSignable interface
-	signature.Sign(testNdf)
+	// Generate keys
+	privateKey, err := rsa.GenerateKey(rand.Reader, 1024)
+	if err != nil {
+		t.Errorf("Failed to generate key: %+v", err)
+	}
+	pubKey := privateKey.GetPublic()
+
+	// Sign message
+	err = signature.Sign(testNdf, privateKey)
+	if err != nil {
+		t.Errorf("Unable to sign message: %+v", err)
+	}
 
 	// Reset ndf value so verify()'s signature won't match
 	testNdf.Ndf = []byte{1}
 
 	// Verify signature
-	if !signature.Verify(testNdf) {
+	err = signature.Verify(testNdf, pubKey)
+	// Verify signature
+	if err != nil {
 		return
 	}
 
