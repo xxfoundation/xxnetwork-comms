@@ -14,7 +14,6 @@ import (
 	"crypto/rand"
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
@@ -101,7 +100,7 @@ func (c *ProtoComms) PackAuthenticatedMessage(msg proto.Message, host *Host,
 
 	// If signature is enabled, sign the message and add to payload
 	if enableSignature && !c.disableAuth {
-		authMsg.Signature, err = c.signMessage(anyMsg)
+		authMsg.Signature, err = c.SignMessage(anyMsg)
 		if err != nil {
 			return nil, err
 		}
@@ -191,7 +190,7 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) (err error) {
 
 	// Verify the token signature unless disableAuth has been set for testing
 	if !c.disableAuth {
-		if err := c.verifyMessage(msg, host); err != nil {
+		if err := c.VerifyMessage(msg.Message, msg.Signature, host); err != nil {
 			return errors.Errorf("Invalid token signature: %+v", err)
 		}
 	}
@@ -259,13 +258,13 @@ func (c *ProtoComms) DisableAuth() {
 	c.disableAuth = true
 }
 
-// Takes a generic-type message, returns the signature
+// Takes a message and returns its signature
 // The message is signed with the ProtoComms RSA PrivateKey
-func (c *ProtoComms) signMessage(anyMessage *any.Any) ([]byte, error) {
+func (c *ProtoComms) SignMessage(msg proto.Message) ([]byte, error) {
 	// Hash the message data
 	options := rsa.NewDefaultOptions()
 	hash := options.Hash.New()
-	hash.Write([]byte(anyMessage.String()))
+	hash.Write([]byte(msg.String()))
 	hashed := hash.Sum(nil)
 
 	// Obtain the private key
@@ -281,18 +280,18 @@ func (c *ProtoComms) signMessage(anyMessage *any.Any) ([]byte, error) {
 	return signature, nil
 }
 
-// Takes an AuthenticatedMessage and a Host, verifies the signature
+// Takes a message and a Host, verifies the signature
 // using Host public key, returning an error if invalid
-func (c *ProtoComms) verifyMessage(msg *pb.AuthenticatedMessage, host *Host) error {
+func (c *ProtoComms) VerifyMessage(msg proto.Message, signature []byte, host *Host) error {
 
 	// Get hashed data of the message
 	options := rsa.NewDefaultOptions()
 	hash := options.Hash.New()
-	hash.Write([]byte(msg.Message.String()))
+	hash.Write([]byte(msg.String()))
 	hashed := hash.Sum(nil)
 
 	// Verify signature of message using host public key
-	err := rsa.Verify(host.rsaPublicKey, options.Hash, hashed, msg.Signature, nil)
+	err := rsa.Verify(host.rsaPublicKey, options.Hash, hashed, signature, nil)
 	if err != nil {
 		return errors.New(err.Error())
 	}
