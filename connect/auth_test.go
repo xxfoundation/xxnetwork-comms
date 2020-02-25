@@ -197,6 +197,12 @@ func TestProtoComms_ValidateToken(t *testing.T) {
 	if err != nil {
 		t.Errorf("Expected to validate token: %+v", err)
 	}
+
+	if !bytes.Equal(msg.Token, host.transmissionToken) {
+		t.Errorf("Message token doesn't match message's token! "+
+			"Expected: %+v"+
+			"\n\tReceived: %+v", host.transmissionToken, msg.Token)
+	}
 }
 
 // Dynamic authentication happy path (e.g. host not pre-added)
@@ -262,6 +268,12 @@ func TestProtoComms_ValidateTokenDynamic(t *testing.T) {
 	}
 	if !host.IsDynamicHost() {
 		t.Errorf("Expected host to be dynamic!")
+	}
+
+	if !bytes.Equal(msg.Token, host.receptionToken) {
+		t.Errorf("Message token doesn't match message's token! "+
+			"Expected: %+v"+
+			"\n\tReceived: %+v", host.receptionToken, msg.Token)
 	}
 
 }
