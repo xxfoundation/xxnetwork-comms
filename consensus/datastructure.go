@@ -19,16 +19,16 @@ func (u *Updates) AddRound(info *mixmessages.RoundInfo) {
 		u.updates = New(RoundUpdatesBufLen)
 	}
 
-	nextId := u.updates.GetMostRecent() + 1
-	if nextId == info.ID {
+	nextId := u.updates.GetMostRecent().(*mixmessages.RoundInfo).UpdateID + 1
+	if nextId == info.UpdateID {
 		u.updates.Push(info)
-	} else if nextId < info.ID {
-		for i := nextId; i < info.ID; i++ {
+	} else if nextId < info.UpdateID {
+		for i := nextId; i < info.UpdateID; i++ {
 			u.updates.Push(nil)
 		}
 		u.updates.Push(info)
 	} else if nextId > info.ID {
-		i := int(info.ID - nextId)
+		i := int(info.UpdateID - nextId)
 		cur := u.updates.Get(i)
 		if cur != nil {
 			u.updates.PushToIndex(info, i)
@@ -53,7 +53,7 @@ func (d *Data) UpsertRound(r *mixmessages.RoundInfo) error {
 	//find the round location
 	//check the new state is newer then the current
 	//replace the round info object
-
+	return nil
 }
 
 type RingBuff struct {

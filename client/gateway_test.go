@@ -140,9 +140,7 @@ func TestComms_SendPoll(t *testing.T) {
 			Partial: &pb.NDFHash{
 				Hash: make([]byte, 0),
 			},
-			LastRealtimeKnown: 0,
-			LastKilledRound:   0,
-			LastMessageID:     "",
+			LastMessageID: "",
 		})
 	if err != nil {
 		t.Errorf("SendPoll: Error received: %+v", err)
