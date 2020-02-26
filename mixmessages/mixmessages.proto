@@ -117,19 +117,16 @@ message RoundTripPing {
 message ServerPoll {
     NDFHash Full = 1;
     NDFHash Partial = 2;
-    uint64 LastPrecompKnown = 3;
-    uint64 LastRealtimeKnown = 4;
-    string Error = 6; //Only Populated in the event of errors
-    uint64 LastKilledRound = 5;
+    uint64 LastUpdate = 3;
+    string Error = 4; // Only Populated in the event of errors
 }
+
 
 // Unified Gateway->Server polling response
 message ServerPollResponse {
     NDF FullNDF = 1; //Empty if no update needed
     NDF PartialNDF = 2; //Empty if no update needed
-    repeated RoundInfo NewPrecomps = 3; //Empty if no update needed
-    repeated RoundInfo NewRealtimes = 4; //Empty if no update needed
-    repeated RoundError NewErrors = 5; //Empty if no update needed
+    repeated RoundInfo Updates = 3; //Empty if no update needed
     RoundInfo BatchRequest = 6; //Empty if no update needed
     repeated Slot slots = 7; //Empty if no update needed
 }
@@ -200,18 +197,16 @@ message Slot {
 // Unified Client->Gateway polling message
 message GatewayPoll {
     NDFHash Partial = 1;
-    uint64 LastRealtimeKnown = 2;
-    uint64 LastKilledRound = 3;
-    string LastMessageID = 4;
+    uint64 LastUpdate = 2;
+    string LastMessageID = 3;
 }
 
 // Unified Client->Gateway polling response
 message GatewayPollResponse {
-    NDF PartialNDF = 1; //Empty if no update needed
-    RoundInfo LastRound = 2; //Last round the gateway has messages from
-    repeated RoundInfo NewRealtimes = 3; //Empty if no update needed
-    repeated RoundError NewErrors = 4; //Empty if no update needed
-    repeated string NewMessageIDs = 5; //Empty if no update needed
+    NDF PartialNDF = 1; // Empty if no update needed
+    RoundInfo LastRound = 2; // Last round the gateway has messages from
+    repeated RoundInfo Updates = 3; // Empty if no update needed
+    repeated string NewMessageIDs = 4; // Empty if no update needed
 }
 
 // REGISTRATION MESSAGE SERVICE ------------------------------------------------
@@ -316,28 +311,18 @@ message RegistrationConfirmation {
 message PermissioningPoll {
     NDFHash Full = 1;
     NDFHash Partial = 2;
-    uint64 LastPrecompKnown = 3;
-    uint64 LastRealtimeKnown = 4;
-    uint64 LastKilledRound = 5;
-    // NOT_STARTED = 0
-    // WAITING = 1
-    // PRECOMPUTING= 2
-    // STANDBY = 3
-    // REALTIME = 4
-    // ERROR_FATAL = 5
-    // ERROR_RECOVERABLE = 6
-    uint32 State = 6;
-    string Error = 7; //Only Populated in the event of errors
+    uint64 LastUpdate = 3;
+    uint32 NodeState = 4;
+    RoundError Error = 5; // Only Populated in the event of errors
 }
 
 // Unified Server->Permissioning polling response
 message PermissionPollResponse {
-    NDF FullNDF = 1; //Empty if no update needed
-    NDF PartialNDF = 2; //Empty if no update needed
-    repeated RoundInfo NewPrecomps = 3; //Empty if no update needed
-    repeated RoundInfo NewRealtimes = 4; //Empty if no update needed
-    repeated RoundError NewErrors = 5; //Empty if no update needed
+    NDF FullNDF = 1; // Empty if no update needed
+    NDF PartialNDF = 2; // Empty if no update needed
+    repeated RoundInfo Updates = 3; // Empty if no update needed
 }
+
 
 // NOTIFICATION BOT MESSAGES --------------------------------------------------------
 
@@ -408,17 +393,17 @@ message AssignToken {
 // Describes a round
 message RoundInfo {
     uint64 ID = 1;
-    bool Realtime = 2; //true = realtime, false = precomputation
-    uint32 BatchSize = 3;
-    repeated string Topology = 4;
-    uint64 StartTime = 5;
-    RSASignature Signature = 6; //Hash of ID, Stage, Topology, and StartTime
+    uint64 UpdateID = 2;
+    uint32 State = 3; // Precomp, Standby, Realtime, Completed, Failed
+    uint32 BatchSize = 4;
+    repeated string Topology = 5; // List of NodeIDs
+    repeated uint64 Timestamps = 6; // List of state timestamps in UTC
+    repeated RoundError Errors = 7; // List of errors which occured
+    RSASignature Signature = 8;
 }
 
 // Describes an error during a round
 message RoundError {
-    RoundInfo Info = 1;
     string Error = 2;
-    string SourceID = 3; //ID of entity where error originated
-    RSASignature Signature = 4; //Hash of Info and Error
+    RSASignature Signature = 4; // Hash of Info and Error
 }
