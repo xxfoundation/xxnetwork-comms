@@ -270,7 +270,10 @@ func (c *ProtoComms) RetrieveNdf(currentDef *ndf.NetworkDefinition) (*ndf.Networ
 	if currentDef != nil {
 		//Hash the notifications bot ndf for comparison with registration's ndf
 		hash := sha256.New()
-		ndfBytes := currentDef.Serialize()
+		ndfBytes, err := currentDef.Marshal()
+		if err != nil {
+			return nil, err
+		}
 		hash.Write(ndfBytes)
 		ndfHash = hash.Sum(nil)
 	}
