@@ -33,7 +33,7 @@ func TestNDF_ClearSignature(t *testing.T) {
 	}
 
 	// Clear the signature
-	testNdf.ClearSignature()
+	testNdf.ClearSig()
 
 	// Check that the signature's values are nil after clearing
 	if testNdf.GetSig() != nil && testNdf.GetNonce() != nil {
@@ -53,7 +53,7 @@ func TestNDF_SetSignature(t *testing.T) {
 
 	// Set the sig
 	expectedSig := []byte{1, 2, 45, 67, 42}
-	testNdf.SetSignature(expectedSig)
+	testNdf.SetSig(expectedSig)
 
 	// Check that the ndf's signature is identical to the one set
 	if bytes.Compare(testNdf.RsaSignature.Signature, expectedSig) != 0 {
@@ -69,7 +69,7 @@ func TestNDF_SetSignature_NilObject(t *testing.T) {
 
 	// Set the sig w/o signature being initialized
 	expectedSig := []byte{1, 2, 45, 67, 42}
-	testNdf.SetSignature(expectedSig)
+	testNdf.SetSig(expectedSig)
 
 	// Sig should be set to expected value
 	if bytes.Compare(testNdf.RsaSignature.Signature, expectedSig) != 0 {
@@ -93,7 +93,7 @@ func TestNDF_SetSignature_SetNil(t *testing.T) {
 	testNdf := &NDF{RsaSignature: sig}
 
 	// Set the sig to nil (error case)
-	err := testNdf.SetSignature(nil)
+	err := testNdf.SetSig(nil)
 	if err != nil {
 		return
 	}

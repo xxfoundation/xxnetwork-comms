@@ -46,8 +46,8 @@ github.com/stretchr/testify v1.4.0 h1:2E4SXV/wtOkTonXsotYi4li6zVWxYlZuYNCXe9XRJy
 github.com/stretchr/testify v1.4.0/go.mod h1:j7eGeouHqKxXV5pUuKE4zz7dFj8WfuZ+81PSLYec5m4=
 github.com/stretchr/testify v1.5.1 h1:nOGnQDM7FYENwehXlg/kFVnos3rEvtKTjRvOWSzb6H4=
 github.com/stretchr/testify v1.5.1/go.mod h1:5W2xD1RspED5o8YsWQXVCued0rvSQ+mT+I5cxcmMvtA=
-gitlab.com/elixxir/crypto v0.0.0-20200226221137-786af053c771 h1:EOAKzMHT/4+Ai38ha26MHuKrfABdHDI/cWa/+KOQgb0=
-gitlab.com/elixxir/crypto v0.0.0-20200226221137-786af053c771/go.mod h1:QPClJr3F90ejz6iHaCZuhexytd6PP97dDnt93iRCTDo=
+gitlab.com/elixxir/crypto v0.0.0-20200226225350-702cad4d3fa3 h1:rqime5AaKybyTVc4vSjiDC5D2hukse29MQ+XFWUlUXM=
+gitlab.com/elixxir/crypto v0.0.0-20200226225350-702cad4d3fa3/go.mod h1:QPClJr3F90ejz6iHaCZuhexytd6PP97dDnt93iRCTDo=
 gitlab.com/elixxir/primitives v0.0.0-20200218211222-4193179f359c h1:hZy85jE7bPyTp1ap57g4cUilPLXLuebVbsFq/JwNN+U=
 gitlab.com/elixxir/primitives v0.0.0-20200218211222-4193179f359c/go.mod h1:REJMcwIcyxh74VSHqy4S9yYiaEsQYObOPglRExDpk14=
 gitlab.com/elixxir/primitives v0.0.0-20200226191544-59ff3303abb3 h1:572R0Ap/rYmC6XNNQeoZfvfqXyuiRENidgUzdpCbFHw=

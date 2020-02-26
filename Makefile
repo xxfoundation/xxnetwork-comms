@@ -14,7 +14,7 @@ build:
 
 update_release:
 	GOFLAGS="" go get -u gitlab.com/elixxir/primitives@release
-	GOFLAGS="" go get -u gitlab.com/elixxir/crypto@xx-1876/GenericSigning
+	GOFLAGS="" go get -u gitlab.com/elixxir/crypto@release
 
 update_master:
 	GOFLAGS="" go get -u gitlab.com/elixxir/primitives@master

@@ -12,7 +12,7 @@ package mixmessages
 import "github.com/pkg/errors"
 
 // SetSignature sets RoundInfo's signature to the newSig argument
-func (m *RoundInfo) SetSignature(newSig []byte) error {
+func (m *RoundInfo) SetSig(newSig []byte) error {
 	// Cannot set signature to nil
 	if newSig == nil {
 		return errors.New("Cannot set signature to nil value")
@@ -30,7 +30,7 @@ func (m *RoundInfo) SetSignature(newSig []byte) error {
 }
 
 // ClearSignature clears out roundInfo's signature
-func (m *RoundInfo) ClearSignature() {
+func (m *RoundInfo) ClearSig() {
 	m.RsaSignature = &RSASignature{}
 }
 

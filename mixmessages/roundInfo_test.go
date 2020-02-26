@@ -29,7 +29,7 @@ func TestRoundInfo_ClearSignature(t *testing.T) {
 	}
 
 	// Clear the signature
-	testRoundInfo.ClearSignature()
+	testRoundInfo.ClearSig()
 
 	// Check that the signature's values are nil after clearing
 	if testRoundInfo.GetNonce() != nil && testRoundInfo.GetSig() != nil {
@@ -143,7 +143,7 @@ func TestRoundInfo_SetSignature(t *testing.T) {
 	testRoundInfo := &RoundInfo{}
 
 	// Set the sig
-	testRoundInfo.SetSignature(testSign)
+	testRoundInfo.SetSig(testSign)
 
 	// Check that the RoundInfo's signature is identical to the one set
 	if bytes.Compare(testRoundInfo.GetSig(), testSign) != 0 {
@@ -158,7 +158,7 @@ func TestRoundInfo_SetSignature_Error(t *testing.T) {
 	testRoundInfo := &RoundInfo{}
 
 	// Set the sig
-	err := testRoundInfo.SetSignature(nil)
+	err := testRoundInfo.SetSig(nil)
 	if err != nil {
 		return
 	}

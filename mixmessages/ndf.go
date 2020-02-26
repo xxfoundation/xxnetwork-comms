@@ -12,7 +12,7 @@ package mixmessages
 import "github.com/pkg/errors"
 
 // SetSignature sets NDF's signature to the newSig argument
-func (m *NDF) SetSignature(newSig []byte) error {
+func (m *NDF) SetSig(newSig []byte) error {
 	// Cannot set signature to nil
 	if newSig == nil {
 		return errors.New("Cannot set signature to nil")
@@ -30,7 +30,7 @@ func (m *NDF) SetSignature(newSig []byte) error {
 }
 
 // ClearSignature clears out NDF's signature
-func (m *NDF) ClearSignature() {
+func (m *NDF) ClearSig() {
 	m.RsaSignature = &RSASignature{}
 }
 

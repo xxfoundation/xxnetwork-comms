@@ -29,7 +29,7 @@ func TestRoundError_ClearSignature(t *testing.T) {
 	}
 
 	// Clear the signature
-	testRoundError.ClearSignature()
+	testRoundError.ClearSig()
 
 	// Check that the signature's values are nil after clearing
 	if testRoundError.GetSig() != nil && testRoundError.GetNonce() != nil {
@@ -142,7 +142,7 @@ func TestRoundError_SetSignature(t *testing.T) {
 	testRoundError := &RoundError{}
 
 	// Set the sig
-	testRoundError.SetSignature(expectedSig)
+	testRoundError.SetSig(expectedSig)
 
 	// Check that the roundError's signature is identical to the one set
 	if bytes.Compare(testRoundError.GetSig(), expectedSig) != 0 {
@@ -157,7 +157,7 @@ func TestRoundError_SetSignature_Error(t *testing.T) {
 	testRoundError := &RoundError{}
 
 	// Set the sig to nil (error case)
-	err := testRoundError.SetSignature(nil)
+	err := testRoundError.SetSig(nil)
 	if err != nil {
 		return
 	}
