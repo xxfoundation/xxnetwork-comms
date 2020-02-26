@@ -72,7 +72,7 @@ func (c *ProtoComms) clientHandshake(host *Host) (err error) {
 	}
 
 	// Assign the host token
-	host.token = result.Token
+	host.transmissionToken = result.Token
 
 	return
 }
@@ -90,7 +90,7 @@ func (c *ProtoComms) PackAuthenticatedMessage(msg proto.Message, host *Host,
 	// Build the authenticated message
 	authMsg := &pb.AuthenticatedMessage{
 		ID:      c.Id,
-		Token:   host.token,
+		Token:   host.transmissionToken,
 		Message: anyMsg,
 		Client: &pb.ClientID{
 			Salt:      make([]byte, 0),
@@ -114,7 +114,7 @@ func (c *ProtoComms) PackAuthenticatedContext(host *Host,
 	ctx context.Context) context.Context {
 	authMsg := &pb.AuthenticatedMessage{
 		ID:    c.Id,
-		Token: host.token,
+		Token: host.transmissionToken,
 	}
 	return metadata.AppendToOutgoingContext(ctx, "auth", authMsg.String())
 }
@@ -183,7 +183,7 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) (err error) {
 
 	// This logic prevents deadlocks when performing authentication with self
 	// TODO: This may require further review
-	if msg.ID != c.Id || bytes.Compare(host.token, msg.Token) != 0 {
+	if msg.ID != c.Id || bytes.Compare(host.receptionToken, msg.Token) != 0 {
 		host.mux.Lock()
 		defer host.mux.Unlock()
 	}
@@ -214,7 +214,7 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) (err error) {
 	}
 
 	// Token has been validated and can be safely stored
-	host.token = tokenMsg.Token
+	host.receptionToken = tokenMsg.Token
 	jww.DEBUG.Printf("Token validated: %v", tokenMsg.Token)
 	return
 }
@@ -237,8 +237,8 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) *Auth {
 	defer host.mux.RUnlock()
 
 	// Check the token's validity
-	validToken := host.token != nil && msg.Token != nil &&
-		bytes.Compare(host.token, msg.Token) == 0
+	validToken := host.receptionToken != nil && msg.Token != nil &&
+		bytes.Compare(host.receptionToken, msg.Token) == 0
 
 	// Assemble the Auth object
 	res := &Auth{
