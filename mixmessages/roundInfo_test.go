@@ -32,7 +32,7 @@ func TestRoundInfo_ClearSignature(t *testing.T) {
 	testRoundInfo.ClearSignature()
 
 	// Check that the signature's values are nil after clearing
-	if testRoundInfo.GetNonce() != nil && testRoundInfo.GetSignature() != nil {
+	if testRoundInfo.GetNonce() != nil && testRoundInfo.GetSig() != nil {
 		t.Errorf("Signature's values should be nil after a ClearSignature() call!"+
 			"\n\tSignature is: %+v", testRoundInfo.RsaSignature)
 	}
@@ -146,10 +146,10 @@ func TestRoundInfo_SetSignature(t *testing.T) {
 	testRoundInfo.SetSignature(testSign)
 
 	// Check that the RoundInfo's signature is identical to the one set
-	if bytes.Compare(testRoundInfo.GetSignature(), testSign) != 0 {
+	if bytes.Compare(testRoundInfo.GetSig(), testSign) != 0 {
 		t.Errorf("Signature should match value it was set to! "+
 			"Expected: %+v \n\t"+
-			"Received: %+v", testSign, testRoundInfo.GetSignature())
+			"Received: %+v", testSign, testRoundInfo.GetSig())
 	}
 }
 
@@ -178,7 +178,7 @@ func TestRoundInfo_GetSignature(t *testing.T) {
 	}
 
 	// Fetch signature
-	receivedSig := testRoundInfo.GetSignature()
+	receivedSig := testRoundInfo.GetSig()
 
 	// Compare fetched value to expected value
 	if bytes.Compare(expectedSig, receivedSig) != 0 {
@@ -194,7 +194,7 @@ func TestRoundInfo_GetSignature_NilObject(t *testing.T) {
 	testRoundInfo := &RoundInfo{}
 
 	// Attempt to get signature
-	receivedSig := testRoundInfo.GetSignature()
+	receivedSig := testRoundInfo.GetSig()
 
 	// Received sig should be nil
 	if receivedSig != nil {

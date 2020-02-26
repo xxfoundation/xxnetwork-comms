@@ -64,7 +64,7 @@ func (m *RoundInfo) SetNonce(newNonce []byte) error {
 }
 
 // GetSignature gets the value of the signature in RSASignature
-func (m *RoundInfo) GetSignature() []byte {
+func (m *RoundInfo) GetSig() []byte {
 	if m.RsaSignature == nil {
 		return nil
 	}

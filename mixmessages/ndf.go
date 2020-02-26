@@ -64,7 +64,7 @@ func (m *NDF) SetNonce(newNonce []byte) error {
 }
 
 // GetSignature gets the value of the signature in RSASignature
-func (m *NDF) GetSignature() []byte {
+func (m *NDF) GetSig() []byte {
 	if m.RsaSignature == nil {
 		return nil
 	}

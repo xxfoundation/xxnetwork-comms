@@ -36,7 +36,7 @@ func TestNDF_ClearSignature(t *testing.T) {
 	testNdf.ClearSignature()
 
 	// Check that the signature's values are nil after clearing
-	if testNdf.GetSignature() != nil && testNdf.GetNonce() != nil {
+	if testNdf.GetSig() != nil && testNdf.GetNonce() != nil {
 		t.Errorf("Signature's values should be nil after a ClearSignature() call!"+
 			"\n\tSignature is: %+v", testNdf.RsaSignature)
 	}
@@ -112,7 +112,7 @@ func TestNDF_GetSignature(t *testing.T) {
 	}
 
 	// Fetch signature
-	receivedSig := testNdf.GetSignature()
+	receivedSig := testNdf.GetSig()
 
 	// Compare fetched value to expected value
 	if bytes.Compare(expectedSig, receivedSig) != 0 {
@@ -128,7 +128,7 @@ func TestNDF_GetSignature_NilCase(t *testing.T) {
 	testNdf := &NDF{}
 
 	// Attempt to get signature
-	receivedSig := testNdf.GetSignature()
+	receivedSig := testNdf.GetSig()
 
 	// Received sig should be nil
 	if receivedSig != nil {
