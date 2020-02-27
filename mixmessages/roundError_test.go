@@ -25,7 +25,7 @@ func TestRoundError_ClearSignature(t *testing.T) {
 	sig := &RSASignature{Signature: expectedSig}
 
 	testRoundError := &RoundError{
-		RsaSignature: sig,
+		Signature: sig,
 	}
 
 	// Clear the signature
@@ -34,7 +34,7 @@ func TestRoundError_ClearSignature(t *testing.T) {
 	// Check that the signature's values are nil after clearing
 	if testRoundError.GetSig() != nil && testRoundError.GetNonce() != nil {
 		t.Errorf("Signature's values should be nil after a ClearSignature() call!"+
-			"\n\tSignature is: %+v", testRoundError.RsaSignature)
+			"\n\tSignature is: %+v", testRoundError.Signature)
 	}
 }
 
@@ -47,7 +47,7 @@ func TestRoundError_GetNonce(t *testing.T) {
 	// Create message with nonce value
 	sig := &RSASignature{Nonce: expectedNonce}
 	testRoundError := &RoundError{
-		RsaSignature: sig,
+		Signature: sig,
 	}
 
 	// Retrieve the nonce
@@ -82,17 +82,17 @@ func TestRoundError_SetNonce(t *testing.T) {
 	// Create roundError message
 	tempVal := []byte("fail Fail fail")
 	tempSig := &RSASignature{Nonce: tempVal}
-	testRoundError := &RoundError{RsaSignature: tempSig}
+	testRoundError := &RoundError{Signature: tempSig}
 
 	// Set the sig
 	expectedNonce := []byte{1, 2, 45, 67, 42}
 	testRoundError.SetNonce(expectedNonce)
 
 	// Check that the roundError's signature is identical to the one set
-	if bytes.Compare(testRoundError.RsaSignature.Nonce, expectedNonce) != 0 {
+	if bytes.Compare(testRoundError.Signature.Nonce, expectedNonce) != 0 {
 		t.Errorf("Signature should match value it was set to! "+
 			"Expected: %+v \n\t"+
-			"Received: %+v", expectedNonce, testRoundError.RsaSignature.Nonce)
+			"Received: %+v", expectedNonce, testRoundError.Signature.Nonce)
 	}
 }
 
@@ -105,10 +105,10 @@ func TestRoundError_SetNonce_NilObject(t *testing.T) {
 	testRoundError.SetNonce(expectedNonce)
 
 	// Sig should be set to expected value
-	if bytes.Compare(testRoundError.RsaSignature.Nonce, expectedNonce) != 0 {
+	if bytes.Compare(testRoundError.Signature.Nonce, expectedNonce) != 0 {
 		t.Errorf("Signature should match value it was set to! "+
 			"Expected: %+v \n\t"+
-			"Received: %+v", expectedNonce, testRoundError.RsaSignature.Nonce)
+			"Received: %+v", expectedNonce, testRoundError.Signature.Nonce)
 	}
 }
 
@@ -122,7 +122,7 @@ func TestRoundError_SetNonce_SetNil(t *testing.T) {
 	}
 
 	// Create roundError message
-	testRoundError := &RoundError{RsaSignature: sig}
+	testRoundError := &RoundError{Signature: sig}
 
 	// Set the sig to nil (error case)
 	err := testRoundError.SetNonce(nil)
@@ -173,7 +173,7 @@ func TestRoundError_GetSignature(t *testing.T) {
 	sig := &RSASignature{Signature: expectedSig}
 
 	testRoundError := &RoundError{
-		RsaSignature: sig,
+		Signature: sig,
 	}
 
 	// Fetch signature

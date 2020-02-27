@@ -25,7 +25,7 @@ func TestRoundInfo_ClearSignature(t *testing.T) {
 	sig := &RSASignature{Signature: expectedSig}
 
 	testRoundInfo := &RoundInfo{
-		RsaSignature: sig,
+		Signature: sig,
 	}
 
 	// Clear the signature
@@ -34,7 +34,7 @@ func TestRoundInfo_ClearSignature(t *testing.T) {
 	// Check that the signature's values are nil after clearing
 	if testRoundInfo.GetNonce() != nil && testRoundInfo.GetSig() != nil {
 		t.Errorf("Signature's values should be nil after a ClearSignature() call!"+
-			"\n\tSignature is: %+v", testRoundInfo.RsaSignature)
+			"\n\tSignature is: %+v", testRoundInfo.Signature)
 	}
 }
 
@@ -47,7 +47,7 @@ func TestRoundInfo_GetNonce(t *testing.T) {
 	// Create message with nonce value
 	sig := &RSASignature{Nonce: expectedNonce}
 	testRoundInfo := &RoundInfo{
-		RsaSignature: sig,
+		Signature: sig,
 	}
 
 	// Retrieve the nonce
@@ -82,17 +82,17 @@ func TestRoundInfo_SetNonce(t *testing.T) {
 	// Create RoundInfo message
 	tempVal := []byte("fail Fail fail")
 	tempSig := &RSASignature{Nonce: tempVal}
-	testRoundInfo := &RoundInfo{RsaSignature: tempSig}
+	testRoundInfo := &RoundInfo{Signature: tempSig}
 
 	// Set the sig
 	expectedNonce := []byte{1, 2, 45, 67, 42}
 	testRoundInfo.SetNonce(expectedNonce)
 
 	// Check that the RoundInfo's signature is identical to the one set
-	if bytes.Compare(testRoundInfo.RsaSignature.Nonce, expectedNonce) != 0 {
+	if bytes.Compare(testRoundInfo.Signature.Nonce, expectedNonce) != 0 {
 		t.Errorf("Signature should match value it was set to! "+
 			"Expected: %+v \n\t"+
-			"Received: %+v", expectedNonce, testRoundInfo.RsaSignature.Nonce)
+			"Received: %+v", expectedNonce, testRoundInfo.Signature.Nonce)
 	}
 }
 
@@ -105,10 +105,10 @@ func TestRoundInfo_SetNonce_NilObject(t *testing.T) {
 	testRoundInfo.SetNonce(expectedNonce)
 
 	// Sig should be set to expected value
-	if bytes.Compare(testRoundInfo.RsaSignature.Nonce, expectedNonce) != 0 {
+	if bytes.Compare(testRoundInfo.Signature.Nonce, expectedNonce) != 0 {
 		t.Errorf("Signature should match value it was set to! "+
 			"Expected: %+v \n\t"+
-			"Received: %+v", expectedNonce, testRoundInfo.RsaSignature.Nonce)
+			"Received: %+v", expectedNonce, testRoundInfo.Signature.Nonce)
 	}
 }
 
@@ -122,7 +122,7 @@ func TestRoundInfo_SetNonce_SetNil(t *testing.T) {
 	}
 
 	// Create RoundInfo message
-	testRoundInfo := &RoundInfo{RsaSignature: sig}
+	testRoundInfo := &RoundInfo{Signature: sig}
 
 	// Set the sig to nil (error case)
 	err := testRoundInfo.SetNonce(nil)
@@ -174,7 +174,7 @@ func TestRoundInfo_GetSignature(t *testing.T) {
 	sig := &RSASignature{Signature: expectedSig}
 
 	testRoundInfo := &RoundInfo{
-		RsaSignature: sig,
+		Signature: sig,
 	}
 
 	// Fetch signature
