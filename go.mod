@@ -18,4 +18,4 @@ require (
 	google.golang.org/grpc v1.27.1
 )
 
-replace google.golang.org/grpc => github.com/grpc/grpc-go v1.21.1
+replace google.golang.org/grpc => github.com/grpc/grpc-go v1.27.1

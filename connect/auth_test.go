@@ -40,7 +40,7 @@ func TestSignVerify(t *testing.T) {
 		t.Errorf("Error converting to Any type: %+v", err)
 	}
 
-	signature, err := c.signMessage(wrappedMessage)
+	signature, err := c.SignMessage(wrappedMessage)
 	if err != nil {
 		t.Errorf("Error signing message: %+v", err)
 	}
@@ -49,18 +49,14 @@ func TestSignVerify(t *testing.T) {
 		rsaPublicKey: pub,
 	}
 
-	err = c.verifyMessage(&pb.AuthenticatedMessage{
-		ID:        "",
-		Signature: signature,
-		Token:     nil,
-		Message:   wrappedMessage,
-	}, host)
+	err = c.VerifyMessage(wrappedMessage, signature, host)
 	if err != nil {
 		t.Errorf("Error verifying signature")
 	}
 }
 
 func TestProtoComms_AuthenticatedReceiver(t *testing.T) {
+	// Create comm object
 	pc := ProtoComms{
 		Manager:       Manager{},
 		tokens:        sync.Map{},
@@ -68,15 +64,19 @@ func TestProtoComms_AuthenticatedReceiver(t *testing.T) {
 		ListeningAddr: "",
 		privateKey:    nil,
 	}
+	// Create id and token
 	id := "testsender"
 	token := []byte("testtoken")
 
+	// Add host
 	_, err := pc.AddHost(id, "", nil, false, true)
 	if err != nil {
-		t.Errorf("uh oh")
+		t.Errorf("Failed to add host: %+v", err)
 	}
+
+	// Get host
 	h, _ := pc.GetHost(id)
-	h.token = token
+	h.receptionToken = token
 
 	msg := &pb.AuthenticatedMessage{
 		ID:        id,
@@ -85,9 +85,15 @@ func TestProtoComms_AuthenticatedReceiver(t *testing.T) {
 		Message:   nil,
 	}
 
+	// Try the authenticated received
 	auth := pc.AuthenticatedReceiver(msg)
 	if !auth.IsAuthenticated {
-		t.Errorf("Failed")
+		t.Errorf("Failed: authenticated receiver")
+	}
+
+	// Compare the tokens
+	if !bytes.Equal(auth.Sender.receptionToken, token) {
+		t.Errorf("Tokens do not match! \n\tExptected: %+v\n\tReceived: %+v", token, auth.Sender.receptionToken)
 	}
 }
 
@@ -129,7 +135,7 @@ func TestProtoComms_PackAuthenticatedMessage(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unable to create host: %+v", err)
 	}
-	host.token = tokenBytes
+	host.transmissionToken = tokenBytes
 
 	tokenMsg := &pb.AssignToken{
 		Token: tokenBytes,
@@ -139,6 +145,7 @@ func TestProtoComms_PackAuthenticatedMessage(t *testing.T) {
 	if err != nil {
 		t.Errorf("Expected no error packing authenticated message: %+v", err)
 	}
+	// Compare the tokens and id's
 	if bytes.Compare(msg.Token, tokenBytes) != 0 || msg.ID != testServerId {
 		t.Errorf("Expected packed message to have correct ID and Token: %+v",
 			msg)
@@ -169,7 +176,7 @@ func TestProtoComms_ValidateToken(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unable to create host: %+v", err)
 	}
-	host.token = tokenBytes
+	host.transmissionToken = tokenBytes
 
 	tokenMsg := &pb.AssignToken{
 		Token: tokenBytes,
@@ -180,9 +187,16 @@ func TestProtoComms_ValidateToken(t *testing.T) {
 		t.Errorf("Expected no error packing authenticated message: %+v", err)
 	}
 
+	// Check the token
 	err = comm.ValidateToken(msg)
 	if err != nil {
 		t.Errorf("Expected to validate token: %+v", err)
+	}
+
+	if !bytes.Equal(msg.Token, host.transmissionToken) {
+		t.Errorf("Message token doesn't match message's token! "+
+			"Expected: %+v"+
+			"\n\tReceived: %+v", host.transmissionToken, msg.Token)
 	}
 }
 
@@ -221,7 +235,7 @@ func TestProtoComms_ValidateTokenDynamic(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unable to create host: %+v", err)
 	}
-	host.token = tokenBytes
+	host.transmissionToken = tokenBytes
 	tokenMsg := &pb.AssignToken{
 		Token: tokenBytes,
 	}
@@ -249,6 +263,12 @@ func TestProtoComms_ValidateTokenDynamic(t *testing.T) {
 	}
 	if !host.IsDynamicHost() {
 		t.Errorf("Expected host to be dynamic!")
+	}
+
+	if !bytes.Equal(msg.Token, host.receptionToken) {
+		t.Errorf("Message token doesn't match message's token! "+
+			"Expected: %+v"+
+			"\n\tReceived: %+v", host.receptionToken, msg.Token)
 	}
 
 }

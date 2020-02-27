@@ -16,14 +16,14 @@ import (
 )
 
 // Handles validation of reverse-authentication tokens
-func (s *Comms) AuthenticateToken(ctx context.Context,
+func (g *Comms) AuthenticateToken(ctx context.Context,
 	msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
-	return &pb.Ack{}, s.ValidateToken(msg)
+	return &pb.Ack{}, g.ValidateToken(msg)
 }
 
 // Handles reception of reverse-authentication token requests
-func (s *Comms) RequestToken(context.Context, *pb.Ping) (*pb.AssignToken, error) {
-	token, err := s.GenerateToken()
+func (g *Comms) RequestToken(context.Context, *pb.Ping) (*pb.AssignToken, error) {
+	token, err := g.GenerateToken()
 	return &pb.AssignToken{
 		Token: token,
 	}, err
@@ -121,4 +121,9 @@ func (g *Comms) PollForNotifications(ctx context.Context, msg *pb.AuthenticatedM
 		returnMsg.IDs = ids
 	}
 	return returnMsg, err
+}
+
+// Client -> Gateway unified polling
+func (g *Comms) Poll(ctx context.Context, msg *pb.GatewayPoll) (*pb.GatewayPollResponse, error) {
+	return g.handler.Poll(msg)
 }

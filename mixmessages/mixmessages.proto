@@ -67,18 +67,13 @@ service Node {
     rpc GetMeasure (AuthenticatedMessage) returns (RoundMetrics) {
     }
 
-    // Gateway -> Server polling for NDF
-    rpc PollNdf (AuthenticatedMessage) returns (GatewayNdf) {
+    // Gateway -> Server unified polling
+    rpc Poll (AuthenticatedMessage) returns (ServerPollResponse) {
     }
 
     // Round trip ping comm
     rpc SendRoundTripPing (AuthenticatedMessage) returns (Ack) {
     }
-}
-
-// The message for Init Round
-message RoundInfo {
-    uint64 ID = 1;
 }
 
 // RoundInfo contains the # of precomputations ready for messages, among other
@@ -112,16 +107,28 @@ message BatchInfo {
     uint32 BatchSize = 3;
 }
 
-// Contains the NDF as well as the corresponding Node ID for the Gateway
-message GatewayNdf {
-    bytes Id = 1;
-    NDF Ndf = 2;
-}
-
 // Used for collecting metrics on a round trip of the system
 message RoundTripPing {
     google.protobuf.Any Payload = 1;
     RoundInfo Round = 2;
+}
+
+// Unified Gateway->Server polling message
+message ServerPoll {
+    NDFHash Full = 1;
+    NDFHash Partial = 2;
+    uint64 LastUpdate = 3;
+    string Error = 4; // Only Populated in the event of errors
+}
+
+
+// Unified Gateway->Server polling response
+message ServerPollResponse {
+    NDF FullNDF = 1; //Empty if no update needed
+    NDF PartialNDF = 2; //Empty if no update needed
+    repeated RoundInfo Updates = 3; //Empty if no update needed
+    RoundInfo BatchRequest = 6; //Empty if no update needed
+    repeated Slot slots = 7; //Empty if no update needed
 }
 
 // GATEWAY MESSAGE SERVICE -----------------------------------------------------
@@ -147,8 +154,12 @@ service Gateway {
     rpc ConfirmNonce (RequestRegistrationConfirmation) returns (RegistrationConfirmation) {
     }
 
-    // Ping gateway to ask for users to notify
+    // Notifications->Gateway request for users with pending notifications
     rpc PollForNotifications (AuthenticatedMessage) returns (IDList) {
+    }
+
+    // Client -> Gateway unified polling
+    rpc Poll (GatewayPoll) returns (GatewayPollResponse) {
     }
 }
 
@@ -183,6 +194,21 @@ message Slot {
     repeated bytes KMACs = 11; // Individual Key MAC for each node in network
 }
 
+// Unified Client->Gateway polling message
+message GatewayPoll {
+    NDFHash Partial = 1;
+    uint64 LastUpdate = 2;
+    string LastMessageID = 3;
+}
+
+// Unified Client->Gateway polling response
+message GatewayPollResponse {
+    NDF PartialNDF = 1; // Empty if no update needed
+    RoundInfo LastRound = 2; // Last round the gateway has messages from
+    repeated RoundInfo Updates = 3; // Empty if no update needed
+    repeated string NewMessageIDs = 4; // Empty if no update needed
+}
+
 // REGISTRATION MESSAGE SERVICE ------------------------------------------------
 
 // Registration service definition
@@ -202,6 +228,10 @@ service Registration {
     // Obtain NDF from the Registration Server
     rpc PollNdf (AuthenticatedMessage) returns (NDF) {
     }
+
+    // Server -> Permissioning unified polling
+    rpc Poll (AuthenticatedMessage) returns (PermissionPollResponse) {
+    }
 }
 
 //The ndf Hash used to compare ndf on permissioning and client
@@ -212,6 +242,7 @@ message NDFHash {
 // Message type containing the network definition file
 message NDF {
     bytes Ndf = 1;
+    RSASignature Signature = 2;
 }
 
 // NodeRegistration contains information to register a node.
@@ -227,11 +258,6 @@ message NodeRegistration {
       string GatewayAddress   = 6;
       uint32 GatewayPort      = 7; // Note: there is no uint16
       string RegistrationCode = 8;
-}
-
-// RSASignature is a digital signature for the RSA algorithm
-message RSASignature {
-    bytes Signature = 1;
 }
 
 // UserRegistration message to initialize registration process
@@ -281,6 +307,41 @@ message RegistrationConfirmation {
     string Error = 2;
 }
 
+// Unified Server->Permissioning polling message
+message PermissioningPoll {
+    NDFHash Full = 1;
+    NDFHash Partial = 2;
+    uint64 LastUpdate = 3;
+    uint32 NodeState = 4;
+    RoundError Error = 5; // Only Populated in the event of errors
+}
+
+// Unified Server->Permissioning polling response
+message PermissionPollResponse {
+    NDF FullNDF = 1; // Empty if no update needed
+    NDF PartialNDF = 2; // Empty if no update needed
+    repeated RoundInfo Updates = 3; // Empty if no update needed
+}
+
+
+// NOTIFICATION BOT MESSAGES --------------------------------------------------------
+
+// NotificationBot service definition
+service NotificationBot {
+    // Unregister clients from push notifications
+    rpc UnregisterForNotifications (AuthenticatedMessage) returns (Ack) {
+    }
+
+    // Register clients from push notifications
+    rpc RegisterForNotifications (AuthenticatedMessage) returns (Ack) {
+    }
+}
+
+// Registration token to be associated with the client
+message NotificationToken {
+    bytes Token = 1;
+}
+
 // GENERAL USE MESSAGES --------------------------------------------------------
 
 // Generic service definition
@@ -303,6 +364,12 @@ message Ack {
 message Ping {
 }
 
+// RSASignature is a digital signature for the RSA algorithm
+message RSASignature {
+    bytes Signature = 1;
+    bytes Nonce = 2;
+}
+
 // Wrapper for authenticated messages that also ensure integrity
 message AuthenticatedMessage {
     string ID = 1;
@@ -323,20 +390,20 @@ message AssignToken {
     bytes Token = 1;
 }
 
-// NOTIFICATION BOT MESSAGES --------------------------------------------------------
-
-// NotificationBot service definition
-service NotificationBot {
-    // Unregister clients from push notifications
-    rpc UnregisterForNotifications(AuthenticatedMessage) returns (Ack) {
-    }
-
-    // Register clients from push notifications
-    rpc RegisterForNotifications (AuthenticatedMessage) returns (Ack) {
-    }
+// Describes a round
+message RoundInfo {
+    uint64 ID = 1;
+    uint64 UpdateID = 2;
+    uint32 State = 3; // Precomp, Standby, Realtime, Completed, Failed
+    uint32 BatchSize = 4;
+    repeated string Topology = 5; // List of NodeIDs
+    repeated uint64 Timestamps = 6; // List of state timestamps in UTC
+    repeated RoundError Errors = 7; // List of errors which occured
+    RSASignature Signature = 8;
 }
 
-// Registration token to be associated with the client
-message NotificationToken {
-    bytes Token = 1;
+// Describes an error during a round
+message RoundError {
+    string Error = 2;
+    RSASignature Signature = 4; // Hash of Info and Error
 }

@@ -64,6 +64,8 @@ type Handler interface {
 	RegisterNode(ID []byte, ServerAddr, ServerTlsCert, GatewayAddr,
 		GatewayTlsCert, RegistrationCode string) error
 	PollNdf(ndfHash []byte, auth *connect.Auth) ([]byte, error)
+	Poll(msg *pb.PermissioningPoll, auth *connect.Auth) (*pb.
+		PermissionPollResponse, error)
 }
 
 type implementationFunctions struct {
@@ -73,6 +75,7 @@ type implementationFunctions struct {
 	RegisterNode            func(ID []byte, ServerAddr, ServerTlsCert,
 		GatewayAddr, GatewayTlsCert, RegistrationCode string) error
 	PollNdf func(ndfHash []byte, auth *connect.Auth) ([]byte, error)
+	Poll    func(msg *pb.PermissioningPoll, auth *connect.Auth) (*pb.PermissionPollResponse, error)
 }
 
 // Implementation allows users of the client library to set the
@@ -110,6 +113,10 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return nil, nil
 			},
+			Poll: func(msg *pb.PermissioningPoll, auth *connect.Auth) (*pb.PermissionPollResponse, error) {
+				warn(um)
+				return &pb.PermissionPollResponse{}, nil
+			},
 		},
 	}
 }
@@ -132,4 +139,8 @@ func (s *Implementation) RegisterNode(ID []byte, ServerAddr, ServerTlsCert,
 
 func (s *Implementation) PollNdf(ndfHash []byte, auth *connect.Auth) ([]byte, error) {
 	return s.Functions.PollNdf(ndfHash, auth)
+}
+
+func (s *Implementation) Poll(msg *pb.PermissioningPoll, auth *connect.Auth) (*pb.PermissionPollResponse, error) {
+	return s.Functions.Poll(msg, auth)
 }
