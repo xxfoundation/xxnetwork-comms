@@ -118,11 +118,6 @@ func TestComms_SendPoll(t *testing.T) {
 		Partial: &pb.NDFHash{
 			Hash: make([]byte, 0),
 		},
-		LastPrecompKnown:  0,
-		LastRealtimeKnown: 0,
-		LastKilledRound:   0,
-		State:             0,
-		Error:             "",
 	}
 
 	_, err = server.SendPoll(host, msgs)
