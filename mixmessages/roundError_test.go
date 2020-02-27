@@ -206,24 +206,10 @@ func TestRoundError_GetSignature_NilObject(t *testing.T) {
 
 // Happy path
 func TestRoundError_SignVerify(t *testing.T) {
-	// Create roundInfo object (to be used for roundError object)
-	testId := uint64(25)
-	testTopology := []string{"test", "te", "st", "testtest"}
-	testRealtime := false
-	testTime := uint64(49)
-	testBatch := uint32(23)
-	testRoundInfo := &RoundInfo{
-		ID:        testId,
-		Realtime:  testRealtime,
-		Topology:  testTopology,
-		StartTime: testTime,
-		BatchSize: testBatch,
-	}
 
 	// Create RoundError object
 	testError := "I failed. Fix me now!"
 	testRoundError := &RoundError{
-		Info:  testRoundInfo,
 		Error: testError,
 	}
 
@@ -250,24 +236,9 @@ func TestRoundError_SignVerify(t *testing.T) {
 
 // Error path
 func TestRoundError_SignVerify_Error(t *testing.T) {
-	// Create roundInfo object (to be used for roundError object)
-	testId := uint64(25)
-	testTopology := []string{"test", "te", "st", "testtest"}
-	testRealtime := false
-	testTime := uint64(49)
-	testBatch := uint32(23)
-	testRoundInfo := &RoundInfo{
-		ID:        testId,
-		Realtime:  testRealtime,
-		Topology:  testTopology,
-		StartTime: testTime,
-		BatchSize: testBatch,
-	}
-
 	// Create RoundError object
 	testError := "I failed. Fix me now!"
 	testRoundError := &RoundError{
-		Info:  testRoundInfo,
 		Error: testError,
 	}
 

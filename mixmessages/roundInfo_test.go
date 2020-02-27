@@ -210,14 +210,10 @@ func TestRoundInfo_SignVerify(t *testing.T) {
 	// Create roundInfo object (to be used for RoundInfo object)
 	testId := uint64(25)
 	testTopology := []string{"test", "te", "st", "testtest"}
-	testRealtime := false
-	testTime := uint64(49)
 	testBatch := uint32(23)
 	testRoundInfo := &RoundInfo{
 		ID:        testId,
-		Realtime:  testRealtime,
 		Topology:  testTopology,
-		StartTime: testTime,
 		BatchSize: testBatch,
 	}
 
@@ -247,14 +243,10 @@ func TestRoundInfo_SignVerify_Error(t *testing.T) {
 	// Create roundInfo object
 	testId := uint64(25)
 	testTopology := []string{"test", "te", "st", "testtest"}
-	testRealtime := false
-	testTime := uint64(49)
 	testBatch := uint32(23)
 	testRoundInfo := &RoundInfo{
 		ID:        testId,
-		Realtime:  testRealtime,
 		Topology:  testTopology,
-		StartTime: testTime,
 		BatchSize: testBatch,
 	}
 
