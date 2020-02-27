@@ -69,12 +69,12 @@ type Handler interface {
 	GetMeasure(message *mixmessages.RoundInfo, auth *connect.Auth) (*mixmessages.RoundMetrics, error)
 
 	// Server Interface for all Internode Comms
-	PostPhase(message *mixmessages.Batch, auth *connect.Auth)
+	PostPhase(message *mixmessages.Batch, auth *connect.Auth) error
 
 	StreamPostPhase(server mixmessages.Node_StreamPostPhaseServer, auth *connect.Auth) error
 
 	// Server interface for share broadcast
-	PostRoundPublicKey(message *mixmessages.RoundPublicKey, auth *connect.Auth)
+	PostRoundPublicKey(message *mixmessages.RoundPublicKey, auth *connect.Auth) error
 
 	// Server interface for RequestNonceMessage
 	RequestNonce(salt []byte, RSAPubKey string, DHPubKey,
@@ -109,13 +109,13 @@ type implementationFunctions struct {
 	GetMeasure func(message *mixmessages.RoundInfo, auth *connect.Auth) (*mixmessages.RoundMetrics, error)
 
 	// Server Interface for the Internode Messages
-	PostPhase func(message *mixmessages.Batch, auth *connect.Auth)
+	PostPhase func(message *mixmessages.Batch, auth *connect.Auth) error
 
 	// Server interface for internode streaming messages
 	StreamPostPhase func(message mixmessages.Node_StreamPostPhaseServer, auth *connect.Auth) error
 
 	// Server interface for share broadcast
-	PostRoundPublicKey func(message *mixmessages.RoundPublicKey, auth *connect.Auth)
+	PostRoundPublicKey func(message *mixmessages.RoundPublicKey, auth *connect.Auth) error
 
 	// Server interface for RequestNonceMessage
 	RequestNonce func(salt []byte, RSAPubKey string, DHPubKey,
@@ -159,15 +159,17 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return nil
 			},
-			PostPhase: func(m *mixmessages.Batch, auth *connect.Auth) {
+			PostPhase: func(m *mixmessages.Batch, auth *connect.Auth) error {
 				warn(um)
+				return nil
 			},
 			StreamPostPhase: func(message mixmessages.Node_StreamPostPhaseServer, auth *connect.Auth) error {
 				warn(um)
 				return nil
 			},
-			PostRoundPublicKey: func(message *mixmessages.RoundPublicKey, auth *connect.Auth) {
+			PostRoundPublicKey: func(message *mixmessages.RoundPublicKey, auth *connect.Auth) error {
 				warn(um)
+				return nil
 			},
 			PostNewBatch: func(message *mixmessages.Batch, auth *connect.Auth) error {
 				warn(um)
@@ -230,8 +232,8 @@ func (s *Implementation) PostNewBatch(msg *mixmessages.Batch, auth *connect.Auth
 }
 
 // Server Interface for the phase messages
-func (s *Implementation) PostPhase(m *mixmessages.Batch, auth *connect.Auth) {
-	s.Functions.PostPhase(m, auth)
+func (s *Implementation) PostPhase(m *mixmessages.Batch, auth *connect.Auth) error {
+	return s.Functions.PostPhase(m, auth)
 }
 
 // Server Interface for streaming phase messages
@@ -241,8 +243,8 @@ func (s *Implementation) StreamPostPhase(m mixmessages.Node_StreamPostPhaseServe
 
 // Server Interface for the share message
 func (s *Implementation) PostRoundPublicKey(message *mixmessages.
-	RoundPublicKey, auth *connect.Auth) {
-	s.Functions.PostRoundPublicKey(message, auth)
+	RoundPublicKey, auth *connect.Auth) error {
+	return s.Functions.PostRoundPublicKey(message, auth)
 }
 
 // GetRoundBufferInfo returns # of completed precomputations
