@@ -121,7 +121,6 @@ message ServerPoll {
     string Error = 4; // Only Populated in the event of errors
 }
 
-
 // Unified Gateway->Server polling response
 message ServerPollResponse {
     NDF FullNDF = 1; //Empty if no update needed
@@ -239,8 +238,11 @@ message NDFHash {
     bytes Hash = 1;
 }
 
-// Message type containing the network definition file
-message NDF {
+// The Network Definition File is defined as a
+// JSON structure in primitives/ndf. Can be provided in a
+// "complete" and "incomplete" format. An incomplete
+// NDF is provided to level 4 (ie clients) to protect the inner levels
+message NDF{
     bytes Ndf = 1;
     RSASignature Signature = 2;
 }
@@ -258,6 +260,12 @@ message NodeRegistration {
       string GatewayAddress   = 6;
       uint32 GatewayPort      = 7; // Note: there is no uint16
       string RegistrationCode = 8;
+}
+
+// RSASignature is a digital signature for the RSA algorithm
+message RSASignature {
+    bytes Nonce = 1;
+    bytes Signature = 2;
 }
 
 // UserRegistration message to initialize registration process
@@ -364,12 +372,6 @@ message Ack {
 message Ping {
 }
 
-// RSASignature is a digital signature for the RSA algorithm
-message RSASignature {
-    bytes Signature = 1;
-    bytes Nonce = 2;
-}
-
 // Wrapper for authenticated messages that also ensure integrity
 message AuthenticatedMessage {
     string ID = 1;
@@ -402,8 +404,9 @@ message RoundInfo {
     RSASignature Signature = 8;
 }
 
-// Describes an error during a round
+// RoundError will be used to describe a round error
+// Passed along to gateways (level 2) and clients (level 3)
 message RoundError {
-    string Error = 2;
-    RSASignature Signature = 4; // Hash of Info and Error
+    string Error = 1;
+    RSASignature Signature = 2; // Hash of Info and Error
 }
