@@ -9,6 +9,3 @@ func TestNewSecuredNdf(t *testing.T) {
 	}
 }
 
-func TestSecuredNdf_CompareHash(t *testing.T) {
-
-}
