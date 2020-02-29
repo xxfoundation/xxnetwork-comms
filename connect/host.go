@@ -116,6 +116,11 @@ func (h *Host) IsDynamicHost() bool {
 	return h.dynamicHost
 }
 
+// Simple getter for the public key
+func (h *Host) GetPubKey() *rsa.PublicKey {
+	return h.rsaPublicKey
+}
+
 // Connected checks if the given Host's connection is alive
 func (h *Host) Connected() bool {
 	h.mux.RLock()
