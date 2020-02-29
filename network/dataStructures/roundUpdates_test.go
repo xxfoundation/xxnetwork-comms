@@ -1,4 +1,4 @@
-package consensus
+package dataStructures
 
 import (
 	"gitlab.com/elixxir/comms/mixmessages"
