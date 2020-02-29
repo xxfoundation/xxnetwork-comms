@@ -37,8 +37,13 @@ type Host struct {
 	// PEM-format TLS Certificate
 	certificate []byte
 
-	// Token shared with this Host establishing reverse authentication
-	token Token
+	/* Tokens shared with this Host establishing reverse authentication */
+
+	//  Token used for receiving from this host
+	receptionToken Token
+
+	// Token used for sending to this host
+	transmissionToken Token
 
 	// Configure the maximum number of connection attempts
 	maxRetries int
@@ -130,7 +135,8 @@ func (h *Host) Disconnect() {
 	defer h.mux.Unlock()
 
 	h.disconnect()
-	h.token = nil
+	h.receptionToken = nil
+	h.transmissionToken = nil
 }
 
 // send checks that the host has a connection and sends if it does.
@@ -189,7 +195,7 @@ func (h *Host) authenticationRequired() bool {
 	h.mux.RLock()
 	defer h.mux.RUnlock()
 
-	return h.enableAuth && h.token == nil
+	return h.enableAuth && h.transmissionToken == nil
 }
 
 // Checks if the given Host's connection is alive
@@ -336,10 +342,10 @@ func (h *Host) String() string {
 		securityProtocol = creds.Info().SecurityProtocol
 	}
 	return fmt.Sprintf(
-		"ID: %v\tAddr: %v\tCertificate: %v\tToken: %v\tEnableAuth: %v"+
+		"ID: %v\tAddr: %v\tCertificate: %v\tTransmission Token: %v\tReception Token: %+v \tEnableAuth: %v"+
 			"\tMaxRetries: %v\tConnState: %v"+
 			"\tTLS ServerName: %v\tTLS ProtocolVersion: %v\t"+
 			"TLS SecurityVersion: %v\tTLS SecurityProtocol: %v\n",
-		h.id, addr, h.certificate, h.token, h.enableAuth, h.maxRetries, state,
+		h.id, addr, h.certificate, h.transmissionToken, h.receptionToken, h.enableAuth, h.maxRetries, state,
 		serverName, protocolVersion, securityVersion, securityProtocol)
 }
