@@ -31,7 +31,9 @@ func (m *RoundError) SetSig(newSig []byte) error {
 
 // ClearSignature clears out RoundError's signature
 func (m *RoundError) ClearSig() {
-	m.Signature = &RSASignature{}
+	if m.Signature!=nil{
+		m.Signature.Signature=nil
+	}
 }
 
 // GetNonce gets the value of the nonce

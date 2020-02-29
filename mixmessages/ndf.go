@@ -31,7 +31,9 @@ func (m *NDF) SetSig(newSig []byte) error {
 
 // ClearSignature clears out NDF's signature
 func (m *NDF) ClearSig() {
-	m.Signature = &RSASignature{}
+	if m.Signature!=nil{
+		m.Signature.Signature = nil
+	}
 }
 
 // GetNonce gets the value of the nonce
