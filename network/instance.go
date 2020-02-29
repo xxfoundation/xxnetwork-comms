@@ -102,7 +102,7 @@ func (i *Instance)GetRoundUpdate(updateID int)(*pb.RoundInfo, error){
 	return i.roundUpdates.GetUpdate(updateID)
 }
 
-func (i *Instance)GetRoundUpdates(id id.Round)([]*pb.RoundInfo, error){
-	return nil, nil
+func (i *Instance)GetRoundUpdates(id int)([]*pb.RoundInfo, error){
+	return i.roundUpdates.GetUpdates(id)
 }
 
