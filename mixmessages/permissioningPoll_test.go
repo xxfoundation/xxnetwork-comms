@@ -5,7 +5,7 @@ import "testing"
 func TestPermissioningPoll_GetActivity(t *testing.T) {
 	expected := uint32(45)
 	testRoundInfo := &PermissioningPoll{
-		NodeState: expected,
+		Activity: expected,
 	}
 
 	received := testRoundInfo.GetActivity()
