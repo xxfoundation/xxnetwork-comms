@@ -274,3 +274,18 @@ func TestRoundInfo_SignVerify_Error(t *testing.T) {
 	t.Error("Expected error path: Should not have verified!")
 
 }
+
+func TestRoundInfo_GetActivity(t *testing.T) {
+	expected := uint32(45)
+	testRoundInfo := &RoundInfo{
+		State: expected,
+	}
+
+	received := testRoundInfo.GetActivity()
+
+	if received != expected {
+		t.Errorf("Received does not match expected for getter function! "+
+			"Expected: %+v \n\t"+
+			"Received: %+v", expected, received)
+	}
+}

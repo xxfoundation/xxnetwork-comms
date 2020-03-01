@@ -31,8 +31,8 @@ func (m *RoundError) SetSig(newSig []byte) error {
 
 // ClearSignature clears out RoundError's signature
 func (m *RoundError) ClearSig() {
-	if m.Signature!=nil{
-		m.Signature.Signature=nil
+	if m.Signature != nil {
+		m.Signature.Signature = nil
 	}
 }
 

@@ -31,7 +31,7 @@ func (m *NDF) SetSig(newSig []byte) error {
 
 // ClearSignature clears out NDF's signature
 func (m *NDF) ClearSig() {
-	if m.Signature!=nil{
+	if m.Signature != nil {
 		m.Signature.Signature = nil
 	}
 }

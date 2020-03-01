@@ -9,7 +9,10 @@
 
 package mixmessages
 
-import "github.com/pkg/errors"
+import (
+	"github.com/pkg/errors"
+	"gitlab.com/elixxir/primitives/id"
+)
 
 // SetSignature sets RoundInfo's signature to the newSig argument
 func (m *RoundInfo) SetSig(newSig []byte) error {
@@ -31,8 +34,8 @@ func (m *RoundInfo) SetSig(newSig []byte) error {
 
 // ClearSignature clears out roundInfo's signature
 func (m *RoundInfo) ClearSig() {
-	if m.Signature!=nil{
-		m.Signature.Signature=nil
+	if m.Signature != nil {
+		m.Signature.Signature = nil
 	}
 }
 
@@ -72,4 +75,13 @@ func (m *RoundInfo) GetSig() []byte {
 	}
 
 	return m.GetSignature().GetSignature()
+}
+
+// GetActivity gets the state of the node
+func (m *RoundInfo) GetActivity() uint32 {
+	return m.State
+}
+
+func (m *RoundInfo) GetRoundId() id.Round {
+	return id.Round(m.ID)
 }
