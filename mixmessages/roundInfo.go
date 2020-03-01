@@ -31,8 +31,8 @@ func (m *RoundInfo) SetSig(newSig []byte) error {
 
 // ClearSignature clears out roundInfo's signature
 func (m *RoundInfo) ClearSig() {
-	if m.Signature!=nil{
-		m.Signature.Signature=nil
+	if m.Signature != nil {
+		m.Signature.Signature = nil
 	}
 }
 
@@ -72,4 +72,12 @@ func (m *RoundInfo) GetSig() []byte {
 	}
 
 	return m.GetSignature().GetSignature()
+}
+
+// GetActivity gets the state of the node
+func (m *RoundInfo) GetActivity() uint32 {
+	if m != nil {
+		return m.State
+	}
+	return 0
 }
