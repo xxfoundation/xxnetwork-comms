@@ -320,7 +320,7 @@ message PermissioningPoll {
     NDFHash Full = 1;
     NDFHash Partial = 2;
     uint64 LastUpdate = 3;
-    uint32 NodeState = 4;
+    uint32 Activity = 4;
     RoundError Error = 5; // Only Populated in the event of errors
 }
 
