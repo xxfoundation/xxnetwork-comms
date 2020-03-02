@@ -3,6 +3,7 @@ package dataStructures
 import (
 	"github.com/pkg/errors"
 	"gitlab.com/elixxir/comms/mixmessages"
+	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/elixxir/primitives/ring"
 )
 
@@ -49,4 +50,8 @@ func (d *Data) GetRound(id int) (*mixmessages.RoundInfo, error) {
 		return nil, errors.Wrapf(err, "Failed to get update with id %d", id)
 	}
 	return val.(*mixmessages.RoundInfo), nil
+}
+
+func (d *Data)GetLastRoundID()id.Round {
+	return id.Round(d.rounds.GetNewestId())
 }

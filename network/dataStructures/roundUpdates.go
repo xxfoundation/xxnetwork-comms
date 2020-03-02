@@ -67,5 +67,7 @@ func (u *Updates)GetUpdates(id int)([]*pb.RoundInfo, error){
 	return infoList, nil
 }
 
-
+func (u *Updates)GetLastUpdateID()int {
+	return u.updates.GetNewestId()
+}
 

@@ -95,6 +95,8 @@ func (i *Instance)RoundUpdate(info *pb.RoundInfo)error{
 }
 
 func (i *Instance)GetRound(id id.Round)(*pb.RoundInfo, error){
+	i.roundlock.RLock()
+	defer i.roundlock.RUnlock()
 	return i.roundData.GetRound(int(id))
 }
 
@@ -104,5 +106,13 @@ func (i *Instance)GetRoundUpdate(updateID int)(*pb.RoundInfo, error){
 
 func (i *Instance)GetRoundUpdates(id int)([]*pb.RoundInfo, error){
 	return i.roundUpdates.GetUpdates(id)
+}
+
+func (i *Instance)GetLastUpdateID()int{
+	return i.roundUpdates.GetLastUpdateID()
+}
+
+func (i *Instance)GetLastRoundID()id.Round{
+	return i.roundData.GetLastRoundID()
 }
 
