@@ -153,3 +153,75 @@ func TestInstance_UpdatePartialNdf(t *testing.T) {
 		t.Errorf("Failed to update ndf: %+v", err)
 	}
 }
+
+func TestInstance_GetLastRoundID(t *testing.T) {
+	i := Instance{
+		roundData: &ds.Data{},
+	}
+	_ = i.roundData.UpsertRound(&mixmessages.RoundInfo{ID: uint64(1)})
+	i.GetLastRoundID()
+}
+
+func TestInstance_GetLastUpdateID(t *testing.T) {
+	i := Instance{
+		roundUpdates: &ds.Updates{},
+	}
+	_ = i.roundUpdates.AddRound(&mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(1)})
+	i.GetLastUpdateID()
+}
+
+func TestInstance_UpdateGatewayConnections(t *testing.T) {
+	secured, _ := NewSecuredNdf(testutils.NDF)
+
+	i := Instance{
+		full: secured,
+		comm: &connect.ProtoComms{},
+	}
+	err := i.UpdateGatewayConnections()
+	if err != nil {
+		t.Errorf("Failed to update gateway connections from full: %+v", err)
+	}
+
+	i = Instance{
+		partial: secured,
+		comm:    &connect.ProtoComms{},
+	}
+	err = i.UpdateGatewayConnections()
+	if err != nil {
+		t.Errorf("Failed to update gateway connections from partial: %+v", err)
+	}
+
+	i = Instance{}
+	err = i.UpdateGatewayConnections()
+	if err == nil {
+		t.Error("Should error when attempting update with no ndf")
+	}
+}
+
+func TestInstance_UpdateNodeConnections(t *testing.T) {
+	secured, _ := NewSecuredNdf(testutils.NDF)
+
+	i := Instance{
+		full: secured,
+		comm: &connect.ProtoComms{},
+	}
+	err := i.UpdateNodeConnections()
+	if err != nil {
+		t.Errorf("Failed to update node connections from full: %+v", err)
+	}
+
+	i = Instance{
+		partial: secured,
+		comm:    &connect.ProtoComms{},
+	}
+	err = i.UpdateNodeConnections()
+	if err != nil {
+		t.Errorf("Failed to update node connections from partial: %+v", err)
+	}
+
+	i = Instance{}
+	err = i.UpdateNodeConnections()
+	if err == nil {
+		t.Error("Should error when attempting update with no ndf")
+	}
+}
