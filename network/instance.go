@@ -41,7 +41,7 @@ func (i *Instance) UpdatePartialNdf(m *pb.NDF) error {
 			"for NDF partial verification")
 	}
 
-	return i.partial.update(m, perm.GetPubKey())
+	return i.partial.update(m, i.comm, perm.GetPubKey())
 }
 
 //update the full ndf
@@ -53,7 +53,7 @@ func (i *Instance) UpdateFullNdf(m *pb.NDF) error {
 			"for full NDF verification")
 	}
 
-	return i.full.update(m, perm.GetPubKey())
+	return i.full.update(m, i.comm, perm.GetPubKey())
 }
 
 func (i *Instance) GetPartialNdf() *SecuredNdf {
@@ -105,11 +105,10 @@ func (i *Instance) GetRoundUpdates(id int) ([]*pb.RoundInfo, error) {
 	return i.roundUpdates.GetUpdates(id)
 }
 
-func (i *Instance)GetLastUpdateID()int{
+func (i *Instance) GetLastUpdateID() int {
 	return i.roundUpdates.GetLastUpdateID()
 }
 
-func (i *Instance)GetLastRoundID()id.Round{
+func (i *Instance) GetLastRoundID() id.Round {
 	return i.roundData.GetLastRoundID()
 }
-

@@ -2,6 +2,7 @@ package network
 
 import (
 	"encoding/base64"
+	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	ds "gitlab.com/elixxir/comms/network/dataStructures"
 	"gitlab.com/elixxir/crypto/signature"
@@ -79,7 +80,7 @@ func setup() *ds.Ndf {
 	}
 	ndf := &ds.Ndf{}
 
-	_ = ndf.Update(msg)
+	_ = ndf.Update(msg, &connect.ProtoComms{})
 	return ndf
 }
 
@@ -120,13 +121,13 @@ func TestSecuredNdf_update(t *testing.T) {
 	}
 
 	sndf := NewSecuredNdf()
-	err = sndf.update(&f, privKey.GetPublic())
+	err = sndf.update(&f, &connect.ProtoComms{}, privKey.GetPublic())
 
 	if err != nil {
 		t.Errorf("Could not update ndf: %s", err)
 	}
 
-	err = sndf.update(&f, badPub)
+	err = sndf.update(&f, &connect.ProtoComms{}, badPub)
 	if err == nil {
 		t.Errorf("should have received bad key error")
 	}

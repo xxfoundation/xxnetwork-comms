@@ -2,6 +2,7 @@ package dataStructures
 
 import (
 	"encoding/base64"
+	"gitlab.com/elixxir/comms/connect"
 	"gitlab.com/elixxir/comms/mixmessages"
 	"testing"
 )
@@ -74,7 +75,7 @@ func setup() *Ndf {
 	}
 	ndf := &Ndf{}
 
-	_ = ndf.Update(msg)
+	_ = ndf.Update(msg, &connect.ProtoComms{})
 	return ndf
 }
 
@@ -95,12 +96,12 @@ func TestNdf_Update(t *testing.T) {
 	}
 	ndf := Ndf{}
 
-	err := ndf.Update(badMsg)
+	err := ndf.Update(badMsg, &connect.ProtoComms{})
 	if err == nil {
 		t.Error("Should have returned error when unable to decode ndf")
 	}
 
-	err = ndf.Update(msg)
+	err = ndf.Update(msg, &connect.ProtoComms{})
 	if err != nil {
 		t.Errorf("Failed to update ndf: %+v", err)
 	}

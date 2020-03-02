@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"github.com/pkg/errors"
+	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
+	id2 "gitlab.com/elixxir/primitives/id"
 	"gitlab.com/elixxir/primitives/ndf"
 	"sync"
 )
@@ -17,7 +19,7 @@ type Ndf struct {
 }
 
 //Updates to a new NDF if the passed NDF is valid
-func (file *Ndf) Update(m *pb.NDF) error {
+func (file *Ndf) Update(m *pb.NDF, comm *connect.ProtoComms) error {
 
 	//build the ndf object
 	decoded, _, err := ndf.DecodeNDF(string(m.Ndf))
@@ -31,6 +33,17 @@ func (file *Ndf) Update(m *pb.NDF) error {
 
 	file.pb = m
 	file.f = decoded
+
+	for _, n := range file.f.Nodes {
+		id := id2.NewNodeFromBytes(n.ID).String()
+		_, ok := comm.GetHost(id)
+		if !ok {
+			_, err := comm.AddHost(id, n.Address, []byte(n.TlsCertificate), false, true)
+			if err != nil {
+				return errors.Wrapf(err, "Error adding host for node %s", id)
+			}
+		}
+	}
 
 	//set the ndf hash
 	marshaled, err := file.f.Marshal()
