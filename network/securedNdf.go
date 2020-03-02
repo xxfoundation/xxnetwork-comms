@@ -2,7 +2,6 @@ package network
 
 import (
 	"github.com/pkg/errors"
-	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	ds "gitlab.com/elixxir/comms/network/dataStructures"
 	"gitlab.com/elixxir/crypto/signature"
@@ -16,20 +15,24 @@ type SecuredNdf struct {
 	f *ds.Ndf
 }
 
-func NewSecuredNdf() *SecuredNdf {
-	return &SecuredNdf{
-		&ds.Ndf{},
+func NewSecuredNdf(definition *ndf.NetworkDefinition) (*SecuredNdf, error) {
+	ndf, err := ds.NewNdf(definition)
+	if err != nil {
+		return nil, err
 	}
+	return &SecuredNdf{
+		ndf,
+	}, nil
 }
 
 // unexported NDF update code
-func (sndf *SecuredNdf) update(m *pb.NDF, comm *connect.ProtoComms, key *rsa.PublicKey) error {
+func (sndf *SecuredNdf) update(m *pb.NDF, key *rsa.PublicKey) error {
 	err := signature.Verify(m, key)
 	if err != nil {
 		return errors.WithMessage(err, "Could not validate NDF")
 	}
 
-	return sndf.f.Update(m, comm)
+	return sndf.f.Update(m)
 }
 
 func (sndf *SecuredNdf) Get() *ndf.NetworkDefinition {

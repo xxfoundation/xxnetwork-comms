@@ -7,6 +7,7 @@ import (
 	ds "gitlab.com/elixxir/comms/network/dataStructures"
 	"gitlab.com/elixxir/crypto/signature"
 	"gitlab.com/elixxir/primitives/id"
+	"gitlab.com/elixxir/primitives/ndf"
 	"sync"
 )
 
@@ -21,15 +22,23 @@ type Instance struct {
 	roundlock sync.RWMutex
 }
 
-func NewInstance(c *connect.ProtoComms) *Instance {
+func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition) (*Instance, error) {
+	partialNdf, err := NewSecuredNdf(partial)
+	if err != nil {
+		return nil, errors.WithMessage(err, "Could not create secured partial ndf")
+	}
+	fullNdf, err := NewSecuredNdf(full)
+	if err != nil {
+		return nil, errors.WithMessage(err, "Could not create secured full ndf")
+	}
 	return &Instance{
 		c,
-		NewSecuredNdf(),
-		NewSecuredNdf(),
+		partialNdf,
+		fullNdf,
 		&ds.Updates{},
 		&ds.Data{},
 		sync.RWMutex{},
-	}
+	}, nil
 }
 
 //update the partial ndf
@@ -41,7 +50,7 @@ func (i *Instance) UpdatePartialNdf(m *pb.NDF) error {
 			"for NDF partial verification")
 	}
 
-	return i.partial.update(m, i.comm, perm.GetPubKey())
+	return i.partial.update(m, perm.GetPubKey())
 }
 
 //update the full ndf
@@ -53,7 +62,7 @@ func (i *Instance) UpdateFullNdf(m *pb.NDF) error {
 			"for full NDF verification")
 	}
 
-	return i.full.update(m, i.comm, perm.GetPubKey())
+	return i.full.update(m, perm.GetPubKey())
 }
 
 func (i *Instance) GetPartialNdf() *SecuredNdf {
@@ -111,4 +120,55 @@ func (i *Instance) GetLastUpdateID() int {
 
 func (i *Instance) GetLastRoundID() id.Round {
 	return i.roundData.GetLastRoundID()
+}
+
+// Update gateway hosts based on most complete ndf
+func (i *Instance) UpdateGatewayConnections() error {
+	if i.full != nil {
+		return updateConns(i.full.f.Get(), i.comm, true, false)
+	} else if i.partial != nil {
+		return updateConns(i.partial.f.Get(), i.comm, true, false)
+	} else {
+		return errors.New("No ndf currently stored")
+	}
+}
+
+// Update node hosts based on most complete ndf
+func (i *Instance) UpdateNodeConnections() error {
+	if i.full != nil {
+		return updateConns(i.full.f.Get(), i.comm, false, true)
+	} else if i.partial != nil {
+		return updateConns(i.partial.f.Get(), i.comm, false, true)
+	} else {
+		return errors.New("No ndf currently stored")
+	}
+}
+
+// Update host helper
+func updateConns(def *ndf.NetworkDefinition, comms *connect.ProtoComms, gate, node bool) error {
+	if gate {
+		for i, h := range def.Gateways {
+			gwid := id.NewNodeFromBytes(def.Nodes[i].ID).NewGateway().String()
+			_, ok := comms.GetHost(gwid)
+			if !ok {
+				_, err := comms.AddHost(gwid, h.Address, []byte(h.TlsCertificate), false, true)
+				if err != nil {
+					return errors.WithMessagef(err, "Could not add gateway host %s", gwid)
+				}
+			}
+		}
+	}
+	if node {
+		for _, h := range def.Nodes {
+			nid := id.NewNodeFromBytes(h.ID).String()
+			_, ok := comms.GetHost(nid)
+			if !ok {
+				_, err := comms.AddHost(nid, h.Address, []byte(h.TlsCertificate), false, true)
+				if err != nil {
+					return errors.WithMessagef(err, "Could not add node host %s", nid)
+				}
+			}
+		}
+	}
+	return nil
 }

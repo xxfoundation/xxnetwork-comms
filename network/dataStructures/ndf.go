@@ -4,9 +4,7 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"github.com/pkg/errors"
-	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
-	id2 "gitlab.com/elixxir/primitives/id"
 	"gitlab.com/elixxir/primitives/ndf"
 	"sync"
 )
@@ -18,8 +16,22 @@ type Ndf struct {
 	lock sync.RWMutex
 }
 
+func NewNdf(definition *ndf.NetworkDefinition) (*Ndf, error) {
+	h, err := generateHash(definition)
+	if err != nil {
+		return nil, errors.WithMessage(err, "Failed to hash ndf")
+	}
+	ndf := &Ndf{
+		f:    definition,
+		pb:   nil,
+		hash: h,
+		lock: sync.RWMutex{},
+	}
+	return ndf, nil
+}
+
 //Updates to a new NDF if the passed NDF is valid
-func (file *Ndf) Update(m *pb.NDF, comm *connect.ProtoComms) error {
+func (file *Ndf) Update(m *pb.NDF) error {
 
 	//build the ndf object
 	decoded, _, err := ndf.DecodeNDF(string(m.Ndf))
@@ -34,30 +46,9 @@ func (file *Ndf) Update(m *pb.NDF, comm *connect.ProtoComms) error {
 	file.pb = m
 	file.f = decoded
 
-	for _, n := range file.f.Nodes {
-		id := id2.NewNodeFromBytes(n.ID).String()
-		_, ok := comm.GetHost(id)
-		if !ok {
-			_, err := comm.AddHost(id, n.Address, []byte(n.TlsCertificate), false, true)
-			if err != nil {
-				return errors.Wrapf(err, "Error adding host for node %s", id)
-			}
-		}
-	}
+	file.hash, err = generateHash(file.f)
 
-	//set the ndf hash
-	marshaled, err := file.f.Marshal()
-	if err != nil {
-		return errors.WithMessage(err,
-			"Could not marshal NDF for hashing")
-	}
-
-	// Serialize then hash the constructed ndf
-	hash := sha256.New()
-	hash.Write(marshaled)
-	file.hash = hash.Sum(nil)
-
-	return nil
+	return err
 }
 
 //returns the ndf object
@@ -110,4 +101,18 @@ func (file *Ndf) CompareHash(h []byte) (bool, error) {
 
 	//return false if the hashes are different
 	return false, nil
+}
+
+func generateHash(definition *ndf.NetworkDefinition) ([]byte, error) {
+	//set the ndf hash
+	marshaled, err := definition.Marshal()
+	if err != nil {
+		return nil, errors.WithMessage(err,
+			"Could not marshal NDF for hashing")
+	}
+
+	// Serialize then hash the constructed ndf
+	hash := sha256.New()
+	hash.Write(marshaled)
+	return hash.Sum(nil), nil
 }
