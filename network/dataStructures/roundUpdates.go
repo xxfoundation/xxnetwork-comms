@@ -51,16 +51,16 @@ func (u *Updates) GetUpdate(id int) (*pb.RoundInfo, error) {
 }
 
 //gets all updates after a given ID
-func (u *Updates)GetUpdates(id int)([]*pb.RoundInfo, error){
+func (u *Updates) GetUpdates(id int) ([]*pb.RoundInfo, error) {
 	interfaceList, err := u.updates.GetNewerById(id)
 
-	if err!=nil{
+	if err != nil {
 		return nil, err
 	}
 
-	infoList := make([]*pb.RoundInfo,len(interfaceList))
+	infoList := make([]*pb.RoundInfo, len(interfaceList))
 
-	for i, face := range interfaceList{
+	for i, face := range interfaceList {
 		infoList[i] = face.(*pb.RoundInfo)
 	}
 
