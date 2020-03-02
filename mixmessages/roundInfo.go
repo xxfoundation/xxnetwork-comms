@@ -12,6 +12,7 @@ package mixmessages
 import (
 	"github.com/pkg/errors"
 	"gitlab.com/elixxir/primitives/id"
+	"gitlab.com/elixxir/primitives/states"
 )
 
 // SetSignature sets RoundInfo's signature to the newSig argument
@@ -78,8 +79,8 @@ func (m *RoundInfo) GetSig() []byte {
 }
 
 // GetActivity gets the state of the node
-func (m *RoundInfo) GetActivity() uint32 {
-	return m.State
+func (m *RoundInfo) GetRoundState() states.Round {
+	return states.Round(m.State)
 }
 
 func (m *RoundInfo) GetRoundId() id.Round {

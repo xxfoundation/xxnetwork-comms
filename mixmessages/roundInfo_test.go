@@ -10,6 +10,7 @@ import (
 	"crypto/rand"
 	"gitlab.com/elixxir/crypto/signature"
 	"gitlab.com/elixxir/crypto/signature/rsa"
+	"gitlab.com/elixxir/primitives/states"
 	"testing"
 )
 
@@ -281,9 +282,9 @@ func TestRoundInfo_GetActivity(t *testing.T) {
 		State: expected,
 	}
 
-	received := testRoundInfo.GetActivity()
+	received := testRoundInfo.GetRoundState()
 
-	if received != expected {
+	if received != states.Round(expected) {
 		t.Errorf("Received does not match expected for getter function! "+
 			"Expected: %+v \n\t"+
 			"Received: %+v", expected, received)

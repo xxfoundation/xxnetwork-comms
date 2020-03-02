@@ -1,9 +1,11 @@
 package mixmessages
 
+import "gitlab.com/elixxir/primitives/current"
+
 // GetState gets the state of the node
-func (m *PermissioningPoll) GetState() uint32 {
+func (m *PermissioningPoll) GetCurrentActivityState() current.Activity {
 	if m != nil {
-		return m.Activity
+		return current.Activity(m.Activity)
 	}
-	return 0
+	return current.NOT_STARTED
 }
