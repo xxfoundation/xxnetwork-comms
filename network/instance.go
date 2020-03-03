@@ -8,7 +8,6 @@ import (
 	"gitlab.com/elixxir/crypto/signature"
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/elixxir/primitives/ndf"
-	"sync"
 )
 
 type Instance struct {
@@ -21,21 +20,31 @@ type Instance struct {
 }
 
 func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition) (*Instance, error) {
-	partialNdf, err := NewSecuredNdf(partial)
-	if err != nil {
-		return nil, errors.WithMessage(err, "Could not create secured partial ndf")
+	var partialNdf *SecuredNdf
+	var fullNdf *SecuredNdf
+	var err error
+
+	if partial!=nil{
+		partialNdf, err = NewSecuredNdf(partial)
+		if err != nil {
+			return nil, errors.WithMessage(err, "Could not create secured partial ndf")
+		}
 	}
-	fullNdf, err := NewSecuredNdf(full)
-	if err != nil {
-		return nil, errors.WithMessage(err, "Could not create secured full ndf")
+
+	if full!=nil {
+		fullNdf, err = NewSecuredNdf(full)
+		if err != nil {
+			return nil, errors.WithMessage(err, "Could not create secured full ndf")
+		}
 	}
+
 	return &Instance{
 		c,
 		partialNdf,
 		fullNdf,
 		&ds.Updates{},
 		&ds.Data{},
-	}
+	}, nil
 }
 
 //update the partial ndf
