@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+// Copyright © 2020 Privategrity Corporation                                   /
+//                                                                             /
+// All rights reserved.                                                        /
+////////////////////////////////////////////////////////////////////////////////
+
+// Store a list of the most recent rounds, holding the most recent update for each
+
 package dataStructures
 
 import (
@@ -19,7 +27,7 @@ func (d *Data) UpsertRound(r *mixmessages.RoundInfo) error {
 		if current == nil {
 			return true
 		}
-		if current.(*mixmessages.RoundInfo).ID < new.(*mixmessages.RoundInfo).ID {
+		if current.(*mixmessages.RoundInfo).UpdateID < new.(*mixmessages.RoundInfo).UpdateID {
 			return true
 		}
 		return false

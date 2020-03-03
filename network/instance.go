@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+// Copyright © 2020 Privategrity Corporation                                   /
+//                                                                             /
+// All rights reserved.                                                        /
+////////////////////////////////////////////////////////////////////////////////
+
+// Handle basic logic for common operations of network instances
+
 package network
 
 import (
@@ -26,14 +34,14 @@ func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition) (*
 	var fullNdf *SecuredNdf
 	var err error
 
-	if partial!=nil{
+	if partial != nil {
 		partialNdf, err = NewSecuredNdf(partial)
 		if err != nil {
 			return nil, errors.WithMessage(err, "Could not create secured partial ndf")
 		}
 	}
 
-	if full!=nil {
+	if full != nil {
 		fullNdf, err = NewSecuredNdf(full)
 		if err != nil {
 			return nil, errors.WithMessage(err, "Could not create secured full ndf")
