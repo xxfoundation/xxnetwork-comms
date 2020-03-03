@@ -91,7 +91,7 @@ func setupComm(t *testing.T) (*Instance, *mixmessages.NDF) {
 	err = signature.Sign(f, privKey)
 
 	pc := &connect.ProtoComms{}
-	i, err := NewInstance(pc, nil, nil)
+	i, err := NewInstance(pc, &baseNDF, &baseNDF)
 	if err != nil {
 		t.Error(nil)
 	}
