@@ -123,11 +123,12 @@ message ServerPoll {
 
 // Unified Gateway->Server polling response
 message ServerPollResponse {
-    NDF FullNDF = 1; //Empty if no update needed
-    NDF PartialNDF = 2; //Empty if no update needed
-    repeated RoundInfo Updates = 3; //Empty if no update needed
-    RoundInfo BatchRequest = 6; //Empty if no update needed
-    repeated Slot slots = 7; //Empty if no update needed
+    bytes Id = 1;
+    NDF FullNDF = 2; //Empty if no update needed
+    NDF PartialNDF = 3; //Empty if no update needed
+    repeated RoundInfo Updates = 4; //Empty if no update needed
+    RoundInfo BatchRequest = 5; //Empty if no update needed
+    repeated Slot slots = 6; //Empty if no update needed
 }
 
 // GATEWAY MESSAGE SERVICE -----------------------------------------------------
