@@ -3,16 +3,33 @@ module gitlab.com/elixxir/comms
 go 1.13
 
 require (
+	cloud.google.com/go/bigquery v1.5.0 // indirect
+	dmitri.shuralyov.com/gpu/mtl v0.0.0-20191203043605-d42048ed14fd // indirect
+	github.com/cncf/udpa/go v0.0.0-20200124205748-db4b343e48c1 // indirect
+	github.com/envoyproxy/go-control-plane v0.9.4 // indirect
+	github.com/golang/mock v1.4.1 // indirect
 	github.com/golang/protobuf v1.3.4
-	github.com/google/go-cmp v0.4.0 // indirect
+	github.com/google/pprof v0.0.0-20200229191704-1ebb73c60ed3 // indirect
+	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/pkg/errors v0.9.1
+	github.com/prometheus/client_model v0.2.0 // indirect
+	github.com/rogpeppe/go-internal v1.5.2 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0
-	gitlab.com/elixxir/crypto v0.0.0-20200226225350-702cad4d3fa3
-	gitlab.com/elixxir/primitives v0.0.0-20200226191544-59ff3303abb3
-	golang.org/x/net v0.0.0-20200226121028-0de0cce0169b
-	golang.org/x/text v0.3.2 // indirect
-	google.golang.org/genproto v0.0.0-20200226201735-46b91f19d98c // indirect
+	github.com/stretchr/objx v0.2.0 // indirect
+	gitlab.com/elixxir/crypto v0.0.0-20200229000841-b1ee7117a1d0
+	gitlab.com/elixxir/primitives v0.0.0-20200301205752-350e61bd19b3
+	golang.org/x/crypto v0.0.0-20200302210943-78000ba7a073 // indirect
+	golang.org/x/exp v0.0.0-20200228211341-fcea875c7e85 // indirect
+	golang.org/x/image v0.0.0-20200119044424-58c23975cae1 // indirect
+	golang.org/x/lint v0.0.0-20200302205851-738671d3881b // indirect
+	golang.org/x/mobile v0.0.0-20200222142934-3c8601c510d0 // indirect
+	golang.org/x/net v0.0.0-20200301022130-244492dfa37a
+	golang.org/x/sys v0.0.0-20200302150141-5c8b2ff67527 // indirect
+	golang.org/x/tools v0.0.0-20200303225724-c5a141475315 // indirect
+	google.golang.org/api v0.20.0 // indirect
+	google.golang.org/genproto v0.0.0-20200303153909-beee998c1893 // indirect
 	google.golang.org/grpc v1.27.1
+	rsc.io/sampler v1.99.99 // indirect
 )
 
 replace google.golang.org/grpc => github.com/grpc/grpc-go v1.27.1

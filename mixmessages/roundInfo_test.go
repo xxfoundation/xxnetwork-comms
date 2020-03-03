@@ -10,6 +10,7 @@ import (
 	"crypto/rand"
 	"gitlab.com/elixxir/crypto/signature"
 	"gitlab.com/elixxir/crypto/signature/rsa"
+	"gitlab.com/elixxir/primitives/states"
 	"testing"
 )
 
@@ -273,4 +274,19 @@ func TestRoundInfo_SignVerify_Error(t *testing.T) {
 
 	t.Error("Expected error path: Should not have verified!")
 
+}
+
+func TestRoundInfo_GetActivity(t *testing.T) {
+	expected := uint32(45)
+	testRoundInfo := &RoundInfo{
+		State: expected,
+	}
+
+	received := testRoundInfo.GetRoundState()
+
+	if received != states.Round(expected) {
+		t.Errorf("Received does not match expected for getter function! "+
+			"Expected: %+v \n\t"+
+			"Received: %+v", expected, received)
+	}
 }
