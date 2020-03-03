@@ -18,8 +18,6 @@ type Instance struct {
 	full         *SecuredNdf
 	roundUpdates *ds.Updates
 	roundData    *ds.Data
-
-	roundlock sync.RWMutex
 }
 
 func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition) (*Instance, error) {
@@ -37,8 +35,7 @@ func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition) (*
 		fullNdf,
 		&ds.Updates{},
 		&ds.Data{},
-		sync.RWMutex{},
-	}, nil
+	}
 }
 
 //update the partial ndf
@@ -85,9 +82,6 @@ func (i *Instance) RoundUpdate(info *pb.RoundInfo) error {
 	if err != nil {
 		return errors.WithMessage(err, "Could not validate NDF")
 	}
-
-	i.roundlock.Lock()
-	defer i.roundlock.Unlock()
 
 	err = i.roundUpdates.AddRound(info)
 	if err != nil {
