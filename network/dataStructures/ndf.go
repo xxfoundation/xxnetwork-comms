@@ -9,6 +9,7 @@ import (
 	"sync"
 )
 
+// Struct which encapsulates all data from an NDF
 type Ndf struct {
 	f    *ndf.NetworkDefinition
 	pb   *pb.NDF
@@ -16,18 +17,18 @@ type Ndf struct {
 	lock sync.RWMutex
 }
 
+// Initialize an Ndf object from a primitives NetworkDefinition
 func NewNdf(definition *ndf.NetworkDefinition) (*Ndf, error) {
 	h, err := generateHash(definition)
 	if err != nil {
 		return nil, errors.WithMessage(err, "Failed to hash ndf")
 	}
-	ndf := &Ndf{
+	return &Ndf{
 		f:    definition,
 		pb:   nil,
 		hash: h,
 		lock: sync.RWMutex{},
-	}
-	return ndf, nil
+	}, nil
 }
 
 //Updates to a new NDF if the passed NDF is valid
@@ -103,6 +104,7 @@ func (file *Ndf) CompareHash(h []byte) (bool, error) {
 	return false, nil
 }
 
+// helper function to generate a hash of the NDF
 func generateHash(definition *ndf.NetworkDefinition) ([]byte, error) {
 	//set the ndf hash
 	marshaled, err := definition.Marshal()

@@ -13,10 +13,6 @@ import (
 	"testing"
 )
 
-func TestNewInstance(t *testing.T) {
-
-}
-
 func TestInstance_GetFullNdf(t *testing.T) {
 	secured, _ := NewSecuredNdf(testutils.NDF)
 	i := Instance{

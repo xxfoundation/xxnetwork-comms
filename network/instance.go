@@ -11,6 +11,7 @@ import (
 	"sync"
 )
 
+// The Instance struct stores a combination of comms info and round info for servers
 type Instance struct {
 	comm *connect.ProtoComms
 
@@ -22,6 +23,7 @@ type Instance struct {
 	roundlock sync.RWMutex
 }
 
+// Initializer for instance structs from base comms and NDF
 func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition) (*Instance, error) {
 	partialNdf, err := NewSecuredNdf(partial)
 	if err != nil {
@@ -65,14 +67,17 @@ func (i *Instance) UpdateFullNdf(m *pb.NDF) error {
 	return i.full.update(m, perm.GetPubKey())
 }
 
+// Return the partial ndf from this instance
 func (i *Instance) GetPartialNdf() *SecuredNdf {
 	return i.partial
 }
 
+// Return the full NDF from this instance
 func (i *Instance) GetFullNdf() *SecuredNdf {
 	return i.full
 }
 
+// Add a round to the round and update buffer
 func (i *Instance) RoundUpdate(info *pb.RoundInfo) error {
 	perm, success := i.comm.GetHost(id.PERMISSIONING)
 
@@ -102,22 +107,27 @@ func (i *Instance) RoundUpdate(info *pb.RoundInfo) error {
 	return nil
 }
 
+// Get the round of a given ID
 func (i *Instance) GetRound(id id.Round) (*pb.RoundInfo, error) {
 	return i.roundData.GetRound(int(id))
 }
 
+// Get an update ID
 func (i *Instance) GetRoundUpdate(updateID int) (*pb.RoundInfo, error) {
 	return i.roundUpdates.GetUpdate(updateID)
 }
 
+// Get updates from a given round
 func (i *Instance) GetRoundUpdates(id int) ([]*pb.RoundInfo, error) {
 	return i.roundUpdates.GetUpdates(id)
 }
 
+// get the most recent update id
 func (i *Instance) GetLastUpdateID() int {
 	return i.roundUpdates.GetLastUpdateID()
 }
 
+// get the most recent round id
 func (i *Instance) GetLastRoundID() id.Round {
 	return i.roundData.GetLastRoundID()
 }

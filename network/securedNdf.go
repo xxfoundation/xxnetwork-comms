@@ -15,6 +15,7 @@ type SecuredNdf struct {
 	f *ds.Ndf
 }
 
+// Initialize a securedNdf from a primitives NetworkDefinition object
 func NewSecuredNdf(definition *ndf.NetworkDefinition) (*SecuredNdf, error) {
 	ndf, err := ds.NewNdf(definition)
 	if err != nil {
@@ -35,18 +36,22 @@ func (sndf *SecuredNdf) update(m *pb.NDF, key *rsa.PublicKey) error {
 	return sndf.f.Update(m)
 }
 
+// Get the primitives object for an ndf
 func (sndf *SecuredNdf) Get() *ndf.NetworkDefinition {
 	return sndf.f.Get()
 }
 
+// get the hash of the ndf
 func (sndf *SecuredNdf) GetHash() []byte {
 	return sndf.f.GetHash()
 }
 
+// get the protobuf message NDF
 func (sndf *SecuredNdf) GetPb() *pb.NDF {
 	return sndf.f.GetPb()
 }
 
+// Compare a hash to the stored
 func (sndf *SecuredNdf) CompareHash(h []byte) (bool, error) {
 	return sndf.f.CompareHash(h)
 }

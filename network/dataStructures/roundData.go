@@ -52,6 +52,7 @@ func (d *Data) GetRound(id int) (*mixmessages.RoundInfo, error) {
 	return val.(*mixmessages.RoundInfo), nil
 }
 
-func (d *Data)GetLastRoundID()id.Round {
+// Get the ID of the newest round in the buffer
+func (d *Data) GetLastRoundID() id.Round {
 	return id.Round(d.rounds.GetNewestId())
 }
