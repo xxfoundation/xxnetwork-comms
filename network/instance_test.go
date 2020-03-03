@@ -5,6 +5,7 @@ import (
 	"gitlab.com/elixxir/comms/mixmessages"
 	ds "gitlab.com/elixxir/comms/network/dataStructures"
 	"gitlab.com/elixxir/comms/testkeys"
+	"gitlab.com/elixxir/comms/testutils"
 	"gitlab.com/elixxir/crypto/signature"
 	"gitlab.com/elixxir/crypto/signature/rsa"
 	"gitlab.com/elixxir/primitives/id"
@@ -12,13 +13,10 @@ import (
 	"testing"
 )
 
-func TestNewInstance(t *testing.T) {
-
-}
-
 func TestInstance_GetFullNdf(t *testing.T) {
+	secured, _ := NewSecuredNdf(testutils.NDF)
 	i := Instance{
-		full: NewSecuredNdf(),
+		full: secured,
 	}
 	if i.GetFullNdf() == nil {
 		t.Error("Failed to retrieve full ndf")
@@ -26,8 +24,9 @@ func TestInstance_GetFullNdf(t *testing.T) {
 }
 
 func TestInstance_GetPartialNdf(t *testing.T) {
+	secured, _ := NewSecuredNdf(testutils.NDF)
 	i := Instance{
-		partial: NewSecuredNdf(),
+		partial: secured,
 	}
 	if i.GetPartialNdf() == nil {
 		t.Error("Failed to retrieve partial ndf")
@@ -88,7 +87,10 @@ func setupComm(t *testing.T) (*Instance, *mixmessages.NDF) {
 	err = signature.Sign(f, privKey)
 
 	pc := &connect.ProtoComms{}
-	i := NewInstance(pc)
+	i, err := NewInstance(pc, &baseNDF, &baseNDF)
+	if err != nil {
+		t.Error(nil)
+	}
 
 	_, err = i.comm.AddHost(id.PERMISSIONING, "0.0.0.0:4200", pub, false, true)
 	if err != nil {
@@ -108,7 +110,7 @@ func TestInstance_RoundUpdate(t *testing.T) {
 	privKey, err := rsa.LoadPrivateKeyFromPem(priv)
 	err = signature.Sign(msg, privKey)
 
-	i := NewInstance(&connect.ProtoComms{})
+	i, err := NewInstance(&connect.ProtoComms{}, testutils.NDF, testutils.NDF)
 	pub := testkeys.LoadFromPath(testkeys.GetGatewayCertPath())
 	err = i.RoundUpdate(msg)
 	if err == nil {
@@ -145,5 +147,77 @@ func TestInstance_UpdatePartialNdf(t *testing.T) {
 	err := i.UpdatePartialNdf(f)
 	if err != nil {
 		t.Errorf("Failed to update ndf: %+v", err)
+	}
+}
+
+func TestInstance_GetLastRoundID(t *testing.T) {
+	i := Instance{
+		roundData: &ds.Data{},
+	}
+	_ = i.roundData.UpsertRound(&mixmessages.RoundInfo{ID: uint64(1)})
+	i.GetLastRoundID()
+}
+
+func TestInstance_GetLastUpdateID(t *testing.T) {
+	i := Instance{
+		roundUpdates: &ds.Updates{},
+	}
+	_ = i.roundUpdates.AddRound(&mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(1)})
+	i.GetLastUpdateID()
+}
+
+func TestInstance_UpdateGatewayConnections(t *testing.T) {
+	secured, _ := NewSecuredNdf(testutils.NDF)
+
+	i := Instance{
+		full: secured,
+		comm: &connect.ProtoComms{},
+	}
+	err := i.UpdateGatewayConnections()
+	if err != nil {
+		t.Errorf("Failed to update gateway connections from full: %+v", err)
+	}
+
+	i = Instance{
+		partial: secured,
+		comm:    &connect.ProtoComms{},
+	}
+	err = i.UpdateGatewayConnections()
+	if err != nil {
+		t.Errorf("Failed to update gateway connections from partial: %+v", err)
+	}
+
+	i = Instance{}
+	err = i.UpdateGatewayConnections()
+	if err == nil {
+		t.Error("Should error when attempting update with no ndf")
+	}
+}
+
+func TestInstance_UpdateNodeConnections(t *testing.T) {
+	secured, _ := NewSecuredNdf(testutils.NDF)
+
+	i := Instance{
+		full: secured,
+		comm: &connect.ProtoComms{},
+	}
+	err := i.UpdateNodeConnections()
+	if err != nil {
+		t.Errorf("Failed to update node connections from full: %+v", err)
+	}
+
+	i = Instance{
+		partial: secured,
+		comm:    &connect.ProtoComms{},
+	}
+	err = i.UpdateNodeConnections()
+	if err != nil {
+		t.Errorf("Failed to update node connections from partial: %+v", err)
+	}
+
+	i = Instance{}
+	err = i.UpdateNodeConnections()
+	if err == nil {
+		t.Error("Should error when attempting update with no ndf")
 	}
 }

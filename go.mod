@@ -17,12 +17,14 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0
 	github.com/stretchr/objx v0.2.0 // indirect
 	gitlab.com/elixxir/crypto v0.0.0-20200229000841-b1ee7117a1d0
-	gitlab.com/elixxir/primitives v0.0.0-20200229220646-a92f3188db53
+	gitlab.com/elixxir/primitives v0.0.0-20200301205752-350e61bd19b3
 	golang.org/x/exp v0.0.0-20200228211341-fcea875c7e85 // indirect
 	golang.org/x/image v0.0.0-20200119044424-58c23975cae1 // indirect
 	golang.org/x/mobile v0.0.0-20200222142934-3c8601c510d0 // indirect
-	golang.org/x/net v0.0.0-20200226121028-0de0cce0169b
-	golang.org/x/tools v0.0.0-20200228224639-71482053b885 // indirect
+	golang.org/x/net v0.0.0-20200301022130-244492dfa37a
+	golang.org/x/sys v0.0.0-20200302150141-5c8b2ff67527 // indirect
+	golang.org/x/tools v0.0.0-20200302155637-b1e4e04173e0 // indirect
+	google.golang.org/genproto v0.0.0-20200302123026-7795fca6ccb1 // indirect
 	google.golang.org/grpc v1.27.1
 	rsc.io/sampler v1.99.99 // indirect
 )

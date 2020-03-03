@@ -27,3 +27,26 @@ func TestUpdates_GetUpdate(t *testing.T) {
 		t.Errorf("Failed to get update: %+v", err)
 	}
 }
+
+func TestUpdates_GetUpdates(t *testing.T) {
+	u := Updates{}
+	_ = u.AddRound(&mixmessages.RoundInfo{
+		ID:       0,
+		UpdateID: 3,
+	})
+	_ = u.AddRound(&mixmessages.RoundInfo{
+		ID:       0,
+		UpdateID: 4,
+	})
+	_ = u.AddRound(&mixmessages.RoundInfo{
+		ID:       0,
+		UpdateID: 4,
+	})
+	l, err := u.GetUpdates(2)
+	if len(l) != 2 {
+		t.Error("Something went wrong, didn't get all results")
+	}
+	if err != nil {
+		t.Errorf("Failed to get updates: %+v", err)
+	}
+}

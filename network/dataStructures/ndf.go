@@ -1,3 +1,11 @@
+////////////////////////////////////////////////////////////////////////////////
+// Copyright © 2020 Privategrity Corporation                                   /
+//                                                                             /
+// All rights reserved.                                                        /
+////////////////////////////////////////////////////////////////////////////////
+
+// Handles basic operations on different forms of network definitions
+
 package dataStructures
 
 import (
@@ -9,11 +17,26 @@ import (
 	"sync"
 )
 
+// Struct which encapsulates all data from an NDF
 type Ndf struct {
 	f    *ndf.NetworkDefinition
 	pb   *pb.NDF
 	hash []byte
 	lock sync.RWMutex
+}
+
+// Initialize an Ndf object from a primitives NetworkDefinition
+func NewNdf(definition *ndf.NetworkDefinition) (*Ndf, error) {
+	h, err := generateHash(definition)
+	if err != nil {
+		return nil, errors.WithMessage(err, "Failed to hash ndf")
+	}
+	return &Ndf{
+		f:    definition,
+		pb:   nil,
+		hash: h,
+		lock: sync.RWMutex{},
+	}, nil
 }
 
 //Updates to a new NDF if the passed NDF is valid
@@ -32,19 +55,9 @@ func (file *Ndf) Update(m *pb.NDF) error {
 	file.pb = m
 	file.f = decoded
 
-	//set the ndf hash
-	marshaled, err := file.f.Marshal()
-	if err != nil {
-		return errors.WithMessage(err,
-			"Could not marshal NDF for hashing")
-	}
+	file.hash, err = generateHash(file.f)
 
-	// Serialize then hash the constructed ndf
-	hash := sha256.New()
-	hash.Write(marshaled)
-	file.hash = hash.Sum(nil)
-
-	return nil
+	return err
 }
 
 //returns the ndf object
@@ -97,4 +110,19 @@ func (file *Ndf) CompareHash(h []byte) (bool, error) {
 
 	//return false if the hashes are different
 	return false, nil
+}
+
+// helper function to generate a hash of the NDF
+func generateHash(definition *ndf.NetworkDefinition) ([]byte, error) {
+	//set the ndf hash
+	marshaled, err := definition.Marshal()
+	if err != nil {
+		return nil, errors.WithMessage(err,
+			"Could not marshal NDF for hashing")
+	}
+
+	// Serialize then hash the constructed ndf
+	hash := sha256.New()
+	hash.Write(marshaled)
+	return hash.Sum(nil), nil
 }
