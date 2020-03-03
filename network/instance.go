@@ -7,7 +7,6 @@ import (
 	ds "gitlab.com/elixxir/comms/network/dataStructures"
 	"gitlab.com/elixxir/crypto/signature"
 	"gitlab.com/elixxir/primitives/id"
-	"sync"
 )
 
 type Instance struct {
@@ -17,8 +16,6 @@ type Instance struct {
 	full         *SecuredNdf
 	roundUpdates *ds.Updates
 	roundData    *ds.Data
-
-	roundlock sync.RWMutex
 }
 
 func NewInstance(c *connect.ProtoComms) *Instance {
@@ -28,7 +25,6 @@ func NewInstance(c *connect.ProtoComms) *Instance {
 		NewSecuredNdf(),
 		&ds.Updates{},
 		&ds.Data{},
-		sync.RWMutex{},
 	}
 }
 
@@ -76,9 +72,6 @@ func (i *Instance) RoundUpdate(info *pb.RoundInfo) error {
 	if err != nil {
 		return errors.WithMessage(err, "Could not validate NDF")
 	}
-
-	i.roundlock.Lock()
-	defer i.roundlock.Unlock()
 
 	err = i.roundUpdates.AddRound(info)
 	if err != nil {
