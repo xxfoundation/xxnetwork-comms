@@ -18,13 +18,16 @@ require (
 	github.com/stretchr/objx v0.2.0 // indirect
 	gitlab.com/elixxir/crypto v0.0.0-20200229000841-b1ee7117a1d0
 	gitlab.com/elixxir/primitives v0.0.0-20200301205752-350e61bd19b3
+	golang.org/x/crypto v0.0.0-20200302210943-78000ba7a073 // indirect
 	golang.org/x/exp v0.0.0-20200228211341-fcea875c7e85 // indirect
 	golang.org/x/image v0.0.0-20200119044424-58c23975cae1 // indirect
+	golang.org/x/lint v0.0.0-20200302205851-738671d3881b // indirect
 	golang.org/x/mobile v0.0.0-20200222142934-3c8601c510d0 // indirect
 	golang.org/x/net v0.0.0-20200301022130-244492dfa37a
 	golang.org/x/sys v0.0.0-20200302150141-5c8b2ff67527 // indirect
-	golang.org/x/tools v0.0.0-20200302155637-b1e4e04173e0 // indirect
-	google.golang.org/genproto v0.0.0-20200302123026-7795fca6ccb1 // indirect
+	golang.org/x/tools v0.0.0-20200303225724-c5a141475315 // indirect
+	google.golang.org/api v0.20.0 // indirect
+	google.golang.org/genproto v0.0.0-20200303153909-beee998c1893 // indirect
 	google.golang.org/grpc v1.27.1
 	rsc.io/sampler v1.99.99 // indirect
 )
