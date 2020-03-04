@@ -328,7 +328,7 @@ func TestInstance_GetPermissioningCert(t *testing.T) {
 
 }
 
-// Error path: nil ndf is in the instance
+// Error path: nil ndf is in the instance should cause a seg fault
 func TestInstance_GetPermissioningAddress_NilCase(t *testing.T) {
 	// Handle expected seg fault here
 	defer func() {
@@ -350,7 +350,7 @@ func TestInstance_GetPermissioningAddress_NilCase(t *testing.T) {
 	nilNdfInstance.GetPermissioningAddress()
 }
 
-// Error path: nil ndf is in the instance
+// Error path: nil ndf is in the instance should cause a seg fault
 func TestInstance_GetPermissioningCert_NilCase(t *testing.T) {
 	// Handle expected seg fault here
 	defer func() {
