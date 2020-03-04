@@ -277,6 +277,50 @@ func TestInstance_GetPermissioningAddress(t *testing.T) {
 
 }
 
+// Error path: nil ndf is in the instance
+func TestInstance_GetPermissioningAddress_NilCase(t *testing.T) {
+	// Handle expected seg fault here
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("Expected error case, should seg fault when a nil ndf is passed through")
+		}
+	}()
+
+	// Create a nil ndf
+	nilNdf, _ := NewSecuredNdf(nil)
+
+	// Create an instance object with this nil ndf
+	nilNdfInstance := Instance{
+		full:    nilNdf,
+		partial: nilNdf,
+	}
+
+	// Attempt to call getter, should seg fault
+	nilNdfInstance.GetPermissioningAddress()
+}
+
+// Error path: nil ndf is in the instance
+func TestInstance_GetPermissioningCert_NilCase(t *testing.T) {
+	// Handle expected seg fault here
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("Expected error case, should seg fault when a nil ndf is passed through")
+		}
+	}()
+
+	// Create a nil ndf
+	nilNdf, _ := NewSecuredNdf(nil)
+
+	// Create an instance object with this nil ndf
+	nilNdfInstance := Instance{
+		full:    nilNdf,
+		partial: nilNdf,
+	}
+
+	// Attempt to call getter, should seg fault
+	nilNdfInstance.GetPermissioningCert()
+}
+
 // Happy path: Tests GetPermissioningCert with the full ndf set, the partial ndf set
 // and no ndf set
 func TestInstance_GetPermissioningCert(t *testing.T) {
