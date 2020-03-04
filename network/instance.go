@@ -9,7 +9,6 @@
 package network
 
 import (
-	"fmt"
 	"github.com/pkg/errors"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
@@ -172,16 +171,12 @@ func (i *Instance) UpdateNodeConnections() error {
 // If not it checks the partial ndf and returns if it has it
 // Otherwise it returns an empty string
 func (i *Instance) GetPermissioningAddress() string {
-	// Get both the partial and full ndf
-	fullNdf := i.GetFullNdf().Get()
-	partialNdf := i.GetPartialNdf().Get()
-
 	// Check if the full ndf has the information
-	if fullNdf != nil && fullNdf.Registration.Address != "" {
-		return fullNdf.Registration.Address
-	} else if partialNdf != nil && partialNdf.Registration.Address != "" {
+	if i.GetFullNdf() != nil {
+		return i.GetFullNdf().Get().Registration.Address
+	} else if i.GetPartialNdf() != nil {
 		// Else check if the partial ndf has the information
-		return partialNdf.Registration.Address
+		return i.GetPartialNdf().Get().Registration.Address
 	}
 
 	// If neither do, return an empty string
@@ -193,17 +188,12 @@ func (i *Instance) GetPermissioningAddress() string {
 // If not it checks the partial ndf and returns if it has it
 // Otherwise it returns an empty string
 func (i *Instance) GetPermissioningCert() string {
-	// Get both the partial and full ndf
-	fullNdf := i.GetFullNdf().Get()
-	partialNdf := i.GetPartialNdf().Get()
-
-	fmt.Printf("")
 	// Check if the full ndf has the information
-	if fullNdf != nil && fullNdf.Registration.TlsCertificate != "" {
-		return fullNdf.Registration.TlsCertificate
-	} else if partialNdf != nil && partialNdf.Registration.TlsCertificate != "" {
+	if i.GetFullNdf() != nil {
+		return i.GetFullNdf().Get().Registration.TlsCertificate
+	} else if i.GetPartialNdf() != nil {
 		// Else check if the partial ndf has the information
-		return partialNdf.Registration.TlsCertificate
+		return i.GetPartialNdf().Get().Registration.TlsCertificate
 	}
 
 	// If neither do, return an empty string

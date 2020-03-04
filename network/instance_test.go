@@ -231,20 +231,12 @@ func TestInstance_UpdateNodeConnections(t *testing.T) {
 // Happy path: Tests GetPermissioningAddress with the full ndf set, the partial ndf set
 // and no ndf set
 func TestInstance_GetPermissioningAddress(t *testing.T) {
-	defer func() {
-		if r := recover(); r == nil {
-			t.Errorf("Should get a seg fault on the last chance as an ndf is nil")
-		}
-	}()
-
 	// Create populated ndf (secured) and empty ndf
 	secured, _ := NewSecuredNdf(testutils.NDF)
-	emptyNdf, _ := NewSecuredNdf(testutils.EmptyNdf)
 	// Create an instance object, setting full to be populated
 	// and partial to be empty
 	fullNdfInstance := Instance{
-		full:    secured,
-		partial: emptyNdf,
+		full: secured,
 	}
 
 	// Expected address gotten from testutils.NDF
@@ -261,7 +253,6 @@ func TestInstance_GetPermissioningAddress(t *testing.T) {
 	// Create an instance object, setting partial to be populated
 	// and full to be empty
 	partialNdfInstance := Instance{
-		full:    emptyNdf,
 		partial: secured,
 	}
 
@@ -290,20 +281,12 @@ func TestInstance_GetPermissioningAddress(t *testing.T) {
 // and no ndf set
 func TestInstance_GetPermissioningCert(t *testing.T) {
 
-	defer func() {
-		if r := recover(); r == nil {
-			t.Errorf("Should get a seg fault on the last chance as an ndf is nil")
-		}
-	}()
-
 	// Create populated ndf (secured) and empty ndf
 	secured, _ := NewSecuredNdf(testutils.NDF)
-	emptyNdf, _ := NewSecuredNdf(testutils.EmptyNdf)
 	// Create an instance object, setting full to be populated
 	// and partial to be empty
 	fullNdfInstance := Instance{
-		full:    secured,
-		partial: emptyNdf,
+		full: secured,
 	}
 
 	// Expected cert gotten from testutils.NDF
@@ -320,7 +303,6 @@ func TestInstance_GetPermissioningCert(t *testing.T) {
 	// Create an instance object, setting partial to be populated
 	// and full to be empty
 	partialNdfInstance := Instance{
-		full:    emptyNdf,
 		partial: secured,
 	}
 
