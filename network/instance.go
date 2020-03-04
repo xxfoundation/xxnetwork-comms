@@ -9,6 +9,7 @@
 package network
 
 import (
+	"fmt"
 	"github.com/pkg/errors"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
@@ -166,7 +167,10 @@ func (i *Instance) UpdateNodeConnections() error {
 	}
 }
 
-// todo: docstring
+// GetPermissioningAddress gets the permissioning address from one of the ndf
+// It first checks the full ndf and returns if that has the address
+// If not it checks the partial ndf and returns if it has it
+// Otherwise it returns an empty string
 func (i *Instance) GetPermissioningAddress() string {
 	// Get both the partial and full ndf
 	fullNdf := i.GetFullNdf().Get()
@@ -184,12 +188,16 @@ func (i *Instance) GetPermissioningAddress() string {
 	return ""
 }
 
-// todo: docstring
+// GetPermissioningCert gets the permissioning certificate from one of the ndfs
+// It first checks the full ndf and returns if that has the cert
+// If not it checks the partial ndf and returns if it has it
+// Otherwise it returns an empty string
 func (i *Instance) GetPermissioningCert() string {
 	// Get both the partial and full ndf
 	fullNdf := i.GetFullNdf().Get()
 	partialNdf := i.GetPartialNdf().Get()
 
+	fmt.Printf("")
 	// Check if the full ndf has the information
 	if fullNdf != nil && fullNdf.Registration.TlsCertificate != "" {
 		return fullNdf.Registration.TlsCertificate
@@ -200,6 +208,12 @@ func (i *Instance) GetPermissioningCert() string {
 
 	// If neither do, return an empty string
 	return ""
+
+}
+
+// GetPermissioningId gets the permissioning ID from primitives
+func (i *Instance) GetPermissioningId() string {
+	return id.PERMISSIONING
 
 }
 

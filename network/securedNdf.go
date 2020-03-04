@@ -46,9 +46,6 @@ func (sndf *SecuredNdf) update(m *pb.NDF, key *rsa.PublicKey) error {
 
 // Get the primitives object for an ndf
 func (sndf *SecuredNdf) Get() *ndf.NetworkDefinition {
-	if sndf == nil || sndf.f == nil {
-		return nil
-	}
 	return sndf.f.Get()
 }
 

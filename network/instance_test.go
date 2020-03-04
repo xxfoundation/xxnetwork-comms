@@ -231,10 +231,20 @@ func TestInstance_UpdateNodeConnections(t *testing.T) {
 // Happy path: Tests GetPermissioningAddress with the full ndf set, the partial ndf set
 // and no ndf set
 func TestInstance_GetPermissioningAddress(t *testing.T) {
-	// Create an instance object, setting the full ndf
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("Should get a seg fault on the last chance as an ndf is nil")
+		}
+	}()
+
+	// Create populated ndf (secured) and empty ndf
 	secured, _ := NewSecuredNdf(testutils.NDF)
+	emptyNdf, _ := NewSecuredNdf(testutils.EmptyNdf)
+	// Create an instance object, setting full to be populated
+	// and partial to be empty
 	fullNdfInstance := Instance{
-		full: secured,
+		full:    secured,
+		partial: emptyNdf,
 	}
 
 	// Expected address gotten from testutils.NDF
@@ -248,8 +258,10 @@ func TestInstance_GetPermissioningAddress(t *testing.T) {
 			"\n\tReceived: %+v", expectedAddress, receivedAddress)
 	}
 
-	// Create an instance object, setting the partial ndf
+	// Create an instance object, setting partial to be populated
+	// and full to be empty
 	partialNdfInstance := Instance{
+		full:    emptyNdf,
 		partial: secured,
 	}
 
@@ -277,11 +289,23 @@ func TestInstance_GetPermissioningAddress(t *testing.T) {
 // Happy path: Tests GetPermissioningCert with the full ndf set, the partial ndf set
 // and no ndf set
 func TestInstance_GetPermissioningCert(t *testing.T) {
-	// Create an instance object, setting the full ndf
+
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("Should get a seg fault on the last chance as an ndf is nil")
+		}
+	}()
+
+	// Create populated ndf (secured) and empty ndf
 	secured, _ := NewSecuredNdf(testutils.NDF)
+	emptyNdf, _ := NewSecuredNdf(testutils.EmptyNdf)
+	// Create an instance object, setting full to be populated
+	// and partial to be empty
 	fullNdfInstance := Instance{
-		full: secured,
+		full:    secured,
+		partial: emptyNdf,
 	}
+
 	// Expected cert gotten from testutils.NDF
 	expectedCert := "-----BEGIN CERTIFICATE-----\nMIIDkDCCAnigAwIBAgIJAJnjosuSsP7gMA0GCSqGSIb3DQEBBQUAMHQxCzAJBgNV\nBAYTAlVTMRMwEQYDVQQIDApDYWxpZm9ybmlhMRIwEAYDVQQHDAlDbGFyZW1vbnQx\nGzAZBgNVBAoMElByaXZhdGVncml0eSBDb3JwLjEfMB0GA1UEAwwWcmVnaXN0cmF0\naW9uKi5jbWl4LnJpcDAeFw0xOTAzMDUyMTQ5NTZaFw0yOTAzMDIyMTQ5NTZaMHQx\nCzAJBgNVBAYTAlVTMRMwEQYDVQQIDApDYWxpZm9ybmlhMRIwEAYDVQQHDAlDbGFy\nZW1vbnQxGzAZBgNVBAoMElByaXZhdGVncml0eSBDb3JwLjEfMB0GA1UEAwwWcmVn\naXN0cmF0aW9uKi5jbWl4LnJpcDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoC\nggEBAOQKvqjdh35o+MECBhCwopJzPlQNmq2iPbewRNtI02bUNK3kLQUbFlYdzNGZ\nS4GYXGc5O+jdi8Slx82r1kdjz5PPCNFBARIsOP/L8r3DGeW+yeJdgBZjm1s3ylka\nmt4Ajiq/bNjysS6L/WSOp+sVumDxtBEzO/UTU1O6QRnzUphLaiWENmErGvsH0CZV\nq38Ia58k/QjCAzpUcYi4j2l1fb07xqFcQD8H6SmUM297UyQosDrp8ukdIo31Koxr\n4XDnnNNsYStC26tzHMeKuJ2Wl+3YzsSyflfM2YEcKE31sqB9DS36UkJ8J84eLsHN\nImGg3WodFAviDB67+jXDbB30NkMCAwEAAaMlMCMwIQYDVR0RBBowGIIWcmVnaXN0\ncmF0aW9uKi5jbWl4LnJpcDANBgkqhkiG9w0BAQUFAAOCAQEAF9mNzk+g+o626Rll\nt3f3/1qIyYQrYJ0BjSWCKYEFMCgZ4JibAJjAvIajhVYERtltffM+YKcdE2kTpdzJ\n0YJuUnRfuv6sVnXlVVugUUnd4IOigmjbCdM32k170CYMm0aiwGxl4FrNa8ei7AIa\nx/s1n+sqWq3HeW5LXjnoVb+s3HeCWIuLfcgrurfye8FnNhy14HFzxVYYefIKm0XL\n+DPlcGGGm/PPYt3u4a2+rP3xaihc65dTa0u5tf/XPXtPxTDPFj2JeQDFxo7QRREb\nPD89CtYnwuP937CrkvCKrL0GkW1FViXKqZY9F5uhxrvLIpzhbNrs/EbtweY35XGL\nDCCMkg==\n-----END CERTIFICATE-----"
 
@@ -293,8 +317,10 @@ func TestInstance_GetPermissioningCert(t *testing.T) {
 			"\n\tReceived: %+v", expectedCert, receivedCert)
 	}
 
-	// Create an instance object, setting the partial ndf
+	// Create an instance object, setting partial to be populated
+	// and full to be empty
 	partialNdfInstance := Instance{
+		full:    emptyNdf,
 		partial: secured,
 	}
 
@@ -317,4 +343,18 @@ func TestInstance_GetPermissioningCert(t *testing.T) {
 			"\n\tReceived: %+v", receivedCert)
 	}
 
+}
+
+// GetPermissioningId should fetch the value of id.PERMISSIONING in primitives
+func TestInstance_GetPermissioningId(t *testing.T) {
+	// Create an instance object,
+	instance := Instance{}
+
+	receivedId := instance.GetPermissioningId()
+
+	if receivedId != id.PERMISSIONING {
+		t.Errorf("GetPermissioningId did not get value from primitives"+
+			"\n\tExpected: %+v"+
+			"\n\tReceived: %+v", id.PERMISSIONING, receivedId)
+	}
 }
