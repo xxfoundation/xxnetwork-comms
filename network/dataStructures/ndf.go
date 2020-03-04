@@ -90,26 +90,13 @@ func (file *Ndf) GetPb() *pb.NDF {
 	return file.pb
 }
 
-//evaluates if the passed ndf hash is the same as the stored one
-//returns an error if no ndf is available, returns false if they are different
-//and true if they are the same
-func (file *Ndf) CompareHash(h []byte) (bool, error) {
+// Evaluates if the passed ndf hash is the same as the stored one
+func (file *Ndf) CompareHash(h []byte) bool {
 	file.lock.RLock()
 	defer file.lock.RUnlock()
 
-	//return the NO_NDF error if no NDF is available
-	if len(file.hash) == 0 {
-		errMsg := errors.Errorf(ndf.NO_NDF)
-		return false, errMsg
-	}
-
-	//return true if the hashes are the same
-	if bytes.Compare(file.hash, h) == 0 {
-		return true, nil
-	}
-
-	//return false if the hashes are different
-	return false, nil
+	// Return whether the hashes are different
+	return bytes.Compare(file.hash, h) == 0
 }
 
 // helper function to generate a hash of the NDF

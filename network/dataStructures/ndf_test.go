@@ -72,25 +72,15 @@ func TestNdf_GetPb(t *testing.T) {
 
 func TestNdf_CompareHash(t *testing.T) {
 	ndf := &Ndf{}
-	_, err := ndf.CompareHash([]byte("test"))
-	if err == nil {
-		t.Error("CompareHash should error when it has no ndf")
-	}
 
 	ndf = setup()
-	b, err := ndf.CompareHash(ndf.hash)
+	b := ndf.CompareHash(ndf.hash)
 	if !b {
 		t.Error("Should return true when hashes are the same")
 	}
-	if err != nil {
-		t.Errorf("Returned error comparing identical ndfs: %+v", err)
-	}
 
-	b, err = ndf.CompareHash([]byte("test"))
+	b = ndf.CompareHash([]byte("test"))
 	if b {
 		t.Error("Should return false when hashes are different")
-	}
-	if err != nil {
-		t.Errorf("Should not error when hashes are different: %+v", err)
 	}
 }

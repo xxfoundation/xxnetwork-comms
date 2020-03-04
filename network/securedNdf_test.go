@@ -107,7 +107,7 @@ func TestSecuredNdf_GetHash(t *testing.T) {
 
 func TestSecuredNdf_CompareHash(t *testing.T) {
 	sn := SecuredNdf{f: setup()}
-	b, _ := sn.CompareHash(sn.f.GetHash())
+	b := sn.CompareHash(sn.f.GetHash())
 	if !b {
 		t.Error("Should have received true for comparison")
 	}

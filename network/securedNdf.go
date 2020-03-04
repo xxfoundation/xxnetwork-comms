@@ -60,6 +60,6 @@ func (sndf *SecuredNdf) GetPb() *pb.NDF {
 }
 
 // Compare a hash to the stored
-func (sndf *SecuredNdf) CompareHash(h []byte) (bool, error) {
+func (sndf *SecuredNdf) CompareHash(h []byte) bool {
 	return sndf.f.CompareHash(h)
 }
