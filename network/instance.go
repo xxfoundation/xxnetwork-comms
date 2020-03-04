@@ -166,7 +166,7 @@ func (i *Instance) UpdateNodeConnections() error {
 	}
 }
 
-// GetPermissioningAddress gets the permissioning address from one of the ndf
+// GetPermissioningAddress gets the permissioning address from one of the NDF
 // It first checks the full ndf and returns if that has the address
 // If not it checks the partial ndf and returns if it has it
 // Otherwise it returns an empty string
@@ -183,7 +183,7 @@ func (i *Instance) GetPermissioningAddress() string {
 	return ""
 }
 
-// GetPermissioningCert gets the permissioning certificate from one of the ndfs
+// GetPermissioningCert gets the permissioning certificate from one of the NDFs
 // It first checks the full ndf and returns if that has the cert
 // If not it checks the partial ndf and returns if it has it
 // Otherwise it returns an empty string
