@@ -18,6 +18,7 @@ import (
 	"gitlab.com/elixxir/primitives/ndf"
 )
 
+// 4 getters one for each, return from full if its there, otherwise partial
 // The Instance struct stores a combination of comms info and round info for servers
 type Instance struct {
 	comm *connect.ProtoComms
@@ -163,6 +164,47 @@ func (i *Instance) UpdateNodeConnections() error {
 	} else {
 		return errors.New("No ndf currently stored")
 	}
+}
+
+// GetPermissioningAddress gets the permissioning address from one of the NDF
+// It first checks the full ndf and returns if that has the address
+// If not it checks the partial ndf and returns if it has it
+// Otherwise it returns an empty string
+func (i *Instance) GetPermissioningAddress() string {
+	// Check if the full ndf has the information
+	if i.GetFullNdf() != nil {
+		return i.GetFullNdf().Get().Registration.Address
+	} else if i.GetPartialNdf() != nil {
+		// Else check if the partial ndf has the information
+		return i.GetPartialNdf().Get().Registration.Address
+	}
+
+	// If neither do, return an empty string
+	return ""
+}
+
+// GetPermissioningCert gets the permissioning certificate from one of the NDFs
+// It first checks the full ndf and returns if that has the cert
+// If not it checks the partial ndf and returns if it has it
+// Otherwise it returns an empty string
+func (i *Instance) GetPermissioningCert() string {
+	// Check if the full ndf has the information
+	if i.GetFullNdf() != nil {
+		return i.GetFullNdf().Get().Registration.TlsCertificate
+	} else if i.GetPartialNdf() != nil {
+		// Else check if the partial ndf has the information
+		return i.GetPartialNdf().Get().Registration.TlsCertificate
+	}
+
+	// If neither do, return an empty string
+	return ""
+
+}
+
+// GetPermissioningId gets the permissioning ID from primitives
+func (i *Instance) GetPermissioningId() string {
+	return id.PERMISSIONING
+
 }
 
 // Update host helper

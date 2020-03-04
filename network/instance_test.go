@@ -227,3 +227,161 @@ func TestInstance_UpdateNodeConnections(t *testing.T) {
 		t.Error("Should error when attempting update with no ndf")
 	}
 }
+
+// Happy path: Tests GetPermissioningAddress with the full ndf set, the partial ndf set
+// and no ndf set
+func TestInstance_GetPermissioningAddress(t *testing.T) {
+	// Create populated ndf (secured) and empty ndf
+	secured, _ := NewSecuredNdf(testutils.NDF)
+
+	// Create an instance object, setting full to be populated
+	// and partial to be empty
+	fullNdfInstance := Instance{
+		full: secured,
+	}
+
+	// Expected address gotten from testutils.NDF
+	expectedAddress := "92.42.125.61"
+
+	// GetPermissioningAddress from the instance and compare with the expected value
+	receivedAddress := fullNdfInstance.GetPermissioningAddress()
+	if expectedAddress != receivedAddress {
+		t.Errorf("GetPermissioningAddress did not get expected value!"+
+			"\n\tExpected: %+v"+
+			"\n\tReceived: %+v", expectedAddress, receivedAddress)
+	}
+
+	// Create an instance object, setting partial to be populated
+	// and full to be empty
+	partialNdfInstance := Instance{
+		partial: secured,
+	}
+
+	// GetPermissioningAddress from the instance and compare with the expected value
+	receivedAddress = partialNdfInstance.GetPermissioningAddress()
+	if expectedAddress != receivedAddress {
+		t.Errorf("GetPermissioningAddress did not get expected value!"+
+			"\n\tExpected: %+v"+
+			"\n\tReceived: %+v", expectedAddress, receivedAddress)
+	}
+
+	// Create an instance object, setting no ndf
+	noNdfInstance := Instance{}
+
+	// GetPermissioningAddress, should be an empty string as no ndf's are set
+	receivedAddress = noNdfInstance.GetPermissioningAddress()
+	if receivedAddress != "" {
+		t.Errorf("GetPermissioningAddress did not get expected value!"+
+			"No ndf set, address should be an empty string. "+
+			"\n\tReceived: %+v", receivedAddress)
+	}
+
+}
+
+// Happy path: Tests GetPermissioningCert with the full ndf set, the partial ndf set
+// and no ndf set
+func TestInstance_GetPermissioningCert(t *testing.T) {
+
+	// Create populated ndf (secured) and empty ndf
+	secured, _ := NewSecuredNdf(testutils.NDF)
+	// Create an instance object, setting full to be populated
+	// and partial to be empty
+	fullNdfInstance := Instance{
+		full: secured,
+	}
+
+	// Expected cert gotten from testutils.NDF
+	expectedCert := "-----BEGIN CERTIFICATE-----\nMIIDkDCCAnigAwIBAgIJAJnjosuSsP7gMA0GCSqGSIb3DQEBBQUAMHQxCzAJBgNV\nBAYTAlVTMRMwEQYDVQQIDApDYWxpZm9ybmlhMRIwEAYDVQQHDAlDbGFyZW1vbnQx\nGzAZBgNVBAoMElByaXZhdGVncml0eSBDb3JwLjEfMB0GA1UEAwwWcmVnaXN0cmF0\naW9uKi5jbWl4LnJpcDAeFw0xOTAzMDUyMTQ5NTZaFw0yOTAzMDIyMTQ5NTZaMHQx\nCzAJBgNVBAYTAlVTMRMwEQYDVQQIDApDYWxpZm9ybmlhMRIwEAYDVQQHDAlDbGFy\nZW1vbnQxGzAZBgNVBAoMElByaXZhdGVncml0eSBDb3JwLjEfMB0GA1UEAwwWcmVn\naXN0cmF0aW9uKi5jbWl4LnJpcDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoC\nggEBAOQKvqjdh35o+MECBhCwopJzPlQNmq2iPbewRNtI02bUNK3kLQUbFlYdzNGZ\nS4GYXGc5O+jdi8Slx82r1kdjz5PPCNFBARIsOP/L8r3DGeW+yeJdgBZjm1s3ylka\nmt4Ajiq/bNjysS6L/WSOp+sVumDxtBEzO/UTU1O6QRnzUphLaiWENmErGvsH0CZV\nq38Ia58k/QjCAzpUcYi4j2l1fb07xqFcQD8H6SmUM297UyQosDrp8ukdIo31Koxr\n4XDnnNNsYStC26tzHMeKuJ2Wl+3YzsSyflfM2YEcKE31sqB9DS36UkJ8J84eLsHN\nImGg3WodFAviDB67+jXDbB30NkMCAwEAAaMlMCMwIQYDVR0RBBowGIIWcmVnaXN0\ncmF0aW9uKi5jbWl4LnJpcDANBgkqhkiG9w0BAQUFAAOCAQEAF9mNzk+g+o626Rll\nt3f3/1qIyYQrYJ0BjSWCKYEFMCgZ4JibAJjAvIajhVYERtltffM+YKcdE2kTpdzJ\n0YJuUnRfuv6sVnXlVVugUUnd4IOigmjbCdM32k170CYMm0aiwGxl4FrNa8ei7AIa\nx/s1n+sqWq3HeW5LXjnoVb+s3HeCWIuLfcgrurfye8FnNhy14HFzxVYYefIKm0XL\n+DPlcGGGm/PPYt3u4a2+rP3xaihc65dTa0u5tf/XPXtPxTDPFj2JeQDFxo7QRREb\nPD89CtYnwuP937CrkvCKrL0GkW1FViXKqZY9F5uhxrvLIpzhbNrs/EbtweY35XGL\nDCCMkg==\n-----END CERTIFICATE-----"
+
+	// GetPermissioningCert from the instance and compare with the expected value
+	receivedCert := fullNdfInstance.GetPermissioningCert()
+	if expectedCert != receivedCert {
+		t.Errorf("GetPermissioningCert did not get expected value!"+
+			"\n\tExpected: %+v"+
+			"\n\tReceived: %+v", expectedCert, receivedCert)
+	}
+
+	// Create an instance object, setting partial to be populated
+	// and full to be empty
+	partialNdfInstance := Instance{
+		partial: secured,
+	}
+
+	// GetPermissioningCert from the instance and compare with the expected value
+	receivedCert = partialNdfInstance.GetPermissioningCert()
+	if expectedCert != receivedCert {
+		t.Errorf("GetPermissioningCert did not get expected value!"+
+			"\n\tExpected: %+v"+
+			"\n\tReceived: %+v", expectedCert, receivedCert)
+	}
+
+	// Create an instance object, setting no ndf
+	noNdfInstance := Instance{}
+
+	// GetPermissioningCert, should be an empty string as no ndf's are set
+	receivedCert = noNdfInstance.GetPermissioningCert()
+	if receivedCert != "" {
+		t.Errorf("GetPermissioningCert did not get expected value!"+
+			"No ndf set, cert should be an empty string. "+
+			"\n\tReceived: %+v", receivedCert)
+	}
+
+}
+
+// Error path: nil ndf is in the instance should cause a seg fault
+func TestInstance_GetPermissioningAddress_NilCase(t *testing.T) {
+	// Handle expected seg fault here
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("Expected error case, should seg fault when a nil ndf is passed through")
+		}
+	}()
+
+	// Create a nil ndf
+	nilNdf, _ := NewSecuredNdf(nil)
+
+	// Create an instance object with this nil ndf
+	nilNdfInstance := Instance{
+		full:    nilNdf,
+		partial: nilNdf,
+	}
+
+	// Attempt to call getter, should seg fault
+	nilNdfInstance.GetPermissioningAddress()
+}
+
+// Error path: nil ndf is in the instance should cause a seg fault
+func TestInstance_GetPermissioningCert_NilCase(t *testing.T) {
+	// Handle expected seg fault here
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("Expected error case, should seg fault when a nil ndf is passed through")
+		}
+	}()
+
+	// Create a nil ndf
+	nilNdf, _ := NewSecuredNdf(nil)
+
+	// Create an instance object with this nil ndf
+	nilNdfInstance := Instance{
+		full:    nilNdf,
+		partial: nilNdf,
+	}
+
+	// Attempt to call getter, should seg fault
+	nilNdfInstance.GetPermissioningCert()
+}
+
+// GetPermissioningId should fetch the value of id.PERMISSIONING in primitives
+func TestInstance_GetPermissioningId(t *testing.T) {
+	// Create an instance object,
+	instance := Instance{}
+
+	receivedId := instance.GetPermissioningId()
+
+	if receivedId != id.PERMISSIONING {
+		t.Errorf("GetPermissioningId did not get value from primitives"+
+			"\n\tExpected: %+v"+
+			"\n\tReceived: %+v", id.PERMISSIONING, receivedId)
+	}
+}
