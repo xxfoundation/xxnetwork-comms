@@ -146,6 +146,10 @@ service Gateway {
     // ConfirmNonce takes a client signed nonce for Registration Nonce Confirmation
     rpc ConfirmNonce (RequestRegistrationConfirmation) returns (RegistrationConfirmation) {
     }
+
+    // Ping gateway to ask for users to notify
+    rpc PollForNotifications (AuthenticatedMessage) returns (IDList) {
+    }
 }
 
 // ClientRequest message for clients to poll new CMIX messages
@@ -304,10 +308,35 @@ message AuthenticatedMessage {
     string ID = 1;
     bytes Signature = 2;
     bytes Token = 3;
-    google.protobuf.Any Message = 4;
+    ClientID Client = 4;
+    google.protobuf.Any Message = 5;
+}
+
+// Message used for assembly of Client IDs in the system
+message ClientID {
+    bytes Salt = 1;
+    string PublicKey = 2;
 }
 
 // Provides a token to establish reverse identity to any type of client
 message AssignToken {
+    bytes Token = 1;
+}
+
+// NOTIFICATION BOT MESSAGES --------------------------------------------------------
+
+// NotificationBot service definition
+service NotificationBot {
+    // Unregister clients from push notifications
+    rpc UnregisterForNotifications(AuthenticatedMessage) returns (Ack) {
+    }
+
+    // Register clients from push notifications
+    rpc RegisterForNotifications (AuthenticatedMessage) returns (Ack) {
+    }
+}
+
+// Registration token to be associated with the client
+message NotificationToken {
     bytes Token = 1;
 }

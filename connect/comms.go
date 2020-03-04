@@ -9,11 +9,16 @@
 package connect
 
 import (
+	"crypto/sha256"
 	"crypto/tls"
+	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
+	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/crypto/signature/rsa"
+	"gitlab.com/elixxir/primitives/id"
+	"gitlab.com/elixxir/primitives/ndf"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"math"
@@ -29,7 +34,15 @@ type ProtoComms struct {
 	Manager
 
 	// The network ID of this comms server
-	id string
+	Id string
+
+	// Private key of the local comms instance
+	privateKey *rsa.PrivateKey
+
+	// Disables the checking of authentication signatures for testing setups
+	disableAuth bool
+
+	// SERVER-ONLY FIELDS ------------------------------------------------------
 
 	// A map of reverse-authentication tokens
 	tokens sync.Map
@@ -40,20 +53,43 @@ type ProtoComms struct {
 	// Listening address of the local server
 	ListeningAddr string
 
-	// Private key of the local server
-	privateKey *rsa.PrivateKey
+	// CLIENT-ONLY FIELDS ------------------------------------------------------
 
-	//Disables the checking of authentication signatures for testing setups
-	disableAuth bool
+	// Used to store the public key used for generating Client Id
+	pubKeyPem []byte
+
+	// Used to store the salt used for generating Client Id
+	salt []byte
+
+	// -------------------------------------------------------------------------
 }
 
-// Starts a ProtoComms object and is used in various initializers
+// Creates a ProtoComms client-type object to be used in various initializers
+func CreateCommClient(id string, pubKeyPem, privKeyPem, salt []byte) (*ProtoComms, error) {
+	// Build the ProtoComms object
+	pc := &ProtoComms{
+		Id:        id,
+		pubKeyPem: pubKeyPem,
+		salt:      salt,
+	}
+
+	// Set the private key if specified
+	if privKeyPem != nil {
+		err := pc.setPrivateKey(privKeyPem)
+		if err != nil {
+			return nil, errors.Errorf("Could not set private key: %+v", err)
+		}
+	}
+	return pc, nil
+}
+
+// Creates a ProtoComms server-type object to be used in various initializers
 func StartCommServer(id string, localServer string, certPEMblock,
 	keyPEMblock []byte) (*ProtoComms, net.Listener, error) {
 
 	// Build the ProtoComms object
 	pc := &ProtoComms{
-		id:            id,
+		Id:            id,
 		ListeningAddr: localServer,
 	}
 
@@ -188,4 +224,100 @@ func (c *ProtoComms) Stream(host *Host, f func(conn *grpc.ClientConn) (
 
 	// Run the send function
 	return host.stream(f)
+}
+
+// RequestNdf is used to Request an ndf from permissioning
+// Used by gateway, client, nodes and gateways
+func (c *ProtoComms) RequestNdf(host *Host,
+	message *mixmessages.NDFHash) (*mixmessages.NDF, error) {
+
+	// Create the Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := MessagingContext()
+		defer cancel()
+
+		authMsg, err := c.PackAuthenticatedMessage(message, host, false)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+		// Send the message
+		resultMsg, err := mixmessages.NewRegistrationClient(
+			conn).PollNdf(ctx, authMsg)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+		return ptypes.MarshalAny(resultMsg)
+	}
+
+	// Execute the Send function
+	jww.DEBUG.Printf("Sending Request Ndf message: %+v", message)
+	resultMsg, err := c.Send(host, f)
+	if err != nil {
+		return nil, err
+	}
+
+	result := &mixmessages.NDF{}
+	return result, ptypes.UnmarshalAny(resultMsg, result)
+
+}
+
+// RetrieveNdf, attempts to connect to the permissioning server to retrieve the latest ndf for the notifications bot
+func (c *ProtoComms) RetrieveNdf(currentDef *ndf.NetworkDefinition) (*ndf.NetworkDefinition, error) {
+	//Hash the notifications bot ndf for comparison with registration's ndf
+	var ndfHash []byte
+	// If the ndf passed not nil, serialize and hash it
+	if currentDef != nil {
+		//Hash the notifications bot ndf for comparison with registration's ndf
+		hash := sha256.New()
+		ndfBytes, err := currentDef.Marshal()
+		if err != nil {
+			return nil, err
+		}
+		hash.Write(ndfBytes)
+		ndfHash = hash.Sum(nil)
+	}
+	//Put the hash in a message
+	msg := &mixmessages.NDFHash{Hash: ndfHash}
+
+	regHost, ok := c.Manager.GetHost(id.PERMISSIONING)
+	if !ok {
+		return nil, errors.New("Failed to find permissioning host")
+	}
+
+	//Send the hash to registration
+	response, err := c.RequestNdf(regHost, msg)
+
+	// Keep going until we get a grpc error or we get an ndf
+	for err != nil {
+		// If there is an unexpected error
+		if !strings.Contains(err.Error(), ndf.NO_NDF) {
+			// If it is not an issue with no ndf, return the error up the stack
+			errMsg := errors.Errorf("Failed to get ndf from permissioning: %v", err)
+			return nil, errMsg
+		}
+
+		// If the error is that the permissioning server is not ready, ask again
+		jww.WARN.Println("Failed to get an ndf, possibly not ready yet. Retying now...")
+		time.Sleep(250 * time.Millisecond)
+		response, err = c.RequestNdf(regHost, msg)
+
+	}
+
+	//If there was no error and the response is nil, client's ndf is up-to-date
+	if response == nil || response.Ndf == nil {
+		jww.DEBUG.Printf("Our NDF is up-to-date")
+		return nil, nil
+	}
+
+	jww.INFO.Printf("Remote NDF: %s", string(response.Ndf))
+
+	//Otherwise pull the ndf out of the response
+	updatedNdf, _, err := ndf.DecodeNDF(string(response.Ndf))
+	if err != nil {
+		//If there was an error decoding ndf
+		errMsg := errors.Errorf("Failed to decode response to ndf: %v", err)
+		return nil, errMsg
+	}
+	return updatedNdf, nil
 }

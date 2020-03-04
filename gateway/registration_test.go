@@ -89,6 +89,6 @@ func TestPollNdf(t *testing.T) {
 
 	_, err = gateway.PollNdf(host)
 	if err != nil {
-		t.Errorf("SendGetSignedCertMessage: Error received: %s", err)
+		t.Errorf("TestDemandNdf: Error received: %s", err)
 	}
 }

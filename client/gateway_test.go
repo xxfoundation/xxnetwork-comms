@@ -15,7 +15,7 @@ import (
 
 // Smoke test SendGetMessage
 func TestSendPutMessage(t *testing.T) {
-	gatewayAddress := getNextGatewayAddress()
+	gatewayAddress := getNextAddress()
 	gw := gateway.StartGateway("test", gatewayAddress,
 		gateway.NewImplementation(), nil, nil)
 	defer gw.Shutdown()
@@ -36,7 +36,7 @@ func TestSendPutMessage(t *testing.T) {
 
 // Smoke test SendCheckMessages
 func TestSendCheckMessages(t *testing.T) {
-	gatewayAddress := getNextGatewayAddress()
+	gatewayAddress := getNextAddress()
 	gw := gateway.StartGateway("test", gatewayAddress,
 		gateway.NewImplementation(), nil, nil)
 	var c Comms
@@ -57,7 +57,7 @@ func TestSendCheckMessages(t *testing.T) {
 
 // Smoke test SendGetMessage
 func TestSendGetMessage(t *testing.T) {
-	gatewayAddress := getNextGatewayAddress()
+	gatewayAddress := getNextAddress()
 	gw := gateway.StartGateway("test", gatewayAddress,
 		gateway.NewImplementation(), nil, nil)
 	var c Comms
@@ -79,7 +79,7 @@ func TestSendGetMessage(t *testing.T) {
 
 // Smoke test SendRequestNonceMessage
 func TestSendRequestNonceMessage(t *testing.T) {
-	gatewayAddress := getNextGatewayAddress()
+	gatewayAddress := getNextAddress()
 	gw := gateway.StartGateway("test", gatewayAddress,
 		gateway.NewImplementation(), nil, nil)
 	defer gw.Shutdown()
@@ -100,7 +100,7 @@ func TestSendRequestNonceMessage(t *testing.T) {
 
 // Smoke test SendConfirmNonceMessage
 func TestSendConfirmNonceMessage(t *testing.T) {
-	gatewayAddress := getNextGatewayAddress()
+	gatewayAddress := getNextAddress()
 	gw := gateway.StartGateway("test", gatewayAddress,
 		gateway.NewImplementation(), nil, nil)
 	defer gw.Shutdown()
