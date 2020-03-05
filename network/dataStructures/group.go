@@ -5,31 +5,19 @@
 ////////////////////////////////////////////////////////////////////////////////
 package dataStructures
 
-import (
-	"gitlab.com/elixxir/crypto/cyclic"
-	"gitlab.com/elixxir/crypto/large"
-	"sync"
-)
-
 // todo docstring
 type Group struct {
-	grp   *cyclic.Group
-	mutex *sync.RWMutex
+	grp string
 }
 
 // NewGroup creates a ds.Group with a cyclic.Group and a mutex
-func NewGroup(p, g *large.Int) *Group {
-	ourGroup := cyclic.NewGroup(p, g)
-
+func NewGroup(ourGroup string) *Group {
 	return &Group{
-		grp:   ourGroup,
-		mutex: &sync.RWMutex{},
+		grp: ourGroup,
 	}
 }
 
 // Get returns the ds.Groups's cyclic group
-func (g *Group) Get() *cyclic.Group {
-	g.mutex.RLock()
-	defer g.mutex.RUnlock()
+func (g *Group) Get() string {
 	return g.grp
 }

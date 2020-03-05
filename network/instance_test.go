@@ -12,7 +12,6 @@ import (
 	ds "gitlab.com/elixxir/comms/network/dataStructures"
 	"gitlab.com/elixxir/comms/testkeys"
 	"gitlab.com/elixxir/comms/testutils"
-	"gitlab.com/elixxir/crypto/large"
 	"gitlab.com/elixxir/crypto/signature"
 	"gitlab.com/elixxir/crypto/signature/rsa"
 	"gitlab.com/elixxir/primitives/id"
@@ -282,9 +281,7 @@ func TestInstance_GetPermissioningAddress(t *testing.T) {
 
 // Happy path
 func TestInstance_GetCmixGroup(t *testing.T) {
-	p := large.NewInt(33)
-	g := large.NewInt(29)
-	expectedGroup := ds.NewGroup(p, g)
+	expectedGroup := ds.NewGroup(testutils.E2eGrp)
 
 	i := Instance{
 		cmixGroup: expectedGroup,
@@ -302,9 +299,7 @@ func TestInstance_GetCmixGroup(t *testing.T) {
 
 // Happy path
 func TestInstance_GetE2EGroup(t *testing.T) {
-	p := large.NewInt(33)
-	g := large.NewInt(29)
-	expectedGroup := ds.NewGroup(p, g)
+	expectedGroup := ds.NewGroup(testutils.E2eGrp)
 
 	i := Instance{
 		e2eGroup: expectedGroup,

@@ -13,17 +13,10 @@ import (
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	ds "gitlab.com/elixxir/comms/network/dataStructures"
-	"gitlab.com/elixxir/crypto/cyclic"
 	"gitlab.com/elixxir/crypto/signature"
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/elixxir/primitives/ndf"
 )
-
-//todo: how to handle groups?  modify network instance to add groups
-//   add groups, error if they have changed
-//   w/ structure have concurrency issue
-//  add rwlocks to groups
-// fixme: how to handle full vs partial
 
 // The Instance struct stores a combination of comms info and round info for servers
 type Instance struct {
@@ -56,12 +49,17 @@ func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition) (*
 		}
 	}
 
+	cmixGrp := fullNdf.Get().CMIX.String()
+	e2eGrp := fullNdf.Get().E2E.String()
+
 	return &Instance{
 		comm:         c,
 		partial:      partialNdf,
 		full:         fullNdf,
 		roundUpdates: &ds.Updates{},
 		roundData:    &ds.Data{},
+		cmixGroup:    ds.NewGroup(cmixGrp),
+		e2eGroup:     ds.NewGroup(e2eGrp),
 	}, nil
 }
 
@@ -74,7 +72,7 @@ func (i *Instance) UpdatePartialNdf(m *pb.NDF) error {
 			"for NDF partial verification")
 	}
 
-	return i.partial.update(m, perm.GetPubKey())
+	return i.partial.update(m, perm.GetPubKey(), i.e2eGroup.Get(), i.cmixGroup.Get())
 }
 
 //update the full ndf
@@ -86,7 +84,7 @@ func (i *Instance) UpdateFullNdf(m *pb.NDF) error {
 			"for full NDF verification")
 	}
 
-	return i.full.update(m, perm.GetPubKey())
+	return i.full.update(m, perm.GetPubKey(), i.e2eGroup.Get(), i.cmixGroup.Get())
 }
 
 // Return the partial ndf from this instance
@@ -127,12 +125,12 @@ func (i *Instance) RoundUpdate(info *pb.RoundInfo) error {
 }
 
 // GetE2EGroup gets the e2eGroup from the instance
-func (i *Instance) GetE2EGroup() *cyclic.Group {
+func (i *Instance) GetE2EGroup() string {
 	return i.e2eGroup.Get()
 }
 
 // GetE2EGroup gets the cmixGroup from the instance
-func (i *Instance) GetCmixGroup() *cyclic.Group {
+func (i *Instance) GetCmixGroup() string {
 
 	return i.cmixGroup.Get()
 }

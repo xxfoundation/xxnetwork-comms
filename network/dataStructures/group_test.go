@@ -6,43 +6,44 @@
 package dataStructures
 
 import (
-	"gitlab.com/elixxir/crypto/cyclic"
-	"gitlab.com/elixxir/crypto/large"
+	"gitlab.com/elixxir/primitives/ndf"
 	"reflect"
-	"sync"
 	"testing"
 )
 
 // Happy path
 func TestGroup_Get(t *testing.T) {
-	p := large.NewInt(33)
-	g := large.NewInt(29)
-	expectedGroup := cyclic.NewGroup(p, g)
+	expectedGroup := ndf.Group{
+		Prime:      "123",
+		SmallPrime: "456",
+		Generator:  "2",
+	}
+
 	ourGroup := &Group{
-		grp:   expectedGroup,
-		mutex: &sync.RWMutex{},
+		grp: expectedGroup.String(),
 	}
 
 	receivedGroup := ourGroup.Get()
 
-	if !reflect.DeepEqual(expectedGroup, receivedGroup) {
+	if !reflect.DeepEqual(expectedGroup.String(), receivedGroup) {
 		t.Errorf("Getter didn't get expected value! "+
 			"\n\tExpected: %+v"+
-			"\n\tReceived: %+v", expectedGroup, receivedGroup)
+			"\n\tReceived: %+v", expectedGroup.String(), receivedGroup)
 	}
 }
 
 // Happy path
 func TestNewGroup(t *testing.T) {
-	p := large.NewInt(33)
-	g := large.NewInt(29)
+	expectedGroup := ndf.Group{
+		Prime:      "123",
+		SmallPrime: "456",
+		Generator:  "2",
+	}
 
-	expectedGroup := cyclic.NewGroup(p, g)
+	recievedGroup := NewGroup(expectedGroup.String()).Get()
 
-	recievedGroup := NewGroup(p, g).Get()
-
-	if !reflect.DeepEqual(expectedGroup, recievedGroup) {
+	if !reflect.DeepEqual(expectedGroup.String(), recievedGroup) {
 		t.Errorf("\n\tExpected: %+v"+
-			"\n\tReceived: %+v", expectedGroup, recievedGroup)
+			"\n\tReceived: %+v", expectedGroup.String(), recievedGroup)
 	}
 }

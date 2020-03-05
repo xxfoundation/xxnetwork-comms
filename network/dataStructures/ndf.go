@@ -40,13 +40,21 @@ func NewNdf(definition *ndf.NetworkDefinition) (*Ndf, error) {
 }
 
 //Updates to a new NDF if the passed NDF is valid
-func (file *Ndf) Update(m *pb.NDF) error {
+func (file *Ndf) Update(m *pb.NDF, e2eGrp, cmixGrp string) error {
 
 	//build the ndf object
 	decoded, _, err := ndf.DecodeNDF(string(m.Ndf))
 
 	if err != nil {
 		return errors.WithMessage(err, "Could not decode the NDF")
+	}
+
+	if decoded.E2E.String() != e2eGrp && e2eGrp != "" {
+		return errors.New("Attempt to change e2e group detected!")
+	}
+
+	if decoded.CMIX.String() != cmixGrp && cmixGrp != "" {
+		return errors.New("Attempt to change cmix group detected!")
 	}
 
 	file.lock.Lock()
