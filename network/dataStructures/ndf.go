@@ -40,7 +40,7 @@ func NewNdf(definition *ndf.NetworkDefinition) (*Ndf, error) {
 }
 
 //Updates to a new NDF if the passed NDF is valid
-func (file *Ndf) Update(m *pb.NDF, e2eGroup *Group, cmixGroup *Group) error {
+func (file *Ndf) Update(m *pb.NDF) error {
 
 	//build the ndf object
 	decoded, _, err := ndf.DecodeNDF(string(m.Ndf))

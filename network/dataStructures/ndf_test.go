@@ -18,7 +18,7 @@ func setup() *Ndf {
 	}
 	ndf := &Ndf{}
 
-	_ = ndf.Update(msg, nil, nil)
+	_ = ndf.Update(msg)
 	return ndf
 }
 
@@ -39,12 +39,12 @@ func TestNdf_Update(t *testing.T) {
 	}
 	ndf := Ndf{}
 
-	err := ndf.Update(badMsg, nil, nil)
+	err := ndf.Update(badMsg)
 	if err == nil {
 		t.Error("Should have returned error when unable to decode ndf")
 	}
 
-	err = ndf.Update(msg, nil, nil)
+	err = ndf.Update(msg)
 	if err != nil {
 		t.Errorf("Failed to update ndf: %+v", err)
 	}

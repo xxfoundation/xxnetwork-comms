@@ -23,7 +23,7 @@ func setup() *ds.Ndf {
 	}
 	ndf := &ds.Ndf{}
 
-	_ = ndf.Update(msg, nil, nil)
+	_ = ndf.Update(msg)
 	return ndf
 }
 
@@ -71,13 +71,13 @@ func TestSecuredNdf_update(t *testing.T) {
 	if err != nil {
 		t.Errorf("Failed to secure ndf: %+v", err)
 	}
-	err = sndf.update(&f, privKey.GetPublic(), nil, nil)
+	err = sndf.update(&f, privKey.GetPublic())
 
 	if err != nil {
 		t.Errorf("Could not update ndf: %s", err)
 	}
 
-	err = sndf.update(&f, badPub, nil, nil)
+	err = sndf.update(&f, badPub)
 	if err == nil {
 		t.Errorf("should have received bad key error")
 	}

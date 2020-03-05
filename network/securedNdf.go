@@ -35,13 +35,13 @@ func NewSecuredNdf(definition *ndf.NetworkDefinition) (*SecuredNdf, error) {
 }
 
 // unexported NDF update code
-func (sndf *SecuredNdf) update(m *pb.NDF, key *rsa.PublicKey, e2eGroup *ds.Group, cmixGroup *ds.Group) error {
+func (sndf *SecuredNdf) update(m *pb.NDF, key *rsa.PublicKey) error {
 	err := signature.Verify(m, key)
 	if err != nil {
 		return errors.WithMessage(err, "Could not validate NDF")
 	}
 
-	return sndf.f.Update(m, e2eGroup, cmixGroup)
+	return sndf.f.Update(m)
 }
 
 // Get the primitives object for an ndf

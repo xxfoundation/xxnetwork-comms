@@ -78,6 +78,26 @@ func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition) (*
 	}, nil
 }
 
+// UpdateGroup updates the groups of the network instance given an ndf
+func (i *Instance) UpdateGroup(m *pb.NDF) error {
+	decoded, _, err := ndf.DecodeNDF(string(m.Ndf))
+	if err != nil {
+		return errors.WithMessage(err, "Could not decode the NDF")
+	}
+
+	err = i.cmixGroup.Update(decoded.CMIX.String())
+	if err != nil {
+		return errors.WithMessage(err, "Could not update cmix group")
+	}
+
+	err = i.e2eGroup.Update(decoded.E2E.String())
+	if err != nil {
+		return errors.WithMessage(err, "Could not update e2e group")
+	}
+
+	return nil
+}
+
 //update the partial ndf
 func (i *Instance) UpdatePartialNdf(m *pb.NDF) error {
 	perm, success := i.comm.GetHost(id.PERMISSIONING)
@@ -87,7 +107,7 @@ func (i *Instance) UpdatePartialNdf(m *pb.NDF) error {
 			"for NDF partial verification")
 	}
 
-	return i.partial.update(m, perm.GetPubKey(), i.e2eGroup, i.cmixGroup)
+	return i.partial.update(m, perm.GetPubKey())
 }
 
 //update the full ndf
@@ -99,7 +119,7 @@ func (i *Instance) UpdateFullNdf(m *pb.NDF) error {
 			"for full NDF verification")
 	}
 
-	return i.full.update(m, perm.GetPubKey(), i.e2eGroup, i.cmixGroup)
+	return i.full.update(m, perm.GetPubKey())
 }
 
 // Return the partial ndf from this instance
