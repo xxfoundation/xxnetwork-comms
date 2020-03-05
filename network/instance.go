@@ -13,6 +13,7 @@ import (
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	ds "gitlab.com/elixxir/comms/network/dataStructures"
+	"gitlab.com/elixxir/crypto/cyclic"
 	"gitlab.com/elixxir/crypto/signature"
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/elixxir/primitives/ndf"
@@ -32,7 +33,7 @@ type Instance struct {
 
 // Utility function to create instance FOR TESTING PURPOSES ONLY
 func NewInstanceTesting(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition,
-	e2eGroup, cmixGroup *ds.Group, t *testing.T) (*Instance, error) {
+	e2eGroup, cmixGroup *cyclic.Group, t *testing.T) (*Instance, error) {
 	if t == nil {
 		panic("This is a utility function for testing purposes only!")
 	}
@@ -41,8 +42,8 @@ func NewInstanceTesting(c *connect.ProtoComms, partial, full *ndf.NetworkDefinit
 		return nil, errors.Errorf("Unable to create instance: %+v", err)
 	}
 
-	instance.cmixGroup = cmixGroup
-	instance.e2eGroup = e2eGroup
+	instance.cmixGroup.UpdateCyclicGroupTesting(cmixGroup, t)
+	instance.e2eGroup.UpdateCyclicGroupTesting(e2eGroup, t)
 
 	return instance, nil
 }
@@ -106,7 +107,28 @@ func (i *Instance) UpdatePartialNdf(m *pb.NDF) error {
 			"for NDF partial verification")
 	}
 
-	return i.partial.update(m, perm.GetPubKey())
+	// Update the partial ndf
+	err := i.partial.update(m, perm.GetPubKey())
+	if err != nil {
+		return err
+	}
+
+	// update the cmix group object
+	cmixGrp := i.partial.Get().CMIX.String()
+	err = i.cmixGroup.Update(cmixGrp)
+	if err != nil {
+		return errors.WithMessage(err, "Unable to update cmix group")
+	}
+
+	// update the cmix group object
+	e2eGrp := i.partial.Get().E2E.String()
+	err = i.cmixGroup.Update(e2eGrp)
+	if err != nil {
+		return errors.WithMessage(err, "Unable to update e2e group")
+	}
+
+	return nil
+
 }
 
 //update the full ndf
@@ -118,7 +140,28 @@ func (i *Instance) UpdateFullNdf(m *pb.NDF) error {
 			"for full NDF verification")
 	}
 
-	return i.full.update(m, perm.GetPubKey())
+	// Update the full ndf
+	err := i.full.update(m, perm.GetPubKey())
+	if err != nil {
+		return err
+	}
+
+	// update the cmix group object
+	cmixGrp := i.full.Get().CMIX.String()
+	err = i.cmixGroup.Update(cmixGrp)
+	if err != nil {
+		return errors.WithMessage(err, "Unable to update cmix group")
+	}
+
+	// update the cmix group object
+	e2eGrp := i.full.Get().E2E.String()
+	err = i.cmixGroup.Update(e2eGrp)
+	if err != nil {
+		return errors.WithMessage(err, "Unable to update e2e group")
+	}
+
+	return nil
+
 }
 
 // Return the partial ndf from this instance

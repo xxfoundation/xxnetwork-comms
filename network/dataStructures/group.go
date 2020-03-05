@@ -14,6 +14,7 @@ import (
 	"gitlab.com/elixxir/crypto/large"
 	"gitlab.com/elixxir/primitives/ndf"
 	"sync"
+	"testing"
 )
 
 // Struct that handles and updates cyclic.Groups
@@ -60,6 +61,14 @@ func (g *Group) Update(newGroup string) error {
 	}
 
 	return nil
+}
+
+// Utility function for NewInstanceTesting that directly sets cyclic.Group object
+func (g Group) UpdateCyclicGroupTesting(group *cyclic.Group, t *testing.T) {
+	if t == nil {
+		panic("Should not be able to directly set cyclic group outside of testing purposes")
+	}
+	g.cyclicGroup = group
 }
 
 // toGroup is a helper function which converts a string representing a cyclic.Group
