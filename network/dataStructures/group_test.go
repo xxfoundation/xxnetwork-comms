@@ -15,6 +15,7 @@ import (
 
 // Happy path
 func TestGroup_Get(t *testing.T) {
+	// Create group with this group string
 	expectedGroup := ndf.Group{
 		Prime:      "123",
 		SmallPrime: "456",
@@ -25,8 +26,10 @@ func TestGroup_Get(t *testing.T) {
 		groupString: expectedGroup.String(),
 	}
 
+	// Fetch the group string
 	receivedGroup := ourGroup.Get()
 
+	// Compare the received group with the expected group
 	if !reflect.DeepEqual(expectedGroup.String(), receivedGroup) {
 		t.Errorf("Getter didn't get expected value! "+
 			"\n\tExpected: %+v"+
@@ -36,9 +39,9 @@ func TestGroup_Get(t *testing.T) {
 
 // Happy path
 func TestNewGroup(t *testing.T) {
-
+	// Create group
 	ourNewGrp := NewGroup()
-
+	// Check that the values are nil upon creation
 	if ourNewGrp.groupString != "" || ourNewGrp.cyclicGroup != nil {
 		t.Errorf("Values within group expected to be uninitialized upon creation."+
 			"\n\tGroupString: %+v"+
@@ -49,21 +52,23 @@ func TestNewGroup(t *testing.T) {
 
 // Happy path
 func TestGroup_Update(t *testing.T) {
+
+	// Create group
+	ourNewGrp := NewGroup()
+
+	// Update the group with this group
 	expectedGroup := ndf.Group{
 		Prime:      "123",
 		SmallPrime: "456",
 		Generator:  "2",
 	}
-	expectedString := expectedGroup.String()
-
-	ourNewGrp := NewGroup()
-
 	err := ourNewGrp.Update(expectedGroup.String())
 	if err != nil {
 		t.Errorf("Unable to update group: %+v", err)
 	}
 
 	// Check grpString
+	expectedString := expectedGroup.String()
 	if ourNewGrp.groupString != expectedString {
 		t.Errorf("Update did not create expected string."+
 			"\n\tExpected: %+v"+
@@ -82,13 +87,16 @@ func TestGroup_Update(t *testing.T) {
 
 // Happy path
 func TestGroup_Update_DoubleUpdate(t *testing.T) {
+
+	// Create group
+	ourNewGrp := NewGroup()
+
+	// Set up a group
 	expectedGroup := ndf.Group{
 		Prime:      "123",
 		SmallPrime: "456",
 		Generator:  "2",
 	}
-
-	ourNewGrp := NewGroup()
 
 	err := ourNewGrp.Update(expectedGroup.String())
 	if err != nil {
@@ -136,7 +144,7 @@ func TestGroup_Update_DoubleUpdate_Error(t *testing.T) {
 		t.Errorf("Unable to update group: %+v", err)
 	}
 
-	//
+	// A group that does not match the initialized group
 	badGroup := ndf.Group{
 		Prime:      "69",
 		SmallPrime: "420",

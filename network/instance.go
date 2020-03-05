@@ -16,6 +16,7 @@ import (
 	"gitlab.com/elixxir/crypto/signature"
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/elixxir/primitives/ndf"
+	"testing"
 )
 
 // The Instance struct stores a combination of comms info and round info for servers
@@ -27,6 +28,23 @@ type Instance struct {
 	full         *SecuredNdf
 	roundUpdates *ds.Updates
 	roundData    *ds.Data
+}
+
+// Utility function to create instance FOR TESTING PURPOSES ONLY
+func NewInstanceTesting(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition,
+	e2eGroup, cmixGroup *ds.Group, t *testing.T) (*Instance, error) {
+	if t == nil {
+		panic("This is a utility function for testing purposes only!")
+	}
+	instance, err := NewInstance(c, partial, full)
+	if err != nil {
+		return nil, errors.Errorf("Unable to create instance: %+v", err)
+	}
+
+	instance.cmixGroup = cmixGroup
+	instance.e2eGroup = e2eGroup
+
+	return nil, instance
 }
 
 // Initializer for instance structs from base comms and NDF
