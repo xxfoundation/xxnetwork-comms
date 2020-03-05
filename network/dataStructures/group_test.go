@@ -52,7 +52,6 @@ func TestNewGroup(t *testing.T) {
 
 // Happy path
 func TestGroup_Update(t *testing.T) {
-
 	// Create group
 	ourNewGrp := NewGroup()
 
@@ -87,7 +86,6 @@ func TestGroup_Update(t *testing.T) {
 
 // Happy path
 func TestGroup_Update_DoubleUpdate(t *testing.T) {
-
 	// Create group
 	ourNewGrp := NewGroup()
 
@@ -98,6 +96,7 @@ func TestGroup_Update_DoubleUpdate(t *testing.T) {
 		Generator:  "2",
 	}
 
+	// Update values to be initia
 	err := ourNewGrp.Update(expectedGroup.String())
 	if err != nil {
 		t.Errorf("Unable to update group: %+v", err)

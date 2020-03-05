@@ -44,7 +44,7 @@ func NewInstanceTesting(c *connect.ProtoComms, partial, full *ndf.NetworkDefinit
 	instance.cmixGroup = cmixGroup
 	instance.e2eGroup = e2eGroup
 
-	return nil, instance
+	return instance, nil
 }
 
 // Initializer for instance structs from base comms and NDF
