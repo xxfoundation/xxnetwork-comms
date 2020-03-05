@@ -55,12 +55,14 @@ func TestGroup_Update(t *testing.T) {
 	// Create group
 	ourNewGrp := NewGroup()
 
-	// Update the group with this group
+	// Set up a ndf.group
 	expectedGroup := ndf.Group{
 		Prime:      "123",
 		SmallPrime: "456",
 		Generator:  "2",
 	}
+
+	// Update values to be initialized
 	err := ourNewGrp.Update(expectedGroup.String())
 	if err != nil {
 		t.Errorf("Unable to update group: %+v", err)
@@ -89,14 +91,14 @@ func TestGroup_Update_DoubleUpdate(t *testing.T) {
 	// Create group
 	ourNewGrp := NewGroup()
 
-	// Set up a group
+	// Set up a ndf.group
 	expectedGroup := ndf.Group{
 		Prime:      "123",
 		SmallPrime: "456",
 		Generator:  "2",
 	}
 
-	// Update values to be initia
+	// Update values to be initialized
 	err := ourNewGrp.Update(expectedGroup.String())
 	if err != nil {
 		t.Errorf("Unable to update group: %+v", err)
@@ -130,14 +132,17 @@ func TestGroup_Update_DoubleUpdate(t *testing.T) {
 
 // Error path
 func TestGroup_Update_DoubleUpdate_Error(t *testing.T) {
+	// Create group
+	ourNewGrp := NewGroup()
+
+	// Set up a group
 	expectedGroup := ndf.Group{
 		Prime:      "123",
 		SmallPrime: "456",
 		Generator:  "2",
 	}
 
-	ourNewGrp := NewGroup()
-
+	// Update values to be initialized
 	err := ourNewGrp.Update(expectedGroup.String())
 	if err != nil {
 		t.Errorf("Unable to update group: %+v", err)
