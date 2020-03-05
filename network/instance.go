@@ -13,16 +13,23 @@ import (
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	ds "gitlab.com/elixxir/comms/network/dataStructures"
+	"gitlab.com/elixxir/crypto/cyclic"
 	"gitlab.com/elixxir/crypto/signature"
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/elixxir/primitives/ndf"
 )
 
-// 4 getters one for each, return from full if its there, otherwise partial
+//todo: how to handle groups?  modify network instance to add groups
+//   add groups, error if they have changed
+//   w/ structure have concurrency issue
+//  add rwlocks to groups
+// fixme: how to handle full vs partial
+
 // The Instance struct stores a combination of comms info and round info for servers
 type Instance struct {
-	comm *connect.ProtoComms
-
+	comm         *connect.ProtoComms
+	cmixGroup    *ds.Group // make a wrapper structure containing a group and a rwlock
+	e2eGroup     *ds.Group
 	partial      *SecuredNdf
 	full         *SecuredNdf
 	roundUpdates *ds.Updates
@@ -50,11 +57,11 @@ func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition) (*
 	}
 
 	return &Instance{
-		c,
-		partialNdf,
-		fullNdf,
-		&ds.Updates{},
-		&ds.Data{},
+		comm:         c,
+		partial:      partialNdf,
+		full:         fullNdf,
+		roundUpdates: &ds.Updates{},
+		roundData:    &ds.Data{},
 	}, nil
 }
 
@@ -117,6 +124,17 @@ func (i *Instance) RoundUpdate(info *pb.RoundInfo) error {
 	}
 
 	return nil
+}
+
+// GetE2EGroup gets the e2eGroup from the instance
+func (i *Instance) GetE2EGroup() *cyclic.Group {
+	return i.e2eGroup.Get()
+}
+
+// GetE2EGroup gets the cmixGroup from the instance
+func (i *Instance) GetCmixGroup() *cyclic.Group {
+
+	return i.cmixGroup.Get()
 }
 
 // Get the round of a given ID

@@ -12,10 +12,12 @@ import (
 	ds "gitlab.com/elixxir/comms/network/dataStructures"
 	"gitlab.com/elixxir/comms/testkeys"
 	"gitlab.com/elixxir/comms/testutils"
+	"gitlab.com/elixxir/crypto/large"
 	"gitlab.com/elixxir/crypto/signature"
 	"gitlab.com/elixxir/crypto/signature/rsa"
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/elixxir/primitives/ndf"
+	"reflect"
 	"testing"
 )
 
@@ -276,6 +278,45 @@ func TestInstance_GetPermissioningAddress(t *testing.T) {
 			"\n\tReceived: %+v", receivedAddress)
 	}
 
+}
+
+// Happy path
+func TestInstance_GetCmixGroup(t *testing.T) {
+	p := large.NewInt(33)
+	g := large.NewInt(29)
+	expectedGroup := ds.NewGroup(p, g)
+
+	i := Instance{
+		cmixGroup: expectedGroup,
+	}
+
+	receivedGroup := i.GetCmixGroup()
+
+	if !reflect.DeepEqual(expectedGroup.Get(), receivedGroup) {
+		t.Errorf("Getter didn't get expected value! "+
+			"\n\tExpected: %+v"+
+			"\n\tReceived: %+v", expectedGroup, receivedGroup)
+	}
+
+}
+
+// Happy path
+func TestInstance_GetE2EGroup(t *testing.T) {
+	p := large.NewInt(33)
+	g := large.NewInt(29)
+	expectedGroup := ds.NewGroup(p, g)
+
+	i := Instance{
+		e2eGroup: expectedGroup,
+	}
+
+	receivedGroup := i.GetE2EGroup()
+
+	if !reflect.DeepEqual(expectedGroup.Get(), receivedGroup) {
+		t.Errorf("Getter didn't get expected value! "+
+			"\n\tExpected: %+v"+
+			"\n\tReceived: %+v", expectedGroup, receivedGroup)
+	}
 }
 
 // Happy path: Tests GetPermissioningCert with the full ndf set, the partial ndf set
