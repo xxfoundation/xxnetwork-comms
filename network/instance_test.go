@@ -20,6 +20,31 @@ import (
 	"testing"
 )
 
+// Happy path
+func TestNewInstanceTesting(t *testing.T) {
+	_, err := NewInstanceTesting(&connect.ProtoComms{}, testutils.NDF, testutils.NDF, nil, nil, t)
+	if err != nil {
+		t.Errorf("Unable to create test instance: %+v", err)
+	}
+}
+
+// Error path: pass in a non testing argument into the constructor
+func TestNewInstanceTesting_Error(t *testing.T) {
+	defer func() {
+		if r := recover(); r != nil {
+			return
+		}
+	}()
+
+	_, err := NewInstanceTesting(&connect.ProtoComms{}, testutils.NDF, testutils.NDF, nil, nil, nil)
+	if err != nil {
+		return
+	}
+
+	t.Errorf("Expected error case, should not be able to create instance when testing argument is nil")
+
+}
+
 func TestInstance_GetFullNdf(t *testing.T) {
 	secured, _ := NewSecuredNdf(testutils.NDF)
 	i := Instance{
@@ -420,4 +445,66 @@ func TestInstance_GetPermissioningId(t *testing.T) {
 			"\n\tExpected: %+v"+
 			"\n\tReceived: %+v", id.PERMISSIONING, receivedId)
 	}
+}
+
+// Happy path
+func TestInstance_UpdateGroup(t *testing.T) {
+	i, f := setupComm(t)
+	f.Ndf = []byte(testutils.ExampleJSON)
+	err := i.UpdateGroup(f)
+	if err != nil {
+		t.Errorf("Unable to initalize group: %+v", err)
+	}
+
+	// Update with same values should not cause an error
+	err = i.UpdateGroup(f)
+	if err != nil {
+		t.Errorf("Unable to call update group with same values: %+v", err)
+	}
+
+}
+
+// Error path: attempt to modify group once already initialized
+func TestInstance_UpdateGroup_Error(t *testing.T) {
+	i, f := setupComm(t)
+	f.Ndf = []byte(testutils.ExampleJSON)
+
+	err := i.UpdateGroup(f)
+	if err != nil {
+		t.Errorf("Unable to initalize group: %+v", err)
+	}
+
+	badNdf := createBadNdf(t)
+
+	// Update with same values should not cause an error
+	err = i.UpdateGroup(badNdf)
+	if err != nil {
+		return
+	}
+
+	t.Errorf("Expected error case: Should not be able to update instance's group once initialized!")
+
+}
+
+func createBadNdf(t *testing.T) *mixmessages.NDF {
+	f := &mixmessages.NDF{}
+
+	badGrp := ndf.Group{
+		Prime:      "123",
+		SmallPrime: "456",
+		Generator:  "2",
+	}
+
+	baseNDF := ndf.NetworkDefinition{
+		E2E:  badGrp,
+		CMIX: badGrp,
+	}
+
+	var err error
+	f.Ndf, err = baseNDF.Marshal()
+	if err != nil {
+		t.Errorf("Could not generate serialized ndf: %s", err)
+	}
+
+	return f
 }

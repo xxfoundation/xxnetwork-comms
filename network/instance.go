@@ -84,7 +84,6 @@ func (i *Instance) UpdateGroup(m *pb.NDF) error {
 	if err != nil {
 		return errors.WithMessage(err, "Could not decode the NDF")
 	}
-
 	err = i.cmixGroup.Update(decoded.CMIX.String())
 	if err != nil {
 		return errors.WithMessage(err, "Could not update cmix group")
