@@ -108,9 +108,8 @@ func setupComm(t *testing.T) (*Instance, *mixmessages.NDF) {
 	}
 
 	f := &mixmessages.NDF{}
-
+	f.Ndf = []byte(testutils.ExampleJSON)
 	baseNDF := ndf.NetworkDefinition{}
-	f.Ndf, err = baseNDF.Marshal()
 
 	if err != nil {
 		t.Errorf("Could not generate serialized ndf: %s", err)
@@ -168,6 +167,7 @@ func TestInstance_RoundUpdate(t *testing.T) {
 
 func TestInstance_UpdateFullNdf(t *testing.T) {
 	i, f := setupComm(t)
+
 	err := i.UpdateFullNdf(f)
 	if err != nil {
 		t.Errorf("Failed to update ndf: %+v", err)
@@ -450,14 +450,13 @@ func TestInstance_GetPermissioningId(t *testing.T) {
 // Happy path
 func TestInstance_UpdateGroup(t *testing.T) {
 	i, f := setupComm(t)
-	f.Ndf = []byte(testutils.ExampleJSON)
-	err := i.UpdateGroup(f)
+	err := i.UpdateFullNdf(f)
 	if err != nil {
 		t.Errorf("Unable to initalize group: %+v", err)
 	}
 
 	// Update with same values should not cause an error
-	err = i.UpdateGroup(f)
+	err = i.UpdateFullNdf(f)
 	if err != nil {
 		t.Errorf("Unable to call update group with same values: %+v", err)
 	}
@@ -467,9 +466,8 @@ func TestInstance_UpdateGroup(t *testing.T) {
 // Error path: attempt to modify group once already initialized
 func TestInstance_UpdateGroup_Error(t *testing.T) {
 	i, f := setupComm(t)
-	f.Ndf = []byte(testutils.ExampleJSON)
 
-	err := i.UpdateGroup(f)
+	err := i.UpdateFullNdf(f)
 	if err != nil {
 		t.Errorf("Unable to initalize group: %+v", err)
 	}
@@ -477,7 +475,7 @@ func TestInstance_UpdateGroup_Error(t *testing.T) {
 	badNdf := createBadNdf(t)
 
 	// Update with same values should not cause an error
-	err = i.UpdateGroup(badNdf)
+	err = i.UpdateFullNdf(badNdf)
 	if err != nil {
 		return
 	}
@@ -486,6 +484,7 @@ func TestInstance_UpdateGroup_Error(t *testing.T) {
 
 }
 
+// Creates a bad ndf
 func createBadNdf(t *testing.T) *mixmessages.NDF {
 	f := &mixmessages.NDF{}
 
@@ -505,6 +504,13 @@ func createBadNdf(t *testing.T) *mixmessages.NDF {
 	if err != nil {
 		t.Errorf("Could not generate serialized ndf: %s", err)
 	}
+	priv := testkeys.LoadFromPath(testkeys.GetNodeKeyPath())
+	privKey, err := rsa.LoadPrivateKeyFromPem(priv)
+	if err != nil {
+		t.Errorf("Could not generate rsa key: %s", err)
+	}
+
+	err = signature.Sign(f, privKey)
 
 	return f
 }

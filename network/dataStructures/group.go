@@ -57,7 +57,7 @@ func (g *Group) Update(newGroup string) error {
 		g.cyclicGroup = grp
 	} else if g.groupString != newGroup {
 		// If they have already been set and the newGroup is a different value,
-		return errors.Errorf("Attempt to modify an already set group")
+		return errors.Errorf("Attempt to modify an already initialized group")
 	}
 
 	return nil
