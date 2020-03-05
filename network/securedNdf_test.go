@@ -71,13 +71,13 @@ func TestSecuredNdf_update(t *testing.T) {
 	if err != nil {
 		t.Errorf("Failed to secure ndf: %+v", err)
 	}
-	err = sndf.update(&f, privKey.GetPublic(),nil, nil )
+	err = sndf.update(&f, privKey.GetPublic(), nil, nil)
 
 	if err != nil {
 		t.Errorf("Could not update ndf: %s", err)
 	}
 
-	err = sndf.update(&f, badPub,nil, nil)
+	err = sndf.update(&f, badPub, nil, nil)
 	if err == nil {
 		t.Errorf("should have received bad key error")
 	}

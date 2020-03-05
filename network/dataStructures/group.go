@@ -5,6 +5,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 package dataStructures
 
+// Define the network.Instance's group object and methods for creation and updating
+
 import (
 	"encoding/json"
 	"github.com/pkg/errors"
@@ -14,7 +16,7 @@ import (
 	"sync"
 )
 
-// todo docstring
+// Struct that handles and updates cyclic.Groups
 type Group struct {
 	groupString string
 	cyclicGroup *cyclic.Group
