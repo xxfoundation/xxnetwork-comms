@@ -64,6 +64,7 @@ func (g *Group) Update(newGroup string) error {
 }
 
 // Utility function for NewInstanceTesting that directly sets cyclic.Group object
+// USED FOR TESTING PURPOSED ONLY
 func (g Group) UpdateCyclicGroupTesting(group *cyclic.Group, t *testing.T) {
 	if t == nil {
 		panic("Should not be able to directly set cyclic group outside of testing purposes")
