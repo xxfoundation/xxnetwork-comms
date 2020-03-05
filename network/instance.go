@@ -58,8 +58,8 @@ func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition) (*
 		full:         fullNdf,
 		roundUpdates: &ds.Updates{},
 		roundData:    &ds.Data{},
-		cmixGroup:    ds.NewGroup(cmixGrp),
-		e2eGroup:     ds.NewGroup(e2eGrp),
+		cmixGroup:    ds.NewGroup(),
+		e2eGroup:     ds.NewGroup(),
 	}, nil
 }
 

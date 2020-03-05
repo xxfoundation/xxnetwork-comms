@@ -281,7 +281,7 @@ func TestInstance_GetPermissioningAddress(t *testing.T) {
 
 // Happy path
 func TestInstance_GetCmixGroup(t *testing.T) {
-	expectedGroup := ds.NewGroup(testutils.E2eGrp)
+	expectedGroup := ds.NewGroup()
 
 	i := Instance{
 		cmixGroup: expectedGroup,
@@ -299,7 +299,7 @@ func TestInstance_GetCmixGroup(t *testing.T) {
 
 // Happy path
 func TestInstance_GetE2EGroup(t *testing.T) {
-	expectedGroup := ds.NewGroup(testutils.E2eGrp)
+	expectedGroup := ds.NewGroup()
 
 	i := Instance{
 		e2eGroup: expectedGroup,
