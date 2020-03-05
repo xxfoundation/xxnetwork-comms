@@ -49,9 +49,6 @@ func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition) (*
 		}
 	}
 
-	cmixGrp := fullNdf.Get().CMIX.String()
-	e2eGrp := fullNdf.Get().E2E.String()
-
 	return &Instance{
 		comm:         c,
 		partial:      partialNdf,
@@ -72,7 +69,7 @@ func (i *Instance) UpdatePartialNdf(m *pb.NDF) error {
 			"for NDF partial verification")
 	}
 
-	return i.partial.update(m, perm.GetPubKey(), i.e2eGroup.Get(), i.cmixGroup.Get())
+	return i.partial.update(m, perm.GetPubKey(), i.e2eGroup, i.cmixGroup)
 }
 
 //update the full ndf
@@ -84,7 +81,7 @@ func (i *Instance) UpdateFullNdf(m *pb.NDF) error {
 			"for full NDF verification")
 	}
 
-	return i.full.update(m, perm.GetPubKey(), i.e2eGroup.Get(), i.cmixGroup.Get())
+	return i.full.update(m, perm.GetPubKey(), i.e2eGroup, i.cmixGroup)
 }
 
 // Return the partial ndf from this instance
