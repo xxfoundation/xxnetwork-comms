@@ -9,6 +9,7 @@
 package network
 
 import (
+	"fmt"
 	"github.com/pkg/errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	ds "gitlab.com/elixxir/comms/network/dataStructures"
@@ -38,6 +39,7 @@ func NewSecuredNdf(definition *ndf.NetworkDefinition) (*SecuredNdf, error) {
 func (sndf *SecuredNdf) update(m *pb.NDF, key *rsa.PublicKey) error {
 	err := signature.Verify(m, key)
 	if err != nil {
+		fmt.Printf("err: %+v", err)
 		return errors.WithMessage(err, "Could not validate NDF")
 	}
 

@@ -16,8 +16,34 @@ import (
 	"gitlab.com/elixxir/crypto/signature/rsa"
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/elixxir/primitives/ndf"
+	"reflect"
 	"testing"
 )
+
+// Happy path
+func TestNewInstanceTesting(t *testing.T) {
+	_, err := NewInstanceTesting(&connect.ProtoComms{}, testutils.NDF, testutils.NDF, nil, nil, t)
+	if err != nil {
+		t.Errorf("Unable to create test instance: %+v", err)
+	}
+}
+
+// Error path: pass in a non testing argument into the constructor
+func TestNewInstanceTesting_Error(t *testing.T) {
+	defer func() {
+		if r := recover(); r != nil {
+			return
+		}
+	}()
+
+	_, err := NewInstanceTesting(&connect.ProtoComms{}, testutils.NDF, testutils.NDF, nil, nil, nil)
+	if err != nil {
+		return
+	}
+
+	t.Errorf("Expected error case, should not be able to create instance when testing argument is nil")
+
+}
 
 func TestInstance_GetFullNdf(t *testing.T) {
 	secured, _ := NewSecuredNdf(testutils.NDF)
@@ -82,9 +108,8 @@ func setupComm(t *testing.T) (*Instance, *mixmessages.NDF) {
 	}
 
 	f := &mixmessages.NDF{}
-
+	f.Ndf = []byte(testutils.ExampleJSON)
 	baseNDF := ndf.NetworkDefinition{}
-	f.Ndf, err = baseNDF.Marshal()
 
 	if err != nil {
 		t.Errorf("Could not generate serialized ndf: %s", err)
@@ -142,6 +167,7 @@ func TestInstance_RoundUpdate(t *testing.T) {
 
 func TestInstance_UpdateFullNdf(t *testing.T) {
 	i, f := setupComm(t)
+
 	err := i.UpdateFullNdf(f)
 	if err != nil {
 		t.Errorf("Failed to update ndf: %+v", err)
@@ -278,6 +304,41 @@ func TestInstance_GetPermissioningAddress(t *testing.T) {
 
 }
 
+// Happy path
+func TestInstance_GetCmixGroup(t *testing.T) {
+	expectedGroup := ds.NewGroup()
+
+	i := Instance{
+		cmixGroup: expectedGroup,
+	}
+
+	receivedGroup := i.GetCmixGroup()
+
+	if !reflect.DeepEqual(expectedGroup.Get(), receivedGroup) {
+		t.Errorf("Getter didn't get expected value! "+
+			"\n\tExpected: %+v"+
+			"\n\tReceived: %+v", expectedGroup, receivedGroup)
+	}
+
+}
+
+// Happy path
+func TestInstance_GetE2EGroup(t *testing.T) {
+	expectedGroup := ds.NewGroup()
+
+	i := Instance{
+		e2eGroup: expectedGroup,
+	}
+
+	receivedGroup := i.GetE2EGroup()
+
+	if !reflect.DeepEqual(expectedGroup.Get(), receivedGroup) {
+		t.Errorf("Getter didn't get expected value! "+
+			"\n\tExpected: %+v"+
+			"\n\tReceived: %+v", expectedGroup, receivedGroup)
+	}
+}
+
 // Happy path: Tests GetPermissioningCert with the full ndf set, the partial ndf set
 // and no ndf set
 func TestInstance_GetPermissioningCert(t *testing.T) {
@@ -384,4 +445,72 @@ func TestInstance_GetPermissioningId(t *testing.T) {
 			"\n\tExpected: %+v"+
 			"\n\tReceived: %+v", id.PERMISSIONING, receivedId)
 	}
+}
+
+// Happy path
+func TestInstance_UpdateGroup(t *testing.T) {
+	i, f := setupComm(t)
+	err := i.UpdateFullNdf(f)
+	if err != nil {
+		t.Errorf("Unable to initalize group: %+v", err)
+	}
+
+	// Update with same values should not cause an error
+	err = i.UpdateFullNdf(f)
+	if err != nil {
+		t.Errorf("Unable to call update group with same values: %+v", err)
+	}
+
+}
+
+// Error path: attempt to modify group once already initialized
+func TestInstance_UpdateGroup_Error(t *testing.T) {
+	i, f := setupComm(t)
+
+	err := i.UpdateFullNdf(f)
+	if err != nil {
+		t.Errorf("Unable to initalize group: %+v", err)
+	}
+
+	badNdf := createBadNdf(t)
+
+	// Update with same values should not cause an error
+	err = i.UpdateFullNdf(badNdf)
+	if err != nil {
+		return
+	}
+
+	t.Errorf("Expected error case: Should not be able to update instance's group once initialized!")
+
+}
+
+// Creates a bad ndf
+func createBadNdf(t *testing.T) *mixmessages.NDF {
+	f := &mixmessages.NDF{}
+
+	badGrp := ndf.Group{
+		Prime:      "123",
+		SmallPrime: "456",
+		Generator:  "2",
+	}
+
+	baseNDF := ndf.NetworkDefinition{
+		E2E:  badGrp,
+		CMIX: badGrp,
+	}
+
+	var err error
+	f.Ndf, err = baseNDF.Marshal()
+	if err != nil {
+		t.Errorf("Could not generate serialized ndf: %s", err)
+	}
+	priv := testkeys.LoadFromPath(testkeys.GetNodeKeyPath())
+	privKey, err := rsa.LoadPrivateKeyFromPem(priv)
+	if err != nil {
+		t.Errorf("Could not generate rsa key: %s", err)
+	}
+
+	err = signature.Sign(f, privKey)
+
+	return f
 }

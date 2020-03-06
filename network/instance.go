@@ -13,20 +13,39 @@ import (
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	ds "gitlab.com/elixxir/comms/network/dataStructures"
+	"gitlab.com/elixxir/crypto/cyclic"
 	"gitlab.com/elixxir/crypto/signature"
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/elixxir/primitives/ndf"
+	"testing"
 )
 
-// 4 getters one for each, return from full if its there, otherwise partial
 // The Instance struct stores a combination of comms info and round info for servers
 type Instance struct {
-	comm *connect.ProtoComms
-
+	comm         *connect.ProtoComms
+	cmixGroup    *ds.Group // make a wrapper structure containing a group and a rwlock
+	e2eGroup     *ds.Group
 	partial      *SecuredNdf
 	full         *SecuredNdf
 	roundUpdates *ds.Updates
 	roundData    *ds.Data
+}
+
+// Utility function to create instance FOR TESTING PURPOSES ONLY
+func NewInstanceTesting(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition,
+	e2eGroup, cmixGroup *cyclic.Group, t *testing.T) (*Instance, error) {
+	if t == nil {
+		panic("This is a utility function for testing purposes only!")
+	}
+	instance, err := NewInstance(c, partial, full)
+	if err != nil {
+		return nil, errors.Errorf("Unable to create instance: %+v", err)
+	}
+
+	instance.cmixGroup.UpdateCyclicGroupTesting(cmixGroup, t)
+	instance.e2eGroup.UpdateCyclicGroupTesting(e2eGroup, t)
+
+	return instance, nil
 }
 
 // Initializer for instance structs from base comms and NDF
@@ -50,11 +69,13 @@ func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition) (*
 	}
 
 	return &Instance{
-		c,
-		partialNdf,
-		fullNdf,
-		&ds.Updates{},
-		&ds.Data{},
+		comm:         c,
+		partial:      partialNdf,
+		full:         fullNdf,
+		roundUpdates: &ds.Updates{},
+		roundData:    &ds.Data{},
+		cmixGroup:    ds.NewGroup(),
+		e2eGroup:     ds.NewGroup(),
 	}, nil
 }
 
@@ -67,7 +88,28 @@ func (i *Instance) UpdatePartialNdf(m *pb.NDF) error {
 			"for NDF partial verification")
 	}
 
-	return i.partial.update(m, perm.GetPubKey())
+	// Update the partial ndf
+	err := i.partial.update(m, perm.GetPubKey())
+	if err != nil {
+		return err
+	}
+
+	// update the cmix group object
+	cmixGrp := i.partial.Get().CMIX.String()
+	err = i.cmixGroup.Update(cmixGrp)
+	if err != nil {
+		return errors.WithMessage(err, "Unable to update cmix group")
+	}
+
+	// update the cmix group object
+	e2eGrp := i.partial.Get().E2E.String()
+	err = i.cmixGroup.Update(e2eGrp)
+	if err != nil {
+		return errors.WithMessage(err, "Unable to update e2e group")
+	}
+
+	return nil
+
 }
 
 //update the full ndf
@@ -79,7 +121,28 @@ func (i *Instance) UpdateFullNdf(m *pb.NDF) error {
 			"for full NDF verification")
 	}
 
-	return i.full.update(m, perm.GetPubKey())
+	// Update the full ndf
+	err := i.full.update(m, perm.GetPubKey())
+	if err != nil {
+		return err
+	}
+
+	// update the cmix group object
+	cmixGrp := i.full.Get().CMIX.String()
+	err = i.cmixGroup.Update(cmixGrp)
+	if err != nil {
+		return errors.WithMessage(err, "Unable to update cmix group")
+	}
+
+	// update the cmix group object
+	e2eGrp := i.full.Get().E2E.String()
+	err = i.cmixGroup.Update(e2eGrp)
+	if err != nil {
+		return errors.WithMessage(err, "Unable to update e2e group")
+	}
+
+	return nil
+
 }
 
 // Return the partial ndf from this instance
@@ -117,6 +180,17 @@ func (i *Instance) RoundUpdate(info *pb.RoundInfo) error {
 	}
 
 	return nil
+}
+
+// GetE2EGroup gets the e2eGroup from the instance
+func (i *Instance) GetE2EGroup() string {
+	return i.e2eGroup.Get()
+}
+
+// GetE2EGroup gets the cmixGroup from the instance
+func (i *Instance) GetCmixGroup() string {
+
+	return i.cmixGroup.Get()
 }
 
 // Get the round of a given ID
