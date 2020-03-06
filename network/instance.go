@@ -95,14 +95,14 @@ func (i *Instance) UpdatePartialNdf(m *pb.NDF) error {
 	}
 
 	// update the cmix group object
-	cmixGrp := i.partial.Get().CMIX.String()
+	cmixGrp, _ := i.partial.Get().CMIX.String()
 	err = i.cmixGroup.Update(cmixGrp)
 	if err != nil {
 		return errors.WithMessage(err, "Unable to update cmix group")
 	}
 
 	// update the cmix group object
-	e2eGrp := i.partial.Get().E2E.String()
+	e2eGrp, _ := i.partial.Get().E2E.String()
 	err = i.cmixGroup.Update(e2eGrp)
 	if err != nil {
 		return errors.WithMessage(err, "Unable to update e2e group")
@@ -128,14 +128,14 @@ func (i *Instance) UpdateFullNdf(m *pb.NDF) error {
 	}
 
 	// update the cmix group object
-	cmixGrp := i.full.Get().CMIX.String()
+	cmixGrp, _ := i.full.Get().CMIX.String()
 	err = i.cmixGroup.Update(cmixGrp)
 	if err != nil {
 		return errors.WithMessage(err, "Unable to update cmix group")
 	}
 
 	// update the cmix group object
-	e2eGrp := i.full.Get().E2E.String()
+	e2eGrp, _ := i.full.Get().E2E.String()
 	err = i.cmixGroup.Update(e2eGrp)
 	if err != nil {
 		return errors.WithMessage(err, "Unable to update e2e group")
@@ -183,12 +183,12 @@ func (i *Instance) RoundUpdate(info *pb.RoundInfo) error {
 }
 
 // GetE2EGroup gets the e2eGroup from the instance
-func (i *Instance) GetE2EGroup() string {
+func (i *Instance) GetE2EGroup() *cyclic.Group {
 	return i.e2eGroup.Get()
 }
 
 // GetE2EGroup gets the cmixGroup from the instance
-func (i *Instance) GetCmixGroup() string {
+func (i *Instance) GetCmixGroup() *cyclic.Group {
 
 	return i.cmixGroup.Get()
 }
