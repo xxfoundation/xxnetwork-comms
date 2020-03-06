@@ -22,18 +22,23 @@ func TestGroup_Get(t *testing.T) {
 		Generator:  "2",
 	}
 
+	gstr, err := expectedGroup.String()
+
+	if err!=nil{
+		t.Errorf("Could not get expected group's string: %s", err)
+	}
 	ourGroup := &Group{
-		groupString: expectedGroup.String(),
+		groupString: gstr,
 	}
 
 	// Fetch the group string
-	receivedGroup := ourGroup.Get()
+	receivedGroup := ourGroup.GetString()
 
 	// Compare the received group with the expected group
-	if !reflect.DeepEqual(expectedGroup.String(), receivedGroup) {
+	if !reflect.DeepEqual(gstr, receivedGroup) {
 		t.Errorf("Getter didn't get expected value! "+
 			"\n\tExpected: %+v"+
-			"\n\tReceived: %+v", expectedGroup.String(), receivedGroup)
+			"\n\tReceived: %+v", gstr, receivedGroup)
 	}
 }
 
@@ -62,18 +67,24 @@ func TestGroup_Update(t *testing.T) {
 		Generator:  "2",
 	}
 
+
+	gstr, err := expectedGroup.String()
+
+	if err!=nil{
+		t.Errorf("Could not get expected group's string: %s", err)
+	}
+
 	// Update values to be initialized
-	err := ourNewGrp.Update(expectedGroup.String())
+	err = ourNewGrp.Update(gstr)
 	if err != nil {
 		t.Errorf("Unable to update group: %+v", err)
 	}
 
 	// Check grpString
-	expectedString := expectedGroup.String()
-	if ourNewGrp.groupString != expectedString {
+	if ourNewGrp.groupString != gstr {
 		t.Errorf("Update did not create expected string."+
 			"\n\tExpected: %+v"+
-			"\n\tCyclic Group: %+v", expectedString, ourNewGrp.cyclicGroup)
+			"\n\tCyclic Group: %+v", gstr, ourNewGrp.cyclicGroup)
 	}
 
 	// Check cyclic.Group object
@@ -98,21 +109,27 @@ func TestGroup_Update_DoubleUpdate(t *testing.T) {
 		Generator:  "2",
 	}
 
+	gstr, err := expectedGroup.String()
+
+	if err!=nil{
+		t.Errorf("Could not get expected group's string: %s", err)
+	}
+
 	// Update values to be initialized
-	err := ourNewGrp.Update(expectedGroup.String())
+	err = ourNewGrp.Update(gstr)
 	if err != nil {
 		t.Errorf("Unable to update group: %+v", err)
 	}
 
 	// Attempt to update again with the same group string.
 	// Should not error as we are not trying to change the initialized groups
-	err = ourNewGrp.Update(expectedGroup.String())
+	err = ourNewGrp.Update(gstr)
 	if err != nil {
 		t.Errorf("Should not error when calling update with same value: %+v", err)
 	}
 
 	// Check grpString
-	expectedString := expectedGroup.String()
+	expectedString := gstr
 	if ourNewGrp.groupString != expectedString {
 		t.Errorf("Update did not create expected string."+
 			"\n\tExpected: %+v"+
@@ -142,8 +159,14 @@ func TestGroup_Update_DoubleUpdate_Error(t *testing.T) {
 		Generator:  "2",
 	}
 
+	gstr, err := expectedGroup.String()
+
+	if err!=nil{
+		t.Errorf("Could not get expected group's string: %s", err)
+	}
+
 	// Update values to be initialized
-	err := ourNewGrp.Update(expectedGroup.String())
+	err = ourNewGrp.Update(gstr)
 	if err != nil {
 		t.Errorf("Unable to update group: %+v", err)
 	}
@@ -155,9 +178,15 @@ func TestGroup_Update_DoubleUpdate_Error(t *testing.T) {
 		Generator:  "98",
 	}
 
+	bgstr, err := badGroup.String()
+
+	if err!=nil{
+		t.Errorf("Could not get expected group's string: %s", err)
+	}
+
 	// Attempt to update again with a different group string.
 	// Should error as you should not be able to update values once initialized
-	err = ourNewGrp.Update(badGroup.String())
+	err = ourNewGrp.Update(bgstr)
 	if err != nil {
 		return
 	}

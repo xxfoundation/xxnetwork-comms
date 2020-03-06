@@ -32,9 +32,15 @@ func NewGroup() *Group {
 }
 
 // Get returns the ds.Groups's cyclic group
-func (g *Group) Get() string {
+func (g *Group) Get() *cyclic.Group {
+	return g.cyclicGroup
+}
+
+// Get returns the ds.Groups's cyclic group string
+func (g *Group) GetString() string {
 	return g.groupString
 }
+
 
 // Update sets the group's string and cyclic.Group object
 // If these values have not been set yet, we set these two values
