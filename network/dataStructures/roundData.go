@@ -20,6 +20,20 @@ type Data struct {
 	rounds *ring.Buff
 }
 
+func NewData() *Data {
+	// We want data using the round ID as its primary
+	idFunc := func(val interface{}) int {
+		if val == nil {
+			return -1
+		}
+		return int(val.(*mixmessages.RoundInfo).ID)
+	}
+
+	return &Data{
+		rounds: ring.NewBuff(RoundInfoBufLen, idFunc),
+	}
+}
+
 // Upsert a round into the ring bugger
 func (d *Data) UpsertRound(r *mixmessages.RoundInfo) error {
 	// comparison here should ensure that either the current round is nil or has a lower update id than the new round
@@ -31,18 +45,6 @@ func (d *Data) UpsertRound(r *mixmessages.RoundInfo) error {
 			return true
 		}
 		return false
-	}
-
-	// We want data using the round ID as its primary
-	id := func(val interface{}) int {
-		if val == nil {
-			return -1
-		}
-		return int(val.(*mixmessages.RoundInfo).ID)
-	}
-
-	if d.rounds == nil {
-		d.rounds = ring.NewBuff(RoundInfoBufLen, id)
 	}
 
 	//find the round location

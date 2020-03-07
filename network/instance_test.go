@@ -67,7 +67,7 @@ func TestInstance_GetPartialNdf(t *testing.T) {
 
 func TestInstance_GetRound(t *testing.T) {
 	i := Instance{
-		roundData: &ds.Data{},
+		roundData: ds.NewData(),
 	}
 	_ = i.roundData.UpsertRound(&mixmessages.RoundInfo{ID: uint64(1)})
 	r, err := i.GetRound(id.Round(1))
@@ -78,7 +78,7 @@ func TestInstance_GetRound(t *testing.T) {
 
 func TestInstance_GetRoundUpdate(t *testing.T) {
 	i := Instance{
-		roundUpdates: &ds.Updates{},
+		roundUpdates: ds.NewUpdates(),
 	}
 	_ = i.roundUpdates.AddRound(&mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(1)})
 	r, err := i.GetRoundUpdate(1)
@@ -89,7 +89,7 @@ func TestInstance_GetRoundUpdate(t *testing.T) {
 
 func TestInstance_GetRoundUpdates(t *testing.T) {
 	i := Instance{
-		roundUpdates: &ds.Updates{},
+		roundUpdates: ds.NewUpdates(),
 	}
 	_ = i.roundUpdates.AddRound(&mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(1)})
 	_ = i.roundUpdates.AddRound(&mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(2)})
@@ -184,7 +184,7 @@ func TestInstance_UpdatePartialNdf(t *testing.T) {
 
 func TestInstance_GetLastRoundID(t *testing.T) {
 	i := Instance{
-		roundData: &ds.Data{},
+		roundData: ds.NewData(),
 	}
 	_ = i.roundData.UpsertRound(&mixmessages.RoundInfo{ID: uint64(1)})
 	i.GetLastRoundID()
@@ -192,7 +192,7 @@ func TestInstance_GetLastRoundID(t *testing.T) {
 
 func TestInstance_GetLastUpdateID(t *testing.T) {
 	i := Instance{
-		roundUpdates: &ds.Updates{},
+		roundUpdates: ds.NewUpdates(),
 	}
 	_ = i.roundUpdates.AddRound(&mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(1)})
 	i.GetLastUpdateID()

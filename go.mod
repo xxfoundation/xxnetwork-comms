@@ -5,14 +5,20 @@ go 1.13
 require (
 	github.com/golang/protobuf v1.3.4
 	github.com/google/go-cmp v0.4.0 // indirect
+	github.com/kr/text v0.2.0 // indirect
+	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/jwalterweatherman v1.1.0
-	gitlab.com/elixxir/crypto v0.0.0-20200229000841-b1ee7117a1d0
-	gitlab.com/elixxir/primitives v0.0.0-20200306214728-35300c4b5152
+	github.com/stretchr/testify v1.5.1 // indirect
+	gitlab.com/elixxir/crypto v0.0.0-20200206203107-b8926242da23
+	gitlab.com/elixxir/primitives v0.0.0-20200226191544-59ff3303abb3
+	golang.org/x/crypto v0.0.0-20200302210943-78000ba7a073 // indirect
 	golang.org/x/net v0.0.0-20200301022130-244492dfa37a
+	golang.org/x/sys v0.0.0-20200302150141-5c8b2ff67527 // indirect
 	golang.org/x/text v0.3.2 // indirect
 	google.golang.org/genproto v0.0.0-20200306153348-d950eab6f860 // indirect
 	google.golang.org/grpc v1.27.1
+	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 )
 
 replace google.golang.org/grpc => github.com/grpc/grpc-go v1.27.1

@@ -7,6 +7,7 @@
 package network
 
 import (
+	"fmt"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	ds "gitlab.com/elixxir/comms/network/dataStructures"
 	"gitlab.com/elixxir/comms/testutils"
@@ -51,6 +52,7 @@ func TestSecuredNdf_update(t *testing.T) {
 		t.Errorf("Could not generate rsa key: %s", err)
 	}
 	badPub := badPriv.GetPublic()
+	fmt.Println(badPub)
 
 	f := pb.NDF{}
 

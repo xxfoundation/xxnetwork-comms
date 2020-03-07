@@ -12,7 +12,7 @@ import (
 )
 
 func TestData_UpsertRound(t *testing.T) {
-	d := Data{}
+	d := NewData()
 	err := d.UpsertRound(&mixmessages.RoundInfo{
 		ID:       0,
 		UpdateID: 0,
@@ -23,7 +23,7 @@ func TestData_UpsertRound(t *testing.T) {
 }
 
 func TestData_GetRound(t *testing.T) {
-	d := Data{}
+	d := NewData()
 	_ = d.UpsertRound(&mixmessages.RoundInfo{
 		ID:       0,
 		UpdateID: 3,
@@ -35,7 +35,7 @@ func TestData_GetRound(t *testing.T) {
 }
 
 func TestData_ComparisonFunc(t *testing.T) {
-	d := Data{}
+	d := NewData()
 	_ = d.UpsertRound(&mixmessages.RoundInfo{
 		ID:       2,
 		UpdateID: 3,

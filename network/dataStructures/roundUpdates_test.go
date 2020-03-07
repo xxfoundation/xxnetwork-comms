@@ -12,7 +12,7 @@ import (
 )
 
 func TestUpdates_AddRound(t *testing.T) {
-	u := Updates{}
+	u := NewUpdates()
 	err := u.AddRound(&mixmessages.RoundInfo{
 		ID:       0,
 		UpdateID: 0,
@@ -23,7 +23,7 @@ func TestUpdates_AddRound(t *testing.T) {
 }
 
 func TestUpdates_GetUpdate(t *testing.T) {
-	u := Updates{}
+	u := NewUpdates()
 	_ = u.AddRound(&mixmessages.RoundInfo{
 		ID:       0,
 		UpdateID: 3,
@@ -35,7 +35,7 @@ func TestUpdates_GetUpdate(t *testing.T) {
 }
 
 func TestUpdates_GetUpdates(t *testing.T) {
-	u := Updates{}
+	u := NewUpdates()
 	_ = u.AddRound(&mixmessages.RoundInfo{
 		ID:       0,
 		UpdateID: 3,
