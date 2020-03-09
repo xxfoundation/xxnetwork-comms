@@ -109,7 +109,7 @@ func setupComm(t *testing.T) (*Instance, *mixmessages.NDF) {
 
 	f := &mixmessages.NDF{}
 	f.Ndf = []byte(testutils.ExampleJSON)
-	baseNDF := ndf.NetworkDefinition{}
+	baseNDF := testutils.NDF
 
 	if err != nil {
 		t.Errorf("Could not generate serialized ndf: %s", err)
@@ -118,7 +118,7 @@ func setupComm(t *testing.T) (*Instance, *mixmessages.NDF) {
 	err = signature.Sign(f, privKey)
 
 	pc := &connect.ProtoComms{}
-	i, err := NewInstance(pc, &baseNDF, &baseNDF)
+	i, err := NewInstance(pc, baseNDF, baseNDF)
 	if err != nil {
 		t.Error(nil)
 	}
