@@ -82,12 +82,21 @@ func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition) (*
 	if full.CMIX.Prime != "" {
 		cmix, _ = full.CMIX.String()
 	}
-	_ = i.cmixGroup.Update(cmix)
+	if cmix == "" {
+		return nil, errors.New("No cmix group was found in either NDF")
+	} else {
+		_ = i.cmixGroup.Update(cmix)
+	}
+
 	e2e, _ := partial.E2E.String()
 	if full.E2E.Prime != "" {
 		e2e, _ = full.E2E.String()
 	}
-	_ = i.e2eGroup.Update(e2e)
+	if cmix == "" {
+		return nil, errors.New("No E2E group was found in either NDF")
+	} else {
+		_ = i.e2eGroup.Update(e2e)
+	}
 
 	return i, nil
 }
@@ -217,7 +226,7 @@ func (i *Instance) GetRoundUpdate(updateID int) (*pb.RoundInfo, error) {
 }
 
 // Get updates from a given round
-func (i *Instance) GetRoundUpdates(id int) ([]*pb.RoundInfo, error) {
+func (i *Instance) GetRoundUpdates(id int) []*pb.RoundInfo {
 	return i.roundUpdates.GetUpdates(id)
 }
 

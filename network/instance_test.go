@@ -93,9 +93,9 @@ func TestInstance_GetRoundUpdates(t *testing.T) {
 	}
 	_ = i.roundUpdates.AddRound(&mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(1)})
 	_ = i.roundUpdates.AddRound(&mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(2)})
-	r, err := i.GetRoundUpdates(1)
-	if err != nil || r == nil {
-		t.Errorf("Failed to retrieve round update: %+v", err)
+	r := i.GetRoundUpdates(1)
+	if r == nil {
+		t.Errorf("Failed to retrieve round updates")
 	}
 }
 
