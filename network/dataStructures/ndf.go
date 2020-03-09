@@ -27,7 +27,7 @@ type Ndf struct {
 
 // Initialize an Ndf object from a primitives NetworkDefinition
 func NewNdf(definition *ndf.NetworkDefinition) (*Ndf, error) {
-	h, err := generateHash(definition)
+	h, err := GenerateNDFHash(definition)
 	if err != nil {
 		return nil, errors.WithMessage(err, "Failed to hash ndf")
 	}
@@ -55,7 +55,7 @@ func (file *Ndf) Update(m *pb.NDF) error {
 	file.pb = m
 	file.f = decoded
 
-	file.hash, err = generateHash(file.f)
+	file.hash, err = GenerateNDFHash(file.f)
 
 	return err
 }
@@ -100,7 +100,7 @@ func (file *Ndf) CompareHash(h []byte) bool {
 }
 
 // helper function to generate a hash of the NDF
-func generateHash(definition *ndf.NetworkDefinition) ([]byte, error) {
+func GenerateNDFHash(definition *ndf.NetworkDefinition) ([]byte, error) {
 	//set the ndf hash
 	marshaled, err := definition.Marshal()
 	if err != nil {
