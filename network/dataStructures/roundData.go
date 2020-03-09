@@ -20,6 +20,7 @@ type Data struct {
 	rounds *ring.Buff
 }
 
+// Initialize a new Data object
 func NewData() *Data {
 	// We want data using the round ID as its primary
 	idFunc := func(val interface{}) int {

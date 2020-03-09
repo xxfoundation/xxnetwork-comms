@@ -22,6 +22,7 @@ type Updates struct {
 	updates *ring.Buff
 }
 
+// Create a new Updates object
 func NewUpdates() *Updates {
 	// we want each updateId stored in this structure
 	idFunc := func(val interface{}) int {
