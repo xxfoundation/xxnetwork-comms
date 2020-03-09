@@ -68,7 +68,7 @@ func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition) (*
 		}
 	}
 
-	return &Instance{
+	i := &Instance{
 		comm:         c,
 		partial:      partialNdf,
 		full:         fullNdf,
@@ -76,7 +76,29 @@ func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition) (*
 		roundData:    ds.NewData(),
 		cmixGroup:    ds.NewGroup(),
 		e2eGroup:     ds.NewGroup(),
-	}, nil
+	}
+
+	cmix, _ := partial.CMIX.String()
+	if full.CMIX.Prime != "" {
+		cmix, _ = full.CMIX.String()
+	}
+	if cmix == "" {
+		return nil, errors.New("No cmix group was found in either NDF")
+	} else {
+		_ = i.cmixGroup.Update(cmix)
+	}
+
+	e2e, _ := partial.E2E.String()
+	if full.E2E.Prime != "" {
+		e2e, _ = full.E2E.String()
+	}
+	if cmix == "" {
+		return nil, errors.New("No E2E group was found in either NDF")
+	} else {
+		_ = i.e2eGroup.Update(e2e)
+	}
+
+	return i, nil
 }
 
 //update the partial ndf
@@ -204,7 +226,7 @@ func (i *Instance) GetRoundUpdate(updateID int) (*pb.RoundInfo, error) {
 }
 
 // Get updates from a given round
-func (i *Instance) GetRoundUpdates(id int) ([]*pb.RoundInfo, error) {
+func (i *Instance) GetRoundUpdates(id int) []*pb.RoundInfo {
 	return i.roundUpdates.GetUpdates(id)
 }
 

@@ -61,11 +61,11 @@ func (u *Updates) GetUpdate(id int) (*pb.RoundInfo, error) {
 }
 
 //gets all updates after a given ID
-func (u *Updates) GetUpdates(id int) ([]*pb.RoundInfo, error) {
+func (u *Updates) GetUpdates(id int) []*pb.RoundInfo {
 	interfaceList, err := u.updates.GetNewerById(id)
 
 	if err != nil {
-		return nil, err
+		return make([]*pb.RoundInfo, 0)
 	}
 
 	infoList := make([]*pb.RoundInfo, len(interfaceList))
@@ -74,7 +74,7 @@ func (u *Updates) GetUpdates(id int) ([]*pb.RoundInfo, error) {
 		infoList[i] = face.(*pb.RoundInfo)
 	}
 
-	return infoList, nil
+	return infoList
 }
 
 // Get the id of the newest update in the buffer

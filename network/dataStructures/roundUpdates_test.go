@@ -48,11 +48,8 @@ func TestUpdates_GetUpdates(t *testing.T) {
 		ID:       0,
 		UpdateID: 4,
 	})
-	l, err := u.GetUpdates(2)
+	l := u.GetUpdates(2)
 	if len(l) != 2 {
 		t.Error("Something went wrong, didn't get all results")
-	}
-	if err != nil {
-		t.Errorf("Failed to get updates: %+v", err)
 	}
 }

@@ -93,9 +93,9 @@ func TestInstance_GetRoundUpdates(t *testing.T) {
 	}
 	_ = i.roundUpdates.AddRound(&mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(1)})
 	_ = i.roundUpdates.AddRound(&mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(2)})
-	r, err := i.GetRoundUpdates(1)
-	if err != nil || r == nil {
-		t.Errorf("Failed to retrieve round update: %+v", err)
+	r := i.GetRoundUpdates(1)
+	if r == nil {
+		t.Errorf("Failed to retrieve round updates")
 	}
 }
 
@@ -109,7 +109,7 @@ func setupComm(t *testing.T) (*Instance, *mixmessages.NDF) {
 
 	f := &mixmessages.NDF{}
 	f.Ndf = []byte(testutils.ExampleJSON)
-	baseNDF := ndf.NetworkDefinition{}
+	baseNDF := testutils.NDF
 
 	if err != nil {
 		t.Errorf("Could not generate serialized ndf: %s", err)
@@ -118,7 +118,7 @@ func setupComm(t *testing.T) (*Instance, *mixmessages.NDF) {
 	err = signature.Sign(f, privKey)
 
 	pc := &connect.ProtoComms{}
-	i, err := NewInstance(pc, &baseNDF, &baseNDF)
+	i, err := NewInstance(pc, baseNDF, baseNDF)
 	if err != nil {
 		t.Error(nil)
 	}
