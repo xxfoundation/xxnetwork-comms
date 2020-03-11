@@ -47,7 +47,7 @@ func (m *Manager) AddHost(id, address string,
 
 // Internal helper function that can add Hosts directly
 func (m *Manager) addHost(host *Host) {
-	jww.DEBUG.Printf("Adding host: %+v", host)
+	jww.DEBUG.Printf("Adding host: %s", host)
 	m.connections.Store(host.id, host)
 }
 

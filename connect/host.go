@@ -347,7 +347,7 @@ func (h *Host) String() string {
 		securityProtocol = creds.Info().SecurityProtocol
 	}
 	return fmt.Sprintf(
-		"ID: %v\tAddr: %v\tCertificate: %v\tTransmission Token: %v\tReception Token: %+v \tEnableAuth: %v"+
+		"ID: %v\tAddr: %v\tCertificate: %s\tTransmission Token: %v\tReception Token: %+v \tEnableAuth: %v"+
 			"\tMaxRetries: %v\tConnState: %v"+
 			"\tTLS ServerName: %v\tTLS ProtocolVersion: %v\t"+
 			"TLS SecurityVersion: %v\tTLS SecurityProtocol: %v\n",
