@@ -22,7 +22,7 @@ type Ndf struct {
 	f    *ndf.NetworkDefinition
 	pb   *pb.NDF
 	hash []byte
-	lock sync.RWMutex
+	sync.RWMutex
 }
 
 // Initialize an Ndf object from a primitives NetworkDefinition
@@ -35,7 +35,6 @@ func NewNdf(definition *ndf.NetworkDefinition) (*Ndf, error) {
 		f:    definition,
 		pb:   nil,
 		hash: h,
-		lock: sync.RWMutex{},
 	}, nil
 }
 
@@ -49,8 +48,8 @@ func (file *Ndf) Update(m *pb.NDF) error {
 		return errors.WithMessage(err, "Could not decode the NDF")
 	}
 
-	file.lock.Lock()
-	defer file.lock.Unlock()
+	file.Lock()
+	defer file.Unlock()
 
 	file.pb = m
 	file.f = decoded
@@ -64,16 +63,16 @@ func (file *Ndf) Update(m *pb.NDF) error {
 //fix-me: return a copy instead to ensure edits to not impact the
 //original version
 func (file *Ndf) Get() *ndf.NetworkDefinition {
-	file.lock.RLock()
-	defer file.lock.RUnlock()
+	file.RLock()
+	defer file.RUnlock()
 
 	return file.f
 }
 
 //returns the ndf hash
 func (file *Ndf) GetHash() []byte {
-	file.lock.RLock()
-	defer file.lock.RUnlock()
+	file.RLock()
+	defer file.RUnlock()
 
 	rtn := make([]byte, len(file.hash))
 	copy(rtn, file.hash)
@@ -84,16 +83,16 @@ func (file *Ndf) GetHash() []byte {
 //fix-me: return a copy instead to ensure edits to not impact the
 //original version
 func (file *Ndf) GetPb() *pb.NDF {
-	file.lock.RLock()
-	defer file.lock.RUnlock()
+	file.RLock()
+	defer file.RUnlock()
 
 	return file.pb
 }
 
 // Evaluates if the passed ndf hash is the same as the stored one
 func (file *Ndf) CompareHash(h []byte) bool {
-	file.lock.RLock()
-	defer file.lock.RUnlock()
+	file.RLock()
+	defer file.RUnlock()
 
 	// Return whether the hashes are different
 	return bytes.Compare(file.hash, h) == 0

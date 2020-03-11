@@ -9,6 +9,7 @@
 package network
 
 import (
+	"fmt"
 	"github.com/pkg/errors"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
@@ -200,7 +201,8 @@ func (i *Instance) RoundUpdate(info *pb.RoundInfo) error {
 
 	err := signature.Verify(info, perm.GetPubKey())
 	if err != nil {
-		return errors.WithMessage(err, "Could not validate NDF")
+		return errors.WithMessage(err, fmt.Sprintf("Could not validate "+
+			"the roundInfo signature: %+v", info))
 	}
 
 	err = i.roundUpdates.AddRound(info)

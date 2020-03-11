@@ -223,7 +223,6 @@ func TestInstance_UpdatePartialNdf_nil(t *testing.T) {
 	}
 }
 
-
 func TestInstance_GetLastRoundID(t *testing.T) {
 	i := Instance{
 		roundData: ds.NewData(),
