@@ -17,6 +17,7 @@ import (
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/elixxir/primitives/ndf"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -43,6 +44,18 @@ func TestNewInstanceTesting_Error(t *testing.T) {
 
 	t.Errorf("Expected error case, should not be able to create instance when testing argument is nil")
 
+}
+
+//tests newInstance errors properly when there is no NDF
+func TestNewInstance_NilNDFs(t *testing.T) {
+	_, err := NewInstance(&connect.ProtoComms{}, nil, nil)
+	if err == nil {
+		t.Errorf("Creation of NewInstance without an ndf succeded")
+	}else if !strings.Contains(err.Error(), "Cannot create a network " +
+		"instance without an NDF"){
+		t.Errorf("Creation of NewInstance without an ndf returned " +
+			"the wrong error: %s", err.Error())
+	}
 }
 
 func TestInstance_GetFullNdf(t *testing.T) {
@@ -174,6 +187,20 @@ func TestInstance_UpdateFullNdf(t *testing.T) {
 	}
 }
 
+func TestInstance_UpdateFullNdf_nil(t *testing.T) {
+	i, f := setupComm(t)
+	i.full = nil
+
+	err := i.UpdateFullNdf(f)
+	if err == nil {
+		t.Errorf("Full NDF update succeded when it shouldnt")
+	}else if !strings.Contains(err.Error(),
+		"Cannot update the full ndf when it is nil"){
+		t.Errorf("Full NDF update when nil failed incorrectly: %s",
+			err.Error())
+	}
+}
+
 func TestInstance_UpdatePartialNdf(t *testing.T) {
 	i, f := setupComm(t)
 	err := i.UpdatePartialNdf(f)
@@ -181,6 +208,21 @@ func TestInstance_UpdatePartialNdf(t *testing.T) {
 		t.Errorf("Failed to update ndf: %+v", err)
 	}
 }
+
+func TestInstance_UpdatePartialNdf_nil(t *testing.T) {
+	i, f := setupComm(t)
+	i.partial = nil
+
+	err := i.UpdatePartialNdf(f)
+	if err == nil {
+		t.Errorf("Partial NDF update succeded when it shouldnt")
+	}else if !strings.Contains(err.Error(),
+		"Cannot update the partial ndf when it is nil"){
+		t.Errorf("Partial NDF update when nil failed incorrectly: %s",
+			err.Error())
+	}
+}
+
 
 func TestInstance_GetLastRoundID(t *testing.T) {
 	i := Instance{

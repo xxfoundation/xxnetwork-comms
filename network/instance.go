@@ -31,28 +31,15 @@ type Instance struct {
 	roundData    *ds.Data
 }
 
-// Utility function to create instance FOR TESTING PURPOSES ONLY
-func NewInstanceTesting(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition,
-	e2eGroup, cmixGroup *cyclic.Group, t *testing.T) (*Instance, error) {
-	if t == nil {
-		panic("This is a utility function for testing purposes only!")
-	}
-	instance, err := NewInstance(c, partial, full)
-	if err != nil {
-		return nil, errors.Errorf("Unable to create instance: %+v", err)
-	}
-
-	instance.cmixGroup.UpdateCyclicGroupTesting(cmixGroup, t)
-	instance.e2eGroup.UpdateCyclicGroupTesting(e2eGroup, t)
-
-	return instance, nil
-}
-
 // Initializer for instance structs from base comms and NDF
 func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition) (*Instance, error) {
 	var partialNdf *SecuredNdf
 	var fullNdf *SecuredNdf
 	var err error
+
+	if partial == nil && full == nil{
+		return nil, errors.New("Cannot create a network instance without an NDF")
+	}
 
 	if partial != nil {
 		partialNdf, err = NewSecuredNdf(partial)
@@ -101,8 +88,29 @@ func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition) (*
 	return i, nil
 }
 
+// Utility function to create instance FOR TESTING PURPOSES ONLY
+func NewInstanceTesting(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition,
+	e2eGroup, cmixGroup *cyclic.Group, t *testing.T) (*Instance, error) {
+	if t == nil {
+		panic("This is a utility function for testing purposes only!")
+	}
+	instance, err := NewInstance(c, partial, full)
+	if err != nil {
+		return nil, errors.Errorf("Unable to create instance: %+v", err)
+	}
+
+	instance.cmixGroup.UpdateCyclicGroupTesting(cmixGroup, t)
+	instance.e2eGroup.UpdateCyclicGroupTesting(e2eGroup, t)
+
+	return instance, nil
+}
+
 //update the partial ndf
 func (i *Instance) UpdatePartialNdf(m *pb.NDF) error {
+	if i.partial ==nil{
+		return errors.New("Cannot update the partial ndf when it is nil")
+	}
+
 	perm, success := i.comm.GetHost(id.PERMISSIONING)
 
 	if !success {
@@ -136,6 +144,10 @@ func (i *Instance) UpdatePartialNdf(m *pb.NDF) error {
 
 //update the full ndf
 func (i *Instance) UpdateFullNdf(m *pb.NDF) error {
+	if i.full ==nil{
+		return errors.New("Cannot update the full ndf when it is nil")
+	}
+
 	perm, success := i.comm.GetHost(id.PERMISSIONING)
 
 	if !success {
