@@ -51,9 +51,9 @@ func TestNewInstance_NilNDFs(t *testing.T) {
 	_, err := NewInstance(&connect.ProtoComms{}, nil, nil)
 	if err == nil {
 		t.Errorf("Creation of NewInstance without an ndf succeded")
-	}else if !strings.Contains(err.Error(), "Cannot create a network " +
-		"instance without an NDF"){
-		t.Errorf("Creation of NewInstance without an ndf returned " +
+	} else if !strings.Contains(err.Error(), "Cannot create a network "+
+		"instance without an NDF") {
+		t.Errorf("Creation of NewInstance without an ndf returned "+
 			"the wrong error: %s", err.Error())
 	}
 }
@@ -194,8 +194,8 @@ func TestInstance_UpdateFullNdf_nil(t *testing.T) {
 	err := i.UpdateFullNdf(f)
 	if err == nil {
 		t.Errorf("Full NDF update succeded when it shouldnt")
-	}else if !strings.Contains(err.Error(),
-		"Cannot update the full ndf when it is nil"){
+	} else if !strings.Contains(err.Error(),
+		"Cannot update the full ndf when it is nil") {
 		t.Errorf("Full NDF update when nil failed incorrectly: %s",
 			err.Error())
 	}
@@ -216,8 +216,8 @@ func TestInstance_UpdatePartialNdf_nil(t *testing.T) {
 	err := i.UpdatePartialNdf(f)
 	if err == nil {
 		t.Errorf("Partial NDF update succeded when it shouldnt")
-	}else if !strings.Contains(err.Error(),
-		"Cannot update the partial ndf when it is nil"){
+	} else if !strings.Contains(err.Error(),
+		"Cannot update the partial ndf when it is nil") {
 		t.Errorf("Partial NDF update when nil failed incorrectly: %s",
 			err.Error())
 	}

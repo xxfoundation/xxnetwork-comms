@@ -24,7 +24,7 @@ func TestGroup_Get(t *testing.T) {
 
 	gstr, err := expectedGroup.String()
 
-	if err!=nil{
+	if err != nil {
 		t.Errorf("Could not get expected group's string: %s", err)
 	}
 	ourGroup := &Group{
@@ -67,10 +67,9 @@ func TestGroup_Update(t *testing.T) {
 		Generator:  "2",
 	}
 
-
 	gstr, err := expectedGroup.String()
 
-	if err!=nil{
+	if err != nil {
 		t.Errorf("Could not get expected group's string: %s", err)
 	}
 
@@ -111,7 +110,7 @@ func TestGroup_Update_DoubleUpdate(t *testing.T) {
 
 	gstr, err := expectedGroup.String()
 
-	if err!=nil{
+	if err != nil {
 		t.Errorf("Could not get expected group's string: %s", err)
 	}
 
@@ -161,7 +160,7 @@ func TestGroup_Update_DoubleUpdate_Error(t *testing.T) {
 
 	gstr, err := expectedGroup.String()
 
-	if err!=nil{
+	if err != nil {
 		t.Errorf("Could not get expected group's string: %s", err)
 	}
 
@@ -180,7 +179,7 @@ func TestGroup_Update_DoubleUpdate_Error(t *testing.T) {
 
 	bgstr, err := badGroup.String()
 
-	if err!=nil{
+	if err != nil {
 		t.Errorf("Could not get expected group's string: %s", err)
 	}
 

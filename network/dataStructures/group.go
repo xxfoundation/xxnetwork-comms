@@ -41,7 +41,6 @@ func (g *Group) GetString() string {
 	return g.groupString
 }
 
-
 // Update sets the group's string and cyclic.Group object
 // If these values have not been set yet, we set these two values
 // If these values are set and the newGroup is different, it errors

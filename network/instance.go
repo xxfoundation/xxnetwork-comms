@@ -38,7 +38,7 @@ func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition) (*
 	var fullNdf *SecuredNdf
 	var err error
 
-	if partial == nil && full == nil{
+	if partial == nil && full == nil {
 		return nil, errors.New("Cannot create a network instance without an NDF")
 	}
 
@@ -108,7 +108,7 @@ func NewInstanceTesting(c *connect.ProtoComms, partial, full *ndf.NetworkDefinit
 
 //update the partial ndf
 func (i *Instance) UpdatePartialNdf(m *pb.NDF) error {
-	if i.partial ==nil{
+	if i.partial == nil {
 		return errors.New("Cannot update the partial ndf when it is nil")
 	}
 
@@ -132,9 +132,9 @@ func (i *Instance) UpdatePartialNdf(m *pb.NDF) error {
 		return errors.WithMessage(err, "Unable to update cmix group")
 	}
 
-	// update the cmix group object
+	// update the e2e group object
 	e2eGrp, _ := i.partial.Get().E2E.String()
-	err = i.cmixGroup.Update(e2eGrp)
+	err = i.e2eGroup.Update(e2eGrp)
 	if err != nil {
 		return errors.WithMessage(err, "Unable to update e2e group")
 	}
@@ -145,7 +145,7 @@ func (i *Instance) UpdatePartialNdf(m *pb.NDF) error {
 
 //update the full ndf
 func (i *Instance) UpdateFullNdf(m *pb.NDF) error {
-	if i.full ==nil{
+	if i.full == nil {
 		return errors.New("Cannot update the full ndf when it is nil")
 	}
 
@@ -169,9 +169,9 @@ func (i *Instance) UpdateFullNdf(m *pb.NDF) error {
 		return errors.WithMessage(err, "Unable to update cmix group")
 	}
 
-	// update the cmix group object
+	// update the e2e group object
 	e2eGrp, _ := i.full.Get().E2E.String()
-	err = i.cmixGroup.Update(e2eGrp)
+	err = i.e2eGroup.Update(e2eGrp)
 	if err != nil {
 		return errors.WithMessage(err, "Unable to update e2e group")
 	}
