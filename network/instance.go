@@ -317,6 +317,13 @@ func (i *Instance) GetPermissioningId() string {
 
 }
 
+// SetProtoComms sets the instance's protocomms object
+// Fixme: this is used to temporarily fix an issue in server
+//  once advancedTLS is part of our codebase, remove this function
+func (i *Instance) SetProtoComms(newPC *connect.ProtoComms) {
+	i.comm = newPC
+}
+
 // Update host helper
 func updateConns(def *ndf.NetworkDefinition, comms *connect.ProtoComms, gate, node bool) error {
 	if gate {
