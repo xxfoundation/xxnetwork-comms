@@ -412,7 +412,7 @@ message RoundInfo {
 // RoundError will be used to describe a round error
 // Passed along to gateways (level 2) and clients (level 3)
 message RoundError {
-    uint64 Id = 1;
-    string Error = 2;
-    bytes  Signature = 3;
+    uint64        Id = 1;
+    string        Error = 2;
+    RSASignature  Signature = 3;
 }

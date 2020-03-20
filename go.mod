@@ -16,7 +16,7 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0
 	github.com/stretchr/objx v0.2.0 // indirect
 	gitlab.com/elixxir/crypto v0.0.0-20200229000841-b1ee7117a1d0
-	gitlab.com/elixxir/primitives v0.0.0-20200306214728-35300c4b5152
+	gitlab.com/elixxir/primitives v0.0.0-20200311184441-b1842bfa4b1b
 	golang.org/x/crypto v0.0.0-20200320181102-891825fb96df // indirect
 	golang.org/x/exp v0.0.0-20200320212757-167ffe94c325 // indirect
 	golang.org/x/image v0.0.0-20200119044424-58c23975cae1 // indirect

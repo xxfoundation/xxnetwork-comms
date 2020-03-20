@@ -268,6 +268,17 @@ func (s *Comms) Poll(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.Ser
 	return rm, err
 }
 
+func (s *Comms) RoundErrorBroadcast(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
+	authState := s.AuthenticatedReceiver(msg)
+	errMsg := &pb.RoundError{}
+	err := ptypes.UnmarshalAny(msg.Message, errMsg)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.Ack{}, s.handler.RoundErrorBroadcast(errMsg, authState)
+}
+
 func (s *Comms) SendRoundTripPing(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
 	// Verify the message authentication
 	authState := s.AuthenticatedReceiver(msg)
