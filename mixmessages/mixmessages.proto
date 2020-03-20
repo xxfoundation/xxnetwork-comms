@@ -74,6 +74,10 @@ service Node {
     // Round trip ping comm
     rpc SendRoundTripPing (AuthenticatedMessage) returns (Ack) {
     }
+
+    // Round error comm
+    rpc RoundErrorBroadcast (AuthenticatedMessage) returns (Ack) {
+    }
 }
 
 // RoundInfo contains the # of precomputations ready for messages, among other
@@ -408,6 +412,7 @@ message RoundInfo {
 // RoundError will be used to describe a round error
 // Passed along to gateways (level 2) and clients (level 3)
 message RoundError {
-    string Error = 1;
-    RSASignature Signature = 2; // Hash of Info and Error
+    uint64 Id = 1;
+    string Error = 2;
+    bytes  Signature = 3;
 }
