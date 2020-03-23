@@ -413,6 +413,7 @@ message RoundInfo {
 // Passed along to gateways (level 2) and clients (level 3)
 message RoundError {
     uint64        Id = 1;
-    string        Error = 2;
-    RSASignature  Signature = 3;
+    string        NodeId = 2;
+    string        Error = 3;
+    RSASignature  Signature = 4;
 }
