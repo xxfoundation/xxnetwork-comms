@@ -231,20 +231,13 @@ func (s *Comms) SendPostPrecompResult(host *connect.Host,
 }
 
 // Server -> Server Send Function
-func (s *Comms) RoundTripPing(host *connect.Host,
-	roundID uint64, payload *any.Any) (*pb.Ack, error) {
+func (s *Comms) RoundTripPing(host *connect.Host, rtPing *pb.RoundTripPing) (*pb.Ack, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
-		rtPing := &pb.RoundTripPing{
-			Round: &pb.RoundInfo{
-				ID: roundID,
-			},
-			Payload: payload,
-		}
 
 		//Pack the message as an authenticated message
 		authMsg, err := s.PackAuthenticatedMessage(rtPing, host, false)
@@ -262,7 +255,7 @@ func (s *Comms) RoundTripPing(host *connect.Host,
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Round Trip Ping message: %+v", payload)
+	jww.DEBUG.Printf("Sending Round Trip Ping message: %+v", rtPing)
 	resultMsg, err := s.Send(host, f)
 	if err != nil {
 		return nil, err
