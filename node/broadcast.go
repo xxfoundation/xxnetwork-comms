@@ -18,6 +18,7 @@ import (
 	"google.golang.org/grpc"
 )
 
+// Server -> Server error function
 func (s *Comms) SendRoundErrorBroadcast(host *connect.Host, message *pb.RoundError) (*pb.Ack, error) {
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
@@ -40,7 +41,7 @@ func (s *Comms) SendRoundErrorBroadcast(host *connect.Host, message *pb.RoundErr
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Finish Realtime message: %+v", message)
+	jww.DEBUG.Printf("Sending Round Error message: %+v", message)
 	resultMsg, err := s.Send(host, f)
 	if err != nil {
 		return nil, err
