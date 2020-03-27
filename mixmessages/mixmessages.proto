@@ -76,7 +76,7 @@ service Node {
     }
 
     // Round error comm
-    rpc RoundErrorBroadcast (AuthenticatedMessage) returns (Ack) {
+    rpc RoundError (AuthenticatedMessage) returns (Ack) {
     }
 }
 

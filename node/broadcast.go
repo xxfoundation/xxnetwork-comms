@@ -19,7 +19,7 @@ import (
 )
 
 // Server -> Server error function
-func (s *Comms) SendRoundErrorBroadcast(host *connect.Host, message *pb.RoundError) (*pb.Ack, error) {
+func (s *Comms) SendRoundError(host *connect.Host, message *pb.RoundError) (*pb.Ack, error) {
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
@@ -33,7 +33,7 @@ func (s *Comms) SendRoundErrorBroadcast(host *connect.Host, message *pb.RoundErr
 		}
 
 		// Send the message
-		resultMsg, err := pb.NewNodeClient(conn).RoundErrorBroadcast(ctx, authMsg)
+		resultMsg, err := pb.NewNodeClient(conn).RoundError(ctx, authMsg)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}

@@ -95,7 +95,7 @@ type Handler interface {
 
 	AskOnline() error
 
-	RoundErrorBroadcast(error *mixmessages.RoundError, auth *connect.Auth) error
+	RoundError(error *mixmessages.RoundError, auth *connect.Auth) error
 }
 
 type implementationFunctions struct {
@@ -137,7 +137,7 @@ type implementationFunctions struct {
 
 	AskOnline func() error
 
-	RoundErrorBroadcast func(error *mixmessages.RoundError, auth *connect.Auth) error
+	RoundError func(error *mixmessages.RoundError, auth *connect.Auth) error
 }
 
 // Implementation allows users of the client library to set the
@@ -222,7 +222,7 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return nil
 			},
-			RoundErrorBroadcast: func(error *mixmessages.RoundError, auth *connect.Auth) error {
+			RoundError: func(error *mixmessages.RoundError, auth *connect.Auth) error {
 				warn(um)
 				return nil
 			},
@@ -303,6 +303,6 @@ func (s *Implementation) AskOnline() error {
 	return s.Functions.AskOnline()
 }
 
-func (s *Implementation) RoundErrorBroadcast(err *mixmessages.RoundError, auth *connect.Auth) error {
-	return s.Functions.RoundErrorBroadcast(err, auth)
+func (s *Implementation) RoundError(err *mixmessages.RoundError, auth *connect.Auth) error {
+	return s.Functions.RoundError(err, auth)
 }
