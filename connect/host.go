@@ -346,11 +346,14 @@ func (h *Host) String() string {
 		protocolVersion = creds.Info().ProtocolVersion
 		securityProtocol = creds.Info().SecurityProtocol
 	}
+	cStrt := len("-----BEGIN CERTIFICATE----- ") // Skip this part
 	return fmt.Sprintf(
-		"ID: %v\tAddr: %v\tCertificate: %s\tTransmission Token: %v\tReception Token: %+v \tEnableAuth: %v"+
+		"ID: %v\tAddr: %v\tCertificate: %s...\tTransmission Token: %v"+
+			"\tReception Token: %+v \tEnableAuth: %v"+
 			"\tMaxRetries: %v\tConnState: %v"+
 			"\tTLS ServerName: %v\tTLS ProtocolVersion: %v\t"+
 			"TLS SecurityVersion: %v\tTLS SecurityProtocol: %v\n",
-		h.id, addr, h.certificate, h.transmissionToken, h.receptionToken, h.enableAuth, h.maxRetries, state,
+		h.id, addr, h.certificate[cStrt:cStrt+20], h.transmissionToken,
+		h.receptionToken, h.enableAuth, h.maxRetries, state,
 		serverName, protocolVersion, securityVersion, securityProtocol)
 }
