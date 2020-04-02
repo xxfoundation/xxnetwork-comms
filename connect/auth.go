@@ -246,7 +246,7 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) *Auth {
 		Sender:          host,
 	}
 
-	jww.TRACE.Printf("Authentication status: %v, ProvidedId: %v ProvidedToken: %v",
+	jww.DEBUG.Printf("Authentication status: %v, ProvidedId: %v ProvidedToken: %v",
 		res.IsAuthenticated, msg.ID, msg.Token)
 	return res
 }
