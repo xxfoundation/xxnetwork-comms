@@ -165,7 +165,7 @@ func (c *ProtoComms) Send(host *Host, f func(conn *grpc.ClientConn) (*any.Any,
 	error)) (result *any.Any, err error) {
 
 	// Ensure the connection is running
-	jww.DEBUG.Printf("Attempting to send to host: %s", host)
+	jww.TRACE.Printf("Attempting to send to host: %s", host)
 	if !host.Connected() {
 		err = host.connect()
 		if err != nil {
@@ -206,7 +206,7 @@ func (c *ProtoComms) Stream(host *Host, f func(conn *grpc.ClientConn) (
 	interface{}, error)) (client interface{}, err error) {
 
 	// Ensure the connection is running
-	jww.DEBUG.Printf("Attempting to send to host: %s", host)
+	jww.TRACE.Printf("Attempting to send to host: %s", host)
 	if !host.Connected() {
 		err = host.connect()
 		if err != nil {
