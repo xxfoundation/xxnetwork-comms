@@ -63,7 +63,7 @@ func (s *Comms) SendPoll(host *connect.Host,
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Poll message...")
+	jww.TRACE.Printf("Sending Poll message...")
 	resultMsg, err := s.Send(host, f)
 	if err != nil {
 		return nil, err
