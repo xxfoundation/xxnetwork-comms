@@ -207,7 +207,14 @@ func TestRoundTripPing(t *testing.T) {
 		t.Errorf("SendRoundTripPing: failed attempting to marshall any type: %+v", err)
 	}
 
-	_, err = server.RoundTripPing(host, uint64(1), any)
+	rtPing := &pb.RoundTripPing{
+		Round: &pb.RoundInfo{
+			ID: uint64(1),
+		},
+		Payload: any,
+	}
+
+	_, err = server.RoundTripPing(host, rtPing)
 	if err != nil {
 		t.Errorf("Received error from RoundTripPing: %+v", err)
 	}

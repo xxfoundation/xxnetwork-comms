@@ -87,7 +87,8 @@ func (g *Comms) SendConfirmNonceMessage(host *connect.Host,
 }
 
 // Gateway -> Server Send Function
-func (g *Comms) PollNdf(host *connect.Host) (*pb.GatewayNdf, error) {
+func (g *Comms) SendPoll(host *connect.Host,
+	message *pb.ServerPoll) (*pb.ServerPollResponse, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
@@ -95,13 +96,13 @@ func (g *Comms) PollNdf(host *connect.Host) (*pb.GatewayNdf, error) {
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
 		//Pack the message for server
-		authMsg, err := g.PackAuthenticatedMessage(&pb.Ping{}, host, false)
+		authMsg, err := g.PackAuthenticatedMessage(message, host, false)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
 
 		// Send the message
-		resultMsg, err := pb.NewNodeClient(conn).PollNdf(ctx, authMsg)
+		resultMsg, err := pb.NewNodeClient(conn).Poll(ctx, authMsg)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
@@ -109,13 +110,13 @@ func (g *Comms) PollNdf(host *connect.Host) (*pb.GatewayNdf, error) {
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Poll Ndf message...")
+	jww.TRACE.Printf("Sending Poll message...")
 	resultMsg, err := g.Send(host, f)
 	if err != nil {
 		return nil, err
 	}
 
 	// Marshall the result
-	result := &pb.GatewayNdf{}
+	result := &pb.ServerPollResponse{}
 	return result, ptypes.UnmarshalAny(resultMsg, result)
 }

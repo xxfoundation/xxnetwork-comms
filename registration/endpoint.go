@@ -96,10 +96,10 @@ func (r *Comms) RegisterNode(ctx context.Context, msg *pb.NodeRegistration) (
 
 // Handles incoming requests for the NDF
 func (r *Comms) PollNdf(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.NDF, error) {
-	//Create an auth object
+	// Create an auth object
 	authState := r.AuthenticatedReceiver(msg)
 
-	//Unmarshall the any message to the message type needed
+	// Unmarshall the any message to the message type needed
 	ndfHash := &pb.NDFHash{}
 	err := ptypes.UnmarshalAny(msg.Message, ndfHash)
 	if err != nil {
@@ -109,4 +109,20 @@ func (r *Comms) PollNdf(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.
 	newNDF, err := r.handler.PollNdf(ndfHash.Hash, authState)
 	//Return the new ndf
 	return &pb.NDF{Ndf: newNDF}, err
+}
+
+// Server -> Permissioning unified polling
+func (r *Comms) Poll(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.PermissionPollResponse, error) {
+	// Create an auth object
+	authState := r.AuthenticatedReceiver(msg)
+
+	// Unmarshall the any message to the message type needed
+	pollMsg := &pb.PermissioningPoll{}
+	err := ptypes.UnmarshalAny(msg.Message, pollMsg)
+	if err != nil {
+		return nil, err
+	}
+
+	//Return the new ndf
+	return r.handler.Poll(pollMsg, authState)
 }
