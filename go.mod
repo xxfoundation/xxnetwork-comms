@@ -7,8 +7,8 @@ require (
 	github.com/google/go-cmp v0.4.0 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/jwalterweatherman v1.1.0
-	gitlab.com/elixxir/crypto v0.0.0-20200229000841-b1ee7117a1d0
-	gitlab.com/elixxir/primitives v0.0.0-20200401200647-87f186de48f6
+	gitlab.com/elixxir/crypto v0.0.0-20200410231849-90e859940f5d
+	gitlab.com/elixxir/primitives v0.0.0-20200410231944-a57d71d577c9
 	golang.org/x/net v0.0.0-20200301022130-244492dfa37a
 	golang.org/x/text v0.3.2 // indirect
 	google.golang.org/genproto v0.0.0-20200309141739-5b75447e413d // indirect
