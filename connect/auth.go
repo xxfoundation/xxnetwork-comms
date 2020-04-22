@@ -100,7 +100,7 @@ func (c *ProtoComms) PackAuthenticatedMessage(msg proto.Message, host *Host,
 
 	// If signature is enabled, sign the message and add to payload
 	if enableSignature && !c.disableAuth {
-		authMsg.Signature, err = c.SignMessage(anyMsg)
+		authMsg.Signature, err = c.SignMessage(msg)
 		if err != nil {
 			return nil, err
 		}
@@ -188,18 +188,18 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) (err error) {
 		defer host.mux.Unlock()
 	}
 
-	// Verify the token signature unless disableAuth has been set for testing
-	if !c.disableAuth {
-		if err := c.VerifyMessage(msg.Message, msg.Signature, host); err != nil {
-			return errors.Errorf("Invalid token signature: %+v", err)
-		}
-	}
-
 	// Get the signed token
 	tokenMsg := &pb.AssignToken{}
 	err = ptypes.UnmarshalAny(msg.Message, tokenMsg)
 	if err != nil {
 		return errors.Errorf("Unable to unmarshal token: %+v", err)
+	}
+
+	// Verify the token signature unless disableAuth has been set for testing
+	if !c.disableAuth {
+		if err := c.VerifyMessage(tokenMsg, msg.Signature, host); err != nil {
+			return errors.Errorf("Invalid token signature: %+v", err)
+		}
 	}
 
 	// Verify the signed token was actually assigned
@@ -246,7 +246,7 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) *Auth {
 		Sender:          host,
 	}
 
-	jww.DEBUG.Printf("Authentication status: %v, ProvidedId: %v ProvidedToken: %v",
+	jww.TRACE.Printf("Authentication status: %v, ProvidedId: %v ProvidedToken: %v",
 		res.IsAuthenticated, msg.ID, msg.Token)
 	return res
 }
@@ -262,9 +262,13 @@ func (c *ProtoComms) DisableAuth() {
 // The message is signed with the ProtoComms RSA PrivateKey
 func (c *ProtoComms) SignMessage(msg proto.Message) ([]byte, error) {
 	// Hash the message data
+	msgBytes, err := proto.Marshal(msg)
+	if err != nil {
+		return nil, errors.New(err.Error())
+	}
 	options := rsa.NewDefaultOptions()
 	hash := options.Hash.New()
-	hash.Write([]byte(msg.String()))
+	hash.Write([]byte(msgBytes))
 	hashed := hash.Sum(nil)
 
 	// Obtain the private key
@@ -285,13 +289,17 @@ func (c *ProtoComms) SignMessage(msg proto.Message) ([]byte, error) {
 func (c *ProtoComms) VerifyMessage(msg proto.Message, signature []byte, host *Host) error {
 
 	// Get hashed data of the message
+	msgBytes, err := proto.Marshal(msg)
+	if err != nil {
+		return errors.New(err.Error())
+	}
 	options := rsa.NewDefaultOptions()
 	hash := options.Hash.New()
-	hash.Write([]byte(msg.String()))
+	hash.Write([]byte(msgBytes))
 	hashed := hash.Sum(nil)
 
 	// Verify signature of message using host public key
-	err := rsa.Verify(host.rsaPublicKey, options.Hash, hashed, signature, nil)
+	err = rsa.Verify(host.rsaPublicKey, options.Hash, hashed, signature, nil)
 	if err != nil {
 		return errors.New(err.Error())
 	}
