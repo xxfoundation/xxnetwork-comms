@@ -8,7 +8,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/jwalterweatherman v1.1.0
 	gitlab.com/elixxir/crypto v0.0.0-20200410231849-90e859940f5d
-	gitlab.com/elixxir/primitives v0.0.0-20200423222011-d2a60819ea02
+	gitlab.com/elixxir/primitives v0.0.0-20200424193537-e22f0875304d
 	golang.org/x/net v0.0.0-20200301022130-244492dfa37a
 	golang.org/x/text v0.3.2 // indirect
 	google.golang.org/genproto v0.0.0-20200309141739-5b75447e413d // indirect
