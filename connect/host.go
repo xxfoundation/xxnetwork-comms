@@ -129,9 +129,14 @@ func (h *Host) Connected() bool {
 	return h.isAlive()
 }
 
-// GetId  returns the id of the host
+// GetId returns the id of the host
 func (h *Host) GetId() string {
 	return h.id
+}
+
+// GetAddress returns the address of the host.
+func (h *Host) GetAddress() string {
+	return h.address
 }
 
 // Disconnect closes a the Host connection under the write lock
