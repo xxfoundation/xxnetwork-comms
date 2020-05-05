@@ -145,7 +145,7 @@ func (reg *MockRegComms) PollNdf(context.Context, *pb.AuthenticatedMessage) (*pb
 type MockRegHandler interface {
 	RegisterUser(registrationCode, pubKey string) (signature []byte, err error)
 	GetCurrentClientVersion() (version string, err error)
-	RegisterNode(ID []byte, ServerAddr, ServerTlsCert, GatewayAddr,
+	RegisterNode(NodeID *id.ID, ServerAddr, ServerTlsCert, GatewayAddr,
 		GatewayTlsCert, RegistrationCode string) error
 	PollNdf(ndfHash []byte, auth *Auth) ([]byte, error)
 }
@@ -153,7 +153,7 @@ type MockRegHandler interface {
 type MockRegistration struct {
 }
 
-func (s *MockRegistration) RegisterNode(ID []byte,
+func (s *MockRegistration) RegisterNode(NodeID *id.ID,
 	NodeTLSCert, GatewayTLSCert, RegistrationCode, Addr, Addr2 string) error {
 	return nil
 }
@@ -183,7 +183,7 @@ func (s *MockRegistration) GetCurrentClientVersion() (version string, err error)
 type MockRegistrationError struct {
 }
 
-func (s *MockRegistrationError) RegisterNode(ID []byte,
+func (s *MockRegistrationError) RegisterNode(NodeID *id.ID,
 	NodeTLSCert, GatewayTLSCert, RegistrationCode, Addr, Addr2 string) error {
 	return nil
 }

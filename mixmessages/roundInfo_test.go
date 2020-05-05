@@ -210,7 +210,7 @@ func TestRoundInfo_GetSignature_NilObject(t *testing.T) {
 func TestRoundInfo_SignVerify(t *testing.T) {
 	// Create roundInfo object (to be used for RoundInfo object)
 	testId := uint64(25)
-	testTopology := []string{"test", "te", "st", "testtest"}
+	testTopology := [][]byte{[]byte("test"), []byte("te"), []byte("st"), []byte("testtest")}
 	testBatch := uint32(23)
 	testRoundInfo := &RoundInfo{
 		ID:        testId,
@@ -243,7 +243,7 @@ func TestRoundInfo_SignVerify(t *testing.T) {
 func TestRoundInfo_SignVerify_Error(t *testing.T) {
 	// Create roundInfo object
 	testId := uint64(25)
-	testTopology := []string{"test", "te", "st", "testtest"}
+	testTopology := [][]byte{[]byte("test"), []byte("te"), []byte("st"), []byte("testtest")}
 	testBatch := uint32(23)
 	testRoundInfo := &RoundInfo{
 		ID:        testId,
@@ -265,7 +265,7 @@ func TestRoundInfo_SignVerify_Error(t *testing.T) {
 	}
 
 	// Reset Topology value so verify()'s signature won't match
-	testRoundInfo.Topology = []string{"I", "am", "totally", "failing right now"}
+	testRoundInfo.Topology = [][]byte{[]byte("I"), []byte("am"), []byte("totally"), []byte("failing right now")}
 	// Verify signature
 	err = signature.Verify(testRoundInfo, pubKey)
 	if err != nil {

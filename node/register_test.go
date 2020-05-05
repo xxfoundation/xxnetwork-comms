@@ -31,7 +31,7 @@ func TestSendNodeRegistration(t *testing.T) {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
 
-	msgs := &pb.NodeRegistration{}
+	msgs := &pb.NodeRegistration{ID: testId.Bytes()}
 	err = server.SendNodeRegistration(host, msgs)
 	if err != nil {
 		t.Errorf("SendNodeTopology: Error received: %s", err)
