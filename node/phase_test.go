@@ -7,10 +7,12 @@
 package node
 
 import (
+	"bytes"
 	"context"
 	"gitlab.com/elixxir/comms/connect"
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/testkeys"
+	"gitlab.com/elixxir/primitives/id"
 	"io"
 	"reflect"
 	"testing"
@@ -35,12 +37,13 @@ func TestPhase_StreamPostPhaseSendReceive(t *testing.T) {
 		return mockStreamPostPhase(server)
 	}
 
-	serverStreamReceiver := StartNode("test", servReceiverAddress, receiverImpl,
+	testID := id.NewIdFromString("test", id.Generic, t)
+	serverStreamReceiver := StartNode(testID, servReceiverAddress, receiverImpl,
 		certData, keyData)
 
 	// Init server sender
 	servSenderAddress := getNextServerAddress()
-	serverStreamSender := StartNode("test", servSenderAddress,
+	serverStreamSender := StartNode(testID, servSenderAddress,
 		NewImplementation(),
 		certData, keyData)
 
@@ -63,7 +66,7 @@ func TestPhase_StreamPostPhaseSendReceive(t *testing.T) {
 
 	// Init host/manager
 	var manager connect.Manager
-	testId := "test"
+	testId := id.NewIdFromString("test", id.Generic, t)
 	host, err := manager.AddHost(testId, servReceiverAddress, certData,
 		false, false)
 	if err != nil {
@@ -106,8 +109,9 @@ func TestPhase_StreamPostPhaseSendReceive(t *testing.T) {
 
 	// Compared received slots to expected values
 	for i, slot := range slots {
-		if !reflect.DeepEqual(*receivedBatch.Slots[i], slot) {
+		if !slotCmp(*receivedBatch.Slots[i], slot) {
 			t.Errorf("Received slot %v doesn't match expected value: %v, got %v", i, slot, *receivedBatch.Slots[i])
+			//t.Errorf("Received slot %v doesn't match expected\n\texpected: %#v\n\treceived: %#v", i, slot, *receivedBatch.Slots[i])
 		}
 	}
 
@@ -134,12 +138,13 @@ func TestGetPostPhaseStream_ErrorsWhenContextCanceled(t *testing.T) {
 
 	// Init server receiver
 	servReceiverAddress := getNextServerAddress()
-	_ = StartNode("test", servReceiverAddress, NewImplementation(),
+	testID := id.NewIdFromString("test", id.Node, t)
+	_ = StartNode(testID, servReceiverAddress, NewImplementation(),
 		certData, keyData)
 
 	// Init server sender
 	servSenderAddress := getNextServerAddress()
-	serverStreamSender := StartNode("test", servSenderAddress,
+	serverStreamSender := StartNode(testID, servSenderAddress,
 		NewImplementation(),
 		certData, keyData)
 
@@ -149,8 +154,7 @@ func TestGetPostPhaseStream_ErrorsWhenContextCanceled(t *testing.T) {
 
 	// Init host/manager
 	var manager connect.Manager
-	testId := "test"
-	host, err := manager.AddHost(testId, servReceiverAddress, certData,
+	host, err := manager.AddHost(testID, servReceiverAddress, certData,
 		false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
@@ -222,4 +226,32 @@ func createSlots(numSlots uint32) []mixmessages.Slot {
 	}
 
 	return slots
+}
+
+// slotCmp compares the given slots to each other and returns true if the public
+// fields are the same.
+func slotCmp(slotA, slotB mixmessages.Slot) bool {
+	if slotA.GetIndex() != slotB.GetIndex() {
+		return false
+	} else if !bytes.Equal(slotA.GetEncryptedPayloadAKeys(), slotB.GetEncryptedPayloadAKeys()) {
+		return false
+	} else if !bytes.Equal(slotA.GetEncryptedPayloadBKeys(), slotB.GetEncryptedPayloadBKeys()) {
+		return false
+	} else if !bytes.Equal(slotA.GetPartialPayloadACypherText(), slotB.GetPartialPayloadACypherText()) {
+		return false
+	} else if !bytes.Equal(slotA.GetPartialPayloadBCypherText(), slotB.GetPartialPayloadBCypherText()) {
+		return false
+	} else if !bytes.Equal(slotA.GetPartialRoundPublicCypherKey(), slotB.GetPartialRoundPublicCypherKey()) {
+		return false
+	} else if !bytes.Equal(slotA.GetSenderID(), slotB.GetSenderID()) {
+		return false
+	} else if !bytes.Equal(slotA.GetPayloadA(), slotB.GetPayloadA()) {
+		return false
+	} else if !bytes.Equal(slotA.GetPayloadB(), slotB.GetPayloadB()) {
+		return false
+	} else if !bytes.Equal(slotA.GetSalt(), slotB.GetSalt()) {
+		return false
+	}
+
+	return true
 }

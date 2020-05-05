@@ -9,6 +9,7 @@
 package gateway
 
 import (
+	"github.com/pkg/errors"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/primitives/id"
@@ -38,8 +39,11 @@ func (g *Comms) CheckMessages(ctx context.Context,
 	if err != nil {
 		return nil, err
 	}
+	userID, err := id.Unmarshal(msg.UserID)
+	if err != nil {
+		return nil, err
+	}
 
-	userID := id.NewUserFromBytes(msg.UserID)
 	msgIds, err := g.handler.CheckMessages(userID, msg.LastMessageID, addr)
 	returnMsg := &pb.IDList{}
 	if err == nil {
@@ -58,7 +62,11 @@ func (g *Comms) GetMessage(ctx context.Context, msg *pb.ClientRequest) (
 		return nil, err
 	}
 
-	userID := id.NewUserFromBytes(msg.UserID)
+	userID, err := id.Unmarshal(msg.UserID)
+	if err != nil {
+		return nil, err
+	}
+
 	returnMsg, err := g.handler.GetMessage(userID, msg.LastMessageID, addr)
 	if err != nil {
 		// Return an empty message if no results
@@ -113,7 +121,10 @@ func (g *Comms) ConfirmNonce(ctx context.Context,
 // Ping gateway to ask for users to notify
 func (g *Comms) PollForNotifications(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.IDList, error) {
 
-	authState := g.AuthenticatedReceiver(msg)
+	authState, err := g.AuthenticatedReceiver(msg)
+	if err != nil {
+		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
+	}
 
 	ids, err := g.handler.PollForNotifications(authState)
 	returnMsg := &pb.IDList{}

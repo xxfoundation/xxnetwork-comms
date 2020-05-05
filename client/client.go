@@ -11,6 +11,7 @@ package client
 import (
 	"github.com/pkg/errors"
 	"gitlab.com/elixxir/comms/connect"
+	"gitlab.com/elixxir/primitives/id"
 )
 
 // Client object used to implement endpoints and top-level comms functionality
@@ -19,7 +20,7 @@ type Comms struct {
 }
 
 // Returns a Comms object with given attributes
-func NewClientComms(id string, pubKeyPem, privKeyPem, salt []byte) (*Comms, error) {
+func NewClientComms(id *id.ID, pubKeyPem, privKeyPem, salt []byte) (*Comms, error) {
 	pc, err := connect.CreateCommClient(id, pubKeyPem, privKeyPem, salt)
 	if err != nil {
 		return nil, errors.Errorf("Unable to create Client comms: %+v", err)

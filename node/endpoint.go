@@ -37,10 +37,14 @@ func (s *Comms) RequestToken(context.Context, *pb.Ping) (*pb.AssignToken, error)
 // Handle a NewRound event
 func (s *Comms) CreateNewRound(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
 	// Verify the message authentication
-	authState := s.AuthenticatedReceiver(msg)
+	authState, err := s.AuthenticatedReceiver(msg)
+	if err != nil {
+		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
+	}
+
 	// Unnmarshall the any message to the message type needed
 	roundInfoMsg := &pb.RoundInfo{}
-	err := ptypes.UnmarshalAny(msg.Message, roundInfoMsg)
+	err = ptypes.UnmarshalAny(msg.Message, roundInfoMsg)
 	if err != nil {
 		return nil, errors.New(err.Error())
 	}
@@ -52,10 +56,13 @@ func (s *Comms) CreateNewRound(ctx context.Context, msg *pb.AuthenticatedMessage
 // PostNewBatch polls the first node and sends a batch when it is ready
 func (s *Comms) PostNewBatch(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
 	// Verify the message authentication
-	authState := s.AuthenticatedReceiver(msg)
+	authState, err := s.AuthenticatedReceiver(msg)
+	if err != nil {
+		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
+	}
 	// Unmarshall the any message to the message type needed
 	batchMsg := &pb.Batch{}
-	err := ptypes.UnmarshalAny(msg.Message, batchMsg)
+	err = ptypes.UnmarshalAny(msg.Message, batchMsg)
 	if err != nil {
 		return nil, errors.New(err.Error())
 	}
@@ -70,10 +77,13 @@ func (s *Comms) PostNewBatch(ctx context.Context, msg *pb.AuthenticatedMessage) 
 func (s *Comms) PostPhase(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.Ack,
 	error) {
 	// Verify the message authentication
-	authState := s.AuthenticatedReceiver(msg)
+	authState, err := s.AuthenticatedReceiver(msg)
+	if err != nil {
+		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
+	}
 	// Unmarshall the any message to the message type needed
 	batchMsg := &pb.Batch{}
-	err := ptypes.UnmarshalAny(msg.Message, batchMsg)
+	err = ptypes.UnmarshalAny(msg.Message, batchMsg)
 	if err != nil {
 		return nil, errors.New(err.Error())
 	}
@@ -90,8 +100,13 @@ func (s *Comms) StreamPostPhase(server pb.Node_StreamPostPhaseServer) error {
 		return errors.Errorf("Unable to extract authentication info: %+v", err)
 	}
 
+	authState, err := s.AuthenticatedReceiver(authMsg)
+	if err != nil {
+		return errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
+	}
+
 	// Verify the message authentication
-	return s.handler.StreamPostPhase(server, s.AuthenticatedReceiver(authMsg))
+	return s.handler.StreamPostPhase(server, authState)
 }
 
 // Handle a PostRoundPublicKey message
@@ -99,10 +114,13 @@ func (s *Comms) PostRoundPublicKey(ctx context.Context,
 	msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
 
 	// Verify the message authentication
-	authState := s.AuthenticatedReceiver(msg)
+	authState, err := s.AuthenticatedReceiver(msg)
+	if err != nil {
+		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
+	}
 	//Marshall the any message to the message type needed
 	publicKeyMsg := &pb.RoundPublicKey{}
-	err := ptypes.UnmarshalAny(msg.Message, publicKeyMsg)
+	err = ptypes.UnmarshalAny(msg.Message, publicKeyMsg)
 	if err != nil {
 		return nil, errors.New(err.Error())
 	}
@@ -117,7 +135,10 @@ func (s *Comms) GetRoundBufferInfo(ctx context.Context,
 	*pb.RoundBufferInfo, error) {
 
 	// Verify the message authentication
-	authState := s.AuthenticatedReceiver(msg)
+	authState, err := s.AuthenticatedReceiver(msg)
+	if err != nil {
+		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
+	}
 	bufSize, err := s.handler.GetRoundBufferInfo(authState)
 	if bufSize < 0 {
 		bufSize = 0
@@ -131,11 +152,14 @@ func (s *Comms) RequestNonce(ctx context.Context,
 	msg *pb.AuthenticatedMessage) (*pb.Nonce, error) {
 
 	// Verify the message authentication
-	authState := s.AuthenticatedReceiver(msg)
+	authState, err := s.AuthenticatedReceiver(msg)
+	if err != nil {
+		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
+	}
 
 	//Marshall the any message to the message type needed
 	nonceRequest := &pb.NonceRequest{}
-	err := ptypes.UnmarshalAny(msg.Message, nonceRequest)
+	err = ptypes.UnmarshalAny(msg.Message, nonceRequest)
 	if err != nil {
 		return nil, err
 	}
@@ -165,11 +189,14 @@ func (s *Comms) ConfirmRegistration(ctx context.Context,
 	msg *pb.AuthenticatedMessage) (*pb.RegistrationConfirmation, error) {
 
 	// Verify the message authentication
-	authState := s.AuthenticatedReceiver(msg)
+	authState, err := s.AuthenticatedReceiver(msg)
+	if err != nil {
+		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
+	}
 
 	//Unmarshall the any message to the message type needed
 	regConfirmRequest := &pb.RequestRegistrationConfirmation{}
-	err := ptypes.UnmarshalAny(msg.Message, regConfirmRequest)
+	err = ptypes.UnmarshalAny(msg.Message, regConfirmRequest)
 	if err != nil {
 		return nil, err
 	}
@@ -198,11 +225,14 @@ func (s *Comms) PostPrecompResult(ctx context.Context,
 	msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
 
 	// Verify the message authentication
-	authState := s.AuthenticatedReceiver(msg)
+	authState, err := s.AuthenticatedReceiver(msg)
+	if err != nil {
+		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
+	}
 
 	//Unmarshall the any message to the message type needed
 	batchMsg := &pb.Batch{}
-	err := ptypes.UnmarshalAny(msg.Message, batchMsg)
+	err = ptypes.UnmarshalAny(msg.Message, batchMsg)
 	if err != nil {
 		return nil, err
 	}
@@ -216,11 +246,14 @@ func (s *Comms) PostPrecompResult(ctx context.Context,
 // FinishRealtime broadcasts to all nodes when the realtime is completed
 func (s *Comms) FinishRealtime(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
 	// Verify the message authentication
-	authState := s.AuthenticatedReceiver(msg)
+	authState, err := s.AuthenticatedReceiver(msg)
+	if err != nil {
+		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
+	}
 
 	//Unmarshall the any message to the message type needed
 	roundInfoMsg := &pb.RoundInfo{}
-	err := ptypes.UnmarshalAny(msg.Message, roundInfoMsg)
+	err = ptypes.UnmarshalAny(msg.Message, roundInfoMsg)
 	if err != nil {
 		return nil, err
 	}
@@ -235,17 +268,23 @@ func (s *Comms) FinishRealtime(ctx context.Context, msg *pb.AuthenticatedMessage
 func (s *Comms) GetCompletedBatch(ctx context.Context,
 	msg *pb.AuthenticatedMessage) (*pb.Batch, error) {
 
-	authState := s.AuthenticatedReceiver(msg)
+	authState, err := s.AuthenticatedReceiver(msg)
+	if err != nil {
+		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
+	}
 	return s.handler.GetCompletedBatch(authState)
 }
 
 func (s *Comms) GetMeasure(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.RoundMetrics, error) {
 	// Verify the message authentication
-	authState := s.AuthenticatedReceiver(msg)
+	authState, err := s.AuthenticatedReceiver(msg)
+	if err != nil {
+		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
+	}
 
 	//Unmarshall the any message to the message type needed
 	roundInfoMsg := &pb.RoundInfo{}
-	err := ptypes.UnmarshalAny(msg.Message, roundInfoMsg)
+	err = ptypes.UnmarshalAny(msg.Message, roundInfoMsg)
 	if err != nil {
 		return nil, err
 	}
@@ -256,10 +295,13 @@ func (s *Comms) GetMeasure(ctx context.Context, msg *pb.AuthenticatedMessage) (*
 
 // Gateway -> Server unified polling
 func (s *Comms) Poll(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.ServerPollResponse, error) {
-	authState := s.AuthenticatedReceiver(msg)
+	authState, err := s.AuthenticatedReceiver(msg)
+	if err != nil {
+		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
+	}
 	//Unmarshall the any message to the message type needed
 	pollMsg := &pb.ServerPoll{}
-	err := ptypes.UnmarshalAny(msg.Message, pollMsg)
+	err = ptypes.UnmarshalAny(msg.Message, pollMsg)
 	if err != nil {
 		return nil, err
 	}
@@ -270,10 +312,13 @@ func (s *Comms) Poll(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.Ser
 
 func (s *Comms) SendRoundTripPing(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
 	// Verify the message authentication
-	authState := s.AuthenticatedReceiver(msg)
+	authState, err := s.AuthenticatedReceiver(msg)
+	if err != nil {
+		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
+	}
 	//Marshall the any message to the message type needed
 	roundTripPing := &pb.RoundTripPing{}
-	err := ptypes.UnmarshalAny(msg.Message, roundTripPing)
+	err = ptypes.UnmarshalAny(msg.Message, roundTripPing)
 	if err != nil {
 		return nil, err
 	}

@@ -12,6 +12,7 @@ import (
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/node"
 	"gitlab.com/elixxir/comms/testkeys"
+	"gitlab.com/elixxir/primitives/id"
 	"sync"
 	"testing"
 )
@@ -48,16 +49,18 @@ func TestTLS(t *testing.T) {
 	certData := testkeys.LoadFromPath(certPath)
 
 	GatewayAddress := getNextGatewayAddress()
-	gateway := StartGateway("test", GatewayAddress, NewImplementation(),
+	testID := id.NewIdFromString("test", id.Gateway, t)
+	gateway := StartGateway(testID, GatewayAddress, NewImplementation(),
 		certData, keyData)
 	defer gateway.Shutdown()
 	ServerAddress := getNextServerAddress()
-	server := node.StartNode("test", ServerAddress, node.NewImplementation(),
+	testNodeID := id.NewIdFromString("test", id.Node, t)
+	server := node.StartNode(testNodeID, ServerAddress, node.NewImplementation(),
 		certData, keyData)
 	defer server.Shutdown()
 	var manager connect.Manager
 
-	testId := "test"
+	testId := id.NewIdFromString("test", id.Node, t)
 	host, err := manager.AddHost(testId, ServerAddress, certData, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
@@ -77,6 +80,7 @@ func TestBadCerts(t *testing.T) {
 	}()
 	Address := getNextServerAddress()
 
-	_ = StartGateway("test", Address, NewImplementation(),
+	testID := id.NewIdFromString("test", id.Node, t)
+	_ = StartGateway(testID, Address, NewImplementation(),
 		[]byte("bad cert"), []byte("bad key"))
 }
