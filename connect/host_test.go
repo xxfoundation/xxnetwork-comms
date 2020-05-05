@@ -8,12 +8,13 @@ package connect
 
 import (
 	"bytes"
+	"gitlab.com/elixxir/primitives/id"
 	"testing"
 )
 
 func TestHost_address(t *testing.T) {
 	var mgr Manager
-	testId := "test"
+	testId := id.NewIdFromString("test", id.Node, t)
 	testAddress := "test"
 	host, err := mgr.AddHost(testId, testAddress, nil, false, false)
 	if err != nil {
@@ -46,15 +47,15 @@ func TestHost_GetCertificate(t *testing.T) {
 // Tests that getID returns the correct ID
 func TestHost_GetId(t *testing.T) {
 
-	id := "xXx_420No1337ScopeH4xx0r_xXx"
+	testID := id.NewIdFromString("xXx_420No1337ScopeH4xx0r_xXx", id.Generic, t)
 
 	host := Host{
-		id: id,
+		id: testID,
 	}
 
-	if host.GetId() != id {
+	if host.GetId() != testID {
 		t.Errorf("Correct id not returned.  Expected %s, got %s",
-			id, host.id)
+			testID, host.id)
 	}
 }
 

@@ -15,6 +15,7 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/crypto/signature/rsa"
 	tlsCreds "gitlab.com/elixxir/crypto/tls"
+	"gitlab.com/elixxir/primitives/id"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/credentials"
@@ -29,7 +30,7 @@ type Token []byte
 // Information used to describe a connection to a host
 type Host struct {
 	// System-wide ID of the Host
-	id string
+	id *id.ID
 
 	// address:Port being connected to
 	address string
@@ -69,7 +70,7 @@ type Host struct {
 }
 
 // Creates a new Host object
-func NewHost(id, address string, cert []byte, disableTimeout,
+func NewHost(id *id.ID, address string, cert []byte, disableTimeout,
 	enableAuth bool) (host *Host, err error) {
 
 	// Initialize the Host object
@@ -93,7 +94,7 @@ func NewHost(id, address string, cert []byte, disableTimeout,
 }
 
 // Creates a new dynamic-authenticated Host object
-func newDynamicHost(id string, publicKey []byte) (host *Host, err error) {
+func newDynamicHost(id *id.ID, publicKey []byte) (host *Host, err error) {
 
 	// Initialize the Host object
 	// IMPORTANT: This flag must be set to true for all dynamic Hosts
@@ -130,7 +131,7 @@ func (h *Host) Connected() bool {
 }
 
 // GetId returns the id of the host
-func (h *Host) GetId() string {
+func (h *Host) GetId() *id.ID {
 	return h.id
 }
 

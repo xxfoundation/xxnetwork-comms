@@ -8,6 +8,7 @@ package connect
 
 import (
 	"gitlab.com/elixxir/comms/testkeys"
+	"gitlab.com/elixxir/primitives/id"
 	"google.golang.org/grpc"
 	"math"
 	"net"
@@ -59,13 +60,13 @@ func TestConnectionManager_Disconnect(t *testing.T) {
 	pass := 0
 	address := ServerAddress
 	var manager Manager
-	testId := "testId"
+	testId := id.NewIdFromString("testId", id.Node, t)
 	host, err := manager.AddHost(testId, address, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call connnect: %+v", err)
 	}
 
-	_, inMap := manager.connections.Load(testId)
+	_, inMap := manager.connections.Load(*testId)
 
 	if !inMap {
 		t.Errorf("connect Function didn't add connection to map")
@@ -97,8 +98,8 @@ func TestConnectionManager_DisconnectAll(t *testing.T) {
 	address := ServerAddress
 	address2 := ServerAddress2
 	var manager Manager
-	testId := "testId"
-	testId2 := "TestId2"
+	testId := id.NewIdFromString("testId", id.Generic, t)
+	testId2 := id.NewIdFromString("TestId2", id.Generic, t)
 
 	host, err := manager.AddHost(testId, address, nil, false, false)
 	if err != nil {
@@ -127,7 +128,7 @@ func TestConnectionManager_DisconnectAll(t *testing.T) {
 		t.Errorf("Unable to call connnect: %+v", err)
 	}
 
-	_, inMap = manager.connections.Load(testId2)
+	_, inMap = manager.connections.Load(*testId2)
 
 	if !inMap {
 		t.Errorf("connect Function didn't add connection to map")
@@ -153,11 +154,12 @@ func TestConnectionManager_DisconnectAll(t *testing.T) {
 
 func TestConnectionManager_String(t *testing.T) {
 	var manager Manager
-	t.Log(manager)
+	//t.Log(manager)
 
 	certPath := testkeys.GetNodeCertPath()
 	certData := testkeys.LoadFromPath(certPath)
-	_, err := manager.AddHost("test", "test", certData, false, false)
+	testID := id.NewIdFromString("test", id.Node, t)
+	_, err := manager.AddHost(testID, "test", certData, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}

@@ -375,7 +375,7 @@ message Ping {
 
 // Wrapper for authenticated messages that also ensure integrity
 message AuthenticatedMessage {
-    string ID = 1;
+    bytes ID = 1;
     bytes Signature = 2;
     bytes Token = 3;
     ClientID Client = 4;

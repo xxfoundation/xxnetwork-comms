@@ -10,21 +10,22 @@ import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/registration"
 	"gitlab.com/elixxir/comms/testkeys"
+	"gitlab.com/elixxir/primitives/id"
 	"testing"
 )
 
 // Smoke test SendNodeRegistration
 func TestSendNodeRegistration(t *testing.T) {
 	RegAddress := getNextServerAddress()
-	server := StartNode("test", getNextServerAddress(), NewImplementation(),
+	testId := id.NewIdFromString("test", id.Generic, t)
+	server := StartNode(testId, getNextServerAddress(), NewImplementation(),
 		nil, nil)
-	reg := registration.StartRegistrationServer("test", RegAddress,
+	reg := registration.StartRegistrationServer(testId, RegAddress,
 		registration.NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	defer reg.Shutdown()
 	var manager connect.Manager
 
-	testId := "test"
 	host, err := manager.AddHost(testId, RegAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
@@ -40,15 +41,15 @@ func TestSendNodeRegistration(t *testing.T) {
 // Smoke test
 func TestComms_RequestNdf(t *testing.T) {
 	RegAddress := getNextServerAddress()
-	server := StartNode("test", getNextServerAddress(), NewImplementation(),
+	testId := id.NewIdFromString("test", id.Generic, t)
+	server := StartNode(testId, getNextServerAddress(), NewImplementation(),
 		nil, nil)
-	reg := registration.StartRegistrationServer("test", RegAddress,
+	reg := registration.StartRegistrationServer(testId, RegAddress,
 		registration.NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	defer reg.Shutdown()
 	var manager connect.Manager
 
-	testId := "test"
 	host, err := manager.AddHost(testId, RegAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
@@ -66,17 +67,17 @@ func TestComms_RequestNdf(t *testing.T) {
 func TestComms_RequestNdfWithAuth(t *testing.T) {
 	priv := testkeys.LoadFromPath(testkeys.GetNodeKeyPath())
 	pub := testkeys.LoadFromPath(testkeys.GetNodeCertPath())
+	testId := id.NewIdFromString("test", id.Generic, t)
 
 	RegAddress := getNextServerAddress()
-	server := StartNode("test", getNextServerAddress(), NewImplementation(),
+	server := StartNode(testId, getNextServerAddress(), NewImplementation(),
 		pub, priv)
-	reg := registration.StartRegistrationServer("test", RegAddress,
+	reg := registration.StartRegistrationServer(testId, RegAddress,
 		registration.NewImplementation(), pub, priv)
 
 	defer server.Shutdown()
 	defer reg.Shutdown()
 
-	testId := "test"
 	host, err := server.AddHost(testId, RegAddress, pub, false, true)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
@@ -97,15 +98,15 @@ func TestComms_RequestNdfWithAuth(t *testing.T) {
 // Smoke test
 func TestComms_SendPoll(t *testing.T) {
 	RegAddress := getNextServerAddress()
-	server := StartNode("test", getNextServerAddress(), NewImplementation(),
+	testId := id.NewIdFromString("test", id.Generic, t)
+	server := StartNode(testId, getNextServerAddress(), NewImplementation(),
 		nil, nil)
-	reg := registration.StartRegistrationServer("test", RegAddress,
+	reg := registration.StartRegistrationServer(testId, RegAddress,
 		registration.NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	defer reg.Shutdown()
 	var manager connect.Manager
 
-	testId := "test"
 	host, err := manager.AddHost(testId, RegAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)

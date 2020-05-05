@@ -12,6 +12,7 @@ import (
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/registration"
 	"gitlab.com/elixxir/comms/testkeys"
+	"gitlab.com/elixxir/primitives/id"
 	"sync"
 	"testing"
 )
@@ -36,7 +37,7 @@ func TestTLS(t *testing.T) {
 	keyData := testkeys.LoadFromPath(keyPath)
 	certPath := testkeys.GetNodeCertPath()
 	certData := testkeys.LoadFromPath(certPath)
-	testId := "test"
+	testId := id.NewIdFromString("test", id.Generic, t)
 
 	// Start up a registration server
 	regAddress := getNextAddress()
@@ -67,6 +68,8 @@ func TestTLS(t *testing.T) {
 
 // Error path: Start bot with bad certs
 func TestBadCerts(t *testing.T) {
+	testID := id.NewIdFromString("test", id.Generic, t)
+
 	defer func() {
 		if r := recover(); r == nil {
 			t.Errorf("The code did not panic")
@@ -75,24 +78,24 @@ func TestBadCerts(t *testing.T) {
 	Address := getNextAddress()
 
 	// This should panic and cause the defer func above to run
-	_ = StartNotificationBot("test", Address, NewImplementation(),
+	_ = StartNotificationBot(testID, Address, NewImplementation(),
 		[]byte("bad cert"), []byte("bad key"))
 }
 
 func TestComms_RequestNotifications(t *testing.T) {
 	GatewayAddress := getNextAddress()
 	nbAddress := getNextAddress()
-	testId := "test"
+	testID := id.NewIdFromString("test", id.Generic, t)
 
-	gw := gateway.StartGateway("test", GatewayAddress, gateway.NewImplementation(), nil,
+	gw := gateway.StartGateway(testID, GatewayAddress, gateway.NewImplementation(), nil,
 		nil)
-	notificationBot := StartNotificationBot("test", nbAddress, NewImplementation(),
+	notificationBot := StartNotificationBot(testID, nbAddress, NewImplementation(),
 		nil, nil)
 	defer gw.Shutdown()
 	defer notificationBot.Shutdown()
 	var manager connect.Manager
 
-	host, err := manager.AddHost(testId, GatewayAddress, nil, false, false)
+	host, err := manager.AddHost(testID, GatewayAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}

@@ -13,6 +13,7 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
+	"gitlab.com/elixxir/primitives/id"
 	"google.golang.org/grpc/reflection"
 	"runtime/debug"
 )
@@ -35,7 +36,7 @@ type Comms struct {
 // Starts a new server on the address:port specified by localServer
 // and a callback interface for server operations
 // with given path to public and private key for TLS connection
-func StartNotificationBot(id, localServer string, handler Handler,
+func StartNotificationBot(id *id.ID, localServer string, handler Handler,
 	certPEMblock, keyPEMblock []byte) *Comms {
 
 	pc, lis, err := connect.StartCommServer(id, localServer,
