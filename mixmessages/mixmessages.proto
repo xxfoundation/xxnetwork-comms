@@ -399,7 +399,7 @@ message RoundInfo {
     uint64 UpdateID = 2;
     uint32 State = 3; // Precomp, Standby, Realtime, Completed, Failed
     uint32 BatchSize = 4;
-    repeated string Topology = 5; // List of NodeIDs
+    repeated bytes Topology = 5; // List of NodeIDs
     repeated uint64 Timestamps = 6; // List of state timestamps in UTC
     repeated RoundError Errors = 7; // List of errors which occured
     RSASignature Signature = 8;

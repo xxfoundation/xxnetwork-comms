@@ -12,6 +12,7 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/pkg/errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
+	"gitlab.com/elixxir/primitives/id"
 	"golang.org/x/net/context"
 )
 
@@ -201,8 +202,13 @@ func (s *Comms) ConfirmRegistration(ctx context.Context,
 		return nil, err
 	}
 
+	userID, err := id.Unmarshal(regConfirmRequest.GetUserID())
+	if err != nil {
+		return nil, errors.Errorf("Unable to unmarshal user ID: %+v", err)
+	}
+
 	// Obtain signed client public key by passing to server
-	signature, err := s.handler.ConfirmRegistration(regConfirmRequest.GetUserID(),
+	signature, err := s.handler.ConfirmRegistration(userID,
 		regConfirmRequest.NonceSignedByClient.Signature, authState)
 
 	// Obtain the error message, if any
