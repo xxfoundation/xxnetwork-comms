@@ -155,7 +155,7 @@ service Gateway {
     }
 
     // Notifications->Gateway request for users with pending notifications
-    rpc PollForNotifications (AuthenticatedMessage) returns (IDList) {
+    rpc PollForNotifications (AuthenticatedMessage) returns (UserIdList) {
     }
 
     // Client -> Gateway unified polling
@@ -349,6 +349,11 @@ service NotificationBot {
 // Registration token to be associated with the client
 message NotificationToken {
     bytes Token = 1;
+}
+
+// The list of user IDS for notification polling
+message UserIdList {
+    repeated bytes IDs = 1;
 }
 
 // GENERAL USE MESSAGES --------------------------------------------------------
