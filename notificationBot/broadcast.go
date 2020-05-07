@@ -26,7 +26,7 @@ func (nb *Comms) RequestNdf(host *connect.Host, message *pb.NDFHash) (*pb.NDF, e
 }
 
 // Notification Bot -> Gateway
-func (nb *Comms) RequestNotifications(host *connect.Host) (*pb.IDList, error) {
+func (nb *Comms) RequestNotifications(host *connect.Host) (*pb.UserIdList, error) {
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
@@ -54,7 +54,7 @@ func (nb *Comms) RequestNotifications(host *connect.Host) (*pb.IDList, error) {
 	}
 
 	// Marshall the result
-	result := &pb.IDList{}
+	result := &pb.UserIdList{}
 	return result, ptypes.UnmarshalAny(resultMsg, result)
 
 }

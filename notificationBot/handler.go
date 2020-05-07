@@ -71,7 +71,7 @@ func StartNotificationBot(id *id.ID, localServer string, handler Handler,
 type implementationFunctions struct {
 	RegisterForNotifications   func(clientToken []byte, auth *connect.Auth) error
 	UnregisterForNotifications func(auth *connect.Auth) error
-	PollForNotifications       func(auth *connect.Auth) ([]string, error)
+	PollForNotifications       func(auth *connect.Auth) ([]*id.ID, error)
 }
 
 // Implementation allows users of the client library to set the

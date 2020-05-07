@@ -32,7 +32,7 @@ type Handler interface {
 	ConfirmNonce(message *pb.RequestRegistrationConfirmation, ipAddress string) (*pb.
 		RegistrationConfirmation, error)
 	// Ping gateway to ask for users to notify
-	PollForNotifications(auth *connect.Auth) ([]string, error)
+	PollForNotifications(auth *connect.Auth) ([]*id.ID, error)
 	// Client -> Gateway unified polling
 	Poll(msg *pb.GatewayPoll) (*pb.GatewayPollResponse, error)
 }
@@ -92,7 +92,7 @@ type implementationFunctions struct {
 	ConfirmNonce func(message *pb.RequestRegistrationConfirmation, ipAddress string) (*pb.
 			RegistrationConfirmation, error)
 	// Ping gateway to ask for users to notify
-	PollForNotifications func(auth *connect.Auth) ([]string, error)
+	PollForNotifications func(auth *connect.Auth) ([]*id.ID, error)
 	// Client -> Gateway unified polling
 	Poll func(msg *pb.GatewayPoll) (*pb.GatewayPollResponse, error)
 }
@@ -132,7 +132,7 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return new(pb.RegistrationConfirmation), nil
 			},
-			PollForNotifications: func(auth *connect.Auth) ([]string, error) {
+			PollForNotifications: func(auth *connect.Auth) ([]*id.ID, error) {
 				warn(um)
 				return nil, nil
 			},
@@ -174,7 +174,7 @@ func (s *Implementation) ConfirmNonce(message *pb.RequestRegistrationConfirmatio
 }
 
 // Ping gateway to ask for users to notify
-func (s *Implementation) PollForNotifications(auth *connect.Auth) ([]string, error) {
+func (s *Implementation) PollForNotifications(auth *connect.Auth) ([]*id.ID, error) {
 	return s.Functions.PollForNotifications(auth)
 }
 
