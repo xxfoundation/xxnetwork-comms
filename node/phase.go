@@ -61,7 +61,7 @@ func (s *Comms) SendPostPhase(host *connect.Host,
 func (s *Comms) GetPostPhaseStreamClient(host *connect.Host,
 	header pb.BatchInfo) (pb.Node_StreamPostPhaseClient, context.CancelFunc, error) {
 
-	ctx, cancel := s.getPostPhaseStreamContext(header)
+	ctx, cancel := s.getPostPhaseStreamContext(&header)
 
 	// Add authentication information to streaming context
 	ctx = s.PackAuthenticatedContext(host, ctx)
@@ -77,7 +77,7 @@ func (s *Comms) GetPostPhaseStreamClient(host *connect.Host,
 // getPostPhaseStreamContext is given batchInfo PostPhase header
 // and creates a streaming context, adds the header to the context
 // and returns the context with the header and a cancel func
-func (s *Comms) getPostPhaseStreamContext(batchInfo pb.BatchInfo) (
+func (s *Comms) getPostPhaseStreamContext(batchInfo *pb.BatchInfo) (
 	context.Context, context.CancelFunc) {
 
 	// Create streaming context so you can close stream later
