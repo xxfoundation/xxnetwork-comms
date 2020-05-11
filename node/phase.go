@@ -10,6 +10,7 @@ package node
 
 import (
 	"context"
+	"encoding/base64"
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
@@ -83,8 +84,10 @@ func (s *Comms) getPostPhaseStreamContext(batchInfo *pb.BatchInfo) (
 	// Create streaming context so you can close stream later
 	ctx, cancel := connect.StreamingContext()
 
+	encodedStr :=  base64.StdEncoding.EncodeToString([]byte(batchInfo.String()))
+
 	// Add batch information to streaming context
-	ctx = metadata.AppendToOutgoingContext(ctx, "batchinfo", batchInfo.String())
+	ctx = metadata.AppendToOutgoingContext(ctx, "batchinfo",encodedStr)
 
 	return ctx, cancel
 }
@@ -127,32 +130,16 @@ func GetPostPhaseStreamHeader(stream pb.Node_StreamPostPhaseServer) (*pb.BatchIn
 	}
 
 	// Unmarshall the header into a message
+
+	marshledBatch, err := base64.StdEncoding.DecodeString(md.Get("batchinfo")[0])
+	if err!=nil{
+		return nil, err
+	}
 	batchInfo := &pb.BatchInfo{}
-	err := proto.UnmarshalText(md.Get("batchinfo")[0], batchInfo)
+	err = proto.UnmarshalText(string(marshledBatch), batchInfo)
 	if err != nil {
 		return nil, err
 	}
 
 	return batchInfo, nil
-}
-
-// Gets the authentication header in the metadata from the server stream
-// and returns it or an error if it fails.
-func GetPostPhaseAuthHeaders(stream pb.Node_StreamPostPhaseServer) (
-	*pb.AuthenticatedMessage, error) {
-
-	// Obtain the headers from server metadata
-	md, ok := metadata.FromIncomingContext(stream.Context())
-	if !ok {
-		return nil, errors.New("unable to retrieve meta data / header")
-	}
-
-	// Unmarshall the header into a message
-	authMsg := &pb.AuthenticatedMessage{}
-	err := proto.UnmarshalText(md.Get("auth")[0], authMsg)
-	if err != nil {
-		return nil, err
-	}
-
-	return authMsg, nil
 }

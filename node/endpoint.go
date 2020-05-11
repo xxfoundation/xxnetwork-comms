@@ -11,6 +11,7 @@ package node
 import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/pkg/errors"
+	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/primitives/id"
 	"golang.org/x/net/context"
@@ -96,7 +97,7 @@ func (s *Comms) PostPhase(ctx context.Context, msg *pb.AuthenticatedMessage) (*p
 // Handle a phase event using a stream server
 func (s *Comms) StreamPostPhase(server pb.Node_StreamPostPhaseServer) error {
 	// Extract the authentication info
-	authMsg, err := GetPostPhaseAuthHeaders(server)
+	authMsg, err := connect.UnpackAuthenticatedContext(server.Context())
 	if err != nil {
 		return errors.Errorf("Unable to extract authentication info: %+v", err)
 	}

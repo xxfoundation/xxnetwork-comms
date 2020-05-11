@@ -7,7 +7,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/jwalterweatherman v1.1.0
 	gitlab.com/elixxir/crypto v0.0.0-20200504184505-e210a219cbd9
-	gitlab.com/elixxir/primitives v0.0.0-20200510221418-b069d509885c
+	gitlab.com/elixxir/primitives v0.0.0-20200511202032-081f195abcf4
 	golang.org/x/crypto v0.0.0-20200510223506-06a226fb4e37 // indirect
 	golang.org/x/net v0.0.0-20200506145744-7e3656a0809f
 	golang.org/x/sys v0.0.0-20200509044756-6aff5f38e54f // indirect

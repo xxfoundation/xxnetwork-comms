@@ -12,6 +12,7 @@ import (
 	"bytes"
 	"context"
 	"crypto/rand"
+	"encoding/base64"
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/pkg/errors"
@@ -113,12 +114,37 @@ func (c *ProtoComms) PackAuthenticatedMessage(msg proto.Message, host *Host,
 // Add authentication fields to a given context and return it
 func (c *ProtoComms) PackAuthenticatedContext(host *Host,
 	ctx context.Context) context.Context {
-	authMsg := &pb.AuthenticatedMessage{
-		ID:    c.Id.Marshal(),
-		Token: host.transmissionToken,
-	}
-	return metadata.AppendToOutgoingContext(ctx, "auth", authMsg.String())
+
+	ctx = metadata.AppendToOutgoingContext(ctx, "ID", c.Id.String())
+	ctx = metadata.AppendToOutgoingContext(ctx, "TOKEN", base64.StdEncoding.EncodeToString(host.transmissionToken))
+	return ctx
 }
+
+// Returns authentication packed into a context
+func UnpackAuthenticatedContext(ctx context.Context) (*pb.AuthenticatedMessage, error) {
+	auth := &pb.AuthenticatedMessage{}
+	var err error
+
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return nil, errors.New("unable to retrieve meta data / header")
+	}
+
+	idStr := md.Get("ID")[0]
+	auth.ID, err = base64.StdEncoding.DecodeString(idStr)
+	if err!=nil{
+		return nil, errors.WithMessage(err, "could not decode authentication ID")
+	}
+
+	tokenStr := md.Get("TOKEN")[0]
+	auth.Token, err = base64.StdEncoding.DecodeString(tokenStr)
+	if err!=nil{
+		return nil, errors.WithMessage(err, "could not decode authentication Token")
+	}
+
+	return auth, nil
+}
+
 
 // Generates a new token and adds it to internal state
 func (c *ProtoComms) GenerateToken() ([]byte, error) {
@@ -201,7 +227,7 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) (err error) {
 	// Get the signed token
 	tokenMsg := &pb.AssignToken{}
 	err = ptypes.UnmarshalAny(msg.Message, tokenMsg)
-	if err != nil {
+  	if err != nil {
 		return errors.Errorf("Unable to unmarshal token: %+v", err)
 	}
 
