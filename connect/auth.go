@@ -14,7 +14,6 @@ import (
 	"crypto/rand"
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
@@ -73,7 +72,7 @@ func (c *ProtoComms) clientHandshake(host *Host) (err error) {
 	}
 
 	// Assign the host token
-	host.token = result.Token
+	host.transmissionToken = result.Token
 
 	return
 }
@@ -91,7 +90,7 @@ func (c *ProtoComms) PackAuthenticatedMessage(msg proto.Message, host *Host,
 	// Build the authenticated message
 	authMsg := &pb.AuthenticatedMessage{
 		ID:      c.Id,
-		Token:   host.token,
+		Token:   host.transmissionToken,
 		Message: anyMsg,
 		Client: &pb.ClientID{
 			Salt:      make([]byte, 0),
@@ -101,7 +100,7 @@ func (c *ProtoComms) PackAuthenticatedMessage(msg proto.Message, host *Host,
 
 	// If signature is enabled, sign the message and add to payload
 	if enableSignature && !c.disableAuth {
-		authMsg.Signature, err = c.signMessage(anyMsg)
+		authMsg.Signature, err = c.SignMessage(msg)
 		if err != nil {
 			return nil, err
 		}
@@ -115,7 +114,7 @@ func (c *ProtoComms) PackAuthenticatedContext(host *Host,
 	ctx context.Context) context.Context {
 	authMsg := &pb.AuthenticatedMessage{
 		ID:    c.Id,
-		Token: host.token,
+		Token: host.transmissionToken,
 	}
 	return metadata.AppendToOutgoingContext(ctx, "auth", authMsg.String())
 }
@@ -184,16 +183,9 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) (err error) {
 
 	// This logic prevents deadlocks when performing authentication with self
 	// TODO: This may require further review
-	if msg.ID != c.Id || bytes.Compare(host.token, msg.Token) != 0 {
+	if msg.ID != c.Id || bytes.Compare(host.receptionToken, msg.Token) != 0 {
 		host.mux.Lock()
 		defer host.mux.Unlock()
-	}
-
-	// Verify the token signature unless disableAuth has been set for testing
-	if !c.disableAuth {
-		if err := c.verifyMessage(msg, host); err != nil {
-			return errors.Errorf("Invalid token signature: %+v", err)
-		}
 	}
 
 	// Get the signed token
@@ -201,6 +193,13 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) (err error) {
 	err = ptypes.UnmarshalAny(msg.Message, tokenMsg)
 	if err != nil {
 		return errors.Errorf("Unable to unmarshal token: %+v", err)
+	}
+
+	// Verify the token signature unless disableAuth has been set for testing
+	if !c.disableAuth {
+		if err := c.VerifyMessage(tokenMsg, msg.Signature, host); err != nil {
+			return errors.Errorf("Invalid token signature: %+v", err)
+		}
 	}
 
 	// Verify the signed token was actually assigned
@@ -215,7 +214,7 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) (err error) {
 	}
 
 	// Token has been validated and can be safely stored
-	host.token = tokenMsg.Token
+	host.receptionToken = tokenMsg.Token
 	jww.DEBUG.Printf("Token validated: %v", tokenMsg.Token)
 	return
 }
@@ -238,8 +237,8 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) *Auth {
 	defer host.mux.RUnlock()
 
 	// Check the token's validity
-	validToken := host.token != nil && msg.Token != nil &&
-		bytes.Compare(host.token, msg.Token) == 0
+	validToken := host.receptionToken != nil && msg.Token != nil &&
+		bytes.Compare(host.receptionToken, msg.Token) == 0
 
 	// Assemble the Auth object
 	res := &Auth{
@@ -247,7 +246,7 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) *Auth {
 		Sender:          host,
 	}
 
-	jww.DEBUG.Printf("Authentication status: %v, ProvidedId: %v ProvidedToken: %v",
+	jww.TRACE.Printf("Authentication status: %v, ProvidedId: %v ProvidedToken: %v",
 		res.IsAuthenticated, msg.ID, msg.Token)
 	return res
 }
@@ -259,13 +258,17 @@ func (c *ProtoComms) DisableAuth() {
 	c.disableAuth = true
 }
 
-// Takes a generic-type message, returns the signature
+// Takes a message and returns its signature
 // The message is signed with the ProtoComms RSA PrivateKey
-func (c *ProtoComms) signMessage(anyMessage *any.Any) ([]byte, error) {
+func (c *ProtoComms) SignMessage(msg proto.Message) ([]byte, error) {
 	// Hash the message data
+	msgBytes, err := proto.Marshal(msg)
+	if err != nil {
+		return nil, errors.New(err.Error())
+	}
 	options := rsa.NewDefaultOptions()
 	hash := options.Hash.New()
-	hash.Write([]byte(anyMessage.String()))
+	hash.Write([]byte(msgBytes))
 	hashed := hash.Sum(nil)
 
 	// Obtain the private key
@@ -281,18 +284,22 @@ func (c *ProtoComms) signMessage(anyMessage *any.Any) ([]byte, error) {
 	return signature, nil
 }
 
-// Takes an AuthenticatedMessage and a Host, verifies the signature
+// Takes a message and a Host, verifies the signature
 // using Host public key, returning an error if invalid
-func (c *ProtoComms) verifyMessage(msg *pb.AuthenticatedMessage, host *Host) error {
+func (c *ProtoComms) VerifyMessage(msg proto.Message, signature []byte, host *Host) error {
 
 	// Get hashed data of the message
+	msgBytes, err := proto.Marshal(msg)
+	if err != nil {
+		return errors.New(err.Error())
+	}
 	options := rsa.NewDefaultOptions()
 	hash := options.Hash.New()
-	hash.Write([]byte(msg.Message.String()))
+	hash.Write([]byte(msgBytes))
 	hashed := hash.Sum(nil)
 
 	// Verify signature of message using host public key
-	err := rsa.Verify(host.rsaPublicKey, options.Hash, hashed, msg.Signature, nil)
+	err = rsa.Verify(host.rsaPublicKey, options.Hash, hashed, signature, nil)
 	if err != nil {
 		return errors.New(err.Error())
 	}

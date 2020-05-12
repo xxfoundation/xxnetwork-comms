@@ -69,7 +69,7 @@ func TestSendConfirmNonceMessage(t *testing.T) {
 	}
 }
 
-func TestPollNdf(t *testing.T) {
+func TestPoll(t *testing.T) {
 	GatewayAddress := getNextGatewayAddress()
 	ServerAddress := getNextServerAddress()
 
@@ -87,7 +87,7 @@ func TestPollNdf(t *testing.T) {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
 
-	_, err = gateway.PollNdf(host)
+	_, err = gateway.SendPoll(host, &pb.ServerPoll{})
 	if err != nil {
 		t.Errorf("TestDemandNdf: Error received: %s", err)
 	}

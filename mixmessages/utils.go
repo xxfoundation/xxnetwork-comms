@@ -14,3 +14,8 @@ func DebugMode() {
 	jww.SetLogThreshold(jww.LevelDebug)
 	jww.SetStdoutThreshold(jww.LevelDebug)
 }
+
+func TraceMode() {
+	jww.SetLogThreshold(jww.LevelTrace)
+	jww.SetStdoutThreshold(jww.LevelTrace)
+}

@@ -109,6 +109,10 @@ type MockRegComms struct {
 	handler MockRegHandler
 }
 
+func (*MockRegComms) Poll(context.Context, *pb.AuthenticatedMessage) (*pb.PermissionPollResponse, error) {
+	return nil, nil
+}
+
 func (*MockRegComms) AuthenticateToken(context.Context, *pb.AuthenticatedMessage) (*pb.Ack, error) {
 	return nil, nil
 }
@@ -158,6 +162,11 @@ func (s *MockRegistration) PollNdf(clientNdfHash []byte, auth *Auth) ([]byte, er
 	return []byte(ExampleNdfJSON), nil
 }
 
+func (s *MockRegistration) Poll(msg *pb.PermissioningPoll, auth *Auth) (*pb.PermissionPollResponse,
+	error) {
+	return &pb.PermissionPollResponse{}, nil
+}
+
 // Registers a user and returns a signed public key
 func (s *MockRegistration) RegisterUser(registrationCode,
 	key string) (hash []byte, err error) {
@@ -185,6 +194,15 @@ func (s *MockRegistrationError) PollNdf(clientNdfHash []byte, auth *Auth) ([]byt
 		return nil, errors.New(ndf.NO_NDF)
 	}
 	return []byte(ExampleNdfJSON), nil
+}
+
+func (s *MockRegistrationError) Poll(msg *pb.PermissioningPoll, auth *Auth) (*pb.PermissionPollResponse,
+	error) {
+	if Retries < 5 {
+		Retries++
+		return nil, errors.New(ndf.NO_NDF)
+	}
+	return &pb.PermissionPollResponse{}, nil
 }
 
 // Registers a user and returns a signed public key

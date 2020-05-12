@@ -39,7 +39,7 @@ func (g *Comms) PostNewBatch(host *connect.Host, messages *pb.Batch) error {
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Post New Batch message: %+v", messages)
+	jww.TRACE.Printf("Sending Post New Batch message: %+v", messages)
 	_, err := g.Send(host, f)
 	return err
 }

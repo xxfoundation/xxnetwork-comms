@@ -11,7 +11,7 @@ import (
 	"testing"
 )
 
-func TestHost_GetAddress(t *testing.T) {
+func TestHost_address(t *testing.T) {
 	var mgr Manager
 	testId := "test"
 	testAddress := "test"
@@ -43,7 +43,7 @@ func TestHost_GetCertificate(t *testing.T) {
 	}
 }
 
-//tests that getID returns the correct ID
+// Tests that getID returns the correct ID
 func TestHost_GetId(t *testing.T) {
 
 	id := "xXx_420No1337ScopeH4xx0r_xXx"
@@ -55,6 +55,20 @@ func TestHost_GetId(t *testing.T) {
 	if host.GetId() != id {
 		t.Errorf("Correct id not returned.  Expected %s, got %s",
 			id, host.id)
+	}
+}
+
+// Tests that GetAddress() returns the address of the host.
+func TestHost_GetAddress(t *testing.T) {
+	// Test values
+	testAddress := "192.167.1.1:8080"
+	testHost := Host{address: testAddress}
+
+	// Test function
+	if testHost.GetAddress() != testAddress {
+		t.Errorf("GetAddress() did not return the expected address."+
+			"\n\texpected: %v\n\treceived: %v",
+			testAddress, testHost.GetAddress())
 	}
 }
 
