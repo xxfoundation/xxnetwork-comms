@@ -7,7 +7,7 @@ require (
 	github.com/kr/pretty v0.2.0 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/jwalterweatherman v1.1.0
-	gitlab.com/elixxir/crypto v0.0.0-20200514182514-9e1f9f8604e7
+	gitlab.com/elixxir/crypto v0.0.0-20200514191115-c240ec1d5bc4
 	gitlab.com/elixxir/primitives v0.0.0-20200514181428-14736275e533
 	golang.org/x/net v0.0.0-20200425230154-ff2c4b7c35a0
 	golang.org/x/text v0.3.2 // indirect
