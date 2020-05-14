@@ -34,7 +34,7 @@ type ProtoComms struct {
 	Manager
 
 	// The network ID of this comms server
-	Id string
+	Id *id.ID
 
 	// Private key of the local comms instance
 	privateKey *rsa.PrivateKey
@@ -65,7 +65,8 @@ type ProtoComms struct {
 }
 
 // Creates a ProtoComms client-type object to be used in various initializers
-func CreateCommClient(id string, pubKeyPem, privKeyPem, salt []byte) (*ProtoComms, error) {
+func CreateCommClient(id *id.ID, pubKeyPem, privKeyPem,
+	salt []byte) (*ProtoComms, error) {
 	// Build the ProtoComms object
 	pc := &ProtoComms{
 		Id:        id,
@@ -84,7 +85,7 @@ func CreateCommClient(id string, pubKeyPem, privKeyPem, salt []byte) (*ProtoComm
 }
 
 // Creates a ProtoComms server-type object to be used in various initializers
-func StartCommServer(id string, localServer string, certPEMblock,
+func StartCommServer(id *id.ID, localServer string, certPEMblock,
 	keyPEMblock []byte) (*ProtoComms, net.Listener, error) {
 
 	// Build the ProtoComms object
@@ -280,7 +281,7 @@ func (c *ProtoComms) RetrieveNdf(currentDef *ndf.NetworkDefinition) (*ndf.Networ
 	//Put the hash in a message
 	msg := &mixmessages.NDFHash{Hash: ndfHash}
 
-	regHost, ok := c.Manager.GetHost(id.PERMISSIONING)
+	regHost, ok := c.Manager.GetHost(&id.Permissioning)
 	if !ok {
 		return nil, errors.New("Failed to find permissioning host")
 	}

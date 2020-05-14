@@ -64,7 +64,6 @@ func (c *Comms) SendCheckMessages(host *connect.Host,
 	if err != nil {
 		return nil, err
 	}
-
 	// Marshall the result
 	result := &pb.IDList{}
 	return result, ptypes.UnmarshalAny(resultMsg, result)

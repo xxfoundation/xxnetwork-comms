@@ -112,7 +112,7 @@ func (i *Instance) UpdatePartialNdf(m *pb.NDF) error {
 		return errors.New("Cannot update the partial ndf when it is nil")
 	}
 
-	perm, success := i.comm.GetHost(id.PERMISSIONING)
+	perm, success := i.comm.GetHost(&id.Permissioning)
 
 	if !success {
 		return errors.New("Could not get permissioning Public Key" +
@@ -149,7 +149,7 @@ func (i *Instance) UpdateFullNdf(m *pb.NDF) error {
 		return errors.New("Cannot update the full ndf when it is nil")
 	}
 
-	perm, success := i.comm.GetHost(id.PERMISSIONING)
+	perm, success := i.comm.GetHost(&id.Permissioning)
 
 	if !success {
 		return errors.New("Could not get permissioning Public Key" +
@@ -192,7 +192,7 @@ func (i *Instance) GetFullNdf() *SecuredNdf {
 
 // Add a round to the round and update buffer
 func (i *Instance) RoundUpdate(info *pb.RoundInfo) error {
-	perm, success := i.comm.GetHost(id.PERMISSIONING)
+	perm, success := i.comm.GetHost(&id.Permissioning)
 
 	if !success {
 		return errors.New("Could not get permissioning Public Key" +
@@ -312,8 +312,8 @@ func (i *Instance) GetPermissioningCert() string {
 }
 
 // GetPermissioningId gets the permissioning ID from primitives
-func (i *Instance) GetPermissioningId() string {
-	return id.PERMISSIONING
+func (i *Instance) GetPermissioningId() *id.ID {
+	return &id.Permissioning
 
 }
 
@@ -328,7 +328,13 @@ func (i *Instance) SetProtoComms(newPC *connect.ProtoComms) {
 func updateConns(def *ndf.NetworkDefinition, comms *connect.ProtoComms, gate, node bool) error {
 	if gate {
 		for i, h := range def.Gateways {
-			gwid := id.NewNodeFromBytes(def.Nodes[i].ID).NewGateway().String()
+			//gwid := id.NewNodeFromBytes(def.Nodes[i].ID).NewGateway().String()
+			gwid, err := id.Unmarshal(def.Nodes[i].ID)
+			if err != nil {
+				return err
+			}
+			gwid.SetType(id.Gateway)
+
 			_, ok := comms.GetHost(gwid)
 			if !ok {
 				_, err := comms.AddHost(gwid, h.Address, []byte(h.TlsCertificate), false, true)
@@ -340,7 +346,10 @@ func updateConns(def *ndf.NetworkDefinition, comms *connect.ProtoComms, gate, no
 	}
 	if node {
 		for _, h := range def.Nodes {
-			nid := id.NewNodeFromBytes(h.ID).String()
+			nid, err := id.Unmarshal(h.ID)
+			if err != nil {
+				return err
+			}
 			_, ok := comms.GetHost(nid)
 			if !ok {
 				_, err := comms.AddHost(nid, h.Address, []byte(h.TlsCertificate), false, true)

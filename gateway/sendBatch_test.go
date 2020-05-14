@@ -10,6 +10,7 @@ import (
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/node"
+	"gitlab.com/elixxir/primitives/id"
 	"testing"
 )
 
@@ -17,16 +18,16 @@ import (
 func TestPostNewBatch(t *testing.T) {
 	GatewayAddress := getNextGatewayAddress()
 	ServerAddress := getNextServerAddress()
-	gateway := StartGateway("test", GatewayAddress, NewImplementation(), nil,
+	testID := id.NewIdFromString("test", id.Generic, t)
+	gateway := StartGateway(testID, GatewayAddress, NewImplementation(), nil,
 		nil)
-	server := node.StartNode("test", ServerAddress, node.NewImplementation(),
+	server := node.StartNode(testID, ServerAddress, node.NewImplementation(),
 		nil, nil)
 	defer gateway.Shutdown()
 	defer server.Shutdown()
 	var manager connect.Manager
 
-	testId := "test"
-	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
+	host, err := manager.AddHost(testID, ServerAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -42,16 +43,17 @@ func TestPostNewBatch(t *testing.T) {
 func TestGetRoundBufferInfo(t *testing.T) {
 	GatewayAddress := getNextGatewayAddress()
 	ServerAddress := getNextServerAddress()
-	gateway := StartGateway("test", GatewayAddress, NewImplementation(), nil,
+	testID := id.NewIdFromString("test", id.Gateway, t)
+	nodeID := id.NewIdFromString("test", id.Node, t)
+	gateway := StartGateway(testID, GatewayAddress, NewImplementation(), nil,
 		nil)
-	server := node.StartNode("test", ServerAddress, node.NewImplementation(),
+	server := node.StartNode(nodeID, ServerAddress, node.NewImplementation(),
 		nil, nil)
 	defer gateway.Shutdown()
 	defer server.Shutdown()
 	var manager connect.Manager
 
-	testId := "test"
-	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
+	host, err := manager.AddHost(testID, ServerAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -69,16 +71,17 @@ func TestGetRoundBufferInfo(t *testing.T) {
 func TestGetCompletedBatch(t *testing.T) {
 	GatewayAddress := getNextGatewayAddress()
 	ServerAddress := getNextServerAddress()
-	gateway := StartGateway("test", GatewayAddress, NewImplementation(), nil,
+	testID := id.NewIdFromString("test", id.Gateway, t)
+	nodeID := id.NewIdFromString("test", id.Node, t)
+	gateway := StartGateway(testID, GatewayAddress, NewImplementation(), nil,
 		nil)
-	server := node.StartNode("test", ServerAddress, node.NewImplementation(),
+	server := node.StartNode(nodeID, ServerAddress, node.NewImplementation(),
 		nil, nil)
 	defer gateway.Shutdown()
 	defer server.Shutdown()
 	var manager connect.Manager
 
-	testId := "test"
-	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
+	host, err := manager.AddHost(testID, ServerAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}

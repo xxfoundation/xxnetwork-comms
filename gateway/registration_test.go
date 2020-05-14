@@ -10,6 +10,7 @@ import (
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/node"
+	"gitlab.com/elixxir/primitives/id"
 	"testing"
 )
 
@@ -17,16 +18,16 @@ import (
 func TestSendRequestNonceMessage(t *testing.T) {
 	GatewayAddress := getNextGatewayAddress()
 	ServerAddress := getNextServerAddress()
-	gateway := StartGateway("test", GatewayAddress, NewImplementation(), nil,
+	testID := id.NewIdFromString("test", id.Generic, t)
+	gateway := StartGateway(testID, GatewayAddress, NewImplementation(), nil,
 		nil)
-	server := node.StartNode("test", ServerAddress, node.NewImplementation(),
+	server := node.StartNode(testID, ServerAddress, node.NewImplementation(),
 		nil, nil)
 	defer gateway.Shutdown()
 	defer server.Shutdown()
 	var manager connect.Manager
 
-	testId := "test"
-	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
+	host, err := manager.AddHost(testID, ServerAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -47,21 +48,21 @@ func TestSendRequestNonceMessage(t *testing.T) {
 func TestSendConfirmNonceMessage(t *testing.T) {
 	GatewayAddress := getNextGatewayAddress()
 	ServerAddress := getNextServerAddress()
-	gateway := StartGateway("test", GatewayAddress, NewImplementation(), nil,
+	testID := id.NewIdFromString("test", id.Generic, t)
+	gateway := StartGateway(testID, GatewayAddress, NewImplementation(), nil,
 		nil)
-	server := node.StartNode("test", ServerAddress, node.NewImplementation(),
+	server := node.StartNode(testID, ServerAddress, node.NewImplementation(),
 		nil, nil)
 	defer gateway.Shutdown()
 	defer server.Shutdown()
 	var manager connect.Manager
 
-	testId := "test"
-	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
+	host, err := manager.AddHost(testID, ServerAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
 
-	reg := &pb.RequestRegistrationConfirmation{}
+	reg := &pb.RequestRegistrationConfirmation{UserID: testID.Bytes()}
 	reg.NonceSignedByClient = &pb.RSASignature{}
 	_, err = gateway.SendConfirmNonceMessage(host, reg)
 	if err != nil {
@@ -73,16 +74,16 @@ func TestPoll(t *testing.T) {
 	GatewayAddress := getNextGatewayAddress()
 	ServerAddress := getNextServerAddress()
 
-	gateway := StartGateway("test", GatewayAddress, NewImplementation(), nil,
+	testID := id.NewIdFromString("test", id.Generic, t)
+	gateway := StartGateway(testID, GatewayAddress, NewImplementation(), nil,
 		nil)
-	server := node.StartNode("test", ServerAddress, node.NewImplementation(),
+	server := node.StartNode(testID, ServerAddress, node.NewImplementation(),
 		nil, nil)
 	defer gateway.Shutdown()
 	defer server.Shutdown()
 	var manager connect.Manager
 
-	testId := "test"
-	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
+	host, err := manager.AddHost(testID, ServerAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}

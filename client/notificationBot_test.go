@@ -9,12 +9,14 @@ import (
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/notificationBot"
+	"gitlab.com/elixxir/primitives/id"
 	"testing"
 )
 
 // Smoke test for RegisterForNotifications
 func TestRegisterForNotifications(t *testing.T) {
-	testId := "test"
+	testId := id.NewIdFromString("test", id.Generic, t)
+	clientId := id.NewIdFromString("client", id.Generic, t)
 
 	// Start notification bot
 	nbAddress := getNextAddress()
@@ -23,7 +25,7 @@ func TestRegisterForNotifications(t *testing.T) {
 	defer notificationBot.Shutdown()
 
 	// Create client's comms object
-	c, err := NewClientComms("client", nil, nil, nil)
+	c, err := NewClientComms(clientId, nil, nil, nil)
 	if err != nil {
 		t.Errorf("Can't create client comms: %+v", err)
 	}
@@ -45,7 +47,8 @@ func TestRegisterForNotifications(t *testing.T) {
 
 //Smoke test for UnregisterForNotifications
 func TestUnregisterForNotifications(t *testing.T) {
-	testId := "test"
+	testId := id.NewIdFromString("test", id.Generic, t)
+	clientId := id.NewIdFromString("client", id.Generic, t)
 
 	// Start notification bot
 	nbAddress := getNextAddress()
@@ -54,7 +57,7 @@ func TestUnregisterForNotifications(t *testing.T) {
 	defer notificationBot.Shutdown()
 
 	// Create client's comms object
-	c, err := NewClientComms("client", nil, nil, nil)
+	c, err := NewClientComms(clientId, nil, nil, nil)
 	if err != nil {
 		t.Errorf("Can't create client comms: %+v", err)
 	}

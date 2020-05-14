@@ -13,6 +13,7 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
 	"gitlab.com/elixxir/comms/mixmessages"
+	"gitlab.com/elixxir/primitives/id"
 	"google.golang.org/grpc/reflection"
 	"runtime/debug"
 )
@@ -26,7 +27,7 @@ type Comms struct {
 // Starts a new server on the address:port specified by listeningAddr
 // and a callback interface for server operations
 // with given path to public and private key for TLS connection
-func StartNode(id, localServer string, handler Handler,
+func StartNode(id *id.ID, localServer string, handler Handler,
 	certPEMblock, keyPEMblock []byte) *Comms {
 	pc, lis, err := connect.StartCommServer(id, localServer,
 		certPEMblock, keyPEMblock)
@@ -81,7 +82,7 @@ type Handler interface {
 		RSASignedByRegistration, DHSignedByClientRSA []byte, auth *connect.Auth) ([]byte, []byte, error)
 
 	// Server interface for ConfirmNonceMessage
-	ConfirmRegistration(UserID []byte, Signature []byte, auth *connect.Auth) ([]byte, error)
+	ConfirmRegistration(UserID *id.ID, Signature []byte, auth *connect.Auth) ([]byte, error)
 
 	// PostPrecompResult interface to finalize both payloads' precomps
 	PostPrecompResult(roundID uint64, slots []*mixmessages.Slot, auth *connect.Auth) error
@@ -121,7 +122,7 @@ type implementationFunctions struct {
 	RequestNonce func(salt []byte, RSAPubKey string, DHPubKey,
 		RSASigFromReg, RSASigDH []byte, auth *connect.Auth) ([]byte, []byte, error)
 	// Server interface for ConfirmNonceMessage
-	ConfirmRegistration func(UserID, Signature []byte, auth *connect.Auth) ([]byte, error)
+	ConfirmRegistration func(UserID *id.ID, Signature []byte, auth *connect.Auth) ([]byte, error)
 
 	// PostPrecompResult interface to finalize both payloads' precomputations
 	PostPrecompResult func(roundID uint64,
@@ -193,7 +194,7 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return nil, nil, nil
 			},
-			ConfirmRegistration: func(UserID, Signature []byte, auth *connect.Auth) ([]byte, error) {
+			ConfirmRegistration: func(UserID *id.ID, Signature []byte, auth *connect.Auth) ([]byte, error) {
 				warn(um)
 				return nil, nil
 			},
@@ -259,7 +260,7 @@ func (s *Implementation) RequestNonce(salt []byte, RSAPubKey string, DHPubKey,
 }
 
 // Server interface for ConfirmNonceMessage
-func (s *Implementation) ConfirmRegistration(UserID, Signature []byte, auth *connect.Auth) ([]byte, error) {
+func (s *Implementation) ConfirmRegistration(UserID *id.ID, Signature []byte, auth *connect.Auth) ([]byte, error) {
 	return s.Functions.ConfirmRegistration(UserID, Signature, auth)
 }
 

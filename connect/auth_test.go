@@ -12,8 +12,9 @@ import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/testkeys"
 	"gitlab.com/elixxir/crypto/csprng"
-	"gitlab.com/elixxir/crypto/registration"
 	"gitlab.com/elixxir/crypto/signature/rsa"
+	"gitlab.com/elixxir/crypto/xx"
+	"gitlab.com/elixxir/primitives/id"
 	"sync"
 	"testing"
 )
@@ -65,28 +66,32 @@ func TestProtoComms_AuthenticatedReceiver(t *testing.T) {
 		privateKey:    nil,
 	}
 	// Create id and token
-	id := "testsender"
+	testID := id.NewIdFromString("testSender", id.Node, t)
 	token := []byte("testtoken")
 
 	// Add host
-	_, err := pc.AddHost(id, "", nil, false, true)
+	_, err := pc.AddHost(testID, "", nil, false, true)
 	if err != nil {
 		t.Errorf("Failed to add host: %+v", err)
 	}
 
 	// Get host
-	h, _ := pc.GetHost(id)
+	h, _ := pc.GetHost(testID)
 	h.receptionToken = token
 
 	msg := &pb.AuthenticatedMessage{
-		ID:        id,
+		ID:        testID.Marshal(),
 		Signature: nil,
 		Token:     token,
 		Message:   nil,
 	}
 
 	// Try the authenticated received
-	auth := pc.AuthenticatedReceiver(msg)
+	auth, err := pc.AuthenticatedReceiver(msg)
+	if err != nil {
+		t.Errorf("AuthenticatedReceiver() produced an error: %v", err)
+	}
+
 	if !auth.IsAuthenticated {
 		t.Errorf("Failed: authenticated receiver")
 	}
@@ -117,7 +122,7 @@ func TestProtoComms_GenerateToken(t *testing.T) {
 
 // Happy path
 func TestProtoComms_PackAuthenticatedMessage(t *testing.T) {
-	testServerId := "test12345"
+	testServerId := id.NewIdFromString("test12345", id.Node, t)
 	comm := ProtoComms{
 		Id:            testServerId,
 		LocalServer:   nil,
@@ -130,8 +135,9 @@ func TestProtoComms_PackAuthenticatedMessage(t *testing.T) {
 		t.Errorf("Unable to generate token: %+v", err)
 	}
 
-	testId := "test"
-	host, err := NewHost(testId, testId, nil, false, true)
+	testId := id.NewIdFromString("test", id.Node, t)
+
+	host, err := NewHost(testId, "test", nil, false, true)
 	if err != nil {
 		t.Errorf("Unable to create host: %+v", err)
 	}
@@ -146,7 +152,7 @@ func TestProtoComms_PackAuthenticatedMessage(t *testing.T) {
 		t.Errorf("Expected no error packing authenticated message: %+v", err)
 	}
 	// Compare the tokens and id's
-	if bytes.Compare(msg.Token, tokenBytes) != 0 || msg.ID != testServerId {
+	if bytes.Compare(msg.Token, tokenBytes) != 0 || !bytes.Equal(msg.ID, testServerId.Marshal()) {
 		t.Errorf("Expected packed message to have correct ID and Token: %+v",
 			msg)
 	}
@@ -154,7 +160,7 @@ func TestProtoComms_PackAuthenticatedMessage(t *testing.T) {
 
 // Happy path
 func TestProtoComms_ValidateToken(t *testing.T) {
-	testId := "test"
+	testId := id.NewIdFromString("test", id.Node, t)
 	comm := ProtoComms{
 		Id:            testId,
 		LocalServer:   nil,
@@ -172,7 +178,7 @@ func TestProtoComms_ValidateToken(t *testing.T) {
 	}
 
 	pub := testkeys.LoadFromPath(testkeys.GetNodeCertPath())
-	host, err := comm.AddHost(testId, testId, pub, false, true)
+	host, err := comm.AddHost(testId, "test", pub, false, true)
 	if err != nil {
 		t.Errorf("Unable to create host: %+v", err)
 	}
@@ -186,6 +192,8 @@ func TestProtoComms_ValidateToken(t *testing.T) {
 	if err != nil {
 		t.Errorf("Expected no error packing authenticated message: %+v", err)
 	}
+
+	msg.Client.PublicKey = string(pub)
 
 	// Check the token
 	err = comm.ValidateToken(msg)
@@ -210,13 +218,16 @@ func TestProtoComms_ValidateTokenDynamic(t *testing.T) {
 	pubKey := privKey.GetPublic()
 
 	salt := []byte("0123456789ABCDEF0123456789ABCDEF")
-	uid := registration.GenUserID(pubKey, salt)
+	uid, err := xx.NewID(pubKey, salt, id.User)
+	if err != nil {
+		t.Errorf("Could not generate user ID: %+v", err)
+	}
 	testId := uid.String()
 	// ------
 
 	// Now we set up the client comms object
 	comm := ProtoComms{
-		Id:            testId,
+		Id:            uid,
 		ListeningAddr: "",
 	}
 	err = comm.setPrivateKey(rsa.CreatePrivateKeyPem(privKey))
@@ -231,7 +242,7 @@ func TestProtoComms_ValidateTokenDynamic(t *testing.T) {
 
 	// For this test we won't addHost to Manager, we'll just create a host
 	// so we can compare to the dynamic one later
-	host, err := newDynamicHost(testId, rsa.CreatePublicKeyPem(pubKey))
+	host, err := newDynamicHost(uid, rsa.CreatePublicKeyPem(pubKey))
 	if err != nil {
 		t.Errorf("Unable to create host: %+v", err)
 	}
@@ -257,7 +268,7 @@ func TestProtoComms_ValidateTokenDynamic(t *testing.T) {
 	}
 
 	// Check the output values behaved as expected
-	host, ok := comm.GetHost(testId)
+	host, ok := comm.GetHost(uid)
 	if !ok {
 		t.Errorf("Expected dynamic auth to add host %s!", testId)
 	}
@@ -274,7 +285,7 @@ func TestProtoComms_ValidateTokenDynamic(t *testing.T) {
 }
 
 func TestProtoComms_DisableAuth(t *testing.T) {
-	testId := "test"
+	testId := id.NewIdFromString("test", id.Node, t)
 	comm := ProtoComms{
 		Id:            testId,
 		LocalServer:   nil,

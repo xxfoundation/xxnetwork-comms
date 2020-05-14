@@ -12,14 +12,16 @@ import (
 	"bytes"
 	"context"
 	"crypto/rand"
+	"encoding/base64"
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/crypto/nonce"
-	"gitlab.com/elixxir/crypto/registration"
 	"gitlab.com/elixxir/crypto/signature/rsa"
+	"gitlab.com/elixxir/crypto/xx"
+	"gitlab.com/elixxir/primitives/id"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -89,7 +91,7 @@ func (c *ProtoComms) PackAuthenticatedMessage(msg proto.Message, host *Host,
 
 	// Build the authenticated message
 	authMsg := &pb.AuthenticatedMessage{
-		ID:      c.Id,
+		ID:      c.Id.Marshal(),
 		Token:   host.transmissionToken,
 		Message: anyMsg,
 		Client: &pb.ClientID{
@@ -112,12 +114,37 @@ func (c *ProtoComms) PackAuthenticatedMessage(msg proto.Message, host *Host,
 // Add authentication fields to a given context and return it
 func (c *ProtoComms) PackAuthenticatedContext(host *Host,
 	ctx context.Context) context.Context {
-	authMsg := &pb.AuthenticatedMessage{
-		ID:    c.Id,
-		Token: host.transmissionToken,
-	}
-	return metadata.AppendToOutgoingContext(ctx, "auth", authMsg.String())
+
+	ctx = metadata.AppendToOutgoingContext(ctx, "ID", c.Id.String())
+	ctx = metadata.AppendToOutgoingContext(ctx, "TOKEN", base64.StdEncoding.EncodeToString(host.transmissionToken))
+	return ctx
 }
+
+// Returns authentication packed into a context
+func UnpackAuthenticatedContext(ctx context.Context) (*pb.AuthenticatedMessage, error) {
+	auth := &pb.AuthenticatedMessage{}
+	var err error
+
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return nil, errors.New("unable to retrieve meta data / header")
+	}
+
+	idStr := md.Get("ID")[0]
+	auth.ID, err = base64.StdEncoding.DecodeString(idStr)
+	if err!=nil{
+		return nil, errors.WithMessage(err, "could not decode authentication ID")
+	}
+
+	tokenStr := md.Get("TOKEN")[0]
+	auth.Token, err = base64.StdEncoding.DecodeString(tokenStr)
+	if err!=nil{
+		return nil, errors.WithMessage(err, "could not decode authentication Token")
+	}
+
+	return auth, nil
+}
+
 
 // Generates a new token and adds it to internal state
 func (c *ProtoComms) GenerateToken() ([]byte, error) {
@@ -147,18 +174,21 @@ func (c *ProtoComms) dynamicAuth(msg *pb.AuthenticatedMessage) (
 		return nil, errors.New(err.Error())
 	}
 
-	// Generate the UserId from supplied Client information
-	uid := registration.GenUserID(pubKey, msg.Client.Salt)
+	// Generate the user's ID from supplied Client information
+	uid, err := xx.NewID(pubKey, msg.Client.Salt, id.User)
+	if err != nil {
+		return nil, err
+	}
 
-	// Verify the Id provided correctly matches the generated Id
-	if msg.ID != uid.String() {
+	// Verify the ID provided correctly matches the generated ID
+	if !bytes.Equal(msg.ID, uid.Marshal()) {
 		return nil, errors.Errorf(
 			"Provided ID does not match. Expected: %s, Actual: %s",
 			uid.String(), msg.ID)
 	}
 
 	// Create and add the new host to the manager
-	host, err = newDynamicHost(uid.String(), []byte(msg.Client.PublicKey))
+	host, err = newDynamicHost(uid, []byte(msg.Client.PublicKey))
 	if err != nil {
 		return
 	}
@@ -168,10 +198,16 @@ func (c *ProtoComms) dynamicAuth(msg *pb.AuthenticatedMessage) (
 
 // Validates a signed token using internal state
 func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) (err error) {
+	// Convert EntityID to ID
+	msgID, err := id.Unmarshal(msg.ID)
+	if err != nil {
+		return err
+	}
 
 	// Verify the Host exists for the provided ID
-	host, ok := c.GetHost(msg.ID)
+	host, ok := c.GetHost(msgID)
 	if !ok {
+
 		// If the host does not already exist, attempt dynamic authentication
 		jww.DEBUG.Printf("Attempting dynamic authentication: %s", msg.ID)
 		host, err = c.dynamicAuth(msg)
@@ -183,7 +219,7 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) (err error) {
 
 	// This logic prevents deadlocks when performing authentication with self
 	// TODO: This may require further review
-	if msg.ID != c.Id || bytes.Compare(host.receptionToken, msg.Token) != 0 {
+	if !msgID.Cmp(c.Id) || bytes.Compare(host.receptionToken, msg.Token) != 0 {
 		host.mux.Lock()
 		defer host.mux.Unlock()
 	}
@@ -191,7 +227,7 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) (err error) {
 	// Get the signed token
 	tokenMsg := &pb.AssignToken{}
 	err = ptypes.UnmarshalAny(msg.Message, tokenMsg)
-	if err != nil {
+  	if err != nil {
 		return errors.Errorf("Unable to unmarshal token: %+v", err)
 	}
 
@@ -221,15 +257,20 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) (err error) {
 
 // AuthenticatedReceiver handles reception of an AuthenticatedMessage,
 // checking if the host is authenticated & returning an Auth state
-func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) *Auth {
+func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) (*Auth, error) {
+	// Convert EntityID to ID
+	msgID, err := id.Unmarshal(msg.ID)
+	if err != nil {
+		return nil, err
+	}
 
 	// Try to obtain the Host for the specified ID
-	host, ok := c.GetHost(msg.ID)
+	host, ok := c.GetHost(msgID)
 	if !ok {
 		return &Auth{
 			IsAuthenticated: false,
 			Sender:          &Host{},
-		}
+		}, nil
 	}
 
 	// If host is found, mutex must be locked
@@ -248,7 +289,7 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) *Auth {
 
 	jww.TRACE.Printf("Authentication status: %v, ProvidedId: %v ProvidedToken: %v",
 		res.IsAuthenticated, msg.ID, msg.Token)
-	return res
+	return res, nil
 }
 
 // DisableAuth makes the authentication code skip signing and signature verification if the
