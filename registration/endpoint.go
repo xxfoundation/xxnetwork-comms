@@ -15,6 +15,7 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
+	"gitlab.com/elixxir/primitives/id"
 	"golang.org/x/net/context"
 )
 
@@ -86,8 +87,13 @@ func (r *Comms) RegisterNode(ctx context.Context, msg *pb.NodeRegistration) (
 	gwAddress := fmt.Sprintf("%s:%d", msg.GetGatewayAddress(),
 		msg.GetGatewayPort())
 
+	nodeID, err := id.Unmarshal(msg.GetID())
+	if err != nil {
+		return nil, errors.Errorf("Unable to unmarshal node ID: %+v", err)
+	}
+
 	// Pass information for Node registration
-	err = r.handler.RegisterNode(msg.GetID(), address,
+	err = r.handler.RegisterNode(nodeID, address,
 		msg.GetServerTlsCert(),
 		gwAddress, msg.GetGatewayTlsCert(),
 		msg.GetRegistrationCode())
@@ -97,11 +103,14 @@ func (r *Comms) RegisterNode(ctx context.Context, msg *pb.NodeRegistration) (
 // Handles incoming requests for the NDF
 func (r *Comms) PollNdf(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.NDF, error) {
 	// Create an auth object
-	authState := r.AuthenticatedReceiver(msg)
+	authState, err := r.AuthenticatedReceiver(msg)
+	if err != nil {
+		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
+	}
 
 	// Unmarshall the any message to the message type needed
 	ndfHash := &pb.NDFHash{}
-	err := ptypes.UnmarshalAny(msg.Message, ndfHash)
+	err = ptypes.UnmarshalAny(msg.Message, ndfHash)
 	if err != nil {
 		return nil, err
 	}
@@ -114,11 +123,14 @@ func (r *Comms) PollNdf(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.
 // Server -> Permissioning unified polling
 func (r *Comms) Poll(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.PermissionPollResponse, error) {
 	// Create an auth object
-	authState := r.AuthenticatedReceiver(msg)
+	authState, err := r.AuthenticatedReceiver(msg)
+	if err != nil {
+		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
+	}
 
 	// Unmarshall the any message to the message type needed
 	pollMsg := &pb.PermissioningPoll{}
-	err := ptypes.UnmarshalAny(msg.Message, pollMsg)
+	err = ptypes.UnmarshalAny(msg.Message, pollMsg)
 	if err != nil {
 		return nil, err
 	}

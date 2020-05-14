@@ -23,10 +23,10 @@ var Retries = 0
 // Test that Poll NDF handles all comms errors returned properly, and that it decodes and successfully returns an ndf
 func TestProtoComms_PollNdf(t *testing.T) {
 
-	//Define a new protocomms object
-	comms := &ProtoComms{}
+	// Define a new protocomms object
+	comms := &ProtoComms{Id: id.NewIdFromString("test", id.Generic, t)}
 
-	mockPermServer, err := StartRegistrationServer(id.PERMISSIONING, RegistrationAddr, RegistrationHandler, nil, nil)
+	mockPermServer, err := StartRegistrationServer(&id.Permissioning, RegistrationAddr, RegistrationHandler, nil, nil)
 	if err != nil {
 		t.Errorf("Failed to start reg server: %+v", err)
 	}
@@ -58,7 +58,7 @@ func TestProtoComms_PollNdf(t *testing.T) {
 		t.Logf("RequestNdf should have failed to parse bad ndf: %+v", err)
 		t.Fail()
 	}
-	_, err = comms.AddHost(id.PERMISSIONING, RegistrationAddr, nil, false, false)
+	_, err = comms.AddHost(&id.Permissioning, RegistrationAddr, nil, false, false)
 	if err != nil {
 		t.Errorf("Failed to add permissioning as a host: %+v", err)
 	}
@@ -79,16 +79,16 @@ func TestProtoComms_PollNdf(t *testing.T) {
 // Happy path
 func TestProtoComms_PollNdfRepeatedly(t *testing.T) {
 	// Define a new protocomms object
-	comms := &ProtoComms{}
+	comms := &ProtoComms{Id: id.NewIdFromString("test", id.Generic, t)}
 	// Start up the mock reg server
-	mockPermServer, err := StartRegistrationServer(id.PERMISSIONING, RegistrationAddrErr, RegistrationError, nil, nil)
+	mockPermServer, err := StartRegistrationServer(&id.Permissioning, RegistrationAddrErr, RegistrationError, nil, nil)
 	if err != nil {
 		t.Errorf("Failed to start reg server: %+v", err)
 	}
 	defer mockPermServer.Shutdown()
 
 	// Add the host to the comms object
-	_, err = comms.AddHost(id.PERMISSIONING, RegistrationAddrErr, nil, false, false)
+	_, err = comms.AddHost(&id.Permissioning, RegistrationAddrErr, nil, false, false)
 	if err != nil {
 		t.Errorf("Failed to add permissioning as a host: %+v", err)
 	}
@@ -145,7 +145,7 @@ func (reg *MockRegComms) PollNdf(context.Context, *pb.AuthenticatedMessage) (*pb
 type MockRegHandler interface {
 	RegisterUser(registrationCode, pubKey string) (signature []byte, err error)
 	GetCurrentClientVersion() (version string, err error)
-	RegisterNode(ID []byte, ServerAddr, ServerTlsCert, GatewayAddr,
+	RegisterNode(NodeID *id.ID, ServerAddr, ServerTlsCert, GatewayAddr,
 		GatewayTlsCert, RegistrationCode string) error
 	PollNdf(ndfHash []byte, auth *Auth) ([]byte, error)
 }
@@ -153,7 +153,7 @@ type MockRegHandler interface {
 type MockRegistration struct {
 }
 
-func (s *MockRegistration) RegisterNode(ID []byte,
+func (s *MockRegistration) RegisterNode(NodeID *id.ID,
 	NodeTLSCert, GatewayTLSCert, RegistrationCode, Addr, Addr2 string) error {
 	return nil
 }
@@ -183,7 +183,7 @@ func (s *MockRegistration) GetCurrentClientVersion() (version string, err error)
 type MockRegistrationError struct {
 }
 
-func (s *MockRegistrationError) RegisterNode(ID []byte,
+func (s *MockRegistrationError) RegisterNode(NodeID *id.ID,
 	NodeTLSCert, GatewayTLSCert, RegistrationCode, Addr, Addr2 string) error {
 	return nil
 }
@@ -216,7 +216,7 @@ func (s *MockRegistrationError) GetCurrentClientVersion() (version string, err e
 
 }
 
-func StartRegistrationServer(id, localServer string, handler MockRegHandler,
+func StartRegistrationServer(id *id.ID, localServer string, handler MockRegHandler,
 	certPEMblock, keyPEMblock []byte) (*MockRegComms, error) {
 
 	pc, lis, err := StartCommServer(id, localServer,

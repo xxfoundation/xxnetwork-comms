@@ -11,18 +11,19 @@ import (
 	"github.com/pkg/errors"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
+	"gitlab.com/elixxir/primitives/id"
 	"testing"
 )
 
 // Smoke test SendAskOnline
 func TestSendAskOnline(t *testing.T) {
 	ServerAddress := getNextServerAddress()
-	server := StartNode("test", ServerAddress, NewImplementation(), nil, nil)
+	testID := id.NewIdFromString("test", id.Node, t)
+	server := StartNode(testID, ServerAddress, NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	var manager connect.Manager
 
-	testId := "test"
-	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
+	host, err := manager.AddHost(testID, ServerAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -36,12 +37,12 @@ func TestSendAskOnline(t *testing.T) {
 // Smoke test SendFinishRealtime
 func TestSendFinishRealtime(t *testing.T) {
 	ServerAddress := getNextServerAddress()
-	server := StartNode("test", ServerAddress, NewImplementation(), nil, nil)
+	testID := id.NewIdFromString("test", id.Node, t)
+	server := StartNode(testID, ServerAddress, NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	var manager connect.Manager
 
-	testId := "test"
-	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
+	host, err := manager.AddHost(testID, ServerAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -55,11 +56,11 @@ func TestSendFinishRealtime(t *testing.T) {
 // Smoke test SendNewRound
 func TestSendNewRound(t *testing.T) {
 	ServerAddress := getNextServerAddress()
-	server := StartNode("test", ServerAddress, NewImplementation(), nil, nil)
+	testId := id.NewIdFromString("test", id.Node, t)
+	server := StartNode(testId, ServerAddress, NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	var manager connect.Manager
 
-	testId := "test"
 	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
@@ -74,11 +75,11 @@ func TestSendNewRound(t *testing.T) {
 // Smoke test SendPhase
 func TestSendPostPhase(t *testing.T) {
 	ServerAddress := getNextServerAddress()
-	server := StartNode("test", ServerAddress, NewImplementation(), nil, nil)
+	testId := id.NewIdFromString("test", id.Node, t)
+	server := StartNode(testId, ServerAddress, NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	var manager connect.Manager
 
-	testId := "test"
 	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
@@ -93,11 +94,11 @@ func TestSendPostPhase(t *testing.T) {
 // Smoke test SendPostRoundPublicKey
 func TestSendPostRoundPublicKey(t *testing.T) {
 	ServerAddress := getNextServerAddress()
-	server := StartNode("test", ServerAddress, NewImplementation(), nil, nil)
+	testId := id.NewIdFromString("test", id.Node, t)
+	server := StartNode(testId, ServerAddress, NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	var manager connect.Manager
 
-	testId := "test"
 	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
@@ -112,11 +113,11 @@ func TestSendPostRoundPublicKey(t *testing.T) {
 // TestPostPrecompResult Smoke test
 func TestSendPostPrecompResult(t *testing.T) {
 	ServerAddress := getNextServerAddress()
-	server := StartNode("test", ServerAddress, NewImplementation(), nil, nil)
+	testId := id.NewIdFromString("test", id.Node, t)
+	server := StartNode(testId, ServerAddress, NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	var manager connect.Manager
 
-	testId := "test"
 	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
@@ -130,6 +131,7 @@ func TestSendPostPrecompResult(t *testing.T) {
 
 func TestSendGetMeasure(t *testing.T) {
 	ServerAddress := getNextServerAddress()
+	testId := id.NewIdFromString("test", id.Node, t)
 
 	// GRPC complains if this doesn't return something nice, so I mocked it
 	impl := NewImplementation()
@@ -140,11 +142,10 @@ func TestSendGetMeasure(t *testing.T) {
 		return &mockReturn, nil
 	}
 	impl.Functions.GetMeasure = mockMeasure
-	server := StartNode("test", ServerAddress, impl, nil, nil)
+	server := StartNode(testId, ServerAddress, impl, nil, nil)
 	defer server.Shutdown()
 	var manager connect.Manager
 
-	testId := "test"
 	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
@@ -161,6 +162,7 @@ func TestSendGetMeasure(t *testing.T) {
 
 func TestSendGetMeasureError(t *testing.T) {
 	ServerAddress := getNextServerAddress()
+	testId := id.NewIdFromString("test", id.Node, t)
 
 	// GRPC complains if this doesn't return something nice, so I mocked it
 	impl := NewImplementation()
@@ -169,7 +171,7 @@ func TestSendGetMeasureError(t *testing.T) {
 		return nil, errors.New("Test error")
 	}
 	impl.Functions.GetMeasure = mockMeasureError
-	server := StartNode("test", ServerAddress, impl, nil, nil)
+	server := StartNode(testId, ServerAddress, impl, nil, nil)
 	defer server.Shutdown()
 
 	ri := pb.RoundInfo{
@@ -177,7 +179,6 @@ func TestSendGetMeasureError(t *testing.T) {
 	}
 	var manager connect.Manager
 
-	testId := "test"
 	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
@@ -192,11 +193,11 @@ func TestSendGetMeasureError(t *testing.T) {
 func TestRoundTripPing(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	impl := NewImplementation()
-	server := StartNode("test", ServerAddress, impl, nil, nil)
+	testId := id.NewIdFromString("test", id.Node, t)
+	server := StartNode(testId, ServerAddress, impl, nil, nil)
 	defer server.Shutdown()
 	var manager connect.Manager
 
-	testId := "test"
 	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)

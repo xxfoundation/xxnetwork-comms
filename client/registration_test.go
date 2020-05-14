@@ -10,22 +10,25 @@ import (
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/registration"
+	"gitlab.com/elixxir/primitives/id"
 	"testing"
 )
 
 // Smoke test SendRegistrationMessage
 func TestSendRegistrationMessage(t *testing.T) {
 	GatewayAddress := getNextAddress()
-	rg := registration.StartRegistrationServer("test", GatewayAddress,
+	testId := id.NewIdFromString("test", id.Generic, t)
+	clientId := id.NewIdFromString("client", id.Generic, t)
+
+	rg := registration.StartRegistrationServer(testId, GatewayAddress,
 		registration.NewImplementation(), nil, nil)
 	defer rg.Shutdown()
-	c, err := NewClientComms("client", nil, nil, nil)
+	c, err := NewClientComms(clientId, nil, nil, nil)
 	if err != nil {
 		t.Errorf("Can't create client comms: %+v", err)
 	}
 	var manager connect.Manager
 
-	testId := "test"
 	host, err := manager.AddHost(testId, GatewayAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
@@ -40,16 +43,18 @@ func TestSendRegistrationMessage(t *testing.T) {
 // Smoke test SendCheckClientVersion
 func TestSendCheckClientVersionMessage(t *testing.T) {
 	GatewayAddress := getNextAddress()
-	rg := registration.StartRegistrationServer("test", GatewayAddress,
+	testId := id.NewIdFromString("test", id.Generic, t)
+	clientId := id.NewIdFromString("client", id.Generic, t)
+
+	rg := registration.StartRegistrationServer(testId, GatewayAddress,
 		registration.NewImplementation(), nil, nil)
 	defer rg.Shutdown()
-	c, err := NewClientComms("client", nil, nil, nil)
+	c, err := NewClientComms(clientId, nil, nil, nil)
 	if err != nil {
 		t.Errorf("Can't create client comms: %+v", err)
 	}
 	var manager connect.Manager
 
-	testId := "test"
 	host, err := manager.AddHost(testId, GatewayAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
@@ -64,16 +69,18 @@ func TestSendCheckClientVersionMessage(t *testing.T) {
 //Smoke test RequestNdf
 func TestSendGetUpdatedNDF(t *testing.T) {
 	GatewayAddress := getNextAddress()
-	rg := registration.StartRegistrationServer("test", GatewayAddress,
+	testId := id.NewIdFromString("test", id.Generic, t)
+	clientId := id.NewIdFromString("client", id.Generic, t)
+
+	rg := registration.StartRegistrationServer(testId, GatewayAddress,
 		registration.NewImplementation(), nil, nil)
 	defer rg.Shutdown()
-	c, err := NewClientComms("client", nil, nil, nil)
+	c, err := NewClientComms(clientId, nil, nil, nil)
 	if err != nil {
 		t.Errorf("Can't create client comms: %+v", err)
 	}
 	var manager connect.Manager
 
-	testId := "test"
 	host, err := manager.AddHost(testId, GatewayAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)

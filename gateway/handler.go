@@ -21,9 +21,9 @@ import (
 // Handler interface for the Gateway
 type Handler interface {
 	// Return any MessageIDs in the buffer for this UserID
-	CheckMessages(userID *id.User, messageID string, ipAddress string) ([]string, error)
+	CheckMessages(userID *id.ID, messageID string, ipAddress string) ([]string, error)
 	// Returns the message matching the given parameters to the client
-	GetMessage(userID *id.User, msgID string, ipAddress string) (*pb.Slot, error)
+	GetMessage(userID *id.ID, msgID string, ipAddress string) (*pb.Slot, error)
 	// Upload a message to the cMix Gateway
 	PutMessage(message *pb.Slot, ipAddress string) error
 	// Pass-through for Registration Nonce Communication
@@ -32,7 +32,7 @@ type Handler interface {
 	ConfirmNonce(message *pb.RequestRegistrationConfirmation, ipAddress string) (*pb.
 		RegistrationConfirmation, error)
 	// Ping gateway to ask for users to notify
-	PollForNotifications(auth *connect.Auth) ([]string, error)
+	PollForNotifications(auth *connect.Auth) ([]*id.ID, error)
 	// Client -> Gateway unified polling
 	Poll(msg *pb.GatewayPoll) (*pb.GatewayPollResponse, error)
 }
@@ -46,7 +46,7 @@ type Comms struct {
 // Starts a new gateway on the address:port specified by localServer
 // and a callback interface for gateway operations
 // with given path to public and private key for TLS connection
-func StartGateway(id, localServer string, handler Handler,
+func StartGateway(id *id.ID, localServer string, handler Handler,
 	certPEMblock, keyPEMblock []byte) *Comms {
 	pc, lis, err := connect.StartCommServer(id, localServer,
 		certPEMblock, keyPEMblock)
@@ -81,9 +81,9 @@ func StartGateway(id, localServer string, handler Handler,
 // Handler implementation for the Gateway
 type implementationFunctions struct {
 	// Return any MessageIDs in the buffer for this UserID
-	CheckMessages func(userID *id.User, messageID string, ipAddress string) ([]string, error)
+	CheckMessages func(userID *id.ID, messageID string, ipAddress string) ([]string, error)
 	// Returns the message matching the given parameters to the client
-	GetMessage func(userID *id.User, msgID string, ipAddress string) (*pb.Slot, error)
+	GetMessage func(userID *id.ID, msgID string, ipAddress string) (*pb.Slot, error)
 	// Upload a message to the cMix Gateway
 	PutMessage func(message *pb.Slot, ipAddress string) error
 	// Pass-through for Registration Nonce Communication
@@ -92,7 +92,7 @@ type implementationFunctions struct {
 	ConfirmNonce func(message *pb.RequestRegistrationConfirmation, ipAddress string) (*pb.
 			RegistrationConfirmation, error)
 	// Ping gateway to ask for users to notify
-	PollForNotifications func(auth *connect.Auth) ([]string, error)
+	PollForNotifications func(auth *connect.Auth) ([]*id.ID, error)
 	// Client -> Gateway unified polling
 	Poll func(msg *pb.GatewayPoll) (*pb.GatewayPollResponse, error)
 }
@@ -112,11 +112,11 @@ func NewImplementation() *Implementation {
 	}
 	return &Implementation{
 		Functions: implementationFunctions{
-			CheckMessages: func(userID *id.User, messageID string, ipAddress string) ([]string, error) {
+			CheckMessages: func(userID *id.ID, messageID string, ipAddress string) ([]string, error) {
 				warn(um)
 				return nil, nil
 			},
-			GetMessage: func(userID *id.User, msgID string, ipAddress string) (*pb.Slot, error) {
+			GetMessage: func(userID *id.ID, msgID string, ipAddress string) (*pb.Slot, error) {
 				warn(um)
 				return &pb.Slot{}, nil
 			},
@@ -132,7 +132,7 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return new(pb.RegistrationConfirmation), nil
 			},
-			PollForNotifications: func(auth *connect.Auth) ([]string, error) {
+			PollForNotifications: func(auth *connect.Auth) ([]*id.ID, error) {
 				warn(um)
 				return nil, nil
 			},
@@ -145,13 +145,13 @@ func NewImplementation() *Implementation {
 }
 
 // Return any MessageIDs in the buffer for this UserID
-func (s *Implementation) CheckMessages(userID *id.User, messageID string, ipAddress string) (
+func (s *Implementation) CheckMessages(userID *id.ID, messageID string, ipAddress string) (
 	[]string, error) {
 	return s.Functions.CheckMessages(userID, messageID, ipAddress)
 }
 
 // Returns the message matching the given parameters to the client
-func (s *Implementation) GetMessage(userID *id.User, msgID string, ipAddress string) (
+func (s *Implementation) GetMessage(userID *id.ID, msgID string, ipAddress string) (
 	*pb.Slot, error) {
 	return s.Functions.GetMessage(userID, msgID, ipAddress)
 }
@@ -174,7 +174,7 @@ func (s *Implementation) ConfirmNonce(message *pb.RequestRegistrationConfirmatio
 }
 
 // Ping gateway to ask for users to notify
-func (s *Implementation) PollForNotifications(auth *connect.Auth) ([]string, error) {
+func (s *Implementation) PollForNotifications(auth *connect.Auth) ([]*id.ID, error) {
 	return s.Functions.PollForNotifications(auth)
 }
 

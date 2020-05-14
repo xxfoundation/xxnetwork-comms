@@ -159,7 +159,7 @@ service Gateway {
     }
 
     // Notifications->Gateway request for users with pending notifications
-    rpc PollForNotifications (AuthenticatedMessage) returns (IDList) {
+    rpc PollForNotifications (AuthenticatedMessage) returns (UserIdList) {
     }
 
     // Client -> Gateway unified polling
@@ -355,6 +355,11 @@ message NotificationToken {
     bytes Token = 1;
 }
 
+// The list of user IDS for notification polling
+message UserIdList {
+    repeated bytes IDs = 1;
+}
+
 // GENERAL USE MESSAGES --------------------------------------------------------
 
 // Generic service definition
@@ -379,7 +384,7 @@ message Ping {
 
 // Wrapper for authenticated messages that also ensure integrity
 message AuthenticatedMessage {
-    string ID = 1;
+    bytes ID = 1;
     bytes Signature = 2;
     bytes Token = 3;
     ClientID Client = 4;
@@ -403,7 +408,7 @@ message RoundInfo {
     uint64 UpdateID = 2;
     uint32 State = 3; // Precomp, Standby, Realtime, Completed, Failed
     uint32 BatchSize = 4;
-    repeated string Topology = 5; // List of NodeIDs
+    repeated bytes Topology = 5; // List of NodeIDs
     repeated uint64 Timestamps = 6; // List of state timestamps in UTC
     repeated RoundError Errors = 7; // List of errors which occured
     RSASignature Signature = 8;
