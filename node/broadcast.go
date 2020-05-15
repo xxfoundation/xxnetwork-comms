@@ -18,6 +18,39 @@ import (
 	"google.golang.org/grpc"
 )
 
+// Server -> Server error function
+func (s *Comms) SendRoundError(host *connect.Host, message *pb.RoundError) (*pb.Ack, error) {
+	// Create the Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := connect.MessagingContext()
+		defer cancel()
+
+		//Format to authenticated message type
+		authMsg, err := s.PackAuthenticatedMessage(message, host, false)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+
+		// Send the message
+		resultMsg, err := pb.NewNodeClient(conn).RoundError(ctx, authMsg)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+		return ptypes.MarshalAny(resultMsg)
+	}
+
+	// Execute the Send function
+	jww.DEBUG.Printf("Sending Round Error message: %+v", message)
+	resultMsg, err := s.Send(host, f)
+	if err != nil {
+		return nil, err
+	}
+
+	result := &pb.Ack{}
+	return result, ptypes.UnmarshalAny(resultMsg, result)
+}
+
 // Server -> Server Send Function
 func (s *Comms) SendGetMeasure(host *connect.Host,
 	message *pb.RoundInfo) (*pb.RoundMetrics, error) {

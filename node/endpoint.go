@@ -317,6 +317,20 @@ func (s *Comms) Poll(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.Ser
 	return rm, err
 }
 
+func (s *Comms) RoundError(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
+	authState, err := s.AuthenticatedReceiver(msg)
+	if err != nil {
+		return nil, errors.Errorf("Unable to handle reception of AuthenticatedMessage: %+v", err)
+	}
+	errMsg := &pb.RoundError{}
+	err = ptypes.UnmarshalAny(msg.Message, errMsg)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.Ack{}, s.handler.RoundError(errMsg, authState)
+}
+
 func (s *Comms) SendRoundTripPing(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
 	// Verify the message authentication
 	authState, err := s.AuthenticatedReceiver(msg)

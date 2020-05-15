@@ -132,19 +132,18 @@ func UnpackAuthenticatedContext(ctx context.Context) (*pb.AuthenticatedMessage, 
 
 	idStr := md.Get("ID")[0]
 	auth.ID, err = base64.StdEncoding.DecodeString(idStr)
-	if err!=nil{
+	if err != nil {
 		return nil, errors.WithMessage(err, "could not decode authentication ID")
 	}
 
 	tokenStr := md.Get("TOKEN")[0]
 	auth.Token, err = base64.StdEncoding.DecodeString(tokenStr)
-	if err!=nil{
+	if err != nil {
 		return nil, errors.WithMessage(err, "could not decode authentication Token")
 	}
 
 	return auth, nil
 }
-
 
 // Generates a new token and adds it to internal state
 func (c *ProtoComms) GenerateToken() ([]byte, error) {
@@ -227,7 +226,7 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) (err error) {
 	// Get the signed token
 	tokenMsg := &pb.AssignToken{}
 	err = ptypes.UnmarshalAny(msg.Message, tokenMsg)
-  	if err != nil {
+	if err != nil {
 		return errors.Errorf("Unable to unmarshal token: %+v", err)
 	}
 
