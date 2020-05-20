@@ -135,6 +135,14 @@ func (r *Comms) Poll(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.Per
 		return nil, err
 	}
 
+	// Get server IP and port
+	ip, _, err := connect.GetAddressFromContext(ctx)
+	if err != nil {
+		return &pb.PermissionPollResponse{}, err
+	}
+	port := pollMsg.ServerPort
+	address := fmt.Sprintf("%s:%d", ip, port)
+
 	//Return the new ndf
-	return r.handler.Poll(pollMsg, authState)
+	return r.handler.Poll(pollMsg, authState, address)
 }
