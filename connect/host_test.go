@@ -73,6 +73,27 @@ func TestHost_GetAddress(t *testing.T) {
 	}
 }
 
+func TestHost_UpdateAddress(t *testing.T) {
+	testAddress := "192.167.1.1:8080"
+	testUpdatedAddress := "192.167.1.1:8080"
+	testHost := Host{address: testAddress}
+
+	// Test function
+	if testHost.GetAddress() != testAddress {
+		t.Errorf("GetAddress() did not return the expected address before update."+
+			"\n\texpected: %v\n\treceived: %v",
+			testAddress, testHost.GetAddress())
+	}
+
+	testHost.UpdateAddress(testUpdatedAddress)
+
+	if testHost.GetAddress() != testUpdatedAddress {
+		t.Errorf("GetAddress() did not return the expected address after update."+
+			"\n\texpected: %v\n\treceived: %v",
+			testUpdatedAddress, testHost.GetAddress())
+	}
+}
+
 // Validate that dynamic host defaults to false and can be set to true
 func TestHost_IsDynamicHost(t *testing.T) {
 
