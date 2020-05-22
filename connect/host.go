@@ -140,6 +140,11 @@ func (h *Host) GetAddress() string {
 	return h.address
 }
 
+// UpdateAddress updates the address of the host
+func (h *Host) UpdateAddress(address string) {
+	h.address = address
+}
+
 // Disconnect closes a the Host connection under the write lock
 func (h *Host) Disconnect() {
 	h.mux.Lock()

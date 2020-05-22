@@ -335,12 +335,14 @@ func updateConns(def *ndf.NetworkDefinition, comms *connect.ProtoComms, gate, no
 			}
 			gwid.SetType(id.Gateway)
 
-			_, ok := comms.GetHost(gwid)
+			host, ok := comms.GetHost(gwid)
 			if !ok {
 				_, err := comms.AddHost(gwid, h.Address, []byte(h.TlsCertificate), false, true)
 				if err != nil {
 					return errors.WithMessagef(err, "Could not add gateway host %s", gwid)
 				}
+			} else if host.GetAddress() != h.Address {
+				host.UpdateAddress(h.Address)
 			}
 		}
 	}
@@ -350,12 +352,14 @@ func updateConns(def *ndf.NetworkDefinition, comms *connect.ProtoComms, gate, no
 			if err != nil {
 				return err
 			}
-			_, ok := comms.GetHost(nid)
+			host, ok := comms.GetHost(nid)
 			if !ok {
 				_, err := comms.AddHost(nid, h.Address, []byte(h.TlsCertificate), false, true)
 				if err != nil {
 					return errors.WithMessagef(err, "Could not add node host %s", nid)
 				}
+			} else if host.GetAddress() != h.Address {
+				host.UpdateAddress(h.Address)
 			}
 		}
 	}
