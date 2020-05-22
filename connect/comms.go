@@ -164,39 +164,39 @@ func (c *ProtoComms) GetPrivateKey() *rsa.PrivateKey {
 // Then runs the given Send function
 func (c *ProtoComms) Send(host *Host, f func(conn *grpc.ClientConn) (*any.Any,
 	error)) (result *any.Any, err error) {
-
 	// Number of attempts to negotiate a handshake
 	for numTries := 3; numTries > 0; numTries-- {
 		// Ensure the connection is running
 		jww.TRACE.Printf("Attempting to send to host: %s", host)
+		if err != nil {
+			jww.TRACE.Printf("previous attempt recieved error: %s", err)
+			err = nil
+		}
 		if !host.Connected() {
 			jww.INFO.Printf("Host %+v disconnected, attempting to reconnect...", host)
 			err = host.connect()
 			if err != nil {
-				return
+				continue
 			}
 		}
-
 		// Establish authentication if required
 		if host.authenticationRequired() {
 			jww.INFO.Printf("Attempting to establish authentication with host %+v", host)
 			err = host.authenticate(c.clientHandshake)
 			if err != nil {
-				return
+				continue
 			}
 		}
-
 		// Attempt to send to host
 		result, err = host.send(f)
-
 		// If failed to authenticate, retry negotiation by jumping to the top of the loop
 		if err != nil {
 			jww.ERROR.Printf("Failed to send to host %+v", host)
 			host.Disconnect()
 			continue
 		}
+		break
 	}
-
 	// Run the send function
 	return result, err
 }
