@@ -338,6 +338,8 @@ func (h *Host) setCredentials() error {
 
 // Stringer interface for connection
 func (h *Host) String() string {
+	h.mux.RLock()
+	defer h.mux.RUnlock()
 	addr := h.address
 	actualConnection := h.connection
 	creds := h.credentials
