@@ -57,6 +57,8 @@ gitlab.com/elixxir/crypto v0.0.0-20200520215729-26e50fb2df79 h1:uPtsiEVnilBvwUep
 gitlab.com/elixxir/crypto v0.0.0-20200520215729-26e50fb2df79/go.mod h1:OSJ4beQGIqzSqCxKsAaI5aFDjy4Kzac2ouH/7uloqCg=
 gitlab.com/elixxir/primitives v0.0.0-20200519221140-05816cf1a567 h1:vMiRIiQT0vb8NXEA+cULdnExGlaQxjKhkt6jzdn3SZw=
 gitlab.com/elixxir/primitives v0.0.0-20200519221140-05816cf1a567/go.mod h1:OQgUZq7SjnE0b+8+iIAT2eqQF+2IFHn73tOo+aV11mg=
+gitlab.com/elixxir/primitives v0.0.0-20200526195628-be83e386e3a5 h1:IDte1k4nxVvFUwFTWH/uBH7060m8uLVCOVb7uDWrXyA=
+gitlab.com/elixxir/primitives v0.0.0-20200526195628-be83e386e3a5/go.mod h1:OQgUZq7SjnE0b+8+iIAT2eqQF+2IFHn73tOo+aV11mg=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20200510223506-06a226fb4e37 h1:cg5LA/zNPRzIXIWSCxQW10Rvpy94aQh3LT/ShoCpkHw=
 golang.org/x/crypto v0.0.0-20200510223506-06a226fb4e37/go.mod h1:LzIPMQfyMNhhGPhUkYOs5KpL4U8rLKemX1yGLhDgUto=
