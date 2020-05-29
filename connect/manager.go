@@ -46,6 +46,12 @@ func (m *Manager) AddHost(id *id.ID, address string,
 	return
 }
 
+// Removes a host from the connection manager
+func (m *Manager) RemoveHost(id *id.ID) {
+	jww.DEBUG.Printf("Removing host: %v", id)
+	m.connections.Delete(*id)
+}
+
 // Internal helper function that can add Hosts directly
 func (m *Manager) addHost(host *Host) {
 	jww.DEBUG.Printf("Adding host: %s", host)
