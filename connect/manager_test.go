@@ -167,3 +167,28 @@ func TestConnectionManager_String(t *testing.T) {
 	// Initialize the connection object
 	t.Log(manager.String())
 }
+
+// Show that if a connection is in the map,
+// it's no longer in the map after RemoveHost is called
+func TestConnectionManager_RemoveHost(t *testing.T) {
+	var manager Manager
+
+	// After adding the host, the connection should be accessible
+	id := id.NewIdFromString("i am a connection", id.Gateway, t)
+	manager.addHost(&Host{id: id})
+	_, ok := manager.GetHost(id)
+	if !ok {
+		t.Errorf("Host with id %v not in connection manager", id)
+	}
+
+	// After removing the host, the connection should no longer be accessible
+	// from the manager
+	manager.RemoveHost(id)
+	_, ok = manager.GetHost(id)
+	if ok {
+		t.Errorf("Host with id %v was in connection manager, but oughtn't to have been", id)
+	}
+
+	// Removing the host again shouldn't cause any panics or problems
+	manager.RemoveHost(id)
+}
