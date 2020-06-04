@@ -171,7 +171,8 @@ func (c *ProtoComms) Send(host *Host, f func(conn *grpc.ClientConn) (*any.Any,
 			jww.ERROR.Printf("Send attempt recieved error: %s", err)
 			err = nil
 		}
-		jww.TRACE.Printf("Attempt %v to send to host: %s", 4-numTries, host)
+		jww.TRACE.Printf("Attempt %v to send to host %s...",
+			4-numTries, host.id.String())
 
 		// Ensure the connection is running
 		if !host.Connected() {
