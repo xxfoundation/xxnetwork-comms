@@ -175,7 +175,7 @@ func (c *ProtoComms) Send(host *Host, f func(conn *grpc.ClientConn) (*any.Any,
 
 		// Ensure the connection is running
 		if !host.Connected() {
-			jww.INFO.Printf("Host %+v disconnected, attempting to reconnect...", host)
+			jww.INFO.Printf("Host %s disconnected, attempting to reconnect...", host.id.String())
 			err = host.connect()
 			if err != nil {
 				err = errors.WithMessage(err, "Failed to connect")
@@ -185,7 +185,7 @@ func (c *ProtoComms) Send(host *Host, f func(conn *grpc.ClientConn) (*any.Any,
 
 		// Establish authentication if required
 		if host.authenticationRequired() && host.transmissionToken == nil {
-			jww.INFO.Printf("Attempting to establish authentication with host %+v", host.id.String())
+			jww.INFO.Printf("Attempting to establish authentication with host %s", host.id.String())
 			err = host.authenticate(c.clientHandshake)
 			if err != nil {
 				err = errors.WithMessage(err, "Failed to authenticate")
