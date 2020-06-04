@@ -204,7 +204,6 @@ func (c *ProtoComms) Send(host *Host, f func(conn *grpc.ClientConn) (*any.Any,
 
 			// Handle resetting connection
 			err = errors.WithMessage(err, "Failed to send")
-			host.Disconnect()
 			continue
 		}
 		break
