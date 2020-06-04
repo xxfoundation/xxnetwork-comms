@@ -164,13 +164,15 @@ func (c *ProtoComms) GetPrivateKey() *rsa.PrivateKey {
 // Then runs the given Send function
 func (c *ProtoComms) Send(host *Host, f func(conn *grpc.ClientConn) (*any.Any,
 	error)) (result *any.Any, err error) {
+
 	// Number of attempts to negotiate a handshake
 	for numTries := 3; numTries > 0; numTries-- {
 		if err != nil {
-			jww.TRACE.Printf("previous attempt recieved error: %s", err)
+			jww.ERROR.Printf("Send attempt recieved error: %s", err)
 			err = nil
 		}
 		jww.TRACE.Printf("Attempt %v to send to host: %s", 4-numTries, host)
+
 		// Ensure the connection is running
 		if !host.Connected() {
 			jww.INFO.Printf("Host %+v disconnected, attempting to reconnect...", host)
@@ -180,19 +182,27 @@ func (c *ProtoComms) Send(host *Host, f func(conn *grpc.ClientConn) (*any.Any,
 				continue
 			}
 		}
+
 		// Establish authentication if required
-		if host.authenticationRequired() {
-			jww.INFO.Printf("Attempting to establish authentication with host %+v", host)
+		if host.authenticationRequired() && host.transmissionToken == nil {
+			jww.INFO.Printf("Attempting to establish authentication with host %+v", host.id.String())
 			err = host.authenticate(c.clientHandshake)
 			if err != nil {
 				err = errors.WithMessage(err, "Failed to authenticate")
 				continue
 			}
 		}
+
 		// Attempt to send to host
 		result, err = host.send(f)
 		// If failed to authenticate, retry negotiation by jumping to the top of the loop
 		if err != nil {
+			// Handle resetting authentication
+			if err.Error() == AuthError(host.id).Error() {
+				host.transmissionToken = nil
+			}
+
+			// Handle resetting connection
 			err = errors.WithMessage(err, "Failed to send")
 			host.Disconnect()
 			continue
@@ -200,7 +210,6 @@ func (c *ProtoComms) Send(host *Host, f func(conn *grpc.ClientConn) (*any.Any,
 		break
 	}
 
-	// Run the send function
 	return result, err
 }
 
