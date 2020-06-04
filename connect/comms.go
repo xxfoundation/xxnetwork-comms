@@ -198,7 +198,7 @@ func (c *ProtoComms) Send(host *Host, f func(conn *grpc.ClientConn) (*any.Any,
 		// If failed to authenticate, retry negotiation by jumping to the top of the loop
 		if err != nil {
 			// Handle resetting authentication
-			if err.Error() == AuthError(host.id).Error() {
+			if strings.Contains(err.Error(), AuthError(host.id).Error()) {
 				host.transmissionToken = nil
 			}
 
