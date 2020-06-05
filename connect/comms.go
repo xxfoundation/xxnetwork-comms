@@ -168,7 +168,7 @@ func (c *ProtoComms) Send(host *Host, f func(conn *grpc.ClientConn) (*any.Any,
 	// Number of attempts to negotiate a handshake
 	for numTries := 3; numTries > 0; numTries-- {
 		if err != nil {
-			jww.ERROR.Printf("Send attempt recieved error: %s", err)
+			jww.WARN.Printf("Send attempt recieved error: %s", err)
 			err = nil
 		}
 		jww.TRACE.Printf("Attempt %v to send to host %s...",
