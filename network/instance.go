@@ -9,6 +9,7 @@
 package network
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/pkg/errors"
 	"gitlab.com/elixxir/comms/connect"
@@ -119,10 +120,27 @@ func (i *Instance) UpdatePartialNdf(m *pb.NDF) error {
 			"for NDF partial verification")
 	}
 
+	oldNodeList := i.full.Get().Nodes
+
 	// Update the partial ndf
 	err := i.partial.update(m, perm.GetPubKey())
 	if err != nil {
 		return err
+	}
+
+	newNodeList := i.full.Get().Nodes
+	if len(oldNodeList) > len(newNodeList) {
+		for _, o := range oldNodeList {
+			found := false
+			for _, n := range newNodeList {
+				if bytes.Compare(o.ID, n.ID) == 0 { found = true }
+			}
+			if found == true {
+				nid, err := id.Unmarshal(o.ID)
+				if err != nil { return err }
+				i.comm.RemoveHost(nid)
+			}
+		}
 	}
 
 	// update the cmix group object
@@ -156,10 +174,27 @@ func (i *Instance) UpdateFullNdf(m *pb.NDF) error {
 			"for full NDF verification")
 	}
 
+	oldNodeList := i.full.Get().Nodes
+
 	// Update the full ndf
 	err := i.full.update(m, perm.GetPubKey())
 	if err != nil {
 		return err
+	}
+
+	newNodeList := i.full.Get().Nodes
+	if len(oldNodeList) > len(newNodeList) {
+		for _, o := range oldNodeList {
+			found := false
+			for _, n := range newNodeList {
+				if bytes.Compare(o.ID, n.ID) == 0 { found = true }
+			}
+			if found == true {
+				nid, err := id.Unmarshal(o.ID)
+				if err != nil { return err }
+				i.comm.RemoveHost(nid)
+			}
+		}
 	}
 
 	// update the cmix group object
