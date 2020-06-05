@@ -6,8 +6,8 @@ require (
 	github.com/golang/protobuf v1.4.2
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/jwalterweatherman v1.1.0
-	gitlab.com/elixxir/crypto v0.0.0-20200520215729-26e50fb2df79
-	gitlab.com/elixxir/primitives v0.0.0-20200526195628-be83e386e3a5
+	gitlab.com/elixxir/crypto v0.0.0-20200605212708-94b815c48c34
+	gitlab.com/elixxir/primitives v0.0.0-20200605200100-cc0169bdd7e3
 	golang.org/x/net v0.0.0-20200513185701-a91f0712d120
 	golang.org/x/text v0.3.2 // indirect
 	google.golang.org/genproto v0.0.0-20200514193133-8feb7f20f2a2 // indirect
