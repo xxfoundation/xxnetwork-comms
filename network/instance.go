@@ -9,7 +9,6 @@
 package network
 
 import (
-	"bytes"
 	"fmt"
 	"github.com/pkg/errors"
 	"gitlab.com/elixxir/comms/connect"
@@ -120,6 +119,7 @@ func (i *Instance) UpdatePartialNdf(m *pb.NDF) error {
 			"for NDF partial verification")
 	}
 
+	// Get a list of current nodes so we can check later for removed nodes
 	oldNodeList := i.full.Get().Nodes
 
 	// Update the partial ndf
@@ -128,19 +128,9 @@ func (i *Instance) UpdatePartialNdf(m *pb.NDF) error {
 		return err
 	}
 
-	newNodeList := i.full.Get().Nodes
-	if len(oldNodeList) > len(newNodeList) {
-		for _, o := range oldNodeList {
-			found := false
-			for _, n := range newNodeList {
-				if bytes.Compare(o.ID, n.ID) == 0 { found = true }
-			}
-			if found == true {
-				nid, err := id.Unmarshal(o.ID)
-				if err != nil { return err }
-				i.comm.RemoveHost(nid)
-			}
-		}
+	err = i.removeBannedNodes(oldNodeList)
+	if err != nil {
+		return err
 	}
 
 	// update the cmix group object
@@ -174,6 +164,7 @@ func (i *Instance) UpdateFullNdf(m *pb.NDF) error {
 			"for full NDF verification")
 	}
 
+	// Get a list of current nodes so we can check later for removed nodes
 	oldNodeList := i.full.Get().Nodes
 
 	// Update the full ndf
@@ -182,19 +173,9 @@ func (i *Instance) UpdateFullNdf(m *pb.NDF) error {
 		return err
 	}
 
-	newNodeList := i.full.Get().Nodes
-	if len(oldNodeList) > len(newNodeList) {
-		for _, o := range oldNodeList {
-			found := false
-			for _, n := range newNodeList {
-				if bytes.Compare(o.ID, n.ID) == 0 { found = true }
-			}
-			if found == true {
-				nid, err := id.Unmarshal(o.ID)
-				if err != nil { return err }
-				i.comm.RemoveHost(nid)
-			}
-		}
+	err = i.removeBannedNodes(oldNodeList)
+	if err != nil {
+		return err
 	}
 
 	// update the cmix group object
@@ -213,6 +194,32 @@ func (i *Instance) UpdateFullNdf(m *pb.NDF) error {
 
 	return nil
 
+}
+
+// Remove nodes that were banned/removed from the NDF since last update
+func (i *Instance) removeBannedNodes(old []ndf.Node) error {
+	// Get the list of old nodes and populate a map with them
+	newNodeList := i.full.Get().Nodes
+	newNodeMap := make(map[string]ndf.Node)
+	for _, n := range newNodeList {
+		newNodeMap[string(n.ID)] = n
+	}
+
+	// Check the old nodes list against our new map
+	for _, n := range old {
+		// We try to find the "new" ID in the old map and see if it exists
+		// If it doesn't exist, we remove it, since that means it's been removed from the network
+		_, ok := newNodeMap[string(n.ID)]
+		if !ok {
+			nid, err := id.Unmarshal(n.ID)
+			if err != nil {
+				return err
+			}
+			i.comm.RemoveHost(nid)
+		}
+	}
+
+	return nil
 }
 
 // Return the partial ndf from this instance
