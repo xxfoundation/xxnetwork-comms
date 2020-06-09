@@ -11,6 +11,7 @@ package network
 import (
 	"fmt"
 	"github.com/pkg/errors"
+	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	ds "gitlab.com/elixxir/comms/network/dataStructures"
@@ -66,24 +67,32 @@ func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition) (*
 		e2eGroup:     ds.NewGroup(),
 	}
 
-	cmix, _ := partial.CMIX.String()
+	cmix := ""
 	if full.CMIX.Prime != "" {
 		cmix, _ = full.CMIX.String()
-	}
-	if cmix == "" {
-		return nil, errors.New("No cmix group was found in either NDF")
-	} else {
-		_ = i.cmixGroup.Update(cmix)
+	} else if partial.CMIX.Prime != "" {
+		cmix, _ = full.CMIX.String()
 	}
 
-	e2e, _ := partial.E2E.String()
+	if cmix != "" {
+		err := i.cmixGroup.Update(cmix)
+		if err != nil {
+			jww.WARN.Printf("Error updating cmix group: %+v", err)
+		}
+	}
+
+	e2e := ""
 	if full.E2E.Prime != "" {
 		e2e, _ = full.E2E.String()
+	} else if partial.E2E.Prime != "" {
+		e2e, _ = partial.E2E.String()
 	}
-	if cmix == "" {
-		return nil, errors.New("No E2E group was found in either NDF")
-	} else {
-		_ = i.e2eGroup.Update(e2e)
+
+	if cmix != "" {
+		err := i.e2eGroup.Update(e2e)
+		if err != nil {
+			jww.WARN.Printf("Error updating e2e group: %+v", err)
+		}
 	}
 
 	return i, nil
