@@ -82,14 +82,9 @@ func (s *Comms) SendRegistrationCheck(host *connect.Host,
 		// Set up the context
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
-		//Pack the message for server
-		authMsg, err := s.PackAuthenticatedMessage(message, host, false)
-		if err != nil {
-			return nil, errors.New(err.Error())
-		}
 
 		// Send the message
-		resultMsg, err := pb.NewRegistrationClient(conn).CheckRegistration(ctx, authMsg)
+		resultMsg, err := pb.NewRegistrationClient(conn).CheckRegistration(ctx, message)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}

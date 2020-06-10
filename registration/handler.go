@@ -67,7 +67,7 @@ type Handler interface {
 	PollNdf(ndfHash []byte, auth *connect.Auth) ([]byte, error)
 	Poll(msg *pb.PermissioningPoll, auth *connect.Auth, serverAddress string) (*pb.
 		PermissionPollResponse, error)
-	CheckRegistration(msg *pb.RegisteredNodeCheck, auth *connect.Auth) (*pb.RegisteredNodeConfirmation, error)
+	CheckRegistration(msg *pb.RegisteredNodeCheck) (*pb.RegisteredNodeConfirmation, error)
 }
 
 type implementationFunctions struct {
@@ -79,7 +79,7 @@ type implementationFunctions struct {
 	PollNdf func(ndfHash []byte, auth *connect.Auth) ([]byte, error)
 	Poll    func(msg *pb.PermissioningPoll, auth *connect.Auth,
 		serverAddress string) (*pb.PermissionPollResponse, error)
-	CheckRegistration func(msg *pb.RegisteredNodeCheck, auth *connect.Auth) (*pb.RegisteredNodeConfirmation, error)
+	CheckRegistration func(msg *pb.RegisteredNodeCheck) (*pb.RegisteredNodeConfirmation, error)
 }
 
 // Implementation allows users of the client library to set the
@@ -122,7 +122,7 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return &pb.PermissionPollResponse{}, nil
 			},
-			CheckRegistration: func(msg *pb.RegisteredNodeCheck, auth *connect.Auth) (*pb.
+			CheckRegistration: func(msg *pb.RegisteredNodeCheck) (*pb.
 				RegisteredNodeConfirmation, error) {
 
 				warn(um)
@@ -156,7 +156,7 @@ func (s *Implementation) Poll(msg *pb.PermissioningPoll, auth *connect.Auth, ser
 	return s.Functions.Poll(msg, auth, serverAddress)
 }
 
-func (s *Implementation) CheckRegistration(msg *pb.RegisteredNodeCheck, auth *connect.Auth) (*pb.
+func (s *Implementation) CheckRegistration(msg *pb.RegisteredNodeCheck) (*pb.
 	RegisteredNodeConfirmation, error) {
-	return s.Functions.CheckRegistration(msg, auth)
+	return s.Functions.CheckRegistration(msg)
 }

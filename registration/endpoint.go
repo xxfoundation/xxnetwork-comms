@@ -148,20 +148,8 @@ func (r *Comms) Poll(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.Per
 }
 
 // Server -> Permissioning unified polling
-func (r *Comms) CheckRegistration(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.RegisteredNodeConfirmation, error) {
-	// Create an auth object
-	authState, err := r.AuthenticatedReceiver(msg)
-	if err != nil {
-		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
-	}
-
-	// Unmarshall the any message to the message type needed
-	pollMsg := &pb.RegisteredNodeCheck{}
-	err = ptypes.UnmarshalAny(msg.Message, pollMsg)
-	if err != nil {
-		return nil, err
-	}
+func (r *Comms) CheckRegistration(ctx context.Context, msg *pb.RegisteredNodeCheck) (*pb.RegisteredNodeConfirmation, error) {
 
 	//Return the new ndf
-	return r.handler.CheckRegistration(pollMsg, authState)
+	return r.handler.CheckRegistration(msg)
 }

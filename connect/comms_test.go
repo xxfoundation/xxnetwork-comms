@@ -140,7 +140,7 @@ func (reg *MockRegComms) PollNdf(context.Context, *pb.AuthenticatedMessage) (*pb
 	}, err
 }
 
-func (reg *MockRegComms) CheckRegistration(context.Context, *pb.AuthenticatedMessage) (*pb.RegisteredNodeConfirmation, error) {
+func (reg *MockRegComms) CheckRegistration(context.Context, *pb.RegisteredNodeCheck) (*pb.RegisteredNodeConfirmation, error) {
 	return &pb.RegisteredNodeConfirmation{
 		IsRegistered: true,
 	}, nil
