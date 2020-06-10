@@ -78,6 +78,9 @@ service Node {
     // Round error comm
     rpc RoundError (AuthenticatedMessage) returns (Ack) {
     }
+
+
+
 }
 
 // RoundInfo contains the # of precomputations ready for messages, among other
@@ -238,6 +241,20 @@ service Registration {
     // Server -> Permissioning unified polling
     rpc Poll (AuthenticatedMessage) returns (PermissionPollResponse) {
     }
+
+    // Checks if node has been registered
+    rpc CheckRegistration (AuthenticatedMessage) returns (RegisteredNodeConfirmation) {
+
+    }
+}
+
+// Server -> Permissioning message for whether a node has been registered
+message RegisteredNodeConfirmation {
+    bool IsRegistered = 1;
+}
+
+message RegisteredNodeCheck {
+    bytes  ID = 1;
 }
 
 //The ndf Hash used to compare ndf on permissioning and client
