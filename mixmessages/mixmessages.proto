@@ -254,7 +254,7 @@ message RegisteredNodeConfirmation {
 }
 
 message RegisteredNodeCheck {
-    bytes  ID = 1;
+    bytes  RegCode = 1;
 }
 
 //The ndf Hash used to compare ndf on permissioning and client
