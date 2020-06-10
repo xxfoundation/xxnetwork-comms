@@ -220,3 +220,22 @@ func TestRoundTripPing(t *testing.T) {
 		t.Errorf("Received error from RoundTripPing: %+v", err)
 	}
 }
+
+func TestSendRoundError(t *testing.T) {
+	ServerAddress := getNextServerAddress()
+	testId := id.NewIdFromString("test", id.Node, t)
+	server := StartNode(testId, ServerAddress, NewImplementation(), nil, nil)
+	defer server.Shutdown()
+	var manager connect.Manager
+
+	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
+	if err != nil {
+		t.Errorf("Unable to call NewHost: %+v", err)
+	}
+
+	_, err = server.SendRoundError(host, &pb.RoundError{})
+	if err != nil {
+		t.Errorf("NewRound: Error received: %s", err)
+	}
+
+}
