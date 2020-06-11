@@ -102,6 +102,50 @@ func TestProtoComms_AuthenticatedReceiver(t *testing.T) {
 	}
 }
 
+// Error path
+func TestProtoComms_AuthenticatedReceiver_BadId(t *testing.T) {
+	// Create comm object
+	pc := ProtoComms{
+		Manager:       Manager{},
+		tokens:        sync.Map{},
+		LocalServer:   nil,
+		ListeningAddr: "",
+		privateKey:    nil,
+	}
+	// Create id and token
+	testID := id.NewIdFromString("testSender", id.Node, t)
+	token := []byte("testtoken")
+
+	// Add host
+	_, err := pc.AddHost(testID, "", nil, false, true)
+	if err != nil {
+		t.Errorf("Failed to add host: %+v", err)
+	}
+
+	// Get host
+	h, _ := pc.GetHost(testID)
+	h.receptionToken = token
+
+	badId := []byte("badID")
+
+	msg := &pb.AuthenticatedMessage{
+		ID:        badId,
+		Signature: nil,
+		Token:     token,
+		Message:   nil,
+	}
+
+	// Try the authenticated received
+	_, err = pc.AuthenticatedReceiver(msg)
+	if err != nil {
+		return
+	}
+
+	t.Errorf("Expected error path!"+
+		"Should not be able to marshal a message with id: %v", badId)
+
+}
+
 // Happy path
 func TestProtoComms_GenerateToken(t *testing.T) {
 	comm := ProtoComms{
@@ -206,6 +250,58 @@ func TestProtoComms_ValidateToken(t *testing.T) {
 			"Expected: %+v"+
 			"\n\tReceived: %+v", host.transmissionToken, msg.Token)
 	}
+}
+
+// Error Path
+func TestProtoComms_ValidateToken_BadId(t *testing.T) {
+	testId := id.NewIdFromString("test", id.Node, t)
+	comm := ProtoComms{
+		Id:            testId,
+		LocalServer:   nil,
+		ListeningAddr: "",
+		privateKey:    nil,
+	}
+	err := comm.setPrivateKey(testkeys.LoadFromPath(testkeys.GetNodeKeyPath()))
+	if err != nil {
+		t.Errorf("Expected to set private key: %+v", err)
+	}
+
+	tokenBytes, err := comm.GenerateToken()
+	if err != nil || tokenBytes == nil {
+		t.Errorf("Unable to generate token: %+v", err)
+	}
+
+	pub := testkeys.LoadFromPath(testkeys.GetNodeCertPath())
+	host, err := comm.AddHost(testId, "test", pub, false, true)
+	if err != nil {
+		t.Errorf("Unable to create host: %+v", err)
+	}
+	host.transmissionToken = tokenBytes
+
+	tokenMsg := &pb.AssignToken{
+		Token: tokenBytes,
+	}
+
+	msg, err := comm.PackAuthenticatedMessage(tokenMsg, host, true)
+	if err != nil {
+		t.Errorf("Expected no error packing authenticated message: %+v", err)
+	}
+
+	// Assign message a bad id
+	badId := []byte("badID")
+	msg.ID = badId
+
+	msg.Client.PublicKey = string(pub)
+
+	// Check the token
+	err = comm.ValidateToken(msg)
+	if err != nil {
+		return
+	}
+
+	t.Errorf("Expected error path!"+
+		"Should not be able to marshal a message with id: %v", badId)
+
 }
 
 // Dynamic authentication happy path (e.g. host not pre-added)

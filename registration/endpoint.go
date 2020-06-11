@@ -146,3 +146,10 @@ func (r *Comms) Poll(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.Per
 	//Return the new ndf
 	return r.handler.Poll(pollMsg, authState, address)
 }
+
+// Server -> Permissioning unified polling
+func (r *Comms) CheckRegistration(ctx context.Context, msg *pb.RegisteredNodeCheck) (*pb.RegisteredNodeConfirmation, error) {
+
+	//Return the new ndf
+	return r.handler.CheckRegistration(msg)
+}
