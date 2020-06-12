@@ -160,57 +160,115 @@ func (c *ProtoComms) GetPrivateKey() *rsa.PrivateKey {
 	return c.privateKey
 }
 
+const (
+	//numerical designators for 3 operations of send, used to ensure the same
+	//operation isn't repeated
+	con  = 1
+	auth = 2
+	send = 3
+	//maximum number of connection attempts. should be 1 because a connection
+	//is unlikely to be successful after a failure
+	maxConnects = 1
+	//maximum number of auth attempts. should be 3 because while a connection
+	//is unlikely to be successful after a failure, it is possible to attempt
+	//one on a dead connection and then need to do it again after the connection
+	//is resuscitated
+	maxAuths = 2
+)
+
 // Sets up or recovers the Host's connection
 // Then runs the given Send function
 func (c *ProtoComms) Send(host *Host, f func(conn *grpc.ClientConn) (*any.Any,
 	error)) (result *any.Any, err error) {
 
-	// Number of attempts to negotiate a handshake
-	for numTries := 3; numTries > 0; numTries-- {
+	numConnects, numAuths, lastEvent := 0, 0, 0
+
+connect:
+	// Ensure the connection is running
+	if !host.Connected() {
+		//do not attempt to connect again if multiple attempts have been made
+		if numConnects == maxConnects {
+			return nil, errors.WithMessage(err, "Maximum number of connects attempted")
+		}
+
+		//denote that a connection is being tried
+		lastEvent = con
+
+		//attempt to make the connection
+		jww.INFO.Printf("Host %s disconnected, attempting to reconnect...", host.id.String())
+		err = host.connect()
+		//if connection cannot be made, do not retry
 		if err != nil {
-			jww.WARN.Printf("Send attempt recieved error: %s", err)
-			err = nil
-		}
-		jww.TRACE.Printf("Attempt %v to send to host %s...",
-			4-numTries, host.id.String())
-
-		// Ensure the connection is running
-		if !host.Connected() {
-			jww.INFO.Printf("Host %s disconnected, attempting to reconnect...", host.id.String())
-			err = host.connect()
-			if err != nil {
-				err = errors.WithMessage(err, "Failed to connect")
-				continue
-			}
+			return nil, errors.WithMessage(err, "Failed to connect")
 		}
 
-		// Establish authentication if required
-		if host.authenticationRequired() && host.transmissionToken == nil {
-			jww.INFO.Printf("Attempting to establish authentication with host %s", host.id.String())
-			err = host.authenticate(c.clientHandshake)
-			if err != nil {
-				err = errors.WithMessage(err, "Failed to authenticate")
-				continue
-			}
+		//denote the connection attempt
+		numConnects++
+	}
+
+authorize:
+	// Establish authentication if required
+	if host.authenticationRequired() && host.transmissionToken == nil {
+		//do not attempt to connect again if multiple attempts have been made
+		if numAuths == maxAuths {
+			return nil, errors.New("Maximum number of authorizations attempted")
 		}
 
-		// Attempt to send to host
-		result, err = host.send(f)
-		// If failed to authenticate, retry negotiation by jumping to the top of the loop
+		//do not try multiple auths in a row
+		if lastEvent == auth {
+			return nil, errors.New("Cannot attempt to authorize with host multiple times in a row")
+		}
+
+		//denote that an auth is being tried
+		lastEvent = auth
+
+		jww.INFO.Printf("Attempting to establish authentication with host %s", host.id.String())
+		err = host.authenticate(c.clientHandshake)
 		if err != nil {
-			// Handle resetting authentication
-			if strings.Contains(err.Error(), AuthError(host.id).Error()) {
-				host.transmissionToken = nil
+			//if failure of connection, retry connection
+			if isConnError(err) {
+				jww.INFO.Printf("Failed to auth due to connection issuse: %s", err)
+				goto connect
 			}
-
-			// Handle resetting connection
-			err = errors.WithMessage(err, "Failed to send")
-			continue
+			//otherwise, return the error
+			return nil, errors.New("Failed to authenticate")
 		}
-		break
+
+		//denote the authorization attempt
+		numAuths++
+	}
+
+	//denote that a send is being tried
+	lastEvent = send
+	// Attempt to send to host
+	result, err = host.send(f)
+	// If failed to authenticate, retry negotiation by jumping to the top of the loop
+	if err != nil {
+		//if failure of connection, retry connection
+		if isConnError(err) {
+			jww.INFO.Printf("Failed send due to connection issuse: %s", err)
+			goto connect
+		}
+
+		// Handle resetting authentication
+		if strings.Contains(err.Error(), AuthError(host.id).Error()) {
+			jww.INFO.Printf("Failed send due to auth error, retrying authentication: %s", err.Error())
+			host.transmissionToken = nil
+			goto authorize
+		}
+
+		// otherwise, return the error
+		return nil, errors.WithMessage(err, "Failed to send")
 	}
 
 	return result, err
+}
+
+// returns true if the connection error is one of the connection errors which
+// should be retried
+func isConnError(err error) bool {
+	return strings.Contains(err.Error(), "context deadline exceeded") ||
+		strings.Contains(err.Error(), "connection refused")
 }
 
 // Sets up or recovers the Host's connection
