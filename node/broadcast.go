@@ -252,7 +252,8 @@ func (s *Comms) SendPostPrecompResult(host *connect.Host,
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Post Precomp Result message: %+v", slots)
+	jww.DEBUG.Printf("Sending Post Precomp Result message...")
+	jww.TRACE.Printf("Sending Post Precomp Result message: %+v", slots)
 	resultMsg, err := s.Send(host, f)
 	if err != nil {
 		return nil, err
@@ -288,7 +289,8 @@ func (s *Comms) RoundTripPing(host *connect.Host, rtPing *pb.RoundTripPing) (*pb
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Round Trip Ping message: %+v", rtPing)
+	jww.DEBUG.Printf("Sending Round Trip Ping message...")
+	jww.TRACE.Printf("Sending Round Trip Ping message: %+v", rtPing)
 	resultMsg, err := s.Send(host, f)
 	if err != nil {
 		return nil, err
