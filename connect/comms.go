@@ -182,6 +182,11 @@ func (c *ProtoComms) Send(host *Host, f func(conn *grpc.ClientConn) (*any.Any,
 				err = errors.WithMessage(err, "Failed to connect")
 				continue
 			}
+			//always reset tokens on connection if they are set
+			if host.transmissionToken != nil {
+				jww.INFO.Println("Forcing re-authentication after reconnect")
+				host.transmissionToken = nil
+			}
 		}
 
 		// Establish authentication if required
