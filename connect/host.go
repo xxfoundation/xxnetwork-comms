@@ -21,6 +21,7 @@ import (
 	"google.golang.org/grpc/credentials"
 	"math"
 	"sync"
+	"testing"
 	"time"
 )
 
@@ -368,4 +369,16 @@ func (h *Host) String() string {
 		h.id, addr, h.certificate, h.transmissionToken,
 		h.receptionToken, h.enableAuth, h.maxRetries, state,
 		serverName, protocolVersion, securityVersion, securityProtocol)
+}
+
+func (h *Host) SetTestPublicKey(key *rsa.PublicKey, t interface{}) {
+	switch t.(type) {
+	case *testing.T:
+		break
+	case *testing.M:
+		break
+	default:
+		jww.FATAL.Panicf("GenerateId is restricted to testing only. Got %T", i)
+	}
+	h.rsaPublicKey = key
 }
