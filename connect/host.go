@@ -378,7 +378,7 @@ func (h *Host) SetTestPublicKey(key *rsa.PublicKey, t interface{}) {
 	case *testing.M:
 		break
 	default:
-		jww.FATAL.Panicf("GenerateId is restricted to testing only. Got %T", i)
+		jww.FATAL.Panicf("SetTestPublicKey is restricted to testing only. Got %T", t)
 	}
 	h.rsaPublicKey = key
 }
