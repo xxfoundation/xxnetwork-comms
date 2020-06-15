@@ -337,7 +337,6 @@ func (i *Instance) SetProtoComms(newPC *connect.ProtoComms) {
 func updateConns(def *ndf.NetworkDefinition, comms *connect.ProtoComms, gate, node bool) error {
 	if gate {
 		for i, h := range def.Gateways {
-			//gwid := id.NewNodeFromBytes(def.Nodes[i].ID).NewGateway().String()
 			gwid, err := id.Unmarshal(def.Nodes[i].ID)
 			if err != nil {
 				return err
@@ -346,6 +345,12 @@ func updateConns(def *ndf.NetworkDefinition, comms *connect.ProtoComms, gate, no
 
 			host, ok := comms.GetHost(gwid)
 			if !ok {
+				// Check if gateway ID collides with an existing hard coded ID
+				if id.CollidesWithHardCodedID(gwid) {
+					return errors.Errorf("Gateway ID invalid, collides with a "+
+						"hard coded ID. Invalid ID: %v", gwid.Marshal())
+				}
+
 				_, err := comms.AddHost(gwid, h.Address, []byte(h.TlsCertificate), false, true)
 				if err != nil {
 					return errors.WithMessagef(err, "Could not add gateway host %s", gwid)
@@ -363,6 +368,12 @@ func updateConns(def *ndf.NetworkDefinition, comms *connect.ProtoComms, gate, no
 			}
 			host, ok := comms.GetHost(nid)
 			if !ok {
+				// Check if node ID collides with an existing hard coded ID
+				if id.CollidesWithHardCodedID(nid) {
+					return errors.Errorf("Node ID invalid, collides with a "+
+						"hard coded ID. Invalid ID: %v", nid.Marshal())
+				}
+
 				_, err := comms.AddHost(nid, h.Address, []byte(h.TlsCertificate), false, true)
 				if err != nil {
 					return errors.WithMessagef(err, "Could not add node host %s", nid)
