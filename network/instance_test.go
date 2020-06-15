@@ -267,6 +267,24 @@ func TestInstance_UpdateGatewayConnections(t *testing.T) {
 	}
 }
 
+// Tests that UpdateGatewayConnections() returns an error when a Gateway ID
+// collides with a hard coded ID.
+func TestInstance_UpdateGatewayConnections_GatewayIdError(t *testing.T) {
+	testDef := *testutils.NDF
+	testDef.Nodes = []ndf.Node{{ID: id.TempGateway.Marshal()}}
+	secured, _ := NewSecuredNdf(&testDef)
+
+	i := Instance{
+		full: secured,
+		comm: &connect.ProtoComms{},
+	}
+	err := i.UpdateGatewayConnections()
+	if err == nil {
+		t.Errorf("UpdateGatewayConnections() failed to produce an error when " +
+			"the Gateway ID collides with a hard coded ID.")
+	}
+}
+
 func TestInstance_UpdateNodeConnections(t *testing.T) {
 	secured, _ := NewSecuredNdf(testutils.NDF)
 
@@ -292,6 +310,24 @@ func TestInstance_UpdateNodeConnections(t *testing.T) {
 	err = i.UpdateNodeConnections()
 	if err == nil {
 		t.Error("Should error when attempting update with no ndf")
+	}
+}
+
+// Tests that UpdateNodeConnections() returns an error when a Node ID collides
+// with a hard coded ID.
+func TestInstance_UpdateNodeConnections_NodeIdError(t *testing.T) {
+	testDef := *testutils.NDF
+	testDef.Nodes = []ndf.Node{{ID: id.Permissioning.Marshal()}}
+	secured, _ := NewSecuredNdf(&testDef)
+
+	i := Instance{
+		full: secured,
+		comm: &connect.ProtoComms{},
+	}
+	err := i.UpdateNodeConnections()
+	if err == nil {
+		t.Errorf("UpdateNodeConnections() failed to produce an error when the " +
+			"Node ID collides with a hard coded ID.")
 	}
 }
 
