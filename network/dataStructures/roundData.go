@@ -15,6 +15,8 @@ import (
 	"gitlab.com/elixxir/primitives/ring"
 )
 
+const RoundInfoBufLen = 500
+
 // ID numbers can overwrite
 type Data struct {
 	rounds *ring.Buff

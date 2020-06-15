@@ -14,8 +14,7 @@ import (
 	"gitlab.com/elixxir/primitives/ring"
 )
 
-const RoundInfoBufLen = 1000
-const RoundUpdatesBufLen = 10000
+const RoundUpdatesBufLen = 1500
 
 // Standard ring buffer, but objects come with numbering
 type Updates struct {
