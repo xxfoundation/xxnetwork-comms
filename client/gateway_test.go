@@ -1,8 +1,9 @@
-////////////////////////////////////////////////////////////////////////////////
-// Copyright © 2018 Privategrity Corporation                                   /
-//                                                                             /
-// All rights reserved.                                                        /
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+// Copyright © 2020 xx network SEZC                                          //
+//                                                                           //
+// Use of this source code is governed by a license that can be found in the //
+// LICENSE file                                                              //
+///////////////////////////////////////////////////////////////////////////////
 
 package client
 
@@ -10,20 +11,21 @@ import (
 	"gitlab.com/elixxir/comms/connect"
 	"gitlab.com/elixxir/comms/gateway"
 	pb "gitlab.com/elixxir/comms/mixmessages"
+	"gitlab.com/elixxir/primitives/id"
 	"testing"
 )
 
 // Smoke test SendGetMessage
 func TestSendPutMessage(t *testing.T) {
 	gatewayAddress := getNextAddress()
-	gw := gateway.StartGateway("test", gatewayAddress,
+	testID := id.NewIdFromString("test", id.Gateway, t)
+	gw := gateway.StartGateway(testID, gatewayAddress,
 		gateway.NewImplementation(), nil, nil)
 	defer gw.Shutdown()
 	var c Comms
 	var manager connect.Manager
 
-	testId := "test"
-	host, err := manager.AddHost(testId, gatewayAddress, nil, false, false)
+	host, err := manager.AddHost(testID, gatewayAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -37,19 +39,22 @@ func TestSendPutMessage(t *testing.T) {
 // Smoke test SendCheckMessages
 func TestSendCheckMessages(t *testing.T) {
 	gatewayAddress := getNextAddress()
-	gw := gateway.StartGateway("test", gatewayAddress,
+	testID := id.NewIdFromString("test", id.Gateway, t)
+	gw := gateway.StartGateway(testID, gatewayAddress,
 		gateway.NewImplementation(), nil, nil)
 	var c Comms
 	defer gw.Shutdown()
 	var manager connect.Manager
 
-	testId := "test"
-	host, err := manager.AddHost(testId, gatewayAddress, nil, false, false)
+	host, err := manager.AddHost(testID, gatewayAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
 
-	_, err = c.SendCheckMessages(host, &pb.ClientRequest{})
+	testUserID := id.NewIdFromString("Test User", id.User, t)
+	testUserEntityID := &pb.ClientRequest{UserID: testUserID.Bytes()}
+
+	_, err = c.SendCheckMessages(host, testUserEntityID)
 	if err != nil {
 		t.Errorf("CheckMessages: Error received: %s", err)
 	}
@@ -58,20 +63,23 @@ func TestSendCheckMessages(t *testing.T) {
 // Smoke test SendGetMessage
 func TestSendGetMessage(t *testing.T) {
 	gatewayAddress := getNextAddress()
-	gw := gateway.StartGateway("test", gatewayAddress,
+	testID := id.NewIdFromString("test", id.Gateway, t)
+	gw := gateway.StartGateway(testID, gatewayAddress,
 		gateway.NewImplementation(), nil, nil)
 	var c Comms
 	defer gw.Shutdown()
 
 	var manager connect.Manager
 
-	testId := "test"
-	host, err := manager.AddHost(testId, gatewayAddress, nil, false, false)
+	host, err := manager.AddHost(testID, gatewayAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
 
-	_, err = c.SendGetMessage(host, &pb.ClientRequest{})
+	testUserID := id.NewIdFromString("Test User", id.User, t)
+	testUserEntityID := &pb.ClientRequest{UserID: testUserID.Bytes()}
+
+	_, err = c.SendGetMessage(host, testUserEntityID)
 	if err != nil {
 		t.Errorf("GetMessage: Error received: %s", err)
 	}
@@ -80,14 +88,14 @@ func TestSendGetMessage(t *testing.T) {
 // Smoke test SendRequestNonceMessage
 func TestSendRequestNonceMessage(t *testing.T) {
 	gatewayAddress := getNextAddress()
-	gw := gateway.StartGateway("test", gatewayAddress,
+	testID := id.NewIdFromString("test", id.Gateway, t)
+	gw := gateway.StartGateway(testID, gatewayAddress,
 		gateway.NewImplementation(), nil, nil)
 	defer gw.Shutdown()
 	var c Comms
 	var manager connect.Manager
 
-	testId := "test"
-	host, err := manager.AddHost(testId, gatewayAddress, nil, false, false)
+	host, err := manager.AddHost(testID, gatewayAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -101,14 +109,14 @@ func TestSendRequestNonceMessage(t *testing.T) {
 // Smoke test SendConfirmNonceMessage
 func TestSendConfirmNonceMessage(t *testing.T) {
 	gatewayAddress := getNextAddress()
-	gw := gateway.StartGateway("test", gatewayAddress,
+	testID := id.NewIdFromString("test", id.Gateway, t)
+	gw := gateway.StartGateway(testID, gatewayAddress,
 		gateway.NewImplementation(), nil, nil)
 	defer gw.Shutdown()
 	var c Comms
 	var manager connect.Manager
 
-	testId := "test"
-	host, err := manager.AddHost(testId, gatewayAddress, nil, false, false)
+	host, err := manager.AddHost(testID, gatewayAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -123,14 +131,14 @@ func TestSendConfirmNonceMessage(t *testing.T) {
 // Smoke test SendPoll
 func TestComms_SendPoll(t *testing.T) {
 	gatewayAddress := getNextAddress()
-	gw := gateway.StartGateway("test", gatewayAddress,
+	testID := id.NewIdFromString("test", id.Gateway, t)
+	gw := gateway.StartGateway(testID, gatewayAddress,
 		gateway.NewImplementation(), nil, nil)
 	defer gw.Shutdown()
 	var c Comms
 	var manager connect.Manager
 
-	testId := "test"
-	host, err := manager.AddHost(testId, gatewayAddress, nil, false, false)
+	host, err := manager.AddHost(testID, gatewayAddress, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}

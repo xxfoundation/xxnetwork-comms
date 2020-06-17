@@ -1,13 +1,15 @@
-////////////////////////////////////////////////////////////////////////////////
-// Copyright © 2018 Privategrity Corporation                                   /
-//                                                                             /
-// All rights reserved.                                                        /
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+// Copyright © 2020 xx network SEZC                                          //
+//                                                                           //
+// Use of this source code is governed by a license that can be found in the //
+// LICENSE file                                                              //
+///////////////////////////////////////////////////////////////////////////////
 
 package connect
 
 import (
 	"gitlab.com/elixxir/comms/testkeys"
+	"gitlab.com/elixxir/primitives/id"
 	"google.golang.org/grpc"
 	"math"
 	"net"
@@ -59,13 +61,13 @@ func TestConnectionManager_Disconnect(t *testing.T) {
 	pass := 0
 	address := ServerAddress
 	var manager Manager
-	testId := "testId"
+	testId := id.NewIdFromString("testId", id.Node, t)
 	host, err := manager.AddHost(testId, address, nil, false, false)
 	if err != nil {
 		t.Errorf("Unable to call connnect: %+v", err)
 	}
 
-	_, inMap := manager.connections.Load(testId)
+	_, inMap := manager.connections.Load(*testId)
 
 	if !inMap {
 		t.Errorf("connect Function didn't add connection to map")
@@ -97,8 +99,8 @@ func TestConnectionManager_DisconnectAll(t *testing.T) {
 	address := ServerAddress
 	address2 := ServerAddress2
 	var manager Manager
-	testId := "testId"
-	testId2 := "TestId2"
+	testId := id.NewIdFromString("testId", id.Generic, t)
+	testId2 := id.NewIdFromString("TestId2", id.Generic, t)
 
 	host, err := manager.AddHost(testId, address, nil, false, false)
 	if err != nil {
@@ -127,7 +129,7 @@ func TestConnectionManager_DisconnectAll(t *testing.T) {
 		t.Errorf("Unable to call connnect: %+v", err)
 	}
 
-	_, inMap = manager.connections.Load(testId2)
+	_, inMap = manager.connections.Load(*testId2)
 
 	if !inMap {
 		t.Errorf("connect Function didn't add connection to map")
@@ -153,15 +155,41 @@ func TestConnectionManager_DisconnectAll(t *testing.T) {
 
 func TestConnectionManager_String(t *testing.T) {
 	var manager Manager
-	t.Log(manager)
+	//t.Log(manager)
 
 	certPath := testkeys.GetNodeCertPath()
 	certData := testkeys.LoadFromPath(certPath)
-	_, err := manager.AddHost("test", "test", certData, false, false)
+	testID := id.NewIdFromString("test", id.Node, t)
+	_, err := manager.AddHost(testID, "test", certData, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
 
 	// Initialize the connection object
 	t.Log(manager.String())
+}
+
+// Show that if a connection is in the map,
+// it's no longer in the map after RemoveHost is called
+func TestConnectionManager_RemoveHost(t *testing.T) {
+	var manager Manager
+
+	// After adding the host, the connection should be accessible
+	id := id.NewIdFromString("i am a connection", id.Gateway, t)
+	manager.addHost(&Host{id: id})
+	_, ok := manager.GetHost(id)
+	if !ok {
+		t.Errorf("Host with id %v not in connection manager", id)
+	}
+
+	// After removing the host, the connection should no longer be accessible
+	// from the manager
+	manager.RemoveHost(id)
+	_, ok = manager.GetHost(id)
+	if ok {
+		t.Errorf("Host with id %v was in connection manager, but oughtn't to have been", id)
+	}
+
+	// Removing the host again shouldn't cause any panics or problems
+	manager.RemoveHost(id)
 }

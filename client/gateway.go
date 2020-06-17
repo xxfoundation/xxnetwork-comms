@@ -1,8 +1,9 @@
-////////////////////////////////////////////////////////////////////////////////
-// Copyright © 2018 Privategrity Corporation                                   /
-//                                                                             /
-// All rights reserved.                                                        /
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+// Copyright © 2020 xx network SEZC                                          //
+//                                                                           //
+// Use of this source code is governed by a license that can be found in the //
+// LICENSE file                                                              //
+///////////////////////////////////////////////////////////////////////////////
 
 // Contains client -> gateway functionality
 
@@ -64,7 +65,6 @@ func (c *Comms) SendCheckMessages(host *connect.Host,
 	if err != nil {
 		return nil, err
 	}
-
 	// Marshall the result
 	result := &pb.IDList{}
 	return result, ptypes.UnmarshalAny(resultMsg, result)

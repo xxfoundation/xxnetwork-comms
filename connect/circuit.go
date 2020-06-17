@@ -1,8 +1,9 @@
-////////////////////////////////////////////////////////////////////////////////
-// Copyright © 2019 Privategrity Corporation                                   /
-//                                                                             /
-// All rights reserved.                                                        /
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+// Copyright © 2020 xx network SEZC                                          //
+//                                                                           //
+// Use of this source code is governed by a license that can be found in the //
+// LICENSE file                                                              //
+///////////////////////////////////////////////////////////////////////////////
 
 package connect
 
@@ -12,8 +13,8 @@ import (
 )
 
 type Circuit struct {
-	nodes       []*id.Node
-	nodeIndexes map[id.Node]int
+	nodes       []*id.ID
+	nodeIndexes map[id.ID]int
 	hosts       []*Host
 }
 
@@ -23,10 +24,10 @@ type Circuit struct {
 // to ensure any modification of them does not change the
 // Circuit structure.  Will panic if the length of the passed
 // list is zero.
-func NewCircuit(list []*id.Node) *Circuit {
+func NewCircuit(list []*id.ID) *Circuit {
 	c := Circuit{
-		nodes:       make([]*id.Node, 0),
-		nodeIndexes: make(map[id.Node]int),
+		nodes:       make([]*id.ID, 0),
+		nodeIndexes: make(map[id.ID]int),
 		hosts:       make([]*Host, 0),
 	}
 
@@ -49,7 +50,7 @@ func NewCircuit(list []*id.Node) *Circuit {
 
 // GetNodeLocation returns the location of the passed node in the list.
 // Returns -1 if the node is not in the list
-func (c *Circuit) GetNodeLocation(node *id.Node) int {
+func (c *Circuit) GetNodeLocation(node *id.ID) int {
 	nodeLoc, ok := c.nodeIndexes[*node]
 
 	if !ok {
@@ -61,7 +62,7 @@ func (c *Circuit) GetNodeLocation(node *id.Node) int {
 
 // GetNodeAtIndex returns the node at the given index.  Panics
 // if the index does not exist within the circuit
-func (c *Circuit) GetNodeAtIndex(index int) *id.Node {
+func (c *Circuit) GetNodeAtIndex(index int) *id.ID {
 	if index < 0 || index >= len(c.nodes) {
 		jww.FATAL.Panicf("Cannot get an index %v which is outside"+
 			" the Circut (len=%v)", index, len(c.nodes))
@@ -69,8 +70,8 @@ func (c *Circuit) GetNodeAtIndex(index int) *id.Node {
 	return c.nodes[index].DeepCopy()
 }
 
-// Get the last node in the ciruit, will panic if the circuit has nil as a node
-func (c *Circuit) GetLastNode() *id.Node {
+// Get the last node in the circuit, will panic if the circuit has nil as a node
+func (c *Circuit) GetLastNode() *id.ID {
 	return c.GetNodeAtIndex(c.Len() - 1)
 }
 
@@ -82,7 +83,7 @@ func (c *Circuit) Len() int {
 // GetNextNode gets the node following the passed node in
 // the list. It wraps around to the beginning of the list
 // if the passed node is the last node.
-func (c *Circuit) GetNextNode(from *id.Node) *id.Node {
+func (c *Circuit) GetNextNode(from *id.ID) *id.ID {
 	loc := c.GetNodeLocation(from)
 
 	if loc == -1 {
@@ -96,7 +97,7 @@ func (c *Circuit) GetNextNode(from *id.Node) *id.Node {
 // GetNextNode gets the node preceding the passed node in
 // the list. It wraps around to the end of the list
 // if the passed node is the first node.
-func (c *Circuit) GetPrevNode(from *id.Node) *id.Node {
+func (c *Circuit) GetPrevNode(from *id.ID) *id.ID {
 	loc := c.GetNodeLocation(from)
 
 	if loc == -1 {
@@ -116,13 +117,13 @@ func (c *Circuit) GetPrevNode(from *id.Node) *id.Node {
 
 // IsFirstNode returns true if the passed node is the
 // first node, false otherwise
-func (c *Circuit) IsFirstNode(node *id.Node) bool {
+func (c *Circuit) IsFirstNode(node *id.ID) bool {
 	return c.GetNodeLocation(node) == 0
 }
 
 // IsLastNode returns true if the passed node is the
 // last node, false otherwise
-func (c *Circuit) IsLastNode(node *id.Node) bool {
+func (c *Circuit) IsLastNode(node *id.ID) bool {
 	return c.GetNodeLocation(node) == c.Len()-1
 }
 
@@ -157,8 +158,8 @@ func (c *Circuit) AddHost(newHost *Host) {
 
 // shiftLeft rotates the node IDs in a slice to the left the specified number of
 // times.
-func shiftLeft(list []*id.Node, rotation int) []*id.Node {
-	var newList []*id.Node
+func shiftLeft(list []*id.ID, rotation int) []*id.ID {
+	var newList []*id.ID
 	size := len(list)
 
 	for i := 0; i < rotation; i++ {

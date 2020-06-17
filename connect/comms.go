@@ -1,8 +1,9 @@
-////////////////////////////////////////////////////////////////////////////////
-// Copyright © 2018 Privategrity Corporation                                   /
-//                                                                             /
-// All rights reserved.                                                        /
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+// Copyright © 2020 xx network SEZC                                          //
+//                                                                           //
+// Use of this source code is governed by a license that can be found in the //
+// LICENSE file                                                              //
+///////////////////////////////////////////////////////////////////////////////
 
 // Handles the basic top-level comms object used across all packages
 
@@ -34,7 +35,7 @@ type ProtoComms struct {
 	Manager
 
 	// The network ID of this comms server
-	Id string
+	Id *id.ID
 
 	// Private key of the local comms instance
 	privateKey *rsa.PrivateKey
@@ -65,7 +66,8 @@ type ProtoComms struct {
 }
 
 // Creates a ProtoComms client-type object to be used in various initializers
-func CreateCommClient(id string, pubKeyPem, privKeyPem, salt []byte) (*ProtoComms, error) {
+func CreateCommClient(id *id.ID, pubKeyPem, privKeyPem,
+	salt []byte) (*ProtoComms, error) {
 	// Build the ProtoComms object
 	pc := &ProtoComms{
 		Id:        id,
@@ -84,7 +86,7 @@ func CreateCommClient(id string, pubKeyPem, privKeyPem, salt []byte) (*ProtoComm
 }
 
 // Creates a ProtoComms server-type object to be used in various initializers
-func StartCommServer(id string, localServer string, certPEMblock,
+func StartCommServer(id *id.ID, localServer string, certPEMblock,
 	keyPEMblock []byte) (*ProtoComms, net.Listener, error) {
 
 	// Build the ProtoComms object
@@ -159,45 +161,115 @@ func (c *ProtoComms) GetPrivateKey() *rsa.PrivateKey {
 	return c.privateKey
 }
 
+const (
+	//numerical designators for 3 operations of send, used to ensure the same
+	//operation isn't repeated
+	con  = 1
+	auth = 2
+	send = 3
+	//maximum number of connection attempts. should be 1 because a connection
+	//is unlikely to be successful after a failure
+	maxConnects = 1
+	//maximum number of auth attempts. should be 3 because while a connection
+	//is unlikely to be successful after a failure, it is possible to attempt
+	//one on a dead connection and then need to do it again after the connection
+	//is resuscitated
+	maxAuths = 2
+)
+
 // Sets up or recovers the Host's connection
 // Then runs the given Send function
 func (c *ProtoComms) Send(host *Host, f func(conn *grpc.ClientConn) (*any.Any,
 	error)) (result *any.Any, err error) {
 
+	numConnects, numAuths, lastEvent := 0, 0, 0
+
+connect:
 	// Ensure the connection is running
-	jww.TRACE.Printf("Attempting to send to host: %s", host)
 	if !host.Connected() {
-		err = host.connect()
-		if err != nil {
-			return
+		//do not attempt to connect again if multiple attempts have been made
+		if numConnects == maxConnects {
+			return nil, errors.WithMessage(err, "Maximum number of connects attempted")
 		}
+
+		//denote that a connection is being tried
+		lastEvent = con
+
+		//attempt to make the connection
+		jww.INFO.Printf("Host %s disconnected, attempting to reconnect...", host.id.String())
+		err = host.connect()
+		//if connection cannot be made, do not retry
+		if err != nil {
+			return nil, errors.WithMessage(err, "Failed to connect")
+		}
+
+		//denote the connection attempt
+		numConnects++
 	}
 
-	// Number of attempts to negotiate a handshake
-	numTries := 1
-
-	// Authentication loop
-authenticate:
-	numTries--
-
+authorize:
 	// Establish authentication if required
-	if host.authenticationRequired() {
+	if host.authenticationRequired() && host.transmissionToken == nil {
+		//do not attempt to connect again if multiple attempts have been made
+		if numAuths == maxAuths {
+			return nil, errors.New("Maximum number of authorizations attempted")
+		}
+
+		//do not try multiple auths in a row
+		if lastEvent == auth {
+			return nil, errors.New("Cannot attempt to authorize with host multiple times in a row")
+		}
+
+		//denote that an auth is being tried
+		lastEvent = auth
+
+		jww.INFO.Printf("Attempting to establish authentication with host %s", host.id.String())
 		err = host.authenticate(c.clientHandshake)
 		if err != nil {
-			return
+			//if failure of connection, retry connection
+			if isConnError(err) {
+				jww.INFO.Printf("Failed to auth due to connection issuse: %s", err)
+				goto connect
+			}
+			//otherwise, return the error
+			return nil, errors.New("Failed to authenticate")
 		}
+
+		//denote the authorization attempt
+		numAuths++
 	}
+
+	//denote that a send is being tried
+	lastEvent = send
 	// Attempt to send to host
 	result, err = host.send(f)
-
 	// If failed to authenticate, retry negotiation by jumping to the top of the loop
-	if err != nil && strings.Contains(err.Error(), "Failed to authenticate") && numTries > 0 {
-		jww.WARN.Printf("Failed to authenticate, %d retries left", numTries)
-		goto authenticate
+	if err != nil {
+		//if failure of connection, retry connection
+		if isConnError(err) {
+			jww.INFO.Printf("Failed send due to connection issuse: %s", err)
+			goto connect
+		}
+
+		// Handle resetting authentication
+		if strings.Contains(err.Error(), AuthError(host.id).Error()) {
+			jww.INFO.Printf("Failed send due to auth error, retrying authentication: %s", err.Error())
+			host.transmissionToken = nil
+			goto authorize
+		}
+
+		// otherwise, return the error
+		return nil, errors.WithMessage(err, "Failed to send")
 	}
 
-	// Run the send function
 	return result, err
+}
+
+// returns true if the connection error is one of the connection errors which
+// should be retried
+func isConnError(err error) bool {
+	return strings.Contains(err.Error(), "context deadline exceeded") ||
+		strings.Contains(err.Error(), "connection refused")
 }
 
 // Sets up or recovers the Host's connection
@@ -280,7 +352,7 @@ func (c *ProtoComms) RetrieveNdf(currentDef *ndf.NetworkDefinition) (*ndf.Networ
 	//Put the hash in a message
 	msg := &mixmessages.NDFHash{Hash: ndfHash}
 
-	regHost, ok := c.Manager.GetHost(id.PERMISSIONING)
+	regHost, ok := c.Manager.GetHost(&id.Permissioning)
 	if !ok {
 		return nil, errors.New("Failed to find permissioning host")
 	}

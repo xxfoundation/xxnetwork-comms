@@ -1,8 +1,10 @@
-////////////////////////////////////////////////////////////////////////////////
-// Copyright © 2018 Privategrity Corporation                                   /
-//                                                                             /
-// All rights reserved.                                                        /
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+// Copyright © 2020 xx network SEZC                                          //
+//                                                                           //
+// Use of this source code is governed by a license that can be found in the //
+// LICENSE file                                                              //
+///////////////////////////////////////////////////////////////////////////////
+
 package notificationBot
 
 import (
@@ -11,6 +13,7 @@ import (
 	"gitlab.com/elixxir/comms/gateway"
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/testkeys"
+	"gitlab.com/elixxir/primitives/id"
 	"testing"
 )
 
@@ -22,7 +25,7 @@ func TestRegisterForNotifications(t *testing.T) {
 	certPath := testkeys.GetNodeCertPath()
 	certData := testkeys.LoadFromPath(certPath)
 	// Get ID
-	testId := "test"
+	testId := id.NewIdFromString("test", id.Generic, t)
 	// Get available port
 	notificationBotAddress := getNextAddress()
 
@@ -66,7 +69,7 @@ func TestUnRegisterForNotifications(t *testing.T) {
 	certPath := testkeys.GetNodeCertPath()
 	certData := testkeys.LoadFromPath(certPath)
 	// Get Id
-	testId := "test"
+	testId := id.NewIdFromString("test", id.Generic, t)
 	// Get available port
 	notificationBotAddress := getNextAddress()
 

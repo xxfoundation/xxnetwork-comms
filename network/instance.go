@@ -1,8 +1,9 @@
-////////////////////////////////////////////////////////////////////////////////
-// Copyright © 2020 Privategrity Corporation                                   /
-//                                                                             /
-// All rights reserved.                                                        /
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+// Copyright © 2020 xx network SEZC                                          //
+//                                                                           //
+// Use of this source code is governed by a license that can be found in the //
+// LICENSE file                                                              //
+///////////////////////////////////////////////////////////////////////////////
 
 // Handle basic logic for common operations of network instances
 
@@ -11,6 +12,7 @@ package network
 import (
 	"fmt"
 	"github.com/pkg/errors"
+	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	ds "gitlab.com/elixxir/comms/network/dataStructures"
@@ -66,24 +68,32 @@ func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition) (*
 		e2eGroup:     ds.NewGroup(),
 	}
 
-	cmix, _ := partial.CMIX.String()
+	cmix := ""
 	if full.CMIX.Prime != "" {
 		cmix, _ = full.CMIX.String()
-	}
-	if cmix == "" {
-		return nil, errors.New("No cmix group was found in either NDF")
-	} else {
-		_ = i.cmixGroup.Update(cmix)
+	} else if partial.CMIX.Prime != "" {
+		cmix, _ = full.CMIX.String()
 	}
 
-	e2e, _ := partial.E2E.String()
+	if cmix != "" {
+		err := i.cmixGroup.Update(cmix)
+		if err != nil {
+			jww.WARN.Printf("Error updating cmix group: %+v", err)
+		}
+	}
+
+	e2e := ""
 	if full.E2E.Prime != "" {
 		e2e, _ = full.E2E.String()
+	} else if partial.E2E.Prime != "" {
+		e2e, _ = partial.E2E.String()
 	}
-	if cmix == "" {
-		return nil, errors.New("No E2E group was found in either NDF")
-	} else {
-		_ = i.e2eGroup.Update(e2e)
+
+	if cmix != "" {
+		err := i.e2eGroup.Update(e2e)
+		if err != nil {
+			jww.WARN.Printf("Error updating e2e group: %+v", err)
+		}
 	}
 
 	return i, nil
@@ -112,7 +122,7 @@ func (i *Instance) UpdatePartialNdf(m *pb.NDF) error {
 		return errors.New("Cannot update the partial ndf when it is nil")
 	}
 
-	perm, success := i.comm.GetHost(id.PERMISSIONING)
+	perm, success := i.comm.GetHost(&id.Permissioning)
 
 	if !success {
 		return errors.New("Could not get permissioning Public Key" +
@@ -149,7 +159,7 @@ func (i *Instance) UpdateFullNdf(m *pb.NDF) error {
 		return errors.New("Cannot update the full ndf when it is nil")
 	}
 
-	perm, success := i.comm.GetHost(id.PERMISSIONING)
+	perm, success := i.comm.GetHost(&id.Permissioning)
 
 	if !success {
 		return errors.New("Could not get permissioning Public Key" +
@@ -192,7 +202,7 @@ func (i *Instance) GetFullNdf() *SecuredNdf {
 
 // Add a round to the round and update buffer
 func (i *Instance) RoundUpdate(info *pb.RoundInfo) error {
-	perm, success := i.comm.GetHost(id.PERMISSIONING)
+	perm, success := i.comm.GetHost(&id.Permissioning)
 
 	if !success {
 		return errors.New("Could not get permissioning Public Key" +
@@ -312,8 +322,8 @@ func (i *Instance) GetPermissioningCert() string {
 }
 
 // GetPermissioningId gets the permissioning ID from primitives
-func (i *Instance) GetPermissioningId() string {
-	return id.PERMISSIONING
+func (i *Instance) GetPermissioningId() *id.ID {
+	return &id.Permissioning
 
 }
 
@@ -328,25 +338,49 @@ func (i *Instance) SetProtoComms(newPC *connect.ProtoComms) {
 func updateConns(def *ndf.NetworkDefinition, comms *connect.ProtoComms, gate, node bool) error {
 	if gate {
 		for i, h := range def.Gateways {
-			gwid := id.NewNodeFromBytes(def.Nodes[i].ID).NewGateway().String()
-			_, ok := comms.GetHost(gwid)
+			gwid, err := id.Unmarshal(def.Nodes[i].ID)
+			if err != nil {
+				return err
+			}
+			gwid.SetType(id.Gateway)
+
+			host, ok := comms.GetHost(gwid)
 			if !ok {
+				// Check if gateway ID collides with an existing hard coded ID
+				if id.CollidesWithHardCodedID(gwid) {
+					return errors.Errorf("Gateway ID invalid, collides with a "+
+						"hard coded ID. Invalid ID: %v", gwid.Marshal())
+				}
+
 				_, err := comms.AddHost(gwid, h.Address, []byte(h.TlsCertificate), false, true)
 				if err != nil {
 					return errors.WithMessagef(err, "Could not add gateway host %s", gwid)
 				}
+			} else if host.GetAddress() != h.Address {
+				host.UpdateAddress(h.Address)
 			}
 		}
 	}
 	if node {
 		for _, h := range def.Nodes {
-			nid := id.NewNodeFromBytes(h.ID).String()
-			_, ok := comms.GetHost(nid)
+			nid, err := id.Unmarshal(h.ID)
+			if err != nil {
+				return err
+			}
+			host, ok := comms.GetHost(nid)
 			if !ok {
+				// Check if node ID collides with an existing hard coded ID
+				if id.CollidesWithHardCodedID(nid) {
+					return errors.Errorf("Node ID invalid, collides with a "+
+						"hard coded ID. Invalid ID: %v", nid.Marshal())
+				}
+
 				_, err := comms.AddHost(nid, h.Address, []byte(h.TlsCertificate), false, true)
 				if err != nil {
 					return errors.WithMessagef(err, "Could not add node host %s", nid)
 				}
+			} else if host.GetAddress() != h.Address {
+				host.UpdateAddress(h.Address)
 			}
 		}
 	}

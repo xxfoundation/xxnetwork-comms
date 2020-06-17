@@ -1,8 +1,9 @@
-////////////////////////////////////////////////////////////////////////////////
-// Copyright © 2020 Privategrity Corporation                                   /
-//                                                                             /
-// All rights reserved.                                                        /
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+// Copyright © 2020 xx network SEZC                                          //
+//                                                                           //
+// Use of this source code is governed by a license that can be found in the //
+// LICENSE file                                                              //
+///////////////////////////////////////////////////////////////////////////////
 
 package network
 
@@ -136,7 +137,7 @@ func setupComm(t *testing.T) (*Instance, *mixmessages.NDF) {
 		t.Error(nil)
 	}
 
-	_, err = i.comm.AddHost(id.PERMISSIONING, "0.0.0.0:4200", pub, false, true)
+	_, err = i.comm.AddHost(&id.Permissioning, "0.0.0.0:4200", pub, false, true)
 	if err != nil {
 		t.Errorf("Failed to add permissioning host: %+v", err)
 	}
@@ -161,7 +162,7 @@ func TestInstance_RoundUpdate(t *testing.T) {
 		t.Error("Should have failed to get perm host")
 	}
 
-	_, err = i.comm.AddHost(id.PERMISSIONING, "0.0.0.0:4200", pub, false, true)
+	_, err = i.comm.AddHost(&id.Permissioning, "0.0.0.0:4200", pub, false, true)
 	if err != nil {
 		t.Errorf("failed to add bad host: %+v", err)
 	}
@@ -267,6 +268,24 @@ func TestInstance_UpdateGatewayConnections(t *testing.T) {
 	}
 }
 
+// Tests that UpdateGatewayConnections() returns an error when a Gateway ID
+// collides with a hard coded ID.
+func TestInstance_UpdateGatewayConnections_GatewayIdError(t *testing.T) {
+	testDef := *testutils.NDF
+	testDef.Nodes = []ndf.Node{{ID: id.TempGateway.Marshal()}}
+	secured, _ := NewSecuredNdf(&testDef)
+
+	i := Instance{
+		full: secured,
+		comm: &connect.ProtoComms{},
+	}
+	err := i.UpdateGatewayConnections()
+	if err == nil {
+		t.Errorf("UpdateGatewayConnections() failed to produce an error when " +
+			"the Gateway ID collides with a hard coded ID.")
+	}
+}
+
 func TestInstance_UpdateNodeConnections(t *testing.T) {
 	secured, _ := NewSecuredNdf(testutils.NDF)
 
@@ -292,6 +311,24 @@ func TestInstance_UpdateNodeConnections(t *testing.T) {
 	err = i.UpdateNodeConnections()
 	if err == nil {
 		t.Error("Should error when attempting update with no ndf")
+	}
+}
+
+// Tests that UpdateNodeConnections() returns an error when a Node ID collides
+// with a hard coded ID.
+func TestInstance_UpdateNodeConnections_NodeIdError(t *testing.T) {
+	testDef := *testutils.NDF
+	testDef.Nodes = []ndf.Node{{ID: id.Permissioning.Marshal()}}
+	secured, _ := NewSecuredNdf(&testDef)
+
+	i := Instance{
+		full: secured,
+		comm: &connect.ProtoComms{},
+	}
+	err := i.UpdateNodeConnections()
+	if err == nil {
+		t.Errorf("UpdateNodeConnections() failed to produce an error when the " +
+			"Node ID collides with a hard coded ID.")
 	}
 }
 
@@ -481,10 +518,10 @@ func TestInstance_GetPermissioningId(t *testing.T) {
 
 	receivedId := instance.GetPermissioningId()
 
-	if receivedId != id.PERMISSIONING {
+	if receivedId != &id.Permissioning {
 		t.Errorf("GetPermissioningId did not get value from primitives"+
 			"\n\tExpected: %+v"+
-			"\n\tReceived: %+v", id.PERMISSIONING, receivedId)
+			"\n\tReceived: %+v", id.Permissioning, receivedId)
 	}
 }
 

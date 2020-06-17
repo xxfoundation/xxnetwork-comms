@@ -1,13 +1,21 @@
+///////////////////////////////////////////////////////////////////////////////
+// Copyright © 2020 xx network SEZC                                          //
+//                                                                           //
+// Use of this source code is governed by a license that can be found in the //
+// LICENSE file                                                              //
+///////////////////////////////////////////////////////////////////////////////
+
 package connect
 
 import (
 	"errors"
+	"gitlab.com/elixxir/primitives/id"
 	"testing"
 )
 
 func TestAuthError(t *testing.T) {
-	expectedAuthErrorStr := "Failed to authenticate id: soisoisoi"
-	result := AuthError("soisoisoi")
+	expectedAuthErrorStr := "Failed to authenticate id: c29pc29pc29pAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+	result := AuthError(id.NewIdFromString("soisoisoi", id.Generic, t))
 	if result == nil {
 		t.Error("AuthError did not return an error object")
 	}

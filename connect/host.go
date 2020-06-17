@@ -1,8 +1,9 @@
-////////////////////////////////////////////////////////////////////////////////
-// Copyright © 2018 Privategrity Corporation                                   /
-//                                                                             /
-// All rights reserved.                                                        /
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+// Copyright © 2020 xx network SEZC                                          //
+//                                                                           //
+// Use of this source code is governed by a license that can be found in the //
+// LICENSE file                                                              //
+///////////////////////////////////////////////////////////////////////////////
 
 // Contains functionality for describing and creating connections
 
@@ -15,11 +16,13 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/crypto/signature/rsa"
 	tlsCreds "gitlab.com/elixxir/crypto/tls"
+	"gitlab.com/elixxir/primitives/id"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/credentials"
 	"math"
 	"sync"
+	"testing"
 	"time"
 )
 
@@ -29,7 +32,7 @@ type Token []byte
 // Information used to describe a connection to a host
 type Host struct {
 	// System-wide ID of the Host
-	id string
+	id *id.ID
 
 	// address:Port being connected to
 	address string
@@ -69,7 +72,7 @@ type Host struct {
 }
 
 // Creates a new Host object
-func NewHost(id, address string, cert []byte, disableTimeout,
+func NewHost(id *id.ID, address string, cert []byte, disableTimeout,
 	enableAuth bool) (host *Host, err error) {
 
 	// Initialize the Host object
@@ -93,7 +96,7 @@ func NewHost(id, address string, cert []byte, disableTimeout,
 }
 
 // Creates a new dynamic-authenticated Host object
-func newDynamicHost(id string, publicKey []byte) (host *Host, err error) {
+func newDynamicHost(id *id.ID, publicKey []byte) (host *Host, err error) {
 
 	// Initialize the Host object
 	// IMPORTANT: This flag must be set to true for all dynamic Hosts
@@ -130,13 +133,18 @@ func (h *Host) Connected() bool {
 }
 
 // GetId returns the id of the host
-func (h *Host) GetId() string {
+func (h *Host) GetId() *id.ID {
 	return h.id
 }
 
 // GetAddress returns the address of the host.
 func (h *Host) GetAddress() string {
 	return h.address
+}
+
+// UpdateAddress updates the address of the host
+func (h *Host) UpdateAddress(address string) {
+	h.address = address
 }
 
 // Disconnect closes a the Host connection under the write lock
@@ -332,6 +340,8 @@ func (h *Host) setCredentials() error {
 
 // Stringer interface for connection
 func (h *Host) String() string {
+	h.mux.RLock()
+	defer h.mux.RUnlock()
 	addr := h.address
 	actualConnection := h.connection
 	creds := h.credentials
@@ -351,14 +361,25 @@ func (h *Host) String() string {
 		protocolVersion = creds.Info().ProtocolVersion
 		securityProtocol = creds.Info().SecurityProtocol
 	}
-	cStrt := len("-----BEGIN CERTIFICATE----- ") // Skip this part
 	return fmt.Sprintf(
 		"ID: %v\tAddr: %v\tCertificate: %s...\tTransmission Token: %v"+
 			"\tReception Token: %+v \tEnableAuth: %v"+
 			"\tMaxRetries: %v\tConnState: %v"+
 			"\tTLS ServerName: %v\tTLS ProtocolVersion: %v\t"+
 			"TLS SecurityVersion: %v\tTLS SecurityProtocol: %v\n",
-		h.id, addr, h.certificate[cStrt:cStrt+20], h.transmissionToken,
+		h.id, addr, h.certificate, h.transmissionToken,
 		h.receptionToken, h.enableAuth, h.maxRetries, state,
 		serverName, protocolVersion, securityVersion, securityProtocol)
+}
+
+func (h *Host) SetTestPublicKey(key *rsa.PublicKey, t interface{}) {
+	switch t.(type) {
+	case *testing.T:
+		break
+	case *testing.M:
+		break
+	default:
+		jww.FATAL.Panicf("SetTestPublicKey is restricted to testing only. Got %T", t)
+	}
+	h.rsaPublicKey = key
 }

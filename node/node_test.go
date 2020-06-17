@@ -1,8 +1,9 @@
-////////////////////////////////////////////////////////////////////////////////
-// Copyright © 2018 Privategrity Corporation                                   /
-//                                                                             /
-// All rights reserved.                                                        /
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+// Copyright © 2020 xx network SEZC                                          //
+//                                                                           //
+// Use of this source code is governed by a license that can be found in the //
+// LICENSE file                                                              //
+///////////////////////////////////////////////////////////////////////////////
 
 package node
 
@@ -10,6 +11,7 @@ import (
 	"fmt"
 	"gitlab.com/elixxir/comms/connect"
 	"gitlab.com/elixxir/comms/testkeys"
+	"gitlab.com/elixxir/primitives/id"
 	"sync"
 	"testing"
 )
@@ -34,18 +36,18 @@ func TestTLS(t *testing.T) {
 	keyData := testkeys.LoadFromPath(keyPath)
 	certPath := testkeys.GetNodeCertPath()
 	certData := testkeys.LoadFromPath(certPath)
+	testNodeID := id.NewIdFromString("test", id.Node, t)
 
-	server := StartNode("test", serverAddress, NewImplementation(),
+	server := StartNode(testNodeID, serverAddress, NewImplementation(),
 		certData, keyData)
 	serverAddress2 := getNextServerAddress()
-	server2 := StartNode("test", serverAddress2, NewImplementation(),
+	server2 := StartNode(testNodeID, serverAddress2, NewImplementation(),
 		certData, keyData)
 	defer server.Shutdown()
 	defer server2.Shutdown()
 	var manager connect.Manager
 
-	testId := "test"
-	host, err := manager.AddHost(testId, serverAddress, certData, false, false)
+	host, err := manager.AddHost(testNodeID, serverAddress, certData, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -64,6 +66,8 @@ func TestBadCerts(t *testing.T) {
 	}()
 	Address := getNextServerAddress()
 
-	_ = StartNode("test", Address, NewImplementation(),
+	testID := id.NewIdFromString("test", id.Node, t)
+
+	_ = StartNode(testID, Address, NewImplementation(),
 		[]byte("bad cert"), []byte("bad key"))
 }

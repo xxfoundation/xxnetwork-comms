@@ -1,8 +1,9 @@
-////////////////////////////////////////////////////////////////////////////////
-// Copyright © 2019 Privategrity Corporation                                   /
-//                                                                             /
-// All rights reserved.                                                        /
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+// Copyright © 2020 xx network SEZC                                          //
+//                                                                           //
+// Use of this source code is governed by a license that can be found in the //
+// LICENSE file                                                              //
+///////////////////////////////////////////////////////////////////////////////
 
 package connect
 
@@ -16,7 +17,7 @@ import (
 
 //Tests the happy path of NewCircuit
 func TestNew(t *testing.T) {
-	nodeIdList := makeTestingNodeIdList(5)
+	nodeIdList := makeTestingNodeIdList(5, t)
 
 	circuit := NewCircuit(nodeIdList)
 
@@ -60,7 +61,7 @@ func TestNew(t *testing.T) {
 
 //Tests that New circuit properly errors when a list with duplicate nodes is passed
 func TestNew_Duplicate(t *testing.T) {
-	nodeIdList := makeTestingNodeIdList(5)
+	nodeIdList := makeTestingNodeIdList(5, t)
 
 	nodeIdList = append(nodeIdList, nodeIdList[1].DeepCopy())
 
@@ -84,7 +85,7 @@ func TestNew_LenZero(t *testing.T) {
 		}
 	}()
 
-	NewCircuit(make([]*id.Node, 0))
+	NewCircuit(make([]*id.ID, 0))
 
 	t.Errorf("Circuit: no error when creating with list of length zero")
 
@@ -93,7 +94,7 @@ func TestNew_LenZero(t *testing.T) {
 // Tests the GetNodeLocation returns the correct location for all
 // present nodeIDs
 func TestCircuit_GetNodeLocation(t *testing.T) {
-	nodeIdList := makeTestingNodeIdList(5)
+	nodeIdList := makeTestingNodeIdList(5, t)
 
 	circuit := NewCircuit(nodeIdList)
 
@@ -108,11 +109,11 @@ func TestCircuit_GetNodeLocation(t *testing.T) {
 // Tests the GetNodeLocation returns -1 when the node is not present
 // present nodeIDs
 func TestCircuit_GetNodeLocation_OutOfList(t *testing.T) {
-	nodeIdList := makeTestingNodeIdList(5)
+	nodeIdList := makeTestingNodeIdList(5, t)
 
 	circuit := NewCircuit(nodeIdList)
 
-	invalidNodeID := makeNodeId(77)
+	invalidNodeID := makeNodeId(77, t)
 
 	invalidLoc := circuit.GetNodeLocation(invalidNodeID)
 	if invalidLoc != -1 {
@@ -123,7 +124,7 @@ func TestCircuit_GetNodeLocation_OutOfList(t *testing.T) {
 
 // Tests the happy path of GetNodeAtIndex
 func TestCircuit_GetNodeAtIndex(t *testing.T) {
-	nodeIdList := makeTestingNodeIdList(5)
+	nodeIdList := makeTestingNodeIdList(5, t)
 
 	circuit := NewCircuit(nodeIdList)
 
@@ -138,7 +139,7 @@ func TestCircuit_GetNodeAtIndex(t *testing.T) {
 // Tests that GetNodeAtIndex panics when the passed
 // index is lower than 0
 func TestCircuit_GetNodeAtIndex_OutOfList_Lower(t *testing.T) {
-	nodeIdList := makeTestingNodeIdList(5)
+	nodeIdList := makeTestingNodeIdList(5, t)
 
 	circuit := NewCircuit(nodeIdList)
 
@@ -157,7 +158,7 @@ func TestCircuit_GetNodeAtIndex_OutOfList_Lower(t *testing.T) {
 // Tests that GetNodeAtIndex panics when the passed
 // index is len or greater
 func TestCircuit_GetNodeAtIndex_OutOfList_Greater(t *testing.T) {
-	nodeIdList := makeTestingNodeIdList(5)
+	nodeIdList := makeTestingNodeIdList(5, t)
 
 	circuit := NewCircuit(nodeIdList)
 
@@ -176,7 +177,7 @@ func TestCircuit_GetNodeAtIndex_OutOfList_Greater(t *testing.T) {
 //Tests that GetHostAtIndex panics whn the passed index
 // is len or greater
 func TestCircuit_GetHostAtIndex_OutOfList_Greater(t *testing.T) {
-	nodeIdList := makeTestingNodeIdList(5)
+	nodeIdList := makeTestingNodeIdList(5, t)
 
 	circuit := NewCircuit(nodeIdList)
 
@@ -195,7 +196,7 @@ func TestCircuit_GetHostAtIndex_OutOfList_Greater(t *testing.T) {
 // Tests that GetNodeAtIndex panics when the passed
 // index is lower than 0
 func TestCircuit_GetHostAtIndex_OutOfList_Lesser(t *testing.T) {
-	nodeIdList := makeTestingNodeIdList(5)
+	nodeIdList := makeTestingNodeIdList(5, t)
 
 	circuit := NewCircuit(nodeIdList)
 
@@ -213,10 +214,11 @@ func TestCircuit_GetHostAtIndex_OutOfList_Lesser(t *testing.T) {
 
 // Tests the happy path of GetHostAtIndex
 func TestCircuit_GetHostAtIndex(t *testing.T) {
-	nodeIdList := makeTestingNodeIdList(5)
+	nodeIdList := makeTestingNodeIdList(5, t)
 	cert, _ := utils.ReadFile(testkeys.GetNodeCertPath())
 	circuit := NewCircuit(nodeIdList)
-	testHost, _ := NewHost("test", "test", cert, false, false)
+	testID := id.NewIdFromString("test", id.Generic, t)
+	testHost, _ := NewHost(testID, "test", cert, false, false)
 	circuit.AddHost(testHost)
 
 	if !reflect.DeepEqual(circuit.hosts[0], testHost) {
@@ -228,7 +230,7 @@ func TestCircuit_GetHostAtIndex(t *testing.T) {
 
 //Tests to see if node retrieved is in fact the last node
 func TestCircuit_GetLastNode(t *testing.T) {
-	nodeIdList := makeTestingNodeIdList(23)
+	nodeIdList := makeTestingNodeIdList(23, t)
 	circuit := NewCircuit(nodeIdList)
 	if !circuit.IsLastNode(circuit.GetLastNode()) {
 		t.Logf("Node selected is not the last node")
@@ -239,7 +241,7 @@ func TestCircuit_GetLastNode(t *testing.T) {
 //Tests that len returns the correct length
 func TestCircuit_Len(t *testing.T) {
 	for i := 1; i < 100; i++ {
-		circuit := Circuit{nodes: make([]*id.Node, i)}
+		circuit := Circuit{nodes: make([]*id.ID, i)}
 
 		if circuit.Len() != i {
 			t.Errorf("Circuit.Len: Incorrect length returned,"+
@@ -250,7 +252,7 @@ func TestCircuit_Len(t *testing.T) {
 
 //Tests that all nodes in the circuit return the correct next node
 func TestCircuit_GetNextNode(t *testing.T) {
-	nodeIdList := makeTestingNodeIdList(9)
+	nodeIdList := makeTestingNodeIdList(9, t)
 
 	circuit := NewCircuit(nodeIdList)
 
@@ -269,11 +271,11 @@ func TestCircuit_GetNextNode(t *testing.T) {
 
 //Tests GetNextNode panics when the passed node is invalid
 func TestCircuit_GetNextNode_Invalid(t *testing.T) {
-	nodeIdList := makeTestingNodeIdList(9)
+	nodeIdList := makeTestingNodeIdList(9, t)
 
 	circuit := NewCircuit(nodeIdList)
 
-	invalidNodeID := makeNodeId(77)
+	invalidNodeID := makeNodeId(77, t)
 
 	defer func() {
 		if r := recover(); r != nil {
@@ -288,7 +290,7 @@ func TestCircuit_GetNextNode_Invalid(t *testing.T) {
 
 //Tests that all nodes in the circuit return the correct next node
 func TestCircuit_GetPrevNode(t *testing.T) {
-	nodeIdList := makeTestingNodeIdList(9)
+	nodeIdList := makeTestingNodeIdList(9, t)
 
 	circuit := NewCircuit(nodeIdList)
 
@@ -314,11 +316,11 @@ func TestCircuit_GetPrevNode(t *testing.T) {
 
 //Tests GetPrevNode panics when the passed node is invalid
 func TestCircuit_GetPrevNode_Invalid(t *testing.T) {
-	nodeIdList := makeTestingNodeIdList(9)
+	nodeIdList := makeTestingNodeIdList(9, t)
 
 	circuit := NewCircuit(nodeIdList)
 
-	invalidNodeID := makeNodeId(77)
+	invalidNodeID := makeNodeId(77, t)
 
 	defer func() {
 		if r := recover(); r != nil {
@@ -333,7 +335,7 @@ func TestCircuit_GetPrevNode_Invalid(t *testing.T) {
 
 //Test that IsFirstNode is only true when passed first node
 func TestCircuit_IsFirstNode(t *testing.T) {
-	nodeIdList := makeTestingNodeIdList(23)
+	nodeIdList := makeTestingNodeIdList(23, t)
 
 	circuit := NewCircuit(nodeIdList)
 
@@ -352,7 +354,7 @@ func TestCircuit_IsFirstNode(t *testing.T) {
 
 //Tests that IsLastNode is only true when passed last node
 func TestCircuit_IsLastNode(t *testing.T) {
-	nodeIdList := makeTestingNodeIdList(23)
+	nodeIdList := makeTestingNodeIdList(23, t)
 
 	circuit := NewCircuit(nodeIdList)
 
@@ -372,7 +374,7 @@ func TestCircuit_IsLastNode(t *testing.T) {
 // Tests GetOrdering() by checking the position of each rotated node list.
 func TestCircuit_GetOrdering(t *testing.T) {
 	length := 5
-	list := makeTestingNodeIdList(length)
+	list := makeTestingNodeIdList(length, t)
 	c := NewCircuit(list)
 	cs := c.GetOrdering()
 
@@ -387,59 +389,59 @@ func TestCircuit_GetOrdering(t *testing.T) {
 // their position.
 func TestShiftLeft(t *testing.T) {
 	rotations := 0
-	list := makeTestingNodeIdList(5)
+	list := makeTestingNodeIdList(5, t)
 	newList := shiftLeft(list, rotations)
 	checkShift(t, list, newList, rotations)
 
 	rotations = 1
-	list = makeTestingNodeIdList(5)
+	list = makeTestingNodeIdList(5, t)
 	newList = shiftLeft(list, rotations)
 	checkShift(t, list, newList, rotations)
 
 	rotations = 2
-	list = makeTestingNodeIdList(5)
+	list = makeTestingNodeIdList(5, t)
 	newList = shiftLeft(list, rotations)
 	checkShift(t, list, newList, rotations)
 
 	rotations = 3
-	list = makeTestingNodeIdList(5)
+	list = makeTestingNodeIdList(5, t)
 	newList = shiftLeft(list, rotations)
 	checkShift(t, list, newList, rotations)
 
 	rotations = 4
-	list = makeTestingNodeIdList(5)
+	list = makeTestingNodeIdList(5, t)
 	newList = shiftLeft(list, rotations)
 	checkShift(t, list, newList, rotations)
 
 	rotations = 5
-	list = makeTestingNodeIdList(5)
+	list = makeTestingNodeIdList(5, t)
 	newList = shiftLeft(list, rotations)
 	checkShift(t, list, newList, rotations)
 
 	rotations = 6
-	list = makeTestingNodeIdList(5)
+	list = makeTestingNodeIdList(5, t)
 	newList = shiftLeft(list, rotations)
 	checkShift(t, list, newList, rotations)
 
 	rotations = 10
-	list = makeTestingNodeIdList(5)
+	list = makeTestingNodeIdList(5, t)
 	newList = shiftLeft(list, rotations)
 	checkShift(t, list, newList, rotations)
 
 	rotations = 1
-	list = makeTestingNodeIdList(1)
+	list = makeTestingNodeIdList(1, t)
 	newList = shiftLeft(list, rotations)
 	checkShift(t, list, newList, rotations)
 
 	rotations = 0
-	list = makeTestingNodeIdList(1)
+	list = makeTestingNodeIdList(1, t)
 	newList = shiftLeft(list, rotations)
 	checkShift(t, list, newList, rotations)
 }
 
 // checkShift checks that each element in list a is in the correct shifted
 // position in list b.
-func checkShift(t *testing.T, a, b []*id.Node, rotations int) {
+func checkShift(t *testing.T, a, b []*id.ID, rotations int) {
 	length := len(a)
 	for i := 0; i < length; i++ {
 		newIndex := (i - (rotations % length) + length) % length
@@ -452,23 +454,23 @@ func checkShift(t *testing.T, a, b []*id.Node, rotations int) {
 }
 
 //Utility function
-func makeTestingNodeIdList(len int) []*id.Node {
-	var nodeIdList []*id.Node
+func makeTestingNodeIdList(len int, t *testing.T) []*id.ID {
+	var nodeIdList []*id.ID
 
 	//build a set of nodeIDs for testing
 	for i := 0; i < len; i++ {
-		nodeIdBytes := make([]byte, id.NodeIdLen)
+		nodeIdBytes := make([]byte, id.ArrIDLen)
 		nodeIdBytes[0] = byte(i + 1)
-		newNodeId := id.NewNodeFromBytes(nodeIdBytes)
+		newNodeId := id.NewIdFromBytes(nodeIdBytes, t)
 		nodeIdList = append(nodeIdList, newNodeId)
 	}
 
 	return nodeIdList
 }
 
-func makeNodeId(b byte) *id.Node {
-	invalidNodeIdBytes := make([]byte, id.NodeIdLen)
+func makeNodeId(b byte, t *testing.T) *id.ID {
+	invalidNodeIdBytes := make([]byte, id.ArrIDLen)
 	invalidNodeIdBytes[0] = b
-	invalidNodeID := id.NewNodeFromBytes(invalidNodeIdBytes)
+	invalidNodeID := id.NewIdFromBytes(invalidNodeIdBytes, t)
 	return invalidNodeID
 }

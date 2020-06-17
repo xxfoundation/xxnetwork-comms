@@ -3,15 +3,14 @@ module gitlab.com/elixxir/comms
 go 1.13
 
 require (
-	github.com/golang/protobuf v1.4.1
-	github.com/kr/pretty v0.2.0 // indirect
+	github.com/golang/protobuf v1.4.2
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/jwalterweatherman v1.1.0
-	gitlab.com/elixxir/crypto v0.0.0-20200513163659-38b6079db0b2
-	gitlab.com/elixxir/primitives v0.0.0-20200513162412-ef77445c0ab7
-	golang.org/x/net v0.0.0-20200425230154-ff2c4b7c35a0
+	gitlab.com/elixxir/crypto v0.0.0-20200617200757-fac8d7aaf8da
+	gitlab.com/elixxir/primitives v0.0.0-20200617192826-98601f119cdf
+	golang.org/x/net v0.0.0-20200513185701-a91f0712d120
 	golang.org/x/text v0.3.2 // indirect
-	google.golang.org/genproto v0.0.0-20200428115010-c45acf45369a // indirect
+	google.golang.org/genproto v0.0.0-20200514193133-8feb7f20f2a2 // indirect
 	google.golang.org/grpc v1.29.1
 )
 

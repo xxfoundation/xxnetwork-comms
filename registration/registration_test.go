@@ -1,3 +1,10 @@
+///////////////////////////////////////////////////////////////////////////////
+// Copyright © 2020 xx network SEZC                                          //
+//                                                                           //
+// Use of this source code is governed by a license that can be found in the //
+// LICENSE file                                                              //
+///////////////////////////////////////////////////////////////////////////////
+
 package registration
 
 import (
@@ -6,6 +13,7 @@ import (
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/testkeys"
+	"gitlab.com/elixxir/primitives/id"
 	"sync"
 	"testing"
 )
@@ -30,8 +38,9 @@ func TestTLS(t *testing.T) {
 	keyData := testkeys.LoadFromPath(keyPath)
 	certPath := testkeys.GetNodeCertPath()
 	certData := testkeys.LoadFromPath(certPath)
+	testId := id.NewIdFromString("test", id.Generic, t)
 
-	rg := StartRegistrationServer("test", RegAddress,
+	rg := StartRegistrationServer(testId, RegAddress,
 		NewImplementation(),
 		certData, keyData)
 	// Well, client shouldn't have a server type because it's not a server
@@ -41,7 +50,6 @@ func TestTLS(t *testing.T) {
 	var c client.Comms
 	var manager connect.Manager
 
-	testId := "test"
 	host, err := manager.AddHost(testId, RegAddress, certData, false, false)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
@@ -60,7 +68,8 @@ func TestBadCerts(t *testing.T) {
 		}
 	}()
 	RegAddress := getNextServerAddress()
+	testId := id.NewIdFromString("test", id.Generic, t)
 
-	_ = StartRegistrationServer("test", RegAddress, NewImplementation(),
+	_ = StartRegistrationServer(testId, RegAddress, NewImplementation(),
 		[]byte("bad cert"), []byte("bad key"))
 }

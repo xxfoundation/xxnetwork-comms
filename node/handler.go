@@ -1,8 +1,9 @@
-////////////////////////////////////////////////////////////////////////////////
-// Copyright © 2018 Privategrity Corporation                                   /
-//                                                                             /
-// All rights reserved.                                                        /
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+// Copyright © 2020 xx network SEZC                                          //
+//                                                                           //
+// Use of this source code is governed by a license that can be found in the //
+// LICENSE file                                                              //
+///////////////////////////////////////////////////////////////////////////////
 
 // Contains callback interface for server functionality
 
@@ -13,6 +14,7 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
 	"gitlab.com/elixxir/comms/mixmessages"
+	"gitlab.com/elixxir/primitives/id"
 	"google.golang.org/grpc/reflection"
 	"runtime/debug"
 )
@@ -26,7 +28,7 @@ type Comms struct {
 // Starts a new server on the address:port specified by listeningAddr
 // and a callback interface for server operations
 // with given path to public and private key for TLS connection
-func StartNode(id, localServer string, handler Handler,
+func StartNode(id *id.ID, localServer string, handler Handler,
 	certPEMblock, keyPEMblock []byte) *Comms {
 	pc, lis, err := connect.StartCommServer(id, localServer,
 		certPEMblock, keyPEMblock)
@@ -81,7 +83,7 @@ type Handler interface {
 		RSASignedByRegistration, DHSignedByClientRSA []byte, auth *connect.Auth) ([]byte, []byte, error)
 
 	// Server interface for ConfirmNonceMessage
-	ConfirmRegistration(UserID []byte, Signature []byte, auth *connect.Auth) ([]byte, error)
+	ConfirmRegistration(UserID *id.ID, Signature []byte, auth *connect.Auth) ([]byte, error)
 
 	// PostPrecompResult interface to finalize both payloads' precomps
 	PostPrecompResult(roundID uint64, slots []*mixmessages.Slot, auth *connect.Auth) error
@@ -89,11 +91,13 @@ type Handler interface {
 	// GetCompletedBatch: gateway uses completed batch from the server
 	GetCompletedBatch(auth *connect.Auth) (*mixmessages.Batch, error)
 
-	Poll(msg *mixmessages.ServerPoll, auth *connect.Auth) (*mixmessages.ServerPollResponse, error)
+	Poll(msg *mixmessages.ServerPoll, auth *connect.Auth, gatewayAddress string) (*mixmessages.ServerPollResponse, error)
 
 	SendRoundTripPing(ping *mixmessages.RoundTripPing, auth *connect.Auth) error
 
 	AskOnline() error
+
+	RoundError(error *mixmessages.RoundError, auth *connect.Auth) error
 }
 
 type implementationFunctions struct {
@@ -121,7 +125,7 @@ type implementationFunctions struct {
 	RequestNonce func(salt []byte, RSAPubKey string, DHPubKey,
 		RSASigFromReg, RSASigDH []byte, auth *connect.Auth) ([]byte, []byte, error)
 	// Server interface for ConfirmNonceMessage
-	ConfirmRegistration func(UserID, Signature []byte, auth *connect.Auth) ([]byte, error)
+	ConfirmRegistration func(UserID *id.ID, Signature []byte, auth *connect.Auth) ([]byte, error)
 
 	// PostPrecompResult interface to finalize both payloads' precomputations
 	PostPrecompResult func(roundID uint64,
@@ -129,11 +133,14 @@ type implementationFunctions struct {
 
 	GetCompletedBatch func(auth *connect.Auth) (*mixmessages.Batch, error)
 
-	Poll func(msg *mixmessages.ServerPoll, auth *connect.Auth) (*mixmessages.ServerPollResponse, error)
+	Poll func(msg *mixmessages.ServerPoll, auth *connect.Auth,
+		gatewayAddress string) (*mixmessages.ServerPollResponse, error)
 
 	SendRoundTripPing func(ping *mixmessages.RoundTripPing, auth *connect.Auth) error
 
 	AskOnline func() error
+
+	RoundError func(error *mixmessages.RoundError, auth *connect.Auth) error
 }
 
 // Implementation allows users of the client library to set the
@@ -193,7 +200,7 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return nil, nil, nil
 			},
-			ConfirmRegistration: func(UserID, Signature []byte, auth *connect.Auth) ([]byte, error) {
+			ConfirmRegistration: func(UserID *id.ID, Signature []byte, auth *connect.Auth) ([]byte, error) {
 				warn(um)
 				return nil, nil
 			},
@@ -206,7 +213,7 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return &mixmessages.Batch{}, nil
 			},
-			Poll: func(msg *mixmessages.ServerPoll, auth *connect.Auth) (*mixmessages.ServerPollResponse, error) {
+			Poll: func(msg *mixmessages.ServerPoll, auth *connect.Auth, gatewayAddress string) (*mixmessages.ServerPollResponse, error) {
 				warn(um)
 				return &mixmessages.ServerPollResponse{}, nil
 			},
@@ -215,6 +222,10 @@ func NewImplementation() *Implementation {
 				return nil
 			},
 			AskOnline: func() error {
+				warn(um)
+				return nil
+			},
+			RoundError: func(error *mixmessages.RoundError, auth *connect.Auth) error {
 				warn(um)
 				return nil
 			},
@@ -259,7 +270,7 @@ func (s *Implementation) RequestNonce(salt []byte, RSAPubKey string, DHPubKey,
 }
 
 // Server interface for ConfirmNonceMessage
-func (s *Implementation) ConfirmRegistration(UserID, Signature []byte, auth *connect.Auth) ([]byte, error) {
+func (s *Implementation) ConfirmRegistration(UserID *id.ID, Signature []byte, auth *connect.Auth) ([]byte, error) {
 	return s.Functions.ConfirmRegistration(UserID, Signature, auth)
 }
 
@@ -282,8 +293,9 @@ func (s *Implementation) GetCompletedBatch(auth *connect.Auth) (*mixmessages.Bat
 	return s.Functions.GetCompletedBatch(auth)
 }
 
-func (s *Implementation) Poll(msg *mixmessages.ServerPoll, auth *connect.Auth) (*mixmessages.ServerPollResponse, error) {
-	return s.Functions.Poll(msg, auth)
+func (s *Implementation) Poll(msg *mixmessages.ServerPoll, auth *connect.Auth,
+	gatewayAddress string) (*mixmessages.ServerPollResponse, error) {
+	return s.Functions.Poll(msg, auth, gatewayAddress)
 }
 
 func (s *Implementation) SendRoundTripPing(ping *mixmessages.RoundTripPing, auth *connect.Auth) error {
@@ -293,4 +305,8 @@ func (s *Implementation) SendRoundTripPing(ping *mixmessages.RoundTripPing, auth
 // AskOnline blocks until the server is online, or returns an error
 func (s *Implementation) AskOnline() error {
 	return s.Functions.AskOnline()
+}
+
+func (s *Implementation) RoundError(err *mixmessages.RoundError, auth *connect.Auth) error {
+	return s.Functions.RoundError(err, auth)
 }

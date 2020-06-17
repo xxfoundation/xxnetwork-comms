@@ -1,8 +1,9 @@
-////////////////////////////////////////////////////////////////////////////////
-// Copyright © 2018 Privategrity Corporation                                   /
-//                                                                             /
-// All rights reserved.                                                        /
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+// Copyright © 2020 xx network SEZC                                          //
+//                                                                           //
+// Use of this source code is governed by a license that can be found in the //
+// LICENSE file                                                              //
+///////////////////////////////////////////////////////////////////////////////
 
 // Contains callback interface for notificationBot functionality
 
@@ -13,6 +14,7 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
+	"gitlab.com/elixxir/primitives/id"
 	"google.golang.org/grpc/reflection"
 	"runtime/debug"
 )
@@ -35,7 +37,7 @@ type Comms struct {
 // Starts a new server on the address:port specified by localServer
 // and a callback interface for server operations
 // with given path to public and private key for TLS connection
-func StartNotificationBot(id, localServer string, handler Handler,
+func StartNotificationBot(id *id.ID, localServer string, handler Handler,
 	certPEMblock, keyPEMblock []byte) *Comms {
 
 	pc, lis, err := connect.StartCommServer(id, localServer,
@@ -70,7 +72,7 @@ func StartNotificationBot(id, localServer string, handler Handler,
 type implementationFunctions struct {
 	RegisterForNotifications   func(clientToken []byte, auth *connect.Auth) error
 	UnregisterForNotifications func(auth *connect.Auth) error
-	PollForNotifications       func(auth *connect.Auth) ([]string, error)
+	PollForNotifications       func(auth *connect.Auth) ([]*id.ID, error)
 }
 
 // Implementation allows users of the client library to set the

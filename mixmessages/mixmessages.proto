@@ -74,6 +74,13 @@ service Node {
     // Round trip ping comm
     rpc SendRoundTripPing (AuthenticatedMessage) returns (Ack) {
     }
+
+    // Round error comm
+    rpc RoundError (AuthenticatedMessage) returns (Ack) {
+    }
+
+
+
 }
 
 // RoundInfo contains the # of precomputations ready for messages, among other
@@ -119,6 +126,8 @@ message ServerPoll {
     NDFHash Partial = 2;
     uint64 LastUpdate = 3;
     string Error = 4; // Only Populated in the event of errors
+    string gatewayVersion = 5;
+    uint32 gatewayPort = 6;
 }
 
 // Unified Gateway->Server polling response
@@ -155,7 +164,7 @@ service Gateway {
     }
 
     // Notifications->Gateway request for users with pending notifications
-    rpc PollForNotifications (AuthenticatedMessage) returns (IDList) {
+    rpc PollForNotifications (AuthenticatedMessage) returns (UserIdList) {
     }
 
     // Client -> Gateway unified polling
@@ -232,6 +241,20 @@ service Registration {
     // Server -> Permissioning unified polling
     rpc Poll (AuthenticatedMessage) returns (PermissionPollResponse) {
     }
+
+    // Checks if node has been registered
+    rpc CheckRegistration (RegisteredNodeCheck) returns (RegisteredNodeConfirmation) {
+
+    }
+}
+
+// Server -> Permissioning message for whether a node has been registered
+message RegisteredNodeConfirmation {
+    bool IsRegistered = 1;
+}
+
+message RegisteredNodeCheck {
+    string  RegCode = 1;
 }
 
 //The ndf Hash used to compare ndf on permissioning and client
@@ -323,6 +346,10 @@ message PermissioningPoll {
     uint64 LastUpdate = 3;
     uint32 Activity = 4;
     RoundError Error = 5; // Only Populated in the event of errors
+    string gatewayAddress = 6;
+    uint32 serverPort = 7;
+    string serverVersion = 8;
+    string gatewayVersion = 9;
 }
 
 // Unified Server->Permissioning polling response
@@ -351,6 +378,11 @@ message NotificationToken {
     bytes Token = 1;
 }
 
+// The list of user IDS for notification polling
+message UserIdList {
+    repeated bytes IDs = 1;
+}
+
 // GENERAL USE MESSAGES --------------------------------------------------------
 
 // Generic service definition
@@ -375,7 +407,7 @@ message Ping {
 
 // Wrapper for authenticated messages that also ensure integrity
 message AuthenticatedMessage {
-    string ID = 1;
+    bytes ID = 1;
     bytes Signature = 2;
     bytes Token = 3;
     ClientID Client = 4;
@@ -399,15 +431,18 @@ message RoundInfo {
     uint64 UpdateID = 2;
     uint32 State = 3; // Precomp, Standby, Realtime, Completed, Failed
     uint32 BatchSize = 4;
-    repeated string Topology = 5; // List of NodeIDs
+    repeated bytes Topology = 5; // List of NodeIDs
     repeated uint64 Timestamps = 6; // List of state timestamps in UTC
     repeated RoundError Errors = 7; // List of errors which occured
-    RSASignature Signature = 8;
+    uint32 ResourceQueueTimeoutMillis = 8; // Timeout for resource queue on nodes
+    RSASignature Signature = 9;
 }
 
 // RoundError will be used to describe a round error
 // Passed along to gateways (level 2) and clients (level 3)
 message RoundError {
-    string Error = 1;
-    RSASignature Signature = 2; // Hash of Info and Error
+    uint64        Id = 1;
+    bytes         NodeId = 2;
+    string        Error = 3;
+    RSASignature  Signature = 4;
 }

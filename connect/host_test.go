@@ -1,19 +1,21 @@
-////////////////////////////////////////////////////////////////////////////////
-// Copyright © 2018 Privategrity Corporation                                   /
-//                                                                             /
-// All rights reserved.                                                        /
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+// Copyright © 2020 xx network SEZC                                          //
+//                                                                           //
+// Use of this source code is governed by a license that can be found in the //
+// LICENSE file                                                              //
+///////////////////////////////////////////////////////////////////////////////
 
 package connect
 
 import (
 	"bytes"
+	"gitlab.com/elixxir/primitives/id"
 	"testing"
 )
 
 func TestHost_address(t *testing.T) {
 	var mgr Manager
-	testId := "test"
+	testId := id.NewIdFromString("test", id.Node, t)
 	testAddress := "test"
 	host, err := mgr.AddHost(testId, testAddress, nil, false, false)
 	if err != nil {
@@ -46,15 +48,15 @@ func TestHost_GetCertificate(t *testing.T) {
 // Tests that getID returns the correct ID
 func TestHost_GetId(t *testing.T) {
 
-	id := "xXx_420No1337ScopeH4xx0r_xXx"
+	testID := id.NewIdFromString("xXx_420No1337ScopeH4xx0r_xXx", id.Generic, t)
 
 	host := Host{
-		id: id,
+		id: testID,
 	}
 
-	if host.GetId() != id {
+	if host.GetId() != testID {
 		t.Errorf("Correct id not returned.  Expected %s, got %s",
-			id, host.id)
+			testID, host.id)
 	}
 }
 
@@ -69,6 +71,27 @@ func TestHost_GetAddress(t *testing.T) {
 		t.Errorf("GetAddress() did not return the expected address."+
 			"\n\texpected: %v\n\treceived: %v",
 			testAddress, testHost.GetAddress())
+	}
+}
+
+func TestHost_UpdateAddress(t *testing.T) {
+	testAddress := "192.167.1.1:8080"
+	testUpdatedAddress := "192.167.1.1:8080"
+	testHost := Host{address: testAddress}
+
+	// Test function
+	if testHost.GetAddress() != testAddress {
+		t.Errorf("GetAddress() did not return the expected address before update."+
+			"\n\texpected: %v\n\treceived: %v",
+			testAddress, testHost.GetAddress())
+	}
+
+	testHost.UpdateAddress(testUpdatedAddress)
+
+	if testHost.GetAddress() != testUpdatedAddress {
+		t.Errorf("GetAddress() did not return the expected address after update."+
+			"\n\texpected: %v\n\treceived: %v",
+			testUpdatedAddress, testHost.GetAddress())
 	}
 }
 

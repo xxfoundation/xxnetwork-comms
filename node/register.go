@@ -1,8 +1,10 @@
-////////////////////////////////////////////////////////////////////////////////
-// Copyright © 2018 Privategrity Corporation                                   /
-//                                                                             /
-// All rights reserved.                                                        /
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+// Copyright © 2020 xx network SEZC                                          //
+//                                                                           //
+// Use of this source code is governed by a license that can be found in the //
+// LICENSE file                                                              //
+///////////////////////////////////////////////////////////////////////////////
+
 package node
 
 import (
@@ -71,5 +73,35 @@ func (s *Comms) SendPoll(host *connect.Host,
 
 	// Marshall the result
 	result := &pb.PermissionPollResponse{}
+	return result, ptypes.UnmarshalAny(resultMsg, result)
+}
+
+// Server -> Registration Send Function
+func (s *Comms) SendRegistrationCheck(host *connect.Host,
+	message *pb.RegisteredNodeCheck) (*pb.RegisteredNodeConfirmation, error) {
+	// Create the Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := connect.MessagingContext()
+		defer cancel()
+
+		// Send the message
+		resultMsg, err := pb.NewRegistrationClient(conn).CheckRegistration(ctx, message)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+		return ptypes.MarshalAny(resultMsg)
+
+	}
+
+	// Execute the Send function
+	jww.DEBUG.Printf("Sending Node Registration Check message: %+v", message)
+	resultMsg, err := s.Send(host, f)
+	if err != nil {
+		return nil, err
+	}
+
+	// Marshall the result
+	result := &pb.RegisteredNodeConfirmation{}
 	return result, ptypes.UnmarshalAny(resultMsg, result)
 }

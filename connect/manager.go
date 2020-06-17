@@ -1,8 +1,9 @@
-////////////////////////////////////////////////////////////////////////////////
-// Copyright © 2018 Privategrity Corporation                                   /
-//                                                                             /
-// All rights reserved.                                                        /
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+// Copyright © 2020 xx network SEZC                                          //
+//                                                                           //
+// Use of this source code is governed by a license that can be found in the //
+// LICENSE file                                                              //
+///////////////////////////////////////////////////////////////////////////////
 
 // Contains functionality for managing connections
 
@@ -12,19 +13,20 @@ import (
 	"bytes"
 	"fmt"
 	jww "github.com/spf13/jwalterweatherman"
+	"gitlab.com/elixxir/primitives/id"
 	"sync"
 )
 
 // The Manager object provides thread-safe access
 // to Host objects for top-level libraries
 type Manager struct {
-	// A map of string IDs to Hosts
+	// A map of id.IDs to Hosts
 	connections sync.Map
 }
 
 // Fetch a Host from the internal map
-func (m *Manager) GetHost(hostId string) (*Host, bool) {
-	value, ok := m.connections.Load(hostId)
+func (m *Manager) GetHost(hostId *id.ID) (*Host, bool) {
+	value, ok := m.connections.Load(*hostId)
 	if !ok {
 		return nil, false
 	}
@@ -33,7 +35,7 @@ func (m *Manager) GetHost(hostId string) (*Host, bool) {
 }
 
 // Creates and adds a Host object to the Manager using the given id
-func (m *Manager) AddHost(id, address string,
+func (m *Manager) AddHost(id *id.ID, address string,
 	cert []byte, disableTimeout, enableAuth bool) (host *Host, err error) {
 
 	host, err = NewHost(id, address, cert, disableTimeout, enableAuth)
@@ -45,10 +47,16 @@ func (m *Manager) AddHost(id, address string,
 	return
 }
 
+// Removes a host from the connection manager
+func (m *Manager) RemoveHost(id *id.ID) {
+	jww.DEBUG.Printf("Removing host: %v", id)
+	m.connections.Delete(*id)
+}
+
 // Internal helper function that can add Hosts directly
 func (m *Manager) addHost(host *Host) {
 	jww.DEBUG.Printf("Adding host: %s", host)
-	m.connections.Store(host.id, host)
+	m.connections.Store(*host.id, host)
 }
 
 // Closes all client connections and removes them from Manager
@@ -63,8 +71,9 @@ func (m *Manager) DisconnectAll() {
 func (m *Manager) String() string {
 	var result bytes.Buffer
 	m.connections.Range(func(key interface{}, value interface{}) bool {
+		k := key.(id.ID)
 		result.WriteString(fmt.Sprintf("[%s]: %+v",
-			key.(string), value.(*Host)))
+			(&k).String(), value.(*Host)))
 		return true
 	})
 

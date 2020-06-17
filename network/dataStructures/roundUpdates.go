@@ -1,8 +1,9 @@
-////////////////////////////////////////////////////////////////////////////////
-// Copyright © 2020 Privategrity Corporation                                   /
-//                                                                             /
-// All rights reserved.                                                        /
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+// Copyright © 2020 xx network SEZC                                          //
+//                                                                           //
+// Use of this source code is governed by a license that can be found in the //
+// LICENSE file                                                              //
+///////////////////////////////////////////////////////////////////////////////
 
 // Stores a list of all updates in order of update id
 
@@ -14,8 +15,7 @@ import (
 	"gitlab.com/elixxir/primitives/ring"
 )
 
-const RoundInfoBufLen = 1000
-const RoundUpdatesBufLen = 10000
+const RoundUpdatesBufLen = 1500
 
 // Standard ring buffer, but objects come with numbering
 type Updates struct {
