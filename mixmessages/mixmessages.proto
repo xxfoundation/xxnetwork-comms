@@ -434,7 +434,8 @@ message RoundInfo {
     repeated bytes Topology = 5; // List of NodeIDs
     repeated uint64 Timestamps = 6; // List of state timestamps in UTC
     repeated RoundError Errors = 7; // List of errors which occured
-    RSASignature Signature = 8;
+    uint32 ResourceQueueTimeoutMillis = 8; // Timeout for resource queue on nodes
+    RSASignature Signature = 9;
 }
 
 // RoundError will be used to describe a round error
