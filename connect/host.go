@@ -20,11 +20,23 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/keepalive"
 	"math"
 	"sync"
 	"testing"
 	"time"
 )
+
+// KaClientOpts are the keepalive options for clients
+// TODO: Set via configuration
+var KaClientOpts = keepalive.ClientParameters{
+	// Wait 1s before pinging to keepalive
+	Time: 1 * time.Second,
+	// 2s after ping before closing
+	Timeout: 2 * time.Second,
+	// For all connections, streaming and nonstreaming
+	PermitWithoutStream: true,
+}
 
 // Represents a reverse-authentication token
 type Token []byte
@@ -282,8 +294,11 @@ func (h *Host) connectHelper() (err error) {
 		ctx, cancel := ConnectionContext(time.Duration(backoffTime))
 
 		// Create the connection
-		h.connection, err = grpc.DialContext(ctx, h.address, securityDial,
-			grpc.WithBlock(), grpc.WithBackoffMaxDelay(time.Minute*5))
+		h.connection, err = grpc.DialContext(ctx, h.address,
+			securityDial,
+			grpc.WithBlock(),
+			grpc.WithBackoffMaxDelay(time.Minute*5),
+			grpc.WithKeepaliveParams(KaClientOpts))
 		if err != nil {
 			jww.ERROR.Printf("Attempt number %+v to connect to %s failed: %+v\n",
 				numRetries, h.address, errors.New(err.Error()))
