@@ -297,7 +297,7 @@ func (h *Host) connectHelper() (err error) {
 			securityDial,
 			grpc.WithBlock(),
 			grpc.WithBackoffMaxDelay(time.Minute*5),
-			grpc.WithKeepAliveParams(kaOpts))
+			grpc.WithKeepaliveParams(kaOpts))
 		if err != nil {
 			jww.ERROR.Printf("Attempt number %+v to connect to %s failed: %+v\n",
 				numRetries, h.address, errors.New(err.Error()))
