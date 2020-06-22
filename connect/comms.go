@@ -30,6 +30,33 @@ import (
 	"time"
 )
 
+// TODO: Set these via config
+
+// KaOpts are Keepalive options for servers
+var KaOpts = keepalive.ServerParameters{
+	// Idle for at most 5s
+	MaxConnectionIdle: 5 * time.Second,
+	// Reset after an hour
+	MaxConnectionAge: 1 * time.Hour,
+	// w/ 1m grace shutdown
+	MaxConnectionAgeGrace: 1 * time.Minute,
+	// ping if no activity after 1s
+	Time: 1 * time.Second,
+	// Close conn 2 seconds afer ping
+	Timeout: 2 * time.Second,
+}
+
+// KaEnforcement are keepalive enforcement options for servers
+var KaEnforcement = keepalive.EnforcementPolicy{
+	// Client should wait at least 250ms
+	MinTime: 250 * time.Millisecond,
+	// Doing KA on non-streams is OK
+	PermitWithoutStream: true,
+}
+
+// MaxConcurrentStreams is the number of server-side streams to allow open
+var MaxConcurrentStreams = uint32(250000)
+
 // Proto object containing a gRPC server
 type ProtoComms struct {
 	// Inherit the Manager object
@@ -96,28 +123,6 @@ func StartCommServer(id *id.ID, localServer string, certPEMblock,
 		ListeningAddr: localServer,
 	}
 
-	// TODO: Set these via config
-	// Keepalive options
-	kaOpts := keepalive.ServerParameters{
-		// Idle for at most 5s
-		MaxConnectionIdle: 5 * time.Second,
-		// Reset after an hour
-		MaxConnectionAge: 1 * time.Hour,
-		// w/ 1m grace shutdown
-		MaxConnectionAgeGrace: 1 * time.Minute,
-		// ping if no activity after 1s
-		Time: 1 * time.Second,
-		// Close conn 2 seconds afer ping
-		Timeout: 2 * time.Second,
-	}
-
-	kaEnforcement := keepalive.EnforcementPolicy{
-		// Client should wait at least 250ms
-		MinTime: 250 * time.Millisecond,
-		// Doing KA on non-streams is OK
-		PermitWithoutStream: true,
-	}
-
 	// Listen on the given address
 	lis, err := net.Listen("tcp", localServer)
 	if err != nil {
@@ -143,19 +148,19 @@ func StartCommServer(id *id.ID, localServer string, certPEMblock,
 		jww.INFO.Printf("Starting server with TLS...")
 		creds := credentials.NewServerTLSFromCert(&x509cert)
 		pc.LocalServer = grpc.NewServer(grpc.Creds(creds),
-			grpc.MaxConcurrentStreams(250000),
+			grpc.MaxConcurrentStreams(MaxConcurrentStreams),
 			grpc.MaxRecvMsgSize(math.MaxInt32),
-			grpc.KeepaliveParams(kaOpts),
-			grpc.KeepaliveEnforcementPolicy(kaEnforcement))
+			grpc.KeepaliveParams(KaOpts),
+			grpc.KeepaliveEnforcementPolicy(KaEnforcement))
 
 	} else {
 		// Create the gRPC server without TLS
 		jww.WARN.Printf("Starting server with TLS disabled...")
 		pc.LocalServer = grpc.NewServer(
-			grpc.MaxConcurrentStreams(250000),
+			grpc.MaxConcurrentStreams(MaxConcurrentStreams),
 			grpc.MaxRecvMsgSize(math.MaxInt32),
-			grpc.KeepaliveParams(kaOpts),
-			grpc.KeepaliveEnforcementPolicy(kaEnforcement))
+			grpc.KeepaliveParams(KaOpts),
+			grpc.KeepaliveEnforcementPolicy(KaEnforcement))
 	}
 
 	return pc, lis, nil
