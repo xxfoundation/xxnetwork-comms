@@ -20,6 +20,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/keepalive"
 	"math"
 	"sync"
 	"testing"
@@ -253,6 +254,16 @@ func (h *Host) disconnect() {
 // undefined behavior if the caller has not taken the write lock
 func (h *Host) connectHelper() (err error) {
 
+	// TODO: Set via configuration
+	kaOpts := keepalive.ClientParameters{
+		// Wait 1s before pinging to keepalive
+		Time: 1 * time.Second,
+		// 2s after ping before closing
+		Timeout: 2 * time.Second,
+		// For all connections, streaming and nonstreaming
+		PermitWithoutStream: true,
+	}
+
 	// Configure TLS options
 	var securityDial grpc.DialOption
 	if h.credentials != nil {
@@ -282,8 +293,11 @@ func (h *Host) connectHelper() (err error) {
 		ctx, cancel := ConnectionContext(time.Duration(backoffTime))
 
 		// Create the connection
-		h.connection, err = grpc.DialContext(ctx, h.address, securityDial,
-			grpc.WithBlock(), grpc.WithBackoffMaxDelay(time.Minute*5))
+		h.connection, err = grpc.DialContext(ctx, h.address,
+			securityDial,
+			grpc.WithBlock(),
+			grpc.WithBackoffMaxDelay(time.Minute*5),
+			grpc.WithKeepAliveParams(kaOpts))
 		if err != nil {
 			jww.ERROR.Printf("Attempt number %+v to connect to %s failed: %+v\n",
 				numRetries, h.address, errors.New(err.Error()))
