@@ -220,6 +220,8 @@ func (c *ProtoComms) Send(host *Host, f func(conn *grpc.ClientConn) (*any.Any,
 connect:
 	// Ensure the connection is running
 	if !host.Connected() {
+		host.transmissionToken = nil
+		host.receptionToken = nil
 		//do not attempt to connect again if multiple attempts have been made
 		if numConnects == maxConnects {
 			return nil, errors.WithMessage(err, "Maximum number of connects attempted")
