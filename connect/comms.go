@@ -262,7 +262,7 @@ authorize:
 		if err != nil {
 			//if failure of connection, retry connection
 			if isConnError(err) {
-				jww.INFO.Printf("Failed to auth due to connection issuse: %s", err)
+				jww.INFO.Printf("Failed to auth due to connection issue: %s", err)
 				goto connect
 			}
 			//otherwise, return the error
@@ -281,7 +281,7 @@ authorize:
 	if err != nil {
 		//if failure of connection, retry connection
 		if isConnError(err) {
-			jww.INFO.Printf("Failed send due to connection issuse: %s", err)
+			jww.INFO.Printf("Failed send due to connection issue: %s", err)
 			goto connect
 		}
 
