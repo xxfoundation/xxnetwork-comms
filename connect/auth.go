@@ -209,7 +209,7 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) (err error) {
 	if !ok {
 
 		// If the host does not already exist, attempt dynamic authentication
-		jww.DEBUG.Printf("Attempting dynamic authentication: %s", msg.ID)
+		jww.DEBUG.Printf("Attempting dynamic authentication: %s", msgID.String())
 		host, err = c.dynamicAuth(msg)
 		if err != nil {
 			return errors.Errorf(
