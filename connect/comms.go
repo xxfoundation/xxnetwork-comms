@@ -230,7 +230,7 @@ connect:
 		lastEvent = con
 
 		//attempt to make the connection
-		jww.INFO.Printf("Host %s disconnected, attempting to reconnect...", host.id.String())
+		jww.INFO.Printf("Host %s not connected, attempting to connect...", host.id.String())
 		err = host.connect()
 		//if connection cannot be made, do not retry
 		if err != nil {
