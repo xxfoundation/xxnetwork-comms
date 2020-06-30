@@ -278,8 +278,9 @@ func TestInstance_UpdateGatewayConnections_GatewayIdError(t *testing.T) {
 	secured, _ := NewSecuredNdf(&testDef)
 
 	i := Instance{
-		full: secured,
-		comm: &connect.ProtoComms{},
+		full:       secured,
+		comm:       &connect.ProtoComms{},
+		ipOverride: ds.NewIpOverrideList(),
 	}
 	err := i.UpdateGatewayConnections()
 	if err == nil {
@@ -292,8 +293,9 @@ func TestInstance_UpdateNodeConnections(t *testing.T) {
 	secured, _ := NewSecuredNdf(testutils.NDF)
 
 	i := Instance{
-		full: secured,
-		comm: &connect.ProtoComms{},
+		full:       secured,
+		comm:       &connect.ProtoComms{},
+		ipOverride: ds.NewIpOverrideList(),
 	}
 	err := i.UpdateNodeConnections()
 	if err != nil {
@@ -301,8 +303,9 @@ func TestInstance_UpdateNodeConnections(t *testing.T) {
 	}
 
 	i = Instance{
-		partial: secured,
-		comm:    &connect.ProtoComms{},
+		partial:    secured,
+		comm:       &connect.ProtoComms{},
+		ipOverride: ds.NewIpOverrideList(),
 	}
 	err = i.UpdateNodeConnections()
 	if err != nil {
@@ -324,8 +327,9 @@ func TestInstance_UpdateNodeConnections_NodeIdError(t *testing.T) {
 	secured, _ := NewSecuredNdf(&testDef)
 
 	i := Instance{
-		full: secured,
-		comm: &connect.ProtoComms{},
+		full:       secured,
+		comm:       &connect.ProtoComms{},
+		ipOverride: ds.NewIpOverrideList(),
 	}
 	err := i.UpdateNodeConnections()
 	if err == nil {
