@@ -37,10 +37,8 @@ func (iol *IpOverrideList) Override(oid *id.ID, ip string) {
 func (iol *IpOverrideList) CheckOverride(cid *id.ID, ip string) string {
 	iol.Lock()
 	defer iol.Unlock()
-	for i, oip := range iol.ipOverride {
-		if (&i).Cmp(cid) {
-			return oip
-		}
+	if oip, exists := iol.ipOverride[*cid]; exists {
+		return oip
 	}
 	return ip
 }

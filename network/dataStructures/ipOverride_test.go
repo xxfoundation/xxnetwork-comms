@@ -37,7 +37,7 @@ func TestIpOverrideList_Override(t *testing.T) {
 
 	if resultIP != testIP {
 		t.Errorf("the ip returned from the map is not as expected"+
-			"expected: %s, recieved: %s", testIP, resultIP)
+			" expected: %s, recieved: %s", testIP, resultIP)
 	}
 }
 
