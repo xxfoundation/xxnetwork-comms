@@ -244,8 +244,9 @@ func TestInstance_UpdateGatewayConnections(t *testing.T) {
 	secured, _ := NewSecuredNdf(testutils.NDF)
 
 	i := Instance{
-		full: secured,
-		comm: &connect.ProtoComms{},
+		full:       secured,
+		comm:       &connect.ProtoComms{},
+		ipOverride: ds.NewIpOverrideList(),
 	}
 	err := i.UpdateGatewayConnections()
 	if err != nil {
@@ -253,8 +254,9 @@ func TestInstance_UpdateGatewayConnections(t *testing.T) {
 	}
 
 	i = Instance{
-		partial: secured,
-		comm:    &connect.ProtoComms{},
+		partial:    secured,
+		comm:       &connect.ProtoComms{},
+		ipOverride: ds.NewIpOverrideList(),
 	}
 	err = i.UpdateGatewayConnections()
 	if err != nil {
