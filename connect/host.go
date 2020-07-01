@@ -171,6 +171,7 @@ func (h *Host) Disconnect() {
 }
 
 // Returns whether or not the Host is able to be contacted
+// by attempting to dial a tcp connection
 func (h *Host) IsOnline() bool {
 	addr := h.GetAddress()
 	timeout := 5 * time.Second
