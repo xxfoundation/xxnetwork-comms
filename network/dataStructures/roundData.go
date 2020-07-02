@@ -47,7 +47,7 @@ func (d *Data) GetRound(id int) (*mixmessages.RoundInfo, error) {
 		return nil, errors.Wrapf(err, "Failed to get update with id %d", id)
 	}
 	var rtn *mixmessages.RoundInfo
-	if val!=nil{
+	if val != nil {
 		rtn = val.(*mixmessages.RoundInfo)
 	}
 	return rtn, nil
