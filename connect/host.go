@@ -22,6 +22,7 @@ import (
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/keepalive"
 	"math"
+	"net"
 	"sync"
 	"testing"
 	"time"
@@ -167,6 +168,28 @@ func (h *Host) Disconnect() {
 	h.disconnect()
 	h.receptionToken = nil
 	h.transmissionToken = nil
+}
+
+// Returns whether or not the Host is able to be contacted
+// by attempting to dial a tcp connection
+func (h *Host) IsOnline() bool {
+	addr := h.GetAddress()
+	timeout := 5 * time.Second
+	conn, err := net.DialTimeout("tcp", addr, timeout)
+	if err != nil {
+		// If we cannot connect, mark the node as failed
+		jww.DEBUG.Printf("Failed to verify connectivity for address %s", addr)
+		return false
+	}
+	// Attempt to close the connection
+	if conn != nil {
+		errClose := conn.Close()
+		if errClose != nil {
+			jww.DEBUG.Printf("Failed to close connection for address %s",
+				addr)
+		}
+	}
+	return true
 }
 
 // send checks that the host has a connection and sends if it does.

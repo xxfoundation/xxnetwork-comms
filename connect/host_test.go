@@ -10,6 +10,7 @@ package connect
 import (
 	"bytes"
 	"gitlab.com/elixxir/primitives/id"
+	"net"
 	"testing"
 )
 
@@ -110,5 +111,41 @@ func TestHost_IsDynamicHost(t *testing.T) {
 	if host.IsDynamicHost() != true {
 		t.Errorf("Correct bool not returned. Expected true, got %v",
 			host.dynamicHost)
+	}
+}
+
+// Full test
+func TestHost_IsOnline(t *testing.T) {
+	addr := "0.0.0.0:10234"
+
+	// Create the host
+	host, err := NewHost(id.NewIdFromString("test", id.Gateway, t), addr, nil,
+		false,
+		false)
+	if err != nil {
+		t.Errorf("Unable to create host: %+v", host)
+		return
+	}
+
+	// Test that host is offline
+	if host.IsOnline() {
+		t.Errorf("Expected host to be offline!")
+	}
+
+	// Listen on the given address
+	lis, err := net.Listen("tcp", addr)
+	if err != nil {
+		t.Errorf("Unable to listen: %+v", err)
+	}
+
+	// Test that host is online
+	if !host.IsOnline() {
+		t.Errorf("Expected host to be online!")
+	}
+
+	// Close listening address
+	err = lis.Close()
+	if err != nil {
+		t.Errorf("Unable to close listening server: %+v", err)
 	}
 }

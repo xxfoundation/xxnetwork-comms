@@ -32,6 +32,8 @@ type Instance struct {
 	full         *SecuredNdf
 	roundUpdates *ds.Updates
 	roundData    *ds.Data
+
+	ipOverride *ds.IpOverrideList
 }
 
 // Initializer for instance structs from base comms and NDF
@@ -66,6 +68,8 @@ func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition) (*
 		roundData:    ds.NewData(),
 		cmixGroup:    ds.NewGroup(),
 		e2eGroup:     ds.NewGroup(),
+
+		ipOverride: ds.NewIpOverrideList(),
 	}
 
 	cmix := ""
@@ -150,7 +154,11 @@ func (i *Instance) UpdatePartialNdf(m *pb.NDF) error {
 	}
 
 	return nil
+}
 
+//overrides an IP address for an ID with one from
+func (i *Instance) GetIpOverrideList() *ds.IpOverrideList {
+	return i.ipOverride
 }
 
 //update the full ndf
@@ -267,9 +275,9 @@ func (i *Instance) GetLastRoundID() id.Round {
 // Update gateway hosts based on most complete ndf
 func (i *Instance) UpdateGatewayConnections() error {
 	if i.full != nil {
-		return updateConns(i.full.f.Get(), i.comm, true, false)
+		return updateConns(i.full.f.Get(), i.comm, true, false, i.ipOverride)
 	} else if i.partial != nil {
-		return updateConns(i.partial.f.Get(), i.comm, true, false)
+		return updateConns(i.partial.f.Get(), i.comm, true, false, i.ipOverride)
 	} else {
 		return errors.New("No ndf currently stored")
 	}
@@ -278,9 +286,9 @@ func (i *Instance) UpdateGatewayConnections() error {
 // Update node hosts based on most complete ndf
 func (i *Instance) UpdateNodeConnections() error {
 	if i.full != nil {
-		return updateConns(i.full.f.Get(), i.comm, false, true)
+		return updateConns(i.full.f.Get(), i.comm, false, true, i.ipOverride)
 	} else if i.partial != nil {
-		return updateConns(i.partial.f.Get(), i.comm, false, true)
+		return updateConns(i.partial.f.Get(), i.comm, false, true, i.ipOverride)
 	} else {
 		return errors.New("No ndf currently stored")
 	}
@@ -335,7 +343,7 @@ func (i *Instance) SetProtoComms(newPC *connect.ProtoComms) {
 }
 
 // Update host helper
-func updateConns(def *ndf.NetworkDefinition, comms *connect.ProtoComms, gate, node bool) error {
+func updateConns(def *ndf.NetworkDefinition, comms *connect.ProtoComms, gate, node bool, ipOverride *ds.IpOverrideList) error {
 	if gate {
 		for i, h := range def.Gateways {
 			gwid, err := id.Unmarshal(def.Nodes[i].ID)
@@ -343,7 +351,10 @@ func updateConns(def *ndf.NetworkDefinition, comms *connect.ProtoComms, gate, no
 				return err
 			}
 			gwid.SetType(id.Gateway)
+			//check if an ip override is registered
+			addr := ipOverride.CheckOverride(gwid, h.Address)
 
+			//check if the host exists
 			host, ok := comms.GetHost(gwid)
 			if !ok {
 				// Check if gateway ID collides with an existing hard coded ID
@@ -352,12 +363,12 @@ func updateConns(def *ndf.NetworkDefinition, comms *connect.ProtoComms, gate, no
 						"hard coded ID. Invalid ID: %v", gwid.Marshal())
 				}
 
-				_, err := comms.AddHost(gwid, h.Address, []byte(h.TlsCertificate), false, true)
+				_, err := comms.AddHost(gwid, addr, []byte(h.TlsCertificate), false, true)
 				if err != nil {
 					return errors.WithMessagef(err, "Could not add gateway host %s", gwid)
 				}
-			} else if host.GetAddress() != h.Address {
-				host.UpdateAddress(h.Address)
+			} else if host.GetAddress() != addr {
+				host.UpdateAddress(addr)
 			}
 		}
 	}
@@ -367,6 +378,10 @@ func updateConns(def *ndf.NetworkDefinition, comms *connect.ProtoComms, gate, no
 			if err != nil {
 				return err
 			}
+			//check if an ip override is registered
+			addr := ipOverride.CheckOverride(nid, h.Address)
+
+			//check if the host exists
 			host, ok := comms.GetHost(nid)
 			if !ok {
 				// Check if node ID collides with an existing hard coded ID
@@ -375,12 +390,12 @@ func updateConns(def *ndf.NetworkDefinition, comms *connect.ProtoComms, gate, no
 						"hard coded ID. Invalid ID: %v", nid.Marshal())
 				}
 
-				_, err := comms.AddHost(nid, h.Address, []byte(h.TlsCertificate), false, true)
+				_, err := comms.AddHost(nid, addr, []byte(h.TlsCertificate), false, true)
 				if err != nil {
 					return errors.WithMessagef(err, "Could not add node host %s", nid)
 				}
-			} else if host.GetAddress() != h.Address {
-				host.UpdateAddress(h.Address)
+			} else if host.GetAddress() != addr {
+				host.UpdateAddress(addr)
 			}
 		}
 	}
