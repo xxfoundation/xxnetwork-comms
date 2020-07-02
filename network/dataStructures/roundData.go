@@ -46,7 +46,11 @@ func (d *Data) GetRound(id int) (*mixmessages.RoundInfo, error) {
 	if err != nil {
 		return nil, errors.Wrapf(err, "Failed to get update with id %d", id)
 	}
-	return val.(*mixmessages.RoundInfo), nil
+	var rtn *mixmessages.RoundInfo
+	if val!=nil{
+		rtn = val.(*mixmessages.RoundInfo)
+	}
+	return rtn, nil
 }
 
 // Get the ID of the newest round in the buffer

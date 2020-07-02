@@ -55,11 +55,16 @@ func (u *Updates) GetUpdates(id int) []*pb.RoundInfo {
 
 	infoList := make([]*pb.RoundInfo, len(interfaceList))
 
-	for i, face := range interfaceList {
-		infoList[i] = face.(*pb.RoundInfo)
+	addCount := 0
+	for _, face := range interfaceList {
+		if face!=nil{
+			infoList[addCOunt] = face.(*pb.RoundInfo)
+			addCount++
+		}
+
 	}
 
-	return infoList
+	return infoList[:addCount]
 }
 
 // Get the id of the newest update in the buffer
