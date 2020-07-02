@@ -123,11 +123,18 @@ func StartCommServer(id *id.ID, localServer string, certPEMblock,
 		ListeningAddr: localServer,
 	}
 
+	listen:
 	// Listen on the given address
 	lis, err := net.Listen("tcp", localServer)
 	if err != nil {
+		if strings.Contains(err.Error(), "bind: address already in use"){
+			jww.WARN.Printf("Could not listen on %s, is port in use? waiting 30s: %s", localServer, err.Error())
+			time.Sleep(30*time.Second)
+			goto listen
+		}
 		return nil, nil, errors.New(err.Error())
 	}
+
 
 	// If TLS was specified
 	if certPEMblock != nil && keyPEMblock != nil {

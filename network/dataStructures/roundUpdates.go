@@ -25,29 +25,14 @@ type Updates struct {
 // Create a new Updates object
 func NewUpdates() *Updates {
 	// we want each updateId stored in this structure
-	idFunc := func(val interface{}) int {
-		if val == nil {
-			return -1
-		}
-		return int(val.(*pb.RoundInfo).UpdateID)
-	}
 	return &Updates{
-		updates: ring.NewBuff(RoundUpdatesBufLen, idFunc),
+		updates: ring.NewBuff(RoundUpdatesBufLen),
 	}
 }
 
 // Add a round to the ring buffer
 func (u *Updates) AddRound(info *pb.RoundInfo) error {
-
-	// comparison should ensure that updates are not overwritten in the event of a duplicate
-	comp := func(current interface{}, new interface{}) bool {
-		if current == nil {
-			return true
-		}
-		return false
-	}
-
-	return u.updates.UpsertById(info, comp)
+	return u.updates.UpsertById(int(info.ID),info)
 }
 
 // Get a given update ID from the ring buffer
