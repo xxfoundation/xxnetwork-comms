@@ -32,7 +32,7 @@ func NewUpdates() *Updates {
 
 // Add a round to the ring buffer
 func (u *Updates) AddRound(info *pb.RoundInfo) error {
-	return u.updates.UpsertById(int(info.ID),info)
+	return u.updates.UpsertById(int(info.UpdateID),info)
 }
 
 // Get a given update ID from the ring buffer
