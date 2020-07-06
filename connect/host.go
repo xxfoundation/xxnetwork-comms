@@ -1,8 +1,9 @@
-////////////////////////////////////////////////////////////////////////////////
-// Copyright © 2018 Privategrity Corporation                                   /
-//                                                                             /
-// All rights reserved.                                                        /
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+// Copyright © 2020 xx network SEZC                                          //
+//                                                                           //
+// Use of this source code is governed by a license that can be found in the //
+// LICENSE file                                                              //
+///////////////////////////////////////////////////////////////////////////////
 
 // Contains functionality for describing and creating connections
 
@@ -19,10 +20,24 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/keepalive"
 	"math"
+	"net"
 	"sync"
+	"testing"
 	"time"
 )
+
+// KaClientOpts are the keepalive options for clients
+// TODO: Set via configuration
+var KaClientOpts = keepalive.ClientParameters{
+	// Wait 1s before pinging to keepalive
+	Time: 1 * time.Second,
+	// 2s after ping before closing
+	Timeout: 2 * time.Second,
+	// For all connections, streaming and nonstreaming
+	PermitWithoutStream: true,
+}
 
 // Represents a reverse-authentication token
 type Token []byte
@@ -155,6 +170,28 @@ func (h *Host) Disconnect() {
 	h.transmissionToken = nil
 }
 
+// Returns whether or not the Host is able to be contacted
+// by attempting to dial a tcp connection
+func (h *Host) IsOnline() bool {
+	addr := h.GetAddress()
+	timeout := 5 * time.Second
+	conn, err := net.DialTimeout("tcp", addr, timeout)
+	if err != nil {
+		// If we cannot connect, mark the node as failed
+		jww.DEBUG.Printf("Failed to verify connectivity for address %s", addr)
+		return false
+	}
+	// Attempt to close the connection
+	if conn != nil {
+		errClose := conn.Close()
+		if errClose != nil {
+			jww.DEBUG.Printf("Failed to close connection for address %s",
+				addr)
+		}
+	}
+	return true
+}
+
 // send checks that the host has a connection and sends if it does.
 // Operates under the host's read lock.
 func (h *Host) send(f func(conn *grpc.ClientConn) (*any.Any,
@@ -280,8 +317,11 @@ func (h *Host) connectHelper() (err error) {
 		ctx, cancel := ConnectionContext(time.Duration(backoffTime))
 
 		// Create the connection
-		h.connection, err = grpc.DialContext(ctx, h.address, securityDial,
-			grpc.WithBlock(), grpc.WithBackoffMaxDelay(time.Minute*5))
+		h.connection, err = grpc.DialContext(ctx, h.address,
+			securityDial,
+			grpc.WithBlock(),
+			grpc.WithBackoffMaxDelay(time.Minute*5),
+			grpc.WithKeepaliveParams(KaClientOpts))
 		if err != nil {
 			jww.ERROR.Printf("Attempt number %+v to connect to %s failed: %+v\n",
 				numRetries, h.address, errors.New(err.Error()))
@@ -368,4 +408,16 @@ func (h *Host) String() string {
 		h.id, addr, h.certificate, h.transmissionToken,
 		h.receptionToken, h.enableAuth, h.maxRetries, state,
 		serverName, protocolVersion, securityVersion, securityProtocol)
+}
+
+func (h *Host) SetTestPublicKey(key *rsa.PublicKey, t interface{}) {
+	switch t.(type) {
+	case *testing.T:
+		break
+	case *testing.M:
+		break
+	default:
+		jww.FATAL.Panicf("SetTestPublicKey is restricted to testing only. Got %T", t)
+	}
+	h.rsaPublicKey = key
 }

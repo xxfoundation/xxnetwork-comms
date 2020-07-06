@@ -1,3 +1,10 @@
+///////////////////////////////////////////////////////////////////////////////
+// Copyright © 2020 xx network SEZC                                          //
+//                                                                           //
+// Use of this source code is governed by a license that can be found in the //
+// LICENSE file                                                              //
+///////////////////////////////////////////////////////////////////////////////
+
 package connect
 
 import (
@@ -138,6 +145,12 @@ func (reg *MockRegComms) PollNdf(context.Context, *pb.AuthenticatedMessage) (*pb
 	return &pb.NDF{
 		Ndf: msg,
 	}, err
+}
+
+func (reg *MockRegComms) CheckRegistration(context.Context, *pb.RegisteredNodeCheck) (*pb.RegisteredNodeConfirmation, error) {
+	return &pb.RegisteredNodeConfirmation{
+		IsRegistered: true,
+	}, nil
 }
 
 // ------------------------- Mock Registration Server Handler ---------------------------

@@ -1,8 +1,9 @@
-////////////////////////////////////////////////////////////////////////////////
-// Copyright © 2018 Privategrity Corporation                                   /
-//                                                                             /
-// All rights reserved.                                                        /
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+// Copyright © 2020 xx network SEZC                                          //
+//                                                                           //
+// Use of this source code is governed by a license that can be found in the //
+// LICENSE file                                                              //
+///////////////////////////////////////////////////////////////////////////////
 
 package client
 
@@ -89,6 +90,6 @@ func TestSendGetUpdatedNDF(t *testing.T) {
 	_, err = c.RequestNdf(host, &pb.NDFHash{})
 
 	if err != nil {
-		t.Errorf("RequestNdf: Error recieved: %s", err)
+		t.Errorf("RequestNdf: Error received: %s", err)
 	}
 }

@@ -1,3 +1,10 @@
+///////////////////////////////////////////////////////////////////////////////
+// Copyright © 2020 xx network SEZC                                          //
+//                                                                           //
+// Use of this source code is governed by a license that can be found in the //
+// LICENSE file                                                              //
+///////////////////////////////////////////////////////////////////////////////
+
 package connect
 
 import (
@@ -13,7 +20,7 @@ func TestAuthError(t *testing.T) {
 		t.Error("AuthError did not return an error object")
 	}
 	if result.Error() != expectedAuthErrorStr {
-		t.Errorf("returned error not as expected: Expected: %s, recieved: %s",
+		t.Errorf("returned error not as expected: Expected: %s, received: %s",
 			expectedAuthErrorStr, result.Error())
 	}
 }

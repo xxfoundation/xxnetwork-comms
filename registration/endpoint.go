@@ -1,8 +1,9 @@
-////////////////////////////////////////////////////////////////////////////////
-// Copyright © 2018 Privategrity Corporation                                   /
-//                                                                             /
-// All rights reserved.                                                        /
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+// Copyright © 2020 xx network SEZC                                          //
+//                                                                           //
+// Use of this source code is governed by a license that can be found in the //
+// LICENSE file                                                              //
+///////////////////////////////////////////////////////////////////////////////
 
 // Contains registration server gRPC endpoints
 
@@ -145,4 +146,11 @@ func (r *Comms) Poll(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.Per
 
 	//Return the new ndf
 	return r.handler.Poll(pollMsg, authState, address)
+}
+
+// Server -> Permissioning unified polling
+func (r *Comms) CheckRegistration(ctx context.Context, msg *pb.RegisteredNodeCheck) (*pb.RegisteredNodeConfirmation, error) {
+
+	//Return the new ndf
+	return r.handler.CheckRegistration(msg)
 }

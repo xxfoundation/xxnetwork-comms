@@ -1,8 +1,9 @@
-////////////////////////////////////////////////////////////////////////////////
-// Copyright © 2018 Privategrity Corporation                                   /
-//                                                                             /
-// All rights reserved.                                                        /
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+// Copyright © 2020 xx network SEZC                                          //
+//                                                                           //
+// Use of this source code is governed by a license that can be found in the //
+// LICENSE file                                                              //
+///////////////////////////////////////////////////////////////////////////////
 
 // Handles authentication logic for the top-level comms object
 
@@ -208,7 +209,7 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) (err error) {
 	if !ok {
 
 		// If the host does not already exist, attempt dynamic authentication
-		jww.DEBUG.Printf("Attempting dynamic authentication: %s", msg.ID)
+		jww.DEBUG.Printf("Attempting dynamic authentication: %s", msgID.String())
 		host, err = c.dynamicAuth(msg)
 		if err != nil {
 			return errors.Errorf(

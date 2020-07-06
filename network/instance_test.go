@@ -1,8 +1,9 @@
-////////////////////////////////////////////////////////////////////////////////
-// Copyright © 2020 Privategrity Corporation                                   /
-//                                                                             /
-// All rights reserved.                                                        /
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+// Copyright © 2020 xx network SEZC                                          //
+//                                                                           //
+// Use of this source code is governed by a license that can be found in the //
+// LICENSE file                                                              //
+///////////////////////////////////////////////////////////////////////////////
 
 package network
 
@@ -243,8 +244,9 @@ func TestInstance_UpdateGatewayConnections(t *testing.T) {
 	secured, _ := NewSecuredNdf(testutils.NDF)
 
 	i := Instance{
-		full: secured,
-		comm: &connect.ProtoComms{},
+		full:       secured,
+		comm:       &connect.ProtoComms{},
+		ipOverride: ds.NewIpOverrideList(),
 	}
 	err := i.UpdateGatewayConnections()
 	if err != nil {
@@ -252,8 +254,9 @@ func TestInstance_UpdateGatewayConnections(t *testing.T) {
 	}
 
 	i = Instance{
-		partial: secured,
-		comm:    &connect.ProtoComms{},
+		partial:    secured,
+		comm:       &connect.ProtoComms{},
+		ipOverride: ds.NewIpOverrideList(),
 	}
 	err = i.UpdateGatewayConnections()
 	if err != nil {
@@ -267,12 +270,32 @@ func TestInstance_UpdateGatewayConnections(t *testing.T) {
 	}
 }
 
+// Tests that UpdateGatewayConnections() returns an error when a Gateway ID
+// collides with a hard coded ID.
+func TestInstance_UpdateGatewayConnections_GatewayIdError(t *testing.T) {
+	testDef := *testutils.NDF
+	testDef.Nodes = []ndf.Node{{ID: id.TempGateway.Marshal()}}
+	secured, _ := NewSecuredNdf(&testDef)
+
+	i := Instance{
+		full:       secured,
+		comm:       &connect.ProtoComms{},
+		ipOverride: ds.NewIpOverrideList(),
+	}
+	err := i.UpdateGatewayConnections()
+	if err == nil {
+		t.Errorf("UpdateGatewayConnections() failed to produce an error when " +
+			"the Gateway ID collides with a hard coded ID.")
+	}
+}
+
 func TestInstance_UpdateNodeConnections(t *testing.T) {
 	secured, _ := NewSecuredNdf(testutils.NDF)
 
 	i := Instance{
-		full: secured,
-		comm: &connect.ProtoComms{},
+		full:       secured,
+		comm:       &connect.ProtoComms{},
+		ipOverride: ds.NewIpOverrideList(),
 	}
 	err := i.UpdateNodeConnections()
 	if err != nil {
@@ -280,8 +303,9 @@ func TestInstance_UpdateNodeConnections(t *testing.T) {
 	}
 
 	i = Instance{
-		partial: secured,
-		comm:    &connect.ProtoComms{},
+		partial:    secured,
+		comm:       &connect.ProtoComms{},
+		ipOverride: ds.NewIpOverrideList(),
 	}
 	err = i.UpdateNodeConnections()
 	if err != nil {
@@ -292,6 +316,25 @@ func TestInstance_UpdateNodeConnections(t *testing.T) {
 	err = i.UpdateNodeConnections()
 	if err == nil {
 		t.Error("Should error when attempting update with no ndf")
+	}
+}
+
+// Tests that UpdateNodeConnections() returns an error when a Node ID collides
+// with a hard coded ID.
+func TestInstance_UpdateNodeConnections_NodeIdError(t *testing.T) {
+	testDef := *testutils.NDF
+	testDef.Nodes = []ndf.Node{{ID: id.Permissioning.Marshal()}}
+	secured, _ := NewSecuredNdf(&testDef)
+
+	i := Instance{
+		full:       secured,
+		comm:       &connect.ProtoComms{},
+		ipOverride: ds.NewIpOverrideList(),
+	}
+	err := i.UpdateNodeConnections()
+	if err == nil {
+		t.Errorf("UpdateNodeConnections() failed to produce an error when the " +
+			"Node ID collides with a hard coded ID.")
 	}
 }
 

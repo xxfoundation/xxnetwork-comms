@@ -1,8 +1,9 @@
-////////////////////////////////////////////////////////////////////////////////
-// Copyright © 2020 Privategrity Corporation                                   /
-//                                                                             /
-// All rights reserved.                                                        /
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+// Copyright © 2020 xx network SEZC                                          //
+//                                                                           //
+// Use of this source code is governed by a license that can be found in the //
+// LICENSE file                                                              //
+///////////////////////////////////////////////////////////////////////////////
 
 // Handle basic logic for common operations of network instances
 
@@ -11,6 +12,7 @@ package network
 import (
 	"fmt"
 	"github.com/pkg/errors"
+	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	ds "gitlab.com/elixxir/comms/network/dataStructures"
@@ -30,6 +32,8 @@ type Instance struct {
 	full         *SecuredNdf
 	roundUpdates *ds.Updates
 	roundData    *ds.Data
+
+	ipOverride *ds.IpOverrideList
 }
 
 // Initializer for instance structs from base comms and NDF
@@ -64,26 +68,36 @@ func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition) (*
 		roundData:    ds.NewData(),
 		cmixGroup:    ds.NewGroup(),
 		e2eGroup:     ds.NewGroup(),
+
+		ipOverride: ds.NewIpOverrideList(),
 	}
 
-	cmix, _ := partial.CMIX.String()
+	cmix := ""
 	if full.CMIX.Prime != "" {
 		cmix, _ = full.CMIX.String()
-	}
-	if cmix == "" {
-		return nil, errors.New("No cmix group was found in either NDF")
-	} else {
-		_ = i.cmixGroup.Update(cmix)
+	} else if partial.CMIX.Prime != "" {
+		cmix, _ = full.CMIX.String()
 	}
 
-	e2e, _ := partial.E2E.String()
+	if cmix != "" {
+		err := i.cmixGroup.Update(cmix)
+		if err != nil {
+			jww.WARN.Printf("Error updating cmix group: %+v", err)
+		}
+	}
+
+	e2e := ""
 	if full.E2E.Prime != "" {
 		e2e, _ = full.E2E.String()
+	} else if partial.E2E.Prime != "" {
+		e2e, _ = partial.E2E.String()
 	}
-	if cmix == "" {
-		return nil, errors.New("No E2E group was found in either NDF")
-	} else {
-		_ = i.e2eGroup.Update(e2e)
+
+	if cmix != "" {
+		err := i.e2eGroup.Update(e2e)
+		if err != nil {
+			jww.WARN.Printf("Error updating e2e group: %+v", err)
+		}
 	}
 
 	return i, nil
@@ -148,7 +162,11 @@ func (i *Instance) UpdatePartialNdf(m *pb.NDF) error {
 	}
 
 	return nil
+}
 
+//overrides an IP address for an ID with one from
+func (i *Instance) GetIpOverrideList() *ds.IpOverrideList {
+	return i.ipOverride
 }
 
 //update the full ndf
@@ -299,9 +317,9 @@ func (i *Instance) GetLastRoundID() id.Round {
 // Update gateway hosts based on most complete ndf
 func (i *Instance) UpdateGatewayConnections() error {
 	if i.full != nil {
-		return updateConns(i.full.f.Get(), i.comm, true, false)
+		return updateConns(i.full.f.Get(), i.comm, true, false, i.ipOverride)
 	} else if i.partial != nil {
-		return updateConns(i.partial.f.Get(), i.comm, true, false)
+		return updateConns(i.partial.f.Get(), i.comm, true, false, i.ipOverride)
 	} else {
 		return errors.New("No ndf currently stored")
 	}
@@ -310,9 +328,9 @@ func (i *Instance) UpdateGatewayConnections() error {
 // Update node hosts based on most complete ndf
 func (i *Instance) UpdateNodeConnections() error {
 	if i.full != nil {
-		return updateConns(i.full.f.Get(), i.comm, false, true)
+		return updateConns(i.full.f.Get(), i.comm, false, true, i.ipOverride)
 	} else if i.partial != nil {
-		return updateConns(i.partial.f.Get(), i.comm, false, true)
+		return updateConns(i.partial.f.Get(), i.comm, false, true, i.ipOverride)
 	} else {
 		return errors.New("No ndf currently stored")
 	}
@@ -367,24 +385,32 @@ func (i *Instance) SetProtoComms(newPC *connect.ProtoComms) {
 }
 
 // Update host helper
-func updateConns(def *ndf.NetworkDefinition, comms *connect.ProtoComms, gate, node bool) error {
+func updateConns(def *ndf.NetworkDefinition, comms *connect.ProtoComms, gate, node bool, ipOverride *ds.IpOverrideList) error {
 	if gate {
 		for i, h := range def.Gateways {
-			//gwid := id.NewNodeFromBytes(def.Nodes[i].ID).NewGateway().String()
 			gwid, err := id.Unmarshal(def.Nodes[i].ID)
 			if err != nil {
 				return err
 			}
 			gwid.SetType(id.Gateway)
+			//check if an ip override is registered
+			addr := ipOverride.CheckOverride(gwid, h.Address)
 
+			//check if the host exists
 			host, ok := comms.GetHost(gwid)
 			if !ok {
-				_, err := comms.AddHost(gwid, h.Address, []byte(h.TlsCertificate), false, true)
+				// Check if gateway ID collides with an existing hard coded ID
+				if id.CollidesWithHardCodedID(gwid) {
+					return errors.Errorf("Gateway ID invalid, collides with a "+
+						"hard coded ID. Invalid ID: %v", gwid.Marshal())
+				}
+
+				_, err := comms.AddHost(gwid, addr, []byte(h.TlsCertificate), false, true)
 				if err != nil {
 					return errors.WithMessagef(err, "Could not add gateway host %s", gwid)
 				}
-			} else if host.GetAddress() != h.Address {
-				host.UpdateAddress(h.Address)
+			} else if host.GetAddress() != addr {
+				host.UpdateAddress(addr)
 			}
 		}
 	}
@@ -394,14 +420,24 @@ func updateConns(def *ndf.NetworkDefinition, comms *connect.ProtoComms, gate, no
 			if err != nil {
 				return err
 			}
+			//check if an ip override is registered
+			addr := ipOverride.CheckOverride(nid, h.Address)
+
+			//check if the host exists
 			host, ok := comms.GetHost(nid)
 			if !ok {
-				_, err := comms.AddHost(nid, h.Address, []byte(h.TlsCertificate), false, true)
+				// Check if node ID collides with an existing hard coded ID
+				if id.CollidesWithHardCodedID(nid) {
+					return errors.Errorf("Node ID invalid, collides with a "+
+						"hard coded ID. Invalid ID: %v", nid.Marshal())
+				}
+
+				_, err := comms.AddHost(nid, addr, []byte(h.TlsCertificate), false, true)
 				if err != nil {
 					return errors.WithMessagef(err, "Could not add node host %s", nid)
 				}
-			} else if host.GetAddress() != h.Address {
-				host.UpdateAddress(h.Address)
+			} else if host.GetAddress() != addr {
+				host.UpdateAddress(addr)
 			}
 		}
 	}

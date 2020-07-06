@@ -78,6 +78,9 @@ service Node {
     // Round error comm
     rpc RoundError (AuthenticatedMessage) returns (Ack) {
     }
+
+
+
 }
 
 // RoundInfo contains the # of precomputations ready for messages, among other
@@ -238,6 +241,20 @@ service Registration {
     // Server -> Permissioning unified polling
     rpc Poll (AuthenticatedMessage) returns (PermissionPollResponse) {
     }
+
+    // Checks if node has been registered
+    rpc CheckRegistration (RegisteredNodeCheck) returns (RegisteredNodeConfirmation) {
+
+    }
+}
+
+// Server -> Permissioning message for whether a node has been registered
+message RegisteredNodeConfirmation {
+    bool IsRegistered = 1;
+}
+
+message RegisteredNodeCheck {
+    string  RegCode = 1;
 }
 
 //The ndf Hash used to compare ndf on permissioning and client
@@ -417,7 +434,8 @@ message RoundInfo {
     repeated bytes Topology = 5; // List of NodeIDs
     repeated uint64 Timestamps = 6; // List of state timestamps in UTC
     repeated RoundError Errors = 7; // List of errors which occured
-    RSASignature Signature = 8;
+    uint32 ResourceQueueTimeoutMillis = 8; // Timeout for resource queue on nodes
+    RSASignature Signature = 9;
 }
 
 // RoundError will be used to describe a round error
