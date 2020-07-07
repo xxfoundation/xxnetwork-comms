@@ -134,7 +134,7 @@ func (i *Instance) UpdatePartialNdf(m *pb.NDF) error {
 	}
 
 	// Get a list of current nodes so we can check later for removed nodes
-	oldNodeList := i.full.Get().Nodes
+	oldNodeList := i.partial.Get().Nodes
 
 	// Update the partial ndf
 	err := i.partial.update(m, perm.GetPubKey())
@@ -142,9 +142,13 @@ func (i *Instance) UpdatePartialNdf(m *pb.NDF) error {
 		return err
 	}
 
-	err = i.removeBannedNodes(oldNodeList)
+	// Get list of removed nodes and remove them from the host map
+	rmNodes, err := removeBannedNodes(oldNodeList, i.partial.Get().Nodes)
 	if err != nil {
 		return err
+	}
+	for nid := range rmNodes {
+		i.comm.RemoveHost(nid)
 	}
 
 	// update the cmix group object
@@ -191,9 +195,12 @@ func (i *Instance) UpdateFullNdf(m *pb.NDF) error {
 		return err
 	}
 
-	err = i.removeBannedNodes(oldNodeList)
+	rmNodes, err := removeBannedNodes(oldNodeList, i.full.Get().Nodes)
 	if err != nil {
 		return err
+	}
+	for nid := range rmNodes {
+		i.comm.RemoveHost(nid)
 	}
 
 	// update the cmix group object
@@ -214,12 +221,13 @@ func (i *Instance) UpdateFullNdf(m *pb.NDF) error {
 
 }
 
-// Remove nodes that were banned/removed from the NDF since last update
-func (i *Instance) removeBannedNodes(old []ndf.Node) error {
+// Find nodes that have been removed, comparing two NDFs
+func removeBannedNodes(old []ndf.Node, new []ndf.Node) (map[*id.ID]ndf.Node, error) {
+	// List of nodes to get rid of
+	rmNodes := make(map[*id.ID]ndf.Node)
 	// Get the list of old nodes and populate a map with them
-	newNodeList := i.full.Get().Nodes
 	newNodeMap := make(map[string]ndf.Node)
-	for _, n := range newNodeList {
+	for _, n := range new {
 		newNodeMap[string(n.ID)] = n
 	}
 
@@ -231,13 +239,13 @@ func (i *Instance) removeBannedNodes(old []ndf.Node) error {
 		if !ok {
 			nid, err := id.Unmarshal(n.ID)
 			if err != nil {
-				return err
+				return nil, err
 			}
-			i.comm.RemoveHost(nid)
+			rmNodes[nid] = n
 		}
 	}
 
-	return nil
+	return rmNodes, nil
 }
 
 // Return the partial ndf from this instance
