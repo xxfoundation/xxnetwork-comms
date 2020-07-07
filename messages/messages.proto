@@ -1,0 +1,59 @@
+////////////////////////////////////////////////////////////////////////////////
+// Copyright © 2019 Privategrity Corporation                                   /
+//                                                                             /
+// All rights reserved.                                                        /
+////////////////////////////////////////////////////////////////////////////////
+
+syntax = "proto3";
+
+package messages;
+
+import "google/protobuf/any.proto";
+
+// GENERAL USE MESSAGES --------------------------------------------------------
+
+// Generic service definition
+service Generic {
+    // Authenticate a token with the server
+    rpc AuthenticateToken (AuthenticatedMessage) returns (Ack) {
+    }
+
+    // Request a token from the server
+    rpc RequestToken (Ping) returns (AssignToken) {
+    }
+}
+
+// Generic response message providing an error message from remote servers
+message Ack {
+    string Error = 1;
+}
+
+// Empty message for requesting action from any type of server
+message Ping {
+}
+
+// Wrapper for authenticated messages that also ensure integrity
+message AuthenticatedMessage {
+    bytes ID = 1;
+    bytes Signature = 2;
+    bytes Token = 3;
+    ClientID Client = 4;
+    google.protobuf.Any Message = 5;
+}
+
+// Message used for assembly of Client IDs in the system
+message ClientID {
+    bytes Salt = 1;
+    string PublicKey = 2;
+}
+
+// Provides a token to establish reverse identity to any type of client
+message AssignToken {
+    bytes Token = 1;
+}
+
+// RSASignature is a digital signature for the RSA algorithm
+message RSASignature {
+    bytes Nonce = 1;
+    bytes Signature = 2;
+}
