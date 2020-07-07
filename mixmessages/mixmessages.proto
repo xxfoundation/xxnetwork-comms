@@ -359,6 +359,27 @@ message PermissionPollResponse {
     repeated RoundInfo Updates = 3; // Empty if no update needed
 }
 
+// Describes a round
+message RoundInfo {
+    uint64 ID = 1;
+    uint64 UpdateID = 2;
+    uint32 State = 3; // Precomp, Standby, Realtime, Completed, Failed
+    uint32 BatchSize = 4;
+    repeated bytes Topology = 5; // List of NodeIDs
+    repeated uint64 Timestamps = 6; // List of state timestamps in UTC
+    repeated RoundError Errors = 7; // List of errors which occured
+    uint32 ResourceQueueTimeoutMillis = 8; // Timeout for resource queue on nodes
+    RSASignature Signature = 9;
+}
+
+// RoundError will be used to describe a round error
+// Passed along to gateways (level 2) and clients (level 3)
+message RoundError {
+    uint64 Id = 1;
+    bytes NodeId = 2;
+    string Error = 3;
+    RSASignature Signature = 4;
+}
 
 // NOTIFICATION BOT MESSAGES --------------------------------------------------------
 
@@ -423,26 +444,4 @@ message ClientID {
 // Provides a token to establish reverse identity to any type of client
 message AssignToken {
     bytes Token = 1;
-}
-
-// Describes a round
-message RoundInfo {
-    uint64 ID = 1;
-    uint64 UpdateID = 2;
-    uint32 State = 3; // Precomp, Standby, Realtime, Completed, Failed
-    uint32 BatchSize = 4;
-    repeated bytes Topology = 5; // List of NodeIDs
-    repeated uint64 Timestamps = 6; // List of state timestamps in UTC
-    repeated RoundError Errors = 7; // List of errors which occured
-    uint32 ResourceQueueTimeoutMillis = 8; // Timeout for resource queue on nodes
-    RSASignature Signature = 9;
-}
-
-// RoundError will be used to describe a round error
-// Passed along to gateways (level 2) and clients (level 3)
-message RoundError {
-    uint64        Id = 1;
-    bytes         NodeId = 2;
-    string        Error = 3;
-    RSASignature  Signature = 4;
 }
