@@ -286,12 +286,6 @@ message NodeRegistration {
       string RegistrationCode = 8;
 }
 
-// RSASignature is a digital signature for the RSA algorithm
-message RSASignature {
-    bytes Nonce = 1;
-    bytes Signature = 2;
-}
-
 // UserRegistration message to initialize registration process
 message UserRegistration {
     string RegistrationCode = 1;
@@ -444,4 +438,10 @@ message ClientID {
 // Provides a token to establish reverse identity to any type of client
 message AssignToken {
     bytes Token = 1;
+}
+
+// RSASignature is a digital signature for the RSA algorithm
+message RSASignature {
+    bytes Nonce = 1;
+    bytes Signature = 2;
 }
