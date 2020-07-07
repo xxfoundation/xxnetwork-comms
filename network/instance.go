@@ -143,11 +143,11 @@ func (i *Instance) UpdatePartialNdf(m *pb.NDF) error {
 	}
 
 	// Get list of removed nodes and remove them from the host map
-	rmNodes, err := removeBannedNodes(oldNodeList, i.partial.Get().Nodes)
+	rmNodes, err := getBannedNodes(oldNodeList, i.partial.Get().Nodes)
 	if err != nil {
 		return err
 	}
-	for nid := range rmNodes {
+	for _, nid := range rmNodes {
 		i.comm.RemoveHost(nid)
 	}
 
@@ -195,11 +195,11 @@ func (i *Instance) UpdateFullNdf(m *pb.NDF) error {
 		return err
 	}
 
-	rmNodes, err := removeBannedNodes(oldNodeList, i.full.Get().Nodes)
+	rmNodes, err := getBannedNodes(oldNodeList, i.full.Get().Nodes)
 	if err != nil {
 		return err
 	}
-	for nid := range rmNodes {
+	for _, nid := range rmNodes {
 		i.comm.RemoveHost(nid)
 	}
 
@@ -222,9 +222,9 @@ func (i *Instance) UpdateFullNdf(m *pb.NDF) error {
 }
 
 // Find nodes that have been removed, comparing two NDFs
-func removeBannedNodes(old []ndf.Node, new []ndf.Node) (map[*id.ID]ndf.Node, error) {
+func getBannedNodes(old []ndf.Node, new []ndf.Node) ([]*id.ID, error) {
 	// List of nodes to get rid of
-	rmNodes := make(map[*id.ID]ndf.Node)
+	var rmNodes []*id.ID
 	// Get the list of old nodes and populate a map with them
 	newNodeMap := make(map[string]ndf.Node)
 	for _, n := range new {
@@ -241,7 +241,7 @@ func removeBannedNodes(old []ndf.Node, new []ndf.Node) (map[*id.ID]ndf.Node, err
 			if err != nil {
 				return nil, err
 			}
-			rmNodes[nid] = n
+			rmNodes = append(rmNodes, nid)
 		}
 	}
 

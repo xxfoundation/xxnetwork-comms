@@ -73,9 +73,9 @@ func TestBannedNodePartialNDFRemoval(t *testing.T) {
 	}
 }`)
 
-	rmNodes, err := removeBannedNodes(oldNDF.Get().Nodes, newNDF.Nodes)
+	rmNodes, err := getBannedNodes(oldNDF.Get().Nodes, newNDF.Nodes)
 	if err != nil {
-		t.Errorf("Failed to run removeBannedNodes")
+		t.Errorf("Failed to run getBannedNodes")
 	}
 	if len(rmNodes) != 1 {
 		t.Errorf("Incorrect number of nodes removed: removed %v, expected 1", len(rmNodes))
@@ -83,11 +83,7 @@ func TestBannedNodePartialNDFRemoval(t *testing.T) {
 
 	onid, err := id.Unmarshal(oldNDF.Get().Nodes[2].ID)
 	if err != nil { t.Errorf("Failed to unmarshal oldNDF node ID 2") }
-	for nid, _ := range(rmNodes) {
-		if nid.Cmp(onid) != true {
-			t.Errorf("Function removed the wrong node")
-		}
-	}
+	if rmNodes[0].Cmp(onid) != true { t.Errorf("Function removed the wrong node") }
 }
 
 // Happy path
