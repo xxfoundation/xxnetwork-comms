@@ -8,7 +8,7 @@
 package network
 
 import (
-	"gitlab.com/elixxir/comms/connect"
+	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/elixxir/comms/mixmessages"
 	ds "gitlab.com/elixxir/comms/network/dataStructures"
 	"gitlab.com/elixxir/comms/testkeys"

@@ -10,7 +10,7 @@ package registration
 import (
 	"fmt"
 	"gitlab.com/elixxir/comms/client"
-	"gitlab.com/elixxir/comms/connect"
+	"gitlab.com/xx_network/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/testkeys"
 	"gitlab.com/elixxir/primitives/id"

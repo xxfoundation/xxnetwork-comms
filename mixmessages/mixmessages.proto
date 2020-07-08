@@ -385,17 +385,7 @@ message UserIdList {
 
 // GENERAL USE MESSAGES --------------------------------------------------------
 
-// Generic service definition
-service Generic {
-    // Authenticate a token with the server
-    rpc AuthenticateToken (AuthenticatedMessage) returns (Ack) {
-    }
-
-    // Request a token from the server
-    rpc RequestToken (Ping) returns (AssignToken) {
-    }
-}
-
+//todo: remove this
 // Generic response message providing an error message from remote servers
 message Ack {
     string Error = 1;

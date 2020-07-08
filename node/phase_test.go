@@ -10,7 +10,7 @@ package node
 import (
 	"bytes"
 	"context"
-	"gitlab.com/elixxir/comms/connect"
+	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/testkeys"
 	"gitlab.com/elixxir/primitives/id"

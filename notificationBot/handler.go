@@ -12,7 +12,7 @@ package notificationBot
 import (
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
-	"gitlab.com/elixxir/comms/connect"
+	"gitlab.com/xx_network/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/primitives/id"
 	"google.golang.org/grpc/reflection"

@@ -5,9 +5,10 @@
 // LICENSE file                                                              //
 ///////////////////////////////////////////////////////////////////////////////
 
-package connect
+package dataStructures
 
 import (
+	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/elixxir/comms/testkeys"
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/elixxir/primitives/utils"
@@ -218,7 +219,7 @@ func TestCircuit_GetHostAtIndex(t *testing.T) {
 	cert, _ := utils.ReadFile(testkeys.GetNodeCertPath())
 	circuit := NewCircuit(nodeIdList)
 	testID := id.NewIdFromString("test", id.Generic, t)
-	testHost, _ := NewHost(testID, "test", cert, false, false)
+	testHost, _ := connect.NewHost(testID, "test", cert, false, false)
 	circuit.AddHost(testHost)
 
 	if !reflect.DeepEqual(circuit.hosts[0], testHost) {
