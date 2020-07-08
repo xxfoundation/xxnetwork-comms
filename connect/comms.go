@@ -236,7 +236,7 @@ connect:
 		lastEvent = con
 
 		//attempt to make the connection
-		jww.INFO.Printf("Host %s disconnected, attempting to reconnect...", host.id.String())
+		jww.INFO.Printf("Host %s not connected, attempting to connect...", host.id.String())
 		err = host.connect()
 		//if connection cannot be made, do not retry
 		if err != nil {
@@ -268,7 +268,7 @@ authorize:
 		if err != nil {
 			//if failure of connection, retry connection
 			if isConnError(err) {
-				jww.INFO.Printf("Failed to auth due to connection issuse: %s", err)
+				jww.INFO.Printf("Failed to auth due to connection issue: %s", err)
 				goto connect
 			}
 			//otherwise, return the error
@@ -287,7 +287,7 @@ authorize:
 	if err != nil {
 		//if failure of connection, retry connection
 		if isConnError(err) {
-			jww.INFO.Printf("Failed send due to connection issuse: %s", err)
+			jww.INFO.Printf("Failed send due to connection issue: %s", err)
 			goto connect
 		}
 

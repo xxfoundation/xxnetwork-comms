@@ -90,6 +90,6 @@ func TestSendGetUpdatedNDF(t *testing.T) {
 	_, err = c.RequestNdf(host, &pb.NDFHash{})
 
 	if err != nil {
-		t.Errorf("RequestNdf: Error recieved: %s", err)
+		t.Errorf("RequestNdf: Error received: %s", err)
 	}
 }

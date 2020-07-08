@@ -35,7 +35,7 @@ func TestNew(t *testing.T) {
 	for index, nid := range nodeIdList {
 		if circuit.nodeIndexes[*nid] != index {
 			t.Errorf("Circuit: index linkage of %s incorrect; "+
-				"Expected %v, Recieved: %v", nid, index,
+				"Expected %v, Received: %v", nid, index,
 				circuit.nodeIndexes[*nid])
 		}
 	}
@@ -45,7 +45,7 @@ func TestNew(t *testing.T) {
 	for index, nid := range nodeIdList {
 		if !reflect.DeepEqual(nid, circuit.nodes[circuit.nodeIndexes[*nid]]) {
 			t.Errorf("Circuit: a index %v linkage of %s mismatch; "+
-				"Expected %s, Recieved: %s", index, nid, nid,
+				"Expected %s, Received: %s", index, nid, nid,
 				circuit.nodes[circuit.nodeIndexes[*nid]])
 		}
 	}
@@ -101,7 +101,7 @@ func TestCircuit_GetNodeLocation(t *testing.T) {
 	for index, nid := range nodeIdList {
 		if index != circuit.GetNodeLocation(nid) {
 			t.Errorf("Circuit.GetNodeLocation: node location for node %s incorrect;"+
-				"Expected: %v, Recieved: %v", nid, index, circuit.GetNodeLocation(nid))
+				"Expected: %v, Received: %v", nid, index, circuit.GetNodeLocation(nid))
 		}
 	}
 }
@@ -118,7 +118,7 @@ func TestCircuit_GetNodeLocation_OutOfList(t *testing.T) {
 	invalidLoc := circuit.GetNodeLocation(invalidNodeID)
 	if invalidLoc != -1 {
 		t.Errorf("Circuit.GetNodeLocation: location returned when passed id (%s) is invalid:"+
-			"Expected: -1, Recieved: %v", invalidNodeID, invalidLoc)
+			"Expected: -1, Received: %v", invalidNodeID, invalidLoc)
 	}
 }
 
@@ -131,7 +131,7 @@ func TestCircuit_GetNodeAtIndex(t *testing.T) {
 	for index, nid := range nodeIdList {
 		if !nid.Cmp(circuit.GetNodeAtIndex(index)) {
 			t.Errorf("Circuit.GetNodeAtIndex: node at index %v incorrect;"+
-				"Expected: %v, Recieved: %v", index, nid, circuit.GetNodeAtIndex(index))
+				"Expected: %v, Received: %v", index, nid, circuit.GetNodeAtIndex(index))
 		}
 	}
 }
@@ -223,7 +223,7 @@ func TestCircuit_GetHostAtIndex(t *testing.T) {
 
 	if !reflect.DeepEqual(circuit.hosts[0], testHost) {
 		t.Errorf("Circuit.GetHostAtIndex: host incorrect;\n"+
-			"Expected: %v\nRecieved: %v", testHost, circuit.hosts[0])
+			"Expected: %v\nReceived: %v", testHost, circuit.hosts[0])
 	}
 
 }
@@ -245,7 +245,7 @@ func TestCircuit_Len(t *testing.T) {
 
 		if circuit.Len() != i {
 			t.Errorf("Circuit.Len: Incorrect length returned,"+
-				"Expected: %v, Recieved: %v", i, circuit.Len())
+				"Expected: %v, Received: %v", i, circuit.Len())
 		}
 	}
 }
@@ -264,7 +264,7 @@ func TestCircuit_GetNextNode(t *testing.T) {
 
 		if !expectedNid.Cmp(next) {
 			t.Errorf("Circuit.GetNextNode: Returned the incorrect node from index %v,"+
-				"Expected: %s, Recieved: %s", index, expectedNid, next)
+				"Expected: %s, Received: %s", index, expectedNid, next)
 		}
 	}
 }
@@ -309,7 +309,7 @@ func TestCircuit_GetPrevNode(t *testing.T) {
 
 		if !expectedNid.Cmp(next) {
 			t.Errorf("Circuit.GetPrevNode: Returned the incorrect node from index %v,"+
-				"Expected: %s, Recieved: %s", index, expectedNid, next)
+				"Expected: %s, Received: %s", index, expectedNid, next)
 		}
 	}
 }

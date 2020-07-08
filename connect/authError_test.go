@@ -20,7 +20,7 @@ func TestAuthError(t *testing.T) {
 		t.Error("AuthError did not return an error object")
 	}
 	if result.Error() != expectedAuthErrorStr {
-		t.Errorf("returned error not as expected: Expected: %s, recieved: %s",
+		t.Errorf("returned error not as expected: Expected: %s, received: %s",
 			expectedAuthErrorStr, result.Error())
 	}
 }
