@@ -19,8 +19,6 @@ import (
 
 const ServerAddress = "0.0.0.0:5556"
 const ServerAddress2 = "0.0.0.0:5557"
-const RegistrationAddr = "0.0.0.0:5558"
-const RegistrationAddrErr = "0.0.0.0:5559"
 
 func TestMain(m *testing.M) {
 	lis1, _ := net.Listen("tcp", ServerAddress)
