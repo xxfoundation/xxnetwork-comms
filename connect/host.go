@@ -166,7 +166,6 @@ func (h *Host) Disconnect() {
 	defer h.mux.Unlock()
 
 	h.disconnect()
-	h.receptionToken = nil
 	h.transmissionToken = nil
 }
 
@@ -234,6 +233,9 @@ func (h *Host) connect() error {
 		return nil
 	}
 
+	h.disconnect()
+	h.transmissionToken = nil
+
 	//connect to remote
 	if err := h.connectHelper(); err != nil {
 		return err
@@ -280,6 +282,8 @@ func (h *Host) disconnect() {
 		if err != nil {
 			jww.ERROR.Printf("Unable to close connection to %s: %+v",
 				h.address, errors.New(err.Error()))
+		} else {
+			h.connection = nil
 		}
 	}
 }
@@ -304,6 +308,7 @@ func (h *Host) connectHelper() (err error) {
 
 	// Attempt to establish a new connection
 	for numRetries := 0; numRetries < h.maxRetries && !h.isAlive(); numRetries++ {
+		h.disconnect()
 
 		jww.INFO.Printf("Connecting to %+v. Attempt number %+v of %+v",
 			h.address, numRetries, h.maxRetries)
@@ -320,7 +325,6 @@ func (h *Host) connectHelper() (err error) {
 		h.connection, err = grpc.DialContext(ctx, h.address,
 			securityDial,
 			grpc.WithBlock(),
-			grpc.WithBackoffMaxDelay(time.Minute*5),
 			grpc.WithKeepaliveParams(KaClientOpts))
 		if err != nil {
 			jww.ERROR.Printf("Attempt number %+v to connect to %s failed: %+v\n",
@@ -331,6 +335,7 @@ func (h *Host) connectHelper() (err error) {
 
 	// Verify that the connection was established successfully
 	if !h.isAlive() {
+		h.disconnect()
 		return errors.New(fmt.Sprintf(
 			"Last try to connect to %s failed. Giving up", h.address))
 	}
