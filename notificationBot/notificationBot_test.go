@@ -9,12 +9,12 @@ package notificationBot
 
 import (
 	"fmt"
-	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/elixxir/comms/gateway"
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/registration"
 	"gitlab.com/elixxir/comms/testkeys"
 	"gitlab.com/elixxir/primitives/id"
+	"gitlab.com/xx_network/comms/connect"
 	"sync"
 	"testing"
 )

@@ -13,9 +13,9 @@ import (
 	"fmt"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/pkg/errors"
-	"gitlab.com/xx_network/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/primitives/id"
+	"gitlab.com/xx_network/comms/connect"
 	"golang.org/x/net/context"
 )
 
