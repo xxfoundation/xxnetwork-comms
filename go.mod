@@ -1,4 +1,4 @@
-module gitlab.com/xxnetwork/comms
+module gitlab.com/xx_network/comms
 
 go 1.13
 

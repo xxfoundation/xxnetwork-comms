@@ -22,7 +22,7 @@ import (
 	"gitlab.com/elixxir/crypto/signature/rsa"
 	"gitlab.com/elixxir/crypto/xx"
 	"gitlab.com/elixxir/primitives/id"
-	pb "gitlab.com/xxnetwork/comms/messages"
+	pb "gitlab.com/xx_network/comms/messages"
 	"google.golang.org/grpc/metadata"
 )
 
