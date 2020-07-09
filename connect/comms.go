@@ -221,6 +221,10 @@ const (
 func (c *ProtoComms) Send(host *Host, f func(conn *grpc.ClientConn) (*any.Any,
 	error)) (result *any.Any, err error) {
 
+	if host.GetAddress() == "" {
+		return nil, errors.New("Host address is blank, host might be receive only.")
+	}
+
 	numConnects, numAuths, lastEvent := 0, 0, 0
 
 connect:
