@@ -30,16 +30,19 @@ var RegistrationHandler = &MockRegistration{}
 var RegistrationError = &MockRegistrationError{}
 var Retries = 0
 
+// Test that trying to send to a host with no address fails
 func TestSendNoAddressFails(t *testing.T) {
 	// Define a new protocomms object
 	comms := &ProtoComms{Id: id.NewIdFromString("test", id.Generic, t)}
 
+	// Create a mock registration server
 	mockPermServer, err := StartRegistrationServer(&id.Permissioning, RegistrationAddr, RegistrationHandler, nil, nil)
 	if err != nil {
 		t.Errorf("Failed to start reg server: %+v", err)
 	}
 	defer mockPermServer.Shutdown()
 
+	// Make fake host
 	host := Host{}
 
 	// Create the Send Function
@@ -48,6 +51,7 @@ func TestSendNoAddressFails(t *testing.T) {
 		return nil, errors.New("Client send function shouldn't have run")
 	}
 
+	// Try to send to it and check error is right
 	_, err = comms.Send(&host, f)
 	if err.Error() != "Host address is blank, host might be receive only." {
 		t.Errorf("Send function should have errored with address error.")
