@@ -10,7 +10,6 @@ package node
 import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/registration"
-	"gitlab.com/elixxir/comms/testkeys"
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/xx_network/comms/connect"
 	"testing"
@@ -37,63 +36,6 @@ func TestSendNodeRegistration(t *testing.T) {
 	err = server.SendNodeRegistration(host, msgs)
 	if err != nil {
 		t.Errorf("SendNodeTopology: Error received: %s", err)
-	}
-}
-
-// Smoke test
-func TestComms_RequestNdf(t *testing.T) {
-	RegAddress := getNextServerAddress()
-	testId := id.NewIdFromString("test", id.Generic, t)
-	server := StartNode(testId, getNextServerAddress(), NewImplementation(),
-		nil, nil)
-	reg := registration.StartRegistrationServer(testId, RegAddress,
-		registration.NewImplementation(), nil, nil)
-	defer server.Shutdown()
-	defer reg.Shutdown()
-	var manager connect.Manager
-
-	host, err := manager.AddHost(testId, RegAddress, nil, false, false)
-	if err != nil {
-		t.Errorf("Unable to call NewHost: %+v", err)
-	}
-
-	msgs := &pb.NDFHash{}
-
-	_, err = server.RequestNdf(host, msgs)
-	if err != nil {
-		t.Errorf("RequestNdf: Error received: %s", err)
-	}
-}
-
-// Smoke test - WITH authentication
-func TestComms_RequestNdfWithAuth(t *testing.T) {
-	priv := testkeys.LoadFromPath(testkeys.GetNodeKeyPath())
-	pub := testkeys.LoadFromPath(testkeys.GetNodeCertPath())
-	testId := id.NewIdFromString("test", id.Generic, t)
-
-	RegAddress := getNextServerAddress()
-	server := StartNode(testId, getNextServerAddress(), NewImplementation(),
-		pub, priv)
-	reg := registration.StartRegistrationServer(testId, RegAddress,
-		registration.NewImplementation(), pub, priv)
-
-	defer server.Shutdown()
-	defer reg.Shutdown()
-
-	host, err := server.AddHost(testId, RegAddress, pub, false, true)
-	if err != nil {
-		t.Errorf("Unable to call NewHost: %+v", err)
-	}
-	_, err = reg.AddHost(testId, RegAddress, pub, false, true)
-	if err != nil {
-		t.Errorf("Unable to call NewHost: %+v", err)
-	}
-
-	msgs := &pb.NDFHash{Hash: make([]byte, 0)}
-
-	_, err = server.RequestNdf(host, msgs)
-	if err != nil {
-		t.Errorf("RequestNdf: Error received: %s", err)
 	}
 }
 
