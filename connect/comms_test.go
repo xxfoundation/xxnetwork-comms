@@ -9,7 +9,10 @@ package connect
 
 import (
 	"context"
+	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
+	"google.golang.org/grpc"
+
 	//"github.com/pkg/errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/primitives/id"
@@ -26,6 +29,30 @@ var ExampleBadNdfJSON = "bad ndf"
 var RegistrationHandler = &MockRegistration{}
 var RegistrationError = &MockRegistrationError{}
 var Retries = 0
+
+func TestSendNoAddressFails(t *testing.T) {
+	// Define a new protocomms object
+	comms := &ProtoComms{Id: id.NewIdFromString("test", id.Generic, t)}
+
+	mockPermServer, err := StartRegistrationServer(&id.Permissioning, RegistrationAddr, RegistrationHandler, nil, nil)
+	if err != nil {
+		t.Errorf("Failed to start reg server: %+v", err)
+	}
+	defer mockPermServer.Shutdown()
+
+	host := Host{}
+
+	// Create the Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		t.Errorf("Client send function shouldn't have run")
+		return nil, errors.New("Client send function shouldn't have run")
+	}
+
+	_, err = comms.Send(&host, f)
+	if err.Error() != "Host address is blank, host might be receive only." {
+		t.Errorf("Send function should have errored with address error.")
+	}
+}
 
 // Test that Poll NDF handles all comms errors returned properly, and that it decodes and successfully returns an ndf
 func TestProtoComms_PollNdf(t *testing.T) {
