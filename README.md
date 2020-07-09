@@ -59,7 +59,7 @@ run the following command in the terminal in order to regenerate the
 `mixmessage.pb.go` file:
 
 ```
-protoc -I mixmessages/ mixmessages/mixmessages.proto --go_out=plugins=grpc:mixmessages
+protoc -I vendor/ -I mixmessages/ mixmessages/mixmessages.proto --go_out=plugins=grpc:mixmessages
 ```
 
 ## Repository Organization

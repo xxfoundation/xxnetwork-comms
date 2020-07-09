@@ -8,7 +8,6 @@
 package client
 
 import (
-	//"gitlab.com/xx_network/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/notificationBot"
 	"gitlab.com/elixxir/primitives/id"

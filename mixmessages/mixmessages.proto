@@ -7,12 +7,8 @@
 syntax = "proto3";
 
 package mixmessages;
-
-
-
+import "gitlab.com/xx_network/comms/messages/messages.proto";
 import "google/protobuf/any.proto";
-import public "gitlab.com/xx_network/comms/messages/messages.proto";
-
 // SERVER MESSAGE SERVICE ------------------------------------------------------
 
 service Node {
