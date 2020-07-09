@@ -15,6 +15,7 @@ import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/xx_network/comms/connect"
+	"gitlab.com/xx_network/comms/messages"
 	"google.golang.org/grpc/reflection"
 	"runtime/debug"
 )
@@ -45,7 +46,7 @@ func StartRegistrationServer(id *id.ID, localServer string, handler Handler,
 
 	go func() {
 		pb.RegisterRegistrationServer(registrationServer.LocalServer, &registrationServer)
-		pb.RegisterGenericServer(registrationServer.LocalServer, &registrationServer)
+		messages.RegisterGenericServer(registrationServer.LocalServer, &registrationServer)
 
 		// Register reflection service on gRPC server.
 		reflection.Register(registrationServer.LocalServer)

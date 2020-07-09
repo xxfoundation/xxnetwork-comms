@@ -33,7 +33,7 @@ func TestSendRequestNonceMessage(t *testing.T) {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
 
-	RSASignature := &pb.RSASignature{
+	RSASignature := &messages.RSASignature{
 		Signature: []byte{},
 	}
 
@@ -64,7 +64,7 @@ func TestSendConfirmNonceMessage(t *testing.T) {
 	}
 
 	reg := &pb.RequestRegistrationConfirmation{UserID: testID.Bytes()}
-	reg.NonceSignedByClient = &pb.RSASignature{}
+	reg.NonceSignedByClient = &messages.RSASignature{}
 	_, err = gateway.SendConfirmNonceMessage(host, reg)
 	if err != nil {
 		t.Errorf("SendConfirmNonceMessage: Error received: %s", err)

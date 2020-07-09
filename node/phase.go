@@ -19,13 +19,14 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/connect"
+	"gitlab.com/xx_network/comms/messages"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 )
 
 // Server -> Server Send Function
 func (s *Comms) SendPostPhase(host *connect.Host,
-	message *pb.Batch) (*pb.Ack, error) {
+	message *pb.Batch) (*messages.Ack, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
@@ -53,7 +54,7 @@ func (s *Comms) SendPostPhase(host *connect.Host,
 	}
 
 	// Marshall the result
-	result := &pb.Ack{}
+	result := &messages.Ack{}
 	return result, ptypes.UnmarshalAny(resultMsg, result)
 }
 

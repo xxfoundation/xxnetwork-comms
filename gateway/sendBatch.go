@@ -16,6 +16,7 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/connect"
+	"gitlab.com/xx_network/comms/messages"
 	"google.golang.org/grpc"
 )
 
@@ -57,7 +58,7 @@ func (g *Comms) GetRoundBufferInfo(host *connect.Host) (*pb.RoundBufferInfo, err
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
 		//Pack message into an authenticated message
-		authMsg, err := g.PackAuthenticatedMessage(&pb.Ping{}, host, false)
+		authMsg, err := g.PackAuthenticatedMessage(&messages.Ping{}, host, false)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
@@ -91,7 +92,7 @@ func (g *Comms) GetCompletedBatch(host *connect.Host) (*pb.Batch, error) {
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
 		//Pack message into an authenticated message
-		authMsg, err := g.PackAuthenticatedMessage(&pb.Ping{}, host, false)
+		authMsg, err := g.PackAuthenticatedMessage(&messages.Ping{}, host, false)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}

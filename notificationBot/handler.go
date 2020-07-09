@@ -15,6 +15,7 @@ import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/xx_network/comms/connect"
+	"gitlab.com/xx_network/comms/messages"
 	"google.golang.org/grpc/reflection"
 	"runtime/debug"
 )
@@ -53,7 +54,7 @@ func StartNotificationBot(id *id.ID, localServer string, handler Handler,
 
 	go func() {
 		pb.RegisterNotificationBotServer(notificationBot.LocalServer, &notificationBot)
-		pb.RegisterGenericServer(notificationBot.LocalServer, &notificationBot)
+		messages.RegisterGenericServer(notificationBot.LocalServer, &notificationBot)
 
 		// Register reflection service on gRPC server.
 		reflection.Register(notificationBot.LocalServer)

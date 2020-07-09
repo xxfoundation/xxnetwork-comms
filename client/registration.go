@@ -19,6 +19,7 @@ import (
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/elixxir/primitives/ndf"
 	"gitlab.com/xx_network/comms/connect"
+	"gitlab.com/xx_network/comms/messages"
 	"google.golang.org/grpc"
 	"strings"
 	"time"
@@ -67,7 +68,7 @@ func (c *Comms) SendGetCurrentClientVersionMessage(
 
 		// Send the message
 		resultMsg, err := pb.NewRegistrationClient(
-			conn).GetCurrentClientVersion(ctx, &pb.Ping{})
+			conn).GetCurrentClientVersion(ctx, &messages.Ping{})
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
