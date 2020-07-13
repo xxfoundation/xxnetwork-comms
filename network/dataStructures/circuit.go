@@ -5,17 +5,18 @@
 // LICENSE file                                                              //
 ///////////////////////////////////////////////////////////////////////////////
 
-package connect
+package dataStructures
 
 import (
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/primitives/id"
+	"gitlab.com/xx_network/comms/connect"
 )
 
 type Circuit struct {
 	nodes       []*id.ID
 	nodeIndexes map[id.ID]int
-	hosts       []*Host
+	hosts       []*connect.Host
 }
 
 // New makes a list of node addresses for use.  It finds
@@ -28,7 +29,7 @@ func NewCircuit(list []*id.ID) *Circuit {
 	c := Circuit{
 		nodes:       make([]*id.ID, 0),
 		nodeIndexes: make(map[id.ID]int),
-		hosts:       make([]*Host, 0),
+		hosts:       make([]*connect.Host, 0),
 	}
 
 	if len(list) == 0 {
@@ -142,7 +143,7 @@ func (c *Circuit) GetOrdering() []*Circuit {
 
 //GetHostAtIndex: Gets host at requested index. Panics if index is outside
 // of the range of the list
-func (c *Circuit) GetHostAtIndex(index int) *Host {
+func (c *Circuit) GetHostAtIndex(index int) *connect.Host {
 	if index < 0 || index >= len(c.hosts) {
 		jww.FATAL.Panicf("Cannot get an index %v which is outside"+
 			" the Circut (len=%v)", index, len(c.hosts))
@@ -152,7 +153,7 @@ func (c *Circuit) GetHostAtIndex(index int) *Host {
 
 //SetHosts takes a list of hosts and copies them into the list of hosts in
 // the circuit object
-func (c *Circuit) AddHost(newHost *Host) {
+func (c *Circuit) AddHost(newHost *connect.Host) {
 	c.hosts = append(c.hosts, newHost)
 }
 

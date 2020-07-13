@@ -11,22 +11,23 @@ package gateway
 
 import (
 	"github.com/pkg/errors"
-	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/primitives/id"
+	"gitlab.com/xx_network/comms/connect"
+	"gitlab.com/xx_network/comms/messages"
 	"golang.org/x/net/context"
 )
 
 // Handles validation of reverse-authentication tokens
 func (g *Comms) AuthenticateToken(ctx context.Context,
-	msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
-	return &pb.Ack{}, g.ValidateToken(msg)
+	msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
+	return &messages.Ack{}, g.ValidateToken(msg)
 }
 
 // Handles reception of reverse-authentication token requests
-func (g *Comms) RequestToken(context.Context, *pb.Ping) (*pb.AssignToken, error) {
+func (g *Comms) RequestToken(context.Context, *messages.Ping) (*messages.AssignToken, error) {
 	token, err := g.GenerateToken()
-	return &pb.AssignToken{
+	return &messages.AssignToken{
 		Token: token,
 	}, err
 }
@@ -77,7 +78,7 @@ func (g *Comms) GetMessage(ctx context.Context, msg *pb.ClientRequest) (
 }
 
 // Receives a single message from a client
-func (g *Comms) PutMessage(ctx context.Context, msg *pb.Slot) (*pb.Ack,
+func (g *Comms) PutMessage(ctx context.Context, msg *pb.Slot) (*messages.Ack,
 	error) {
 
 	// Get peer information from context
@@ -89,7 +90,7 @@ func (g *Comms) PutMessage(ctx context.Context, msg *pb.Slot) (*pb.Ack,
 	// Upload a message to the cMix Gateway at the peer's IP address
 	err = g.handler.PutMessage(msg, addr)
 
-	return &pb.Ack{}, err
+	return &messages.Ack{}, err
 }
 
 // Pass-through for Registration Nonce Communication
@@ -120,7 +121,7 @@ func (g *Comms) ConfirmNonce(ctx context.Context,
 }
 
 // Ping gateway to ask for users to notify
-func (g *Comms) PollForNotifications(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.UserIdList, error) {
+func (g *Comms) PollForNotifications(ctx context.Context, msg *messages.AuthenticatedMessage) (*pb.UserIdList, error) {
 
 	authState, err := g.AuthenticatedReceiver(msg)
 	if err != nil {

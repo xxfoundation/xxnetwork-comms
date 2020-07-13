@@ -13,6 +13,7 @@ import (
 	"gitlab.com/elixxir/crypto/signature"
 	"gitlab.com/elixxir/crypto/signature/rsa"
 	"gitlab.com/elixxir/primitives/states"
+	"gitlab.com/xx_network/comms/messages"
 	"testing"
 )
 
@@ -25,7 +26,7 @@ var _ = signature.GenericSignable(&RoundInfo{})
 func TestRoundInfo_ClearSignature(t *testing.T) {
 	// Create an RoundInfo and set it's signature
 	expectedSig := []byte{1, 2, 45, 67, 42}
-	sig := &RSASignature{Signature: expectedSig}
+	sig := &messages.RSASignature{Signature: expectedSig}
 
 	testRoundInfo := &RoundInfo{
 		Signature: sig,
@@ -48,7 +49,7 @@ func TestRoundInfo_GetNonce(t *testing.T) {
 	expectedNonce := []byte{1, 2, 45, 67, 42}
 
 	// Create message with nonce value
-	sig := &RSASignature{Nonce: expectedNonce}
+	sig := &messages.RSASignature{Nonce: expectedNonce}
 	testRoundInfo := &RoundInfo{
 		Signature: sig,
 	}
@@ -84,7 +85,7 @@ func TestRoundInfo_GetNonce_NilObject(t *testing.T) {
 func TestRoundInfo_SetNonce(t *testing.T) {
 	// Create RoundInfo message
 	tempVal := []byte("fail Fail fail")
-	tempSig := &RSASignature{Nonce: tempVal}
+	tempSig := &messages.RSASignature{Nonce: tempVal}
 	testRoundInfo := &RoundInfo{Signature: tempSig}
 
 	// Set the sig
@@ -119,7 +120,7 @@ func TestRoundInfo_SetNonce_NilObject(t *testing.T) {
 func TestRoundInfo_SetNonce_SetNil(t *testing.T) {
 	// Create signature object
 	expectedSig := []byte{1, 2, 45, 67, 42}
-	sig := &RSASignature{
+	sig := &messages.RSASignature{
 		Signature: expectedSig,
 		Nonce:     expectedSig,
 	}
@@ -174,7 +175,7 @@ func TestRoundInfo_SetSignature_Error(t *testing.T) {
 func TestRoundInfo_GetSignature(t *testing.T) {
 	// Create roundInfo and set signature
 	expectedSig := []byte{1, 2, 45, 67, 42}
-	sig := &RSASignature{Signature: expectedSig}
+	sig := &messages.RSASignature{Signature: expectedSig}
 
 	testRoundInfo := &RoundInfo{
 		Signature: sig,

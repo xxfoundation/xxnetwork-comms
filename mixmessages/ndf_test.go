@@ -12,6 +12,7 @@ import (
 	"crypto/rand"
 	"gitlab.com/elixxir/crypto/signature"
 	"gitlab.com/elixxir/crypto/signature/rsa"
+	"gitlab.com/xx_network/comms/messages"
 	"testing"
 )
 
@@ -24,7 +25,7 @@ var _ = signature.GenericSignable(&NDF{})
 func TestNDF_ClearSignature(t *testing.T) {
 	// Create signature object
 	expectedSig := []byte{1, 2, 45, 67, 42}
-	sig := &RSASignature{
+	sig := &messages.RSASignature{
 		Signature: expectedSig,
 		Nonce:     expectedSig,
 	}
@@ -50,7 +51,7 @@ func TestNDF_ClearSignature(t *testing.T) {
 func TestNDF_SetSignature(t *testing.T) {
 	// Create ndf message
 	tempVal := []byte("fail Fail fail")
-	tempSig := &RSASignature{Signature: tempVal}
+	tempSig := &messages.RSASignature{Signature: tempVal}
 	testNdf := &NDF{Signature: tempSig}
 
 	// Set the sig
@@ -86,7 +87,7 @@ func TestNDF_SetSignature_NilObject(t *testing.T) {
 func TestNDF_SetSignature_SetNil(t *testing.T) {
 	// Create signature object
 	expectedSig := []byte{1, 2, 45, 67, 42}
-	sig := &RSASignature{
+	sig := &messages.RSASignature{
 		Signature: expectedSig,
 		Nonce:     expectedSig,
 	}
@@ -108,7 +109,7 @@ func TestNDF_SetSignature_SetNil(t *testing.T) {
 func TestNDF_GetSignature(t *testing.T) {
 	// Create ndf and set signature
 	expectedSig := []byte{1, 2, 45, 67, 42}
-	sig := &RSASignature{Signature: expectedSig}
+	sig := &messages.RSASignature{Signature: expectedSig}
 	testNdf := &NDF{
 		Signature: sig,
 	}
@@ -146,7 +147,7 @@ func TestNDF_GetNonce(t *testing.T) {
 	expectedNonce := []byte{1, 2, 45, 67, 42}
 
 	// Create message with nonce value
-	sig := &RSASignature{Nonce: expectedNonce}
+	sig := &messages.RSASignature{Nonce: expectedNonce}
 	testNdf := &NDF{
 		Signature: sig,
 	}
@@ -182,7 +183,7 @@ func TestNDF_GetNonce_NilObject(t *testing.T) {
 func TestNDF_SetNonce(t *testing.T) {
 	// Create ndf message
 	tempVal := []byte("fail Fail fail")
-	tempSig := &RSASignature{Nonce: tempVal}
+	tempSig := &messages.RSASignature{Nonce: tempVal}
 	testNdf := &NDF{Signature: tempSig}
 
 	// Set the sig
@@ -217,7 +218,7 @@ func TestNDF_SetNonce_NilObject(t *testing.T) {
 func TestNDF_SetNonce_SetNil(t *testing.T) {
 	// Create signature object
 	expectedSig := []byte{1, 2, 45, 67, 42}
-	sig := &RSASignature{
+	sig := &messages.RSASignature{
 		Signature: expectedSig,
 		Nonce:     expectedSig,
 	}
