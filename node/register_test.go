@@ -146,7 +146,7 @@ func TestComms_SendRegistrationCheck(t *testing.T) {
 	}
 
 	msgs := &pb.RegisteredNodeCheck{
-		RegCode: testId.String(),
+		ID: testId.Bytes(),
 	}
 
 	_, err = server.SendRegistrationCheck(host, msgs)
