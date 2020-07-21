@@ -12,7 +12,13 @@ type Fingerprint [32]byte
 
 // Gossip-related configuration flag
 type Flags struct {
-	FanOut uint8
+	FanOut                  uint8
+	MaxRecordedFingerprints uint64 // Default = 10000000
+}
+
+// Returns a Flags object with all flags set to their defaults
+func DefaultFlags() Flags {
+	return Flags{}
 }
 
 // Generic interface representing various Gossip protocols

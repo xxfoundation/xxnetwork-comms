@@ -6,7 +6,13 @@ import (
 	"gitlab.com/xx_network/comms/messages"
 	"google.golang.org/grpc"
 	"sync"
+	"time"
 )
+
+type MessageRecord struct {
+	Timestamp *time.Time
+	Message   *messages.GossipMsg
+}
 
 // Manager for various GossipProtocols that are accessed by tag
 type Manager struct {
@@ -15,7 +21,7 @@ type Manager struct {
 	protocolLock *sync.RWMutex // Lock for protocols object
 
 	// Buffer messages with tags that do not have a protocol created yet
-	buffer     map[string][]*messages.GossipMsg
+	buffer     map[string][]*MessageRecord
 	bufferLock *sync.RWMutex // Lock for buffers object
 }
 
@@ -34,7 +40,7 @@ func (m *Manager) NewGossip(comms *connect.ProtoComms, tag string, flags Flags,
 	tmp := Protocol{
 		comms:     comms,
 		peers:     peers,
-		flags:     Flags{},
+		flags:     DefaultFlags(),
 		receiver:  receiver,
 		verify:    verifier,
 		IsDefunct: false,
@@ -70,4 +76,9 @@ func (m *Manager) Defunct(tag string) {
 	defer m.protocolLock.Unlock()
 
 	m.protocols[tag].IsDefunct = true
+}
+
+// Long-running thread to delete any messages in buffer older than 5m
+func (m *Manager) bufferMonitor() error {
+	return nil
 }
