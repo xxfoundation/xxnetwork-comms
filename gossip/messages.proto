@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package gossip;
+
+// RPC for handling generic reception of Gossip messages
+service Gossip {
+    rpc GossipEndpoint (GossipMsg) returns (Ack);
+    rpc GossipStream (stream GossipMsg) returns (Ack);
+}
+
+// Generic response message providing an error message from remote servers
+message Ack {
+    string Error = 1;
+}
+
+// Generic message used for a variety of Gossip protocols
+message GossipMsg {
+    string Tag = 1;
+    bytes  Origin = 2;
+    bytes  Payload = 3;
+    bytes  Signature = 4;
+}
