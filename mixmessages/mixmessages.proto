@@ -225,6 +225,12 @@ message GatewaySlot{
     bytes MAC = 3;
 }
 
+// Gateway -> Client authentication response
+message GatewaySlotResponse{
+    bool accepted = 1;
+    uint64 RoundID = 2;
+}
+
 
 // REGISTRATION MESSAGE SERVICE ------------------------------------------------
 
