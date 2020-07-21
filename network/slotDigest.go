@@ -4,15 +4,16 @@
 // Use of this source code is governed by a license that can be found in the //
 // LICENSE file                                                              //
 ///////////////////////////////////////////////////////////////////////////////
-package mixmessages
+package network
 
 import (
 	"encoding/binary"
+	"gitlab.com/elixxir/comms/mixmessages"
 )
 
 // GenerateSlotDigest serializes the gateway slot message for the
 // client to hash
-func GenerateSlotDigest(gatewaySlot *GatewaySlot) []byte {
+func GenerateSlotDigest(gatewaySlot *mixmessages.GatewaySlot) []byte {
 
 	var gatewaySlotDigest []byte
 	gatewaySlotDigest = append(gatewaySlotDigest, gatewaySlot.Message.SenderID...)

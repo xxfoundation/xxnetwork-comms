@@ -1,7 +1,8 @@
-package mixmessages
+package network
 
 import (
 	"encoding/binary"
+	"gitlab.com/elixxir/comms/mixmessages"
 	"reflect"
 	"testing"
 )
@@ -16,14 +17,14 @@ func TestGenerateSlotDigest(t *testing.T) {
 	kmacs := [][]byte{[]byte("kmac1"), []byte("kmac2")}
 
 	// Craft message 1
-	msg := &Slot{
+	msg := &mixmessages.Slot{
 		PayloadA: payloadA,
 		PayloadB: payloadB,
 		KMACs:    kmacs,
 		SenderID: senderID,
 	}
 
-	gwSlot := &GatewaySlot{
+	gwSlot := &mixmessages.GatewaySlot{
 		Message: msg,
 		RoundID: roundId,
 	}
@@ -61,14 +62,14 @@ func TestGenerateSlotDigest_Consistency(t *testing.T) {
 	kmacs := [][]byte{[]byte("kmac1"), []byte("kmac2")}
 
 	// Craft message 1
-	msg := &Slot{
+	msg := &mixmessages.Slot{
 		PayloadA: payloadA,
 		PayloadB: payloadB,
 		KMACs:    kmacs,
 		SenderID: senderID,
 	}
 
-	gwSlot := &GatewaySlot{
+	gwSlot := &mixmessages.GatewaySlot{
 		Message: msg,
 		RoundID: roundId,
 	}
@@ -93,27 +94,27 @@ func TestGenerateSlotDigest_Inconsistency(t *testing.T) {
 	kmacs := [][]byte{[]byte("kmac1"), []byte("kmac2")}
 
 	// Craft message 1
-	msg1 := &Slot{
+	msg1 := &mixmessages.Slot{
 		PayloadA: payloadA,
 		PayloadB: payloadB,
 		KMACs:    kmacs,
 		SenderID: senderID,
 	}
 
-	gwSlot1 := &GatewaySlot{
+	gwSlot1 := &mixmessages.GatewaySlot{
 		Message: msg1,
 		RoundID: roundId,
 	}
 
 	// Craft message 2 with swapped payloads
-	msg2 := &Slot{
+	msg2 := &mixmessages.Slot{
 		PayloadA: payloadB,
 		PayloadB: payloadA,
 		KMACs:    kmacs,
 		SenderID: senderID,
 	}
 
-	gwSlot2 := &GatewaySlot{
+	gwSlot2 := &mixmessages.GatewaySlot{
 		Message: msg2,
 		RoundID: roundId,
 	}
