@@ -3,7 +3,7 @@ package gossip
 import (
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/xx_network/comms/connect"
-	"gitlab.com/xx_network/comms/messages"
+	"sync"
 )
 
 // Defines the type of Gossip message fingerprints
@@ -12,7 +12,7 @@ type Fingerprint [32]byte
 
 // Gossip-related configuration flag
 type Flags struct {
-	FanOut                  uint8
+	FanOut                  uint8  // Default = 0
 	MaxRecordedFingerprints uint64 // Default = 10000000
 }
 
@@ -27,10 +27,12 @@ type Protocol struct {
 
 	// Thread-safe record of all Gossip messages for this Protocol
 	// NOTE: Must avoid unlimited growth
-	fingerprints map[Fingerprint]struct{}
+	fingerprints     map[Fingerprint]struct{}
+	fingerprintsLock sync.RWMutex
 
 	// Thread-safe list of peers for the Protocol
-	peers []*id.ID
+	peers     []*id.ID
+	peersLock sync.RWMutex
 
 	// Stores the Gossip-related configuration flags
 	flags Flags
@@ -47,7 +49,7 @@ type Protocol struct {
 
 // Receive a Gossip Message and check fingerprints map
 // (if unique calls GossipSignatureVerify -> Receiver)
-func (p *Protocol) receive(msg *messages.GossipMsg) error {
+func (p *Protocol) receive(msg *GossipMsg) error {
 	return nil
 }
 
@@ -57,7 +59,7 @@ func (p *Protocol) AddGossipPeer(id *id.ID) error {
 }
 
 // Builds and sends a GossipMsg
-func (p *Protocol) Gossip(msg *messages.GossipMsg) error {
+func (p *Protocol) Gossip(msg *GossipMsg) error {
 	return nil
 }
 
