@@ -218,6 +218,14 @@ message GatewayPollResponse {
     repeated string NewMessageIDs = 4; // Empty if no update needed
 }
 
+// Client -> Gateway authentication message
+message GatewaySlot{
+    Slot Message = 1;
+    uint64 RoundID = 2;
+    bytes MAC = 3;
+}
+
+
 // REGISTRATION MESSAGE SERVICE ------------------------------------------------
 
 // Registration service definition
@@ -296,7 +304,8 @@ message UserRegistration {
 message UserRegistrationConfirmation {
     // RegistrationServer-Signed Client Public Key
     RSASignature ClientSignedByServer = 1;
-    string Error = 2;
+    bytes ClientGatewayKey = 2;
+    string Error = 3;
 }
 
 // ClientVersion contains a version string for the client
