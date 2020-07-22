@@ -10,7 +10,10 @@
 
 package mixmessages
 
-import "github.com/pkg/errors"
+import (
+	"github.com/pkg/errors"
+	"gitlab.com/xx_network/comms/messages"
+)
 
 // SetSignature sets RoundError's signature to the newSig argument
 func (m *RoundError) SetSig(newSig []byte) error {
@@ -21,7 +24,7 @@ func (m *RoundError) SetSig(newSig []byte) error {
 
 	// If the signature object is nil, create it and set value
 	if m.Signature == nil {
-		m.Signature = &RSASignature{Signature: newSig}
+		m.Signature = &messages.RSASignature{Signature: newSig}
 		return nil
 	}
 
@@ -56,7 +59,7 @@ func (m *RoundError) SetNonce(newNonce []byte) error {
 
 	// If the signature object is nil, create it and set value
 	if m.Signature == nil {
-		m.Signature = &RSASignature{Nonce: newNonce}
+		m.Signature = &messages.RSASignature{Nonce: newNonce}
 		return nil
 	}
 

@@ -14,14 +14,15 @@ import (
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
-	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
+	"gitlab.com/xx_network/comms/connect"
+	"gitlab.com/xx_network/comms/messages"
 	"google.golang.org/grpc"
 )
 
 // Client -> NotificationBot
 func (c *Comms) RegisterForNotifications(host *connect.Host,
-	message *pb.NotificationToken) (*pb.Ack, error) {
+	message *pb.NotificationToken) (*messages.Ack, error) {
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
@@ -50,20 +51,20 @@ func (c *Comms) RegisterForNotifications(host *connect.Host,
 	}
 
 	// Marshall the result
-	result := &pb.Ack{}
+	result := &messages.Ack{}
 	return result, ptypes.UnmarshalAny(resultMsg, result)
 
 }
 
 // Client -> NotificationBot
-func (c *Comms) UnregisterForNotifications(host *connect.Host) (*pb.Ack, error) {
+func (c *Comms) UnregisterForNotifications(host *connect.Host) (*messages.Ack, error) {
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
 
-		authMsg, err := c.PackAuthenticatedMessage(&pb.Ping{}, host, false)
+		authMsg, err := c.PackAuthenticatedMessage(&messages.Ping{}, host, false)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
@@ -85,7 +86,7 @@ func (c *Comms) UnregisterForNotifications(host *connect.Host) (*pb.Ack, error) 
 	}
 
 	// Marshall the result
-	result := &pb.Ack{}
+	result := &messages.Ack{}
 	return result, ptypes.UnmarshalAny(resultMsg, result)
 
 }

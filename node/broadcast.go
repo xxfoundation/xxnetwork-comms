@@ -14,13 +14,14 @@ import (
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
-	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
+	"gitlab.com/xx_network/comms/connect"
+	"gitlab.com/xx_network/comms/messages"
 	"google.golang.org/grpc"
 )
 
 // Server -> Server error function
-func (s *Comms) SendRoundError(host *connect.Host, message *pb.RoundError) (*pb.Ack, error) {
+func (s *Comms) SendRoundError(host *connect.Host, message *pb.RoundError) (*messages.Ack, error) {
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
@@ -48,7 +49,7 @@ func (s *Comms) SendRoundError(host *connect.Host, message *pb.RoundError) (*pb.
 		return nil, err
 	}
 
-	result := &pb.Ack{}
+	result := &messages.Ack{}
 	return result, ptypes.UnmarshalAny(resultMsg, result)
 }
 
@@ -87,7 +88,7 @@ func (s *Comms) SendGetMeasure(host *connect.Host,
 }
 
 // Server -> Server Send Function
-func (s *Comms) SendAskOnline(host *connect.Host) (*pb.Ack, error) {
+func (s *Comms) SendAskOnline(host *connect.Host) (*messages.Ack, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
@@ -96,7 +97,7 @@ func (s *Comms) SendAskOnline(host *connect.Host) (*pb.Ack, error) {
 		defer cancel()
 
 		// Send the message
-		resultMsg, err := pb.NewNodeClient(conn).AskOnline(ctx, &pb.Ping{})
+		resultMsg, err := pb.NewNodeClient(conn).AskOnline(ctx, &messages.Ping{})
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
@@ -111,13 +112,13 @@ func (s *Comms) SendAskOnline(host *connect.Host) (*pb.Ack, error) {
 	}
 
 	// Marshall the result
-	result := &pb.Ack{}
+	result := &messages.Ack{}
 	return result, ptypes.UnmarshalAny(resultMsg, result)
 }
 
 // Server -> Server Send Function
 func (s *Comms) SendFinishRealtime(host *connect.Host,
-	message *pb.RoundInfo) (*pb.Ack, error) {
+	message *pb.RoundInfo) (*messages.Ack, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
@@ -147,13 +148,13 @@ func (s *Comms) SendFinishRealtime(host *connect.Host,
 	}
 
 	// Marshall the result
-	result := &pb.Ack{}
+	result := &messages.Ack{}
 	return result, ptypes.UnmarshalAny(resultMsg, result)
 }
 
 // Server -> Server Send Function
 func (s *Comms) SendNewRound(host *connect.Host,
-	message *pb.RoundInfo) (*pb.Ack, error) {
+	message *pb.RoundInfo) (*messages.Ack, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
@@ -182,13 +183,13 @@ func (s *Comms) SendNewRound(host *connect.Host,
 	}
 
 	// Marshall the result
-	result := &pb.Ack{}
+	result := &messages.Ack{}
 	return result, ptypes.UnmarshalAny(resultMsg, result)
 }
 
 // Server -> Server Send Function
 func (s *Comms) SendPostRoundPublicKey(host *connect.Host,
-	message *pb.RoundPublicKey) (*pb.Ack, error) {
+	message *pb.RoundPublicKey) (*messages.Ack, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
@@ -217,13 +218,13 @@ func (s *Comms) SendPostRoundPublicKey(host *connect.Host,
 	}
 
 	// Marshall the result
-	result := &pb.Ack{}
+	result := &messages.Ack{}
 	return result, ptypes.UnmarshalAny(resultMsg, result)
 }
 
 // Server -> Server Send Function
 func (s *Comms) SendPostPrecompResult(host *connect.Host,
-	roundID uint64, slots []*pb.Slot) (*pb.Ack, error) {
+	roundID uint64, slots []*pb.Slot) (*messages.Ack, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
@@ -261,12 +262,12 @@ func (s *Comms) SendPostPrecompResult(host *connect.Host,
 	}
 
 	// Marshall the result
-	result := &pb.Ack{}
+	result := &messages.Ack{}
 	return result, ptypes.UnmarshalAny(resultMsg, result)
 }
 
 // Server -> Server Send Function
-func (s *Comms) RoundTripPing(host *connect.Host, rtPing *pb.RoundTripPing) (*pb.Ack, error) {
+func (s *Comms) RoundTripPing(host *connect.Host, rtPing *pb.RoundTripPing) (*messages.Ack, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
@@ -298,6 +299,6 @@ func (s *Comms) RoundTripPing(host *connect.Host, rtPing *pb.RoundTripPing) (*pb
 	}
 
 	// Marshall the result
-	result := &pb.Ack{}
+	result := &messages.Ack{}
 	return result, ptypes.UnmarshalAny(resultMsg, result)
 }

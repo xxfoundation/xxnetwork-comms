@@ -14,29 +14,30 @@ import (
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
+	"gitlab.com/xx_network/comms/messages"
 	"golang.org/x/net/context"
 )
 
 // Handles validation of reverse-authentication tokens
 func (nb *Comms) AuthenticateToken(ctx context.Context,
-	msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
+	msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
 	err := nb.ValidateToken(msg)
 	if err != nil {
 		jww.ERROR.Printf("Unable to authenticate token: %+v", err)
 	}
-	return &pb.Ack{}, err
+	return &messages.Ack{}, err
 }
 
 // Handles reception of reverse-authentication token requests
-func (nb *Comms) RequestToken(context.Context, *pb.Ping) (*pb.AssignToken, error) {
+func (nb *Comms) RequestToken(context.Context, *messages.Ping) (*messages.AssignToken, error) {
 	token, err := nb.GenerateToken()
-	return &pb.AssignToken{
+	return &messages.AssignToken{
 		Token: token,
 	}, err
 }
 
 // RegisterForNotifications event handler which registers a client with the notification bot
-func (nb *Comms) RegisterForNotifications(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
+func (nb *Comms) RegisterForNotifications(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
 	//Check the authState of the message
 	authState, err := nb.AuthenticatedReceiver(msg)
 	if err != nil {
@@ -56,11 +57,11 @@ func (nb *Comms) RegisterForNotifications(ctx context.Context, msg *pb.Authentic
 	}
 
 	// Return the confirmation message
-	return &pb.Ack{}, err
+	return &messages.Ack{}, err
 }
 
 // UnregisterForNotifications event handler which unregisters a client with the notification bot
-func (nb *Comms) UnregisterForNotifications(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
+func (nb *Comms) UnregisterForNotifications(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
 	// Check the authState of the message
 	authState, err := nb.AuthenticatedReceiver(msg)
 	if err != nil {
@@ -74,5 +75,5 @@ func (nb *Comms) UnregisterForNotifications(ctx context.Context, msg *pb.Authent
 	}
 
 	// Return the confirmation message
-	return &pb.Ack{}, err
+	return &messages.Ack{}, err
 }

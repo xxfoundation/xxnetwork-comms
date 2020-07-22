@@ -14,17 +14,19 @@ import (
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
-	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
+	"gitlab.com/xx_network/comms/connect"
+	"gitlab.com/xx_network/comms/messages"
 	"google.golang.org/grpc"
 )
 
 // NotificationBot -> Permissioning
-func (nb *Comms) RequestNdf(host *connect.Host, message *pb.NDFHash) (*pb.NDF, error) {
-
-	// Call the ProtoComms RequestNdf call
-	return nb.ProtoComms.RequestNdf(host, message)
-}
+// Fixme: figure out what to do with notification bot and unified polling
+//func (nb *Comms) RequestNdf(host *connect.Host, message *pb.NDFHash) (*pb.NDF, error) {
+//
+//	// Call the ProtoComms RequestNdf call
+//	return nb.ProtoComms.RequestNdf(host, message)
+//}
 
 // Notification Bot -> Gateway
 func (nb *Comms) RequestNotifications(host *connect.Host) (*pb.UserIdList, error) {
@@ -34,7 +36,7 @@ func (nb *Comms) RequestNotifications(host *connect.Host) (*pb.UserIdList, error
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
 
-		authMsg, err := nb.PackAuthenticatedMessage(&pb.Ping{}, host, false)
+		authMsg, err := nb.PackAuthenticatedMessage(&messages.Ping{}, host, false)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}

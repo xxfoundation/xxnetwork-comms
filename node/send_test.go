@@ -10,9 +10,10 @@ package node
 import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/pkg/errors"
-	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/primitives/id"
+	"gitlab.com/xx_network/comms/connect"
+	"gitlab.com/xx_network/comms/messages"
 	"testing"
 )
 
@@ -204,7 +205,7 @@ func TestRoundTripPing(t *testing.T) {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
 
-	any, err := ptypes.MarshalAny(&pb.Ack{})
+	any, err := ptypes.MarshalAny(&messages.Ack{})
 	if err != nil {
 		t.Errorf("SendRoundTripPing: failed attempting to marshall any type: %+v", err)
 	}

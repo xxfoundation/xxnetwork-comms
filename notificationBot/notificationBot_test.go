@@ -9,12 +9,10 @@ package notificationBot
 
 import (
 	"fmt"
-	"gitlab.com/elixxir/comms/connect"
 	"gitlab.com/elixxir/comms/gateway"
-	"gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/elixxir/comms/registration"
 	"gitlab.com/elixxir/comms/testkeys"
 	"gitlab.com/elixxir/primitives/id"
+	"gitlab.com/xx_network/comms/connect"
 	"sync"
 	"testing"
 )
@@ -43,7 +41,7 @@ func TestTLS(t *testing.T) {
 
 	// Start up a registration server
 	regAddress := getNextAddress()
-	gw := registration.StartRegistrationServer(testId, regAddress, registration.NewImplementation(),
+	gw := gateway.StartGateway(testId, regAddress, gateway.NewImplementation(),
 		certData, keyData)
 	defer gw.Shutdown()
 
@@ -61,7 +59,7 @@ func TestTLS(t *testing.T) {
 	}
 
 	// Attempt to poll NDF
-	_, err = notificationBot.RequestNdf(host, &mixmessages.NDFHash{})
+	_, err = notificationBot.RequestNotifications(host)
 	if err != nil {
 		t.Error(err)
 	}
