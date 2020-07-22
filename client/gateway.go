@@ -20,7 +20,7 @@ import (
 )
 
 // Client -> Gateway Send Function
-func (c *Comms) SendPutMessage(host *connect.Host, message *pb.Slot) error {
+func (c *Comms) SendPutMessage(host *connect.Host, message *pb.GatewaySlot) (*pb.GatewaySlotResponse, error) {
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
@@ -37,8 +37,14 @@ func (c *Comms) SendPutMessage(host *connect.Host, message *pb.Slot) error {
 
 	// Execute the Send function
 	jww.DEBUG.Printf("Sending Put message: %+v", message)
-	_, err := c.Send(host, f)
-	return err
+	resultMsg, err := c.Send(host, f)
+	if err != nil {
+		return nil, err
+	}
+
+	result := &pb.GatewaySlotResponse{}
+
+	return result, ptypes.UnmarshalAny(resultMsg, result)
 }
 
 // Client -> Gateway Send Function

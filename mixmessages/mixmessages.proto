@@ -9,7 +9,7 @@ syntax = "proto3";
 package mixmessages;
 
 import "gitlab.com/xx_network/comms/messages/messages.proto";
-import "google/protobuf/any.proto";
+import "gitlab.com/xx_network/comms/messages/google/protobuf/any.proto";
 
 // SERVER MESSAGE SERVICE ------------------------------------------------------
 
@@ -153,7 +153,7 @@ service Gateway {
     }
 
     // PutMessage on the cMix Gateway
-    rpc PutMessage (Slot) returns (messages.Ack) {
+    rpc PutMessage (GatewaySlot) returns (GatewaySlotResponse) {
     }
 
     // RequestNonce returns a Nonce to the user

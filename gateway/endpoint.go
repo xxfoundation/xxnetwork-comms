@@ -78,7 +78,7 @@ func (g *Comms) GetMessage(ctx context.Context, msg *pb.ClientRequest) (
 }
 
 // Receives a single message from a client
-func (g *Comms) PutMessage(ctx context.Context, msg *pb.Slot) (*messages.Ack,
+func (g *Comms) PutMessage(ctx context.Context, msg *pb.GatewaySlot) (*pb.GatewaySlotResponse,
 	error) {
 
 	// Get peer information from context
@@ -88,9 +88,9 @@ func (g *Comms) PutMessage(ctx context.Context, msg *pb.Slot) (*messages.Ack,
 	}
 
 	// Upload a message to the cMix Gateway at the peer's IP address
-	err = g.handler.PutMessage(msg, addr)
+	returnMsg, err := g.handler.PutMessage(msg, addr)
 
-	return &messages.Ack{}, err
+	return returnMsg, err
 }
 
 // Pass-through for Registration Nonce Communication
