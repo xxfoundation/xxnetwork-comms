@@ -82,8 +82,12 @@ func TestBannedNodePartialNDFRemoval(t *testing.T) {
 	}
 
 	onid, err := id.Unmarshal(oldNDF.Get().Nodes[2].ID)
-	if err != nil { t.Errorf("Failed to unmarshal oldNDF node ID 2") }
-	if rmNodes[0].Cmp(onid) != true { t.Errorf("Function removed the wrong node") }
+	if err != nil {
+		t.Errorf("Failed to unmarshal oldNDF node ID 2")
+	}
+	if rmNodes[0].Cmp(onid) != true {
+		t.Errorf("Function removed the wrong node")
+	}
 }
 
 // Happy path
