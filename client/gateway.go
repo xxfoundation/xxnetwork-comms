@@ -28,11 +28,13 @@ func (c *Comms) SendPutMessage(host *connect.Host, message *pb.GatewaySlot) (*pb
 		defer cancel()
 
 		// Send the message
-		_, err := pb.NewGatewayClient(conn).PutMessage(ctx, message)
+		resultMsg, err := pb.NewGatewayClient(conn).PutMessage(ctx, message)
 		if err != nil {
 			err = errors.New(err.Error())
+			return nil, errors.New(err.Error())
+
 		}
-		return nil, err
+		return ptypes.MarshalAny(resultMsg)
 	}
 
 	// Execute the Send function

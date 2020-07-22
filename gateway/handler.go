@@ -124,7 +124,7 @@ func NewImplementation() *Implementation {
 			},
 			PutMessage: func(message *pb.GatewaySlot, ipAddress string) (*pb.GatewaySlotResponse, error) {
 				warn(um)
-				return nil, nil
+				return new(pb.GatewaySlotResponse), nil
 			},
 			RequestNonce: func(message *pb.NonceRequest, ipAddress string) (*pb.Nonce, error) {
 				warn(um)

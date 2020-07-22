@@ -89,7 +89,10 @@ func (g *Comms) PutMessage(ctx context.Context, msg *pb.GatewaySlot) (*pb.Gatewa
 
 	// Upload a message to the cMix Gateway at the peer's IP address
 	returnMsg, err := g.handler.PutMessage(msg, addr)
+	if err != nil {
+		returnMsg = &pb.GatewaySlotResponse{}
 
+	}
 	return returnMsg, err
 }
 
