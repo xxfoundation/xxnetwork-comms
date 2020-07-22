@@ -9,7 +9,7 @@ syntax = "proto3";
 
 package messages;
 
-import "google/protobuf/any.proto";
+import "gitlab.com/xx_network/comms/messages/google/protobuf/any.proto";
 
 // GENERAL USE MESSAGES --------------------------------------------------------
 
