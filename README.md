@@ -12,7 +12,6 @@ Run the following command in the base project directory
 ```
 protoc -I messages/ messages/messages.proto -I /path/to/gitlab.com/ --go_out=plugins=grpc:messages
 ```
-This step is required for every `rpc` you create, otherwise there will be errors. 
 
 * NOTE: For `-I /path/to/gitlab.com/` in the above command, you will want to exclude 
 `gitlab.com` from the path. If you wish, you may simply put 
