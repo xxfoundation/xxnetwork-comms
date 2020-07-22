@@ -7,8 +7,12 @@
 
 
 Run the following command in the base project directory
-(assuming you've set gRPC up correctly per the main README):
+(assuming you've set gRPC up correctly):
 
 ```
 protoc -I messages/ messages/messages.proto -I /path/to/gitlab.com/ --go_out=plugins=grpc:messages
 ```
+* NOTE: For `-I /path/to/gitlab.com/` in the above command, you will want to exclude `gitlab.com` from the path. 
+If you wish, you may simply put `import google/protobuf/any.proto` in `messages.proto` 
+and exclude `I /path/to/gitlab.com/` entirely.
+This structure allows for compatibility with our partner organization, Elixxir and their projects.
