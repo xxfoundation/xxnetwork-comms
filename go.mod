@@ -7,11 +7,12 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/jwalterweatherman v1.1.0
 	gitlab.com/elixxir/crypto v0.0.0-20200707005343-97f868cbd930
-	gitlab.com/elixxir/primitives v0.0.0-20200706165052-9fe7a4fb99a3
-	golang.org/x/net v0.0.0-20200513185701-a91f0712d120
+	gitlab.com/elixxir/primitives v0.0.0-20200721220915-7250ade6f041
+	gitlab.com/xx_network/collections v0.0.0-20200722170828-fb39afd3752f
+	golang.org/x/net v0.0.0-20200707034311-ab3426394381
 	golang.org/x/text v0.3.2 // indirect
-	google.golang.org/genproto v0.0.0-20200514193133-8feb7f20f2a2 // indirect
-	google.golang.org/grpc v1.29.1
+	google.golang.org/grpc v1.30.0
+	google.golang.org/protobuf v1.25.0 // indirect
 )
 
 replace google.golang.org/grpc => github.com/grpc/grpc-go v1.27.1

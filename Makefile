@@ -15,7 +15,8 @@ build:
 	go mod tidy
 
 update_release:
-	GOFLAGS="" go get -u gitlab.com/elixxir/primitives@release
+	GOFLAGS="" go get -u gitlab.com/elixxir/primitives@"XX-2433/MoveRingBuffer"
+	GOFLAGS="" go get -u gitlab.com/xx_network/collections@"XX-2433/MoveRingBuffer"
 	GOFLAGS="" go get -u gitlab.com/elixxir/crypto@release
 
 update_master:
