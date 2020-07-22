@@ -14,26 +14,27 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
-	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/primitives/id"
+	"gitlab.com/xx_network/comms/connect"
+	"gitlab.com/xx_network/comms/messages"
 	"golang.org/x/net/context"
 )
 
 // Handles validation of reverse-authentication tokens
 func (r *Comms) AuthenticateToken(ctx context.Context,
-	msg *pb.AuthenticatedMessage) (*pb.Ack, error) {
+	msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
 	err := r.ValidateToken(msg)
 	if err != nil {
 		jww.ERROR.Printf("Unable to authenticate token: %+v", err)
 	}
-	return &pb.Ack{}, err
+	return &messages.Ack{}, err
 }
 
 // Handles reception of reverse-authentication token requests
-func (r *Comms) RequestToken(context.Context, *pb.Ping) (*pb.AssignToken, error) {
+func (r *Comms) RequestToken(context.Context, *messages.Ping) (*messages.AssignToken, error) {
 	token, err := r.GenerateToken()
-	return &pb.AssignToken{
+	return &messages.AssignToken{
 		Token: token,
 	}, err
 }
@@ -53,7 +54,7 @@ func (r *Comms) RegisterUser(ctx context.Context, msg *pb.UserRegistration) (
 
 	// Return the confirmation message
 	return &pb.UserRegistrationConfirmation{
-		ClientSignedByServer: &pb.RSASignature{
+		ClientSignedByServer: &messages.RSASignature{
 			Signature: signature,
 		},
 		Error: errMsg,
@@ -62,7 +63,7 @@ func (r *Comms) RegisterUser(ctx context.Context, msg *pb.UserRegistration) (
 
 // CheckClientVersion event handler which checks whether the client library
 // version is compatible with the network
-func (r *Comms) GetCurrentClientVersion(ctx context.Context, ping *pb.Ping) (*pb.ClientVersion, error) {
+func (r *Comms) GetCurrentClientVersion(ctx context.Context, ping *messages.Ping) (*pb.ClientVersion, error) {
 
 	version, err := r.handler.GetCurrentClientVersion()
 
@@ -74,12 +75,12 @@ func (r *Comms) GetCurrentClientVersion(ctx context.Context, ping *pb.Ping) (*pb
 
 // Handle a node registration event
 func (r *Comms) RegisterNode(ctx context.Context, msg *pb.NodeRegistration) (
-	*pb.Ack, error) {
+	*messages.Ack, error) {
 
 	// Infer peer IP address (do not use msg.GetServerAddress())
 	ip, _, err := connect.GetAddressFromContext(ctx)
 	if err != nil {
-		return &pb.Ack{}, err
+		return &messages.Ack{}, err
 	}
 
 	port := msg.GetServerPort()
@@ -90,7 +91,7 @@ func (r *Comms) RegisterNode(ctx context.Context, msg *pb.NodeRegistration) (
 
 	nodeID, err := id.Unmarshal(msg.GetID())
 	if err != nil {
-		return nil, errors.Errorf("Unable to unmarshal node ID: %+v", err)
+		return &messages.Ack{}, errors.Errorf("Unable to unmarshal node ID: %+v", err)
 	}
 
 	// Pass information for Node registration
@@ -98,11 +99,11 @@ func (r *Comms) RegisterNode(ctx context.Context, msg *pb.NodeRegistration) (
 		msg.GetServerTlsCert(),
 		gwAddress, msg.GetGatewayTlsCert(),
 		msg.GetRegistrationCode())
-	return &pb.Ack{}, err
+	return &messages.Ack{}, err
 }
 
 // Handles incoming requests for the NDF
-func (r *Comms) PollNdf(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.NDF, error) {
+func (r *Comms) PollNdf(ctx context.Context, msg *messages.AuthenticatedMessage) (*pb.NDF, error) {
 	// Create an auth object
 	authState, err := r.AuthenticatedReceiver(msg)
 	if err != nil {
@@ -122,7 +123,7 @@ func (r *Comms) PollNdf(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.
 }
 
 // Server -> Permissioning unified polling
-func (r *Comms) Poll(ctx context.Context, msg *pb.AuthenticatedMessage) (*pb.PermissionPollResponse, error) {
+func (r *Comms) Poll(ctx context.Context, msg *messages.AuthenticatedMessage) (*pb.PermissionPollResponse, error) {
 	// Create an auth object
 	authState, err := r.AuthenticatedReceiver(msg)
 	if err != nil {

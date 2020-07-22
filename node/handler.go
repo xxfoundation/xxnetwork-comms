@@ -12,9 +12,10 @@ package node
 import (
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
-	"gitlab.com/elixxir/comms/connect"
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/primitives/id"
+	"gitlab.com/xx_network/comms/connect"
+	"gitlab.com/xx_network/comms/messages"
 	"google.golang.org/grpc/reflection"
 	"runtime/debug"
 )
@@ -44,7 +45,7 @@ func StartNode(id *id.ID, localServer string, handler Handler,
 	go func() {
 		// Register GRPC services to the listening address
 		mixmessages.RegisterNodeServer(mixmessageServer.LocalServer, &mixmessageServer)
-		mixmessages.RegisterGenericServer(mixmessageServer.LocalServer, &mixmessageServer)
+		messages.RegisterGenericServer(mixmessageServer.LocalServer, &mixmessageServer)
 
 		// Register reflection service on gRPC server.
 		reflection.Register(mixmessageServer.LocalServer)
