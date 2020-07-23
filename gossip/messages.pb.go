@@ -138,7 +138,7 @@ func init() {
 }
 
 var fileDescriptor_4dc296cbfe5ffcd5 = []byte{
-	// 203 bytes of a gzipped FileDescriptorProto
+	// 199 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0xcb, 0x4d, 0x2d, 0x2e,
 	0x4e, 0x4c, 0x4f, 0x2d, 0xd6, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x4b, 0xcf, 0x2f, 0x2e,
 	0xce, 0x2c, 0x50, 0x92, 0xe6, 0x62, 0x76, 0x4c, 0xce, 0x16, 0x12, 0xe1, 0x62, 0x75, 0x2d, 0x2a,
@@ -147,11 +147,11 @@ var fileDescriptor_4dc296cbfe5ffcd5 = []byte{
 	0x21, 0x31, 0x2e, 0x36, 0xff, 0xa2, 0xcc, 0xf4, 0xcc, 0x3c, 0x09, 0x26, 0x05, 0x46, 0x0d, 0x9e,
 	0x20, 0x28, 0x4f, 0x48, 0x82, 0x8b, 0x3d, 0x20, 0xb1, 0x32, 0x27, 0x3f, 0x31, 0x45, 0x82, 0x19,
 	0x2c, 0x01, 0xe3, 0x0a, 0xc9, 0x70, 0x71, 0x06, 0x67, 0xa6, 0xe7, 0x25, 0x96, 0x94, 0x16, 0xa5,
-	0x4a, 0xb0, 0x80, 0xe5, 0x10, 0x02, 0x46, 0x39, 0x5c, 0x6c, 0x10, 0xeb, 0x84, 0x0c, 0xb8, 0xf8,
-	0x20, 0x2c, 0xd7, 0xbc, 0x94, 0x82, 0xfc, 0xcc, 0xbc, 0x12, 0x21, 0x41, 0x3d, 0x88, 0x83, 0xf5,
-	0xe0, 0x0e, 0x92, 0xe2, 0x86, 0x09, 0x81, 0x3c, 0x60, 0xc0, 0xc5, 0x03, 0x91, 0x09, 0x2e, 0x29,
-	0x4a, 0x4d, 0xcc, 0x25, 0xa4, 0x5e, 0x83, 0x31, 0x89, 0x0d, 0x1c, 0x10, 0xc6, 0x80, 0x00, 0x00,
-	0x00, 0xff, 0xff, 0xe8, 0x1a, 0xdb, 0x62, 0x1a, 0x01, 0x00, 0x00,
+	0x4a, 0xb0, 0x80, 0xe5, 0x10, 0x02, 0x46, 0x09, 0x5c, 0x6c, 0x10, 0xeb, 0x84, 0xb4, 0xb8, 0x38,
+	0x5c, 0xf3, 0x52, 0x0a, 0xf2, 0x33, 0xf3, 0x4a, 0x84, 0x04, 0xf5, 0x20, 0x4e, 0xd5, 0x83, 0x3b,
+	0x45, 0x8a, 0x1b, 0x26, 0x04, 0x72, 0xba, 0x16, 0x17, 0x5b, 0x70, 0x49, 0x51, 0x6a, 0x62, 0x2e,
+	0x21, 0x95, 0x1a, 0x8c, 0x49, 0x6c, 0x60, 0xcf, 0x1b, 0x03, 0x02, 0x00, 0x00, 0xff, 0xff, 0x1c,
+	0xf8, 0x1f, 0x8d, 0x0e, 0x01, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -166,8 +166,8 @@ const _ = grpc.SupportPackageIsVersion6
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type GossipClient interface {
-	GossipEndpoint(ctx context.Context, in *GossipMsg, opts ...grpc.CallOption) (*Ack, error)
-	GossipStream(ctx context.Context, opts ...grpc.CallOption) (Gossip_GossipStreamClient, error)
+	Endpoint(ctx context.Context, in *GossipMsg, opts ...grpc.CallOption) (*Ack, error)
+	Stream(ctx context.Context, opts ...grpc.CallOption) (Gossip_StreamClient, error)
 }
 
 type gossipClient struct {
@@ -178,39 +178,39 @@ func NewGossipClient(cc grpc.ClientConnInterface) GossipClient {
 	return &gossipClient{cc}
 }
 
-func (c *gossipClient) GossipEndpoint(ctx context.Context, in *GossipMsg, opts ...grpc.CallOption) (*Ack, error) {
+func (c *gossipClient) Endpoint(ctx context.Context, in *GossipMsg, opts ...grpc.CallOption) (*Ack, error) {
 	out := new(Ack)
-	err := c.cc.Invoke(ctx, "/gossip.Gossip/GossipEndpoint", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/gossip.Gossip/Endpoint", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *gossipClient) GossipStream(ctx context.Context, opts ...grpc.CallOption) (Gossip_GossipStreamClient, error) {
-	stream, err := c.cc.NewStream(ctx, &_Gossip_serviceDesc.Streams[0], "/gossip.Gossip/GossipStream", opts...)
+func (c *gossipClient) Stream(ctx context.Context, opts ...grpc.CallOption) (Gossip_StreamClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_Gossip_serviceDesc.Streams[0], "/gossip.Gossip/Stream", opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &gossipGossipStreamClient{stream}
+	x := &gossipStreamClient{stream}
 	return x, nil
 }
 
-type Gossip_GossipStreamClient interface {
+type Gossip_StreamClient interface {
 	Send(*GossipMsg) error
 	CloseAndRecv() (*Ack, error)
 	grpc.ClientStream
 }
 
-type gossipGossipStreamClient struct {
+type gossipStreamClient struct {
 	grpc.ClientStream
 }
 
-func (x *gossipGossipStreamClient) Send(m *GossipMsg) error {
+func (x *gossipStreamClient) Send(m *GossipMsg) error {
 	return x.ClientStream.SendMsg(m)
 }
 
-func (x *gossipGossipStreamClient) CloseAndRecv() (*Ack, error) {
+func (x *gossipStreamClient) CloseAndRecv() (*Ack, error) {
 	if err := x.ClientStream.CloseSend(); err != nil {
 		return nil, err
 	}
@@ -223,62 +223,62 @@ func (x *gossipGossipStreamClient) CloseAndRecv() (*Ack, error) {
 
 // GossipServer is the server API for Gossip service.
 type GossipServer interface {
-	GossipEndpoint(context.Context, *GossipMsg) (*Ack, error)
-	GossipStream(Gossip_GossipStreamServer) error
+	Endpoint(context.Context, *GossipMsg) (*Ack, error)
+	Stream(Gossip_StreamServer) error
 }
 
 // UnimplementedGossipServer can be embedded to have forward compatible implementations.
 type UnimplementedGossipServer struct {
 }
 
-func (*UnimplementedGossipServer) GossipEndpoint(ctx context.Context, req *GossipMsg) (*Ack, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GossipEndpoint not implemented")
+func (*UnimplementedGossipServer) Endpoint(ctx context.Context, req *GossipMsg) (*Ack, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Endpoint not implemented")
 }
-func (*UnimplementedGossipServer) GossipStream(srv Gossip_GossipStreamServer) error {
-	return status.Errorf(codes.Unimplemented, "method GossipStream not implemented")
+func (*UnimplementedGossipServer) Stream(srv Gossip_StreamServer) error {
+	return status.Errorf(codes.Unimplemented, "method Stream not implemented")
 }
 
 func RegisterGossipServer(s *grpc.Server, srv GossipServer) {
 	s.RegisterService(&_Gossip_serviceDesc, srv)
 }
 
-func _Gossip_GossipEndpoint_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Gossip_Endpoint_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GossipMsg)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(GossipServer).GossipEndpoint(ctx, in)
+		return srv.(GossipServer).Endpoint(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/gossip.Gossip/GossipEndpoint",
+		FullMethod: "/gossip.Gossip/Endpoint",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GossipServer).GossipEndpoint(ctx, req.(*GossipMsg))
+		return srv.(GossipServer).Endpoint(ctx, req.(*GossipMsg))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Gossip_GossipStream_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(GossipServer).GossipStream(&gossipGossipStreamServer{stream})
+func _Gossip_Stream_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(GossipServer).Stream(&gossipStreamServer{stream})
 }
 
-type Gossip_GossipStreamServer interface {
+type Gossip_StreamServer interface {
 	SendAndClose(*Ack) error
 	Recv() (*GossipMsg, error)
 	grpc.ServerStream
 }
 
-type gossipGossipStreamServer struct {
+type gossipStreamServer struct {
 	grpc.ServerStream
 }
 
-func (x *gossipGossipStreamServer) SendAndClose(m *Ack) error {
+func (x *gossipStreamServer) SendAndClose(m *Ack) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func (x *gossipGossipStreamServer) Recv() (*GossipMsg, error) {
+func (x *gossipStreamServer) Recv() (*GossipMsg, error) {
 	m := new(GossipMsg)
 	if err := x.ServerStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -291,14 +291,14 @@ var _Gossip_serviceDesc = grpc.ServiceDesc{
 	HandlerType: (*GossipServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GossipEndpoint",
-			Handler:    _Gossip_GossipEndpoint_Handler,
+			MethodName: "Endpoint",
+			Handler:    _Gossip_Endpoint_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "GossipStream",
-			Handler:       _Gossip_GossipStream_Handler,
+			StreamName:    "Stream",
+			Handler:       _Gossip_Stream_Handler,
 			ClientStreams: true,
 		},
 	},

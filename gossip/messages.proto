@@ -4,8 +4,8 @@ package gossip;
 
 // RPC for handling generic reception of Gossip messages
 service Gossip {
-    rpc GossipEndpoint (GossipMsg) returns (Ack);
-    rpc GossipStream (stream GossipMsg) returns (Ack);
+    rpc Endpoint (GossipMsg) returns (Ack);
+    rpc Stream (stream GossipMsg) returns (Ack);
 }
 
 // Generic response message providing an error message from remote servers
