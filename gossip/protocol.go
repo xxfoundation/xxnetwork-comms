@@ -14,7 +14,7 @@ import (
 
 // Defines the type of Gossip message fingerprints
 // hash(tag, origin, payload, signature)
-type Fingerprint = [32]byte
+type Fingerprint [32]byte
 
 // Gossip-related configuration flag
 type Flags struct {
