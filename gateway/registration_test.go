@@ -8,10 +8,11 @@
 package gateway
 
 import (
-	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/node"
 	"gitlab.com/elixxir/primitives/id"
+	"gitlab.com/xx_network/comms/connect"
+	"gitlab.com/xx_network/comms/messages"
 	"testing"
 )
 
@@ -33,7 +34,7 @@ func TestSendRequestNonceMessage(t *testing.T) {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
 
-	RSASignature := &pb.RSASignature{
+	RSASignature := &messages.RSASignature{
 		Signature: []byte{},
 	}
 
@@ -64,7 +65,7 @@ func TestSendConfirmNonceMessage(t *testing.T) {
 	}
 
 	reg := &pb.RequestRegistrationConfirmation{UserID: testID.Bytes()}
-	reg.NonceSignedByClient = &pb.RSASignature{}
+	reg.NonceSignedByClient = &messages.RSASignature{}
 	_, err = gateway.SendConfirmNonceMessage(host, reg)
 	if err != nil {
 		t.Errorf("SendConfirmNonceMessage: Error received: %s", err)
