@@ -177,15 +177,15 @@ func (h *Host) IsOnline() bool {
 	conn, err := net.DialTimeout("tcp", addr, timeout)
 	if err != nil {
 		// If we cannot connect, mark the node as failed
-		jww.DEBUG.Printf("Failed to verify connectivity for address %s", addr)
+		jww.DEBUG.Printf("Failed to verify connectivity for address %s: %s", addr, err.Error())
 		return false
 	}
 	// Attempt to close the connection
 	if conn != nil {
 		errClose := conn.Close()
 		if errClose != nil {
-			jww.DEBUG.Printf("Failed to close connection for address %s",
-				addr)
+			jww.DEBUG.Printf("Failed to close connection for address %s: %s",
+				addr, errClose.Error())
 		}
 	}
 	return true
