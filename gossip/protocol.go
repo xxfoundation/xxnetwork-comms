@@ -2,12 +2,14 @@ package gossip
 
 import (
 	"context"
+	"crypto/rand"
 	"crypto/sha256"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/xx_network/comms/connect"
+	"gitlab.com/xx_network/comms/crypto/shuffle"
 	"google.golang.org/grpc"
 	"sync"
 )
@@ -148,7 +150,27 @@ func (p *Protocol) Gossip(msg *GossipMsg) error {
 
 // Performs returns which peers to send the GossipMsg to
 func (p *Protocol) getPeers() ([]*id.ID, error) {
-	return nil, nil
+	// Check fanout
+	size := len(p.peers)
+	if size <= int(p.flags.FanOut) {
+		return p.peers, nil
+	}
+
+	// Compute seed
+	seed := make([]byte, 32)
+	_, err := rand.Read(seed)
+	if err != nil {
+		return nil, err
+	}
+
+	// Use Fisher Yates Shuffle
+	out := make([]*id.ID, p.flags.FanOut)
+	shuffled := shuffle.SeededShuffle(size, seed)
+	for i := uint8(0); i < p.flags.FanOut; i++ {
+		out[i] = p.peers[shuffled[i]]
+	}
+
+	return out, nil
 }
 
 // NewFingerprint creates a new fingerprint from a byte slice
