@@ -10,7 +10,6 @@ require (
 	gitlab.com/elixxir/comms v0.0.0-20200707210150-b8ebd0951d23
 	gitlab.com/elixxir/crypto v0.0.0-20200707005343-97f868cbd930
 	gitlab.com/elixxir/primitives v0.0.0-20200706165052-9fe7a4fb99a3
-	gitlab.com/xxnetwork/crypto v0.0.0-20200713150627-85fca07f7f97
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
 	golang.org/x/net v0.0.0-20200707034311-ab3426394381
 	google.golang.org/grpc v1.30.0
