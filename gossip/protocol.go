@@ -11,6 +11,7 @@ import (
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/crypto/shuffle"
 	"google.golang.org/grpc"
+	"math"
 	"sync"
 )
 
@@ -152,7 +153,11 @@ func (p *Protocol) Gossip(msg *GossipMsg) error {
 func (p *Protocol) getPeers() ([]*id.ID, error) {
 	// Check fanout
 	size := len(p.peers)
-	if size <= int(p.flags.FanOut) {
+	fanout := int(p.flags.FanOut)
+	if p.flags.FanOut < 1 {
+		fanout = int(math.Ceil(math.Sqrt(float64(size))))
+	}
+	if size <= fanout {
 		return p.peers, nil
 	}
 
@@ -164,9 +169,9 @@ func (p *Protocol) getPeers() ([]*id.ID, error) {
 	}
 
 	// Use Fisher Yates Shuffle
-	out := make([]*id.ID, p.flags.FanOut)
+	out := make([]*id.ID, fanout)
 	shuffled := shuffle.SeededShuffle(size, seed)
-	for i := uint8(0); i < p.flags.FanOut; i++ {
+	for i := 0; i < fanout; i++ {
 		out[i] = p.peers[shuffled[i]]
 	}
 
