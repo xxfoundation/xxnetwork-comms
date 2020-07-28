@@ -29,14 +29,21 @@ func TestProtocol_AddGossipPeer(t *testing.T) {
 func TestProtocol_Gossip(t *testing.T) {
 	// TODO: how should this be tested when we don't have getpeers implementation
 	p := setup(t)
+	p.flags.FanOut = 2
+
+	testHostID := id.NewIdFromString("testhost", id.Node, t)
+	testHostID2 := id.NewIdFromString("testhost2", id.Node, t)
+	p.peers = []*id.ID{testHostID, testHostID2}
+
 	_, errs := p.Gossip(&GossipMsg{
 		Tag:       "test",
 		Origin:    nil,
 		Payload:   nil,
 		Signature: nil,
 	})
-	if len(errs) != 0 {
-		t.Errorf("Failed to send gossip message: %+v", errs)
+	// Since the hosts are fake, we will receive two errors (one for each failed attempt)
+	if len(errs) != 2 {
+		t.Errorf("Failed to send gossip messae: %+v", errs)
 	}
 }
 
@@ -120,7 +127,7 @@ func setup(t *testing.T) *Protocol {
 		comms:            c,
 		fingerprints:     map[Fingerprint]uint64{},
 		fingerprintsLock: sync.RWMutex{},
-		peers:            nil,
+		peers:            []*id.ID{},
 		peersLock:        sync.RWMutex{},
 		flags:            ProtocolFlags{},
 		receiver:         r,
