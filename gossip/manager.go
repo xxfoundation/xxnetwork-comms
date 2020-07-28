@@ -1,6 +1,7 @@
 package gossip
 
 import (
+	"github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/xx_network/comms/connect"
 	"google.golang.org/grpc"
@@ -32,6 +33,16 @@ type Receiver func(*GossipMsg) error
 // Passed into NewGossip to specify how Gossip message signatures will be verified
 type SignatureVerification func(*GossipMsg, []byte) error
 
+// Creates a new Gossip Manager struct
+func NewManager() *Manager {
+	return &Manager{
+		protocols:    map[string]*Protocol{},
+		protocolLock: &sync.RWMutex{},
+		buffer:       map[string]*MessageRecord{},
+		bufferLock:   &sync.RWMutex{},
+	}
+}
+
 // Creates and stores a new Protocol in the Manager
 func (m *Manager) NewGossip(comms *connect.ProtoComms, tag string, flags Flags,
 	receiver Receiver, verifier SignatureVerification, peers []*id.ID) {
@@ -39,12 +50,15 @@ func (m *Manager) NewGossip(comms *connect.ProtoComms, tag string, flags Flags,
 	defer m.protocolLock.Unlock()
 
 	tmp := Protocol{
-		comms:     comms,
-		peers:     peers,
-		flags:     DefaultFlags(),
-		receiver:  receiver,
-		verify:    verifier,
-		IsDefunct: false,
+		fingerprints:     map[Fingerprint]struct{}{},
+		fingerprintsLock: sync.RWMutex{},
+		comms:            comms,
+		peers:            peers,
+		peersLock:        sync.RWMutex{},
+		flags:            flags,
+		receiver:         receiver,
+		verify:           verifier,
+		IsDefunct:        false,
 	}
 
 	m.protocols[tag] = &tmp
@@ -57,11 +71,12 @@ func (m *Manager) GRPCRegister(s *grpc.Server, gs *GossipServer) {
 }
 
 // Returns the Gossip object for the provided tag from the Manager
-func (m *Manager) Get(tag string) *Protocol {
+func (m *Manager) Get(tag string) (*Protocol, bool) {
 	m.protocolLock.RLock()
 	defer m.protocolLock.RUnlock()
 
-	return m.protocols[tag]
+	p, ok := m.protocols[tag]
+	return p, ok
 }
 
 // Deletes a Protocol from the Manager
@@ -82,5 +97,33 @@ func (m *Manager) Defunct(tag string) {
 
 // Long-running thread to delete any messages in buffer older than 5m
 func (m *Manager) bufferMonitor() error {
-	return nil
+	killChan := make(chan bool, 0)
+	bufferExpirationTime := int64(300) // Time in seconds that a record in the buffer should last
+
+	for {
+		for tag, record := range m.buffer {
+			if p, ok := m.protocols[tag]; ok {
+				m.bufferLock.Lock()
+				for _, msg := range record.Messages {
+					err := p.receive(msg)
+					if err != nil {
+						jwalterweatherman.WARN.Printf("Failed to receive message: %+v", msg)
+					}
+				}
+				delete(m.buffer, tag)
+				m.bufferLock.Unlock()
+			} else if time.Now().Unix()-record.Timestamp.Unix() > bufferExpirationTime {
+				m.bufferLock.Lock()
+				delete(m.buffer, tag)
+				m.bufferLock.Unlock()
+			}
+		}
+
+		select {
+		case <-killChan:
+			return nil
+		default:
+			time.Sleep(3 * time.Second)
+		}
+	}
 }

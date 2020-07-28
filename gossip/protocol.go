@@ -2,7 +2,7 @@ package gossip
 
 import (
 	"context"
-	"crypto/sha256"
+	"crypto/md5"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
@@ -14,7 +14,7 @@ import (
 
 // Defines the type of Gossip message fingerprints
 // hash(tag, origin, payload, signature)
-type Fingerprint [32]byte
+type Fingerprint [16]byte
 
 // Gossip-related configuration flag
 type Flags struct {
@@ -63,8 +63,7 @@ func (p *Protocol) receive(msg *GossipMsg) error {
 	preSum := append([]byte(msg.Tag), msg.Origin...)
 	preSum = append(preSum, msg.Payload...)
 	preSum = append(preSum, msg.Signature...)
-	sha := sha256.New()
-	fingerprint := NewFingerprint(sha.Sum(preSum))
+	fingerprint := NewFingerprint(md5.Sum(preSum))
 	if _, ok := p.fingerprints[fingerprint]; ok {
 		return nil
 	}
@@ -133,7 +132,7 @@ func (p *Protocol) Gossip(msg *GossipMsg) error {
 	errCount := 0
 	errs := errors.New("Failed to send message to some peers...")
 	for _, p := range peers {
-		sendErr := sendFunc(p) // TODO: Shoudl this happen in a gofunc?
+		sendErr := sendFunc(p) // TODO: Should this happen in a gofunc?
 		if sendErr != nil {
 			errs = errors.WithMessagef(err, "Failed to send to ID %s", p)
 			errCount++
@@ -152,11 +151,7 @@ func (p *Protocol) getPeers() ([]*id.ID, error) {
 }
 
 // NewFingerprint creates a new fingerprint from a byte slice
-func NewFingerprint(data []byte) Fingerprint {
-	if len(data) != len(Fingerprint{}) {
-		panic("This should not happen, fingerprint and data are not same length")
-	}
-
+func NewFingerprint(data [16]byte) Fingerprint {
 	fp := Fingerprint{}
 	copy(fp[:], data[:])
 	return fp

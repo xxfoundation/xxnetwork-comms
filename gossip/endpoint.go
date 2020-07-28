@@ -15,6 +15,9 @@ type Comms struct {
 
 // Generic endpoint for forwarding GossipMsg to correct Protocol
 func (g *Comms) Endpoint(ctx context.Context, msg *GossipMsg) (*messages.Ack, error) {
+	g.protocolLock.RLock()
+	defer g.protocolLock.RUnlock()
+
 	if protocol, ok := g.protocols[msg.Tag]; ok {
 		err := protocol.receive(msg)
 		if err != nil {
@@ -22,8 +25,14 @@ func (g *Comms) Endpoint(ctx context.Context, msg *GossipMsg) (*messages.Ack, er
 		}
 		return &messages.Ack{}, nil
 	} else if record, ok := g.buffer[msg.Tag]; ok {
+		g.bufferLock.Lock()
+		defer g.bufferLock.Unlock()
+
 		record.Messages = append(record.Messages, msg)
 	} else {
+		g.bufferLock.Lock()
+		defer g.bufferLock.Unlock()
+
 		t := time.Now()
 		g.buffer[msg.Tag] = &MessageRecord{
 			Timestamp: &t,
