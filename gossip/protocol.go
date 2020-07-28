@@ -2,7 +2,6 @@ package gossip
 
 import (
 	"context"
-	"crypto/rand"
 	"crypto/sha256"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
@@ -11,6 +10,7 @@ import (
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/crypto/shuffle"
 	"google.golang.org/grpc"
+	"io"
 	"math"
 	"sync"
 )
@@ -54,6 +54,9 @@ type Protocol struct {
 
 	// Marks a Protocol as Defunct such that it will ignore new messages
 	IsDefunct bool
+
+	// Random Reader
+	crand io.Reader
 }
 
 // Receive a Gossip Message and check fingerprints map
@@ -163,7 +166,7 @@ func (p *Protocol) getPeers() ([]*id.ID, error) {
 
 	// Compute seed
 	seed := make([]byte, 32)
-	_, err := rand.Read(seed)
+	_, err := p.crand.Read(seed)
 	if err != nil {
 		return nil, err
 	}

@@ -2,11 +2,41 @@ package gossip
 
 import (
 	"crypto/rand"
+	"errors"
 	"gitlab.com/elixxir/primitives/id"
 	"math"
 	"sync"
 	"testing"
 )
+
+//====================================================================================================================//
+// Testing Reader of getPeers()
+//====================================================================================================================//
+type ErrReader struct {}
+
+func (r *ErrReader) Read(p []byte) (n int, err error) {
+	return len(p), errors.New("TEST")
+}
+
+func testGetPeersReader(p *Protocol, t *testing.T) {
+	// Test getPeers() with real reader
+	p.crand = rand.Reader
+	_, err := p.getPeers()
+	if err != nil {
+		t.Errorf("[Test Real Reader] getPeers() error = %v", err)
+	}
+
+	// Test getPeers() with error reader
+	p.crand = &ErrReader{}
+	_, err = p.getPeers()
+	if err == nil {
+		t.Errorf("[Test Error Reader] getPeers() error = %v", err)
+	}
+}
+
+//====================================================================================================================//
+// Testing Result of getPeers()
+//====================================================================================================================//
 
 // Generates a byte slice of the specified length containing random numbers.
 func newRandomBytes(length int, t *testing.T) []byte {
@@ -64,7 +94,7 @@ func hasDuplicates(list []*id.ID) bool {
 	return false
 }
 
-// Auxiliar function to run all the tests of getPeers() result
+// Test result returned from getPeers()
 func testGetPeers(p *Protocol, t *testing.T) {
 	// Run tested method
 	list, err := p.getPeers()
@@ -113,7 +143,14 @@ func TestProtocol_getPeers(t *testing.T) {
 		receiver:         nil,
 		verify:           nil,
 		IsDefunct:        false,
+		crand:			  rand.Reader,
 	}
+
+	// Test Reader
+	testGetPeersReader(p, t)
+
+	// Restore the Reader
+	p.crand = rand.Reader
 
 	t.Logf("Initial Variables:")
 	t.Logf("\tPeers (%d) = %v", len(p.peers), p.peers)
