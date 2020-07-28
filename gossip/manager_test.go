@@ -21,7 +21,7 @@ func TestManager_NewGossip(t *testing.T) {
 	v := func(msg *GossipMsg, b []byte) error {
 		return nil
 	}
-	m.NewGossip(nil, "test", DefaultFlags(), r, v, []*id.ID{})
+	m.NewGossip(nil, "test", DefaultProtocolFlags(), r, v, []*id.ID{})
 
 	if len(m.protocols) != 1 {
 		t.Errorf("Failed to add protocol")

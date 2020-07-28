@@ -12,19 +12,37 @@ import (
 // Structure holding messages for a given tag, if the tag does not yet exist
 // If the tag is not created in 5 minutes, the record should be deleted
 type MessageRecord struct {
-	Timestamp *time.Time
+	Timestamp time.Time
 	Messages  []*GossipMsg
+}
+
+type ManagerFlags struct {
+	// How long a message record should last in the buffer
+	BufferExpirationTime time.Duration
+
+	// Frequency with which to check the buffer.
+	// Should be long, since the thread takes a lock each time it checks the buffer
+	MonitorThreadFrequency time.Duration
+}
+
+func DefaultManagerFlags() ManagerFlags {
+	return ManagerFlags{
+		BufferExpirationTime:   300 * time.Second,
+		MonitorThreadFrequency: 150 * time.Second,
+	}
 }
 
 // Manager for various GossipProtocols that are accessed by tag
 type Manager struct {
 	// Stored map of GossipProtocols
 	protocols    map[string]*Protocol
-	protocolLock *sync.RWMutex // Lock for protocols object
+	protocolLock sync.RWMutex // Lock for protocols object
 
 	// Buffer messages with tags that do not have a protocol created yet
-	buffer     map[string]*MessageRecord
-	bufferLock *sync.RWMutex // Lock for buffers object
+	buffer     map[string]*MessageRecord // TODO: should this be sync.Map?
+	bufferLock sync.RWMutex              // Lock for buffers object
+
+	flags ManagerFlags
 }
 
 // Passed into NewGossip to specify how Gossip messages will be handled
@@ -34,34 +52,43 @@ type Receiver func(*GossipMsg) error
 type SignatureVerification func(*GossipMsg, []byte) error
 
 // Creates a new Gossip Manager struct
-func NewManager() *Manager {
+func NewManager(flags ManagerFlags) *Manager {
 	return &Manager{
-		protocols:    map[string]*Protocol{},
-		protocolLock: &sync.RWMutex{},
-		buffer:       map[string]*MessageRecord{},
-		bufferLock:   &sync.RWMutex{},
+		protocols: map[string]*Protocol{},
+		buffer:    map[string]*MessageRecord{},
+		flags:     flags,
 	}
 }
 
 // Creates and stores a new Protocol in the Manager
-func (m *Manager) NewGossip(comms *connect.ProtoComms, tag string, flags Flags,
+func (m *Manager) NewGossip(comms *connect.ProtoComms, tag string, flags ProtocolFlags,
 	receiver Receiver, verifier SignatureVerification, peers []*id.ID) {
 	m.protocolLock.Lock()
 	defer m.protocolLock.Unlock()
 
-	tmp := Protocol{
-		fingerprints:     map[Fingerprint]struct{}{},
-		fingerprintsLock: sync.RWMutex{},
-		comms:            comms,
-		peers:            peers,
-		peersLock:        sync.RWMutex{},
-		flags:            flags,
-		receiver:         receiver,
-		verify:           verifier,
-		IsDefunct:        false,
+	tmp := &Protocol{
+		fingerprints: map[Fingerprint]struct{}{},
+		comms:        comms,
+		peers:        peers,
+		flags:        flags,
+		receiver:     receiver,
+		verify:       verifier,
+		IsDefunct:    false,
 	}
 
-	m.protocols[tag] = &tmp
+	m.protocols[tag] = tmp
+
+	m.bufferLock.Lock()
+	if record, ok := m.buffer[tag]; ok {
+		for _, msg := range record.Messages {
+			err := tmp.receive(msg)
+			if err != nil {
+				jwalterweatherman.WARN.Printf("Failed to receive message: %+v", msg)
+			}
+		}
+		delete(m.buffer, tag)
+	}
+	m.bufferLock.Unlock()
 }
 
 // Registers the Gossip service with the endpoints. Both of these inputs
@@ -87,43 +114,31 @@ func (m *Manager) Delete(tag string) {
 	delete(m.protocols, tag)
 }
 
-// Marks a Protocol as Defunct such that it will ignore new messages
-func (m *Manager) Defunct(tag string) {
-	m.protocolLock.Lock()
-	defer m.protocolLock.Unlock()
-
-	m.protocols[tag].IsDefunct = true
-}
-
 // Long-running thread to delete any messages in buffer older than 5m
-func (m *Manager) bufferMonitor() error {
+func (m *Manager) bufferMonitor() chan bool {
 	killChan := make(chan bool, 0)
-	bufferExpirationTime := int64(300) // Time in seconds that a record in the buffer should last
+	bufferExpirationTime := m.flags.BufferExpirationTime // Time in seconds that a record in the buffer should last
+	frequency := m.flags.MonitorThreadFrequency
 
-	for {
-		for tag, record := range m.buffer {
-			if p, ok := m.protocols[tag]; ok {
-				m.bufferLock.Lock()
-				for _, msg := range record.Messages {
-					err := p.receive(msg)
-					if err != nil {
-						jwalterweatherman.WARN.Printf("Failed to receive message: %+v", msg)
-					}
+	go func() {
+		for {
+			// Loop through each tag in the buffer
+			m.bufferLock.Lock()
+			for tag, record := range m.buffer {
+				if time.Since(record.Timestamp) > bufferExpirationTime {
+					delete(m.buffer, tag)
 				}
-				delete(m.buffer, tag)
-				m.bufferLock.Unlock()
-			} else if time.Now().Unix()-record.Timestamp.Unix() > bufferExpirationTime {
-				m.bufferLock.Lock()
-				delete(m.buffer, tag)
-				m.bufferLock.Unlock()
+			}
+			m.bufferLock.Unlock()
+
+			select {
+			case <-killChan:
+				return
+			default:
+				time.Sleep(frequency)
 			}
 		}
+	}()
 
-		select {
-		case <-killChan:
-			return nil
-		default:
-			time.Sleep(3 * time.Second)
-		}
-	}
+	return killChan
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
+	"github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/xx_network/comms/connect"
 	"google.golang.org/grpc"
@@ -16,15 +17,24 @@ import (
 // hash(tag, origin, payload, signature)
 type Fingerprint [16]byte
 
+func GetFingerprint(msg *GossipMsg) Fingerprint {
+	// Get fingerprint
+	preSum := append([]byte(msg.Tag), msg.Origin...)
+	preSum = append(preSum, msg.Payload...)
+	preSum = append(preSum, msg.Signature...)
+	fingerprint := NewFingerprint(md5.Sum(preSum))
+	return fingerprint
+}
+
 // Gossip-related configuration flag
-type Flags struct {
+type ProtocolFlags struct {
 	FanOut                  uint8  // Default = 0
 	MaxRecordedFingerprints uint64 // Default = 10000000
 }
 
-// Returns a Flags object with all flags set to their defaults
-func DefaultFlags() Flags {
-	return Flags{}
+// Returns a ProtocolFlags object with all flags set to their defaults
+func DefaultProtocolFlags() ProtocolFlags {
+	return ProtocolFlags{}
 }
 
 // Generic interface representing various Gossip protocols
@@ -33,7 +43,7 @@ type Protocol struct {
 
 	// Thread-safe record of all Gossip messages for this Protocol
 	// NOTE: Must avoid unlimited growth
-	fingerprints     map[Fingerprint]struct{}
+	fingerprints     map[Fingerprint]int
 	fingerprintsLock sync.RWMutex
 
 	// Thread-safe list of peers for the Protocol
@@ -41,7 +51,7 @@ type Protocol struct {
 	peersLock sync.RWMutex
 
 	// Stores the Gossip-related configuration flags
-	flags Flags
+	flags ProtocolFlags
 
 	// Handler function for GossipMsg Reception
 	receiver Receiver
@@ -50,34 +60,50 @@ type Protocol struct {
 	verify SignatureVerification
 
 	// Marks a Protocol as Defunct such that it will ignore new messages
-	IsDefunct bool
+	IsDefunct   bool
+	defunctLock sync.Mutex
+}
+
+// Marks a Protocol as Defunct such that it will ignore new messages
+func (p *Protocol) Defunct(tag string) {
+	p.defunctLock.Lock()
+	p.IsDefunct = true
+	p.defunctLock.Unlock()
 }
 
 // Receive a Gossip Message and check fingerprints map
 // (if unique calls GossipSignatureVerify -> Receiver)
 func (p *Protocol) receive(msg *GossipMsg) error {
 	p.fingerprintsLock.Lock()
-	defer p.fingerprintsLock.Unlock()
 
-	// Get fingerprint
-	preSum := append([]byte(msg.Tag), msg.Origin...)
-	preSum = append(preSum, msg.Payload...)
-	preSum = append(preSum, msg.Signature...)
-	fingerprint := NewFingerprint(md5.Sum(preSum))
+	fingerprint := GetFingerprint(msg)
 	if _, ok := p.fingerprints[fingerprint]; ok {
+		p.fingerprints[fingerprint]++
+		p.fingerprintsLock.Unlock()
 		return nil
 	}
 
-	err := p.verify(msg, msg.Signature)
+	err := p.verify(msg, nil)
 	if err != nil {
+		p.fingerprintsLock.Unlock()
 		return errors.WithMessage(err, "Failed to verify gossip message")
 	}
+	p.fingerprints[fingerprint] = 1
+	p.fingerprintsLock.Unlock()
+
 	err = p.receiver(msg)
 	if err != nil {
 		return errors.WithMessage(err, "Failed to receive gossip message")
 	}
 
-	p.fingerprints[fingerprint] = struct{}{}
+	// Since gossip propagates the message across a potentially large message, we don't want this to block
+	go func() {
+		err = p.Gossip(msg)
+		if err != nil {
+			jwalterweatherman.ERROR.Print(errors.WithMessage(err, "Failed to gossip message"))
+		}
+	}()
+
 	return nil
 }
 
@@ -87,6 +113,7 @@ func (p *Protocol) AddGossipPeer(id *id.ID) error {
 	defer p.peersLock.Unlock()
 
 	// Confirm we have a host matching this ID
+	// Because hosts can be removed, this CANNOT ensure the host still exists when an ID is used
 	_, ok := p.comms.GetHost(id)
 	if !ok {
 		return errors.Errorf("Could not retreive host for ID %s", id)

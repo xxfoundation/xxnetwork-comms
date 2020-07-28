@@ -21,7 +21,7 @@ func TestComms_Endpoint_toProtocol(t *testing.T) {
 	v := func(*GossipMsg, []byte) error {
 		return nil
 	}
-	gossipComms.NewGossip(nil, "test", DefaultFlags(), r, v,
+	gossipComms.NewGossip(nil, "test", DefaultProtocolFlags(), r, v,
 		[]*id.ID{id.NewIdFromString("test", id.Node, t)})
 
 	_, err := gossipComms.Endpoint(context.Background(), &GossipMsg{

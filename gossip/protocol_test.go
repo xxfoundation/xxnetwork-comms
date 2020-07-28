@@ -99,7 +99,7 @@ func setup(t *testing.T) *Protocol {
 		fingerprintsLock: sync.RWMutex{},
 		peers:            nil,
 		peersLock:        sync.RWMutex{},
-		flags:            Flags{},
+		flags:            ProtocolFlags{},
 		receiver:         r,
 		verify:           v,
 		IsDefunct:        false,
