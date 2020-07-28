@@ -26,14 +26,14 @@ func TestProtocol_AddGossipPeer(t *testing.T) {
 func TestProtocol_Gossip(t *testing.T) {
 	// TODO: how should this be tested when we don't have getpeers implementation
 	p := setup(t)
-	err := p.Gossip(&GossipMsg{
+	_, errs := p.Gossip(&GossipMsg{
 		Tag:       "test",
 		Origin:    nil,
 		Payload:   nil,
 		Signature: nil,
 	})
-	if err != nil {
-		t.Errorf("Failed to send gossip message: %+v", err)
+	if len(errs) != 0 {
+		t.Errorf("Failed to send gossip message: %+v", errs)
 	}
 }
 
@@ -83,6 +83,26 @@ func TestProtocol_receive(t *testing.T) {
 	}
 }
 
+func TestProtocol_Defunct(t *testing.T) {
+	p := Protocol{
+		comms:            nil,
+		fingerprints:     nil,
+		fingerprintsLock: sync.RWMutex{},
+		peers:            nil,
+		peersLock:        sync.RWMutex{},
+		flags:            ProtocolFlags{},
+		receiver:         nil,
+		verify:           nil,
+		IsDefunct:        false,
+		defunctLock:      sync.Mutex{},
+	}
+
+	p.Defunct()
+	if !p.IsDefunct {
+		t.Error("Failed to mark protocol as defunct")
+	}
+}
+
 func setup(t *testing.T) *Protocol {
 	r := func(msg *GossipMsg) error {
 		return nil
@@ -95,7 +115,7 @@ func setup(t *testing.T) *Protocol {
 	}
 	return &Protocol{
 		comms:            c,
-		fingerprints:     map[Fingerprint]struct{}{},
+		fingerprints:     map[Fingerprint]uint64{},
 		fingerprintsLock: sync.RWMutex{},
 		peers:            nil,
 		peersLock:        sync.RWMutex{},

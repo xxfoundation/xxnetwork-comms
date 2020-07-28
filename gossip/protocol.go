@@ -30,15 +30,15 @@ func GetFingerprint(msg *GossipMsg) Fingerprint {
 type ProtocolFlags struct {
 	FanOut                  uint8  // Default = 0
 	MaxRecordedFingerprints uint64 // Default = 10000000
-	MaximumReSends			uint64  // Default = 3
+	MaximumReSends          uint64 // Default = 3
 }
 
 // Returns a ProtocolFlags object with all flags set to their defaults
 func DefaultProtocolFlags() ProtocolFlags {
 	return ProtocolFlags{
-		FanOut: 0,
+		FanOut:                  0,
 		MaxRecordedFingerprints: 10000000,
-		MaximumReSends: 3,
+		MaximumReSends:          3,
 	}
 }
 
@@ -70,7 +70,7 @@ type Protocol struct {
 }
 
 // Marks a Protocol as Defunct such that it will ignore new messages
-func (p *Protocol) Defunct(tag string) {
+func (p *Protocol) Defunct() {
 	p.defunctLock.Lock()
 	p.IsDefunct = true
 	p.defunctLock.Unlock()
@@ -99,19 +99,19 @@ func (p *Protocol) receive(msg *GossipMsg) error {
 		if err != nil {
 			return errors.WithMessage(err, "Failed to receive gossip message")
 		}
-	}else if numSends<p.flags.MaximumReSends{
+	} else if numSends < p.flags.MaximumReSends {
 		p.fingerprints[fingerprint]++
 		p.fingerprintsLock.Unlock()
-	}else{
+	} else {
 		p.fingerprintsLock.Unlock()
 		return nil
 	}
 
 	// Since gossip propagates the message across a potentially large message, we don't want this to block
 	go func() {
-		err = p.Gossip(msg)
-		if err != nil {
-			jww.ERROR.Print(errors.WithMessage(err, "Failed to gossip message"))
+		_, errs := p.Gossip(msg)
+		if len(errs) != 0 {
+			jww.ERROR.Print(errors.Errorf("Failed to gossip message: %+v", errs))
 		}
 	}()
 
@@ -135,7 +135,7 @@ func (p *Protocol) AddGossipPeer(id *id.ID) error {
 }
 
 // Builds and sends a GossipMsg
-func (p *Protocol) Gossip(msg *GossipMsg) error {
+func (p *Protocol) Gossip(msg *GossipMsg) (int, []error) {
 	p.peersLock.RLock()
 	defer p.peersLock.RUnlock()
 
@@ -163,23 +163,23 @@ func (p *Protocol) Gossip(msg *GossipMsg) error {
 	// Get list of peers to send message to
 	peers, err := p.getPeers()
 	if err != nil {
-		return errors.WithMessage(err, "Failed to get peers for sending")
+		return 0, []error{errors.WithMessage(err, "Failed to get peers for sending")}
 	}
 
 	// Send message to each peer
 	errCount := 0
-	errs := errors.New("Failed to send message to some peers...")
+	var errs []error
 	for _, p := range peers {
 		sendErr := sendFunc(p) // TODO: Should this happen in a gofunc?
 		if sendErr != nil {
-			errs = errors.WithMessagef(err, "Failed to send to ID %s", p)
+			errs = append(errs, errors.WithMessagef(err, "Failed to send to ID %s", p))
 			errCount++
 		}
 	}
 	if errCount > 0 {
-		return errs
+		return len(peers), errs
 	} else {
-		return nil
+		return len(peers), nil
 	}
 }
 

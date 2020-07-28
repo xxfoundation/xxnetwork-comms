@@ -10,7 +10,7 @@ import (
 func TestComms_Endpoint_toProtocol(t *testing.T) {
 	gossipComms := &Comms{
 		ProtoComms: nil,
-		Manager:    NewManager(),
+		Manager:    NewManager(DefaultManagerFlags()),
 	}
 
 	var received bool
@@ -42,7 +42,7 @@ func TestComms_Endpoint_toProtocol(t *testing.T) {
 func TestComms_Endpoint_toNewBuffer(t *testing.T) {
 	gossipComms := &Comms{
 		ProtoComms: nil,
-		Manager:    NewManager(),
+		Manager:    NewManager(DefaultManagerFlags()),
 	}
 	_, err := gossipComms.Endpoint(context.Background(), &GossipMsg{
 		Tag:       "test",
@@ -65,11 +65,11 @@ func TestComms_Endpoint_toNewBuffer(t *testing.T) {
 func TestComms_Endpoint_toExistingBuffer(t *testing.T) {
 	gossipComms := &Comms{
 		ProtoComms: nil,
-		Manager:    NewManager(),
+		Manager:    NewManager(DefaultManagerFlags()),
 	}
 	now := time.Now()
 	gossipComms.buffer["test"] = &MessageRecord{
-		Timestamp: &now,
+		Timestamp: now,
 		Messages:  []*GossipMsg{{Tag: "test"}},
 	}
 	_, err := gossipComms.Endpoint(context.Background(), &GossipMsg{

@@ -6,14 +6,14 @@ import (
 )
 
 func TestNewManager(t *testing.T) {
-	m := NewManager()
-	if m.buffer == nil || m.protocolLock == nil || m.protocols == nil || m.bufferLock == nil {
+	m := NewManager(DefaultManagerFlags())
+	if m.buffer == nil || m.protocols == nil {
 		t.Error("Failed to initialize all fields properly")
 	}
 }
 
 func TestManager_NewGossip(t *testing.T) {
-	m := NewManager()
+	m := NewManager(DefaultManagerFlags())
 
 	r := func(msg *GossipMsg) error {
 		return nil
@@ -29,7 +29,7 @@ func TestManager_NewGossip(t *testing.T) {
 }
 
 func TestManager_Get(t *testing.T) {
-	m := NewManager()
+	m := NewManager(DefaultManagerFlags())
 	m.protocols = map[string]*Protocol{"test": {}}
 
 	_, ok := m.Get("test")
@@ -39,22 +39,12 @@ func TestManager_Get(t *testing.T) {
 }
 
 func TestManager_Delete(t *testing.T) {
-	m := NewManager()
+	m := NewManager(DefaultManagerFlags())
 	m.protocols = map[string]*Protocol{"test": {}}
 
 	m.Delete("test")
 	if len(m.protocols) != 0 {
 		t.Error("Failed to delete protocol")
-	}
-}
-
-func TestManager_Defunct(t *testing.T) {
-	m := NewManager()
-	m.protocols = map[string]*Protocol{"test": {IsDefunct: false}}
-
-	m.Defunct("test")
-	if !m.protocols["test"].IsDefunct {
-		t.Error("Failed to mark protocol as defunct")
 	}
 }
 

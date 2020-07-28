@@ -67,7 +67,7 @@ func (m *Manager) NewGossip(comms *connect.ProtoComms, tag string, flags Protoco
 	defer m.protocolLock.Unlock()
 
 	tmp := &Protocol{
-		fingerprints: map[Fingerprint]struct{}{},
+		fingerprints: map[Fingerprint]uint64{},
 		comms:        comms,
 		peers:        peers,
 		flags:        flags,
