@@ -6,7 +6,7 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
-	"github.com/spf13/jwalterweatherman"
+	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/xx_network/comms/connect"
 	"google.golang.org/grpc"
@@ -30,11 +30,16 @@ func GetFingerprint(msg *GossipMsg) Fingerprint {
 type ProtocolFlags struct {
 	FanOut                  uint8  // Default = 0
 	MaxRecordedFingerprints uint64 // Default = 10000000
+	MaximumReSends			uint64  // Default = 3
 }
 
 // Returns a ProtocolFlags object with all flags set to their defaults
 func DefaultProtocolFlags() ProtocolFlags {
-	return ProtocolFlags{}
+	return ProtocolFlags{
+		FanOut: 0,
+		MaxRecordedFingerprints: 10000000,
+		MaximumReSends: 3,
+	}
 }
 
 // Generic interface representing various Gossip protocols
@@ -43,7 +48,7 @@ type Protocol struct {
 
 	// Thread-safe record of all Gossip messages for this Protocol
 	// NOTE: Must avoid unlimited growth
-	fingerprints     map[Fingerprint]int
+	fingerprints     map[Fingerprint]uint64
 	fingerprintsLock sync.RWMutex
 
 	// Thread-safe list of peers for the Protocol
@@ -76,31 +81,37 @@ func (p *Protocol) Defunct(tag string) {
 func (p *Protocol) receive(msg *GossipMsg) error {
 	p.fingerprintsLock.Lock()
 
+	var err error
+
 	fingerprint := GetFingerprint(msg)
-	if _, ok := p.fingerprints[fingerprint]; ok {
+	numSends, ok := p.fingerprints[fingerprint]
+	//if there is no record of receiving the fingerprint, process it as new
+	if !ok {
+		err = p.verify(msg, nil)
+		if err != nil {
+			p.fingerprintsLock.Unlock()
+			return errors.WithMessage(err, "Failed to verify gossip message")
+		}
+		p.fingerprints[fingerprint] = 0
+		p.fingerprintsLock.Unlock()
+
+		err = p.receiver(msg)
+		if err != nil {
+			return errors.WithMessage(err, "Failed to receive gossip message")
+		}
+	}else if numSends<p.flags.MaximumReSends{
 		p.fingerprints[fingerprint]++
 		p.fingerprintsLock.Unlock()
-		return nil
-	}
-
-	err := p.verify(msg, nil)
-	if err != nil {
+	}else{
 		p.fingerprintsLock.Unlock()
-		return errors.WithMessage(err, "Failed to verify gossip message")
-	}
-	p.fingerprints[fingerprint] = 1
-	p.fingerprintsLock.Unlock()
-
-	err = p.receiver(msg)
-	if err != nil {
-		return errors.WithMessage(err, "Failed to receive gossip message")
+		return nil
 	}
 
 	// Since gossip propagates the message across a potentially large message, we don't want this to block
 	go func() {
 		err = p.Gossip(msg)
 		if err != nil {
-			jwalterweatherman.ERROR.Print(errors.WithMessage(err, "Failed to gossip message"))
+			jww.ERROR.Print(errors.WithMessage(err, "Failed to gossip message"))
 		}
 	}()
 
