@@ -3,6 +3,7 @@ package gossip
 import (
 	"context"
 	"gitlab.com/elixxir/primitives/id"
+	"gitlab.com/xx_network/comms/connect"
 	"testing"
 	"time"
 )
@@ -21,7 +22,7 @@ func TestComms_Endpoint_toProtocol(t *testing.T) {
 	v := func(*GossipMsg, []byte) error {
 		return nil
 	}
-	gossipComms.NewGossip(nil, "test", DefaultProtocolFlags(), r, v,
+	gossipComms.NewGossip(&connect.ProtoComms{}, "test", DefaultProtocolFlags(), r, v,
 		[]*id.ID{id.NewIdFromString("test", id.Node, t)})
 
 	_, err := gossipComms.Endpoint(context.Background(), &GossipMsg{

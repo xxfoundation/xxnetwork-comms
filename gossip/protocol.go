@@ -9,7 +9,10 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/xx_network/comms/connect"
+	"gitlab.com/xx_network/comms/crypto/shuffle"
 	"google.golang.org/grpc"
+	"io"
+	"math"
 	"sync"
 )
 
@@ -67,6 +70,9 @@ type Protocol struct {
 	// Marks a Protocol as Defunct such that it will ignore new messages
 	IsDefunct   bool
 	defunctLock sync.Mutex
+
+	// Random Reader
+	crand io.Reader
 }
 
 // Marks a Protocol as Defunct such that it will ignore new messages
@@ -185,7 +191,31 @@ func (p *Protocol) Gossip(msg *GossipMsg) (int, []error) {
 
 // Performs returns which peers to send the GossipMsg to
 func (p *Protocol) getPeers() ([]*id.ID, error) {
-	return nil, nil
+	// Check fanout
+	size := len(p.peers)
+	fanout := int(p.flags.FanOut)
+	if p.flags.FanOut < 1 {
+		fanout = int(math.Ceil(math.Sqrt(float64(size))))
+	}
+	if size <= fanout {
+		return p.peers, nil
+	}
+
+	// Compute seed
+	seed := make([]byte, 32)
+	_, err := p.crand.Read(seed)
+	if err != nil {
+		return nil, err
+	}
+
+	// Use Fisher Yates Shuffle
+	out := make([]*id.ID, fanout)
+	shuffled := shuffle.SeededShuffle(size, seed)
+	for i := 0; i < fanout; i++ {
+		out[i] = p.peers[shuffled[i]]
+	}
+
+	return out, nil
 }
 
 // NewFingerprint creates a new fingerprint from a byte slice
