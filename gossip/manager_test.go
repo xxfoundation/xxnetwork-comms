@@ -6,6 +6,7 @@ import (
 	"time"
 )
 
+// Basic test on manager creation
 func TestNewManager(t *testing.T) {
 	m := NewManager(DefaultManagerFlags())
 	if m.buffer == nil || m.protocols == nil {
@@ -13,6 +14,7 @@ func TestNewManager(t *testing.T) {
 	}
 }
 
+// Happy path test for adding new gossip protocol
 func TestManager_NewGossip(t *testing.T) {
 	m := NewManager(DefaultManagerFlags())
 
@@ -29,6 +31,7 @@ func TestManager_NewGossip(t *testing.T) {
 	}
 }
 
+// Happy path test for new gossip protocol with messages in buffer for that tag
 func TestManager_NewGossip_WithBuffer(t *testing.T) {
 	m := NewManager(DefaultManagerFlags())
 	m.buffer["test"] = &MessageRecord{
@@ -61,6 +64,7 @@ func TestManager_NewGossip_WithBuffer(t *testing.T) {
 	}
 }
 
+// Basic unit test for getting a protocol
 func TestManager_Get(t *testing.T) {
 	m := NewManager(DefaultManagerFlags())
 	m.protocols = map[string]*Protocol{"test": {}}
@@ -71,6 +75,7 @@ func TestManager_Get(t *testing.T) {
 	}
 }
 
+// Basic unit test for deleting a protocol
 func TestManager_Delete(t *testing.T) {
 	m := NewManager(DefaultManagerFlags())
 	m.protocols = map[string]*Protocol{"test": {}}
@@ -81,6 +86,7 @@ func TestManager_Delete(t *testing.T) {
 	}
 }
 
+// Test buffer monitor thread operation
 func TestManager_BufferMonitor(t *testing.T) {
 	flags := DefaultManagerFlags()
 	flags.BufferExpirationTime = 3 * time.Second

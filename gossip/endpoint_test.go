@@ -8,6 +8,7 @@ import (
 	"time"
 )
 
+// Test endpoint when manager has a protocol
 func TestComms_Endpoint_toProtocol(t *testing.T) {
 	gossipComms := &Comms{
 		ProtoComms: nil,
@@ -40,6 +41,7 @@ func TestComms_Endpoint_toProtocol(t *testing.T) {
 	}
 }
 
+// Test endpoint function when there is no protocol and no buffer record
 func TestComms_Endpoint_toNewBuffer(t *testing.T) {
 	gossipComms := &Comms{
 		ProtoComms: nil,
@@ -63,6 +65,7 @@ func TestComms_Endpoint_toNewBuffer(t *testing.T) {
 	}
 }
 
+// Test endpoint function when there is no protocol, but an existing buffer
 func TestComms_Endpoint_toExistingBuffer(t *testing.T) {
 	gossipComms := &Comms{
 		ProtoComms: nil,

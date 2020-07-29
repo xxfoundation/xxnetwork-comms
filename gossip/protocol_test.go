@@ -10,6 +10,11 @@ import (
 	"testing"
 )
 
+//====================================================================================================================//
+// Basic unit tests of protocol methods
+//====================================================================================================================//
+
+// Test functionality of AddGossipPeer
 func TestProtocol_AddGossipPeer(t *testing.T) {
 	p := setup(t)
 	testHostID := id.NewIdFromString("testhost", id.Node, t)
@@ -26,6 +31,7 @@ func TestProtocol_AddGossipPeer(t *testing.T) {
 	}
 }
 
+// Happy path test for sending a gossip message
 func TestProtocol_Gossip(t *testing.T) {
 	// TODO: how should this be tested when we don't have getpeers implementation
 	p := setup(t)
@@ -47,6 +53,7 @@ func TestProtocol_Gossip(t *testing.T) {
 	}
 }
 
+// Happy path test for receive method
 func TestProtocol_receive(t *testing.T) {
 	p := setup(t)
 	r := func(msg *GossipMsg) error {
@@ -93,6 +100,7 @@ func TestProtocol_receive(t *testing.T) {
 	}
 }
 
+// Basic unit test for Defunct function on a protocol
 func TestProtocol_Defunct(t *testing.T) {
 	p := Protocol{
 		comms:            nil,
@@ -113,6 +121,7 @@ func TestProtocol_Defunct(t *testing.T) {
 	}
 }
 
+// Setup a gossip protocol for basic testing - fields can be overridden as needed in tests
 func setup(t *testing.T) *Protocol {
 	r := func(msg *GossipMsg) error {
 		return nil
@@ -136,6 +145,7 @@ func setup(t *testing.T) *Protocol {
 	}
 }
 
+// Test uniqueness of fingerprint function
 func TestGetFingerprint(t *testing.T) {
 	message1 := &GossipMsg{
 		Tag:       "test",
