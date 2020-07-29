@@ -3,6 +3,7 @@ package gossip
 import (
 	"gitlab.com/elixxir/primitives/id"
 	"testing"
+	"time"
 )
 
 func TestNewManager(t *testing.T) {
@@ -25,6 +26,38 @@ func TestManager_NewGossip(t *testing.T) {
 
 	if len(m.protocols) != 1 {
 		t.Errorf("Failed to add protocol")
+	}
+}
+
+func TestManager_NewGossip_WithBuffer(t *testing.T) {
+	m := NewManager(DefaultManagerFlags())
+	m.buffer["test"] = &MessageRecord{
+		Timestamp: time.Time{},
+		Messages:  []*GossipMsg{{Tag: "testmsg"}},
+	}
+
+	originalBufferLen := len(m.buffer)
+
+	var received bool
+	r := func(msg *GossipMsg) error {
+		received = true
+		return nil
+	}
+	v := func(msg *GossipMsg, b []byte) error {
+		return nil
+	}
+	m.NewGossip(nil, "test", DefaultProtocolFlags(), r, v, []*id.ID{})
+
+	if len(m.protocols) != 1 {
+		t.Errorf("Failed to add protocol")
+	}
+
+	if !received {
+		t.Errorf("Did not receive message in buffer")
+	}
+
+	if originalBufferLen-len(m.buffer) != 1 {
+		t.Errorf("Did not clear buffer after reception")
 	}
 }
 

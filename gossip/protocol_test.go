@@ -136,6 +136,43 @@ func setup(t *testing.T) *Protocol {
 	}
 }
 
+func TestGetFingerprint(t *testing.T) {
+	message1 := &GossipMsg{
+		Tag:       "test",
+		Origin:    []byte("origin"),
+		Payload:   []byte("payload"),
+		Signature: []byte("signature"),
+	}
+	message2 := &GossipMsg{
+		Tag:       "watermelon",
+		Origin:    []byte("apple"),
+		Payload:   []byte("quantum physics"),
+		Signature: []byte("kurask"),
+	}
+	message3 := &GossipMsg{
+		Tag:       "tesv",
+		Origin:    []byte("origin"),
+		Payload:   []byte("payload"),
+		Signature: []byte("signature"),
+	}
+	message4 := &GossipMsg{
+		Tag:       "test",
+		Origin:    []byte("origin"),
+		Payload:   []byte("payload"),
+		Signature: []byte("signature"),
+	}
+	f1 := GetFingerprint(message1)
+	f2 := GetFingerprint(message2)
+	f3 := GetFingerprint(message3)
+	f4 := GetFingerprint(message4)
+	if f1 == f2 || f2 == f3 || f1 == f3 {
+		t.Errorf("Fingerprints formed from unique messages are not unique")
+	}
+	if f1 != f4 {
+		t.Errorf("Fingerprints formed from identical messages are not identical")
+	}
+}
+
 //====================================================================================================================//
 // Testing Reader of getPeers()
 //====================================================================================================================//
