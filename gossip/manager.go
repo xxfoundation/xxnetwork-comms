@@ -1,7 +1,7 @@
 package gossip
 
 import (
-	"github.com/spf13/jwalterweatherman"
+	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/xx_network/comms/connect"
 	"sync"
@@ -87,7 +87,7 @@ func (m *Manager) NewGossip(tag string, flags ProtocolFlags,
 		for _, msg := range record.Messages {
 			err := tmp.receive(msg)
 			if err != nil {
-				jwalterweatherman.WARN.Printf("Failed to receive message: %+v", msg)
+				jww.WARN.Printf("Failed to receive message: %+v", msg)
 			}
 		}
 		delete(m.buffer, tag)
