@@ -9,11 +9,8 @@ import (
 )
 
 // Test endpoint when manager has a protocol
-func TestComms_Endpoint_toProtocol(t *testing.T) {
-	gossipComms := &Comms{
-		ProtoComms: nil,
-		Manager:    NewManager(DefaultManagerFlags()),
-	}
+func TestManager_Endpoint_toProtocol(t *testing.T) {
+	m := NewManager(&connect.ProtoComms{}, DefaultManagerFlags())
 
 	var received bool
 	r := func(msg *GossipMsg) error {
@@ -23,10 +20,10 @@ func TestComms_Endpoint_toProtocol(t *testing.T) {
 	v := func(*GossipMsg, []byte) error {
 		return nil
 	}
-	gossipComms.NewGossip(&connect.ProtoComms{}, "test", DefaultProtocolFlags(), r, v,
+	m.NewGossip("test", DefaultProtocolFlags(), r, v,
 		[]*id.ID{id.NewIdFromString("test", id.Node, t)})
 
-	_, err := gossipComms.Endpoint(context.Background(), &GossipMsg{
+	_, err := m.Endpoint(context.Background(), &GossipMsg{
 		Tag:       "test",
 		Origin:    []byte("origin"),
 		Payload:   []byte("payload"),
@@ -42,12 +39,9 @@ func TestComms_Endpoint_toProtocol(t *testing.T) {
 }
 
 // Test endpoint function when there is no protocol and no buffer record
-func TestComms_Endpoint_toNewBuffer(t *testing.T) {
-	gossipComms := &Comms{
-		ProtoComms: nil,
-		Manager:    NewManager(DefaultManagerFlags()),
-	}
-	_, err := gossipComms.Endpoint(context.Background(), &GossipMsg{
+func TestManager_Endpoint_toNewBuffer(t *testing.T) {
+	m := NewManager(&connect.ProtoComms{}, DefaultManagerFlags())
+	_, err := m.Endpoint(context.Background(), &GossipMsg{
 		Tag:       "test",
 		Origin:    []byte("origin"),
 		Payload:   []byte("payload"),
@@ -56,7 +50,7 @@ func TestComms_Endpoint_toNewBuffer(t *testing.T) {
 	if err != nil {
 		t.Errorf("Failed to send message: %+v", err)
 	}
-	r, ok := gossipComms.buffer["test"]
+	r, ok := m.buffer["test"]
 	if !ok {
 		t.Error("Did not create expected message record")
 	}
@@ -67,16 +61,13 @@ func TestComms_Endpoint_toNewBuffer(t *testing.T) {
 
 // Test endpoint function when there is no protocol, but an existing buffer
 func TestComms_Endpoint_toExistingBuffer(t *testing.T) {
-	gossipComms := &Comms{
-		ProtoComms: nil,
-		Manager:    NewManager(DefaultManagerFlags()),
-	}
+	m := NewManager(&connect.ProtoComms{}, DefaultManagerFlags())
 	now := time.Now()
-	gossipComms.buffer["test"] = &MessageRecord{
+	m.buffer["test"] = &MessageRecord{
 		Timestamp: now,
 		Messages:  []*GossipMsg{{Tag: "test"}},
 	}
-	_, err := gossipComms.Endpoint(context.Background(), &GossipMsg{
+	_, err := m.Endpoint(context.Background(), &GossipMsg{
 		Tag:       "test",
 		Origin:    []byte("origin"),
 		Payload:   []byte("payload"),
@@ -85,7 +76,7 @@ func TestComms_Endpoint_toExistingBuffer(t *testing.T) {
 	if err != nil {
 		t.Errorf("Failed to send message: %+v", err)
 	}
-	r, ok := gossipComms.buffer["test"]
+	r, ok := m.buffer["test"]
 	if !ok {
 		t.Error("Did not create expected message record")
 	}

@@ -2,13 +2,14 @@ package gossip
 
 import (
 	"gitlab.com/elixxir/primitives/id"
+	"gitlab.com/xx_network/comms/connect"
 	"testing"
 	"time"
 )
 
 // Basic test on manager creation
 func TestNewManager(t *testing.T) {
-	m := NewManager(DefaultManagerFlags())
+	m := NewManager(&connect.ProtoComms{}, DefaultManagerFlags())
 	if m.buffer == nil || m.protocols == nil {
 		t.Error("Failed to initialize all fields properly")
 	}
@@ -16,7 +17,7 @@ func TestNewManager(t *testing.T) {
 
 // Happy path test for adding new gossip protocol
 func TestManager_NewGossip(t *testing.T) {
-	m := NewManager(DefaultManagerFlags())
+	m := NewManager(&connect.ProtoComms{}, DefaultManagerFlags())
 
 	r := func(msg *GossipMsg) error {
 		return nil
@@ -24,7 +25,7 @@ func TestManager_NewGossip(t *testing.T) {
 	v := func(msg *GossipMsg, b []byte) error {
 		return nil
 	}
-	m.NewGossip(nil, "test", DefaultProtocolFlags(), r, v, []*id.ID{})
+	m.NewGossip("test", DefaultProtocolFlags(), r, v, []*id.ID{})
 
 	if len(m.protocols) != 1 {
 		t.Errorf("Failed to add protocol")
@@ -33,7 +34,7 @@ func TestManager_NewGossip(t *testing.T) {
 
 // Happy path test for new gossip protocol with messages in buffer for that tag
 func TestManager_NewGossip_WithBuffer(t *testing.T) {
-	m := NewManager(DefaultManagerFlags())
+	m := NewManager(&connect.ProtoComms{}, DefaultManagerFlags())
 	m.buffer["test"] = &MessageRecord{
 		Timestamp: time.Time{},
 		Messages:  []*GossipMsg{{Tag: "testmsg"}},
@@ -49,7 +50,7 @@ func TestManager_NewGossip_WithBuffer(t *testing.T) {
 	v := func(msg *GossipMsg, b []byte) error {
 		return nil
 	}
-	m.NewGossip(nil, "test", DefaultProtocolFlags(), r, v, []*id.ID{})
+	m.NewGossip("test", DefaultProtocolFlags(), r, v, []*id.ID{})
 
 	if len(m.protocols) != 1 {
 		t.Errorf("Failed to add protocol")
@@ -66,7 +67,7 @@ func TestManager_NewGossip_WithBuffer(t *testing.T) {
 
 // Basic unit test for getting a protocol
 func TestManager_Get(t *testing.T) {
-	m := NewManager(DefaultManagerFlags())
+	m := NewManager(&connect.ProtoComms{}, DefaultManagerFlags())
 	m.protocols = map[string]*Protocol{"test": {}}
 
 	_, ok := m.Get("test")
@@ -77,7 +78,7 @@ func TestManager_Get(t *testing.T) {
 
 // Basic unit test for deleting a protocol
 func TestManager_Delete(t *testing.T) {
-	m := NewManager(DefaultManagerFlags())
+	m := NewManager(&connect.ProtoComms{}, DefaultManagerFlags())
 	m.protocols = map[string]*Protocol{"test": {}}
 
 	m.Delete("test")
@@ -91,7 +92,7 @@ func TestManager_BufferMonitor(t *testing.T) {
 	flags := DefaultManagerFlags()
 	flags.BufferExpirationTime = 3 * time.Second
 	flags.MonitorThreadFrequency = 3 * time.Second
-	m := NewManager(flags)
+	m := NewManager(&connect.ProtoComms{}, flags)
 	m.buffer["test"] = &MessageRecord{
 		Timestamp: time.Now(),
 		Messages:  nil,
@@ -101,8 +102,4 @@ func TestManager_BufferMonitor(t *testing.T) {
 	if origLen-len(m.buffer) != 1 {
 		t.Errorf("Failed to clear buffer after duration expired")
 	}
-}
-
-func TestManager_GRPCRegister(t *testing.T) {
-	// How do i test this?
 }
