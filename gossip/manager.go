@@ -53,11 +53,13 @@ type SignatureVerification func(*GossipMsg, []byte) error
 
 // Creates a new Gossip Manager struct
 func NewManager(flags ManagerFlags) *Manager {
-	return &Manager{
+	m := &Manager{
 		protocols: map[string]*Protocol{},
 		buffer:    map[string]*MessageRecord{},
 		flags:     flags,
 	}
+	_ = m.bufferMonitor()
+	return m
 }
 
 // Creates and stores a new Protocol in the Manager

@@ -81,6 +81,22 @@ func TestManager_Delete(t *testing.T) {
 	}
 }
 
+func TestManager_BufferMonitor(t *testing.T) {
+	flags := DefaultManagerFlags()
+	flags.BufferExpirationTime = 3 * time.Second
+	flags.MonitorThreadFrequency = 3 * time.Second
+	m := NewManager(flags)
+	m.buffer["test"] = &MessageRecord{
+		Timestamp: time.Now(),
+		Messages:  nil,
+	}
+	origLen := len(m.buffer)
+	time.Sleep(4 * time.Second)
+	if origLen-len(m.buffer) != 1 {
+		t.Errorf("Failed to clear buffer after duration expired")
+	}
+}
+
 func TestManager_GRPCRegister(t *testing.T) {
 	// How do i test this?
 }
