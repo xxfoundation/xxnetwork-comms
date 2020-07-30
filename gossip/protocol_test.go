@@ -447,15 +447,16 @@ func TestGossipNodes(t *testing.T) {
 	// Send some gossips!
 	numToSend := 64
 	for numSent := 0; numSent < numToSend; numSent++ {
-		protocol, ok := managers[numSent%numNodes].Get("test")
+		nodeIndex := numSent % numNodes
+		protocol, ok := managers[nodeIndex].Get("test")
 		if !ok {
-			t.Fatalf("manager %v should have had a test protocol", numSent%numNodes)
+			t.Fatalf("manager %v should have had a test protocol", nodeIndex)
 		}
 		payload := make([]byte, 8)
 		binary.BigEndian.PutUint64(payload, uint64(numSent))
 		_, errs := protocol.Gossip(&GossipMsg{
 			Tag:       "test",
-			Origin:    nodes[0].Bytes(),
+			Origin:    nodes[nodeIndex].Bytes(),
 			Payload:   payload,
 			Signature: validSig,
 		})
@@ -466,10 +467,10 @@ func TestGossipNodes(t *testing.T) {
 		}
 	}
 
-	// wait for test to finish
-	nrNow := atomic.LoadUint64(&numReceived)
-	t.Log(nrNow)
+	// wait for the received messages to get counted
 	time.Sleep(1 * time.Second)
-	nrWait := atomic.LoadUint64(&numReceived)
-	t.Log(nrWait)
+	numReceivedAfterABit := atomic.LoadUint64(&numReceived)
+	if numReceivedAfterABit != uint64(numNodes*numToSend) {
+		t.Errorf("Received %v messages. Expected %v messages", numReceivedAfterABit, numNodes*numToSend)
+	}
 }
