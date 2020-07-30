@@ -11,5 +11,5 @@ require (
 	gitlab.com/elixxir/primitives v0.0.0-20200706165052-9fe7a4fb99a3
 	golang.org/x/net v0.0.0-20200707034311-ab3426394381
 	google.golang.org/grpc v1.30.0
-	google.golang.org/protobuf v1.25.0
+	google.golang.org/protobuf v1.25.0 // indirect
 )
