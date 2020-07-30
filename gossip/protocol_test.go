@@ -1,13 +1,20 @@
 package gossip
 
 import (
+	"bytes"
 	"crypto/rand"
+	"encoding/binary"
 	"errors"
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/xx_network/comms/connect"
+	"gitlab.com/xx_network/comms/testkeys"
 	"math"
+	"net"
+	"strconv"
 	"sync"
+	"sync/atomic"
 	"testing"
+	"time"
 )
 
 //====================================================================================================================//
@@ -126,7 +133,7 @@ func setup(t *testing.T) *Protocol {
 	r := func(msg *GossipMsg) error {
 		return nil
 	}
-	v := func(msg *GossipMsg, b []byte) error {
+	v := func(msg *GossipMsg) error {
 		return nil
 	}
 	c := &connect.ProtoComms{
@@ -343,4 +350,126 @@ func TestProtocol_getPeers(t *testing.T) {
 	p.flags.FanOut = uint8(size + 2)
 	t.Logf("Case 3: fanout (%d) > size (%d)", p.flags.FanOut, size)
 	testGetPeers(p, t)
+}
+
+// Show that the gossip protocol reliably shares data with all nodes
+// Show that data that's valid propagates, and that data that's not valid doesn't
+func TestGossipNodes(t *testing.T) {
+	// Have some nodes
+	numNodes := 100
+	portOffset := 24671
+	managers := make([]*Manager, 0, numNodes)
+	nodes := make([]*id.ID, 0, numNodes)
+	ports := make([]string, 0, numNodes)
+	// atomic counter for gossip reception
+	numReceived := uint64(0)
+	// Close the listeners when we're done
+	listeners := make([]net.Listener, 0, numNodes)
+	// if we can figure out how...
+	//defer func() {
+	//	for i := range listeners {
+	//		t.Fatal("closing")
+	//		err := listeners[i].Close()
+	//		if err != nil {
+	//			t.Error(err)
+	//		}
+	//	}
+	//}()
+
+	validSig := []byte("valid signature")
+	// unsure if this is causing my problems
+	certPEM := testkeys.LoadFromPath(testkeys.GetNodeCertPath())
+	keyPEM := testkeys.LoadFromPath(testkeys.GetNodeKeyPath())
+	// start comm servers
+	for i := 0; i < numNodes; i++ {
+		port := strconv.FormatUint(uint64(portOffset+i), 10)
+		node := id.NewIdFromUInt(uint64(i), id.Node, t)
+		nodes = append(nodes, node)
+		ports = append(ports, port)
+		pc, listen, err := connect.StartCommServer(node, "0.0.0.0:"+port, certPEM, keyPEM)
+		listeners = append(listeners, listen)
+
+		// Do i need to add other hosts before calling NewManager?
+		if err != nil {
+			// Not startin' a node? that's a paddlin'
+			t.Fatalf("error starting node %v on port %v w/ err %v", i, port, err)
+		}
+		// each server has one gossip manager
+		manager := NewManager(pc, DefaultManagerFlags())
+		managers = append(managers, manager)
+
+		go func() {
+			// start serving
+			RegisterGossipServer(pc.LocalServer, manager)
+			err := pc.LocalServer.Serve(listen)
+			if err != nil {
+				t.Fatal(err)
+			}
+		}()
+	}
+
+	// Have each node add all other nodes as peers
+	for i := 0; i < numNodes; i++ {
+		peers := make([]*id.ID, 0, numNodes)
+		for j := 0; j < numNodes; j++ {
+			if i != j {
+				peers = append(peers, nodes[j])
+				_, err := managers[i].comms.AddHost(nodes[j], "127.0.0.1:"+ports[j], certPEM, false, false)
+				if err != nil {
+					t.Fatal(err)
+				}
+			}
+		}
+
+		// Initialize a test gossip protocol on all the servers
+		managers[i].NewGossip("test", DefaultProtocolFlags(), func(msg *GossipMsg) error {
+			// receive func
+			atomic.AddUint64(&numReceived, 1)
+			return nil
+		}, func(msg *GossipMsg) error {
+			// check sig func
+			//panic(fmt.Sprintf("sig: %q", sig))
+			if !bytes.Equal(validSig, msg.Signature) {
+				return errors.New("verification error")
+			}
+			return nil
+		}, peers)
+		protocol, ok := managers[i].Get("test")
+		if ok {
+			// crand should be populated when calling NewGossip, right?
+			// but, it isn't
+			protocol.crand = rand.Reader
+		}
+	}
+	// in case we need time for servers to come up
+	time.Sleep(1 * time.Second)
+
+	// Send some gossips!
+	numToSend := 64
+	for numSent := 0; numSent < numToSend; numSent++ {
+		protocol, ok := managers[numSent%numNodes].Get("test")
+		if !ok {
+			t.Fatalf("manager %v should have had a test protocol", numSent%numNodes)
+		}
+		payload := make([]byte, 8)
+		binary.BigEndian.PutUint64(payload, uint64(numSent))
+		_, errs := protocol.Gossip(&GossipMsg{
+			Tag:       "test",
+			Origin:    nodes[0].Bytes(),
+			Payload:   payload,
+			Signature: validSig,
+		})
+		for i := range errs {
+			if errs[i] != nil {
+				t.Error(errs)
+			}
+		}
+	}
+
+	// wait for test to finish
+	nrNow := atomic.LoadUint64(&numReceived)
+	t.Log(nrNow)
+	time.Sleep(1 * time.Second)
+	nrWait := atomic.LoadUint64(&numReceived)
+	t.Log(nrWait)
 }

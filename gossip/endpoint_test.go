@@ -17,7 +17,7 @@ func TestManager_Endpoint_toProtocol(t *testing.T) {
 		received = true
 		return nil
 	}
-	v := func(*GossipMsg, []byte) error {
+	v := func(*GossipMsg) error {
 		return nil
 	}
 	m.NewGossip("test", DefaultProtocolFlags(), r, v,
