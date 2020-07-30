@@ -117,7 +117,7 @@ func TestNewInstanceTesting_Error(t *testing.T) {
 
 //tests newInstance errors properly when there is no NDF
 func TestNewInstance_NilNDFs(t *testing.T) {
-	_, err := NewInstance(&connect.ProtoComms{}, nil, nil)
+	_, err := NewInstance(&connect.ProtoComms{}, nil, nil, nil)
 	if err == nil {
 		t.Errorf("Creation of NewInstance without an ndf succeded")
 	} else if !strings.Contains(err.Error(), "Cannot create a network "+
@@ -200,7 +200,7 @@ func setupComm(t *testing.T) (*Instance, *mixmessages.NDF) {
 	err = signature.Sign(f, privKey)
 
 	pc := &connect.ProtoComms{}
-	i, err := NewInstance(pc, baseNDF, baseNDF)
+	i, err := NewInstance(pc, baseNDF, baseNDF, nil)
 	if err != nil {
 		t.Error(nil)
 	}
@@ -223,7 +223,7 @@ func TestInstance_RoundUpdate(t *testing.T) {
 	privKey, err := rsa.LoadPrivateKeyFromPem(priv)
 	err = signature.Sign(msg, privKey)
 
-	i, err := NewInstance(&connect.ProtoComms{}, testutils.NDF, testutils.NDF)
+	i, err := NewInstance(&connect.ProtoComms{}, testutils.NDF, testutils.NDF, nil)
 	pub := testkeys.LoadFromPath(testkeys.GetGatewayCertPath())
 	err = i.RoundUpdate(msg)
 	if err == nil {
