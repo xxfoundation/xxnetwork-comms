@@ -20,6 +20,13 @@ import (
 // hash(tag, origin, payload, signature)
 type Fingerprint [16]byte
 
+// NewFingerprint creates a new fingerprint from a byte slice
+func NewFingerprint(data [16]byte) Fingerprint {
+	fp := Fingerprint{}
+	copy(fp[:], data[:])
+	return fp
+}
+
 func GetFingerprint(msg *GossipMsg) Fingerprint {
 	// Get fingerprint
 	preSum := append([]byte(msg.Tag), msg.Origin...)
@@ -85,14 +92,15 @@ func (p *Protocol) Defunct() {
 // Receive a Gossip Message and check fingerprints map
 // (if unique calls GossipSignatureVerify -> Receiver)
 func (p *Protocol) receive(msg *GossipMsg) error {
-	p.fingerprintsLock.Lock()
-
 	var err error
 
 	fingerprint := GetFingerprint(msg)
+	p.fingerprintsLock.RLock()
 	numSends, ok := p.fingerprints[fingerprint]
+	p.fingerprintsLock.RUnlock()
 	//if there is no record of receiving the fingerprint, process it as new
 	if !ok {
+		p.fingerprintsLock.Lock()
 		err = p.verify(msg)
 		if err != nil {
 			p.fingerprintsLock.Unlock()
@@ -106,10 +114,10 @@ func (p *Protocol) receive(msg *GossipMsg) error {
 			return errors.WithMessage(err, "Failed to receive gossip message")
 		}
 	} else if numSends < p.flags.MaximumReSends {
+		p.fingerprintsLock.Lock()
 		p.fingerprints[fingerprint]++
 		p.fingerprintsLock.Unlock()
 	} else {
-		p.fingerprintsLock.Unlock()
 		return nil
 	}
 
@@ -142,9 +150,6 @@ func (p *Protocol) AddGossipPeer(id *id.ID) error {
 
 // Builds and sends a GossipMsg
 func (p *Protocol) Gossip(msg *GossipMsg) (int, []error) {
-	p.peersLock.RLock()
-	defer p.peersLock.RUnlock()
-
 	// Internal helper to send the input gossip msg to a given id
 	sendFunc := func(id *id.ID) error {
 		h, ok := p.comms.GetHost(id)
@@ -191,6 +196,9 @@ func (p *Protocol) Gossip(msg *GossipMsg) (int, []error) {
 
 // Performs returns which peers to send the GossipMsg to
 func (p *Protocol) getPeers() ([]*id.ID, error) {
+	p.peersLock.RLock()
+	defer p.peersLock.RUnlock()
+
 	// Check fanout
 	size := len(p.peers)
 	fanout := int(p.flags.FanOut)
@@ -216,11 +224,4 @@ func (p *Protocol) getPeers() ([]*id.ID, error) {
 	}
 
 	return out, nil
-}
-
-// NewFingerprint creates a new fingerprint from a byte slice
-func NewFingerprint(data [16]byte) Fingerprint {
-	fp := Fingerprint{}
-	copy(fp[:], data[:])
-	return fp
 }
