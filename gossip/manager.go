@@ -50,7 +50,7 @@ type Manager struct {
 type Receiver func(*GossipMsg) error
 
 // Passed into NewGossip to specify how Gossip message signatures will be verified
-type SignatureVerification func(*GossipMsg) error
+type SignatureVerification func(*GossipMsg, []byte) error
 
 // Creates a new Gossip Manager struct
 func NewManager(comms *connect.ProtoComms, flags ManagerFlags) *Manager {

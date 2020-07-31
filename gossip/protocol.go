@@ -101,7 +101,7 @@ func (p *Protocol) receive(msg *GossipMsg) error {
 	//if there is no record of receiving the fingerprint, process it as new
 	if !ok {
 		p.fingerprintsLock.Lock()
-		err = p.verify(msg)
+		err = p.verify(msg, nil)
 		if err != nil {
 			p.fingerprintsLock.Unlock()
 			return errors.WithMessage(err, "Failed to verify gossip message")

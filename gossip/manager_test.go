@@ -22,7 +22,7 @@ func TestManager_NewGossip(t *testing.T) {
 	r := func(msg *GossipMsg) error {
 		return nil
 	}
-	v := func(msg *GossipMsg) error {
+	v := func(msg *GossipMsg, smth []byte) error {
 		return nil
 	}
 	m.NewGossip("test", DefaultProtocolFlags(), r, v, []*id.ID{})
@@ -47,7 +47,7 @@ func TestManager_NewGossip_WithBuffer(t *testing.T) {
 		received = true
 		return nil
 	}
-	v := func(msg *GossipMsg) error {
+	v := func(msg *GossipMsg, smth []byte) error {
 		return nil
 	}
 	m.NewGossip("test", DefaultProtocolFlags(), r, v, []*id.ID{})

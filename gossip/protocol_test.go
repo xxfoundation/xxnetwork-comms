@@ -133,7 +133,7 @@ func setup(t *testing.T) *Protocol {
 	r := func(msg *GossipMsg) error {
 		return nil
 	}
-	v := func(msg *GossipMsg) error {
+	v := func(msg *GossipMsg, smth []byte) error {
 		return nil
 	}
 	c := &connect.ProtoComms{
@@ -426,7 +426,7 @@ func TestGossipNodes(t *testing.T) {
 			// receive func
 			atomic.AddUint64(&numReceived, 1)
 			return nil
-		}, func(msg *GossipMsg) error {
+		}, func(msg *GossipMsg, something []byte) error {
 			// check sig func
 			//panic(fmt.Sprintf("sig: %q", sig))
 			if !bytes.Equal(validSig, msg.Signature) {
