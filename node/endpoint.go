@@ -212,7 +212,7 @@ func (s *Comms) ConfirmRegistration(ctx context.Context,
 	}
 
 	// Obtain signed client public key by passing to server
-	signature, err := s.handler.ConfirmRegistration(userID,
+	signature, clientGwKey, err := s.handler.ConfirmRegistration(userID,
 		regConfirmRequest.NonceSignedByClient.Signature, authState)
 
 	// Obtain the error message, if any
@@ -226,7 +226,8 @@ func (s *Comms) ConfirmRegistration(ctx context.Context,
 		ClientSignedByServer: &messages.RSASignature{
 			Signature: signature,
 		},
-		Error: errMsg,
+		Error:            errMsg,
+		ClientGatewayKey: clientGwKey,
 	}, err
 }
 

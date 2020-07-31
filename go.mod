@@ -9,6 +9,7 @@ require (
 	github.com/stretchr/testify v1.6.1 // indirect
 	gitlab.com/elixxir/crypto v0.0.0-20200707005343-97f868cbd930
 	gitlab.com/elixxir/primitives v0.0.0-20200706165052-9fe7a4fb99a3
+	gitlab.com/xx_network/collections/ring v0.0.0-00010101000000-000000000000
 	gitlab.com/xx_network/comms v0.0.0-20200730220144-eea32e8b696d
 	golang.org/x/crypto v0.0.0-20200707235045-ab33eee955e0 // indirect
 	golang.org/x/net v0.0.0-20200707034311-ab3426394381
