@@ -117,7 +117,7 @@ func TestNewInstanceTesting_Error(t *testing.T) {
 
 //tests newInstance errors properly when there is no NDF
 func TestNewInstance_NilNDFs(t *testing.T) {
-	_, err := NewInstance(&connect.ProtoComms{}, nil, nil)
+	_, err := NewInstance(&connect.ProtoComms{}, nil, nil, nil)
 	if err == nil {
 		t.Errorf("Creation of NewInstance without an ndf succeded")
 	} else if !strings.Contains(err.Error(), "Cannot create a network "+
@@ -200,7 +200,7 @@ func setupComm(t *testing.T) (*Instance, *mixmessages.NDF) {
 	err = signature.Sign(f, privKey)
 
 	pc := &connect.ProtoComms{}
-	i, err := NewInstance(pc, baseNDF, baseNDF)
+	i, err := NewInstance(pc, baseNDF, baseNDF, nil)
 	if err != nil {
 		t.Error(nil)
 	}
@@ -223,7 +223,7 @@ func TestInstance_RoundUpdate(t *testing.T) {
 	privKey, err := rsa.LoadPrivateKeyFromPem(priv)
 	err = signature.Sign(msg, privKey)
 
-	i, err := NewInstance(&connect.ProtoComms{}, testutils.NDF, testutils.NDF)
+	i, err := NewInstance(&connect.ProtoComms{}, testutils.NDF, testutils.NDF, nil)
 	pub := testkeys.LoadFromPath(testkeys.GetGatewayCertPath())
 	err = i.RoundUpdate(msg)
 	if err == nil {
@@ -665,4 +665,69 @@ func createBadNdf(t *testing.T) *mixmessages.NDF {
 	err = signature.Sign(f, privKey)
 
 	return f
+}
+
+// Test that a new round update is inputted into the ERS map
+func TestInstance_RoundUpdateAddsToERS(t *testing.T) {
+	// Get signing certificates
+	priv := testkeys.LoadFromPath(testkeys.GetNodeKeyPath())
+	privKey, err := rsa.LoadPrivateKeyFromPem(priv)
+	pub := testkeys.LoadFromPath(testkeys.GetNodeCertPath())
+	if err != nil {
+		t.Errorf("Could not generate rsa key: %s", err)
+	}
+
+	// Create a basic testing NDF and sign it
+	f := &mixmessages.NDF{}
+	f.Ndf = []byte(testutils.ExampleJSON)
+	baseNDF := testutils.NDF
+	if err != nil {
+		t.Errorf("Could not generate serialized ndf: %s", err)
+	}
+	err = signature.Sign(f, privKey)
+	if err != nil {
+		t.Errorf("Could not generate serialized ndf: %s", err)
+	}
+
+	// Build the Instance object with an ERS memory map
+	pc := &connect.ProtoComms{}
+	var ers ds.ExternalRoundStorage = ersMemMap{rounds: make(map[id.Round]*mixmessages.RoundInfo)}
+	i, err := NewInstance(pc, baseNDF, baseNDF, ers)
+	if err != nil {
+		t.Error(nil)
+	}
+
+	// Add a permissioning host
+	_, err = i.comm.AddHost(&id.Permissioning, "0.0.0.0:4200", pub, false, true)
+	if err != nil {
+		t.Errorf("Failed to add permissioning host: %+v", err)
+	}
+
+	// Build a basic RoundInfo object and sign it
+	r := &mixmessages.RoundInfo{
+		ID:       2,
+		UpdateID: 4,
+	}
+	err = signature.Sign(r, privKey)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	// Cause a RoundUpdate
+	err = i.RoundUpdate(r)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	// Check that the round info was stored correctly
+	rr, err := ers.Retrieve(id.Round(r.ID))
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	if rr == nil {
+		t.Fatalf("returned round info was nil")
+	}
+	if rr.ID != r.ID || rr.UpdateID != r.UpdateID {
+		t.Errorf("Second returned round and original mismatched IDs")
+	}
 }
