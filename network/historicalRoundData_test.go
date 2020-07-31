@@ -4,12 +4,7 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	ds "gitlab.com/elixxir/comms/network/dataStructures"
-	"gitlab.com/elixxir/comms/testkeys"
-	"gitlab.com/elixxir/comms/testutils"
-	"gitlab.com/elixxir/crypto/signature"
-	"gitlab.com/elixxir/crypto/signature/rsa"
 	"gitlab.com/elixxir/primitives/id"
-	"gitlab.com/xx_network/comms/connect"
 	"testing"
 )
 
@@ -320,70 +315,5 @@ func TestInstance_GetHistoricalRounds(t *testing.T) {
 		if round != nil {
 			t.Errorf("ri contains round info")
 		}
-	}
-}
-
-// Test that a new round update is inputted into the ERS map
-func TestInstance_RoundUpdateAddsToERS(t *testing.T) {
-	// Get signing certificates
-	priv := testkeys.LoadFromPath(testkeys.GetNodeKeyPath())
-	privKey, err := rsa.LoadPrivateKeyFromPem(priv)
-	pub := testkeys.LoadFromPath(testkeys.GetNodeCertPath())
-	if err != nil {
-		t.Errorf("Could not generate rsa key: %s", err)
-	}
-
-	// Create a basic testing NDF and sign it
-	f := &pb.NDF{}
-	f.Ndf = []byte(testutils.ExampleJSON)
-	baseNDF := testutils.NDF
-	if err != nil {
-		t.Errorf("Could not generate serialized ndf: %s", err)
-	}
-	err = signature.Sign(f, privKey)
-	if err != nil {
-		t.Errorf("Could not generate serialized ndf: %s", err)
-	}
-
-	// Build the Instance object with an ERS memory map
-	pc := &connect.ProtoComms{}
-	var ers ds.ExternalRoundStorage = ersMemMap{rounds: make(map[id.Round]*pb.RoundInfo)}
-	i, err := NewInstance(pc, baseNDF, baseNDF, ers)
-	if err != nil {
-		t.Error(nil)
-	}
-
-	// Add a permissioning host
-	_, err = i.comm.AddHost(&id.Permissioning, "0.0.0.0:4200", pub, false, true)
-	if err != nil {
-		t.Errorf("Failed to add permissioning host: %+v", err)
-	}
-
-	// Build a basic RoundInfo object and sign it
-	r := &pb.RoundInfo{
-		ID:       2,
-		UpdateID: 4,
-	}
-	err = signature.Sign(r, privKey)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
-
-	// Cause a RoundUpdate
-	err = i.RoundUpdate(r)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
-
-	// Check that the round info was stored correctly
-	rr, err := ers.Retrieve(id.Round(r.ID))
-	if err != nil {
-		t.Errorf(err.Error())
-	}
-	if rr == nil {
-		t.Fatalf("returned round info was nil")
-	}
-	if rr.ID != r.ID || rr.UpdateID != r.UpdateID {
-		t.Errorf("Second returned round and original mismatched IDs")
 	}
 }

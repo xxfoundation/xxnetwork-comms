@@ -37,7 +37,8 @@ type Instance struct {
 	ipOverride *ds.IpOverrideList
 }
 
-// Initializer for instance structs from base comms and NDF
+// Initializer for instance structs from base comms and NDF, you can put in nil for
+// ERS if you don't want to use it
 func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition,
 	ers ds.ExternalRoundStorage) (*Instance, error) {
 	var partialNdf *SecuredNdf
@@ -102,9 +103,8 @@ func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition,
 		}
 	}
 
-	if ers != nil {
-		i.ers = ers
-	}
+	// Set our ERS to the passed in ERS object (or nil)
+	i.ers = ers
 
 	return i, nil
 }

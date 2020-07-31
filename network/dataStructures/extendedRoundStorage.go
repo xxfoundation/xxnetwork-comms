@@ -5,6 +5,9 @@ import (
 	"gitlab.com/elixxir/primitives/id"
 )
 
+// The ExtendedRoundStorage (ERS) interface allows storing rounds inside of an external database for clients to pull
+// from, because the ring buffer only contains a limited number of them while clients might need to go further back
+// into history.
 type ExternalRoundStorage interface {
 	// Store: stores the round info inside the underlying storage medium, which generally is a database. Store will
 	// add the round info to the database if it doesn't exist and will only overwrite the data if it does exist in the
