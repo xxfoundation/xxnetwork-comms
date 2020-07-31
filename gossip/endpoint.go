@@ -17,15 +17,14 @@ import (
 // Generic endpoint for forwarding GossipMsg to correct Protocol
 func (m *Manager) Endpoint(ctx context.Context, msg *GossipMsg) (*Ack, error) {
 	m.protocolLock.RLock()
+	defer m.protocolLock.RUnlock()
+
 	if protocol, ok := m.protocols[msg.Tag]; ok {
 		err := protocol.receive(msg)
-		m.protocolLock.RUnlock()
 		if err != nil {
 			return nil, err
 		}
 		return &Ack{}, nil
-	} else {
-		m.protocolLock.RUnlock()
 	}
 
 	m.bufferLock.Lock()
