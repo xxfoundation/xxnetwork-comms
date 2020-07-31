@@ -141,7 +141,7 @@ func setup(t *testing.T) *Protocol {
 	}
 	return &Protocol{
 		comms:            c,
-		fingerprints:     map[Fingerprint]uint64{},
+		fingerprints:     map[Fingerprint]*uint64{},
 		fingerprintsLock: sync.RWMutex{},
 		peers:            []*id.ID{},
 		peersLock:        sync.RWMutex{},

@@ -46,12 +46,6 @@ type Manager struct {
 	flags ManagerFlags
 }
 
-// Passed into NewGossip to specify how Gossip messages will be handled
-type Receiver func(*GossipMsg) error
-
-// Passed into NewGossip to specify how Gossip message signatures will be verified
-type SignatureVerification func(*GossipMsg, []byte) error
-
 // Creates a new Gossip Manager struct
 func NewManager(comms *connect.ProtoComms, flags ManagerFlags) *Manager {
 	m := &Manager{
@@ -71,7 +65,7 @@ func (m *Manager) NewGossip(tag string, flags ProtocolFlags,
 	defer m.protocolLock.Unlock()
 
 	tmp := &Protocol{
-		fingerprints: map[Fingerprint]uint64{},
+		fingerprints: map[Fingerprint]*uint64{},
 		comms:        m.comms,
 		peers:        peers,
 		flags:        flags,
