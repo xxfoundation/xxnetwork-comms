@@ -14,6 +14,7 @@ import (
 	"io"
 	"math"
 	"sync"
+	"sync/atomic"
 )
 
 // Defines the type of Gossip message fingerprints
@@ -58,7 +59,7 @@ type Protocol struct {
 
 	// Thread-safe record of all Gossip messages for this Protocol
 	// NOTE: Must avoid unlimited growth
-	fingerprints     map[Fingerprint]uint64
+	fingerprints     map[Fingerprint]*uint64
 	fingerprintsLock sync.RWMutex
 
 	// Thread-safe list of peers for the Protocol
@@ -96,38 +97,45 @@ func (p *Protocol) receive(msg *GossipMsg) error {
 
 	fingerprint := GetFingerprint(msg)
 	p.fingerprintsLock.RLock()
-	numSends, ok := p.fingerprints[fingerprint]
+	numSendsPrt, ok := p.fingerprints[fingerprint]
 	p.fingerprintsLock.RUnlock()
 	//if there is no record of receiving the fingerprint, process it as new
 	if !ok {
-		p.fingerprintsLock.Lock()
 		err = p.verify(msg, nil)
 		if err != nil {
-			p.fingerprintsLock.Unlock()
 			return errors.WithMessage(err, "Failed to verify gossip message")
 		}
-		p.fingerprints[fingerprint] = 0
-		p.fingerprintsLock.Unlock()
-
-		err = p.receiver(msg)
-		if err != nil {
-			return errors.WithMessage(err, "Failed to receive gossip message")
-		}
-	} else if numSends < p.flags.MaximumReSends {
 		p.fingerprintsLock.Lock()
-		p.fingerprints[fingerprint]++
-		p.fingerprintsLock.Unlock()
-	} else {
-		return nil
+		// redo the check if the fingerprint exists to ensure it was not added
+		// between the previous check and taking the lock
+		numSendsPrt, ok = p.fingerprints[fingerprint]
+		if !ok {
+			numSendsLocal := uint64(0)
+			p.fingerprints[fingerprint] = &numSendsLocal
+			p.fingerprintsLock.Unlock()
+			err = p.receiver(msg)
+			if err != nil {
+				return errors.WithMessage(err, "Failed to receive gossip message")
+			}
+		} else {
+			p.fingerprintsLock.Unlock()
+		}
 	}
 
-	// Since gossip propagates the message across a potentially large message, we don't want this to block
-	go func() {
-		_, errs := p.Gossip(msg)
-		if len(errs) != 0 {
-			jww.ERROR.Print(errors.Errorf("Failed to gossip message: %+v", errs))
-		}
-	}()
+	numSends := uint64(0)
+	if ok {
+		numSends = atomic.AddUint64(numSendsPrt, 1)
+	}
+
+	if numSends < p.flags.MaximumReSends {
+		// Since gossip propagates the message across a potentially large message, we don't want this to block
+		go func() {
+			_, errs := p.Gossip(msg)
+			if len(errs) != 0 {
+				jww.ERROR.Print(errors.Errorf("Failed to gossip message: %+v", errs))
+			}
+		}()
+	}
 
 	return nil
 }
