@@ -363,18 +363,7 @@ func TestGossipNodes(t *testing.T) {
 	ports := make([]string, 0, numNodes)
 	// atomic counter for gossip reception
 	numReceived := uint64(0)
-	// Close the listeners when we're done
 	listeners := make([]net.Listener, 0, numNodes)
-	// if we can figure out how...
-	//defer func() {
-	//	for i := range listeners {
-	//		t.Fatal("closing")
-	//		err := listeners[i].Close()
-	//		if err != nil {
-	//			t.Error(err)
-	//		}
-	//	}
-	//}()
 
 	validSig := []byte("valid signature")
 	// unsure if this is causing my problems
