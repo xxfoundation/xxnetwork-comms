@@ -1,3 +1,12 @@
+///////////////////////////////////////////////////////////////////////////////
+// Copyright © 2020 xx network SEZC                                          //
+//                                                                           //
+// Use of this source code is governed by a license that can be found in the //
+// LICENSE file                                                              //
+///////////////////////////////////////////////////////////////////////////////
+
+// Function type definitions for gossip protocol
+
 package gossip
 
 // Passed into NewGossip to specify how Gossip messages will be handled

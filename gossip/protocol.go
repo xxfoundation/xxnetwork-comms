@@ -1,3 +1,12 @@
+///////////////////////////////////////////////////////////////////////////////
+// Copyright © 2020 xx network SEZC                                          //
+//                                                                           //
+// Use of this source code is governed by a license that can be found in the //
+// LICENSE file                                                              //
+///////////////////////////////////////////////////////////////////////////////
+
+// Gossip protocol definition
+
 package gossip
 
 import (
@@ -95,6 +104,7 @@ func (p *Protocol) Defunct() {
 func (p *Protocol) receive(msg *GossipMsg) error {
 	var err error
 
+	// Check fingerprint of the message against our record
 	fingerprint := GetFingerprint(msg)
 	p.fingerprintsLock.RLock()
 	numSendsPrt, ok := p.fingerprints[fingerprint]
@@ -122,6 +132,7 @@ func (p *Protocol) receive(msg *GossipMsg) error {
 		}
 	}
 
+	// Increment the number of sends for this fingerprint
 	numSends := uint64(0)
 	if ok {
 		numSends = atomic.AddUint64(numSendsPrt, 1)
