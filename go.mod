@@ -19,4 +19,7 @@ require (
 	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776 // indirect
 )
 
-replace google.golang.org/grpc => github.com/grpc/grpc-go v1.27.1
+replace (
+	gitlab.com/xx_network/collections/ring => gitlab.com/xx_network/collections/ring.git v0.0.1
+	google.golang.org/grpc => github.com/grpc/grpc-go v1.27.1
+)
