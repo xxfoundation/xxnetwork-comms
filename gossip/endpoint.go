@@ -1,24 +1,48 @@
+///////////////////////////////////////////////////////////////////////////////
+// Copyright © 2020 xx network SEZC                                          //
+//                                                                           //
+// Use of this source code is governed by a license that can be found in the //
+// LICENSE file                                                              //
+///////////////////////////////////////////////////////////////////////////////
+
+// Endpoints for the gossip protocol manager
+
 package gossip
 
 import (
 	"context"
-	"gitlab.com/xx_network/comms/connect"
-	"gitlab.com/xx_network/comms/messages"
+	"time"
 )
 
-// Object used to embed Gossip functionality in higher-level Comms objects
-type Comms struct {
-	*connect.ProtoComms
-	*Manager
-}
-
 // Generic endpoint for forwarding GossipMsg to correct Protocol
-func (g *Comms) Endpoint(ctx context.Context, msg *GossipMsg) (*messages.Ack, error) {
-	return &messages.Ack{}, g.Get(msg.Tag).receive(msg)
+func (m *Manager) Endpoint(ctx context.Context, msg *GossipMsg) (*Ack, error) {
+	m.protocolLock.RLock()
+	if protocol, ok := m.protocols[msg.Tag]; ok {
+		err := protocol.receive(msg)
+		m.protocolLock.RUnlock()
+		if err != nil {
+			return nil, err
+		}
+		return &Ack{}, nil
+	}
+
+	m.bufferLock.Lock()
+	if record, ok := m.buffer[msg.Tag]; ok {
+		record.Messages = append(record.Messages, msg)
+	} else {
+		t := time.Now()
+		m.buffer[msg.Tag] = &MessageRecord{
+			Timestamp: t,
+			Messages:  []*GossipMsg{msg},
+		}
+	}
+	m.bufferLock.Unlock()
+
+	return &Ack{}, nil
 }
 
 // Generic streaming endpoint for forwarding GossipMsg to correct Protocol
-func (g *Comms) Stream(ctx context.Context, msg *GossipMsg) (*messages.Ack, error) {
+func (m *Manager) Stream(stream Gossip_StreamServer) error {
 	// TODO: Will be implemented later on
-	return &messages.Ack{}, nil
+	return nil
 }

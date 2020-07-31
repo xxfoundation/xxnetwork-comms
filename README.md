@@ -5,4 +5,5 @@
 
 ```
 protoc -I messages/ messages/messages.proto --go_out=plugins=grpc:messages
+protoc -I gossip/ gossip/messages.proto --go_out=plugins=grpc:gossip
 ```
