@@ -13,7 +13,7 @@ import (
 	"github.com/pkg/errors"
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/primitives/id"
-	"gitlab.com/elixxir/primitives/ring"
+	"gitlab.com/xx_network/collections/ring"
 )
 
 const RoundInfoBufLen = 500

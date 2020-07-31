@@ -32,12 +32,15 @@ type Instance struct {
 	full         *SecuredNdf
 	roundUpdates *ds.Updates
 	roundData    *ds.Data
+	ers          ds.ExternalRoundStorage
 
 	ipOverride *ds.IpOverrideList
 }
 
-// Initializer for instance structs from base comms and NDF
-func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition) (*Instance, error) {
+// Initializer for instance structs from base comms and NDF, you can put in nil for
+// ERS if you don't want to use it
+func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition,
+	ers ds.ExternalRoundStorage) (*Instance, error) {
 	var partialNdf *SecuredNdf
 	var fullNdf *SecuredNdf
 	var err error
@@ -100,6 +103,9 @@ func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition) (*
 		}
 	}
 
+	// Set our ERS to the passed in ERS object (or nil)
+	i.ers = ers
+
 	return i, nil
 }
 
@@ -109,7 +115,7 @@ func NewInstanceTesting(c *connect.ProtoComms, partial, full *ndf.NetworkDefinit
 	if t == nil {
 		panic("This is a utility function for testing purposes only!")
 	}
-	instance, err := NewInstance(c, partial, full)
+	instance, err := NewInstance(c, partial, full, nil)
 	if err != nil {
 		return nil, errors.Errorf("Unable to create instance: %+v", err)
 	}
@@ -281,6 +287,10 @@ func (i *Instance) RoundUpdate(info *pb.RoundInfo) error {
 	err = i.roundData.UpsertRound(info)
 	if err != nil {
 		return err
+	}
+
+	if i.ers != nil {
+		err = i.ers.Store(info)
 	}
 
 	return nil
