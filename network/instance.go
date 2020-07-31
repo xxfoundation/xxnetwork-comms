@@ -13,13 +13,13 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
-	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	ds "gitlab.com/elixxir/comms/network/dataStructures"
 	"gitlab.com/elixxir/crypto/cyclic"
 	"gitlab.com/elixxir/crypto/signature"
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/elixxir/primitives/ndf"
+	"gitlab.com/xx_network/comms/connect"
 	"testing"
 )
 
@@ -133,10 +133,22 @@ func (i *Instance) UpdatePartialNdf(m *pb.NDF) error {
 			"for NDF partial verification")
 	}
 
+	// Get a list of current nodes so we can check later for removed nodes
+	oldNodeList := i.partial.Get().Nodes
+
 	// Update the partial ndf
 	err := i.partial.update(m, perm.GetPubKey())
 	if err != nil {
 		return err
+	}
+
+	// Get list of removed nodes and remove them from the host map
+	rmNodes, err := getBannedNodes(oldNodeList, i.partial.Get().Nodes)
+	if err != nil {
+		return err
+	}
+	for _, nid := range rmNodes {
+		i.comm.RemoveHost(nid)
 	}
 
 	// update the cmix group object
@@ -174,10 +186,21 @@ func (i *Instance) UpdateFullNdf(m *pb.NDF) error {
 			"for full NDF verification")
 	}
 
+	// Get a list of current nodes so we can check later for removed nodes
+	oldNodeList := i.full.Get().Nodes
+
 	// Update the full ndf
 	err := i.full.update(m, perm.GetPubKey())
 	if err != nil {
 		return err
+	}
+
+	rmNodes, err := getBannedNodes(oldNodeList, i.full.Get().Nodes)
+	if err != nil {
+		return err
+	}
+	for _, nid := range rmNodes {
+		i.comm.RemoveHost(nid)
 	}
 
 	// update the cmix group object
@@ -196,6 +219,33 @@ func (i *Instance) UpdateFullNdf(m *pb.NDF) error {
 
 	return nil
 
+}
+
+// Find nodes that have been removed, comparing two NDFs
+func getBannedNodes(old []ndf.Node, new []ndf.Node) ([]*id.ID, error) {
+	// List of nodes to get rid of
+	var rmNodes []*id.ID
+	// Get the list of old nodes and populate a map with them
+	newNodeMap := make(map[string]ndf.Node)
+	for _, n := range new {
+		newNodeMap[string(n.ID)] = n
+	}
+
+	// Check the old nodes list against our new map
+	for _, n := range old {
+		// We try to find the "new" ID in the old map and see if it exists
+		// If it doesn't exist, we remove it, since that means it's been removed from the network
+		_, ok := newNodeMap[string(n.ID)]
+		if !ok {
+			nid, err := id.Unmarshal(n.ID)
+			if err != nil {
+				return nil, err
+			}
+			rmNodes = append(rmNodes, nid)
+		}
+	}
+
+	return rmNodes, nil
 }
 
 // Return the partial ndf from this instance

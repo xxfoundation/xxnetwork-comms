@@ -11,8 +11,8 @@ package client
 
 import (
 	"github.com/pkg/errors"
-	"gitlab.com/elixxir/comms/connect"
 	"gitlab.com/elixxir/primitives/id"
+	"gitlab.com/xx_network/comms/connect"
 )
 
 // Client object used to implement endpoints and top-level comms functionality

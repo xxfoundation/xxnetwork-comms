@@ -14,6 +14,7 @@ import (
 	"github.com/pkg/errors"
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/elixxir/primitives/states"
+	"gitlab.com/xx_network/comms/messages"
 )
 
 // SetSignature sets RoundInfo's signature to the newSig argument
@@ -25,7 +26,7 @@ func (m *RoundInfo) SetSig(newSig []byte) error {
 
 	// If the signature object is nil, create it and set value
 	if m.Signature == nil {
-		m.Signature = &RSASignature{Signature: newSig}
+		m.Signature = &messages.RSASignature{Signature: newSig}
 		return nil
 	}
 
@@ -60,7 +61,7 @@ func (m *RoundInfo) SetNonce(newNonce []byte) error {
 
 	// If the signature object is nil, create it and set value
 	if m.Signature == nil {
-		m.Signature = &RSASignature{Nonce: newNonce}
+		m.Signature = &messages.RSASignature{Nonce: newNonce}
 		return nil
 	}
 

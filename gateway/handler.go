@@ -12,9 +12,10 @@ package gateway
 import (
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
-	"gitlab.com/elixxir/comms/connect"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/primitives/id"
+	"gitlab.com/xx_network/comms/connect"
+	"gitlab.com/xx_network/comms/messages"
 	"google.golang.org/grpc/reflection"
 	"runtime/debug"
 )
@@ -62,7 +63,7 @@ func StartGateway(id *id.ID, localServer string, handler Handler,
 
 	go func() {
 		pb.RegisterGatewayServer(gatewayServer.LocalServer, &gatewayServer)
-		pb.RegisterGenericServer(gatewayServer.LocalServer, &gatewayServer)
+		messages.RegisterGenericServer(gatewayServer.LocalServer, &gatewayServer)
 
 		// Register reflection service on gRPC server.
 		// This blocks for the lifetime of the listener.

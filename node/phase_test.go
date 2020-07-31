@@ -10,10 +10,11 @@ package node
 import (
 	"bytes"
 	"context"
-	"gitlab.com/elixxir/comms/connect"
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/testkeys"
 	"gitlab.com/elixxir/primitives/id"
+	"gitlab.com/xx_network/comms/connect"
+	"gitlab.com/xx_network/comms/messages"
 	"io"
 	"reflect"
 	"testing"
@@ -185,7 +186,7 @@ func mockStreamPostPhase(server mixmessages.Node_StreamPostPhaseServer) error {
 		// If we are at end of receiving
 		// send ack and finish
 		if err == io.EOF {
-			ack := mixmessages.Ack{
+			ack := messages.Ack{
 				Error: "",
 			}
 			// Create batch using batch info header
