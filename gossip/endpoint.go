@@ -24,6 +24,8 @@ func (m *Manager) Endpoint(ctx context.Context, msg *GossipMsg) (*Ack, error) {
 			return nil, err
 		}
 		return &Ack{}, nil
+	} else {
+		m.protocolLock.RUnlock()
 	}
 
 	m.bufferLock.Lock()
