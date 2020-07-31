@@ -678,7 +678,7 @@ func TestInstance_RoundUpdateAddsToERS(t *testing.T) {
 	}
 
 	// Create a basic testing NDF and sign it
-	f := &pb.NDF{}
+	f := &mixmessages.NDF{}
 	f.Ndf = []byte(testutils.ExampleJSON)
 	baseNDF := testutils.NDF
 	if err != nil {
@@ -691,7 +691,7 @@ func TestInstance_RoundUpdateAddsToERS(t *testing.T) {
 
 	// Build the Instance object with an ERS memory map
 	pc := &connect.ProtoComms{}
-	var ers ds.ExternalRoundStorage = ersMemMap{rounds: make(map[id.Round]*pb.RoundInfo)}
+	var ers ds.ExternalRoundStorage = ersMemMap{rounds: make(map[id.Round]*mixmessages.RoundInfo)}
 	i, err := NewInstance(pc, baseNDF, baseNDF, ers)
 	if err != nil {
 		t.Error(nil)
@@ -704,7 +704,7 @@ func TestInstance_RoundUpdateAddsToERS(t *testing.T) {
 	}
 
 	// Build a basic RoundInfo object and sign it
-	r := &pb.RoundInfo{
+	r := &mixmessages.RoundInfo{
 		ID:       2,
 		UpdateID: 4,
 	}
