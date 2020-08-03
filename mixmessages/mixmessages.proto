@@ -153,7 +153,7 @@ service Gateway {
     }
 
     // PutMessage on the cMix Gateway
-    rpc PutMessage (Slot) returns (messages.Ack) {
+    rpc PutMessage (GatewaySlot) returns (GatewaySlotResponse) {
     }
 
     // RequestNonce returns a Nonce to the user
@@ -218,6 +218,20 @@ message GatewayPollResponse {
     repeated RoundInfo Updates = 3; // Empty if no update needed
     repeated string NewMessageIDs = 4; // Empty if no update needed
 }
+
+// Client -> Gateway authentication message
+message GatewaySlot{
+    Slot Message = 1;
+    uint64 RoundID = 2;
+    bytes MAC = 3;
+}
+
+// Gateway -> Client authentication response
+message GatewaySlotResponse{
+    bool accepted = 1;
+    uint64 RoundID = 2;
+}
+
 
 // REGISTRATION MESSAGE SERVICE ------------------------------------------------
 
@@ -331,7 +345,8 @@ message RequestRegistrationConfirmation {
 // RegistrationConfirmation returning proof of registration
 message RegistrationConfirmation {
     messages.RSASignature ClientSignedByServer = 1;
-    string Error = 2;
+    bytes ClientGatewayKey = 2;
+    string Error = 3;
 }
 
 // Unified Server->Permissioning polling message
