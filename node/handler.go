@@ -84,7 +84,7 @@ type Handler interface {
 		RSASignedByRegistration, DHSignedByClientRSA []byte, auth *connect.Auth) ([]byte, []byte, error)
 
 	// Server interface for ConfirmNonceMessage
-	ConfirmRegistration(UserID *id.ID, Signature []byte, auth *connect.Auth) ([]byte, error)
+	ConfirmRegistration(UserID *id.ID, Signature []byte, auth *connect.Auth) ([]byte, []byte, error)
 
 	// PostPrecompResult interface to finalize both payloads' precomps
 	PostPrecompResult(roundID uint64, slots []*mixmessages.Slot, auth *connect.Auth) error
@@ -126,7 +126,7 @@ type implementationFunctions struct {
 	RequestNonce func(salt []byte, RSAPubKey string, DHPubKey,
 		RSASigFromReg, RSASigDH []byte, auth *connect.Auth) ([]byte, []byte, error)
 	// Server interface for ConfirmNonceMessage
-	ConfirmRegistration func(UserID *id.ID, Signature []byte, auth *connect.Auth) ([]byte, error)
+	ConfirmRegistration func(UserID *id.ID, Signature []byte, auth *connect.Auth) ([]byte, []byte, error)
 
 	// PostPrecompResult interface to finalize both payloads' precomputations
 	PostPrecompResult func(roundID uint64,
@@ -201,9 +201,9 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return nil, nil, nil
 			},
-			ConfirmRegistration: func(UserID *id.ID, Signature []byte, auth *connect.Auth) ([]byte, error) {
+			ConfirmRegistration: func(UserID *id.ID, Signature []byte, auth *connect.Auth) ([]byte, []byte, error) {
 				warn(um)
-				return nil, nil
+				return nil, nil, nil
 			},
 			PostPrecompResult: func(roundID uint64,
 				slots []*mixmessages.Slot, auth *connect.Auth) error {
@@ -271,7 +271,7 @@ func (s *Implementation) RequestNonce(salt []byte, RSAPubKey string, DHPubKey,
 }
 
 // Server interface for ConfirmNonceMessage
-func (s *Implementation) ConfirmRegistration(UserID *id.ID, Signature []byte, auth *connect.Auth) ([]byte, error) {
+func (s *Implementation) ConfirmRegistration(UserID *id.ID, Signature []byte, auth *connect.Auth) ([]byte, []byte, error) {
 	return s.Functions.ConfirmRegistration(UserID, Signature, auth)
 }
 
