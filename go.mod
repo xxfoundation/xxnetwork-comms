@@ -9,7 +9,7 @@ require (
 	github.com/zeebo/blake3 v0.0.4
 	gitlab.com/elixxir/comms v0.0.0-20200707210150-b8ebd0951d23
 	gitlab.com/elixxir/crypto v0.0.0-20200707005343-97f868cbd930
-	gitlab.com/elixxir/primitives v0.0.0-20200706165052-9fe7a4fb99a3
+	gitlab.com/elixxir/primitives v0.0.0-20200731184040-494269b53b4d
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
 	golang.org/x/net v0.0.0-20200707034311-ab3426394381
 	google.golang.org/grpc v1.30.0
