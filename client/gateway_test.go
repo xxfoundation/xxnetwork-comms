@@ -30,7 +30,7 @@ func TestSendPutMessage(t *testing.T) {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
 
-	err = c.SendPutMessage(host, &pb.Slot{})
+	_, err = c.SendPutMessage(host, &pb.GatewaySlot{})
 	if err != nil {
 		t.Errorf("PutMessage: Error received: %s", err)
 	}

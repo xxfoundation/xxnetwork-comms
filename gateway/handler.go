@@ -27,7 +27,7 @@ type Handler interface {
 	// Returns the message matching the given parameters to the client
 	GetMessage(userID *id.ID, msgID string, ipAddress string) (*pb.Slot, error)
 	// Upload a message to the cMix Gateway
-	PutMessage(message *pb.Slot, ipAddress string) error
+	PutMessage(message *pb.GatewaySlot, ipAddress string) (*pb.GatewaySlotResponse, error)
 	// Pass-through for Registration Nonce Communication
 	RequestNonce(message *pb.NonceRequest, ipAddress string) (*pb.Nonce, error)
 	// Pass-through for Registration Nonce Confirmation
@@ -87,7 +87,7 @@ type implementationFunctions struct {
 	// Returns the message matching the given parameters to the client
 	GetMessage func(userID *id.ID, msgID string, ipAddress string) (*pb.Slot, error)
 	// Upload a message to the cMix Gateway
-	PutMessage func(message *pb.Slot, ipAddress string) error
+	PutMessage func(message *pb.GatewaySlot, ipAddress string) (*pb.GatewaySlotResponse, error)
 	// Pass-through for Registration Nonce Communication
 	RequestNonce func(message *pb.NonceRequest, ipAddress string) (*pb.Nonce, error)
 	// Pass-through for Registration Nonce Confirmation
@@ -122,9 +122,9 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return &pb.Slot{}, nil
 			},
-			PutMessage: func(message *pb.Slot, ipAddress string) error {
+			PutMessage: func(message *pb.GatewaySlot, ipAddress string) (*pb.GatewaySlotResponse, error) {
 				warn(um)
-				return nil
+				return new(pb.GatewaySlotResponse), nil
 			},
 			RequestNonce: func(message *pb.NonceRequest, ipAddress string) (*pb.Nonce, error) {
 				warn(um)
@@ -159,7 +159,7 @@ func (s *Implementation) GetMessage(userID *id.ID, msgID string, ipAddress strin
 }
 
 // Upload a message to the cMix Gateway
-func (s *Implementation) PutMessage(message *pb.Slot, ipAddress string) error {
+func (s *Implementation) PutMessage(message *pb.GatewaySlot, ipAddress string) (*pb.GatewaySlotResponse, error) {
 	return s.Functions.PutMessage(message, ipAddress)
 }
 
