@@ -14,8 +14,8 @@ import (
 	"gitlab.com/elixxir/crypto/csprng"
 	"gitlab.com/elixxir/crypto/signature/rsa"
 	"gitlab.com/elixxir/crypto/xx"
-	"gitlab.com/elixxir/primitives/id"
 	pb "gitlab.com/xx_network/comms/messages"
+	"gitlab.com/xx_network/primitives/id"
 	"sync"
 	"testing"
 )
