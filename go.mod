@@ -9,7 +9,7 @@ require (
 	github.com/stretchr/testify v1.6.1 // indirect
 	gitlab.com/elixxir/crypto v0.0.0-20200804172431-132b6336c177
 	gitlab.com/elixxir/primitives v0.0.0-20200804170709-a1896d262cd9
-	gitlab.com/xx_network/collections/ring v0.0.1
+	gitlab.com/xx_network/ring v0.0.1
 	gitlab.com/xx_network/comms v0.0.0-20200804172826-ac4a8f923f23
 	gitlab.com/xx_network/primitives v0.0.0-20200803231956-9b192c57ea7c
 	golang.org/x/crypto v0.0.0-20200707235045-ab33eee955e0 // indirect
@@ -22,6 +22,5 @@ require (
 )
 
 replace (
-	gitlab.com/xx_network/collections/ring => gitlab.com/xx_network/collections/ring.git v0.0.1
 	google.golang.org/grpc => github.com/grpc/grpc-go v1.27.1
 )
