@@ -53,6 +53,7 @@ github.com/zeebo/assert v1.1.0/go.mod h1:Pq9JiuJQpG8JLJdtkwrJESF0Foym2/D9XMU5ciN
 github.com/zeebo/blake3 v0.0.4/go.mod h1:YOZo8A49yNqM0X/Y+JmDUZshJWLt1laHsNSn5ny2i34=
 github.com/zeebo/pcg v0.0.0-20181207190024-3cdc6b625a05/go.mod h1:Gr+78ptB0MwXxm//LBaEvBiaXY7hXJ6KGe2V32X2F6E=
 gitlab.com/elixxir/comms v0.0.0-20200707210150-b8ebd0951d23/go.mod h1:OsWMZ1O/R9fOkm+PoHnR3rkXfFtipGoPs73FuKuurHY=
+gitlab.com/elixxir/comms v0.0.0-20200804210551-a530805b9bfa/go.mod h1:oisilQtRB2Wp79GwKyPgRt9+BjAnUMCQLZi0JCUawrs=
 gitlab.com/elixxir/crypto v0.0.0-20200707005343-97f868cbd930 h1:9qzfwyR12OYgn3j30qcHZHHVfWshWnH54lcAHppEROQ=
 gitlab.com/elixxir/crypto v0.0.0-20200707005343-97f868cbd930/go.mod h1:LHBAaEf48a0/AjU118rjoworH0LgXifhAqmNX3ZRvME=
 gitlab.com/elixxir/crypto v0.0.0-20200804172431-132b6336c177 h1:d9jvcPRphQg10B4VCfouYuUTOyb4YVcK8Q3JiQ2vS1Y=
@@ -69,6 +70,8 @@ gitlab.com/elixxir/primitives v0.0.0-20200804182913-788f47bded40 h1:S1cyRivF4Myw
 gitlab.com/elixxir/primitives v0.0.0-20200804182913-788f47bded40/go.mod h1:tzdFFvb1ESmuTCOl1z6+yf6oAICDxH2NPUemVgoNLxc=
 gitlab.com/xx_network/comms v0.0.0-20200804182755-f1b773c580a1 h1:HeedQMZBm1jM1/FVlcidD3pD8+wEUVhtBW9RdUt57BY=
 gitlab.com/xx_network/comms v0.0.0-20200804182755-f1b773c580a1/go.mod h1:FjzrRlj8EA59dyCci9loEFFyB1rctb84+bFVPt1Xo/g=
+gitlab.com/xx_network/comms v0.0.0-20200804220001-9fe1915fc1e4 h1:X8ks8FQCIdF2V266/y/KskUAneVWTwhMSUDNA2bTPaM=
+gitlab.com/xx_network/comms v0.0.0-20200804220001-9fe1915fc1e4/go.mod h1:IfKnpyTQ+ep9k0A5utWBdAM5Ttlyq1J8TEkBSbXolY4=
 gitlab.com/xx_network/primitives v0.0.0-20200803231956-9b192c57ea7c h1:tGe3QtCC6St63FuxVAaDtHSx0BCNqzCsfjbRo5jacWM=
 gitlab.com/xx_network/primitives v0.0.0-20200803231956-9b192c57ea7c/go.mod h1:wtdCMr7DPePz9qwctNoAUzZtbOSHSedcK++3Df3psjA=
 gitlab.com/xx_network/primitives v0.0.0-20200804183002-f99f7a7284da h1:CCVslUwNC7Ul7NG5nu3ThGTSVUt1TxNRX+47f5TUwnk=
