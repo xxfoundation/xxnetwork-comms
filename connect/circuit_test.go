@@ -8,8 +8,8 @@
 package connect
 
 import (
-	"gitlab.com/elixxir/comms/testkeys"
 	"gitlab.com/elixxir/primitives/utils"
+	"gitlab.com/xx_network/comms/testkeys"
 	"gitlab.com/xx_network/primitives/id"
 	"reflect"
 	"testing"
