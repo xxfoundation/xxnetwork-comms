@@ -14,7 +14,7 @@ import (
 	"crypto/sha256"
 	"github.com/pkg/errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/elixxir/primitives/ndf"
+	"gitlab.com/xx_network/primitives/ndf"
 	"sync"
 )
 

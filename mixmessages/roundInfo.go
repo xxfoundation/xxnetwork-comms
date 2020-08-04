@@ -12,9 +12,9 @@ package mixmessages
 
 import (
 	"github.com/pkg/errors"
-	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/elixxir/primitives/states"
 	"gitlab.com/xx_network/comms/messages"
+	"gitlab.com/xx_network/primitives/id"
 )
 
 // SetSignature sets RoundInfo's signature to the newSig argument

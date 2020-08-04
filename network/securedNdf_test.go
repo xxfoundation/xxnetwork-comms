@@ -14,7 +14,7 @@ import (
 	"gitlab.com/elixxir/comms/testutils"
 	"gitlab.com/elixxir/crypto/signature"
 	"gitlab.com/elixxir/crypto/signature/rsa"
-	"gitlab.com/elixxir/primitives/ndf"
+	"gitlab.com/xx_network/primitives/ndf"
 	"math/rand"
 	"testing"
 )
