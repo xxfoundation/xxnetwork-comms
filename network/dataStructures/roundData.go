@@ -12,7 +12,7 @@ package dataStructures
 import (
 	"github.com/pkg/errors"
 	"gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/xx_network/collections/ring"
+	"gitlab.com/xx_network/ring"
 	"gitlab.com/xx_network/primitives/id"
 )
 
