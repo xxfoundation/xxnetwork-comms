@@ -15,14 +15,16 @@ build:
 	go mod tidy
 
 update_release:
-	GOFLAGS="" go get -u gitlab.com/elixxir/primitives@release
+	GOFLAGS="" go get -u gitlab.com/elixxir/primitives@"XX-2471/XXPrimitives"
 	GOFLAGS="" go get -u gitlab.com/xx_network/primitives@release
-	GOFLAGS="" go get -u gitlab.com/elixxir/crypto@release
+	GOFLAGS="" go get -u gitlab.com/elixxir/crypto@"XX-2471/XXPrimitives"
+	GOFLAGS="" go get -u gitlab.com/elixxir/comms@"XX-2471/XXPrimitives"
 
 update_master:
 	GOFLAGS="" go get -u gitlab.com/elixxir/primitives@master
 	GOFLAGS="" go get -u gitlab.com/xx_network/primitives@master
 	GOFLAGS="" go get -u gitlab.com/elixxir/crypto@master
+	GOFLAGS="" go get -u gitlab.com/elixxir/comms@master
 
 master: clean update_master build
 
