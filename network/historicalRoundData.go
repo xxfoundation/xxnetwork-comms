@@ -3,7 +3,7 @@ package network
 import (
 	"errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/elixxir/primitives/id"
+	"gitlab.com/xx_network/primitives/id"
 )
 
 // Calls the underlying interface's function to get a specific round from history

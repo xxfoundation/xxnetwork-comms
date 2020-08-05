@@ -9,7 +9,7 @@ package testutils
 
 import (
 	"encoding/base64"
-	"gitlab.com/elixxir/primitives/ndf"
+	"gitlab.com/xx_network/primitives/ndf"
 )
 
 var (
