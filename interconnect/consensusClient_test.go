@@ -9,9 +9,9 @@ package interconnect
 import (
 	"bytes"
 	"context"
-	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/comms/testkeys"
+	"gitlab.com/xx_network/primitives/id"
 	"testing"
 )
 

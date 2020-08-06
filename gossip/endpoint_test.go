@@ -9,8 +9,8 @@ package gossip
 
 import (
 	"context"
-	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/xx_network/comms/connect"
+	"gitlab.com/xx_network/primitives/id"
 	"testing"
 	"time"
 )
