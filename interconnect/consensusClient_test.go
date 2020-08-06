@@ -16,7 +16,12 @@ import (
 )
 
 func TestComms_SendGetNDF(t *testing.T) {
-
+	defer func() {
+		r := recover()
+		if r == nil {
+			t.Errorf("Should panic due to a failure to server")
+		}
+	}()
 	testNodeID := id.NewIdFromString("test", id.Node, t)
 	testPort := "5959"
 
@@ -36,6 +41,7 @@ func TestComms_SendGetNDF(t *testing.T) {
 			"\nReceived: %v"+
 			"\nExpected: %v", resultMsg.Ndf, expectedMessage)
 	}
+
 	err = closeFunc()
 	if err != nil {
 		t.Errorf("Failed to close listener: %v", err)

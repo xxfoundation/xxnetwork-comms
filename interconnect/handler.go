@@ -55,7 +55,7 @@ func StartCMixInterconnect(id *id.ID, port string, handler Handler,
 
 	closeFunc := func() error {
 		jww.INFO.Printf("Closing listening port for CMix's interconnect service!")
-		//CMixInterconnect.Shutdown()
+		CMixInterconnect.Shutdown()
 		return lis.Close()
 
 	}
