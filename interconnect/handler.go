@@ -16,13 +16,17 @@ import (
 	"runtime/debug"
 )
 
+// Close listener is a function which is returned by the interconnect constructor
+// This closes the listener and bound port
+type closeListener func() error
+
 // Starts a new server on the localHost:port specified by port
 // and a callback interface for interconnect operations
 // with given path to public and private key for TLS connection
 func StartCMixInterconnect(id *id.ID, port string, handler Handler,
-	certPEMblock, keyPEMblock []byte) *Comms {
+	certPEMblock, keyPEMblock []byte) (*Server, closeListener) {
 
-	addr := net.JoinHostPort("0.0.0.0", port)
+	addr := net.JoinHostPort("localhost", port)
 
 	pc, lis, err := connect.StartCommServer(id, addr,
 		certPEMblock, keyPEMblock)
@@ -30,7 +34,7 @@ func StartCMixInterconnect(id *id.ID, port string, handler Handler,
 		jww.FATAL.Panicf("Unable to start comms server: %+v", err)
 	}
 
-	CMixInterconnect := Comms{
+	CMixInterconnect := Server{
 		ProtoComms: pc,
 		handler:    handler,
 	}
@@ -49,12 +53,19 @@ func StartCMixInterconnect(id *id.ID, port string, handler Handler,
 		jww.INFO.Printf("Shutting down node server listener: %s", lis)
 	}()
 
-	return &CMixInterconnect
+	closeFunc := func() error {
+		jww.INFO.Printf("Closing listening port for CMix's interconnect service!")
+		//CMixInterconnect.Shutdown()
+		return lis.Close()
+
+	}
+
+	return &CMixInterconnect, closeFunc
 
 }
 
 // Server object used to implement endpoints and top-level comms functionality
-type Comms struct {
+type Server struct {
 	*connect.ProtoComms
 	handler Handler
 }

@@ -17,7 +17,7 @@ import (
 )
 
 // consensus Server -> cmix Server Send Function
-func (s *Comms) SendGetNDF(host *connect.Host,
+func (s *Server) GetNdf(host *connect.Host,
 	message *messages.Ping) (*NDF, error) {
 
 	// Create the Send Function

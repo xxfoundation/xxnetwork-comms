@@ -16,13 +16,14 @@ import (
 )
 
 func TestComms_SendGetNDF(t *testing.T) {
+
 	testNodeID := id.NewIdFromString("test", id.Node, t)
 	testPort := "5959"
 
 	certPEM := testkeys.LoadFromPath(testkeys.GetNodeCertPath())
 	keyPEM := testkeys.LoadFromPath(testkeys.GetNodeKeyPath())
 
-	ic := StartCMixInterconnect(testNodeID, testPort, NewImplementation(), certPEM, keyPEM)
+	ic, closeFunc := StartCMixInterconnect(testNodeID, testPort, NewImplementation(), certPEM, keyPEM)
 
 	expectedMessage := []byte("hello world")
 
@@ -35,4 +36,9 @@ func TestComms_SendGetNDF(t *testing.T) {
 			"\nReceived: %v"+
 			"\nExpected: %v", resultMsg.Ndf, expectedMessage)
 	}
+	err = closeFunc()
+	if err != nil {
+		t.Errorf("Failed to close listener: %v", err)
+	}
+
 }
