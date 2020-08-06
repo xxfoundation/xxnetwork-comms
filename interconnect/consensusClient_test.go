@@ -15,20 +15,15 @@ import (
 	"testing"
 )
 
-func TestComms_SendGetNDF(t *testing.T) {
-	defer func() {
-		r := recover()
-		if r == nil {
-			t.Errorf("Should panic due to a failure to server")
-		}
-	}()
+func TestComms_GetNDF(t *testing.T) {
+
 	testNodeID := id.NewIdFromString("test", id.Node, t)
 	testPort := "5959"
 
 	certPEM := testkeys.LoadFromPath(testkeys.GetNodeCertPath())
 	keyPEM := testkeys.LoadFromPath(testkeys.GetNodeKeyPath())
 
-	ic, closeFunc := StartCMixInterconnect(testNodeID, testPort, NewImplementation(), certPEM, keyPEM)
+	ic, _ := StartCMixInterconnect(testNodeID, testPort, NewImplementation(), certPEM, keyPEM)
 
 	expectedMessage := []byte("hello world")
 
@@ -42,7 +37,23 @@ func TestComms_SendGetNDF(t *testing.T) {
 			"\nExpected: %v", resultMsg.Ndf, expectedMessage)
 	}
 
-	err = closeFunc()
+}
+
+func TestComms_CloserFunction(t *testing.T) {
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("Should panic due to a failure to server")
+		}
+	}()
+	testNodeID := id.NewIdFromString("test", id.Node, t)
+	testPort := "5959"
+
+	certPEM := testkeys.LoadFromPath(testkeys.GetNodeCertPath())
+	keyPEM := testkeys.LoadFromPath(testkeys.GetNodeKeyPath())
+
+	_, closeFunc := StartCMixInterconnect(testNodeID, testPort, NewImplementation(), certPEM, keyPEM)
+
+	err := closeFunc()
 	if err != nil {
 		t.Errorf("Failed to close listener: %v", err)
 	}
