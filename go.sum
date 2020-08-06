@@ -59,6 +59,8 @@ gitlab.com/elixxir/crypto v0.0.0-20200804182833-984246dea2c4 h1:28ftZDeYEko7xptC
 gitlab.com/elixxir/crypto v0.0.0-20200804182833-984246dea2c4/go.mod h1:ucm9SFKJo+K0N2GwRRpaNr+tKXMIOVWzmyUD0SbOu2c=
 gitlab.com/elixxir/crypto v0.0.0-20200805174804-bdf909f2a16d h1:3+o6r8a0o9/HIpBzlGCCiwuPN8OdEX3cHzdnCNqKDAw=
 gitlab.com/elixxir/crypto v0.0.0-20200805174804-bdf909f2a16d/go.mod h1:cu6uNoANVLV0J6HyTL6KqVtVyh9SHU1RjJhytYlsbVQ=
+gitlab.com/elixxir/crypto v0.0.0-20200806211835-b8ce4472f399 h1:U0oQ0cZeq1Wnv+MxZcny3RkMBONphpc1ambIgGbWovs=
+gitlab.com/elixxir/crypto v0.0.0-20200806211835-b8ce4472f399/go.mod h1:LthCESQ1AfV1H26URYL9kr+XgXXCE7JfEEPpomFPxIo=
 gitlab.com/elixxir/primitives v0.0.0-20200731184040-494269b53b4d/go.mod h1:OQgUZq7SjnE0b+8+iIAT2eqQF+2IFHn73tOo+aV11mg=
 gitlab.com/elixxir/primitives v0.0.0-20200804170709-a1896d262cd9/go.mod h1:p0VelQda72OzoUckr1O+vPW0AiFe0nyKQ6gYcmFSuF8=
 gitlab.com/elixxir/primitives v0.0.0-20200804182913-788f47bded40 h1:S1cyRivF4MywQX10K8cGXux6Pbwy5dbWhsxs56G+8hs=
@@ -69,6 +71,8 @@ gitlab.com/elixxir/primitives v0.0.0-20200805174810-86b366d1dd2d/go.mod h1:tzdFF
 gitlab.com/xx_network/comms v0.0.0-20200805174823-841427dd5023/go.mod h1:owEcxTRl7gsoM8c3RQ5KAm5GstxrJp5tn+6JfQ4z5Hw=
 gitlab.com/xx_network/crypto v0.0.0-20200806202113-978fa1984bbf h1:MuVrOLxQkHqZJhj5VAHVbf1WoJVt1JDiJt7JwR+KD7A=
 gitlab.com/xx_network/crypto v0.0.0-20200806202113-978fa1984bbf/go.mod h1:i0df/q6dDCBiscgD51fMoS2U2TBrm6LcyN822JmB5Tw=
+gitlab.com/xx_network/crypto v0.0.0-20200806235322-ede3c15881ce h1:gypNBUl2guESEv4MDgH+miwYqR4jPoWM8dLt2Zs5gIs=
+gitlab.com/xx_network/crypto v0.0.0-20200806235322-ede3c15881ce/go.mod h1:i0df/q6dDCBiscgD51fMoS2U2TBrm6LcyN822JmB5Tw=
 gitlab.com/xx_network/primitives v0.0.0-20200803231956-9b192c57ea7c/go.mod h1:wtdCMr7DPePz9qwctNoAUzZtbOSHSedcK++3Df3psjA=
 gitlab.com/xx_network/primitives v0.0.0-20200804183002-f99f7a7284da h1:CCVslUwNC7Ul7NG5nu3ThGTSVUt1TxNRX+47f5TUwnk=
 gitlab.com/xx_network/primitives v0.0.0-20200804183002-f99f7a7284da/go.mod h1:OK9xevzWCaPO7b1wiluVJGk7R5ZsuC7pHY5hteZFQug=
