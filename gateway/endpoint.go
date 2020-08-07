@@ -145,3 +145,18 @@ func (g *Comms) PollForNotifications(ctx context.Context, msg *messages.Authenti
 func (g *Comms) Poll(ctx context.Context, msg *pb.GatewayPoll) (*pb.GatewayPollResponse, error) {
 	return g.handler.Poll(msg)
 }
+
+// Client -> Gateway historical round request
+func (g *Comms) RequestHistoricalRounds(ctx context.Context, msg *pb.HistoricalRounds) (*pb.HistoricalRoundsResponse, error) {
+	return g.handler.RequestHistoricalRounds(msg)
+}
+
+// Client -> Gateway message request
+func (g *Comms) RequestMessages(ctx context.Context, msg *pb.GetMessages) (*pb.GetMessagesResponse, error) {
+	return g.handler.RequestMessages(msg)
+}
+
+// Client -> Gateway bloom filter request
+func (g *Comms) RequestBloom(ctx context.Context, msg *pb.GetBloom) (*pb.GetBloomResponse, error) {
+	return g.handler.RequestBloom(msg)
+}

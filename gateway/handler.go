@@ -25,7 +25,7 @@ type Handler interface {
 	// Return any MessageIDs in the buffer for this UserID
 	CheckMessages(userID *id.ID, messageID string, ipAddress string) ([]string, error)
 	// Returns the message matching the given parameters to the client
-	GetMessage(userID *id.ID, msgID string, ipAddress string) (*pb.Slot, error)
+	GetMessage(userID *id.ID, msgID string, ipAddress string) (*pb.Slot, error) // todo: depracate?
 	// Upload a message to the cMix Gateway
 	PutMessage(message *pb.GatewaySlot, ipAddress string) (*pb.GatewaySlotResponse, error)
 	// Pass-through for Registration Nonce Communication
@@ -37,6 +37,12 @@ type Handler interface {
 	PollForNotifications(auth *connect.Auth) ([]*id.ID, error)
 	// Client -> Gateway unified polling
 	Poll(msg *pb.GatewayPoll) (*pb.GatewayPollResponse, error)
+	// Client -> Gateway historical round request
+	RequestHistoricalRounds(msg *pb.HistoricalRounds) (*pb.HistoricalRoundsResponse, error)
+	// Client -> Gateway message request
+	RequestMessages(msg *pb.GetMessages) (*pb.GetMessagesResponse, error)
+	// Client -> Gateway bloom request
+	RequestBloom(msg *pb.GetBloom) (*pb.GetBloomResponse, error)
 }
 
 // Gateway object used to implement endpoints and top-level comms functionality
@@ -97,6 +103,14 @@ type implementationFunctions struct {
 	PollForNotifications func(auth *connect.Auth) ([]*id.ID, error)
 	// Client -> Gateway unified polling
 	Poll func(msg *pb.GatewayPoll) (*pb.GatewayPollResponse, error)
+	// Client -> Gateway historical round request
+	RequestHistoricalRounds func(msg *pb.HistoricalRounds) (*pb.HistoricalRoundsResponse, error)
+	// Client -> Gateway message request
+	RequestMessages func(msg *pb.GetMessages) (*pb.GetMessagesResponse, error)
+	// Client -> Gateway bloom request
+	RequestBloom func(msg *pb.GetBloom) (*pb.GetBloomResponse, error)
+
+
 }
 
 // Implementation allows users of the client library to set the
@@ -142,6 +156,19 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return &pb.GatewayPollResponse{}, nil
 			},
+			RequestHistoricalRounds: func(msg *pb.HistoricalRounds) (*pb.HistoricalRoundsResponse, error) {
+				warn(um)
+				return &pb.HistoricalRoundsResponse{}, nil
+			},
+			RequestMessages: func(msg *pb.GetMessages) (*pb.GetMessagesResponse, error) {
+				warn(um)
+				return &pb.GetMessagesResponse{}, nil
+			},
+			RequestBloom: func(msg *pb.GetBloom) (*pb.GetBloomResponse, error) {
+				warn(um)
+				return &pb.GetBloomResponse{}, nil
+			},
+
 		},
 	}
 }
@@ -183,4 +210,19 @@ func (s *Implementation) PollForNotifications(auth *connect.Auth) ([]*id.ID, err
 // Client -> Gateway unified polling
 func (s *Implementation) Poll(msg *pb.GatewayPoll) (*pb.GatewayPollResponse, error) {
 	return s.Functions.Poll(msg)
+}
+
+// Client -> Gateway historical round request
+func (s *Implementation) RequestHistoricalRounds(msg *pb.HistoricalRounds) (*pb.HistoricalRoundsResponse, error) {
+	return s.Functions.RequestHistoricalRounds(msg)
+}
+
+// Client -> Gateway historical round request
+func (s *Implementation) RequestMessages(msg *pb.GetMessages) (*pb.GetMessagesResponse, error) {
+	return s.Functions.RequestMessages(msg)
+}
+
+// Client -> Gateway bloom request
+func (s *Implementation) RequestBloom(msg *pb.GetBloom) (*pb.GetBloomResponse, error) {
+	return s.Functions.RequestBloom(msg)
 }
