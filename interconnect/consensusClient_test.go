@@ -13,6 +13,7 @@ import (
 	"gitlab.com/xx_network/comms/testkeys"
 	"gitlab.com/xx_network/primitives/id"
 	"testing"
+	"time"
 )
 
 func TestComms_GetNDF(t *testing.T) {
@@ -35,27 +36,6 @@ func TestComms_GetNDF(t *testing.T) {
 		t.Errorf("Unexpected message. "+
 			"\nReceived: %v"+
 			"\nExpected: %v", resultMsg.Ndf, expectedMessage)
-	}
-
-}
-
-func TestComms_CloserFunction(t *testing.T) {
-	defer func() {
-		if r := recover(); r == nil {
-			t.Errorf("Should panic due to a failure to server")
-		}
-	}()
-	testNodeID := id.NewIdFromString("test", id.Node, t)
-	testPort := "5959"
-
-	certPEM := testkeys.LoadFromPath(testkeys.GetNodeCertPath())
-	keyPEM := testkeys.LoadFromPath(testkeys.GetNodeKeyPath())
-
-	_, closeFunc := StartCMixInterconnect(testNodeID, testPort, NewImplementation(), certPEM, keyPEM)
-
-	err := closeFunc()
-	if err != nil {
-		t.Errorf("Failed to close listener: %v", err)
 	}
 
 }
