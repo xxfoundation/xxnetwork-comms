@@ -13,7 +13,6 @@ import (
 	"gitlab.com/xx_network/comms/testkeys"
 	"gitlab.com/xx_network/primitives/id"
 	"testing"
-	"time"
 )
 
 func TestComms_GetNDF(t *testing.T) {
