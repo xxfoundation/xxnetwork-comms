@@ -21,8 +21,8 @@ import (
 	"gitlab.com/elixxir/crypto/nonce"
 	"gitlab.com/elixxir/crypto/signature/rsa"
 	"gitlab.com/elixxir/crypto/xx"
-	"gitlab.com/elixxir/primitives/id"
 	pb "gitlab.com/xx_network/comms/messages"
+	"gitlab.com/xx_network/primitives/id"
 	"google.golang.org/grpc/metadata"
 )
 
