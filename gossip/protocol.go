@@ -17,7 +17,7 @@ import (
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/xx_network/comms/connect"
-	"gitlab.com/xx_network/comms/crypto/shuffle"
+	"gitlab.com/xx_network/crypto/shuffle"
 	"gitlab.com/xx_network/primitives/id"
 	"google.golang.org/grpc"
 	"io"
