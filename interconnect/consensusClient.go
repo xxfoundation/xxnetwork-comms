@@ -4,6 +4,9 @@
 // Use of this source code is governed by a license that can be found in the //
 // LICENSE file                                                              //
 ///////////////////////////////////////////////////////////////////////////////
+
+// Package interconnect contains logic for cross communication between the cMix servers and
+// xxNetwork's consensus
 package interconnect
 
 import (
@@ -16,8 +19,8 @@ import (
 	"google.golang.org/grpc"
 )
 
-// consensus Server -> cmix Server Send Function
-func (s *Server) GetNdf(host *connect.Host,
+//  CMixServer -> consensus node Send Function
+func (s *CMixServer) GetNdf(host *connect.Host,
 	message *messages.Ping) (*NDF, error) {
 
 	// Create the Send Function

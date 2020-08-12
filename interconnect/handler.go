@@ -23,8 +23,8 @@ type closeListener func() error
 // Starts a new server on the localHost:port specified by port
 // and a callback interface for interconnect operations
 // with given path to public and private key for TLS connection
-func StartCMixInterconnect(id *id.ID, port string, handler Handler,
-	certPEMblock, keyPEMblock []byte) (*Server, closeListener) {
+func StartCMixInterconnect(id *id.ID, port string, handler ServerHandler,
+	certPEMblock, keyPEMblock []byte) (*CMixServer, closeListener) {
 
 	addr := net.JoinHostPort("localhost", port)
 
@@ -34,7 +34,7 @@ func StartCMixInterconnect(id *id.ID, port string, handler Handler,
 		jww.FATAL.Panicf("Unable to start comms server: %+v", err)
 	}
 
-	CMixInterconnect := Server{
+	CMixInterconnect := CMixServer{
 		ProtoComms: pc,
 		handler:    handler,
 	}
@@ -64,15 +64,26 @@ func StartCMixInterconnect(id *id.ID, port string, handler Handler,
 
 }
 
-// Server object used to implement endpoints and top-level comms functionality
-type Server struct {
+// CMixServer object used to implement endpoints and top-level comms functionality
+type CMixServer struct {
 	*connect.ProtoComms
-	handler Handler
+	handler ServerHandler
 }
 
-type Handler interface {
+// Handler for CMix -> consensus
+type ServerHandler interface {
 	// Interconnect interface for getting the NDF
 	GetNDF() (*NDF, error)
+}
+
+// CMixServer object used to implement endpoints and top-level comms functionality
+type CMixClient struct {
+	*connect.ProtoComms
+	handler ClientHandler
+}
+
+// Handler for consensus -> CMix
+type ClientHandler interface {
 }
 
 type implementationFunctions struct {

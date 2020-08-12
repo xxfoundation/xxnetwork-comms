@@ -14,6 +14,6 @@ import (
 	"gitlab.com/xx_network/comms/messages"
 )
 
-func (c *Server) GetNDF(ctx context.Context, ping *messages.Ping) (*NDF, error) {
+func (c *CMixServer) GetNDF(ctx context.Context, ping *messages.Ping) (*NDF, error) {
 	return c.handler.GetNDF()
 }
