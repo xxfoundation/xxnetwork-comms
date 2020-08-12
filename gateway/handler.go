@@ -109,8 +109,6 @@ type implementationFunctions struct {
 	RequestMessages func(msg *pb.GetMessages) (*pb.GetMessagesResponse, error)
 	// Client -> Gateway bloom request
 	RequestBloom func(msg *pb.GetBloom) (*pb.GetBloomResponse, error)
-
-
 }
 
 // Implementation allows users of the client library to set the
@@ -168,7 +166,6 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return &pb.GetBloomResponse{}, nil
 			},
-
 		},
 	}
 }
