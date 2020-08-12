@@ -10,9 +10,9 @@ package mixmessages
 import (
 	"bytes"
 	"crypto/rand"
-	"gitlab.com/elixxir/crypto/signature"
-	"gitlab.com/elixxir/crypto/signature/rsa"
 	"gitlab.com/xx_network/comms/messages"
+	"gitlab.com/xx_network/crypto/signature"
+	"gitlab.com/xx_network/crypto/signature/rsa"
 	"testing"
 )
 
