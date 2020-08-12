@@ -18,10 +18,10 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
-	"gitlab.com/elixxir/crypto/nonce"
-	"gitlab.com/elixxir/crypto/signature/rsa"
 	"gitlab.com/elixxir/crypto/xx"
 	pb "gitlab.com/xx_network/comms/messages"
+	"gitlab.com/xx_network/crypto/nonce"
+	"gitlab.com/xx_network/crypto/signature/rsa"
 	"gitlab.com/xx_network/primitives/id"
 	"google.golang.org/grpc/metadata"
 )

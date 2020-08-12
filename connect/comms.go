@@ -14,7 +14,7 @@ import (
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
-	"gitlab.com/elixxir/crypto/signature/rsa"
+	"gitlab.com/xx_network/crypto/signature/rsa"
 	"gitlab.com/xx_network/primitives/id"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
