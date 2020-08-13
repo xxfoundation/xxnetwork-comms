@@ -15,7 +15,7 @@ type ersMemMap struct {
 }
 
 // Store a new round info object into the map
-func (ersm ersMemMap) Store(ri *pb.RoundInfo) error {
+func (ersm *ersMemMap) Store(ri *pb.RoundInfo) error {
 	rid := id.Round(ri.GetID())
 	// See if the round exists, if it does we need to check that the update ID is newer than the current
 	ori, err := ersm.Retrieve(rid)
@@ -34,12 +34,12 @@ func (ersm ersMemMap) Store(ri *pb.RoundInfo) error {
 }
 
 // Get a round info object from the memory map database
-func (ersm ersMemMap) Retrieve(id id.Round) (*pb.RoundInfo, error) {
+func (ersm *ersMemMap) Retrieve(id id.Round) (*pb.RoundInfo, error) {
 	return ersm.rounds[id], nil
 }
 
 // Get multiple specific round info objects from the memory map database
-func (ersm ersMemMap) RetrieveMany(rounds []id.Round) ([]*pb.RoundInfo, error) {
+func (ersm *ersMemMap) RetrieveMany(rounds []id.Round) ([]*pb.RoundInfo, error) {
 	var r []*pb.RoundInfo
 
 	for _, round := range rounds {
@@ -55,7 +55,7 @@ func (ersm ersMemMap) RetrieveMany(rounds []id.Round) ([]*pb.RoundInfo, error) {
 }
 
 // Retrieve a concurrent range of round info objects from the memory map database
-func (ersm ersMemMap) RetrieveRange(first, last id.Round) ([]*pb.RoundInfo, error) {
+func (ersm *ersMemMap) RetrieveRange(first, last id.Round) ([]*pb.RoundInfo, error) {
 	idrange := uint64(last - first)
 	i := uint64(0)
 
@@ -81,7 +81,7 @@ func (ersm ersMemMap) RetrieveRange(first, last id.Round) ([]*pb.RoundInfo, erro
 // a newer ID
 func TestERSStore(t *testing.T) {
 	// Setup
-	var ers ds.ExternalRoundStorage = ersMemMap{rounds: make(map[id.Round]*pb.RoundInfo)}
+	var ers ds.ExternalRoundStorage = &ersMemMap{rounds: make(map[id.Round]*pb.RoundInfo)}
 
 	// Store a test round
 	r := pb.RoundInfo{ID: 1, UpdateID: 5}
@@ -143,7 +143,7 @@ func TestERSStore(t *testing.T) {
 
 // Test that Retrieve has expected behaviour if an item doesn't exist
 func TestERSRetrieve(t *testing.T) {
-	var ers ds.ExternalRoundStorage = ersMemMap{rounds: make(map[id.Round]*pb.RoundInfo)}
+	var ers ds.ExternalRoundStorage = &ersMemMap{rounds: make(map[id.Round]*pb.RoundInfo)}
 	ri, err := ers.Retrieve(id.Round(1))
 	if err != nil {
 		t.Errorf(err.Error())
@@ -175,7 +175,7 @@ func TestERSRetrieve(t *testing.T) {
 // that are not
 func TestERSRetrieveMany(t *testing.T) {
 	// Setup
-	var ers ds.ExternalRoundStorage = ersMemMap{rounds: make(map[id.Round]*pb.RoundInfo)}
+	var ers ds.ExternalRoundStorage = &ersMemMap{rounds: make(map[id.Round]*pb.RoundInfo)}
 
 	// Store a test round
 	origRound1 := pb.RoundInfo{ID: 1, UpdateID: 5}
@@ -215,7 +215,7 @@ func TestERSRetrieveMany(t *testing.T) {
 // are not stored
 func TestERSRetrieveRange(t *testing.T) {
 	// Setup
-	var ers ds.ExternalRoundStorage = ersMemMap{rounds: make(map[id.Round]*pb.RoundInfo)}
+	var ers ds.ExternalRoundStorage = &ersMemMap{rounds: make(map[id.Round]*pb.RoundInfo)}
 
 	// Store a test round
 	origRound1 := pb.RoundInfo{ID: 1, UpdateID: 5}
@@ -259,7 +259,7 @@ func TestInstance_GetHistoricalRound(t *testing.T) {
 		t.Errorf(err.Error())
 	}
 
-	var ers ds.ExternalRoundStorage = ersMemMap{rounds: make(map[id.Round]*pb.RoundInfo)}
+	var ers ds.ExternalRoundStorage = &ersMemMap{rounds: make(map[id.Round]*pb.RoundInfo)}
 	i2 := Instance{ers: ers}
 	ri, err = i2.GetHistoricalRound(id.Round(0))
 	// Should return no error and blank round
@@ -280,7 +280,7 @@ func TestInstance_GetHistoricalRoundRange(t *testing.T) {
 		t.Errorf(err.Error())
 	}
 
-	var ers ds.ExternalRoundStorage = ersMemMap{rounds: make(map[id.Round]*pb.RoundInfo)}
+	var ers ds.ExternalRoundStorage = &ersMemMap{rounds: make(map[id.Round]*pb.RoundInfo)}
 	i2 := Instance{ers: ers}
 	ri, err = i2.GetHistoricalRoundRange(5, 10)
 	// Should return no error and blank round
@@ -304,7 +304,7 @@ func TestInstance_GetHistoricalRounds(t *testing.T) {
 		t.Errorf(err.Error())
 	}
 
-	var ers ds.ExternalRoundStorage = ersMemMap{rounds: make(map[id.Round]*pb.RoundInfo)}
+	var ers ds.ExternalRoundStorage = &ersMemMap{rounds: make(map[id.Round]*pb.RoundInfo)}
 	i2 := Instance{ers: ers}
 	ri, err = i2.GetHistoricalRounds(getRounds)
 	// Should return no error and blank round
