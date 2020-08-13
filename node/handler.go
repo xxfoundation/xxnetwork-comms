@@ -99,6 +99,11 @@ type Handler interface {
 	AskOnline() error
 
 	RoundError(error *mixmessages.RoundError, auth *connect.Auth) error
+	// Consensus node -> cMix node NDF request
+	// NOTE: For now cMix nodes serve the NDF to the
+	//  consensus nodes, but this will be reversed
+	//  once consensus generates the NDF
+	GetNdf() ([]byte, error)
 }
 
 type implementationFunctions struct {
@@ -142,6 +147,11 @@ type implementationFunctions struct {
 	AskOnline func() error
 
 	RoundError func(error *mixmessages.RoundError, auth *connect.Auth) error
+	// Consensus node -> cMix node NDF request
+	// NOTE: For now cMix nodes serve the NDF to the
+	//  consensus nodes, but this will be reversed
+	//  once consensus generates the NDF
+	GetNdf func() ([]byte, error)
 }
 
 // Implementation allows users of the client library to set the
@@ -230,6 +240,10 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return nil
 			},
+			GetNdf: func() (bytes []byte, err error) {
+				warn(um)
+				return nil, nil
+			},
 		},
 	}
 }
@@ -310,4 +324,12 @@ func (s *Implementation) AskOnline() error {
 
 func (s *Implementation) RoundError(err *mixmessages.RoundError, auth *connect.Auth) error {
 	return s.Functions.RoundError(err, auth)
+}
+
+// Consensus node -> cMix node NDF request
+// NOTE: For now cMix nodes serve the NDF to the
+//  consensus nodes, but this will be reversed
+//  once consensus generates the NDF
+func (s *Implementation) GetNdf() ([]byte, error) {
+	return s.Functions.GetNdf()
 }
