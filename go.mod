@@ -7,10 +7,12 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/jwalterweatherman v1.1.0
 	github.com/stretchr/testify v1.6.1 // indirect
-	gitlab.com/elixxir/crypto v0.0.0-20200707005343-97f868cbd930
-	gitlab.com/elixxir/primitives v0.0.0-20200706165052-9fe7a4fb99a3
-	gitlab.com/xx_network/comms v0.0.0-20200730220144-eea32e8b696d
-	golang.org/x/crypto v0.0.0-20200707235045-ab33eee955e0 // indirect
+	gitlab.com/elixxir/crypto v0.0.0-20200811195343-de268a55c7c4
+	gitlab.com/elixxir/primitives v0.0.0-20200812191102-31c01f08b4dc
+	gitlab.com/xx_network/comms v0.0.0-20200818182121-732dd75b1947
+	gitlab.com/xx_network/crypto v0.0.0-20200806235322-ede3c15881ce
+	gitlab.com/xx_network/primitives v0.0.0-20200812183720-516a65a4a9b2
+	gitlab.com/xx_network/ring v0.0.2
 	golang.org/x/net v0.0.0-20200707034311-ab3426394381
 	golang.org/x/sys v0.0.0-20200625212154-ddb9806d33ae // indirect
 	golang.org/x/text v0.3.3 // indirect
