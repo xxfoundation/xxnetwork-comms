@@ -19,6 +19,7 @@ protoc -I messages/ messages/messages.proto -I /path/to/gitlab.com/ --go_out=plu
 This structure allows for compatibility with our partner organization, Elixxir and their projects.
 
 ```
+protoc -I interconnect/ interconnect/interconnect.proto -I /path/to/gitlab.com/ --go_out=plugins=grpc:interconnect
 protoc -I messages/ messages/messages.proto --go_out=plugins=grpc:messages
 protoc -I gossip/ gossip/messages.proto --go_out=plugins=grpc:gossip
 ```
