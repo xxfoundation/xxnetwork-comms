@@ -3201,7 +3201,7 @@ func (c *gatewayClient) Poll(ctx context.Context, in *GatewayPoll, opts ...grpc.
 
 func (c *gatewayClient) RequestHistoricalRounds(ctx context.Context, in *HistoricalRounds, opts ...grpc.CallOption) (*HistoricalRoundsResponse, error) {
 	out := new(HistoricalRoundsResponse)
-	err := c.cc.Invoke(ctx, "/mixmessages.Gateway/RequestHistoricalRounds", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/mixmessages.Gateway/GetHistoricalRounds", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -3219,7 +3219,7 @@ func (c *gatewayClient) RequestMessages(ctx context.Context, in *GetMessages, op
 
 func (c *gatewayClient) RequestBloom(ctx context.Context, in *GetBloom, opts ...grpc.CallOption) (*GetBloomResponse, error) {
 	out := new(GetBloomResponse)
-	err := c.cc.Invoke(ctx, "/mixmessages.Gateway/RequestBloom", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/mixmessages.Gateway/GetBloom", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -3276,13 +3276,13 @@ func (*UnimplementedGatewayServer) Poll(ctx context.Context, req *GatewayPoll) (
 	return nil, status.Errorf(codes.Unimplemented, "method Poll not implemented")
 }
 func (*UnimplementedGatewayServer) RequestHistoricalRounds(ctx context.Context, req *HistoricalRounds) (*HistoricalRoundsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method RequestHistoricalRounds not implemented")
+	return nil, status.Errorf(codes.Unimplemented, "method GetHistoricalRounds not implemented")
 }
 func (*UnimplementedGatewayServer) RequestMessages(ctx context.Context, req *GetMessages) (*GetMessagesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RequestMessages not implemented")
 }
 func (*UnimplementedGatewayServer) RequestBloom(ctx context.Context, req *GetBloom) (*GetBloomResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method RequestBloom not implemented")
+	return nil, status.Errorf(codes.Unimplemented, "method GetBloom not implemented")
 }
 
 func RegisterGatewayServer(s *grpc.Server, srv GatewayServer) {
@@ -3425,7 +3425,7 @@ func _Gateway_RequestHistoricalRounds_Handler(srv interface{}, ctx context.Conte
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/mixmessages.Gateway/RequestHistoricalRounds",
+		FullMethod: "/mixmessages.Gateway/GetHistoricalRounds",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(GatewayServer).RequestHistoricalRounds(ctx, req.(*HistoricalRounds))
@@ -3461,7 +3461,7 @@ func _Gateway_RequestBloom_Handler(srv interface{}, ctx context.Context, dec fun
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/mixmessages.Gateway/RequestBloom",
+		FullMethod: "/mixmessages.Gateway/GetBloom",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(GatewayServer).RequestBloom(ctx, req.(*GetBloom))
@@ -3502,7 +3502,7 @@ var _Gateway_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Gateway_Poll_Handler,
 		},
 		{
-			MethodName: "RequestHistoricalRounds",
+			MethodName: "GetHistoricalRounds",
 			Handler:    _Gateway_RequestHistoricalRounds_Handler,
 		},
 		{
@@ -3510,7 +3510,7 @@ var _Gateway_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Gateway_RequestMessages_Handler,
 		},
 		{
-			MethodName: "RequestBloom",
+			MethodName: "GetBloom",
 			Handler:    _Gateway_RequestBloom_Handler,
 		},
 	},

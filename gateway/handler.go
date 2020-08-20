@@ -25,7 +25,7 @@ type Handler interface {
 	// Return any MessageIDs in the buffer for this UserID
 	CheckMessages(userID *id.ID, messageID string, ipAddress string) ([]string, error)
 	// Returns the message matching the given parameters to the client
-	GetMessage(userID *id.ID, msgID string, ipAddress string) (*pb.Slot, error) // todo: depracate?
+	GetMessage(userID *id.ID, msgID string, ipAddress string) (*pb.Slot, error) // todo: depracate and replace with
 	// Upload a message to the cMix Gateway
 	PutMessage(message *pb.GatewaySlot, ipAddress string) (*pb.GatewaySlotResponse, error)
 	// Pass-through for Registration Nonce Communication
@@ -38,11 +38,11 @@ type Handler interface {
 	// Client -> Gateway unified polling
 	Poll(msg *pb.GatewayPoll) (*pb.GatewayPollResponse, error)
 	// Client -> Gateway historical round request
-	RequestHistoricalRounds(msg *pb.HistoricalRounds) (*pb.HistoricalRoundsResponse, error)
+	GetHistoricalRounds(msg *pb.HistoricalRounds, ipAddress string) (*pb.HistoricalRoundsResponse, error)
 	// Client -> Gateway message request
-	RequestMessages(msg *pb.GetMessages) (*pb.GetMessagesResponse, error)
+	RequestMessages(msg *pb.GetMessages, ipAddress string) (*pb.GetMessagesResponse, error)
 	// Client -> Gateway bloom request
-	RequestBloom(msg *pb.GetBloom) (*pb.GetBloomResponse, error)
+	GetBloom(msg *pb.GetBloom, ipAddress string) (*pb.GetBloomResponse, error)
 }
 
 // Gateway object used to implement endpoints and top-level comms functionality
@@ -104,11 +104,11 @@ type implementationFunctions struct {
 	// Client -> Gateway unified polling
 	Poll func(msg *pb.GatewayPoll) (*pb.GatewayPollResponse, error)
 	// Client -> Gateway historical round request
-	RequestHistoricalRounds func(msg *pb.HistoricalRounds) (*pb.HistoricalRoundsResponse, error)
+	GetHistoricalRounds func(msg *pb.HistoricalRounds, ipAddress string) (*pb.HistoricalRoundsResponse, error)
 	// Client -> Gateway message request
-	RequestMessages func(msg *pb.GetMessages) (*pb.GetMessagesResponse, error)
+	RequestMessages func(msg *pb.GetMessages, ipAddress string) (*pb.GetMessagesResponse, error)
 	// Client -> Gateway bloom request
-	RequestBloom func(msg *pb.GetBloom) (*pb.GetBloomResponse, error)
+	GetBloom func(msg *pb.GetBloom, ipAddress string) (*pb.GetBloomResponse, error)
 }
 
 // Implementation allows users of the client library to set the
@@ -154,15 +154,15 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return &pb.GatewayPollResponse{}, nil
 			},
-			RequestHistoricalRounds: func(msg *pb.HistoricalRounds) (*pb.HistoricalRoundsResponse, error) {
+			GetHistoricalRounds: func(msg *pb.HistoricalRounds, ipAddress string) (*pb.HistoricalRoundsResponse, error) {
 				warn(um)
 				return &pb.HistoricalRoundsResponse{}, nil
 			},
-			RequestMessages: func(msg *pb.GetMessages) (*pb.GetMessagesResponse, error) {
+			RequestMessages: func(msg *pb.GetMessages, ipAddress string) (*pb.GetMessagesResponse, error) {
 				warn(um)
 				return &pb.GetMessagesResponse{}, nil
 			},
-			RequestBloom: func(msg *pb.GetBloom) (*pb.GetBloomResponse, error) {
+			GetBloom: func(msg *pb.GetBloom, ipAddress string) (*pb.GetBloomResponse, error) {
 				warn(um)
 				return &pb.GetBloomResponse{}, nil
 			},
@@ -210,16 +210,16 @@ func (s *Implementation) Poll(msg *pb.GatewayPoll) (*pb.GatewayPollResponse, err
 }
 
 // Client -> Gateway historical round request
-func (s *Implementation) RequestHistoricalRounds(msg *pb.HistoricalRounds) (*pb.HistoricalRoundsResponse, error) {
-	return s.Functions.RequestHistoricalRounds(msg)
+func (s *Implementation) GetHistoricalRounds(msg *pb.HistoricalRounds, ipAddress string) (*pb.HistoricalRoundsResponse, error) {
+	return s.Functions.GetHistoricalRounds(msg, ipAddress)
 }
 
 // Client -> Gateway historical round request
-func (s *Implementation) RequestMessages(msg *pb.GetMessages) (*pb.GetMessagesResponse, error) {
-	return s.Functions.RequestMessages(msg)
+func (s *Implementation) RequestMessages(msg *pb.GetMessages, ipAddress string) (*pb.GetMessagesResponse, error) {
+	return s.Functions.RequestMessages(msg, ipAddress)
 }
 
 // Client -> Gateway bloom request
-func (s *Implementation) RequestBloom(msg *pb.GetBloom) (*pb.GetBloomResponse, error) {
-	return s.Functions.RequestBloom(msg)
+func (s *Implementation) GetBloom(msg *pb.GetBloom, ipAddress string) (*pb.GetBloomResponse, error) {
+	return s.Functions.GetBloom(msg, ipAddress)
 }

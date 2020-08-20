@@ -173,7 +173,7 @@ service Gateway {
     }
 
     // Client -> Gateway historical round request
-    rpc RequestHistoricalRounds(HistoricalRounds) returns (HistoricalRoundsResponse) {
+    rpc GetHistoricalRounds(HistoricalRounds) returns (HistoricalRoundsResponse) {
     }
 
     // Client -> Gateway message request
@@ -181,7 +181,7 @@ service Gateway {
     }
 
     // Client -> Gateway bloom request
-    rpc RequestBloom(GetBloom) returns (GetBloomResponse) {
+    rpc GetBloom(GetBloom) returns (GetBloomResponse) {
     }
 }
 

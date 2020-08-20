@@ -148,15 +148,33 @@ func (g *Comms) Poll(ctx context.Context, msg *pb.GatewayPoll) (*pb.GatewayPollR
 
 // Client -> Gateway historical round request
 func (g *Comms) RequestHistoricalRounds(ctx context.Context, msg *pb.HistoricalRounds) (*pb.HistoricalRoundsResponse, error) {
-	return g.handler.RequestHistoricalRounds(msg)
+	// Get peer information from context
+	addr, _, err := connect.GetAddressFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return g.handler.GetHistoricalRounds(msg, addr)
 }
 
 // Client -> Gateway message request
 func (g *Comms) RequestMessages(ctx context.Context, msg *pb.GetMessages) (*pb.GetMessagesResponse, error) {
-	return g.handler.RequestMessages(msg)
+	// Get peer information from context
+	addr, _, err := connect.GetAddressFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return g.handler.RequestMessages(msg, addr)
 }
 
 // Client -> Gateway bloom filter request
 func (g *Comms) RequestBloom(ctx context.Context, msg *pb.GetBloom) (*pb.GetBloomResponse, error) {
-	return g.handler.RequestBloom(msg)
+	// Get peer information from context
+	addr, _, err := connect.GetAddressFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return g.handler.GetBloom(msg, addr)
 }

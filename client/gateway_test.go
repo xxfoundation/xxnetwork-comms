@@ -177,7 +177,7 @@ func TestComms_RequestMessages(t *testing.T) {
 	}
 }
 
-// Smoke test RequestHistoricalRounds
+// Smoke test GetHistoricalRounds
 func TestComms_RequestHistoricalRounds(t *testing.T) {
 	gatewayAddress := getNextAddress()
 	testID := id.NewIdFromString("test", id.Gateway, t)
