@@ -36,29 +36,29 @@ type Instance struct {
 
 	ipOverride *ds.IpOverrideList
 
-	//
+	// Node Event Model Channels
 	addNode       chan ndf.Node
 	removeNode    chan *id.ID
 	addGateway    chan ndf.Gateway
 	removeGateway chan *id.ID
 }
 
-//
+// Register AddNode channel with Instance
 func (i *Instance) SetAddNodeChan(c chan ndf.Node) {
 	i.addNode = c
 }
 
-//
+// Register RemoveNode channel with Instance
 func (i *Instance) SetRemoveNodeChan(c chan *id.ID) {
 	i.removeNode = c
 }
 
-//
+// Register AddGateway channel with Instance
 func (i *Instance) SetAddGatewayChan(c chan ndf.Gateway) {
 	i.addGateway = c
 }
 
-//
+// Register RemoveGateway channel with Instance
 func (i *Instance) SetRemoveGatewayChan(c chan *id.ID) {
 	i.removeGateway = c
 }
@@ -181,6 +181,7 @@ func (i *Instance) UpdatePartialNdf(m *pb.NDF) error {
 	}
 	for _, nid := range rmNodes {
 		i.comm.RemoveHost(nid)
+
 		// Send events into Node Listener
 		select {
 		case i.removeNode <- nid:
