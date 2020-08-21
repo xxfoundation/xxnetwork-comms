@@ -9,7 +9,6 @@
 package dataStructures
 
 import (
-	"github.com/pkg/errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/elixxir/primitives/states"
@@ -17,124 +16,102 @@ import (
 	"time"
 )
 
+// Callbacks must use this function signature
+type RoundEventCallback func(ri *pb.RoundInfo, timedOut bool)
+
 // One callback and associated data
 type eventCallback struct {
-	// Function that will be called
-	f RoundEventCallback
 	// Round states where this function can be called
 	states []states.Round
-	// Callback won't be called after this time
-	timeout time.Time
+	// Send on this channel to cause the relevant callbacks
+	signal chan *pb.RoundInfo
 }
-
-// Has all the callbacks and information for a round
-type roundEventCallbacks struct {
-	// All callbacks associated with the round
-	callbacks []eventCallback
-	// Time at which all callbacks will have timed out and this round will be removed from the map
-	deletionTime time.Time
-}
-
-// Callbacks must use this function signature
-type RoundEventCallback func(ri *pb.RoundInfo)
 
 // Holds the callbacks for a round
 type RoundEvents struct {
-	// Callbacks
-	callbacks map[id.Round]*roundEventCallbacks
+	// The slice that map[id.Round] maps to is a collection of event callbacks for each of the round's states
+	callbacks map[id.Round][states.NUM_STATES]map[*eventCallback]*eventCallback
 	mux       sync.RWMutex
 }
 
-// Initialize the round events structure
-func NewRoundEvents() *RoundEvents {
-	return &RoundEvents{
-		callbacks: make(map[id.Round]*roundEventCallbacks),
+func (r *RoundEvents) Remove(rid id.Round, e *eventCallback) {
+	r.mux.Lock()
+	r.remove(rid, e)
+	r.mux.Unlock()
+}
+
+// Remove an event callback from all the states' maps
+func (r *RoundEvents) remove(rid id.Round, e *eventCallback) {
+	for _, s := range e.states {
+		delete(r.callbacks[rid][s], e)
+	}
+
+	// Remove this round's events from the top-level map if there aren't any
+	// callbacks left in any of the states
+	removeRound := true
+	for s := states.Round(0); (s < states.NUM_STATES) && removeRound; s++ {
+		removeRound = removeRound && len(r.callbacks[rid][s]) == 0
+	}
+	if removeRound {
+		delete(r.callbacks, rid)
 	}
 }
 
-// Add a round event callback for a certain round and states
-// If the callback is called after a certain timeout
-func (r *RoundEvents) AddRoundEvent(id *id.Round, callback RoundEventCallback, timeout time.Duration, states ...states.Round) {
+func (r *RoundEvents) AddRoundEvent(rid id.Round, callback RoundEventCallback, timeout time.Duration, validStates ...states.Round) {
+	// Add the specific event to the round
+	thisEvent := &eventCallback{
+		states: validStates,
+		signal: make(chan *pb.RoundInfo, 1),
+	}
+
+	go func() {
+		ri := &pb.RoundInfo{ID: uint64(rid)}
+		select {
+		case <-time.After(timeout):
+			go r.Remove(rid, thisEvent)
+			callback(ri, true)
+		case ri = <-thisEvent.signal:
+			callback(ri, false)
+		}
+	}()
+
 	r.mux.Lock()
-	callbacks, ok := r.callbacks[*id]
+	callbacks, ok := r.callbacks[rid]
 	if !ok {
 		// create callbacks for this round
-		callbacks = &roundEventCallbacks{
-			deletionTime: time.Now(),
+		for i := range callbacks {
+			callbacks[i] = make(map[*eventCallback]*eventCallback)
 		}
-		r.callbacks[*id] = callbacks
+
+		r.callbacks[rid] = callbacks
 	}
 
-	// Add the specific event to the round
-	thisEvent := eventCallback{
-		f:       callback,
-		states:  states,
-		timeout: time.Now().Add(timeout),
-	}
-	callbacks.callbacks = append(callbacks.callbacks, thisEvent)
-
-	// Reschedule deletion if this event's timeout is after the callback structure's deletion time
-	if callbacks.deletionTime.Before(thisEvent.timeout) {
-		callbacks.deletionTime = thisEvent.timeout
-		time.AfterFunc(timeout, func() {
-			now := time.Now()
-			r.mux.Lock()
-			// Check to see whether it's time to remove this round or not
-			// which is why it's necessary to check)
-			// (another call to AddRoundEvent could have changed the deletion time,
-			if now.After(callbacks.deletionTime) || now.Equal(callbacks.deletionTime) {
-				// OK to delete this round's callbacks from the map
-				delete(r.callbacks, *id)
-			}
-			r.mux.Unlock()
-		})
+	for _, s := range validStates {
+		callbacks[s][thisEvent] = thisEvent
 	}
 	r.mux.Unlock()
 }
 
-// Returns error if no event is found
-func (r *RoundEvents) TriggerRoundEvent(ri *pb.RoundInfo) error {
+func (r *RoundEvents) TriggerRoundEvent(ri *pb.RoundInfo) {
 	r.mux.RLock()
 	// Try to find callbacks
 	callbacks, ok := r.callbacks[id.Round(ri.ID)]
 	if !ok {
 		r.mux.RUnlock()
-		return errors.New("no callbacks found for that round ID")
+		return
 	}
-	var wg sync.WaitGroup
-	now := time.Now()
-	foundCallback := false
-	for i := range callbacks.callbacks {
-		// launch all callbacks for this round's state
-		for j := range callbacks.callbacks[i].states {
-			// Callback must be relevant for this round state to be called
-			if callbacks.callbacks[i].states[j] == states.Round(ri.State) {
-				// Callback must not have timed out to be called
-				if callbacks.callbacks[i].timeout.After(now) {
-					wg.Add(1)
-					foundCallback = true
-					go func() {
-						callbacks.callbacks[i].f(ri)
-						wg.Done()
-					}()
-				}
-			}
+	thisStatesCallbacks := callbacks[ri.State]
+	if len(thisStatesCallbacks) != 0 {
+		// Keep track of events we've used for later removal
+		var events []*eventCallback
+		for _, event := range thisStatesCallbacks {
+			event.signal <- ri
+			events = append(events, event)
+		}
+		// Everything we sent a signal to is no longer needed
+		for _, event := range events {
+			r.remove(id.Round(ri.ID), event)
 		}
 	}
-	wg.Wait()
 	r.mux.RUnlock()
-
-	if foundCallback {
-		return nil
-	} else {
-		return errors.New("no callbacks found in that round's callbacks")
-	}
-}
-
-// Remove all the events for a round so the memory can be garbage collected
-// No effect if the specified round doesn't have events registered
-func (r *RoundEvents) RemoveRoundEvents(id *id.Round) {
-	r.mux.Lock()
-	delete(r.callbacks, *id)
-	r.mux.Unlock()
 }
