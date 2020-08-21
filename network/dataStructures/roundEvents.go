@@ -57,6 +57,17 @@ func (r *RoundEvents) remove(rid id.Round, e *eventCallback) {
 	}
 }
 
+func (r *RoundEvents) signal(rid id.Round, event *eventCallback, callback RoundEventCallback, timeout time.Duration) {
+	ri := &pb.RoundInfo{ID: uint64(rid)}
+	select {
+	case <-time.After(timeout):
+		go r.Remove(rid, event)
+		callback(ri, true)
+	case ri = <-event.signal:
+		callback(ri, false)
+	}
+}
+
 func (r *RoundEvents) AddRoundEvent(rid id.Round, callback RoundEventCallback, timeout time.Duration, validStates ...states.Round) {
 	// Add the specific event to the round
 	thisEvent := &eventCallback{
@@ -64,16 +75,7 @@ func (r *RoundEvents) AddRoundEvent(rid id.Round, callback RoundEventCallback, t
 		signal: make(chan *pb.RoundInfo, 1),
 	}
 
-	go func() {
-		ri := &pb.RoundInfo{ID: uint64(rid)}
-		select {
-		case <-time.After(timeout):
-			go r.Remove(rid, thisEvent)
-			callback(ri, true)
-		case ri = <-thisEvent.signal:
-			callback(ri, false)
-		}
-	}()
+	go r.signal(rid, thisEvent, callback, timeout)
 
 	r.mux.Lock()
 	callbacks, ok := r.callbacks[rid]
@@ -94,10 +96,10 @@ func (r *RoundEvents) AddRoundEvent(rid id.Round, callback RoundEventCallback, t
 
 func (r *RoundEvents) TriggerRoundEvent(ri *pb.RoundInfo) {
 	r.mux.RLock()
+	defer r.mux.RUnlock()
 	// Try to find callbacks
 	callbacks, ok := r.callbacks[id.Round(ri.ID)]
 	if !ok {
-		r.mux.RUnlock()
 		return
 	}
 	thisStatesCallbacks := callbacks[ri.State]
@@ -113,5 +115,4 @@ func (r *RoundEvents) TriggerRoundEvent(ri *pb.RoundInfo) {
 			r.remove(id.Round(ri.ID), event)
 		}
 	}
-	r.mux.RUnlock()
 }
