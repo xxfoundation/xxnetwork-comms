@@ -189,7 +189,8 @@ func (i *Instance) UpdatePartialNdf(m *pb.NDF) error {
 			jww.WARN.Printf("Unable to send RemoveNode event for id %s", nid.String())
 		}
 		i.removeNode <- nid
-		nid.SetType(id.Gateway)
+		gwId := nid.DeepCopy()
+		gwId.SetType(id.Gateway)
 		select {
 		case i.removeGateway <- nid:
 		default:
@@ -255,7 +256,8 @@ func (i *Instance) UpdateFullNdf(m *pb.NDF) error {
 			jww.WARN.Printf("Unable to send RemoveNode event for id %s", nid.String())
 		}
 		i.removeNode <- nid
-		nid.SetType(id.Gateway)
+		gwId := nid.DeepCopy()
+		gwId.SetType(id.Gateway)
 		select {
 		case i.removeGateway <- nid:
 		default:
@@ -450,23 +452,23 @@ func (i *Instance) GetPermissioningId() *id.ID {
 }
 
 // Update host helper
-func (i *Instance) updateConns(def *ndf.NetworkDefinition, gate, node bool) error {
-	if gate {
-		for index, h := range def.Gateways {
+func (i *Instance) updateConns(def *ndf.NetworkDefinition, isGateway, isNode bool) error {
+	if isGateway {
+		for index, gateway := range def.Gateways {
 			gwid, err := id.Unmarshal(def.Nodes[index].ID)
 			if err != nil {
 				return err
 			}
 			gwid.SetType(id.Gateway)
 			//check if an ip override is registered
-			addr := i.ipOverride.CheckOverride(gwid, h.Address)
+			addr := i.ipOverride.CheckOverride(gwid, gateway.Address)
 
 			//check if the host exists
 			host, ok := i.comm.GetHost(gwid)
 			if !ok {
 				// Send events into Node Listener
 				select {
-				case i.addGateway <- h:
+				case i.addGateway <- gateway:
 				default:
 					jww.WARN.Printf("Unable to send AddGateway event for id %s", gwid.String())
 				}
@@ -476,7 +478,7 @@ func (i *Instance) updateConns(def *ndf.NetworkDefinition, gate, node bool) erro
 						"hard coded ID. Invalid ID: %v", gwid.Marshal())
 				}
 
-				_, err := i.comm.AddHost(gwid, addr, []byte(h.TlsCertificate), false, true)
+				_, err := i.comm.AddHost(gwid, addr, []byte(gateway.TlsCertificate), false, true)
 				if err != nil {
 					return errors.WithMessagef(err, "Could not add gateway host %s", gwid)
 				}
@@ -485,34 +487,34 @@ func (i *Instance) updateConns(def *ndf.NetworkDefinition, gate, node bool) erro
 			}
 		}
 	}
-	if node {
-		for _, h := range def.Nodes {
-			nid, err := id.Unmarshal(h.ID)
+	if isNode {
+		for _, node := range def.Nodes {
+			nid, err := id.Unmarshal(node.ID)
 			if err != nil {
 				return err
 			}
 			//check if an ip override is registered
-			addr := i.ipOverride.CheckOverride(nid, h.Address)
+			addr := i.ipOverride.CheckOverride(nid, node.Address)
 
 			//check if the host exists
 			host, ok := i.comm.GetHost(nid)
 			if !ok {
 				// Send events into Node Listener
 				select {
-				case i.addNode <- h:
+				case i.addNode <- node:
 				default:
 					jww.WARN.Printf("Unable to send AddNode event for id %s", nid.String())
 				}
 
-				// Check if node ID collides with an existing hard coded ID
+				// Check if isNode ID collides with an existing hard coded ID
 				if id.CollidesWithHardCodedID(nid) {
 					return errors.Errorf("Node ID invalid, collides with a "+
 						"hard coded ID. Invalid ID: %v", nid.Marshal())
 				}
 
-				_, err := i.comm.AddHost(nid, addr, []byte(h.TlsCertificate), false, true)
+				_, err := i.comm.AddHost(nid, addr, []byte(node.TlsCertificate), false, true)
 				if err != nil {
-					return errors.WithMessagef(err, "Could not add node host %s", nid)
+					return errors.WithMessagef(err, "Could not add isNode host %s", nid)
 				}
 			} else if host.GetAddress() != addr {
 				host.UpdateAddress(addr)
