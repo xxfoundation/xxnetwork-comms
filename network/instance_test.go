@@ -20,6 +20,7 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestBannedNodePartialNDFRemoval(t *testing.T) {
@@ -596,6 +597,116 @@ func TestInstance_GetPermissioningId(t *testing.T) {
 		t.Errorf("GetPermissioningId did not get value from primitives"+
 			"\n\tExpected: %+v"+
 			"\n\tReceived: %+v", id.Permissioning, receivedId)
+	}
+}
+
+// Full smoke test for Node Event Model
+func TestInstance_NodeEventModel(t *testing.T) {
+	i, f := setupComm(t)
+
+	// Set up the channels
+	addNode := make(chan ndf.Node, 10)
+	removeNode := make(chan *id.ID, 10)
+	addGateway := make(chan ndf.Gateway, 10)
+	removeGateway := make(chan *id.ID, 10)
+	i.SetRemoveGatewayChan(removeGateway)
+	i.SetRemoveNodeChan(removeNode)
+	i.SetAddGatewayChan(addGateway)
+	i.SetAddNodeChan(addNode)
+
+	// Install the NDF
+	err := i.UpdateFullNdf(f)
+	if err != nil {
+		t.Errorf("Unable to initalize group: %+v", err)
+	}
+
+	// Set up channels that count number of items they receive
+	counter := 0
+	go func() {
+		for range addNode {
+			counter += 1
+		}
+	}()
+	go func() {
+		for range addGateway {
+			counter += 1
+		}
+	}()
+
+	// Trigger sending to channels
+	err = i.UpdateNodeConnections()
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	err = i.UpdateGatewayConnections()
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	// Get the NDF
+	newNdf, _, err := ndf.DecodeNDF(string(f.Ndf))
+	if err != nil {
+		t.Errorf(err.Error())
+		return
+	}
+
+	// Verify channels received the correct amount of information
+	timeout := 5
+	for {
+		if counter == len(newNdf.Nodes)+len(newNdf.Gateways) {
+			break
+		} else {
+			timeout -= 1
+			if timeout == 0 {
+				t.Errorf("Unable to properly add nodes and gateways! Got %d", counter)
+				return
+			}
+		}
+		time.Sleep(1 * time.Second)
+	}
+
+	// Remove all nodes and gateways and resign the NDF
+	newNdf.Nodes = make([]ndf.Node, 0)
+	newNdf.Gateways = make([]ndf.Gateway, 0)
+	f.Ndf, err = newNdf.Marshal()
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	priv := testkeys.LoadFromPath(testkeys.GetNodeKeyPath())
+	privKey, _ := rsa.LoadPrivateKeyFromPem(priv)
+	err = signature.Sign(f, privKey)
+
+	// Set up channels that reduce counter by the number of items they receive
+	go func() {
+		for range removeNode {
+			counter -= 1
+		}
+	}()
+	go func() {
+		for range removeGateway {
+			counter -= 1
+		}
+	}()
+
+	// Install the newly-empty NDF
+	err = i.UpdateFullNdf(f)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	// Verify channels received the correct amount of information
+	timeout = 5
+	for {
+		if counter == 0 {
+			break
+		} else {
+			timeout -= 1
+			if timeout == 0 {
+				t.Errorf("Unable to properly remove nodes and gateways! Got %d", counter)
+				return
+			}
+		}
+		time.Sleep(1 * time.Second)
 	}
 }
 
