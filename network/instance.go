@@ -188,7 +188,6 @@ func (i *Instance) UpdatePartialNdf(m *pb.NDF) error {
 		default:
 			jww.WARN.Printf("Unable to send RemoveNode event for id %s", nid.String())
 		}
-		i.removeNode <- nid
 		gwId := nid.DeepCopy()
 		gwId.SetType(id.Gateway)
 		select {
@@ -241,7 +240,6 @@ func (i *Instance) UpdateFullNdf(m *pb.NDF) error {
 	if err != nil {
 		return err
 	}
-
 	rmNodes, err := getBannedNodes(oldNodeList, i.full.Get().Nodes)
 	if err != nil {
 		return err
@@ -255,7 +253,6 @@ func (i *Instance) UpdateFullNdf(m *pb.NDF) error {
 		default:
 			jww.WARN.Printf("Unable to send RemoveNode event for id %s", nid.String())
 		}
-		i.removeNode <- nid
 		gwId := nid.DeepCopy()
 		gwId.SetType(id.Gateway)
 		select {
