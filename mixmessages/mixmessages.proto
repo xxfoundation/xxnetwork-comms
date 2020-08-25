@@ -9,7 +9,7 @@ syntax = "proto3";
 package mixmessages;
 
 import "gitlab.com/xx_network/comms/messages/messages.proto";
-import "gitlab.com/xx_network/comms/messages/google/protobuf/any.proto";
+import "google/protobuf/any.proto";
 
 // SERVER MESSAGE SERVICE ------------------------------------------------------
 
@@ -337,9 +337,9 @@ message NDF{
 // The registration server is free to ignore these addresses and
 // derive the address from the network connection.
 message NodeRegistration {
-      bytes  ID               = 1;
-      string ServerTlsCert    = 2;
-      string ServerAddress    = 3;
+      bytes  Salt = 1;
+    string ServerTlsCert = 2;
+    string ServerAddress = 3;
       uint32 ServerPort       = 4; // Note: there is no uint16
       string GatewayTlsCert   = 5;
       string GatewayAddress   = 6;
