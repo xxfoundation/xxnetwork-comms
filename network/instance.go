@@ -36,6 +36,9 @@ type Instance struct {
 
 	ipOverride *ds.IpOverrideList
 
+	// Round Event Model
+	events *ds.RoundEvents
+
 	// Node Event Model Channels
 	addNode       chan ndf.Node
 	removeNode    chan *id.ID
@@ -61,6 +64,21 @@ func (i *Instance) SetAddGatewayChan(c chan ndf.Gateway) {
 // Register RemoveGateway channel with Instance
 func (i *Instance) SetRemoveGatewayChan(c chan *id.ID) {
 	i.removeGateway = c
+}
+
+// Return the Instance RoundEvents object
+func (i *Instance) GetRoundEvents() *ds.RoundEvents {
+	return i.events
+}
+
+// Return the partial ndf from this instance
+func (i *Instance) GetPartialNdf() *SecuredNdf {
+	return i.partial
+}
+
+// Return the full NDF from this instance
+func (i *Instance) GetFullNdf() *SecuredNdf {
+	return i.full
 }
 
 // Initializer for instance structs from base comms and NDF, you can put in nil for
@@ -129,6 +147,7 @@ func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition,
 		}
 	}
 
+	i.events = ds.NewRoundEvents()
 	// Set our ERS to the passed in ERS object (or nil)
 	i.ers = ers
 
@@ -307,16 +326,6 @@ func getBannedNodes(old []ndf.Node, new []ndf.Node) ([]*id.ID, error) {
 	return rmNodes, nil
 }
 
-// Return the partial ndf from this instance
-func (i *Instance) GetPartialNdf() *SecuredNdf {
-	return i.partial
-}
-
-// Return the full NDF from this instance
-func (i *Instance) GetFullNdf() *SecuredNdf {
-	return i.full
-}
-
 // Add a round to the round and update buffer
 func (i *Instance) RoundUpdate(info *pb.RoundInfo) error {
 	perm, success := i.comm.GetHost(&id.Permissioning)
@@ -336,17 +345,16 @@ func (i *Instance) RoundUpdate(info *pb.RoundInfo) error {
 	if err != nil {
 		return err
 	}
-
 	err = i.roundData.UpsertRound(info)
 	if err != nil {
 		return err
 	}
-
 	if i.ers != nil {
 		err = i.ers.Store(info)
 	}
 
-	return nil
+	i.events.TriggerRoundEvent(info)
+	return err
 }
 
 // GetE2EGroup gets the e2eGroup from the instance
