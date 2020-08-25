@@ -13,9 +13,9 @@ import (
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/messages"
+	"gitlab.com/xx_network/primitives/id"
 	"google.golang.org/grpc/reflection"
 	"runtime/debug"
 )
@@ -64,8 +64,8 @@ func StartRegistrationServer(id *id.ID, localServer string, handler Handler,
 type Handler interface {
 	RegisterUser(registrationCode, pubKey string) (signature []byte, err error)
 	GetCurrentClientVersion() (version string, err error)
-	RegisterNode(NodeID *id.ID, ServerAddr, ServerTlsCert, GatewayAddr,
-		GatewayTlsCert, RegistrationCode string) error
+	RegisterNode(salt []byte, serverAddr, serverTlsCert, gatewayAddr,
+		gatewayTlsCert, registrationCode string) error
 	PollNdf(ndfHash []byte, auth *connect.Auth) ([]byte, error)
 	Poll(msg *pb.PermissioningPoll, auth *connect.Auth, serverAddress string) (*pb.
 		PermissionPollResponse, error)
@@ -76,8 +76,8 @@ type implementationFunctions struct {
 	RegisterUser func(registrationCode, pubKey string) (signature []byte,
 		err error)
 	GetCurrentClientVersion func() (version string, err error)
-	RegisterNode            func(NodeID *id.ID, ServerAddr, ServerTlsCert,
-		GatewayAddr, GatewayTlsCert, RegistrationCode string) error
+	RegisterNode            func(salt []byte, serverAddr, serverTlsCert, gatewayAddr,
+		gatewayTlsCert, registrationCode string) error
 	PollNdf func(ndfHash []byte, auth *connect.Auth) ([]byte, error)
 	Poll    func(msg *pb.PermissioningPoll, auth *connect.Auth,
 		serverAddress string) (*pb.PermissionPollResponse, error)
@@ -110,8 +110,8 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return "", nil
 			},
-			RegisterNode: func(NodeID *id.ID, ServerAddr, ServerTlsCert,
-				GatewayAddr, GatewayTlsCert, RegistrationCode string) error {
+			RegisterNode: func(salt []byte, serverAddr, serverTlsCert, gatewayAddr,
+				gatewayTlsCert, registrationCode string) error {
 				warn(um)
 				return nil
 			},
@@ -144,10 +144,10 @@ func (s *Implementation) GetCurrentClientVersion() (string, error) {
 	return s.Functions.GetCurrentClientVersion()
 }
 
-func (s *Implementation) RegisterNode(NodeID *id.ID, ServerAddr, ServerTlsCert,
-	GatewayAddr, GatewayTlsCert, RegistrationCode string) error {
-	return s.Functions.RegisterNode(NodeID, ServerAddr, ServerTlsCert,
-		GatewayAddr, GatewayTlsCert, RegistrationCode)
+func (s *Implementation) RegisterNode(salt []byte, serverAddr, serverTlsCert, gatewayAddr,
+	gatewayTlsCert, registrationCode string) error {
+	return s.Functions.RegisterNode(salt, serverAddr, serverTlsCert, gatewayAddr,
+		gatewayTlsCert, registrationCode)
 }
 
 func (s *Implementation) PollNdf(ndfHash []byte, auth *connect.Auth) ([]byte, error) {

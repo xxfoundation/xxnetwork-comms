@@ -12,9 +12,9 @@ package gateway
 import (
 	"github.com/pkg/errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/messages"
+	"gitlab.com/xx_network/primitives/id"
 	"golang.org/x/net/context"
 )
 
@@ -78,7 +78,7 @@ func (g *Comms) GetMessage(ctx context.Context, msg *pb.ClientRequest) (
 }
 
 // Receives a single message from a client
-func (g *Comms) PutMessage(ctx context.Context, msg *pb.Slot) (*messages.Ack,
+func (g *Comms) PutMessage(ctx context.Context, msg *pb.GatewaySlot) (*pb.GatewaySlotResponse,
 	error) {
 
 	// Get peer information from context
@@ -88,9 +88,12 @@ func (g *Comms) PutMessage(ctx context.Context, msg *pb.Slot) (*messages.Ack,
 	}
 
 	// Upload a message to the cMix Gateway at the peer's IP address
-	err = g.handler.PutMessage(msg, addr)
+	returnMsg, err := g.handler.PutMessage(msg, addr)
+	if err != nil {
+		returnMsg = &pb.GatewaySlotResponse{}
 
-	return &messages.Ack{}, err
+	}
+	return returnMsg, err
 }
 
 // Pass-through for Registration Nonce Communication
@@ -141,4 +144,19 @@ func (g *Comms) PollForNotifications(ctx context.Context, msg *messages.Authenti
 // Client -> Gateway unified polling
 func (g *Comms) Poll(ctx context.Context, msg *pb.GatewayPoll) (*pb.GatewayPollResponse, error) {
 	return g.handler.Poll(msg)
+}
+
+// Client -> Gateway historical round request
+func (g *Comms) RequestHistoricalRounds(ctx context.Context, msg *pb.HistoricalRounds) (*pb.HistoricalRoundsResponse, error) {
+	return g.handler.RequestHistoricalRounds(msg)
+}
+
+// Client -> Gateway message request
+func (g *Comms) RequestMessages(ctx context.Context, msg *pb.GetMessages) (*pb.GetMessagesResponse, error) {
+	return g.handler.RequestMessages(msg)
+}
+
+// Client -> Gateway bloom filter request
+func (g *Comms) RequestBloom(ctx context.Context, msg *pb.GetBloom) (*pb.GetBloomResponse, error) {
+	return g.handler.RequestBloom(msg)
 }

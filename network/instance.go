@@ -16,10 +16,10 @@ import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	ds "gitlab.com/elixxir/comms/network/dataStructures"
 	"gitlab.com/elixxir/crypto/cyclic"
-	"gitlab.com/elixxir/crypto/signature"
-	"gitlab.com/elixxir/primitives/id"
-	"gitlab.com/elixxir/primitives/ndf"
 	"gitlab.com/xx_network/comms/connect"
+	"gitlab.com/xx_network/crypto/signature"
+	"gitlab.com/xx_network/primitives/id"
+	"gitlab.com/xx_network/primitives/ndf"
 	"testing"
 )
 
@@ -32,12 +32,41 @@ type Instance struct {
 	full         *SecuredNdf
 	roundUpdates *ds.Updates
 	roundData    *ds.Data
+	ers          ds.ExternalRoundStorage
 
 	ipOverride *ds.IpOverrideList
+
+	// Node Event Model Channels
+	addNode       chan ndf.Node
+	removeNode    chan *id.ID
+	addGateway    chan ndf.Gateway
+	removeGateway chan *id.ID
 }
 
-// Initializer for instance structs from base comms and NDF
-func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition) (*Instance, error) {
+// Register AddNode channel with Instance
+func (i *Instance) SetAddNodeChan(c chan ndf.Node) {
+	i.addNode = c
+}
+
+// Register RemoveNode channel with Instance
+func (i *Instance) SetRemoveNodeChan(c chan *id.ID) {
+	i.removeNode = c
+}
+
+// Register AddGateway channel with Instance
+func (i *Instance) SetAddGatewayChan(c chan ndf.Gateway) {
+	i.addGateway = c
+}
+
+// Register RemoveGateway channel with Instance
+func (i *Instance) SetRemoveGatewayChan(c chan *id.ID) {
+	i.removeGateway = c
+}
+
+// Initializer for instance structs from base comms and NDF, you can put in nil for
+// ERS if you don't want to use it
+func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition,
+	ers ds.ExternalRoundStorage) (*Instance, error) {
 	var partialNdf *SecuredNdf
 	var fullNdf *SecuredNdf
 	var err error
@@ -100,6 +129,9 @@ func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition) (*
 		}
 	}
 
+	// Set our ERS to the passed in ERS object (or nil)
+	i.ers = ers
+
 	return i, nil
 }
 
@@ -109,7 +141,7 @@ func NewInstanceTesting(c *connect.ProtoComms, partial, full *ndf.NetworkDefinit
 	if t == nil {
 		panic("This is a utility function for testing purposes only!")
 	}
-	instance, err := NewInstance(c, partial, full)
+	instance, err := NewInstance(c, partial, full, nil)
 	if err != nil {
 		return nil, errors.Errorf("Unable to create instance: %+v", err)
 	}
@@ -149,6 +181,20 @@ func (i *Instance) UpdatePartialNdf(m *pb.NDF) error {
 	}
 	for _, nid := range rmNodes {
 		i.comm.RemoveHost(nid)
+
+		// Send events into Node Listener
+		select {
+		case i.removeNode <- nid:
+		default:
+			jww.WARN.Printf("Unable to send RemoveNode event for id %s", nid.String())
+		}
+		gwId := nid.DeepCopy()
+		gwId.SetType(id.Gateway)
+		select {
+		case i.removeGateway <- nid:
+		default:
+			jww.WARN.Printf("Unable to send RemoveGateway event for id %s", nid.String())
+		}
 	}
 
 	// update the cmix group object
@@ -194,13 +240,26 @@ func (i *Instance) UpdateFullNdf(m *pb.NDF) error {
 	if err != nil {
 		return err
 	}
-
 	rmNodes, err := getBannedNodes(oldNodeList, i.full.Get().Nodes)
 	if err != nil {
 		return err
 	}
 	for _, nid := range rmNodes {
 		i.comm.RemoveHost(nid)
+
+		// Send events into Node Listener
+		select {
+		case i.removeNode <- nid:
+		default:
+			jww.WARN.Printf("Unable to send RemoveNode event for id %s", nid.String())
+		}
+		gwId := nid.DeepCopy()
+		gwId.SetType(id.Gateway)
+		select {
+		case i.removeGateway <- nid:
+		default:
+			jww.WARN.Printf("Unable to send RemoveGateway event for id %s", nid.String())
+		}
 	}
 
 	// update the cmix group object
@@ -283,6 +342,10 @@ func (i *Instance) RoundUpdate(info *pb.RoundInfo) error {
 		return err
 	}
 
+	if i.ers != nil {
+		err = i.ers.Store(info)
+	}
+
 	return nil
 }
 
@@ -325,9 +388,9 @@ func (i *Instance) GetLastRoundID() id.Round {
 // Update gateway hosts based on most complete ndf
 func (i *Instance) UpdateGatewayConnections() error {
 	if i.full != nil {
-		return updateConns(i.full.f.Get(), i.comm, true, false, i.ipOverride)
+		return i.updateConns(i.full.f.Get(), true, false)
 	} else if i.partial != nil {
-		return updateConns(i.partial.f.Get(), i.comm, true, false, i.ipOverride)
+		return i.updateConns(i.partial.f.Get(), true, false)
 	} else {
 		return errors.New("No ndf currently stored")
 	}
@@ -336,9 +399,9 @@ func (i *Instance) UpdateGatewayConnections() error {
 // Update node hosts based on most complete ndf
 func (i *Instance) UpdateNodeConnections() error {
 	if i.full != nil {
-		return updateConns(i.full.f.Get(), i.comm, false, true, i.ipOverride)
+		return i.updateConns(i.full.f.Get(), false, true)
 	} else if i.partial != nil {
-		return updateConns(i.partial.f.Get(), i.comm, false, true, i.ipOverride)
+		return i.updateConns(i.partial.f.Get(), false, true)
 	} else {
 		return errors.New("No ndf currently stored")
 	}
@@ -385,35 +448,34 @@ func (i *Instance) GetPermissioningId() *id.ID {
 
 }
 
-// SetProtoComms sets the instance's protocomms object
-// Fixme: this is used to temporarily fix an issue in server
-//  once advancedTLS is part of our codebase, remove this function
-func (i *Instance) SetProtoComms(newPC *connect.ProtoComms) {
-	i.comm = newPC
-}
-
 // Update host helper
-func updateConns(def *ndf.NetworkDefinition, comms *connect.ProtoComms, gate, node bool, ipOverride *ds.IpOverrideList) error {
-	if gate {
-		for i, h := range def.Gateways {
-			gwid, err := id.Unmarshal(def.Nodes[i].ID)
+func (i *Instance) updateConns(def *ndf.NetworkDefinition, isGateway, isNode bool) error {
+	if isGateway {
+		for index, gateway := range def.Gateways {
+			gwid, err := id.Unmarshal(def.Nodes[index].ID)
 			if err != nil {
 				return err
 			}
 			gwid.SetType(id.Gateway)
 			//check if an ip override is registered
-			addr := ipOverride.CheckOverride(gwid, h.Address)
+			addr := i.ipOverride.CheckOverride(gwid, gateway.Address)
 
 			//check if the host exists
-			host, ok := comms.GetHost(gwid)
+			host, ok := i.comm.GetHost(gwid)
 			if !ok {
+				// Send events into Node Listener
+				select {
+				case i.addGateway <- gateway:
+				default:
+					jww.WARN.Printf("Unable to send AddGateway event for id %s", gwid.String())
+				}
 				// Check if gateway ID collides with an existing hard coded ID
 				if id.CollidesWithHardCodedID(gwid) {
 					return errors.Errorf("Gateway ID invalid, collides with a "+
 						"hard coded ID. Invalid ID: %v", gwid.Marshal())
 				}
 
-				_, err := comms.AddHost(gwid, addr, []byte(h.TlsCertificate), false, true)
+				_, err := i.comm.AddHost(gwid, addr, []byte(gateway.TlsCertificate), false, true)
 				if err != nil {
 					return errors.WithMessagef(err, "Could not add gateway host %s", gwid)
 				}
@@ -422,27 +484,34 @@ func updateConns(def *ndf.NetworkDefinition, comms *connect.ProtoComms, gate, no
 			}
 		}
 	}
-	if node {
-		for _, h := range def.Nodes {
-			nid, err := id.Unmarshal(h.ID)
+	if isNode {
+		for _, node := range def.Nodes {
+			nid, err := id.Unmarshal(node.ID)
 			if err != nil {
 				return err
 			}
 			//check if an ip override is registered
-			addr := ipOverride.CheckOverride(nid, h.Address)
+			addr := i.ipOverride.CheckOverride(nid, node.Address)
 
 			//check if the host exists
-			host, ok := comms.GetHost(nid)
+			host, ok := i.comm.GetHost(nid)
 			if !ok {
-				// Check if node ID collides with an existing hard coded ID
+				// Send events into Node Listener
+				select {
+				case i.addNode <- node:
+				default:
+					jww.WARN.Printf("Unable to send AddNode event for id %s", nid.String())
+				}
+
+				// Check if isNode ID collides with an existing hard coded ID
 				if id.CollidesWithHardCodedID(nid) {
 					return errors.Errorf("Node ID invalid, collides with a "+
 						"hard coded ID. Invalid ID: %v", nid.Marshal())
 				}
 
-				_, err := comms.AddHost(nid, addr, []byte(h.TlsCertificate), false, true)
+				_, err := i.comm.AddHost(nid, addr, []byte(node.TlsCertificate), false, true)
 				if err != nil {
-					return errors.WithMessagef(err, "Could not add node host %s", nid)
+					return errors.WithMessagef(err, "Could not add isNode host %s", nid)
 				}
 			} else if host.GetAddress() != addr {
 				host.UpdateAddress(addr)

@@ -14,9 +14,9 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/pkg/errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/messages"
+	"gitlab.com/xx_network/primitives/id"
 	"golang.org/x/net/context"
 )
 
@@ -212,7 +212,7 @@ func (s *Comms) ConfirmRegistration(ctx context.Context,
 	}
 
 	// Obtain signed client public key by passing to server
-	signature, err := s.handler.ConfirmRegistration(userID,
+	signature, clientGwKey, err := s.handler.ConfirmRegistration(userID,
 		regConfirmRequest.NonceSignedByClient.Signature, authState)
 
 	// Obtain the error message, if any
@@ -226,7 +226,8 @@ func (s *Comms) ConfirmRegistration(ctx context.Context,
 		ClientSignedByServer: &messages.RSASignature{
 			Signature: signature,
 		},
-		Error: errMsg,
+		Error:            errMsg,
+		ClientGatewayKey: clientGwKey,
 	}, err
 }
 

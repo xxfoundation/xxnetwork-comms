@@ -10,8 +10,8 @@ package node
 import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/registration"
-	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/xx_network/comms/connect"
+	"gitlab.com/xx_network/primitives/id"
 	"testing"
 )
 
@@ -32,7 +32,7 @@ func TestSendNodeRegistration(t *testing.T) {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
 
-	msgs := &pb.NodeRegistration{ID: testId.Bytes()}
+	msgs := &pb.NodeRegistration{Salt: testId.Bytes()}
 	err = server.SendNodeRegistration(host, msgs)
 	if err != nil {
 		t.Errorf("SendNodeTopology: Error received: %s", err)

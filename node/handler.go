@@ -13,9 +13,9 @@ import (
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/messages"
+	"gitlab.com/xx_network/primitives/id"
 	"google.golang.org/grpc/reflection"
 	"runtime/debug"
 )
@@ -84,7 +84,7 @@ type Handler interface {
 		RSASignedByRegistration, DHSignedByClientRSA []byte, auth *connect.Auth) ([]byte, []byte, error)
 
 	// Server interface for ConfirmNonceMessage
-	ConfirmRegistration(UserID *id.ID, Signature []byte, auth *connect.Auth) ([]byte, error)
+	ConfirmRegistration(UserID *id.ID, Signature []byte, auth *connect.Auth) ([]byte, []byte, error)
 
 	// PostPrecompResult interface to finalize both payloads' precomps
 	PostPrecompResult(roundID uint64, slots []*mixmessages.Slot, auth *connect.Auth) error
@@ -99,6 +99,11 @@ type Handler interface {
 	AskOnline() error
 
 	RoundError(error *mixmessages.RoundError, auth *connect.Auth) error
+	// Consensus node -> cMix node NDF request
+	// NOTE: For now cMix nodes serve the NDF to the
+	//  consensus nodes, but this will be reversed
+	//  once consensus generates the NDF
+	GetNdf() ([]byte, error)
 }
 
 type implementationFunctions struct {
@@ -126,7 +131,7 @@ type implementationFunctions struct {
 	RequestNonce func(salt []byte, RSAPubKey string, DHPubKey,
 		RSASigFromReg, RSASigDH []byte, auth *connect.Auth) ([]byte, []byte, error)
 	// Server interface for ConfirmNonceMessage
-	ConfirmRegistration func(UserID *id.ID, Signature []byte, auth *connect.Auth) ([]byte, error)
+	ConfirmRegistration func(UserID *id.ID, Signature []byte, auth *connect.Auth) ([]byte, []byte, error)
 
 	// PostPrecompResult interface to finalize both payloads' precomputations
 	PostPrecompResult func(roundID uint64,
@@ -142,6 +147,11 @@ type implementationFunctions struct {
 	AskOnline func() error
 
 	RoundError func(error *mixmessages.RoundError, auth *connect.Auth) error
+	// Consensus node -> cMix node NDF request
+	// NOTE: For now cMix nodes serve the NDF to the
+	//  consensus nodes, but this will be reversed
+	//  once consensus generates the NDF
+	GetNdf func() ([]byte, error)
 }
 
 // Implementation allows users of the client library to set the
@@ -201,9 +211,9 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return nil, nil, nil
 			},
-			ConfirmRegistration: func(UserID *id.ID, Signature []byte, auth *connect.Auth) ([]byte, error) {
+			ConfirmRegistration: func(UserID *id.ID, Signature []byte, auth *connect.Auth) ([]byte, []byte, error) {
 				warn(um)
-				return nil, nil
+				return nil, nil, nil
 			},
 			PostPrecompResult: func(roundID uint64,
 				slots []*mixmessages.Slot, auth *connect.Auth) error {
@@ -229,6 +239,10 @@ func NewImplementation() *Implementation {
 			RoundError: func(error *mixmessages.RoundError, auth *connect.Auth) error {
 				warn(um)
 				return nil
+			},
+			GetNdf: func() (bytes []byte, err error) {
+				warn(um)
+				return nil, nil
 			},
 		},
 	}
@@ -271,7 +285,7 @@ func (s *Implementation) RequestNonce(salt []byte, RSAPubKey string, DHPubKey,
 }
 
 // Server interface for ConfirmNonceMessage
-func (s *Implementation) ConfirmRegistration(UserID *id.ID, Signature []byte, auth *connect.Auth) ([]byte, error) {
+func (s *Implementation) ConfirmRegistration(UserID *id.ID, Signature []byte, auth *connect.Auth) ([]byte, []byte, error) {
 	return s.Functions.ConfirmRegistration(UserID, Signature, auth)
 }
 
@@ -310,4 +324,12 @@ func (s *Implementation) AskOnline() error {
 
 func (s *Implementation) RoundError(err *mixmessages.RoundError, auth *connect.Auth) error {
 	return s.Functions.RoundError(err, auth)
+}
+
+// Consensus node -> cMix node NDF request
+// NOTE: For now cMix nodes serve the NDF to the
+//  consensus nodes, but this will be reversed
+//  once consensus generates the NDF
+func (s *Implementation) GetNdf() ([]byte, error) {
+	return s.Functions.GetNdf()
 }

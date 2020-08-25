@@ -12,14 +12,15 @@ import (
 	ds "gitlab.com/elixxir/comms/network/dataStructures"
 	"gitlab.com/elixxir/comms/testkeys"
 	"gitlab.com/elixxir/comms/testutils"
-	"gitlab.com/elixxir/crypto/signature"
-	"gitlab.com/elixxir/crypto/signature/rsa"
-	"gitlab.com/elixxir/primitives/id"
-	"gitlab.com/elixxir/primitives/ndf"
 	"gitlab.com/xx_network/comms/connect"
+	"gitlab.com/xx_network/crypto/signature"
+	"gitlab.com/xx_network/crypto/signature/rsa"
+	"gitlab.com/xx_network/primitives/id"
+	"gitlab.com/xx_network/primitives/ndf"
 	"reflect"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestBannedNodePartialNDFRemoval(t *testing.T) {
@@ -117,7 +118,7 @@ func TestNewInstanceTesting_Error(t *testing.T) {
 
 //tests newInstance errors properly when there is no NDF
 func TestNewInstance_NilNDFs(t *testing.T) {
-	_, err := NewInstance(&connect.ProtoComms{}, nil, nil)
+	_, err := NewInstance(&connect.ProtoComms{}, nil, nil, nil)
 	if err == nil {
 		t.Errorf("Creation of NewInstance without an ndf succeded")
 	} else if !strings.Contains(err.Error(), "Cannot create a network "+
@@ -200,7 +201,7 @@ func setupComm(t *testing.T) (*Instance, *mixmessages.NDF) {
 	err = signature.Sign(f, privKey)
 
 	pc := &connect.ProtoComms{}
-	i, err := NewInstance(pc, baseNDF, baseNDF)
+	i, err := NewInstance(pc, baseNDF, baseNDF, nil)
 	if err != nil {
 		t.Error(nil)
 	}
@@ -223,7 +224,7 @@ func TestInstance_RoundUpdate(t *testing.T) {
 	privKey, err := rsa.LoadPrivateKeyFromPem(priv)
 	err = signature.Sign(msg, privKey)
 
-	i, err := NewInstance(&connect.ProtoComms{}, testutils.NDF, testutils.NDF)
+	i, err := NewInstance(&connect.ProtoComms{}, testutils.NDF, testutils.NDF, nil)
 	pub := testkeys.LoadFromPath(testkeys.GetGatewayCertPath())
 	err = i.RoundUpdate(msg)
 	if err == nil {
@@ -599,6 +600,116 @@ func TestInstance_GetPermissioningId(t *testing.T) {
 	}
 }
 
+// Full smoke test for Node Event Model
+func TestInstance_NodeEventModel(t *testing.T) {
+	i, f := setupComm(t)
+
+	// Set up the channels
+	addNode := make(chan ndf.Node, 10)
+	removeNode := make(chan *id.ID, 10)
+	addGateway := make(chan ndf.Gateway, 10)
+	removeGateway := make(chan *id.ID, 10)
+	i.SetRemoveGatewayChan(removeGateway)
+	i.SetRemoveNodeChan(removeNode)
+	i.SetAddGatewayChan(addGateway)
+	i.SetAddNodeChan(addNode)
+
+	// Install the NDF
+	err := i.UpdateFullNdf(f)
+	if err != nil {
+		t.Errorf("Unable to initalize group: %+v", err)
+	}
+
+	// Set up channels that count number of items they receive
+	counter := 0
+	go func() {
+		for range addNode {
+			counter += 1
+		}
+	}()
+	go func() {
+		for range addGateway {
+			counter += 1
+		}
+	}()
+
+	// Trigger sending to channels
+	err = i.UpdateNodeConnections()
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	err = i.UpdateGatewayConnections()
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	// Get the NDF
+	newNdf, _, err := ndf.DecodeNDF(string(f.Ndf))
+	if err != nil {
+		t.Errorf(err.Error())
+		return
+	}
+
+	// Verify channels received the correct amount of information
+	timeout := 5
+	for {
+		if counter == len(newNdf.Nodes)+len(newNdf.Gateways) {
+			break
+		} else {
+			timeout -= 1
+			if timeout == 0 {
+				t.Errorf("Unable to properly add nodes and gateways! Got %d", counter)
+				return
+			}
+		}
+		time.Sleep(1 * time.Second)
+	}
+
+	// Remove all nodes and gateways and resign the NDF
+	newNdf.Nodes = make([]ndf.Node, 0)
+	newNdf.Gateways = make([]ndf.Gateway, 0)
+	f.Ndf, err = newNdf.Marshal()
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	priv := testkeys.LoadFromPath(testkeys.GetNodeKeyPath())
+	privKey, _ := rsa.LoadPrivateKeyFromPem(priv)
+	err = signature.Sign(f, privKey)
+
+	// Set up channels that reduce counter by the number of items they receive
+	go func() {
+		for range removeNode {
+			counter -= 1
+		}
+	}()
+	go func() {
+		for range removeGateway {
+			counter -= 1
+		}
+	}()
+
+	// Install the newly-empty NDF
+	err = i.UpdateFullNdf(f)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	// Verify channels received the correct amount of information
+	timeout = 5
+	for {
+		if counter == 0 {
+			break
+		} else {
+			timeout -= 1
+			if timeout == 0 {
+				t.Errorf("Unable to properly remove nodes and gateways! Got %d", counter)
+				return
+			}
+		}
+		time.Sleep(1 * time.Second)
+	}
+}
+
 // Happy path
 func TestInstance_UpdateGroup(t *testing.T) {
 	i, f := setupComm(t)
@@ -665,4 +776,69 @@ func createBadNdf(t *testing.T) *mixmessages.NDF {
 	err = signature.Sign(f, privKey)
 
 	return f
+}
+
+// Test that a new round update is inputted into the ERS map
+func TestInstance_RoundUpdateAddsToERS(t *testing.T) {
+	// Get signing certificates
+	priv := testkeys.LoadFromPath(testkeys.GetNodeKeyPath())
+	privKey, err := rsa.LoadPrivateKeyFromPem(priv)
+	pub := testkeys.LoadFromPath(testkeys.GetNodeCertPath())
+	if err != nil {
+		t.Errorf("Could not generate rsa key: %s", err)
+	}
+
+	// Create a basic testing NDF and sign it
+	f := &mixmessages.NDF{}
+	f.Ndf = []byte(testutils.ExampleJSON)
+	baseNDF := testutils.NDF
+	if err != nil {
+		t.Errorf("Could not generate serialized ndf: %s", err)
+	}
+	err = signature.Sign(f, privKey)
+	if err != nil {
+		t.Errorf("Could not generate serialized ndf: %s", err)
+	}
+
+	// Build the Instance object with an ERS memory map
+	pc := &connect.ProtoComms{}
+	var ers ds.ExternalRoundStorage = &ersMemMap{rounds: make(map[id.Round]*mixmessages.RoundInfo)}
+	i, err := NewInstance(pc, baseNDF, baseNDF, ers)
+	if err != nil {
+		t.Error(nil)
+	}
+
+	// Add a permissioning host
+	_, err = i.comm.AddHost(&id.Permissioning, "0.0.0.0:4200", pub, false, true)
+	if err != nil {
+		t.Errorf("Failed to add permissioning host: %+v", err)
+	}
+
+	// Build a basic RoundInfo object and sign it
+	r := &mixmessages.RoundInfo{
+		ID:       2,
+		UpdateID: 4,
+	}
+	err = signature.Sign(r, privKey)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	// Cause a RoundUpdate
+	err = i.RoundUpdate(r)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	// Check that the round info was stored correctly
+	rr, err := ers.Retrieve(id.Round(r.ID))
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	if rr == nil {
+		t.Fatalf("returned round info was nil")
+	}
+	if rr.ID != r.ID || rr.UpdateID != r.UpdateID {
+		t.Errorf("Second returned round and original mismatched IDs")
+	}
 }

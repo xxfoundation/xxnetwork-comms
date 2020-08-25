@@ -9,7 +9,7 @@ syntax = "proto3";
 package mixmessages;
 
 import "gitlab.com/xx_network/comms/messages/messages.proto";
-import "gitlab.com/xx_network/comms/messages/google/protobuf/any.proto";
+import "google/protobuf/any.proto";
 
 // SERVER MESSAGE SERVICE ------------------------------------------------------
 
@@ -153,7 +153,7 @@ service Gateway {
     }
 
     // PutMessage on the cMix Gateway
-    rpc PutMessage (Slot) returns (messages.Ack) {
+    rpc PutMessage (GatewaySlot) returns (GatewaySlotResponse) {
     }
 
     // RequestNonce returns a Nonce to the user
@@ -171,6 +171,52 @@ service Gateway {
     // Client -> Gateway unified polling
     rpc Poll (GatewayPoll) returns (GatewayPollResponse) {
     }
+
+    // Client -> Gateway historical round request
+    rpc RequestHistoricalRounds(HistoricalRounds) returns (HistoricalRoundsResponse) {
+    }
+
+    // Client -> Gateway message request
+    rpc RequestMessages(GetMessages) returns (GetMessagesResponse) {
+    }
+
+    // Client -> Gateway bloom request
+    rpc RequestBloom(GetBloom) returns (GetBloomResponse) {
+    }
+}
+
+// Client -> Gateway request for bloom filter for available messages
+message GetBloom{
+    bytes ClientID = 1;
+}
+
+// Gateway's response to client's request for bloom filters
+message GetBloomResponse{
+    repeated bytes Filters = 1;
+}
+
+// Client -> gateway request for information about historical rounds
+message HistoricalRounds{
+    repeated uint64 rounds = 1;
+}
+
+// Gateway's response to client's request for previous (historical) rounds
+message HistoricalRoundsResponse{
+    repeated RoundInfo Rounds = 1;
+}
+
+// Client -> gateway request for available messages
+// The query will be a request for all messages
+// available in a round.
+message GetMessages{
+    bytes ClientID = 1;
+    bytes RoundID = 2;
+}
+
+// Gateway response to a GetMessages request
+message GetMessagesResponse{
+    repeated Slot Messages = 1;
+    bool HasRound = 2;
 }
 
 // ClientRequest message for clients to poll new CMIX messages
@@ -208,16 +254,30 @@ message Slot {
 message GatewayPoll {
     NDFHash Partial = 1;
     uint64 LastUpdate = 2;
-    string LastMessageID = 3;
+    string LastMessageID = 3; // fixme: depracate this field
 }
 
 // Unified Client->Gateway polling response
 message GatewayPollResponse {
     NDF PartialNDF = 1; // Empty if no update needed
-    RoundInfo LastRound = 2; // Last round the gateway has messages from
+    RoundInfo LastRound = 2; // Last round the gateway has messages from // fixme: depracate this field
     repeated RoundInfo Updates = 3; // Empty if no update needed
-    repeated string NewMessageIDs = 4; // Empty if no update needed
+    repeated string NewMessageIDs = 4; // Empty if no update needed // fixme: depracate this field
 }
+
+// Client -> Gateway authentication message
+message GatewaySlot{
+    Slot Message = 1;
+    uint64 RoundID = 2;
+    bytes MAC = 3;
+}
+
+// Gateway -> Client authentication response
+message GatewaySlotResponse{
+    bool accepted = 1;
+    uint64 RoundID = 2;
+}
+
 
 // REGISTRATION MESSAGE SERVICE ------------------------------------------------
 
@@ -277,9 +337,9 @@ message NDF{
 // The registration server is free to ignore these addresses and
 // derive the address from the network connection.
 message NodeRegistration {
-      bytes  ID               = 1;
-      string ServerTlsCert    = 2;
-      string ServerAddress    = 3;
+      bytes  Salt = 1;
+    string ServerTlsCert = 2;
+    string ServerAddress = 3;
       uint32 ServerPort       = 4; // Note: there is no uint16
       string GatewayTlsCert   = 5;
       string GatewayAddress   = 6;
@@ -331,7 +391,8 @@ message RequestRegistrationConfirmation {
 // RegistrationConfirmation returning proof of registration
 message RegistrationConfirmation {
     messages.RSASignature ClientSignedByServer = 1;
-    string Error = 2;
+    bytes ClientGatewayKey = 2;
+    string Error = 3;
 }
 
 // Unified Server->Permissioning polling message

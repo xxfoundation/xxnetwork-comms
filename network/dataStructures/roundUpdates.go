@@ -12,7 +12,7 @@ package dataStructures
 import (
 	"github.com/pkg/errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/elixxir/primitives/ring"
+	"gitlab.com/xx_network/ring"
 )
 
 const RoundUpdatesBufLen = 1500
