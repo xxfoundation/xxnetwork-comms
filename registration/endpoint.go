@@ -15,7 +15,6 @@ import (
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/messages"
 	"golang.org/x/net/context"
@@ -89,13 +88,8 @@ func (r *Comms) RegisterNode(ctx context.Context, msg *pb.NodeRegistration) (
 	gwAddress := fmt.Sprintf("%s:%d", msg.GetGatewayAddress(),
 		msg.GetGatewayPort())
 
-	nodeID, err := id.Unmarshal(msg.GetID())
-	if err != nil {
-		return &messages.Ack{}, errors.Errorf("Unable to unmarshal node ID: %+v", err)
-	}
-
 	// Pass information for Node registration
-	err = r.handler.RegisterNode(nodeID, address,
+	err = r.handler.RegisterNode(msg.GetSalt(), address,
 		msg.GetServerTlsCert(),
 		gwAddress, msg.GetGatewayTlsCert(),
 		msg.GetRegistrationCode())
