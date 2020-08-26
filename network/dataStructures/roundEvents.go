@@ -34,12 +34,14 @@ type RoundEvents struct {
 	mux       sync.RWMutex
 }
 
+// Initialize a RoundEvents
 func NewRoundEvents() *RoundEvents {
 	return &RoundEvents{
 		callbacks: make(map[id.Round][states.NUM_STATES]map[*EventCallback]*EventCallback),
 	}
 }
 
+// Wraps non-exported remove with mutex
 func (r *RoundEvents) Remove(rid id.Round, e *EventCallback) {
 	r.mux.Lock()
 	r.remove(rid, e)
@@ -47,6 +49,7 @@ func (r *RoundEvents) Remove(rid id.Round, e *EventCallback) {
 }
 
 // Remove an event callback from all the states' maps
+// Also remove the round if it's become empty
 func (r *RoundEvents) remove(rid id.Round, e *EventCallback) {
 	for _, s := range e.states {
 		delete(r.callbacks[rid][s], e)
@@ -63,6 +66,8 @@ func (r *RoundEvents) remove(rid id.Round, e *EventCallback) {
 	}
 }
 
+// Call or timeout a round event.
+// Removes round events when they're called or timed out to allow them to get garbage collected
 func (r *RoundEvents) signal(rid id.Round, event *EventCallback, callback RoundEventCallback, timeout time.Duration) {
 	ri := &pb.RoundInfo{ID: uint64(rid)}
 	select {
@@ -70,6 +75,7 @@ func (r *RoundEvents) signal(rid id.Round, event *EventCallback, callback RoundE
 		go r.Remove(rid, event)
 		callback(ri, true)
 	case ri = <-event.signal:
+		go r.Remove(rid, event)
 		callback(ri, false)
 	}
 }
@@ -102,6 +108,8 @@ func (r *RoundEvents) AddRoundEvent(rid id.Round, callback RoundEventCallback, t
 	return thisEvent
 }
 
+// TriggerRoundEvent signals all round events matching the passed RoundInfo
+// according to its ID and state
 func (r *RoundEvents) TriggerRoundEvent(ri *pb.RoundInfo) {
 	r.mux.RLock()
 	defer r.mux.RUnlock()
@@ -110,17 +118,7 @@ func (r *RoundEvents) TriggerRoundEvent(ri *pb.RoundInfo) {
 	if !ok {
 		return
 	}
-	thisStatesCallbacks := callbacks[ri.State]
-	if len(thisStatesCallbacks) != 0 {
-		// Keep track of events we've used for later removal
-		var events []*EventCallback
-		for _, event := range thisStatesCallbacks {
-			event.signal <- ri
-			events = append(events, event)
-		}
-		// Everything we sent a signal to is no longer needed
-		for _, event := range events {
-			r.remove(id.Round(ri.ID), event)
-		}
+	for _, event := range callbacks[ri.State] {
+		event.signal <- ri
 	}
 }
