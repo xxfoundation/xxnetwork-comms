@@ -350,11 +350,12 @@ func (i *Instance) RoundUpdate(info *pb.RoundInfo) error {
 		return err
 	}
 	if i.ers != nil {
-		err = i.ers.Store(info)
+		// Intentionally suppress error
+		_ = i.ers.Store(info)
 	}
 
 	i.events.TriggerRoundEvent(info)
-	return err
+	return nil
 }
 
 // GetE2EGroup gets the e2eGroup from the instance
