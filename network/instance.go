@@ -16,6 +16,7 @@ import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	ds "gitlab.com/elixxir/comms/network/dataStructures"
 	"gitlab.com/elixxir/crypto/cyclic"
+	"gitlab.com/elixxir/primitives/states"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/crypto/signature"
 	"gitlab.com/xx_network/primitives/id"
@@ -35,6 +36,9 @@ type Instance struct {
 	ers          ds.ExternalRoundStorage
 
 	ipOverride *ds.IpOverrideList
+
+	// Waiting Rounds
+	waitingRounds *ds.WaitingRounds
 
 	// Node Event Model Channels
 	addNode       chan ndf.Node
@@ -61,6 +65,11 @@ func (i *Instance) SetAddGatewayChan(c chan ndf.Gateway) {
 // Register RemoveGateway channel with Instance
 func (i *Instance) SetRemoveGatewayChan(c chan *id.ID) {
 	i.removeGateway = c
+}
+
+// Return the Instance WaitingRounds object
+func (i *Instance) GetWaitingRounds() *ds.WaitingRounds {
+	return i.waitingRounds
 }
 
 // Initializer for instance structs from base comms and NDF, you can put in nil for
@@ -128,6 +137,8 @@ func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition,
 			jww.WARN.Printf("Error updating e2e group: %+v", err)
 		}
 	}
+
+	i.waitingRounds = ds.NewWaitingRounds()
 
 	// Set our ERS to the passed in ERS object (or nil)
 	i.ers = ers
@@ -344,6 +355,10 @@ func (i *Instance) RoundUpdate(info *pb.RoundInfo) error {
 
 	if i.ers != nil {
 		err = i.ers.Store(info)
+	}
+
+	if states.Round(info.State) == states.QUEUED {
+		i.waitingRounds.Insert(info)
 	}
 
 	return nil
