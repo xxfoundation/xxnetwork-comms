@@ -15,7 +15,6 @@ import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/testutils"
 	"gitlab.com/xx_network/comms/connect"
-	"gitlab.com/xx_network/primitives/id"
 	"gitlab.com/xx_network/primitives/ndf"
 	"sync"
 )
@@ -53,8 +52,8 @@ func getNextAddress() string {
 type MockRegistration struct {
 }
 
-func (s *MockRegistration) RegisterNode(NodeID *id.ID,
-	NodeTLSCert, GatewayTLSCert, RegistrationCode, Addr, Addr2 string) error {
+func (s *MockRegistration) RegisterNode(salt []byte, serverAddr, serverTlsCert, gatewayAddr,
+	gatewayTlsCert, registrationCode string) error {
 	return nil
 }
 
@@ -85,8 +84,8 @@ func (s *MockRegistration) CheckRegistration(msg *pb.RegisteredNodeCheck) (*pb.R
 type MockRegistrationError struct {
 }
 
-func (s *MockRegistrationError) RegisterNode(NodeID *id.ID,
-	NodeTLSCert, GatewayTLSCert, RegistrationCode, Addr, Addr2 string) error {
+func (s *MockRegistrationError) RegisterNode(salt []byte, serverAddr, serverTlsCert, gatewayAddr,
+	gatewayTlsCert, registrationCode string) error {
 	return nil
 }
 
