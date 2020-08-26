@@ -214,3 +214,20 @@ func createTestRoundInfos(num int) ([]*pb.RoundInfo, []*pb.RoundInfo) {
 
 	return expectedRounds, randomRounds
 }
+
+// Happy path of WaitingRounds.GetSlice().
+func TestWaitingRounds_GetSlice(t *testing.T) {
+	// Generate rounds and add to new list
+	expectedRounds, testRounds := createTestRoundInfos(25)
+	testWR := NewWaitingRounds()
+	for _, round := range testRounds {
+		testWR.Insert(round)
+	}
+
+	testSlice := testWR.GetSlice()
+	if !reflect.DeepEqual(expectedRounds, testSlice) {
+		t.Errorf("GetSlice() returned slice with incorrect rounds."+
+			"\n\texepcted: %v\n\treceived: %v",
+			expectedRounds, testSlice)
+	}
+}

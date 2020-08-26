@@ -113,6 +113,21 @@ func (wr *WaitingRounds) getFurthest() *pb.RoundInfo {
 	return wr.rounds.Back().Value.(*pb.RoundInfo)
 }
 
+// GetSlice returns a slice of all round infos in the list
+func (wr *WaitingRounds) GetSlice() []*pb.RoundInfo {
+	wr.mux.RLock()
+	defer wr.mux.RUnlock()
+
+	roundInfos := make([]*pb.RoundInfo, wr.Len())
+
+	for e, i := wr.rounds.Front(), 0; e != nil; e, i = e.Next(), i+1 {
+		roundInfos[i] = e.Value.(*pb.RoundInfo)
+	}
+
+	// Return the last round in the list, which is the furthest in the future
+	return roundInfos
+}
+
 // GetUpcomingRealtime returns the round that will occur furthest in the future.
 // If the list is empty, then it waits waits for a round to be added for the
 // specified duration. If no round is added, then an error is returned.
