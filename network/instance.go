@@ -16,7 +16,6 @@ import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	ds "gitlab.com/elixxir/comms/network/dataStructures"
 	"gitlab.com/elixxir/crypto/cyclic"
-	"gitlab.com/elixxir/primitives/states"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/crypto/signature"
 	"gitlab.com/xx_network/primitives/id"
@@ -366,9 +365,7 @@ func (i *Instance) RoundUpdate(info *pb.RoundInfo) error {
 	}
 
 	i.events.TriggerRoundEvent(info)
-	if states.Round(info.State) == states.QUEUED {
-		i.waitingRounds.Insert(info)
-	}
+	i.waitingRounds.Insert(info)
 
 	return nil
 }
