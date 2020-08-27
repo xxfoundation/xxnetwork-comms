@@ -36,6 +36,9 @@ type Instance struct {
 
 	ipOverride *ds.IpOverrideList
 
+	// Waiting Rounds
+	waitingRounds *ds.WaitingRounds
+
 	// Round Event Model
 	events *ds.RoundEvents
 
@@ -64,6 +67,11 @@ func (i *Instance) SetAddGatewayChan(c chan ndf.Gateway) {
 // Register RemoveGateway channel with Instance
 func (i *Instance) SetRemoveGatewayChan(c chan *id.ID) {
 	i.removeGateway = c
+}
+
+// Return the Instance WaitingRounds object
+func (i *Instance) GetWaitingRounds() *ds.WaitingRounds {
+	return i.waitingRounds
 }
 
 // Return the Instance RoundEvents object
@@ -147,7 +155,9 @@ func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition,
 		}
 	}
 
+	i.waitingRounds = ds.NewWaitingRounds()
 	i.events = ds.NewRoundEvents()
+
 	// Set our ERS to the passed in ERS object (or nil)
 	i.ers = ers
 
@@ -355,6 +365,8 @@ func (i *Instance) RoundUpdate(info *pb.RoundInfo) error {
 	}
 
 	i.events.TriggerRoundEvent(info)
+	i.waitingRounds.Insert(info)
+
 	return nil
 }
 
