@@ -262,7 +262,7 @@ message GatewayPollResponse {
     NDF PartialNDF = 1; // Empty if no update needed
     repeated RoundInfo Updates = 2; // Empty if no update needed
     uint64 LastTrackedRound = 3; // Id of the last round tracked
-    repeated bytes KnownRounds = 4; // Rounds gateway knows about
+    bytes KnownRounds = 4; // Rounds gateway knows about
     repeated bytes FilterNew = 5; // Latest Bloom filter of the requested client
     repeated bytes FilterOld = 6; // Previous Bloom filter of the requested client
 }
