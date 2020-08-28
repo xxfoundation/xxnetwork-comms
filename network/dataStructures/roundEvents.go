@@ -80,6 +80,21 @@ func (r *RoundEvents) signal(rid id.Round, event *EventCallback, callback RoundE
 	}
 }
 
+type EventReturn struct {
+	RoundInfo *pb.RoundInfo
+	TimedOut  bool
+}
+
+// Put the round event on a channel instead of using a callback
+func (r *RoundEvents) AddRoundEventChan(rid id.Round, eventChan chan EventReturn, timeout time.Duration, validStates ...states.Round) *EventCallback {
+	return r.AddRoundEvent(rid, func(ri *pb.RoundInfo, timedOut bool) {
+		eventChan <- EventReturn{
+			RoundInfo: ri,
+			TimedOut:  timedOut,
+		}
+	}, timeout, validStates...)
+}
+
 // Adds an event to the RoundEvents struct and returns its handle for possible deletion
 func (r *RoundEvents) AddRoundEvent(rid id.Round, callback RoundEventCallback, timeout time.Duration, validStates ...states.Round) *EventCallback {
 	// Add the specific event to the round
