@@ -26,7 +26,6 @@ service Generic {
 
 // Generic response message providing an error message from remote servers
 message Ack {
-    string Error = 1;
 }
 
 // Empty message for requesting action from any type of server
