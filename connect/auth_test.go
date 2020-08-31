@@ -33,9 +33,7 @@ func TestSignVerify(t *testing.T) {
 	private := c.GetPrivateKey()
 	pub := private.Public().(*rsa.PublicKey)
 
-	message := pb.Ack{
-		Error: "test",
-	}
+	message := pb.Ack{}
 
 	wrappedMessage, err := ptypes.MarshalAny(&message)
 	if err != nil {
