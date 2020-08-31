@@ -40,14 +40,13 @@ func (g *Comms) AddGossipPeer(tag string, newPeer *id.ID) error {
 
 // gossipBatch builds a gossip message containing all of the sender ID's
 // within the batch and gossips it to all peers
-func (g *Comms) GossipBatch(batch *pb.Batch) []error {
+func (g *Comms) GossipBatch(batch *pb.Batch) error {
 
 	gossipProtocol, ok := g.Manager.Get("batch")
 	if !ok {
-		return []error{
-			errors.Errorf("Unable to get gossip protocol. " +
-				"Sending batch without gossiping..."),
-		}
+		return errors.Errorf("Unable to get gossip protocol. " +
+			"Sending batch without gossiping...")
+
 	}
 
 	// Collect all of the sender IDs in the batch
@@ -55,11 +54,10 @@ func (g *Comms) GossipBatch(batch *pb.Batch) []error {
 	for i, slot := range batch.Slots {
 		sender, err := id.Unmarshal(slot.SenderID)
 		if err != nil {
-			return []error{errors.Errorf("Could not completely "+
+			return errors.Errorf("Could not completely "+
 				"gossip for slot %d in round %d: "+
 				"Unreadable sender ID: %v: %v",
-				i, batch.Round.ID, slot.SenderID, err),
-			}
+				i, batch.Round.ID, slot.SenderID, err)
 		}
 
 		senderIds = append(senderIds, sender)
@@ -68,18 +66,15 @@ func (g *Comms) GossipBatch(batch *pb.Batch) []error {
 	// Marshal the list of senders into a json
 	payloadData, err := json.Marshal(senderIds)
 	if err != nil {
-		return []error{
-			errors.Errorf("Could not form gossip payload: %v", err),
-		}
+		return errors.Errorf("Could not form gossip payload: %v", err)
 	}
 
 	var receivedId []*id.ID
 	err = json.Unmarshal(payloadData, &receivedId)
 	if err != nil {
-		return []error{
-			errors.Errorf("Could not marshal sender ID's into a payload: %v", err),
-		}
+		return errors.Errorf("Could not marshal sender ID's into a payload: %v", err)
 	}
+
 	// Build the message
 	gossipMsg := &gossip.GossipMsg{
 		Tag:     "batch",
@@ -90,9 +85,7 @@ func (g *Comms) GossipBatch(batch *pb.Batch) []error {
 	// Sign the gateway message
 	sig, err := g.SignMessage(gossipMsg)
 	if err != nil {
-		return []error{
-			errors.Errorf("Could not sign gossip mesage: %v", err),
-		}
+		return errors.Errorf("Could not sign gossip mesage: %v", err)
 
 	}
 
@@ -100,5 +93,12 @@ func (g *Comms) GossipBatch(batch *pb.Batch) []error {
 
 	// Gossip the message
 	_, errs := gossipProtocol.Gossip(gossipMsg)
-	return errs
+
+	// Return any errors up the stack
+	if len(errs) != 0 {
+		return errors.Errorf("Could not send to peers: %v", errs)
+
+	}
+
+	return nil
 }
