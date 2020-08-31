@@ -7,6 +7,7 @@
 package gateway
 
 import (
+	"github.com/pkg/errors"
 	"gitlab.com/xx_network/comms/gossip"
 	"gitlab.com/xx_network/primitives/id"
 )
@@ -22,3 +23,15 @@ func (g *Comms) SetUpGossip(gossipFlags gossip.ManagerFlags, receiver gossip.Rec
 		receiver, verifier, peers)
 }
 
+// Add newPeer to the list of gossip peers for the given protocol.
+// The protocol is looked up by the given tag. If this protocol is not
+// found then an error is returned
+func (g *Comms) AddGossipPeer(tag string, newPeer *id.ID) error  {
+	p, ok := g.Manager.Get(tag)
+	if !ok {
+		return errors.Errorf("Could not find gossip protocol with " +
+			"tag %s", tag)
+	}
+
+	return p.AddGossipPeer(newPeer)
+}
