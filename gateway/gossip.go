@@ -8,7 +8,6 @@ package gateway
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/pkg/errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/gossip"
@@ -65,8 +64,6 @@ func (g *Comms) GossipBatch(batch *pb.Batch) []error {
 
 		senderIds = append(senderIds, sender)
 	}
-
-	fmt.Printf("senderIDs: %v\n", senderIds)
 
 	// Marshal the list of senders into a json
 	payloadData, err := json.Marshal(senderIds)
