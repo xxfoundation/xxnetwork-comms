@@ -14,6 +14,7 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/connect"
+	"gitlab.com/xx_network/comms/gossip"
 	"gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/primitives/id"
 	"google.golang.org/grpc/reflection"
@@ -48,6 +49,7 @@ type Handler interface {
 // Gateway object used to implement endpoints and top-level comms functionality
 type Comms struct {
 	*connect.ProtoComms
+	*gossip.Manager
 	handler Handler
 }
 
