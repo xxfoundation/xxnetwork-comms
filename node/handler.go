@@ -14,9 +14,11 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/connect"
+	"gitlab.com/xx_network/comms/interconnect"
 	"gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/primitives/id"
 	"google.golang.org/grpc/reflection"
+	"net"
 	"runtime/debug"
 )
 
@@ -42,6 +44,13 @@ func StartNode(id *id.ID, localServer string, handler Handler,
 		handler:    handler,
 	}
 
+	_, port, err := net.SplitHostPort(localServer)
+	if err != nil {
+		jww.WARN.Printf("Unable to ")
+	}
+
+	consensusNode, interConnectClose := interconnect.StartCMixInterconnect(id, port, handler, certPEMblock, keyPEMblock)
+
 	go func() {
 		// Register GRPC services to the listening address
 		mixmessages.RegisterNodeServer(mixmessageServer.LocalServer, &mixmessageServer)
@@ -54,6 +63,9 @@ func StartNode(id *id.ID, localServer string, handler Handler,
 				errors.New(err.Error()))
 		}
 		jww.INFO.Printf("Shutting down node server listener: %s", lis)
+		jww.INFO.Printf("Shutting down consensus node.")
+		consensusNode.Shutdown()
+		interConnectClose()
 	}()
 
 	return &mixmessageServer
@@ -103,7 +115,7 @@ type Handler interface {
 	// NOTE: For now cMix nodes serve the NDF to the
 	//  consensus nodes, but this will be reversed
 	//  once consensus generates the NDF
-	GetNdf() ([]byte, error)
+	GetNDF() (*interconnect.NDF, error)
 }
 
 type implementationFunctions struct {
@@ -151,7 +163,7 @@ type implementationFunctions struct {
 	// NOTE: For now cMix nodes serve the NDF to the
 	//  consensus nodes, but this will be reversed
 	//  once consensus generates the NDF
-	GetNdf func() ([]byte, error)
+	GetNdf func() (*interconnect.NDF, error)
 }
 
 // Implementation allows users of the client library to set the
@@ -240,7 +252,7 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return nil
 			},
-			GetNdf: func() (bytes []byte, err error) {
+			GetNdf: func() (bytes *interconnect.NDF, err error) {
 				warn(um)
 				return nil, nil
 			},
@@ -330,6 +342,6 @@ func (s *Implementation) RoundError(err *mixmessages.RoundError, auth *connect.A
 // NOTE: For now cMix nodes serve the NDF to the
 //  consensus nodes, but this will be reversed
 //  once consensus generates the NDF
-func (s *Implementation) GetNdf() ([]byte, error) {
+func (s *Implementation) GetNDF() (*interconnect.NDF, error) {
 	return s.Functions.GetNdf()
 }
