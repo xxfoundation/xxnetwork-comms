@@ -44,14 +44,18 @@ func StartNode(id *id.ID, localServer string, handler Handler,
 		handler:    handler,
 	}
 
-	_, port, err := net.SplitHostPort(localServer)
-	if err != nil {
-		jww.WARN.Printf("Unable to ")
-	}
-
-	consensusNode, interConnectClose := interconnect.StartCMixInterconnect(id, port, handler, certPEMblock, keyPEMblock)
+	// Start up interconnect service
+	go func() {
+		_, port, err := net.SplitHostPort(localServer)
+		if err != nil {
+			jww.WARN.Printf("Unable to start consensus node")
+			return
+		}
+		interconnect.StartCMixInterconnect(id, port, handler, certPEMblock, keyPEMblock)
+	}()
 
 	go func() {
+
 		// Register GRPC services to the listening address
 		mixmessages.RegisterNodeServer(mixmessageServer.LocalServer, &mixmessageServer)
 		messages.RegisterGenericServer(mixmessageServer.LocalServer, &mixmessageServer)
@@ -63,9 +67,6 @@ func StartNode(id *id.ID, localServer string, handler Handler,
 				errors.New(err.Error()))
 		}
 		jww.INFO.Printf("Shutting down node server listener: %s", lis)
-		jww.INFO.Printf("Shutting down consensus node.")
-		consensusNode.Shutdown()
-		interConnectClose()
 	}()
 
 	return &mixmessageServer
