@@ -255,7 +255,7 @@ func (s *Comms) SendPostPrecompResult(host *connect.Host,
 
 	// Execute the Send function
 	jww.DEBUG.Printf("Sending Post Precomp Result message...")
-	jww.TRACE.Printf("Sending Post Precomp Result message: %+v", slots)
+	//jww.TRACE.Printf("Sending Post Precomp Result message: %+v", slots)
 	resultMsg, err := s.Send(host, f)
 	if err != nil {
 		return nil, err
