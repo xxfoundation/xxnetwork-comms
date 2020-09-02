@@ -66,8 +66,7 @@ func (s *MockRegistration) Poll(*pb.PermissioningPoll, *connect.Auth, string) (*
 }
 
 // Registers a user and returns a signed public key
-func (s *MockRegistration) RegisterUser(registrationCode,
-	key string) (hash []byte, err error) {
+func (s *MockRegistration) RegisterUser(key string) (hash []byte, err error) {
 	return nil, nil
 }
 
@@ -106,8 +105,7 @@ func (s *MockRegistrationError) Poll(*pb.PermissioningPoll, *connect.Auth, strin
 }
 
 // Registers a user and returns a signed public key
-func (s *MockRegistrationError) RegisterUser(registrationCode,
-	key string) (hash []byte, err error) {
+func (s *MockRegistrationError) RegisterUser(key string) (hash []byte, err error) {
 	return nil, nil
 }
 

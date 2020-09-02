@@ -349,7 +349,6 @@ message NodeRegistration {
 
 // UserRegistration message to initialize registration process
 message UserRegistration {
-    string RegistrationCode = 1;
     string ClientRSAPubKey = 2;
 }
 
