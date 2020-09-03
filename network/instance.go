@@ -59,7 +59,7 @@ type Heartbeat struct {
 	isRoundComplete bool
 }
 
-// Register AddNode channel with Instance
+// Register NetworkHealth channel with Instance
 func (i *Instance) SetNetworkHealthChan(c chan Heartbeat) {
 	i.networkHealth = c
 }

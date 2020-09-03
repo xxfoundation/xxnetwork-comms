@@ -12,6 +12,7 @@ import (
 	ds "gitlab.com/elixxir/comms/network/dataStructures"
 	"gitlab.com/elixxir/comms/testkeys"
 	"gitlab.com/elixxir/comms/testutils"
+	"gitlab.com/elixxir/primitives/states"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/crypto/signature"
 	"gitlab.com/xx_network/crypto/signature/rsa"
@@ -711,6 +712,51 @@ func TestInstance_NodeEventModel(t *testing.T) {
 }
 
 // Happy path
+func TestInstance_RoundUpdates(t *testing.T) {
+	i, _ := setupComm(t)
+	nwHealth := make(chan Heartbeat, 10)
+	i.SetNetworkHealthChan(nwHealth)
+
+	// Build a basic RoundInfo object and sign it
+	privKey, err := rsa.LoadPrivateKeyFromPem(testkeys.LoadFromPath(testkeys.GetNodeKeyPath()))
+	if err != nil {
+		t.Errorf("Could not get rsa key: %s", err)
+	}
+	r := &mixmessages.RoundInfo{
+		ID:       2,
+		UpdateID: 4,
+		State:    uint32(states.COMPLETED),
+	}
+	err = signature.Sign(r, privKey)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	// Set up a function to read channel output
+	isFinished := false
+	go func() {
+		for heartbeat := range nwHealth {
+			if !heartbeat.isRoundComplete {
+				t.Errorf("Round should have been complete")
+			}
+			if heartbeat.hasWaitingRound {
+				t.Errorf("Should have had no waiting rounds")
+			}
+			isFinished = true
+			break
+		}
+	}()
+
+	// Send the round update
+	err = i.RoundUpdates([]*mixmessages.RoundInfo{r})
+
+	// Wait for other thread to finish
+	for !isFinished {
+		time.Sleep(50 * time.Millisecond)
+	}
+}
+
+// Happy path
 func TestInstance_UpdateGroup(t *testing.T) {
 	i, f := setupComm(t)
 	err := i.UpdateFullNdf(f)
@@ -785,7 +831,7 @@ func TestInstance_RoundUpdateAddsToERS(t *testing.T) {
 	privKey, err := rsa.LoadPrivateKeyFromPem(priv)
 	pub := testkeys.LoadFromPath(testkeys.GetNodeCertPath())
 	if err != nil {
-		t.Errorf("Could not generate rsa key: %s", err)
+		t.Errorf("Could not get rsa key: %s", err)
 	}
 
 	// Create a basic testing NDF and sign it
