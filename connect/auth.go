@@ -89,7 +89,8 @@ func (c *ProtoComms) PackAuthenticatedMessage(msg proto.Message, host *Host,
 	if err != nil {
 		return nil, errors.New(err.Error())
 	}
-
+	host.mux.RLock()
+	defer host.mux.RUnlock()
 	// Build the authenticated message
 	authMsg := &pb.AuthenticatedMessage{
 		ID:      c.Id.Marshal(),

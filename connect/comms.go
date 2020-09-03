@@ -225,7 +225,9 @@ func (c *ProtoComms) Send(host *Host, f func(conn *grpc.ClientConn) (*any.Any,
 connect:
 	// Ensure the connection is running
 	if !host.Connected() {
+		host.mux.Lock()
 		host.transmissionToken = nil
+		host.mux.Unlock()
 		//do not attempt to connect again if multiple attempts have been made
 		if numConnects == maxConnects {
 			return nil, errors.WithMessage(err, "Maximum number of connects attempted")
@@ -293,7 +295,9 @@ authorize:
 		// Handle resetting authentication
 		if strings.Contains(err.Error(), AuthError(host.id).Error()) {
 			jww.INFO.Printf("Failed send due to auth error, retrying authentication: %s", err.Error())
+			host.mux.Lock()
 			host.transmissionToken = nil
+			host.mux.Unlock()
 			goto authorize
 		}
 
