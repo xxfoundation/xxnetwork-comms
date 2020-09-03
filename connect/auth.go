@@ -37,6 +37,8 @@ type Auth struct {
 // Perform the client handshake to establish reverse-authentication
 func (c *ProtoComms) clientHandshake(host *Host) (err error) {
 
+	jww.INFO.Printf("Attempting client handshake with: %s", host.id.String())
+
 	// Set up the context
 	client := pb.NewGenericClient(host.connection)
 	ctx, cancel := MessagingContext()
@@ -76,7 +78,7 @@ func (c *ProtoComms) clientHandshake(host *Host) (err error) {
 
 	// Assign the host token
 	host.transmissionToken = result.Token
-
+	jww.INFO.Printf("Handshake completed with: %s and token %v", host.id.String(), result.Token)
 	return
 }
 
@@ -203,13 +205,14 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) (err error) {
 	if err != nil {
 		return err
 	}
+	jww.INFO.Printf("Validating token for: %s", msgID.String())
 
 	// Verify the Host exists for the provided ID
 	host, ok := c.GetHost(msgID)
 	if !ok {
 
 		// If the host does not already exist, attempt dynamic authentication
-		jww.DEBUG.Printf("Attempting dynamic authentication: %s", msgID.String())
+		jww.INFO.Printf("Attempting dynamic authentication: %s", msgID.String())
 		host, err = c.dynamicAuth(msg)
 		if err != nil {
 			return errors.Errorf(
@@ -223,6 +226,7 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) (err error) {
 		host.mux.Lock()
 		defer host.mux.Unlock()
 	}
+	jww.INFO.Printf("Received token %v, internal token %v", msg.Token, host.receptionToken)
 
 	// Get the signed token
 	tokenMsg := &pb.AssignToken{}
@@ -251,7 +255,7 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) (err error) {
 
 	// Token has been validated and can be safely stored
 	host.receptionToken = tokenMsg.Token
-	jww.DEBUG.Printf("Token validated: %v", tokenMsg.Token)
+	jww.INFO.Printf("Token validated: %v", tokenMsg.Token)
 	return
 }
 
@@ -287,7 +291,7 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) (*Auth,
 		Sender:          host,
 	}
 
-	jww.TRACE.Printf("Authentication status: %v, ProvidedId: %v ProvidedToken: %v",
+	jww.INFO.Printf("Authentication status: %v, ProvidedId: %v ProvidedToken: %v",
 		res.IsAuthenticated, msg.ID, msg.Token)
 	return res, nil
 }
