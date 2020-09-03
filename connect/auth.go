@@ -251,7 +251,9 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) (err error) {
 	}
 
 	// Token has been validated and can be safely stored
+	host.mux.Lock()
 	host.receptionToken = tokenMsg.Token
+	host.mux.Unlock()
 	jww.DEBUG.Printf("Token validated: %v", tokenMsg.Token)
 	return
 }
