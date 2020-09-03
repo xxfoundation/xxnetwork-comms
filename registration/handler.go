@@ -62,7 +62,7 @@ func StartRegistrationServer(id *id.ID, localServer string, handler Handler,
 }
 
 type Handler interface {
-	RegisterUser(pubKey string) (signature []byte, err error)
+	RegisterUser(registrationCode, pubKey string) (signature []byte, err error)
 	GetCurrentClientVersion() (version string, err error)
 	RegisterNode(salt []byte, serverAddr, serverTlsCert, gatewayAddr,
 		gatewayTlsCert, registrationCode string) error
@@ -73,7 +73,7 @@ type Handler interface {
 }
 
 type implementationFunctions struct {
-	RegisterUser func(pubKey string) (signature []byte,
+	RegisterUser func(registrationCode, pubKey string) (signature []byte,
 		err error)
 	GetCurrentClientVersion func() (version string, err error)
 	RegisterNode            func(salt []byte, serverAddr, serverTlsCert, gatewayAddr,
@@ -101,7 +101,8 @@ func NewImplementation() *Implementation {
 	return &Implementation{
 		Functions: implementationFunctions{
 
-			RegisterUser: func(pubKey string) (signature []byte, err error) {
+			RegisterUser: func(registrationCode,
+				pubKey string) (signature []byte, err error) {
 				warn(um)
 				return nil, nil
 			},
@@ -134,8 +135,9 @@ func NewImplementation() *Implementation {
 }
 
 // Registers a user and returns a signed public key
-func (s *Implementation) RegisterUser(pubKey string) (signature []byte, err error) {
-	return s.Functions.RegisterUser(pubKey)
+func (s *Implementation) RegisterUser(registrationCode,
+	pubKey string) (signature []byte, err error) {
+	return s.Functions.RegisterUser(registrationCode, pubKey)
 }
 
 func (s *Implementation) GetCurrentClientVersion() (string, error) {
