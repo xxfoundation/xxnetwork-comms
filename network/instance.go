@@ -55,8 +55,8 @@ type Instance struct {
 
 // Object used to signal information about the network health
 type Heartbeat struct {
-	hasWaitingRound bool
-	isRoundComplete bool
+	HasWaitingRound bool
+	IsRoundComplete bool
 }
 
 // Register NetworkHealth channel with Instance
@@ -375,8 +375,8 @@ func (i *Instance) RoundUpdates(rounds []*pb.RoundInfo) error {
 	if i.networkHealth != nil {
 		select {
 		case i.networkHealth <- Heartbeat{
-			hasWaitingRound: i.GetWaitingRounds().Len() > 0,
-			isRoundComplete: isRoundComplete,
+			HasWaitingRound: i.GetWaitingRounds().Len() > 0,
+			IsRoundComplete: isRoundComplete,
 		}:
 		default:
 			jww.WARN.Printf("Unable to send NetworkHealth event")

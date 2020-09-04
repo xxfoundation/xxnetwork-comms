@@ -736,10 +736,10 @@ func TestInstance_RoundUpdates(t *testing.T) {
 	isFinished := false
 	go func() {
 		for heartbeat := range nwHealth {
-			if !heartbeat.isRoundComplete {
+			if !heartbeat.IsRoundComplete {
 				t.Errorf("Round should have been complete")
 			}
-			if heartbeat.hasWaitingRound {
+			if heartbeat.HasWaitingRound {
 				t.Errorf("Should have had no waiting rounds")
 			}
 			isFinished = true
