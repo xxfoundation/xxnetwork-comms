@@ -75,7 +75,7 @@ func (c *ProtoComms) clientHandshake(host *Host) (err error) {
 	}
 
 	// Assign the host token
-	host.transmissionToken = result.Token
+	host.transmissionToken.token = result.Token
 
 	return
 }
@@ -94,7 +94,7 @@ func (c *ProtoComms) PackAuthenticatedMessage(msg proto.Message, host *Host,
 	// Build the authenticated message
 	authMsg := &pb.AuthenticatedMessage{
 		ID:      c.Id.Marshal(),
-		Token:   host.transmissionToken,
+		Token:   host.transmissionToken.GetToken(),
 		Message: anyMsg,
 		Client: &pb.ClientID{
 			Salt:      make([]byte, 0),
@@ -118,7 +118,7 @@ func (c *ProtoComms) PackAuthenticatedContext(host *Host,
 	ctx context.Context) context.Context {
 
 	ctx = metadata.AppendToOutgoingContext(ctx, "ID", c.Id.String())
-	ctx = metadata.AppendToOutgoingContext(ctx, "TOKEN", base64.StdEncoding.EncodeToString(host.transmissionToken))
+	ctx = metadata.AppendToOutgoingContext(ctx, "TOKEN", base64.StdEncoding.EncodeToString(host.transmissionToken.GetToken()))
 	return ctx
 }
 
@@ -220,7 +220,7 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) (err error) {
 
 	// This logic prevents deadlocks when performing authentication with self
 	// TODO: This may require further review
-	if !msgID.Cmp(c.Id) || bytes.Compare(host.receptionToken, msg.Token) != 0 {
+	if !msgID.Cmp(c.Id) || bytes.Compare(host.receptionToken.GetToken(), msg.Token) != 0 {
 		host.mux.Lock()
 		defer host.mux.Unlock()
 	}
@@ -251,7 +251,7 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) (err error) {
 	}
 
 	// Token has been validated and can be safely stored
-	host.receptionToken = tokenMsg.Token
+	host.receptionToken.SetToken(tokenMsg.Token)
 	jww.DEBUG.Printf("Token validated: %v", tokenMsg.Token)
 	return
 }
@@ -279,8 +279,9 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) (*Auth,
 	defer host.mux.RUnlock()
 
 	// Check the token's validity
-	validToken := host.receptionToken != nil && msg.Token != nil &&
-		bytes.Compare(host.receptionToken, msg.Token) == 0
+	receptionToken := host.receptionToken.GetToken()
+	validToken := receptionToken != nil && msg.Token != nil &&
+		bytes.Compare(receptionToken, msg.Token) == 0
 
 	// Assemble the Auth object
 	res := &Auth{
