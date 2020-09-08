@@ -18,9 +18,7 @@ import (
 	"gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/primitives/id"
 	"google.golang.org/grpc/reflection"
-	"net"
 	"runtime/debug"
-	"strconv"
 )
 
 // Server object used to implement endpoints and top-level comms functionality
@@ -46,24 +44,24 @@ func StartNode(id *id.ID, localServer string, handler Handler,
 	}
 
 	// Start up interconnect service
-	go func() {
-		_, port, err := net.SplitHostPort(localServer)
-		if err != nil {
-			jww.WARN.Printf("Unable to start consensus node")
-			return
-		}
-		jww.INFO.Printf("Starting server on: %s", localServer)
-		newPort, err := strconv.Atoi(port)
-		if err != nil {
-			jww.WARN.Printf("Unable to start consensus node: Unparseable port: %v", err)
-			return
-		}
-
-		newPort = newPort + 10
-		interconnectPort := strconv.Itoa(newPort)
-		jww.INFO.Printf("Starting interconnect on port: %v", interconnectPort)
-		interconnect.StartCMixInterconnect(id, interconnectPort, handler, certPEMblock, keyPEMblock)
-	}()
+	//go func() {
+	//	_, port, err := net.SplitHostPort(localServer)
+	//	if err != nil {
+	//		jww.WARN.Printf("Unable to start consensus node")
+	//		return
+	//	}
+	//	jww.INFO.Printf("Starting server on: %s", localServer)
+	//	newPort, err := strconv.Atoi(port)
+	//	if err != nil {
+	//		jww.WARN.Printf("Unable to start consensus node: Unparseable port: %v", err)
+	//		return
+	//	}
+	//
+	//	newPort = newPort + 10
+	//	interconnectPort := strconv.Itoa(newPort)
+	//	jww.INFO.Printf("Starting interconnect on port: %v", interconnectPort)
+	//	interconnect.StartCMixInterconnect(id, interconnectPort, handler, certPEMblock, keyPEMblock)
+	//}()
 
 	go func() {
 
