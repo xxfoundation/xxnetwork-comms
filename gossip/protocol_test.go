@@ -410,7 +410,7 @@ func TestGossipNodes(t *testing.T) {
 		for j := 0; j < numNodes; j++ {
 			if i != j {
 				peers = append(peers, nodes[j])
-				_, err := managers[i].comms.AddHost(nodes[j], "127.0.0.1:"+ports[j], certPEM, false, false)
+				_, err := managers[i].AddHost(nodes[j], "127.0.0.1:"+ports[j], certPEM, false, false)
 				if err != nil {
 					t.Fatal(err)
 				}

@@ -42,7 +42,7 @@ func DefaultManagerFlags() ManagerFlags {
 
 // Manager for various GossipProtocols that are accessed by tag
 type Manager struct {
-	comms *connect.ProtoComms
+	*connect.ProtoComms
 
 	// Stored map of GossipProtocols
 	protocols    map[string]*Protocol
@@ -58,10 +58,10 @@ type Manager struct {
 // Creates a new Gossip Manager struct
 func NewManager(comms *connect.ProtoComms, flags ManagerFlags) *Manager {
 	m := &Manager{
-		comms:     comms,
-		protocols: map[string]*Protocol{},
-		buffer:    map[string]*MessageRecord{},
-		flags:     flags,
+		ProtoComms: comms,
+		protocols:  map[string]*Protocol{},
+		buffer:     map[string]*MessageRecord{},
+		flags:      flags,
 	}
 	_ = m.bufferMonitor()
 	return m
@@ -75,7 +75,7 @@ func (m *Manager) NewGossip(tag string, flags ProtocolFlags,
 
 	tmp := &Protocol{
 		fingerprints: map[Fingerprint]*uint64{},
-		comms:        m.comms,
+		comms:        m.ProtoComms,
 		peers:        peers,
 		flags:        flags,
 		receiver:     receiver,
