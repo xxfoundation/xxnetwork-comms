@@ -82,6 +82,7 @@ type Host struct {
 
 	// connection lock
 	sendLock sync.RWMutex
+	isLocked bool
 }
 
 // Creates a new Host object

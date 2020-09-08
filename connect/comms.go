@@ -222,6 +222,7 @@ func (c *ProtoComms) Send(host *Host, f func(conn *grpc.ClientConn) (*any.Any,
 
 	numConnects, numAuths, lastEvent := 0, 0, 0
 	host.sendLock.Lock()
+	host.isLocked = true
 connect:
 	// Ensure the connection is running
 	if !host.Connected() {
@@ -229,6 +230,7 @@ connect:
 		//do not attempt to connect again if multiple attempts have been made
 		if numConnects == maxConnects {
 			host.sendLock.Unlock()
+			host.isLocked = false
 			return nil, errors.WithMessage(err, "Maximum number of connects attempted")
 		}
 
@@ -255,12 +257,14 @@ authorize:
 		//do not attempt to connect again if multiple attempts have been made
 		if numAuths == maxAuths {
 			host.sendLock.Unlock()
+			host.isLocked = false
 			return nil, errors.New("Maximum number of authorizations attempted")
 		}
 
 		//do not try multiple auths in a row
 		if lastEvent == auth {
 			host.sendLock.Unlock()
+			host.isLocked = false
 			return nil, errors.New("Cannot attempt to authorize with host multiple times in a row")
 		}
 
@@ -273,6 +277,7 @@ authorize:
 			//if failure of connection, retry connection
 			if isConnError(err) {
 				host.sendLock.Lock()
+				host.isLocked = true
 				jww.INFO.Printf("Failed to auth due to connection issue: %s", err)
 				goto connect
 			}
@@ -295,6 +300,7 @@ authorize:
 		//if failure of connection, retry connection
 		if isConnError(err) {
 			host.sendLock.Lock()
+			host.isLocked = true
 			jww.INFO.Printf("Failed send due to connection issue: %s", err)
 			goto connect
 		}
@@ -303,10 +309,14 @@ authorize:
 		if strings.Contains(err.Error(), AuthError(host.id).Error()) {
 			jww.INFO.Printf("Failed send due to auth error, retrying authentication: %s", err.Error())
 			host.sendLock.Lock()
+			host.isLocked = true
 			host.transmissionToken.SetToken(nil)
 			goto authorize
 		}
-		host.sendLock.Unlock()
+		if host.isLocked {
+			host.sendLock.Unlock()
+			host.isLocked = false
+		}
 		// otherwise, return the error
 		return nil, errors.WithMessage(err, "Failed to send")
 	}
