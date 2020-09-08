@@ -55,14 +55,14 @@ func NewToken() Token {
 }
 
 // SetToken rewrites the token for negotiation or renegotiation
-func (t *Token) SetToken(newToken []byte)  {
+func (t *Token) SetToken(newToken []byte) {
 	t.lock.Lock()
 	defer t.lock.Unlock()
 	t.token = newToken
 }
 
 // GetToken reads and returns the token
-func (t *Token) GetToken() []byte  {
+func (t *Token) GetToken() []byte {
 	t.lock.RLock()
 	defer t.lock.RUnlock()
 	return t.token
