@@ -49,6 +49,7 @@ type Handler interface {
 // Gateway object used to implement endpoints and top-level comms functionality
 type Comms struct {
 	*gossip.Manager
+	*connect.ProtoComms
 	handler Handler
 }
 
@@ -64,8 +65,9 @@ func StartGateway(id *id.ID, localServer string, handler Handler,
 	}
 
 	gatewayServer := Comms{
-		handler: handler,
-		Manager: gossip.NewManager(pc, gossipFlags),
+		handler:    handler,
+		ProtoComms: pc,
+		Manager:    gossip.NewManager(pc, gossipFlags),
 	}
 
 	go func() {
