@@ -251,13 +251,16 @@ connect:
 authorize:
 	// Establish authentication if required
 	if host.authenticationRequired() && host.transmissionToken.GetToken() == nil {
+
 		//do not attempt to connect again if multiple attempts have been made
 		if numAuths == maxAuths {
+			host.sendLock.Unlock()
 			return nil, errors.New("Maximum number of authorizations attempted")
 		}
 
 		//do not try multiple auths in a row
 		if lastEvent == auth {
+			host.sendLock.Unlock()
 			return nil, errors.New("Cannot attempt to authorize with host multiple times in a row")
 		}
 
@@ -269,6 +272,7 @@ authorize:
 		if err != nil {
 			//if failure of connection, retry connection
 			if isConnError(err) {
+				host.sendLock.Lock()
 				jww.INFO.Printf("Failed to auth due to connection issue: %s", err)
 				goto connect
 			}
@@ -298,8 +302,8 @@ authorize:
 		// Handle resetting authentication
 		if strings.Contains(err.Error(), AuthError(host.id).Error()) {
 			jww.INFO.Printf("Failed send due to auth error, retrying authentication: %s", err.Error())
-			host.transmissionToken.SetToken(nil)
 			host.sendLock.Lock()
+			host.transmissionToken.SetToken(nil)
 			goto authorize
 		}
 		host.sendLock.Unlock()
