@@ -11,6 +11,7 @@ import (
 	"gitlab.com/elixxir/comms/gateway"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/connect"
+	"gitlab.com/xx_network/comms/gossip"
 	"gitlab.com/xx_network/primitives/id"
 	"testing"
 )
@@ -20,7 +21,7 @@ func TestSendPutMessage(t *testing.T) {
 	gatewayAddress := getNextAddress()
 	testID := id.NewIdFromString("test", id.Gateway, t)
 	gw := gateway.StartGateway(testID, gatewayAddress,
-		gateway.NewImplementation(), nil, nil)
+		gateway.NewImplementation(), nil, nil, gossip.DefaultManagerFlags())
 	defer gw.Shutdown()
 	var c Comms
 	var manager connect.Manager
@@ -41,7 +42,7 @@ func TestSendCheckMessages(t *testing.T) {
 	gatewayAddress := getNextAddress()
 	testID := id.NewIdFromString("test", id.Gateway, t)
 	gw := gateway.StartGateway(testID, gatewayAddress,
-		gateway.NewImplementation(), nil, nil)
+		gateway.NewImplementation(), nil, nil, gossip.DefaultManagerFlags())
 	var c Comms
 	defer gw.Shutdown()
 	var manager connect.Manager
@@ -65,7 +66,7 @@ func TestSendGetMessage(t *testing.T) {
 	gatewayAddress := getNextAddress()
 	testID := id.NewIdFromString("test", id.Gateway, t)
 	gw := gateway.StartGateway(testID, gatewayAddress,
-		gateway.NewImplementation(), nil, nil)
+		gateway.NewImplementation(), nil, nil, gossip.DefaultManagerFlags())
 	var c Comms
 	defer gw.Shutdown()
 
@@ -90,7 +91,7 @@ func TestSendRequestNonceMessage(t *testing.T) {
 	gatewayAddress := getNextAddress()
 	testID := id.NewIdFromString("test", id.Gateway, t)
 	gw := gateway.StartGateway(testID, gatewayAddress,
-		gateway.NewImplementation(), nil, nil)
+		gateway.NewImplementation(), nil, nil, gossip.DefaultManagerFlags())
 	defer gw.Shutdown()
 	var c Comms
 	var manager connect.Manager
@@ -111,7 +112,7 @@ func TestSendConfirmNonceMessage(t *testing.T) {
 	gatewayAddress := getNextAddress()
 	testID := id.NewIdFromString("test", id.Gateway, t)
 	gw := gateway.StartGateway(testID, gatewayAddress,
-		gateway.NewImplementation(), nil, nil)
+		gateway.NewImplementation(), nil, nil, gossip.DefaultManagerFlags())
 	defer gw.Shutdown()
 	var c Comms
 	var manager connect.Manager
@@ -133,7 +134,7 @@ func TestComms_SendPoll(t *testing.T) {
 	gatewayAddress := getNextAddress()
 	testID := id.NewIdFromString("test", id.Gateway, t)
 	gw := gateway.StartGateway(testID, gatewayAddress,
-		gateway.NewImplementation(), nil, nil)
+		gateway.NewImplementation(), nil, nil, gossip.DefaultManagerFlags())
 	defer gw.Shutdown()
 	var c Comms
 	var manager connect.Manager
@@ -160,7 +161,7 @@ func TestComms_RequestMessages(t *testing.T) {
 	gatewayAddress := getNextAddress()
 	testID := id.NewIdFromString("test", id.Gateway, t)
 	gw := gateway.StartGateway(testID, gatewayAddress,
-		gateway.NewImplementation(), nil, nil)
+		gateway.NewImplementation(), nil, nil, gossip.DefaultManagerFlags())
 	defer gw.Shutdown()
 	var c Comms
 	var manager connect.Manager
@@ -182,7 +183,7 @@ func TestComms_RequestHistoricalRounds(t *testing.T) {
 	gatewayAddress := getNextAddress()
 	testID := id.NewIdFromString("test", id.Gateway, t)
 	gw := gateway.StartGateway(testID, gatewayAddress,
-		gateway.NewImplementation(), nil, nil)
+		gateway.NewImplementation(), nil, nil, gossip.DefaultManagerFlags())
 	defer gw.Shutdown()
 	var c Comms
 	var manager connect.Manager
