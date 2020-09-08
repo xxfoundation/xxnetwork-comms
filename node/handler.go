@@ -20,6 +20,7 @@ import (
 	"google.golang.org/grpc/reflection"
 	"net"
 	"runtime/debug"
+	"strconv"
 )
 
 // Server object used to implement endpoints and top-level comms functionality
@@ -51,7 +52,9 @@ func StartNode(id *id.ID, localServer string, handler Handler,
 			jww.WARN.Printf("Unable to start consensus node")
 			return
 		}
-		interconnect.StartCMixInterconnect(id, port, handler, certPEMblock, keyPEMblock)
+		newPort, err := strconv.Atoi(port)
+		newPort++
+		interconnect.StartCMixInterconnect(id, string(newPort), handler, certPEMblock, keyPEMblock)
 	}()
 
 	go func() {
