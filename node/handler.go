@@ -59,9 +59,9 @@ func StartNode(id *id.ID, localServer string, handler Handler,
 			return
 		}
 
-		newPort = newPort + 1
+		newPort = newPort + 10
 		interconnectPort := strconv.Itoa(newPort)
-		jww.INFO.Printf("Starting interconnect on port: %v", newPort)
+		jww.INFO.Printf("Starting interconnect on port: %v", interconnectPort)
 		interconnect.StartCMixInterconnect(id, interconnectPort, handler, certPEMblock, keyPEMblock)
 	}()
 
