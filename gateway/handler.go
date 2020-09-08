@@ -48,7 +48,6 @@ type Handler interface {
 
 // Gateway object used to implement endpoints and top-level comms functionality
 type Comms struct {
-	*connect.ProtoComms
 	*gossip.Manager
 	handler Handler
 }
@@ -57,16 +56,16 @@ type Comms struct {
 // and a callback interface for gateway operations
 // with given path to public and private key for TLS connection
 func StartGateway(id *id.ID, localServer string, handler Handler,
-	certPEMblock, keyPEMblock []byte) *Comms {
+	certPem, keyPem []byte, gossipFlags gossip.ManagerFlags) *Comms {
 	pc, lis, err := connect.StartCommServer(id, localServer,
-		certPEMblock, keyPEMblock)
+		certPem, keyPem)
 	if err != nil {
 		jww.FATAL.Panicf("Unable to start comms server: %+v", err)
 	}
 
 	gatewayServer := Comms{
-		ProtoComms: pc,
-		handler:    handler,
+		handler: handler,
+		Manager: gossip.NewManager(pc, gossipFlags),
 	}
 
 	go func() {
