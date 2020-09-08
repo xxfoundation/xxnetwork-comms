@@ -44,14 +44,14 @@ func (s *Comms) CreateNewRound(ctx context.Context, msg *messages.AuthenticatedM
 	// Verify the message authentication
 	authState, err := s.AuthenticatedReceiver(msg)
 	if err != nil {
-		return  &messages.Ack{}, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
+		return &messages.Ack{}, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
 	}
 
 	// Unnmarshall the any message to the message type needed
 	roundInfoMsg := &pb.RoundInfo{}
 	err = ptypes.UnmarshalAny(msg.Message, roundInfoMsg)
 	if err != nil {
-		return  &messages.Ack{}, errors.New(err.Error())
+		return &messages.Ack{}, errors.New(err.Error())
 	}
 
 	// Call the server handler to start a new round
@@ -127,18 +127,18 @@ func (s *Comms) PostRoundPublicKey(ctx context.Context,
 	// Verify the message authentication
 	authState, err := s.AuthenticatedReceiver(msg)
 	if err != nil {
-		return  &messages.Ack{}, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
+		return &messages.Ack{}, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
 	}
 	//Marshall the any message to the message type needed
 	publicKeyMsg := &pb.RoundPublicKey{}
 	err = ptypes.UnmarshalAny(msg.Message, publicKeyMsg)
 	if err != nil {
-		return  &messages.Ack{}, errors.New(err.Error())
+		return &messages.Ack{}, errors.New(err.Error())
 	}
 
 	err = s.handler.PostRoundPublicKey(publicKeyMsg, authState)
 	if err != nil {
-		return  &messages.Ack{}, errors.New(err.Error())
+		return &messages.Ack{}, errors.New(err.Error())
 	}
 	return &messages.Ack{}, nil
 }
@@ -340,12 +340,12 @@ func (s *Comms) Poll(ctx context.Context, msg *messages.AuthenticatedMessage) (*
 func (s *Comms) RoundError(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
 	authState, err := s.AuthenticatedReceiver(msg)
 	if err != nil {
-		return  &messages.Ack{}, errors.Errorf("Unable to handle reception of AuthenticatedMessage: %+v", err)
+		return &messages.Ack{}, errors.Errorf("Unable to handle reception of AuthenticatedMessage: %+v", err)
 	}
 	errMsg := &pb.RoundError{}
 	err = ptypes.UnmarshalAny(msg.Message, errMsg)
 	if err != nil {
-		return  &messages.Ack{}, err
+		return &messages.Ack{}, err
 	}
 
 	return &messages.Ack{}, s.handler.RoundError(errMsg, authState)
@@ -355,13 +355,13 @@ func (s *Comms) SendRoundTripPing(ctx context.Context, msg *messages.Authenticat
 	// Verify the message authentication
 	authState, err := s.AuthenticatedReceiver(msg)
 	if err != nil {
-		return  &messages.Ack{}, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
+		return &messages.Ack{}, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
 	}
 	//Marshall the any message to the message type needed
 	roundTripPing := &pb.RoundTripPing{}
 	err = ptypes.UnmarshalAny(msg.Message, roundTripPing)
 	if err != nil {
-		return  &messages.Ack{}, err
+		return &messages.Ack{}, err
 	}
 
 	err = s.handler.SendRoundTripPing(roundTripPing, authState)

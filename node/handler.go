@@ -53,8 +53,14 @@ func StartNode(id *id.ID, localServer string, handler Handler,
 			return
 		}
 		newPort, err := strconv.Atoi(port)
-		newPort++
-		interconnect.StartCMixInterconnect(id, string(newPort), handler, certPEMblock, keyPEMblock)
+		if err != nil {
+			jww.WARN.Printf("Unable to start consensus node: Unparseable port: %v", err)
+			return
+		}
+		newPort = newPort + 1
+		interconnectPort := strconv.Itoa(newPort)
+
+		interconnect.StartCMixInterconnect(id, interconnectPort, handler, certPEMblock, keyPEMblock)
 	}()
 
 	go func() {
