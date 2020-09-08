@@ -276,12 +276,12 @@ authorize:
 		if err != nil {
 			//if failure of connection, retry connection
 			if isConnError(err) {
-				host.sendLock.Lock()
-				host.isLocked = true
 				jww.INFO.Printf("Failed to auth due to connection issue: %s", err)
 				goto connect
 			}
 			host.sendLock.Unlock()
+			host.isLocked=false
+
 			//otherwise, return the error
 			return nil, errors.New("Failed to authenticate")
 		}
@@ -294,6 +294,7 @@ authorize:
 	lastEvent = send
 	// Attempt to send to host
 	host.sendLock.Unlock()
+	host.isLocked=false
 	result, err = host.send(f)
 	// If failed to authenticate, retry negotiation by jumping to the top of the loop
 	if err != nil {
