@@ -60,6 +60,7 @@ type Heartbeat struct {
 	IsRoundComplete bool
 }
 
+// Combines a node and gateway together together for return over channels
 type NodeGateway struct{
 	Node ndf.Node
 	Gateway ndf.Gateway
