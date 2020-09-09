@@ -606,9 +606,9 @@ func TestInstance_NodeEventModel(t *testing.T) {
 	i, f := setupComm(t)
 
 	// Set up the channels
-	addNode := make(chan ndf.Node, 10)
+	addNode := make(chan NodeGateway, 10)
 	removeNode := make(chan *id.ID, 10)
-	addGateway := make(chan ndf.Gateway, 10)
+	addGateway := make(chan NodeGateway, 10)
 	removeGateway := make(chan *id.ID, 10)
 	i.SetRemoveGatewayChan(removeGateway)
 	i.SetRemoveNodeChan(removeNode)
