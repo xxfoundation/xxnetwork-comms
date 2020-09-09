@@ -173,7 +173,6 @@ func (p *Protocol) RemoveGossipPeer(id *id.ID) error {
 	defer p.peersLock.Unlock()
 
 	for i, peer := range p.peers {
-		jww.FATAL.Printf("%+v", peer.Cmp(id))
 		if peer.Cmp(id) {
 			p.peers = append(p.peers[:i], p.peers[i+1:]...)
 			return nil
