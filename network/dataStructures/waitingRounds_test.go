@@ -9,6 +9,7 @@ package dataStructures
 
 import (
 	"container/list"
+	"github.com/golang-collections/collections/set"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/primitives/current"
 	"gitlab.com/elixxir/primitives/states"
@@ -103,13 +104,47 @@ func TestWaitingRounds_getFurthest(t *testing.T) {
 	}
 
 	for i := len(expectedRounds) - 1; i >= 0; i-- {
-		if expectedRounds[i] != testWR.getFurthest() {
+		if expectedRounds[i] != testWR.getFurthest(nil) {
 			t.Errorf("getFurthest() did not return the expected round."+
-				"\n\texpected: %v\n\trecieved: %v", expectedRounds[i], testWR.getFurthest())
+				"\n\texpected: %v\n\trecieved: %v", expectedRounds[i], testWR.getFurthest(nil))
 		}
 		testWR.remove(expectedRounds[i])
 	}
-	if testWR.getFurthest() != nil {
+
+	if testWR.getFurthest(nil) != nil {
+		t.Errorf("getFurthest() did not return nil on empty list.")
+	}
+}
+
+// Happy path of WaitingRounds.getFurthest() with half the rounds excluded
+func TestWaitingRounds_getFurthest_Exclude(t *testing.T) {
+	// Generate rounds
+	expectedRounds, testRounds := createTestRoundInfos(25)
+
+	// Add rounds to list
+	testWR := NewWaitingRounds()
+	for _, round := range testRounds {
+		testWR.Insert(round)
+	}
+
+	// Add rounds to exclusion list
+	exclude := set.New()
+	for i, round := range expectedRounds {
+		if i%2 == 0 {
+			exclude.Insert(round)
+		}
+	}
+
+	for i := len(expectedRounds) - 1; i >= 0; i-- {
+		if i%2 == 1 {
+			if expectedRounds[i] != testWR.getFurthest(exclude) {
+				t.Errorf("getFurthest() did not return the expected round."+
+					"\n\texpected: %v\n\trecieved: %v", expectedRounds[i], testWR.getFurthest(exclude))
+			}
+			testWR.remove(expectedRounds[i])
+		}
+	}
+	if testWR.getFurthest(exclude) != nil {
 		t.Errorf("getFurthest() did not return nil on empty list.")
 	}
 }
@@ -126,7 +161,7 @@ func TestWaitingRounds_GetUpcomingRealtime_NoWait(t *testing.T) {
 	}
 
 	for i := len(expectedRounds) - 1; i >= 0; i-- {
-		furthestRound, err := testWR.GetUpcomingRealtime(300 * time.Millisecond)
+		furthestRound, err := testWR.GetUpcomingRealtime(300*time.Millisecond, set.New())
 		if err != nil {
 			t.Errorf("GetUpcomingRealtime() returned an unexpected error."+
 				"\n\terror: %v", err)
@@ -144,7 +179,7 @@ func TestWaitingRounds_GetUpcomingRealtime_NoWait(t *testing.T) {
 func TestWaitingRounds_GetUpcomingRealtime_TimeoutError(t *testing.T) {
 	testWR := NewWaitingRounds()
 
-	furthestRound, err := testWR.GetUpcomingRealtime(300 * time.Millisecond)
+	furthestRound, err := testWR.GetUpcomingRealtime(300*time.Millisecond, set.New())
 	if err != timeOutError {
 		t.Errorf("GetUpcomingRealtime() did not time out when expected."+
 			"\n\texpected: %v\n\treceived: %v", timeOutError, err)
@@ -167,7 +202,7 @@ func TestWaitingRounds_GetUpcomingRealtime(t *testing.T) {
 			testWR.Insert(round)
 		}(round)
 
-		furthestRound, err := testWR.GetUpcomingRealtime(5 * time.Second)
+		furthestRound, err := testWR.GetUpcomingRealtime(5*time.Second, set.New())
 
 		if err != nil {
 			t.Errorf("GetUpcomingRealtime() returned an unexpected error (%d)."+
