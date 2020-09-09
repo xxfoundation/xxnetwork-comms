@@ -93,8 +93,8 @@ func (s *Comms) PostPhase(ctx context.Context, msg *messages.AuthenticatedMessag
 		return nil, errors.New(err.Error())
 	}
 	// Call the server handler with the msg
-	s.handler.PostPhase(batchMsg, authState)
-	return &messages.Ack{}, nil
+	err = s.handler.PostPhase(batchMsg, authState)
+	return &messages.Ack{}, err
 }
 
 // Handle a phase event using a stream server
@@ -130,8 +130,8 @@ func (s *Comms) PostRoundPublicKey(ctx context.Context,
 		return nil, errors.New(err.Error())
 	}
 
-	s.handler.PostRoundPublicKey(publicKeyMsg, authState)
-	return &messages.Ack{}, nil
+	err = s.handler.PostRoundPublicKey(publicKeyMsg, authState)
+	return &messages.Ack{}, err
 }
 
 // GetBufferInfo returns buffer size (number of completed precomputations)
