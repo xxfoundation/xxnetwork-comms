@@ -10,6 +10,7 @@
 package network
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
@@ -47,9 +48,9 @@ type Instance struct {
 	events *ds.RoundEvents
 
 	// Node Event Model Channels
-	addNode       chan ndf.Node
+	addNode       chan NodeGateway
 	removeNode    chan *id.ID
-	addGateway    chan ndf.Gateway
+	addGateway    chan NodeGateway
 	removeGateway chan *id.ID
 }
 
@@ -59,13 +60,19 @@ type Heartbeat struct {
 	IsRoundComplete bool
 }
 
+// Combines a node and gateway together together for return over channels
+type NodeGateway struct{
+	Node ndf.Node
+	Gateway ndf.Gateway
+}
+
 // Register NetworkHealth channel with Instance
 func (i *Instance) SetNetworkHealthChan(c chan Heartbeat) {
 	i.networkHealth = c
 }
 
 // Register AddNode channel with Instance
-func (i *Instance) SetAddNodeChan(c chan ndf.Node) {
+func (i *Instance) SetAddNodeChan(c chan NodeGateway) {
 	i.addNode = c
 }
 
@@ -75,7 +82,7 @@ func (i *Instance) SetRemoveNodeChan(c chan *id.ID) {
 }
 
 // Register AddGateway channel with Instance
-func (i *Instance) SetAddGatewayChan(c chan ndf.Gateway) {
+func (i *Instance) SetAddGatewayChan(c chan NodeGateway) {
 	i.addGateway = c
 }
 
@@ -263,6 +270,51 @@ func (i *Instance) UpdatePartialNdf(m *pb.NDF) error {
 //overrides an IP address for an ID with one from
 func (i *Instance) GetIpOverrideList() *ds.IpOverrideList {
 	return i.ipOverride
+}
+
+//Gets the node and gateway with the given ID
+func (i *Instance) GetNodeAndGateway(ngid *id.ID) (NodeGateway, error) {
+	index := -1
+
+	def := i.GetFullNdf()
+	if def==nil{
+		def = i.GetPartialNdf()
+	}
+
+	idBytes := ngid.Bytes()
+
+	// depending on if the passed id is a node or gateway ID, look it up in the
+	// correct list
+	if ngid.GetType() == id.Node{
+		for i, n := range def.Get().Nodes{
+			if bytes.Compare(n.ID,idBytes)==0{
+				index = i
+				break
+			}
+		}
+	}else if ngid.GetType() == id.Gateway{
+		for i, g := range def.Get().Nodes{
+			if bytes.Compare(g.ID,idBytes)==0{
+				index = i
+				break
+			}
+		}
+	}else{
+		return NodeGateway{}, errors.Errorf("The passed ID is not for " +
+			"a node or gateway: %s", ngid)
+	}
+
+	//if no node or gateway is found, return an error
+	if index==-1{
+		return NodeGateway{}, errors.Errorf("Failed to find Node or " +
+			"Gateway with ID %s", ngid)
+	}
+
+	//return the found node and gateway
+	return NodeGateway{
+		Node:    def.Get().Nodes[index],
+		Gateway:  def.Get().Gateways[index],
+	}, nil
 }
 
 //update the full ndf
@@ -533,10 +585,16 @@ func (i *Instance) updateConns(def *ndf.NetworkDefinition, isGateway, isNode boo
 			//check if the host exists
 			host, ok := i.comm.GetHost(gwid)
 			if !ok {
+
 				// Send events into Node Listener
 				if i.addGateway != nil {
+					ng := NodeGateway{
+						Node:   def.Nodes[index],
+						Gateway: gateway,
+					}
+
 					select {
-					case i.addGateway <- gateway:
+					case i.addGateway <- ng:
 					default:
 						jww.WARN.Printf("Unable to send AddGateway event for id %s", gwid.String())
 					}
@@ -558,7 +616,7 @@ func (i *Instance) updateConns(def *ndf.NetworkDefinition, isGateway, isNode boo
 		}
 	}
 	if isNode {
-		for _, node := range def.Nodes {
+		for index, node := range def.Nodes {
 			nid, err := id.Unmarshal(node.ID)
 			if err != nil {
 				return err
@@ -569,10 +627,16 @@ func (i *Instance) updateConns(def *ndf.NetworkDefinition, isGateway, isNode boo
 			//check if the host exists
 			host, ok := i.comm.GetHost(nid)
 			if !ok {
+
 				// Send events into Node Listener
 				if i.addNode != nil {
+					ng := NodeGateway{
+						Node:   node,
+						Gateway: def.Gateways[index],
+					}
+
 					select {
-					case i.addNode <- node:
+					case i.addNode <- ng:
 					default:
 						jww.WARN.Printf("Unable to send AddNode event for id %s", nid.String())
 					}
