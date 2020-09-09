@@ -160,11 +160,27 @@ func (p *Protocol) AddGossipPeer(id *id.ID) error {
 	// Because hosts can be removed, this CANNOT ensure the host still exists when an ID is used
 	_, ok := p.comms.GetHost(id)
 	if !ok {
-		return errors.Errorf("Could not retreive host for ID %s", id)
+		return errors.Errorf("Could not retrieve host for ID %s", id)
 	}
 
 	p.peers = append(p.peers, id)
 	return nil
+}
+
+// Remove a peer by ID to the Gossip protocol
+func (p *Protocol) RemoveGossipPeer(id *id.ID) error {
+	p.peersLock.Lock()
+	defer p.peersLock.Unlock()
+
+	for i, peer := range p.peers {
+		jww.FATAL.Printf("%+v", peer.Cmp(id))
+		if peer.Cmp(id) {
+			p.peers = append(p.peers[:i], p.peers[i+1:]...)
+			return nil
+		}
+	}
+
+	return errors.Errorf("Could not remove peer for ID %s", id)
 }
 
 // Builds and sends a GossipMsg
