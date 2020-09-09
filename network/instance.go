@@ -10,12 +10,14 @@
 package network
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	ds "gitlab.com/elixxir/comms/network/dataStructures"
 	"gitlab.com/elixxir/crypto/cyclic"
+	"gitlab.com/elixxir/primitives/states"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/crypto/signature"
 	"gitlab.com/xx_network/primitives/id"
@@ -36,6 +38,9 @@ type Instance struct {
 
 	ipOverride *ds.IpOverrideList
 
+	// Network Health
+	networkHealth chan Heartbeat
+
 	// Waiting Rounds
 	waitingRounds *ds.WaitingRounds
 
@@ -43,14 +48,31 @@ type Instance struct {
 	events *ds.RoundEvents
 
 	// Node Event Model Channels
-	addNode       chan ndf.Node
+	addNode       chan NodeGateway
 	removeNode    chan *id.ID
-	addGateway    chan ndf.Gateway
+	addGateway    chan NodeGateway
 	removeGateway chan *id.ID
 }
 
+// Object used to signal information about the network health
+type Heartbeat struct {
+	HasWaitingRound bool
+	IsRoundComplete bool
+}
+
+// Combines a node and gateway together together for return over channels
+type NodeGateway struct{
+	Node ndf.Node
+	Gateway ndf.Gateway
+}
+
+// Register NetworkHealth channel with Instance
+func (i *Instance) SetNetworkHealthChan(c chan Heartbeat) {
+	i.networkHealth = c
+}
+
 // Register AddNode channel with Instance
-func (i *Instance) SetAddNodeChan(c chan ndf.Node) {
+func (i *Instance) SetAddNodeChan(c chan NodeGateway) {
 	i.addNode = c
 }
 
@@ -60,7 +82,7 @@ func (i *Instance) SetRemoveNodeChan(c chan *id.ID) {
 }
 
 // Register AddGateway channel with Instance
-func (i *Instance) SetAddGatewayChan(c chan ndf.Gateway) {
+func (i *Instance) SetAddGatewayChan(c chan NodeGateway) {
 	i.addGateway = c
 }
 
@@ -212,17 +234,19 @@ func (i *Instance) UpdatePartialNdf(m *pb.NDF) error {
 		i.comm.RemoveHost(nid)
 
 		// Send events into Node Listener
-		select {
-		case i.removeNode <- nid:
-		default:
-			jww.WARN.Printf("Unable to send RemoveNode event for id %s", nid.String())
-		}
-		gwId := nid.DeepCopy()
-		gwId.SetType(id.Gateway)
-		select {
-		case i.removeGateway <- nid:
-		default:
-			jww.WARN.Printf("Unable to send RemoveGateway event for id %s", nid.String())
+		if i.removeNode != nil && i.removeGateway != nil {
+			select {
+			case i.removeNode <- nid:
+			default:
+				jww.WARN.Printf("Unable to send RemoveNode event for id %s", nid.String())
+			}
+			gwId := nid.DeepCopy()
+			gwId.SetType(id.Gateway)
+			select {
+			case i.removeGateway <- nid:
+			default:
+				jww.WARN.Printf("Unable to send RemoveGateway event for id %s", nid.String())
+			}
 		}
 	}
 
@@ -246,6 +270,51 @@ func (i *Instance) UpdatePartialNdf(m *pb.NDF) error {
 //overrides an IP address for an ID with one from
 func (i *Instance) GetIpOverrideList() *ds.IpOverrideList {
 	return i.ipOverride
+}
+
+//Gets the node and gateway with the given ID
+func (i *Instance) GetNodeAndGateway(ngid *id.ID) (NodeGateway, error) {
+	index := -1
+
+	def := i.GetFullNdf()
+	if def==nil{
+		def = i.GetPartialNdf()
+	}
+
+	idBytes := ngid.Bytes()
+
+	// depending on if the passed id is a node or gateway ID, look it up in the
+	// correct list
+	if ngid.GetType() == id.Node{
+		for i, n := range def.Get().Nodes{
+			if bytes.Compare(n.ID,idBytes)==0{
+				index = i
+				break
+			}
+		}
+	}else if ngid.GetType() == id.Gateway{
+		for i, g := range def.Get().Nodes{
+			if bytes.Compare(g.ID,idBytes)==0{
+				index = i
+				break
+			}
+		}
+	}else{
+		return NodeGateway{}, errors.Errorf("The passed ID is not for " +
+			"a node or gateway: %s", ngid)
+	}
+
+	//if no node or gateway is found, return an error
+	if index==-1{
+		return NodeGateway{}, errors.Errorf("Failed to find Node or " +
+			"Gateway with ID %s", ngid)
+	}
+
+	//return the found node and gateway
+	return NodeGateway{
+		Node:    def.Get().Nodes[index],
+		Gateway:  def.Get().Gateways[index],
+	}, nil
 }
 
 //update the full ndf
@@ -277,17 +346,19 @@ func (i *Instance) UpdateFullNdf(m *pb.NDF) error {
 		i.comm.RemoveHost(nid)
 
 		// Send events into Node Listener
-		select {
-		case i.removeNode <- nid:
-		default:
-			jww.WARN.Printf("Unable to send RemoveNode event for id %s", nid.String())
-		}
-		gwId := nid.DeepCopy()
-		gwId.SetType(id.Gateway)
-		select {
-		case i.removeGateway <- nid:
-		default:
-			jww.WARN.Printf("Unable to send RemoveGateway event for id %s", nid.String())
+		if i.removeNode != nil && i.removeGateway != nil {
+			select {
+			case i.removeNode <- nid:
+			default:
+				jww.WARN.Printf("Unable to send RemoveNode event for id %s", nid.String())
+			}
+			gwId := nid.DeepCopy()
+			gwId.SetType(id.Gateway)
+			select {
+			case i.removeGateway <- nid:
+			default:
+				jww.WARN.Printf("Unable to send RemoveGateway event for id %s", nid.String())
+			}
 		}
 	}
 
@@ -336,6 +407,37 @@ func getBannedNodes(old []ndf.Node, new []ndf.Node) ([]*id.ID, error) {
 	return rmNodes, nil
 }
 
+// Pluralized version of RoundUpdate used by Client
+func (i *Instance) RoundUpdates(rounds []*pb.RoundInfo) error {
+	// Keep track of whether one of the rounds is completed
+	isRoundComplete := false
+	for _, round := range rounds {
+		if states.Round(round.State) == states.COMPLETED {
+			isRoundComplete = true
+		}
+
+		// Send the RoundUpdate
+		err := i.RoundUpdate(round)
+		if err != nil {
+			return err
+		}
+	}
+
+	// Send a Heartbeat over the networkHealth channel
+	if i.networkHealth != nil {
+		select {
+		case i.networkHealth <- Heartbeat{
+			HasWaitingRound: i.GetWaitingRounds().Len() > 0,
+			IsRoundComplete: isRoundComplete,
+		}:
+		default:
+			jww.WARN.Printf("Unable to send NetworkHealth event")
+		}
+	}
+
+	return nil
+}
+
 // Add a round to the round and update buffer
 func (i *Instance) RoundUpdate(info *pb.RoundInfo) error {
 	perm, success := i.comm.GetHost(&id.Permissioning)
@@ -366,7 +468,6 @@ func (i *Instance) RoundUpdate(info *pb.RoundInfo) error {
 
 	i.events.TriggerRoundEvent(info)
 	i.waitingRounds.Insert(info)
-
 	return nil
 }
 
@@ -484,12 +585,21 @@ func (i *Instance) updateConns(def *ndf.NetworkDefinition, isGateway, isNode boo
 			//check if the host exists
 			host, ok := i.comm.GetHost(gwid)
 			if !ok {
+
 				// Send events into Node Listener
-				select {
-				case i.addGateway <- gateway:
-				default:
-					jww.WARN.Printf("Unable to send AddGateway event for id %s", gwid.String())
+				if i.addGateway != nil {
+					ng := NodeGateway{
+						Node:   def.Nodes[index],
+						Gateway: gateway,
+					}
+
+					select {
+					case i.addGateway <- ng:
+					default:
+						jww.WARN.Printf("Unable to send AddGateway event for id %s", gwid.String())
+					}
 				}
+
 				// Check if gateway ID collides with an existing hard coded ID
 				if id.CollidesWithHardCodedID(gwid) {
 					return errors.Errorf("Gateway ID invalid, collides with a "+
@@ -506,7 +616,7 @@ func (i *Instance) updateConns(def *ndf.NetworkDefinition, isGateway, isNode boo
 		}
 	}
 	if isNode {
-		for _, node := range def.Nodes {
+		for index, node := range def.Nodes {
 			nid, err := id.Unmarshal(node.ID)
 			if err != nil {
 				return err
@@ -517,11 +627,19 @@ func (i *Instance) updateConns(def *ndf.NetworkDefinition, isGateway, isNode boo
 			//check if the host exists
 			host, ok := i.comm.GetHost(nid)
 			if !ok {
+
 				// Send events into Node Listener
-				select {
-				case i.addNode <- node:
-				default:
-					jww.WARN.Printf("Unable to send AddNode event for id %s", nid.String())
+				if i.addNode != nil {
+					ng := NodeGateway{
+						Node:   node,
+						Gateway: def.Gateways[index],
+					}
+
+					select {
+					case i.addNode <- ng:
+					default:
+						jww.WARN.Printf("Unable to send AddNode event for id %s", nid.String())
+					}
 				}
 
 				// Check if isNode ID collides with an existing hard coded ID
