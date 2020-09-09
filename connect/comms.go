@@ -224,7 +224,6 @@ func (c *ProtoComms) Send(host *Host, f func(conn *grpc.ClientConn) (*any.Any,
 	numConnects, numAuths, lastEvent := 0, 0, 0
 
 	host.sendLock.Lock()
-	host.isLocked = true
 
 connect:
 	// Ensure the connection is running
@@ -233,7 +232,6 @@ connect:
 		//do not attempt to connect again if multiple attempts have been made
 		if numConnects == maxConnects {
 			host.sendLock.Unlock()
-			host.isLocked = false
 
 			return nil, errors.WithMessage(err, "Maximum number of connects attempted")
 		}
@@ -247,7 +245,6 @@ connect:
 		//if connection cannot be made, do not retry
 		if err != nil {
 			host.sendLock.Unlock()
-			host.isLocked = false
 			return nil, errors.WithMessage(err, "Failed to connect")
 		}
 
@@ -261,7 +258,6 @@ authorize:
 		//do not attempt to connect again if multiple attempts have been made
 		if numAuths == maxAuths {
 			host.sendLock.Unlock()
-			host.isLocked = false
 
 			return nil, errors.New("Maximum number of authorizations attempted")
 		}
@@ -269,7 +265,6 @@ authorize:
 		//do not try multiple auths in a row
 		if lastEvent == auth {
 			host.sendLock.Unlock()
-			host.isLocked = false
 
 			return nil, errors.New("Cannot attempt to authorize with host multiple times in a row")
 		}
@@ -278,7 +273,7 @@ authorize:
 		lastEvent = auth
 
 		jww.INFO.Printf("Attempting to establish authentication with host %s", host.id.String())
-		err = host.authenticate(c.clientHandshake)
+		err = c.clientHandshake(host)
 		if err != nil {
 			//if failure of connection, retry connection
 			if isConnError(err) {
@@ -286,7 +281,6 @@ authorize:
 				goto connect
 			}
 			host.sendLock.Unlock()
-			host.isLocked = false
 
 			//otherwise, return the error
 			return nil, errors.New("Failed to authenticate")
@@ -300,7 +294,6 @@ authorize:
 	lastEvent = send
 	// Attempt to send to host
 	host.sendLock.Unlock()
-	host.isLocked = false
 
 	result, err = host.send(f)
 	// If failed to authenticate, retry negotiation by jumping to the top of the loop
@@ -308,7 +301,6 @@ authorize:
 		//if failure of connection, retry connection
 		if isConnError(err) {
 			host.sendLock.Lock()
-			host.isLocked = true
 			jww.INFO.Printf("Failed send due to connection issue: %s", err)
 			goto connect
 		}
@@ -317,15 +309,9 @@ authorize:
 		if strings.Contains(err.Error(), AuthError(host.id).Error()) {
 			jww.INFO.Printf("Failed send due to auth error, retrying authentication: %s", err.Error())
 			host.sendLock.Lock()
-			host.isLocked = true
 
 			host.transmissionToken.SetToken(nil)
 			goto authorize
-		}
-
-		if host.isLocked {
-			host.sendLock.Unlock()
-			host.isLocked = false
 		}
 
 		// otherwise, return the error
@@ -358,7 +344,7 @@ func (c *ProtoComms) Stream(host *Host, f func(conn *grpc.ClientConn) (
 
 	//establish authentication if required
 	if host.authenticationRequired() {
-		err = host.authenticate(c.clientHandshake)
+		err = c.clientHandshake(host)
 		if err != nil {
 			return
 		}

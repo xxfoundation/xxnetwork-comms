@@ -82,7 +82,6 @@ type Host struct {
 
 	// connection lock
 	sendLock sync.RWMutex
-	isLocked bool
 }
 
 // Creates a new Host object
@@ -254,14 +253,6 @@ func (h *Host) authenticationRequired() bool {
 	defer h.mux.RUnlock()
 
 	return h.enableAuth && h.transmissionToken.GetToken() == nil
-}
-
-// Checks if the given Host's connection is alive
-func (h *Host) authenticate(handshake func(host *Host) error) error {
-	h.mux.Lock()
-	defer h.mux.Unlock()
-
-	return handshake(h)
 }
 
 // isAlive returns true if the connection is non-nil and alive
