@@ -39,9 +39,6 @@ var KaClientOpts = keepalive.ClientParameters{
 	PermitWithoutStream: true,
 }
 
-// Represents a reverse-authentication token
-type Token []byte
-
 // Information used to describe a connection to a host
 type Host struct {
 	// System-wide ID of the Host
@@ -82,6 +79,10 @@ type Host struct {
 
 	// Read/Write Mutex for thread safety
 	mux sync.RWMutex
+
+	// connection lock
+	sendLock sync.RWMutex
+	isLocked bool
 }
 
 // Creates a new Host object
@@ -90,10 +91,12 @@ func NewHost(id *id.ID, address string, cert []byte, disableTimeout,
 
 	// Initialize the Host object
 	host = &Host{
-		id:          id,
-		address:     address,
-		certificate: cert,
-		enableAuth:  enableAuth,
+		id:                id,
+		address:           address,
+		certificate:       cert,
+		enableAuth:        enableAuth,
+		transmissionToken: NewToken(),
+		receptionToken:    NewToken(),
 	}
 
 	// Set the max number of retries for establishing a connection
@@ -166,7 +169,7 @@ func (h *Host) Disconnect() {
 	defer h.mux.Unlock()
 
 	h.disconnect()
-	h.transmissionToken = nil
+	h.transmissionToken.SetToken(nil)
 }
 
 // Returns whether or not the Host is able to be contacted
@@ -234,7 +237,7 @@ func (h *Host) connect() error {
 	}
 
 	h.disconnect()
-	h.transmissionToken = nil
+	h.transmissionToken.SetToken(nil)
 
 	//connect to remote
 	if err := h.connectHelper(); err != nil {
@@ -250,7 +253,7 @@ func (h *Host) authenticationRequired() bool {
 	h.mux.RLock()
 	defer h.mux.RUnlock()
 
-	return h.enableAuth && h.transmissionToken == nil
+	return h.enableAuth && h.transmissionToken.GetToken() == nil
 }
 
 // Checks if the given Host's connection is alive
@@ -410,8 +413,8 @@ func (h *Host) String() string {
 			"\tMaxRetries: %v\tConnState: %v"+
 			"\tTLS ServerName: %v\tTLS ProtocolVersion: %v\t"+
 			"TLS SecurityVersion: %v\tTLS SecurityProtocol: %v\n",
-		h.id, addr, h.certificate, h.transmissionToken,
-		h.receptionToken, h.enableAuth, h.maxRetries, state,
+		h.id, addr, h.certificate, h.transmissionToken.GetToken(),
+		h.receptionToken.GetToken(), h.enableAuth, h.maxRetries, state,
 		serverName, protocolVersion, securityVersion, securityProtocol)
 }
 
