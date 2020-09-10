@@ -17,6 +17,7 @@ import (
 	"gitlab.com/elixxir/crypto/signature/rsa"
 	tlsCreds "gitlab.com/elixxir/crypto/tls"
 	"gitlab.com/elixxir/primitives/id"
+	"gitlab.com/xx_network/comms/connect/token"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/credentials"
@@ -52,11 +53,11 @@ type Host struct {
 
 	/* Tokens shared with this Host establishing reverse authentication */
 
-	//  Token used for receiving from this host
-	receptionToken Token
+	//  LiveToken used for receiving from this host
+	receptionToken token.LiveToken
 
-	// Token used for sending to this host
-	transmissionToken Token
+	// LiveToken used for sending to this host
+	transmissionToken token.LiveToken
 
 	// Configure the maximum number of connection attempts
 	maxRetries int
@@ -80,8 +81,11 @@ type Host struct {
 	// Read/Write Mutex for thread safety
 	mux sync.RWMutex
 
-	// connection lock
-	sendLock sync.RWMutex
+	// Send lock
+	sendMux sync.RWMutex
+
+	// Receive lock
+	receiveMux sync.RWMutex
 }
 
 // Creates a new Host object
@@ -94,8 +98,8 @@ func NewHost(id *id.ID, address string, cert []byte, disableTimeout,
 		address:           address,
 		certificate:       cert,
 		enableAuth:        enableAuth,
-		transmissionToken: NewToken(),
-		receptionToken:    NewToken(),
+		transmissionToken: token.NewToken(),
+		receptionToken:    token.NewToken(),
 	}
 
 	// Set the max number of retries for establishing a connection
@@ -141,8 +145,8 @@ func (h *Host) GetPubKey() *rsa.PublicKey {
 
 // Connected checks if the given Host's connection is alive
 func (h *Host) Connected() bool {
-	h.mux.RLock()
-	defer h.mux.RUnlock()
+	h.sendMux.RLock()
+	defer h.sendMux.RUnlock()
 
 	return h.isAlive()
 }
@@ -168,7 +172,7 @@ func (h *Host) Disconnect() {
 	defer h.mux.Unlock()
 
 	h.disconnect()
-	h.transmissionToken.SetToken(nil)
+	h.transmissionToken.Clear()
 }
 
 // Returns whether or not the Host is able to be contacted
@@ -236,7 +240,7 @@ func (h *Host) connect() error {
 	}
 
 	h.disconnect()
-	h.transmissionToken.SetToken(nil)
+	h.transmissionToken.Clear()
 
 	//connect to remote
 	if err := h.connectHelper(); err != nil {
@@ -252,7 +256,7 @@ func (h *Host) authenticationRequired() bool {
 	h.mux.RLock()
 	defer h.mux.RUnlock()
 
-	return h.enableAuth && h.transmissionToken.GetToken() == nil
+	return h.enableAuth && h.transmissionToken.Get() == nil
 }
 
 // isAlive returns true if the connection is non-nil and alive
@@ -399,13 +403,13 @@ func (h *Host) String() string {
 		securityProtocol = creds.Info().SecurityProtocol
 	}
 	return fmt.Sprintf(
-		"ID: %v\tAddr: %v\tCertificate: %s...\tTransmission Token: %v"+
-			"\tReception Token: %+v \tEnableAuth: %v"+
+		"ID: %v\tAddr: %v\tCertificate: %s...\tTransmission LiveToken: %v"+
+			"\tReception LiveToken: %+v \tEnableAuth: %v"+
 			"\tMaxRetries: %v\tConnState: %v"+
 			"\tTLS ServerName: %v\tTLS ProtocolVersion: %v\t"+
 			"TLS SecurityVersion: %v\tTLS SecurityProtocol: %v\n",
-		h.id, addr, h.certificate, h.transmissionToken.GetToken(),
-		h.receptionToken.GetToken(), h.enableAuth, h.maxRetries, state,
+		h.id, addr, h.certificate, h.transmissionToken.Get(),
+		h.receptionToken.Get(), h.enableAuth, h.maxRetries, state,
 		serverName, protocolVersion, securityVersion, securityProtocol)
 }
 

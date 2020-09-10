@@ -18,10 +18,10 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
-	"gitlab.com/elixxir/crypto/nonce"
 	"gitlab.com/elixxir/crypto/signature/rsa"
 	"gitlab.com/elixxir/crypto/xx"
 	"gitlab.com/elixxir/primitives/id"
+	"gitlab.com/xx_network/comms/connect/token"
 	pb "gitlab.com/xx_network/comms/messages"
 	"google.golang.org/grpc/metadata"
 )
@@ -75,7 +75,7 @@ func (c *ProtoComms) clientHandshake(host *Host) (err error) {
 	}
 
 	// Assign the host token
-	host.transmissionToken.SetToken(result.Token)
+	host.transmissionToken.Set(result.Token)
 
 	return
 }
@@ -89,13 +89,11 @@ func (c *ProtoComms) PackAuthenticatedMessage(msg proto.Message, host *Host,
 	if err != nil {
 		return nil, errors.New(err.Error())
 	}
-	host.mux.RLock()
-	defer host.mux.RUnlock()
 
 	// Build the authenticated message
 	authMsg := &pb.AuthenticatedMessage{
 		ID:      c.Id.Marshal(),
-		Token:   host.transmissionToken.GetToken(),
+		Token:   host.transmissionToken.Get(),
 		Message: anyMsg,
 		Client: &pb.ClientID{
 			Salt:      make([]byte, 0),
@@ -119,7 +117,7 @@ func (c *ProtoComms) PackAuthenticatedContext(host *Host,
 	ctx context.Context) context.Context {
 
 	ctx = metadata.AppendToOutgoingContext(ctx, "ID", c.Id.String())
-	ctx = metadata.AppendToOutgoingContext(ctx, "TOKEN", base64.StdEncoding.EncodeToString(host.transmissionToken.GetToken()))
+	ctx = metadata.AppendToOutgoingContext(ctx, "TOKEN", base64.StdEncoding.EncodeToString(host.transmissionToken.Get()))
 	return ctx
 }
 
@@ -142,7 +140,7 @@ func UnpackAuthenticatedContext(ctx context.Context) (*pb.AuthenticatedMessage, 
 	tokenStr := md.Get("TOKEN")[0]
 	auth.Token, err = base64.StdEncoding.DecodeString(tokenStr)
 	if err != nil {
-		return nil, errors.WithMessage(err, "could not decode authentication Token")
+		return nil, errors.WithMessage(err, "could not decode authentication LiveToken")
 	}
 
 	return auth, nil
@@ -150,14 +148,7 @@ func UnpackAuthenticatedContext(ctx context.Context) (*pb.AuthenticatedMessage, 
 
 // Generates a new token and adds it to internal state
 func (c *ProtoComms) GenerateToken() ([]byte, error) {
-	token, err := nonce.NewNonce(nonce.RegistrationTTL)
-	if err != nil {
-		return nil, err
-	}
-
-	c.tokens.Store(string(token.Bytes()), &token)
-	jww.DEBUG.Printf("Token generated: %v", token.Bytes())
-	return token.Bytes(), nil
+	return c.tokens.Generate().Marshal(), nil
 }
 
 // Performs the dynamic authentication process such that Hosts that were not
@@ -219,16 +210,14 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) (err error) {
 		}
 	}
 
-	// This logic prevents deadlocks when performing authentication with self
-	// TODO: This may require further review
-	if !msgID.Cmp(c.Id) || bytes.Compare(host.receptionToken.GetToken(), msg.Token) != 0 {
-		host.mux.Lock()
-		defer host.mux.Unlock()
-	}
-
 	// Get the signed token
 	tokenMsg := &pb.AssignToken{}
 	err = ptypes.UnmarshalAny(msg.Message, tokenMsg)
+	if err != nil {
+		return errors.Errorf("Unable to unmarshal token: %+v", err)
+	}
+
+	remoteToken, err := token.Unmarshal(tokenMsg.Token)
 	if err != nil {
 		return errors.Errorf("Unable to unmarshal token: %+v", err)
 	}
@@ -240,20 +229,14 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) (err error) {
 		}
 	}
 
-	// Verify the signed token was actually assigned
-	token, ok := c.tokens.Load(string(tokenMsg.Token))
+	ok = c.tokens.Validate(remoteToken)
 	if !ok {
-		return errors.Errorf("Unable to locate token: %+v", msg.Token)
+		jww.ERROR.Printf("Failed to validate token %v from %s", remoteToken, host)
+		return errors.Errorf("Failed to validate token: %v", remoteToken)
 	}
-
-	// Verify the signed token is not expired
-	if !token.(*nonce.Nonce).IsValid() {
-		return errors.Errorf("Invalid or expired token: %+v", tokenMsg.Token)
-	}
-
 	// Token has been validated and can be safely stored
-	host.receptionToken.SetToken(tokenMsg.Token)
-	jww.DEBUG.Printf("Token validated: %v", tokenMsg.Token)
+	host.receptionToken.Set(tokenMsg.Token)
+	jww.DEBUG.Printf("LiveToken validated: %v", tokenMsg.Token)
 	return
 }
 
@@ -275,12 +258,8 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) (*Auth,
 		}, nil
 	}
 
-	// If host is found, mutex must be locked
-	host.mux.RLock()
-	defer host.mux.RUnlock()
-
 	// Check the token's validity
-	receptionToken := host.receptionToken.GetToken()
+	receptionToken := host.receptionToken.Get()
 	validToken := receptionToken != nil && msg.Token != nil &&
 		bytes.Compare(receptionToken, msg.Token) == 0
 

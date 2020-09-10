@@ -16,13 +16,13 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/crypto/signature/rsa"
 	"gitlab.com/elixxir/primitives/id"
+	"gitlab.com/xx_network/comms/connect/token"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/keepalive"
 	"math"
 	"net"
 	"strings"
-	"sync"
 	"time"
 )
 
@@ -70,7 +70,7 @@ type ProtoComms struct {
 	// SERVER-ONLY FIELDS ------------------------------------------------------
 
 	// A map of reverse-authentication tokens
-	tokens sync.Map
+	tokens *token.Map
 
 	// Local network server
 	LocalServer *grpc.Server
@@ -97,6 +97,7 @@ func CreateCommClient(id *id.ID, pubKeyPem, privKeyPem,
 		Id:        id,
 		pubKeyPem: pubKeyPem,
 		salt:      salt,
+		tokens:    token.NewMap(),
 	}
 
 	// Set the private key if specified
@@ -223,15 +224,15 @@ func (c *ProtoComms) Send(host *Host, f func(conn *grpc.ClientConn) (*any.Any,
 
 	numConnects, numAuths, lastEvent := 0, 0, 0
 
-	host.sendLock.Lock()
+	host.sendMux.Lock()
 
 connect:
 	// Ensure the connection is running
-	if !host.Connected() {
-		host.transmissionToken.SetToken(nil)
+	if !host.isAlive() {
+		host.transmissionToken.Clear()
 		//do not attempt to connect again if multiple attempts have been made
 		if numConnects == maxConnects {
-			host.sendLock.Unlock()
+			host.sendMux.Unlock()
 
 			return nil, errors.WithMessage(err, "Maximum number of connects attempted")
 		}
@@ -244,7 +245,7 @@ connect:
 		err = host.connect()
 		//if connection cannot be made, do not retry
 		if err != nil {
-			host.sendLock.Unlock()
+			host.sendMux.Unlock()
 			return nil, errors.WithMessage(err, "Failed to connect")
 		}
 
@@ -254,17 +255,17 @@ connect:
 
 authorize:
 	// Establish authentication if required
-	if host.authenticationRequired() && host.transmissionToken.GetToken() == nil {
+	if host.authenticationRequired() && host.transmissionToken.Get() == nil {
 		//do not attempt to connect again if multiple attempts have been made
 		if numAuths == maxAuths {
-			host.sendLock.Unlock()
+			host.sendMux.Unlock()
 
 			return nil, errors.New("Maximum number of authorizations attempted")
 		}
 
 		//do not try multiple auths in a row
 		if lastEvent == auth {
-			host.sendLock.Unlock()
+			host.sendMux.Unlock()
 
 			return nil, errors.New("Cannot attempt to authorize with host multiple times in a row")
 		}
@@ -280,7 +281,7 @@ authorize:
 				jww.INFO.Printf("Failed to auth due to connection issue: %s", err)
 				goto connect
 			}
-			host.sendLock.Unlock()
+			host.sendMux.Unlock()
 
 			//otherwise, return the error
 			return nil, errors.New("Failed to authenticate")
@@ -293,14 +294,14 @@ authorize:
 	//denote that a send is being tried
 	lastEvent = send
 	// Attempt to send to host
-	host.sendLock.Unlock()
+	host.sendMux.Unlock()
 
 	result, err = host.send(f)
 	// If failed to authenticate, retry negotiation by jumping to the top of the loop
 	if err != nil {
 		//if failure of connection, retry connection
 		if isConnError(err) {
-			host.sendLock.Lock()
+			host.sendMux.Lock()
 			jww.INFO.Printf("Failed send due to connection issue: %s", err)
 			goto connect
 		}
@@ -308,9 +309,9 @@ authorize:
 		// Handle resetting authentication
 		if strings.Contains(err.Error(), AuthError(host.id).Error()) {
 			jww.INFO.Printf("Failed send due to auth error, retrying authentication: %s", err.Error())
-			host.sendLock.Lock()
+			host.sendMux.Lock()
 
-			host.transmissionToken.SetToken(nil)
+			host.transmissionToken.Clear()
 			goto authorize
 		}
 
