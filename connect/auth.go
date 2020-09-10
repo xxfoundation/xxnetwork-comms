@@ -103,7 +103,7 @@ func (c *ProtoComms) PackAuthenticatedMessage(msg proto.Message, host *Host,
 
 	// If signature is enabled, sign the message and add to payload
 	if enableSignature && !c.disableAuth {
-		authMsg.Signature, err = c.SignMessage(msg)
+		authMsg.Signature, err = c.signMessage(msg)
 		if err != nil {
 			return nil, err
 		}
@@ -233,7 +233,7 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) (err error) {
 
 	// Verify the token signature unless disableAuth has been set for testing
 	if !c.disableAuth {
-		if err := c.VerifyMessage(tokenMsg, msg.Signature, host); err != nil {
+		if err := c.verifyMessage(tokenMsg, msg.Signature, host); err != nil {
 			return errors.Errorf("Invalid token signature: %+v", err)
 		}
 	}
@@ -301,7 +301,7 @@ func (c *ProtoComms) DisableAuth() {
 
 // Takes a message and returns its signature
 // The message is signed with the ProtoComms RSA PrivateKey
-func (c *ProtoComms) SignMessage(msg proto.Message) ([]byte, error) {
+func (c *ProtoComms) signMessage(msg proto.Message) ([]byte, error) {
 	// Hash the message data
 	msgBytes, err := proto.Marshal(msg)
 	if err != nil {
@@ -327,7 +327,7 @@ func (c *ProtoComms) SignMessage(msg proto.Message) ([]byte, error) {
 
 // Takes a message and a Host, verifies the signature
 // using Host public key, returning an error if invalid
-func (c *ProtoComms) VerifyMessage(msg proto.Message, signature []byte, host *Host) error {
+func (c *ProtoComms) verifyMessage(msg proto.Message, signature []byte, host *Host) error {
 
 	// Get hashed data of the message
 	msgBytes, err := proto.Marshal(msg)

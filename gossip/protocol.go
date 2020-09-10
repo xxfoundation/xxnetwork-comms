@@ -37,13 +37,19 @@ func NewFingerprint(data [16]byte) Fingerprint {
 	return fp
 }
 
+// Obtain the fingerprint of the GossipMsg
 func GetFingerprint(msg *GossipMsg) Fingerprint {
-	// Get fingerprint
 	preSum := append([]byte(msg.Tag), msg.Origin...)
 	preSum = append(preSum, msg.Payload...)
 	preSum = append(preSum, msg.Signature...)
 	fingerprint := NewFingerprint(md5.Sum(preSum))
 	return fingerprint
+}
+
+// Returns the data of a GossipMsg excluding the Signature as bytes
+func (m *GossipMsg) Marshal() []byte {
+	data := append([]byte(m.Tag), m.Origin...)
+	return append(data, m.Payload...)
 }
 
 // Gossip-related configuration flag

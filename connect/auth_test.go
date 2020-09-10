@@ -42,7 +42,7 @@ func TestSignVerify(t *testing.T) {
 		t.Errorf("Error converting to Any type: %+v", err)
 	}
 
-	signature, err := c.SignMessage(wrappedMessage)
+	signature, err := c.signMessage(wrappedMessage)
 	if err != nil {
 		t.Errorf("Error signing message: %+v", err)
 	}
@@ -51,7 +51,7 @@ func TestSignVerify(t *testing.T) {
 		rsaPublicKey: pub,
 	}
 
-	err = c.VerifyMessage(wrappedMessage, signature, host)
+	err = c.verifyMessage(wrappedMessage, signature, host)
 	if err != nil {
 		t.Errorf("Error verifying signature")
 	}
