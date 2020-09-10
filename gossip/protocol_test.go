@@ -45,6 +45,41 @@ func TestProtocol_AddGossipPeer(t *testing.T) {
 	}
 }
 
+// Happy path
+func TestProtocol_RemoveGossipPeer(t *testing.T) {
+	p := setup(t)
+	testHostID := id.NewIdFromString("testhost", id.Node, t)
+	p.peers = append(p.peers, testHostID)
+	if len(p.peers) != 1 {
+		t.Errorf("Expected to add gossip peer")
+	}
+	err := p.RemoveGossipPeer(testHostID)
+	if err != nil {
+		t.Errorf("Unable to remove gossip peer: %+v", err)
+	}
+	if len(p.peers) != 0 {
+		t.Errorf("Expected to remove gossip peer")
+	}
+}
+
+// Error path
+func TestProtocol_RemoveGossipPeerError(t *testing.T) {
+	p := setup(t)
+	testHostID := id.NewIdFromString("testhost", id.Node, t)
+	testHostID2 := id.NewIdFromString("testhost2", id.Node, t)
+	p.peers = append(p.peers, testHostID)
+	if len(p.peers) != 1 {
+		t.Errorf("Expected to add gossip peer")
+	}
+	err := p.RemoveGossipPeer(testHostID2)
+	if err == nil {
+		t.Errorf("Improperly removed gossip peer: %+v", err)
+	}
+	if len(p.peers) != 1 {
+		t.Errorf("Expected NOT to remove gossip peer")
+	}
+}
+
 // Happy path test for sending a gossip message
 func TestProtocol_Gossip(t *testing.T) {
 	// TODO: how should this be tested when we don't have getpeers implementation
