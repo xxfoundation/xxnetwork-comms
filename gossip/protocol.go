@@ -47,9 +47,9 @@ func GetFingerprint(msg *GossipMsg) Fingerprint {
 }
 
 // Returns the data of a GossipMsg excluding the Signature as bytes
-func (m *GossipMsg) Marshal() []byte {
-	data := append([]byte(m.Tag), m.Origin...)
-	return append(data, m.Payload...)
+func Marshal(msg *GossipMsg) []byte {
+	data := append([]byte(msg.Tag), msg.Origin...)
+	return append(data, msg.Payload...)
 }
 
 // Gossip-related configuration flag
