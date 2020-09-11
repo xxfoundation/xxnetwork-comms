@@ -32,6 +32,8 @@ type Auth struct {
 	IsAuthenticated bool
 	// The information about the Host that sent the authenticated communication
 	Sender *Host
+	// reason it isnt authenticated if authentication fails
+	Reason string
 }
 
 // Perform the client handshake to establish reverse-authentication
@@ -52,7 +54,7 @@ func (c *ProtoComms) clientHandshake(host *Host) (err error) {
 	}
 
 	remoteToken, err := token.Unmarshal(result.Token)
-	if err!=nil{
+	if err != nil {
 		return errors.Errorf("Failed to unmarshal token: %s", err)
 	}
 
@@ -263,14 +265,16 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) (*Auth,
 		return &Auth{
 			IsAuthenticated: false,
 			Sender:          &Host{},
+			Reason:          "Host not found",
 		}, nil
 	}
 
 	remoteToken, err := token.Unmarshal(msg.Token)
-	if err!=nil{
+	if err != nil {
 		return &Auth{
 			IsAuthenticated: false,
 			Sender:          host,
+			Reason:          "Token cannot be unmarshaled",
 		}, nil
 	}
 
@@ -278,7 +282,7 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) (*Auth,
 	receptionToken, ok := host.receptionToken.Get()
 	// Assemble the Auth object
 	res := &Auth{
-		IsAuthenticated: ok&&receptionToken.Equals(remoteToken),
+		IsAuthenticated: ok && receptionToken.Equals(remoteToken),
 		Sender:          host,
 	}
 

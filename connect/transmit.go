@@ -4,7 +4,6 @@ import (
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	"google.golang.org/grpc"
-	"strings"
 )
 
 // Sets up or recovers the Host's connection
