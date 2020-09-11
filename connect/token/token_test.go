@@ -8,6 +8,7 @@ package token
 
 import (
 	"bytes"
+	nonce2 "gitlab.com/elixxir/crypto/nonce"
 	"reflect"
 	"testing"
 )
@@ -66,4 +67,13 @@ func TestToken_GetToken(t *testing.T) {
 			"\n\tExpected: %v"+
 			"\n\tReceived: %v", expectedVal, newToken.GetBytes())
 	}
+}
+
+// Unit test for GenerateToken
+func TestGenerateToken(t *testing.T) {
+	nonce, err := nonce2.NewNonce(nonce2.NonceLen)
+	if err != nil {
+		t.Errorf("Failed to generate nonce: %+v", err)
+	}
+	_ = GenerateToken(nonce)
 }
