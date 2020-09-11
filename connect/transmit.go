@@ -49,7 +49,7 @@ connect:
 
 authorize:
 	// Establish authentication if required
-	if host.authenticationRequired(){
+	if host.authenticationRequired() {
 		//do not attempt to connect again if multiple attempts have been made
 		if numAuths == maxAuths {
 			host.sendMux.Unlock()
@@ -101,7 +101,7 @@ authorize:
 		}
 
 		// Handle resetting authentication
-		if strings.Contains(err.Error(), AuthError(host.id).Error()) {
+		if IsAuthError(err) {
 			jww.INFO.Printf("Failed send due to auth error, retrying authentication: %s", err.Error())
 			host.sendMux.Lock()
 
