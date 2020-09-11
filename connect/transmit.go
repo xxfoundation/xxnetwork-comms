@@ -22,7 +22,7 @@ func (c *ProtoComms) transmit(host *Host, f func(conn *grpc.ClientConn) (interfa
 		//reconnect if necessary
 		connected, connectionCount := host.Connected()
 		if !connected {
-			connectionCount, err = c.connect(host)
+			connectionCount, err = c.connect(host, connectionCount)
 			if err != nil {
 				jww.WARN.Printf("Failed to connect to Host on attempt "+
 					"%v/%v : %s", numRetries+1, MaxRetries, err)
@@ -45,14 +45,14 @@ func (c *ProtoComms) transmit(host *Host, f func(conn *grpc.ClientConn) (interfa
 	return nil, err
 }
 
-func (c *ProtoComms) connect(host *Host) (uint64, error) {
+func (c *ProtoComms) connect(host *Host, oldCount uint64) (uint64, error) {
 	host.sendMux.Lock()
 	defer host.sendMux.Unlock()
 
 	//if the connection is alive return, it is possible for another transmission
 	//to connect between releasing the read lock and taking the write lick
 	if host.isAlive() {
-		return host.connectionCount, nil
+		return oldCount, nil
 	}
 
 	//connect to host
@@ -63,7 +63,7 @@ func (c *ProtoComms) connect(host *Host) (uint64, error) {
 	//if connection cannot be made, do not retry
 	if err != nil {
 		host.disconnect()
-		return host.connectionCount, errors.WithMessagef(err, "Failed to connect to Host %s",
+		return oldCount, errors.WithMessagef(err, "Failed to connect to Host %s",
 			host.id)
 	}
 
