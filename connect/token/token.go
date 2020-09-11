@@ -47,8 +47,8 @@ type Live struct {
 
 // Constructor which initializes a token for
 // use by the associated host object
-func NewLive() Live {
-	return Live{
+func NewLive() *Live {
+	return &Live{
 		clear: true,
 	}
 }
