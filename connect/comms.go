@@ -118,6 +118,7 @@ func StartCommServer(id *id.ID, localServer string, certPEMblock,
 	pc := &ProtoComms{
 		Id:            id,
 		ListeningAddr: localServer,
+		tokens:        token.NewMap(),
 	}
 
 listen:
