@@ -24,7 +24,7 @@ func TestHost_address(t *testing.T) {
 		return
 	}
 
-	if host.address != testAddress {
+	if host.GetAddress() != testAddress {
 		t.Errorf("Expected addresses to match")
 	}
 }
@@ -33,7 +33,6 @@ func TestHost_GetCertificate(t *testing.T) {
 	testCert := []byte("TEST")
 
 	host := Host{
-		address:      "",
 		certificate:  testCert,
 		maxRetries:   0,
 		connection:   nil,
@@ -65,7 +64,8 @@ func TestHost_GetId(t *testing.T) {
 func TestHost_GetAddress(t *testing.T) {
 	// Test values
 	testAddress := "192.167.1.1:8080"
-	testHost := Host{address: testAddress}
+	testHost := Host{}
+	testHost.UpdateAddress(testAddress)
 
 	// Test function
 	if testHost.GetAddress() != testAddress {
@@ -78,7 +78,8 @@ func TestHost_GetAddress(t *testing.T) {
 func TestHost_UpdateAddress(t *testing.T) {
 	testAddress := "192.167.1.1:8080"
 	testUpdatedAddress := "192.167.1.1:8080"
-	testHost := Host{address: testAddress}
+	testHost := Host{}
+	testHost.UpdateAddress(testAddress)
 
 	// Test function
 	if testHost.GetAddress() != testAddress {
