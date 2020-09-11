@@ -1,6 +1,9 @@
 package token
 
-import "testing"
+import (
+	nonce2 "gitlab.com/elixxir/crypto/nonce"
+	"testing"
+)
 
 // Unit test for NewMap
 func TestNewMap(t *testing.T) {
@@ -25,5 +28,21 @@ func TestMap_Validate(t *testing.T) {
 	valid := m.Validate(token)
 	if !valid {
 		t.Error("Failed to validate token")
+	}
+}
+
+// Test for invalid token
+func TestMap_ValidateError(t *testing.T) {
+	m := NewMap()
+
+	nonce, err := nonce2.NewNonce(nonce2.NonceLen)
+	if err != nil {
+		t.Errorf("Failed to generate nonce for token")
+	}
+	token := GenerateToken(nonce)
+
+	valid := m.Validate(token)
+	if valid {
+		t.Error("Token should not have validated")
 	}
 }
