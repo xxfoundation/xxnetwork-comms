@@ -66,12 +66,6 @@ func (s *Comms) GetPostPhaseStreamClient(host *connect.Host,
 
 	ctx, cancel := s.getPostPhaseStreamContext(&header)
 
-	jww.ERROR.Printf("Before Pack context: %#v", ctx)
-	// Add authentication information to streaming context
-	ctx = s.PackAuthenticatedContext(host, ctx)
-	a, err := connect.UnpackAuthenticatedContext(ctx)
-	jww.ERROR.Printf("Unpacked context saftey check: %v, %s, %#v", a, err, ctx)
-
 	streamClient, err := s.getPostPhaseStream(host, ctx)
 	if err != nil {
 		return nil, nil, err
@@ -105,8 +99,9 @@ func (s *Comms) getPostPhaseStream(host *connect.Host,
 
 	// Create the Stream Function
 	f := func(conn *grpc.ClientConn) (interface{}, error) {
-		a, err := connect.UnpackAuthenticatedContext(ctx)
-		jww.ERROR.Printf("Unpacked context: %v, %s", a, err)
+
+		// Add authentication information to streaming context
+		ctx = s.PackAuthenticatedContext(host, ctx)
 
 		// Get the stream client
 		streamClient, err := pb.NewNodeClient(conn).StreamPostPhase(ctx)
