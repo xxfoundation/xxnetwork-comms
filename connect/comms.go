@@ -203,14 +203,6 @@ const (
 	con  = 1
 	auth = 2
 	send = 3
-	//maximum number of connection attempts. should be 1 because a connection
-	//is unlikely to be successful after a failure
-	maxConnects = 1
-	//maximum number of auth attempts. should be 3 because while a connection
-	//is unlikely to be successful after a failure, it is possible to attempt
-	//one on a dead connection and then need to do it again after the connection
-	//is resuscitated
-	maxAuths = 2
 )
 
 // Sets up or recovers the Host's connection
@@ -219,12 +211,12 @@ func (c *ProtoComms) Send(host *Host, f func(conn *grpc.ClientConn) (*any.Any,
 	error)) (result *any.Any, err error) {
 
 	jww.TRACE.Printf("Attempting to send to host: %s", host)
-	fSh := func(conn *grpc.ClientConn) (interface{}, error){
+	fSh := func(conn *grpc.ClientConn) (interface{}, error) {
 		return f(conn)
 	}
 
 	anyFace, err := c.transmit(host, fSh)
-	if err!=nil{
+	if err != nil {
 		return nil, err
 	}
 
@@ -241,11 +233,9 @@ func (c *ProtoComms) Stream(host *Host, f func(conn *grpc.ClientConn) (
 	return c.transmit(host, f)
 }
 
-
 // returns true if the connection error is one of the connection errors which
 // should be retried
 func isConnError(err error) bool {
 	return strings.Contains(err.Error(), "context deadline exceeded") ||
 		strings.Contains(err.Error(), "connection refused")
 }
-

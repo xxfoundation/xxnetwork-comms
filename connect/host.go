@@ -62,7 +62,8 @@ type Host struct {
 	maxRetries int
 
 	// GRPC connection object
-	connection *grpc.ClientConn
+	connection      *grpc.ClientConn
+	connectionCount uint64
 
 	// TLS credentials object used to establish the connection
 	credentials credentials.TransportCredentials
@@ -114,10 +115,10 @@ func newDynamicHost(id *id.ID, publicKey []byte) (host *Host, err error) {
 	// IMPORTANT: This flag must be set to true for all dynamic Hosts
 	//            because the security properties for these Hosts differ
 	host = &Host{
-		id:          id,
-		dynamicHost: true,
+		id:                id,
+		dynamicHost:       true,
 		transmissionToken: token.NewLive(),
-		receptionToken:token.NewLive(),
+		receptionToken:    token.NewLive(),
 	}
 
 	// Create the RSA Public Key object
@@ -139,11 +140,12 @@ func (h *Host) GetPubKey() *rsa.PublicKey {
 }
 
 // Connected checks if the given Host's connection is alive
-func (h *Host) Connected() bool {
+// the uint is the connection count, it increments every time a reconnect occurs
+func (h *Host) Connected() (bool, uint64) {
 	h.sendMux.RLock()
 	defer h.sendMux.RUnlock()
 
-	return h.isAlive()
+	return h.isAlive() && !h.authenticationRequired(), h.connectionCount
 }
 
 // GetId returns the id of the host
@@ -168,6 +170,18 @@ func (h *Host) Disconnect() {
 
 	h.disconnect()
 	h.transmissionToken.Clear()
+}
+
+// ConditionalDisconnect closes a the Host connection under the write lock only
+// if the connection count has not increased
+func (h *Host) ConditionalDisconnect(count uint64) {
+	h.sendMux.Lock()
+	defer h.sendMux.Unlock()
+
+	if count == h.connectionCount {
+		h.disconnect()
+		h.transmissionToken.Clear()
+	}
 }
 
 // Returns whether or not the Host is able to be contacted
@@ -214,6 +228,8 @@ func (h *Host) connect() error {
 		return err
 	}
 
+	h.connectionCount++
+
 	return nil
 }
 
@@ -249,6 +265,7 @@ func (h *Host) disconnect() {
 			h.connection = nil
 		}
 	}
+	h.transmissionToken.Clear()
 }
 
 // connectHelper creates a connection while not under a write lock.
