@@ -173,7 +173,7 @@ func (h *Host) Disconnect() {
 
 // ConditionalDisconnect closes a the Host connection under the write lock only
 // if the connection count has not increased
-func (h *Host) ConditionalDisconnect(count uint64) {
+func (h *Host) conditionalDisconnect(count uint64) {
 	h.sendMux.Lock()
 	defer h.sendMux.Unlock()
 

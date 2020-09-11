@@ -35,7 +35,7 @@ func (c *ProtoComms) transmit(host *Host, f func(conn *grpc.ClientConn) (interfa
 
 		// if the transmission goes well or it is a domain specific error, return
 		if err == nil || !(isConnError(err) || IsAuthError(err)) {
-			host.ConditionalDisconnect(connectionCount)
+			host.conditionalDisconnect(connectionCount)
 			return result, err
 		}
 		jww.WARN.Printf("Failed to send to Host on attempt %v/%v",
