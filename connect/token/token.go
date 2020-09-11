@@ -40,16 +40,16 @@ func (t Token) Equals(u Token) bool {
 
 // Represents a reverse-authentication token
 type Live struct {
-	mux   sync.RWMutex
-	t     Token
-	clear bool
+	mux sync.RWMutex
+	t   Token
+	has bool
 }
 
 // Constructor which initializes a token for
 // use by the associated host object
 func NewLive() *Live {
 	return &Live{
-		clear: true,
+		has: false,
 	}
 }
 
@@ -59,7 +59,7 @@ func (l *Live) Get() (Token, bool) {
 	defer l.mux.RUnlock()
 	var tCopy Token
 	copy(tCopy[:], l.t[:])
-	return tCopy, !l.clear
+	return tCopy, l.has
 }
 
 // Get reads and returns the token
@@ -76,14 +76,14 @@ func (l *Live) GetBytes() []byte {
 func (l *Live) Has() bool {
 	l.mux.RLock()
 	defer l.mux.RUnlock()
-	return !l.clear
+	return l.has
 }
 
 // Set rewrites the token for negotiation or renegotiation
 func (l *Live) Set(newToken Token) {
 	l.mux.Lock()
 	copy(l.t[:], newToken[:])
-	l.clear = false
+	l.has = true
 	l.mux.Unlock()
 }
 
@@ -94,6 +94,6 @@ func (l *Live) Clear() {
 	for i := 0; i < len(l.t); i++ {
 		l.t[i] = 0
 	}
-	l.clear = true
+	l.has = false
 	l.mux.Unlock()
 }
