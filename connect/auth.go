@@ -14,6 +14,7 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/base64"
+	"fmt"
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/pkg/errors"
@@ -274,7 +275,7 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) (*Auth,
 		return &Auth{
 			IsAuthenticated: false,
 			Sender:          host,
-			Reason:          "Token cannot be unmarshaled",
+			Reason:          fmt.Sprintf("Token cannot be unmarshaled, token: %v", msg.Token),
 		}, nil
 	}
 
