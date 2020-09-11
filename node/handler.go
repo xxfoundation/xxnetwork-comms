@@ -18,7 +18,6 @@ import (
 	"gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/primitives/id"
 	"google.golang.org/grpc/reflection"
-	"net"
 	"runtime/debug"
 )
 
@@ -31,7 +30,7 @@ type Comms struct {
 // Starts a new server on the address:port specified by listeningAddr
 // and a callback interface for server operations
 // with given path to public and private key for TLS connection
-func StartNode(id *id.ID, localServer string, handler Handler,
+func StartNode(id *id.ID, localServer string, interconnectPort int, handler Handler,
 	certPEMblock, keyPEMblock []byte) *Comms {
 	pc, lis, err := connect.StartCommServer(id, localServer,
 		certPEMblock, keyPEMblock)
@@ -45,14 +44,15 @@ func StartNode(id *id.ID, localServer string, handler Handler,
 	}
 
 	// Start up interconnect service
-	go func() {
-		_, port, err := net.SplitHostPort(localServer)
-		if err != nil {
-			jww.WARN.Printf("Unable to start consensus node")
-			return
-		}
-		interconnect.StartCMixInterconnect(id, port, handler, certPEMblock, keyPEMblock)
-	}()
+	if interconnectPort != 0 {
+		go func() {
+			if err != nil {
+				jww.WARN.Printf("Unable to start consensus node")
+				return
+			}
+			interconnect.StartCMixInterconnect(id, string(interconnectPort), handler, certPEMblock, keyPEMblock)
+		}()
+	}
 
 	go func() {
 

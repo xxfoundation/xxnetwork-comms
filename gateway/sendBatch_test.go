@@ -22,7 +22,7 @@ func TestPostNewBatch(t *testing.T) {
 	testID := id.NewIdFromString("test", id.Generic, t)
 	gateway := StartGateway(testID, GatewayAddress, NewImplementation(), nil,
 		nil)
-	server := node.StartNode(testID, ServerAddress, node.NewImplementation(),
+	server := node.StartNode(testID, ServerAddress, 0, node.NewImplementation(),
 		nil, nil)
 	defer gateway.Shutdown()
 	defer server.Shutdown()
@@ -48,7 +48,7 @@ func TestGetRoundBufferInfo(t *testing.T) {
 	nodeID := id.NewIdFromString("test", id.Node, t)
 	gateway := StartGateway(testID, GatewayAddress, NewImplementation(), nil,
 		nil)
-	server := node.StartNode(nodeID, ServerAddress, node.NewImplementation(),
+	server := node.StartNode(nodeID, ServerAddress, 0, node.NewImplementation(),
 		nil, nil)
 	defer gateway.Shutdown()
 	defer server.Shutdown()
@@ -76,7 +76,7 @@ func TestGetCompletedBatch(t *testing.T) {
 	nodeID := id.NewIdFromString("test", id.Node, t)
 	gateway := StartGateway(testID, GatewayAddress, NewImplementation(), nil,
 		nil)
-	server := node.StartNode(nodeID, ServerAddress, node.NewImplementation(),
+	server := node.StartNode(nodeID, ServerAddress, 0, node.NewImplementation(),
 		nil, nil)
 	defer gateway.Shutdown()
 	defer server.Shutdown()

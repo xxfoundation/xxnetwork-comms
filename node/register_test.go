@@ -19,7 +19,7 @@ import (
 func TestSendNodeRegistration(t *testing.T) {
 	RegAddress := getNextServerAddress()
 	testId := id.NewIdFromString("test", id.Generic, t)
-	server := StartNode(testId, getNextServerAddress(), NewImplementation(),
+	server := StartNode(testId, getNextServerAddress(), 0, NewImplementation(),
 		nil, nil)
 	reg := registration.StartRegistrationServer(testId, RegAddress,
 		registration.NewImplementation(), nil, nil)
@@ -43,7 +43,7 @@ func TestSendNodeRegistration(t *testing.T) {
 func TestComms_SendPoll(t *testing.T) {
 	RegAddress := getNextServerAddress()
 	testId := id.NewIdFromString("test", id.Generic, t)
-	server := StartNode(testId, getNextServerAddress(), NewImplementation(),
+	server := StartNode(testId, getNextServerAddress(), 0, NewImplementation(),
 		nil, nil)
 	reg := registration.StartRegistrationServer(testId, RegAddress,
 		registration.NewImplementation(), nil, nil)
@@ -74,7 +74,7 @@ func TestComms_SendPoll(t *testing.T) {
 func TestComms_SendRegistrationCheck(t *testing.T) {
 	RegAddress := getNextServerAddress()
 	testId := id.NewIdFromString("blah", id.Generic, t)
-	server := StartNode(testId, getNextServerAddress(), NewImplementation(),
+	server := StartNode(testId, getNextServerAddress(), 0, NewImplementation(),
 		nil, nil)
 	reg := registration.StartRegistrationServer(testId, RegAddress,
 		registration.NewImplementation(), nil, nil)

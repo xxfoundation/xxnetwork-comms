@@ -40,12 +40,12 @@ func TestPhase_StreamPostPhaseSendReceive(t *testing.T) {
 	}
 
 	testID := id.NewIdFromString("test", id.Generic, t)
-	serverStreamReceiver := StartNode(testID, servReceiverAddress, receiverImpl,
+	serverStreamReceiver := StartNode(testID, servReceiverAddress, 0, receiverImpl,
 		certData, keyData)
 
 	// Init server sender
 	servSenderAddress := getNextServerAddress()
-	serverStreamSender := StartNode(testID, servSenderAddress,
+	serverStreamSender := StartNode(testID, servSenderAddress, 0,
 		NewImplementation(),
 		certData, keyData)
 
@@ -141,12 +141,11 @@ func TestGetPostPhaseStream_ErrorsWhenContextCanceled(t *testing.T) {
 	// Init server receiver
 	servReceiverAddress := getNextServerAddress()
 	testID := id.NewIdFromString("test", id.Node, t)
-	_ = StartNode(testID, servReceiverAddress, NewImplementation(),
-		certData, keyData)
+	_ = StartNode(testID, servReceiverAddress, 0, NewImplementation(), certData, keyData)
 
 	// Init server sender
 	servSenderAddress := getNextServerAddress()
-	serverStreamSender := StartNode(testID, servSenderAddress,
+	serverStreamSender := StartNode(testID, servSenderAddress, 0,
 		NewImplementation(),
 		certData, keyData)
 
