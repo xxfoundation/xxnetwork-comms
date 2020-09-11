@@ -46,12 +46,10 @@ func StartNode(id *id.ID, localServer string, interconnectPort int, handler Hand
 	// Start up interconnect service
 	if interconnectPort != 0 {
 		go func() {
-			if err != nil {
-				jww.WARN.Printf("Unable to start consensus node")
-				return
-			}
 			interconnect.StartCMixInterconnect(id, string(interconnectPort), handler, certPEMblock, keyPEMblock)
 		}()
+	} else {
+		jww.WARN.Printf("Port for consensus not set, interconnect not started")
 	}
 
 	go func() {
