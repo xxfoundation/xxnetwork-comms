@@ -275,7 +275,7 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) (*Auth,
 		return &Auth{
 			IsAuthenticated: false,
 			Sender:          host,
-			Reason:          fmt.Sprintf("Token cannot be unmarshaled, token: %v", msg.Token),
+			Reason:          fmt.Sprintf("Token {%v} cannot be unmarshaled", msg.Token),
 		}, nil
 	}
 
