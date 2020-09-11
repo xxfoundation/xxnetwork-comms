@@ -68,6 +68,8 @@ func (s *Comms) GetPostPhaseStreamClient(host *connect.Host,
 
 	// Add authentication information to streaming context
 	ctx = s.PackAuthenticatedContext(host, ctx)
+	a, err := connect.UnpackAuthenticatedContext(ctx)
+	jww.ERROR.Printf("Unpacked context saftey check: %v, %s", a, err)
 
 	streamClient, err := s.getPostPhaseStream(host, ctx)
 	if err != nil {
