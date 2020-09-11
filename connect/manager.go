@@ -81,6 +81,8 @@ func (m *Manager) RemoveHost(hid *id.ID) {
 
 // Closes all client connections and removes them from Manager
 func (m *Manager) DisconnectAll() {
+	m.mux.RLock()
+	defer m.mux.RUnlock()
 	for _, host := range m.connections {
 		host.Disconnect()
 	}

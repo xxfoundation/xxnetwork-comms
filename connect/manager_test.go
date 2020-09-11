@@ -42,7 +42,6 @@ func TestMain(m *testing.M) {
 
 func TestSetCredentials_InvalidCert(t *testing.T) {
 	host := &Host{
-		address:     "",
 		certificate: []byte("test"),
 	}
 	err := host.setCredentials()
