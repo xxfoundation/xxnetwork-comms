@@ -33,12 +33,12 @@ type Auth struct {
 	IsAuthenticated bool
 	// The information about the Host that sent the authenticated communication
 	Sender *Host
-	// reason it isnt authenticated if authentication fails
+	// reason it isn't authenticated if authentication fails
 	Reason string
 }
 
 // Perform the client handshake to establish reverse-authentication
-// no lock is taken becasue this is assumed to be done exclusivly under the
+// no lock is taken because this is assumed to be done exclusively under the
 // send lock taken in ProtoComms.transmit()
 func (c *ProtoComms) clientHandshake(host *Host) (err error) {
 

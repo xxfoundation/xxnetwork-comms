@@ -230,7 +230,7 @@ func (h *Host) connect() error {
 }
 
 // authenticationRequired Checks if new authentication is required with
-// the remote.  This is used exclusivly under the lock in protocoms.transmit so
+// the remote.  This is used exclusively under the lock in protocoms.transmit so
 // no lock is needed
 func (h *Host) authenticationRequired() bool {
 	return h.enableAuth && !h.transmissionToken.Has()
