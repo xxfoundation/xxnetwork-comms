@@ -28,7 +28,6 @@ func Unmarshal(newVal []byte) (Token, error) {
 	var t Token
 	copy(t[:], newVal)
 	return t, nil
-
 }
 
 func (t Token) Marshal() []byte {
@@ -36,13 +35,13 @@ func (t Token) Marshal() []byte {
 }
 
 func (t Token) Equals(u Token) bool {
-	return bytes.Equal(t[:],u[:])
+	return bytes.Equal(t[:], u[:])
 }
 
 // Represents a reverse-authentication token
 type Live struct {
-	mux sync.RWMutex
-	t Token
+	mux   sync.RWMutex
+	t     Token
 	clear bool
 }
 
@@ -64,15 +63,15 @@ func (l *Live) Get() (Token, bool) {
 // Get reads and returns the token
 func (l *Live) GetBytes() []byte {
 	t, ok := l.Get()
-	if !ok{
+	if !ok {
 		return nil
-	}else{
+	} else {
 		return t[:]
 	}
 }
 
 //Returns true if a token is present
-func (l *Live) Has()bool {
+func (l *Live) Has() bool {
 	l.mux.RLock()
 	defer l.mux.RUnlock()
 	return !l.clear
@@ -94,5 +93,3 @@ func (l *Live) Clear() {
 	l.clear = true
 	l.mux.Unlock()
 }
-
-

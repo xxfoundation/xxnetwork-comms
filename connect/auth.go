@@ -126,9 +126,11 @@ func (c *ProtoComms) PackAuthenticatedMessage(msg proto.Message, host *Host,
 func (c *ProtoComms) PackAuthenticatedContext(host *Host,
 	ctx context.Context) context.Context {
 
+	t, ok := host.transmissionToken.Get()
+	jww.ERROR.Printf("Token: %v, clear: %v", t, ok)
 	ctx = metadata.AppendToOutgoingContext(ctx, "ID", c.Id.String())
 	ctx = metadata.AppendToOutgoingContext(ctx, "TOKEN",
-		base64.StdEncoding.EncodeToString(host.transmissionToken.GetBytes()))
+		base64.StdEncoding.EncodeToString(t[:]))
 	return ctx
 }
 
@@ -260,7 +262,8 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) (*Auth,
 		return &Auth{
 			IsAuthenticated: false,
 			Sender:          &Host{},
-			Reason:          fmt.Sprintf("Host {%v} cannot be unmarshaled", msg.ID),
+			Reason: fmt.Sprintf("Host {%v} cannot be "+
+				"unmarshaled: %s", msg.ID, err),
 		}, nil
 	}
 
@@ -270,7 +273,7 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) (*Auth,
 		return &Auth{
 			IsAuthenticated: false,
 			Sender:          &Host{},
-			Reason:          fmt.Sprintf("Host {%s} cannot be found", host.id),
+			Reason:          fmt.Sprintf("Host {%s} cannot be found", msgID),
 		}, nil
 	}
 
