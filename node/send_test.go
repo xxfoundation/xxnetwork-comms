@@ -21,7 +21,7 @@ import (
 func TestSendAskOnline(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	testID := id.NewIdFromString("test", id.Node, t)
-	server := StartNode(testID, ServerAddress, NewImplementation(), nil, nil)
+	server := StartNode(testID, ServerAddress, 0, NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	var manager connect.Manager
 
@@ -40,7 +40,7 @@ func TestSendAskOnline(t *testing.T) {
 func TestSendFinishRealtime(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	testID := id.NewIdFromString("test", id.Node, t)
-	server := StartNode(testID, ServerAddress, NewImplementation(), nil, nil)
+	server := StartNode(testID, ServerAddress, 0, NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	var manager connect.Manager
 
@@ -59,7 +59,7 @@ func TestSendFinishRealtime(t *testing.T) {
 func TestSendNewRound(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	testId := id.NewIdFromString("test", id.Node, t)
-	server := StartNode(testId, ServerAddress, NewImplementation(), nil, nil)
+	server := StartNode(testId, ServerAddress, 0, NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	var manager connect.Manager
 
@@ -78,7 +78,7 @@ func TestSendNewRound(t *testing.T) {
 func TestSendPostPhase(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	testId := id.NewIdFromString("test", id.Node, t)
-	server := StartNode(testId, ServerAddress, NewImplementation(), nil, nil)
+	server := StartNode(testId, ServerAddress, 0, NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	var manager connect.Manager
 
@@ -97,7 +97,7 @@ func TestSendPostPhase(t *testing.T) {
 func TestSendPostRoundPublicKey(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	testId := id.NewIdFromString("test", id.Node, t)
-	server := StartNode(testId, ServerAddress, NewImplementation(), nil, nil)
+	server := StartNode(testId, ServerAddress, 0, NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	var manager connect.Manager
 
@@ -116,7 +116,7 @@ func TestSendPostRoundPublicKey(t *testing.T) {
 func TestSendPostPrecompResult(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	testId := id.NewIdFromString("test", id.Node, t)
-	server := StartNode(testId, ServerAddress, NewImplementation(), nil, nil)
+	server := StartNode(testId, ServerAddress, 0, NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	var manager connect.Manager
 
@@ -144,7 +144,7 @@ func TestSendGetMeasure(t *testing.T) {
 		return &mockReturn, nil
 	}
 	impl.Functions.GetMeasure = mockMeasure
-	server := StartNode(testId, ServerAddress, impl, nil, nil)
+	server := StartNode(testId, ServerAddress, 0, impl, nil, nil)
 	defer server.Shutdown()
 	var manager connect.Manager
 
@@ -173,7 +173,7 @@ func TestSendGetMeasureError(t *testing.T) {
 		return nil, errors.New("Test error")
 	}
 	impl.Functions.GetMeasure = mockMeasureError
-	server := StartNode(testId, ServerAddress, impl, nil, nil)
+	server := StartNode(testId, ServerAddress, 0, impl, nil, nil)
 	defer server.Shutdown()
 
 	ri := pb.RoundInfo{
@@ -196,7 +196,7 @@ func TestRoundTripPing(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	impl := NewImplementation()
 	testId := id.NewIdFromString("test", id.Node, t)
-	server := StartNode(testId, ServerAddress, impl, nil, nil)
+	server := StartNode(testId, ServerAddress, 0, impl, nil, nil)
 	defer server.Shutdown()
 	var manager connect.Manager
 
@@ -226,7 +226,7 @@ func TestRoundTripPing(t *testing.T) {
 func TestSendRoundError(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	testId := id.NewIdFromString("test", id.Node, t)
-	server := StartNode(testId, ServerAddress, NewImplementation(), nil, nil)
+	server := StartNode(testId, ServerAddress, 0, NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	var manager connect.Manager
 
