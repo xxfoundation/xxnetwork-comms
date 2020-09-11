@@ -140,7 +140,7 @@ func UnpackAuthenticatedContext(ctx context.Context) (*pb.AuthenticatedMessage, 
 	tokenStr := md.Get("TOKEN")[0]
 	auth.Token, err = base64.StdEncoding.DecodeString(tokenStr)
 	if err != nil {
-		return nil, errors.WithMessage(err, "could not decode authentication LiveToken")
+		return nil, errors.WithMessage(err, "could not decode authentication Live")
 	}
 
 	return auth, nil
@@ -236,7 +236,7 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) (err error) {
 	}
 	// Token has been validated and can be safely stored
 	host.receptionToken.Set(tokenMsg.Token)
-	jww.DEBUG.Printf("LiveToken validated: %v", tokenMsg.Token)
+	jww.DEBUG.Printf("Live validated: %v", tokenMsg.Token)
 	return
 }
 

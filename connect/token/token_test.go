@@ -13,9 +13,9 @@ import (
 	"testing"
 )
 
-// Unit test for NewToken
+// Unit test for NewLive
 func TestNewToken(t *testing.T) {
-	newToken := NewToken()
+	newToken := NewLive()
 
 	// Test that token is empty on initialization
 	if !reflect.DeepEqual(newToken.Value, &atomic.Value{}) {
@@ -27,7 +27,7 @@ func TestNewToken(t *testing.T) {
 
 // Unit test for Set
 func TestToken_SetToken(t *testing.T) {
-	newToken := NewToken()
+	newToken := NewLive()
 	expectedVal := []byte("testToken")
 
 	// Set token's value
@@ -43,7 +43,7 @@ func TestToken_SetToken(t *testing.T) {
 
 // Unit test for Get
 func TestToken_GetToken(t *testing.T) {
-	newToken := NewToken()
+	newToken := NewLive()
 
 	// Test Get on a newly initialized token object
 	if newToken.Get() != nil {

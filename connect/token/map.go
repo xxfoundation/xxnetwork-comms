@@ -50,3 +50,4 @@ func (m *Map) Validate(token Token) bool {
 	return retrievedNonce.IsValid()
 
 }
+

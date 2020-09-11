@@ -15,8 +15,8 @@ import (
 	"gitlab.com/elixxir/crypto/signature/rsa"
 	"gitlab.com/elixxir/crypto/xx"
 	"gitlab.com/elixxir/primitives/id"
+	token "gitlab.com/xx_network/comms/connect/token"
 	pb "gitlab.com/xx_network/comms/messages"
-	"sync"
 	"testing"
 )
 
@@ -61,14 +61,14 @@ func TestProtoComms_AuthenticatedReceiver(t *testing.T) {
 	// Create comm object
 	pc := ProtoComms{
 		Manager:       Manager{},
-		tokens:        sync.Map{},
+		tokens:        token.NewMap(),
 		LocalServer:   nil,
 		ListeningAddr: "",
 		privateKey:    nil,
 	}
 	// Create id and token
 	testID := id.NewIdFromString("testSender", id.Node, t)
-	token := []byte("testtoken")
+	tkn := []byte("testtoken")
 
 	// Add host
 	_, err := pc.AddHost(testID, "", nil, false, true)
@@ -78,12 +78,12 @@ func TestProtoComms_AuthenticatedReceiver(t *testing.T) {
 
 	// Get host
 	h, _ := pc.GetHost(testID)
-	h.receptionToken.Set(token)
+	h.receptionToken.Set(tkn)
 
 	msg := &pb.AuthenticatedMessage{
 		ID:        testID.Marshal(),
 		Signature: nil,
-		Token:     token,
+		Token:     tkn,
 		Message:   nil,
 	}
 
@@ -98,8 +98,9 @@ func TestProtoComms_AuthenticatedReceiver(t *testing.T) {
 	}
 
 	// Compare the tokens
-	if !bytes.Equal(auth.Sender.receptionToken.Get(), token) {
-		t.Errorf("Tokens do not match! \n\tExptected: %+v\n\tReceived: %+v", token, auth.Sender.receptionToken)
+	if !bytes.Equal(auth.Sender.receptionToken.Get(), tkn) {
+		t.Errorf("Tokens do not match! \n\tExptected: " +
+			"%+v\n\tReceived: %+v", tkn, auth.Sender.receptionToken)
 	}
 }
 
@@ -108,14 +109,14 @@ func TestProtoComms_AuthenticatedReceiver_BadId(t *testing.T) {
 	// Create comm object
 	pc := ProtoComms{
 		Manager:       Manager{},
-		tokens:        sync.Map{},
+		tokens:        token.NewMap(),
 		LocalServer:   nil,
 		ListeningAddr: "",
 		privateKey:    nil,
 	}
 	// Create id and token
 	testID := id.NewIdFromString("testSender", id.Node, t)
-	token := []byte("testtoken")
+	tkn := []byte("testtoken")
 
 	// Add host
 	_, err := pc.AddHost(testID, "", nil, false, true)
@@ -125,14 +126,14 @@ func TestProtoComms_AuthenticatedReceiver_BadId(t *testing.T) {
 
 	// Get host
 	h, _ := pc.GetHost(testID)
-	h.receptionToken.Set(token)
+	h.receptionToken.Set(tkn)
 
 	badId := []byte("badID")
 
 	msg := &pb.AuthenticatedMessage{
 		ID:        badId,
 		Signature: nil,
-		Token:     token,
+		Token:     tkn,
 		Message:   nil,
 	}
 
@@ -150,6 +151,7 @@ func TestProtoComms_AuthenticatedReceiver_BadId(t *testing.T) {
 // Happy path
 func TestProtoComms_GenerateToken(t *testing.T) {
 	comm := ProtoComms{
+		tokens:token.NewMap(),
 		LocalServer:   nil,
 		ListeningAddr: "",
 		privateKey:    nil,
@@ -159,9 +161,14 @@ func TestProtoComms_GenerateToken(t *testing.T) {
 		t.Errorf("Unable to generate token: %+v", err)
 	}
 
-	token, ok := comm.tokens.Load(string(tokenBytes))
-	if !ok || token == nil {
-		t.Errorf("Unable to find token stored in internal map")
+	tkn, err := token.Unmarshal(tokenBytes)
+	if err!=nil{
+		t.Errorf("Should be able to unmarshal token: %s", err)
+	}
+
+	ok := comm.tokens.Validate(tkn)
+	if !ok{
+		t.Errorf("Unable to validate token")
 	}
 }
 
@@ -173,6 +180,7 @@ func TestProtoComms_PackAuthenticatedMessage(t *testing.T) {
 		LocalServer:   nil,
 		ListeningAddr: "",
 		privateKey:    nil,
+		tokens:token.NewMap(),
 	}
 
 	tokenBytes, err := comm.GenerateToken()
@@ -198,7 +206,7 @@ func TestProtoComms_PackAuthenticatedMessage(t *testing.T) {
 	}
 	// Compare the tokens and id's
 	if bytes.Compare(msg.Token, tokenBytes) != 0 || !bytes.Equal(msg.ID, testServerId.Marshal()) {
-		t.Errorf("Expected packed message to have correct ID and LiveToken: %+v",
+		t.Errorf("Expected packed message to have correct ID and Live: %+v",
 			msg)
 	}
 }
@@ -211,6 +219,7 @@ func TestProtoComms_ValidateToken(t *testing.T) {
 		LocalServer:   nil,
 		ListeningAddr: "",
 		privateKey:    nil,
+		tokens:token.NewMap(),
 	}
 	err := comm.setPrivateKey(testkeys.LoadFromPath(testkeys.GetNodeKeyPath()))
 	if err != nil {
@@ -261,6 +270,7 @@ func TestProtoComms_ValidateToken_BadId(t *testing.T) {
 		LocalServer:   nil,
 		ListeningAddr: "",
 		privateKey:    nil,
+		tokens:token.NewMap(),
 	}
 	err := comm.setPrivateKey(testkeys.LoadFromPath(testkeys.GetNodeKeyPath()))
 	if err != nil {
@@ -326,6 +336,7 @@ func TestProtoComms_ValidateTokenDynamic(t *testing.T) {
 	comm := ProtoComms{
 		Id:            uid,
 		ListeningAddr: "",
+		tokens:token.NewMap(),
 	}
 	err = comm.setPrivateKey(rsa.CreatePrivateKeyPem(privKey))
 	if err != nil {

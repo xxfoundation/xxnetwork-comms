@@ -11,7 +11,6 @@ package connect
 
 import (
 	"fmt"
-	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/crypto/signature/rsa"
@@ -53,11 +52,11 @@ type Host struct {
 
 	/* Tokens shared with this Host establishing reverse authentication */
 
-	//  LiveToken used for receiving from this host
-	receptionToken token.LiveToken
+	//  Live used for receiving from this host
+	receptionToken token.Live
 
-	// LiveToken used for sending to this host
-	transmissionToken token.LiveToken
+	// Live used for sending to this host
+	transmissionToken token.Live
 
 	// Configure the maximum number of connection attempts
 	maxRetries int
@@ -78,14 +77,8 @@ type Host struct {
 	// This is useful for determining whether a Host's key was hardcoded
 	dynamicHost bool
 
-	// Read/Write Mutex for thread safety
-	mux sync.RWMutex
-
 	// Send lock
 	sendMux sync.RWMutex
-
-	// Receive lock
-	receiveMux sync.RWMutex
 }
 
 // Creates a new Host object
@@ -98,8 +91,8 @@ func NewHost(id *id.ID, address string, cert []byte, disableTimeout,
 		address:           address,
 		certificate:       cert,
 		enableAuth:        enableAuth,
-		transmissionToken: token.NewToken(),
-		receptionToken:    token.NewToken(),
+		transmissionToken: token.NewLive(),
+		receptionToken:    token.NewLive(),
 	}
 
 	// Set the max number of retries for establishing a connection
@@ -123,6 +116,8 @@ func newDynamicHost(id *id.ID, publicKey []byte) (host *Host, err error) {
 	host = &Host{
 		id:          id,
 		dynamicHost: true,
+		transmissionToken: token.NewLive(),
+		receptionToken:token.NewLive(),
 	}
 
 	// Create the RSA Public Key object
@@ -168,8 +163,8 @@ func (h *Host) UpdateAddress(address string) {
 
 // Disconnect closes a the Host connection under the write lock
 func (h *Host) Disconnect() {
-	h.mux.Lock()
-	defer h.mux.Unlock()
+	h.sendMux.Lock()
+	defer h.sendMux.Unlock()
 
 	h.disconnect()
 	h.transmissionToken.Clear()
@@ -199,46 +194,18 @@ func (h *Host) IsOnline() bool {
 
 // send checks that the host has a connection and sends if it does.
 // Operates under the host's read lock.
-func (h *Host) send(f func(conn *grpc.ClientConn) (*any.Any,
-	error)) (*any.Any, error) {
+func (h *Host) transmit(f func(conn *grpc.ClientConn) (interface{},
+	error)) (interface{}, error) {
 
-	h.mux.RLock()
-	defer h.mux.RUnlock()
-
-	if !h.isAlive() {
-		return nil, errors.New("Could not send, connection is not alive")
-	}
-
+	h.sendMux.RLock()
 	a, err := f(h.connection)
-	return a, err
-}
+	h.sendMux.RUnlock()
 
-// stream checks that the host has a connection and streams if it does.
-// Operates under the host's read lock.
-func (h *Host) stream(f func(conn *grpc.ClientConn) (
-	interface{}, error)) (interface{}, error) {
-
-	h.mux.RLock()
-	defer h.mux.RUnlock()
-
-	if !h.isAlive() {
-		return nil, errors.New("Could not stream, connection is not alive")
-	}
-
-	a, err := f(h.connection)
 	return a, err
 }
 
 // connect attempts to connect to the host if it does not have a valid connection
 func (h *Host) connect() error {
-	h.mux.Lock()
-	defer h.mux.Unlock()
-
-	//checks if the connection is active and skips reconnecting if it is
-	if h.isAlive() {
-		return nil
-	}
-
 	h.disconnect()
 	h.transmissionToken.Clear()
 
@@ -251,11 +218,9 @@ func (h *Host) connect() error {
 }
 
 // authenticationRequired Checks if new authentication is required with
-// the remote
+// the remote.  This is used exclusivly under the lock in protocoms.transmit so
+// no lock is needed
 func (h *Host) authenticationRequired() bool {
-	h.mux.RLock()
-	defer h.mux.RUnlock()
-
 	return h.enableAuth && h.transmissionToken.Get() == nil
 }
 
@@ -381,8 +346,8 @@ func (h *Host) setCredentials() error {
 
 // Stringer interface for connection
 func (h *Host) String() string {
-	h.mux.RLock()
-	defer h.mux.RUnlock()
+	h.sendMux.RLock()
+	defer h.sendMux.RUnlock()
 	addr := h.address
 	actualConnection := h.connection
 	creds := h.credentials
@@ -403,8 +368,8 @@ func (h *Host) String() string {
 		securityProtocol = creds.Info().SecurityProtocol
 	}
 	return fmt.Sprintf(
-		"ID: %v\tAddr: %v\tCertificate: %s...\tTransmission LiveToken: %v"+
-			"\tReception LiveToken: %+v \tEnableAuth: %v"+
+		"ID: %v\tAddr: %v\tCertificate: %s...\tTransmission Live: %v"+
+			"\tReception Live: %+v \tEnableAuth: %v"+
 			"\tMaxRetries: %v\tConnState: %v"+
 			"\tTLS ServerName: %v\tTLS ProtocolVersion: %v\t"+
 			"TLS SecurityVersion: %v\tTLS SecurityProtocol: %v\n",

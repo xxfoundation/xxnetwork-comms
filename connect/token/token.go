@@ -37,26 +37,26 @@ func (t Token) Marshal() []byte {
 }
 
 // Represents a reverse-authentication token
-type LiveToken struct {
+type Live struct {
 	*atomic.Value
 }
 
 // Constructor which initializes a token for
 // use by the associated host object
-func NewToken() LiveToken {
-	return LiveToken{
+func NewLive() Live {
+	return Live{
 		Value: &atomic.Value{},
 	}
 }
 
 // Set rewrites the token for negotiation or renegotiation
-func (t *LiveToken) Set(newToken []byte) {
+func (t *Live) Set(newToken []byte) {
 
 	t.Store(newToken)
 }
 
 // Get reads and returns the token
-func (t *LiveToken) Get() []byte {
+func (t *Live) Get() []byte {
 	retrievedVal := t.Load()
 	if retrievedVal == nil {
 		return nil
@@ -71,6 +71,6 @@ func (t *LiveToken) Get() []byte {
 
 // Clear is used to set token to a nil value
 // as store will not let you do this explicitly
-func (t *LiveToken) Clear() {
+func (t *Live) Clear() {
 	t.Store([]byte{})
 }
