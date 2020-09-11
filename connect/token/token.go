@@ -57,7 +57,9 @@ func NewLive() Live {
 func (l *Live) Get() (Token, bool) {
 	l.mux.RLock()
 	defer l.mux.RUnlock()
-	return l.t, !l.clear
+	var tCopy Token
+	copy(tCopy[:], l.t[:])
+	return tCopy, !l.clear
 }
 
 // Get reads and returns the token
@@ -80,7 +82,7 @@ func (l *Live) Has() bool {
 // Set rewrites the token for negotiation or renegotiation
 func (l *Live) Set(newToken Token) {
 	l.mux.Lock()
-	l.t = newToken
+	copy(l.t[:], newToken[:])
 	l.clear = false
 	l.mux.Unlock()
 }
@@ -89,7 +91,9 @@ func (l *Live) Set(newToken Token) {
 // as store will not let you do this explicitly
 func (l *Live) Clear() {
 	l.mux.Lock()
-	l.t = Token{}
+	for i := 0; i < len(l.t); i++ {
+		l.t[i] = 0
+	}
 	l.clear = true
 	l.mux.Unlock()
 }
