@@ -286,12 +286,33 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) (*Auth,
 		}, nil
 	}
 
-	// Check the token's validity
+	// get the hosts reception token
 	receptionToken, ok := host.receptionToken.Get()
+	if !ok {
+		return &Auth{
+			IsAuthenticated: false,
+			Sender:          host,
+			Reason: fmt.Sprintf("failed to authenticate token %v, "+
+				"no reception token for %s", remoteToken, host.id),
+		}, nil
+	}
+
+	// check if the tokens are the same
+	if !receptionToken.Equals(remoteToken) {
+		return &Auth{
+			IsAuthenticated: false,
+			Sender:          host,
+			Reason: fmt.Sprintf("failed to authenticate token %v, "+
+				"does not match reception token %v for %s", remoteToken,
+				receptionToken, host.id),
+		}, nil
+	}
+
 	// Assemble the Auth object
 	res := &Auth{
-		IsAuthenticated: ok && receptionToken.Equals(remoteToken),
+		IsAuthenticated: true,
 		Sender:          host,
+		Reason:          "authenticated",
 	}
 
 	jww.TRACE.Printf("Authentication status: %v, ProvidedId: %v ProvidedToken: %v",
