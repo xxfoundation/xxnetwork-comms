@@ -126,11 +126,9 @@ func (c *ProtoComms) PackAuthenticatedMessage(msg proto.Message, host *Host,
 func (c *ProtoComms) PackAuthenticatedContext(host *Host,
 	ctx context.Context) context.Context {
 
-	t, ok := host.transmissionToken.Get()
-	jww.ERROR.Printf("Token: %v, clear: %v", t, ok)
 	ctx = metadata.AppendToOutgoingContext(ctx, "ID", c.Id.String())
 	ctx = metadata.AppendToOutgoingContext(ctx, "TOKEN",
-		base64.StdEncoding.EncodeToString(t[:]))
+		base64.StdEncoding.EncodeToString(host.transmissionToken.GetBytes()))
 	return ctx
 }
 
