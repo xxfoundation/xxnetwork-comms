@@ -9,7 +9,6 @@ package token
 import (
 	"bytes"
 	"reflect"
-	"sync/atomic"
 	"testing"
 )
 
@@ -18,10 +17,13 @@ func TestNewToken(t *testing.T) {
 	newToken := NewLive()
 
 	// Test that token is empty on initialization
-	if !reflect.DeepEqual(newToken.Value, &atomic.Value{}) {
+	if !reflect.DeepEqual(newToken.t, Token{}) {
 		t.Errorf("New token's toke initialized incorrectly."+
 			"\n\tExpected: %v"+
-			"\n\tReceived: %v", nil, newToken.Value)
+			"\n\tReceived: %v", nil, newToken.t)
+	}
+	if !newToken.clear {
+		t.Errorf("New token'starts off not clear.")
 	}
 }
 
@@ -29,15 +31,17 @@ func TestNewToken(t *testing.T) {
 func TestToken_SetToken(t *testing.T) {
 	newToken := NewLive()
 	expectedVal := []byte("testToken")
+	tkn := Token{}
+	copy(tkn[:],expectedVal)
 
 	// Set token's value
-	newToken.Set(expectedVal)
+	newToken.Set(tkn)
 
 	// Check that the new value has been written to the token
-	if !bytes.Equal(expectedVal, newToken.Get()) {
+	if !bytes.Equal(tkn[:], newToken.GetBytes()) {
 		t.Errorf("Set did not write value as expected."+
 			"\n\tExpected: %v"+
-			"\n\tReceived: %v", expectedVal, newToken.Get())
+			"\n\tReceived: %v", tkn[:], newToken.GetBytes())
 	}
 }
 
@@ -46,21 +50,20 @@ func TestToken_GetToken(t *testing.T) {
 	newToken := NewLive()
 
 	// Test Get on a newly initialized token object
-	if newToken.Get() != nil {
-		t.Errorf("Get did not retrieve expected value on initialization."+
-			"\n\tExpected: %v"+
-			"\n\tReceived: %v", nil, newToken.Get())
+	if newToken.Has() {
+		t.Errorf("Get did not retrieve expected value on initialization.")
 	}
 
 	// Set a new value for token
 	expectedVal := []byte("testToken")
-	newToken.Set(expectedVal)
+	tkn := Token{}
+	copy(tkn[:],expectedVal)
+	newToken.Set(tkn)
 
 	// Test that the new value is successfully retrieved by Get
-	if !bytes.Equal(expectedVal, newToken.Get()) {
+	if !bytes.Equal(tkn[:], newToken.GetBytes()) {
 		t.Errorf("Get did not retrieve expected value after a Set call."+
 			"\n\tExpected: %v"+
-			"\n\tReceived: %v", expectedVal, newToken.Get())
+			"\n\tReceived: %v", expectedVal, newToken.GetBytes())
 	}
-
 }

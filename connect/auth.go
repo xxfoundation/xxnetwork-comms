@@ -35,6 +35,8 @@ type Auth struct {
 }
 
 // Perform the client handshake to establish reverse-authentication
+// no lock is taken becasue this is assumed to be done exclusivly under the
+// send lock taken in ProtoComms.transmit()
 func (c *ProtoComms) clientHandshake(host *Host) (err error) {
 
 	// Set up the context
@@ -47,6 +49,11 @@ func (c *ProtoComms) clientHandshake(host *Host) (err error) {
 		&pb.Ping{})
 	if err != nil {
 		return errors.New(err.Error())
+	}
+
+	remoteToken, err := token.Unmarshal(result.Token)
+	if err!=nil{
+		return errors.Errorf("Failed to unmarshal token: %s", err)
 	}
 
 	// Pack the authenticated message with signature enabled
@@ -75,7 +82,7 @@ func (c *ProtoComms) clientHandshake(host *Host) (err error) {
 	}
 
 	// Assign the host token
-	host.transmissionToken.Set(result.Token)
+	host.transmissionToken.Set(remoteToken)
 
 	return
 }
@@ -93,7 +100,7 @@ func (c *ProtoComms) PackAuthenticatedMessage(msg proto.Message, host *Host,
 	// Build the authenticated message
 	authMsg := &pb.AuthenticatedMessage{
 		ID:      c.Id.Marshal(),
-		Token:   host.transmissionToken.Get(),
+		Token:   host.transmissionToken.GetBytes(),
 		Message: anyMsg,
 		Client: &pb.ClientID{
 			Salt:      make([]byte, 0),
@@ -117,7 +124,8 @@ func (c *ProtoComms) PackAuthenticatedContext(host *Host,
 	ctx context.Context) context.Context {
 
 	ctx = metadata.AppendToOutgoingContext(ctx, "ID", c.Id.String())
-	ctx = metadata.AppendToOutgoingContext(ctx, "TOKEN", base64.StdEncoding.EncodeToString(host.transmissionToken.Get()))
+	ctx = metadata.AppendToOutgoingContext(ctx, "TOKEN",
+		base64.StdEncoding.EncodeToString(host.transmissionToken.GetBytes()))
 	return ctx
 }
 
@@ -235,7 +243,7 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) (err error) {
 		return errors.Errorf("Failed to validate token: %v", remoteToken)
 	}
 	// Token has been validated and can be safely stored
-	host.receptionToken.Set(tokenMsg.Token)
+	host.receptionToken.Set(remoteToken)
 	jww.DEBUG.Printf("Live validated: %v", tokenMsg.Token)
 	return
 }
@@ -258,14 +266,19 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) (*Auth,
 		}, nil
 	}
 
-	// Check the token's validity
-	receptionToken := host.receptionToken.Get()
-	validToken := receptionToken != nil && msg.Token != nil &&
-		bytes.Compare(receptionToken, msg.Token) == 0
+	remoteToken, err := token.Unmarshal(msg.Token)
+	if err!=nil{
+		return &Auth{
+			IsAuthenticated: false,
+			Sender:          host,
+		}, nil
+	}
 
+	// Check the token's validity
+	receptionToken, ok := host.receptionToken.Get()
 	// Assemble the Auth object
 	res := &Auth{
-		IsAuthenticated: validToken,
+		IsAuthenticated: ok&&receptionToken.Equals(remoteToken),
 		Sender:          host,
 	}
 

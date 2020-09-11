@@ -49,7 +49,7 @@ connect:
 
 authorize:
 	// Establish authentication if required
-	if host.authenticationRequired() && host.transmissionToken.Get() == nil {
+	if host.authenticationRequired(){
 		//do not attempt to connect again if multiple attempts have been made
 		if numAuths == maxAuths {
 			host.sendMux.Unlock()

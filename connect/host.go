@@ -221,7 +221,7 @@ func (h *Host) connect() error {
 // the remote.  This is used exclusivly under the lock in protocoms.transmit so
 // no lock is needed
 func (h *Host) authenticationRequired() bool {
-	return h.enableAuth && h.transmissionToken.Get() == nil
+	return h.enableAuth && h.transmissionToken.Has()
 }
 
 // isAlive returns true if the connection is non-nil and alive
@@ -373,8 +373,8 @@ func (h *Host) String() string {
 			"\tMaxRetries: %v\tConnState: %v"+
 			"\tTLS ServerName: %v\tTLS ProtocolVersion: %v\t"+
 			"TLS SecurityVersion: %v\tTLS SecurityProtocol: %v\n",
-		h.id, addr, h.certificate, h.transmissionToken.Get(),
-		h.receptionToken.Get(), h.enableAuth, h.maxRetries, state,
+		h.id, addr, h.certificate, h.transmissionToken.GetBytes(),
+		h.receptionToken.GetBytes(), h.enableAuth, h.maxRetries, state,
 		serverName, protocolVersion, securityVersion, securityProtocol)
 }
 
