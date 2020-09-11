@@ -21,7 +21,7 @@ func (c *ProtoComms) transmit(host *Host, f func(conn *grpc.ClientConn) (interfa
 		err = nil
 		//reconnect if necessary
 		connected, connectionCount := host.Connected()
-		if connected {
+		if !connected {
 			connectionCount, err = c.connect(host, connectionCount)
 			if err != nil {
 				jww.WARN.Printf("Failed to connect to Host on attempt "+
