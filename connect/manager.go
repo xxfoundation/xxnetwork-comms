@@ -15,6 +15,7 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/primitives/id"
 	"sync"
+	"testing"
 )
 
 // The Manager object provides thread-safe access
@@ -30,6 +31,13 @@ func newManager() *Manager {
 		connections: make(map[id.ID]*Host),
 		mux:         sync.RWMutex{},
 	}
+}
+
+func NewManagerTesting(t *testing.T) *Manager {
+	if t == nil {
+		jww.FATAL.Panicf("NewMangerTesting is for testing only")
+	}
+	return newManager()
 }
 
 // Fetch a Host from the internal map
