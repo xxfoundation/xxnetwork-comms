@@ -15,7 +15,7 @@ import (
 )
 
 func TestHost_address(t *testing.T) {
-	var mgr Manager
+	mgr := newManager()
 	testId := id.NewIdFromString("test", id.Node, t)
 	testAddress := "test"
 	host, err := mgr.AddHost(testId, testAddress, nil, false, false)

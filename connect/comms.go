@@ -56,7 +56,7 @@ var MaxConcurrentStreams = uint32(250000)
 // Proto object containing a gRPC server
 type ProtoComms struct {
 	// Inherit the Manager object
-	Manager
+	*Manager
 
 	// The network ID of this comms server
 	Id *id.ID
@@ -98,6 +98,7 @@ func CreateCommClient(id *id.ID, pubKeyPem, privKeyPem,
 		pubKeyPem: pubKeyPem,
 		salt:      salt,
 		tokens:    token.NewMap(),
+		Manager:   newManager(),
 	}
 
 	// Set the private key if specified
@@ -119,6 +120,7 @@ func StartCommServer(id *id.ID, localServer string, certPEMblock,
 		Id:            id,
 		ListeningAddr: localServer,
 		tokens:        token.NewMap(),
+		Manager:       newManager(),
 	}
 
 listen:
