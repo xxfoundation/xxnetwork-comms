@@ -14,6 +14,7 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/base64"
+	"fmt"
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/pkg/errors"
@@ -82,7 +83,7 @@ func (c *ProtoComms) clientHandshake(host *Host) (err error) {
 	if err != nil {
 		return errors.New(err.Error())
 	}
-
+	jww.ERROR.Printf("negotiatied Remote token: %v", remoteToken)
 	// Assign the host token
 	host.transmissionToken.Set(remoteToken)
 
@@ -256,7 +257,12 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) (*Auth,
 	// Convert EntityID to ID
 	msgID, err := id.Unmarshal(msg.ID)
 	if err != nil {
-		return nil, err
+		return &Auth{
+			IsAuthenticated: false,
+			Sender:          &Host{},
+			Reason: fmt.Sprintf("Host {%v} cannot be "+
+				"unmarshaled: %s", msg.ID, err),
+		}, nil
 	}
 
 	// Try to obtain the Host for the specified ID
@@ -265,7 +271,7 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) (*Auth,
 		return &Auth{
 			IsAuthenticated: false,
 			Sender:          &Host{},
-			Reason:          "Host not found",
+			Reason:          fmt.Sprintf("Host {%s} cannot be found", msgID),
 		}, nil
 	}
 
@@ -274,16 +280,37 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) (*Auth,
 		return &Auth{
 			IsAuthenticated: false,
 			Sender:          host,
-			Reason:          "Token cannot be unmarshaled",
+			Reason:          fmt.Sprintf("Token {%v} cannot be unmarshaled", msg.Token),
 		}, nil
 	}
 
-	// Check the token's validity
+	// get the hosts reception token
 	receptionToken, ok := host.receptionToken.Get()
+	if !ok {
+		return &Auth{
+			IsAuthenticated: false,
+			Sender:          host,
+			Reason: fmt.Sprintf("failed to authenticate token %v, "+
+				"no reception token for %s", remoteToken, host.id),
+		}, nil
+	}
+
+	// check if the tokens are the same
+	if !receptionToken.Equals(remoteToken) {
+		return &Auth{
+			IsAuthenticated: false,
+			Sender:          host,
+			Reason: fmt.Sprintf("failed to authenticate token %v, "+
+				"does not match reception token %v for %s", remoteToken,
+				receptionToken, host.id),
+		}, nil
+	}
+
 	// Assemble the Auth object
 	res := &Auth{
-		IsAuthenticated: ok && receptionToken.Equals(remoteToken),
+		IsAuthenticated: true,
 		Sender:          host,
+		Reason:          "authenticated",
 	}
 
 	jww.TRACE.Printf("Authentication status: %v, ProvidedId: %v ProvidedToken: %v",

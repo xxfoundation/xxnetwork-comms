@@ -53,10 +53,10 @@ type Host struct {
 	/* Tokens shared with this Host establishing reverse authentication */
 
 	//  Live used for receiving from this host
-	receptionToken token.Live
+	receptionToken *token.Live
 
 	// Live used for sending to this host
-	transmissionToken token.Live
+	transmissionToken *token.Live
 
 	// Configure the maximum number of connection attempts
 	maxRetries int

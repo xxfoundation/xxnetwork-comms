@@ -28,7 +28,6 @@ func Unmarshal(newVal []byte) (Token, error) {
 	var t Token
 	copy(t[:], newVal)
 	return t, nil
-
 }
 
 func (t Token) Marshal() []byte {
@@ -36,21 +35,21 @@ func (t Token) Marshal() []byte {
 }
 
 func (t Token) Equals(u Token) bool {
-	return bytes.Equal(t[:],u[:])
+	return bytes.Equal(t[:], u[:])
 }
 
 // Represents a reverse-authentication token
 type Live struct {
 	mux sync.RWMutex
-	t Token
-	clear bool
+	t   Token
+	has bool
 }
 
 // Constructor which initializes a token for
 // use by the associated host object
-func NewLive() Live {
-	return Live{
-		clear: true,
+func NewLive() *Live {
+	return &Live{
+		has: false,
 	}
 }
 
@@ -58,31 +57,33 @@ func NewLive() Live {
 func (l *Live) Get() (Token, bool) {
 	l.mux.RLock()
 	defer l.mux.RUnlock()
-	return l.t, !l.clear
+	var tCopy Token
+	copy(tCopy[:], l.t[:])
+	return tCopy, l.has
 }
 
 // Get reads and returns the token
 func (l *Live) GetBytes() []byte {
 	t, ok := l.Get()
-	if !ok{
+	if !ok {
 		return nil
-	}else{
+	} else {
 		return t[:]
 	}
 }
 
 //Returns true if a token is present
-func (l *Live) Has()bool {
+func (l *Live) Has() bool {
 	l.mux.RLock()
 	defer l.mux.RUnlock()
-	return !l.clear
+	return l.has
 }
 
 // Set rewrites the token for negotiation or renegotiation
 func (l *Live) Set(newToken Token) {
 	l.mux.Lock()
-	l.t = newToken
-	l.clear = false
+	copy(l.t[:], newToken[:])
+	l.has = true
 	l.mux.Unlock()
 }
 
@@ -90,9 +91,9 @@ func (l *Live) Set(newToken Token) {
 // as store will not let you do this explicitly
 func (l *Live) Clear() {
 	l.mux.Lock()
-	l.t = Token{}
-	l.clear = true
+	for i := 0; i < len(l.t); i++ {
+		l.t[i] = 0
+	}
+	l.has = false
 	l.mux.Unlock()
 }
-
-
