@@ -45,43 +45,41 @@ func (c *ProtoComms) transmit(host *Host, f func(conn *grpc.ClientConn) (interfa
 	return nil, err
 }
 
-func (c *ProtoComms) connect(host *Host, oldCount uint64) (uint64, error) {
+func (c *ProtoComms) connect(host *Host, count uint64) (uint64, error) {
 	host.sendMux.Lock()
 	defer host.sendMux.Unlock()
 
 	//if the connection is alive return, it is possible for another transmission
 	//to connect between releasing the read lock and taking the write lick
-	if host.isAlive() {
-		return oldCount, nil
-	}
-
-	//connect to host
-	jww.INFO.Printf("Host %s not connected, attempting to connect...",
-		host.id)
-	err := host.connect()
-
-	//if connection cannot be made, do not retry
-	if err != nil {
-		host.disconnect()
-		return oldCount, errors.WithMessagef(err, "Failed to connect to Host %s",
+	if !host.isAlive() {
+		//connect to host
+		jww.INFO.Printf("Host %s not connected, attempting to connect...",
 			host.id)
+		err := host.connect()
+
+		count = host.connectionCount
+
+		//if connection cannot be made, do not retry
+		if err != nil {
+			host.disconnect()
+			return count, errors.WithMessagef(err, "Failed to connect to Host %s",
+				host.id)
+		}
 	}
 
 	//check if authentication is needed
-	if !host.authenticationRequired() {
-		return host.connectionCount, nil
+	if host.authenticationRequired() {
+		jww.INFO.Printf("Attempting to establish authentication with host %s",
+			host.id)
+		err := c.clientHandshake(host)
+
+		//if authentication cannot be made, do not retry
+		if err != nil {
+			host.disconnect()
+			return count, errors.WithMessagef(err, "Failed to authenticate with "+
+				"host: %s", host.id)
+		}
 	}
 
-	jww.INFO.Printf("Attempting to establish authentication with host %s",
-		host.id)
-	err = c.clientHandshake(host)
-
-	//if authentication cannot be made, do not retry
-	if err != nil {
-		host.disconnect()
-		return host.connectionCount, errors.WithMessagef(err, "Failed to authenticate with "+
-			"host: %s", host.id)
-	}
-
-	return host.connectionCount, nil
+	return count, nil
 }

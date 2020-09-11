@@ -169,7 +169,6 @@ func (h *Host) Disconnect() {
 	defer h.sendMux.Unlock()
 
 	h.disconnect()
-	h.transmissionToken.Clear()
 }
 
 // ConditionalDisconnect closes a the Host connection under the write lock only
@@ -180,7 +179,6 @@ func (h *Host) ConditionalDisconnect(count uint64) {
 
 	if count == h.connectionCount {
 		h.disconnect()
-		h.transmissionToken.Clear()
 	}
 }
 
@@ -220,8 +218,6 @@ func (h *Host) transmit(f func(conn *grpc.ClientConn) (interface{},
 
 // connect attempts to connect to the host if it does not have a valid connection
 func (h *Host) connect() error {
-	h.disconnect()
-	h.transmissionToken.Clear()
 
 	//connect to remote
 	if err := h.connectHelper(); err != nil {
@@ -237,7 +233,7 @@ func (h *Host) connect() error {
 // the remote.  This is used exclusivly under the lock in protocoms.transmit so
 // no lock is needed
 func (h *Host) authenticationRequired() bool {
-	return h.enableAuth && h.transmissionToken.Has()
+	return h.enableAuth && !h.transmissionToken.Has()
 }
 
 // isAlive returns true if the connection is non-nil and alive
