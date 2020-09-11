@@ -102,6 +102,9 @@ func (s *Comms) getPostPhaseStream(host *connect.Host,
 
 	// Create the Stream Function
 	f := func(conn *grpc.ClientConn) (interface{}, error) {
+		a, err := connect.UnpackAuthenticatedContext(ctx)
+		jww.ERROR.Printf("Unpacked context: %v, %s", a, err)
+
 		// Get the stream client
 		streamClient, err := pb.NewNodeClient(conn).StreamPostPhase(ctx)
 		if err != nil {
