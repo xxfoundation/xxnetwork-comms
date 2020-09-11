@@ -83,5 +83,5 @@ func (c *ProtoComms) connect(host *Host, oldCount uint64) (uint64, error) {
 			"host: %s", host.id)
 	}
 
-	return nil
+	return host.connectionCount, nil
 }
