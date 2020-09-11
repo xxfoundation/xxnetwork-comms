@@ -22,7 +22,7 @@ func TestNewToken(t *testing.T) {
 			"\n\tExpected: %v"+
 			"\n\tReceived: %v", nil, newToken.t)
 	}
-	if !newToken.clear {
+	if newToken.has {
 		t.Errorf("New token'starts off not clear.")
 	}
 }
@@ -32,7 +32,7 @@ func TestToken_SetToken(t *testing.T) {
 	newToken := NewLive()
 	expectedVal := []byte("testToken")
 	tkn := Token{}
-	copy(tkn[:],expectedVal)
+	copy(tkn[:], expectedVal)
 
 	// Set token's value
 	newToken.Set(tkn)
@@ -57,7 +57,7 @@ func TestToken_GetToken(t *testing.T) {
 	// Set a new value for token
 	expectedVal := []byte("testToken")
 	tkn := Token{}
-	copy(tkn[:],expectedVal)
+	copy(tkn[:], expectedVal)
 	newToken.Set(tkn)
 
 	// Test that the new value is successfully retrieved by Get
