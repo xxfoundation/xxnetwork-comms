@@ -11,6 +11,7 @@ import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/node"
 	"gitlab.com/xx_network/comms/connect"
+	"gitlab.com/xx_network/comms/gossip"
 	"gitlab.com/xx_network/primitives/id"
 	"testing"
 )
@@ -21,7 +22,7 @@ func TestPostNewBatch(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	testID := id.NewIdFromString("test", id.Generic, t)
 	gateway := StartGateway(testID, GatewayAddress, NewImplementation(), nil,
-		nil)
+		nil, gossip.DefaultManagerFlags())
 	server := node.StartNode(testID, ServerAddress, 0, node.NewImplementation(),
 		nil, nil)
 	defer gateway.Shutdown()
@@ -47,7 +48,7 @@ func TestGetRoundBufferInfo(t *testing.T) {
 	testID := id.NewIdFromString("test", id.Gateway, t)
 	nodeID := id.NewIdFromString("test", id.Node, t)
 	gateway := StartGateway(testID, GatewayAddress, NewImplementation(), nil,
-		nil)
+		nil, gossip.DefaultManagerFlags())
 	server := node.StartNode(nodeID, ServerAddress, 0, node.NewImplementation(),
 		nil, nil)
 	defer gateway.Shutdown()
@@ -75,7 +76,7 @@ func TestGetCompletedBatch(t *testing.T) {
 	testID := id.NewIdFromString("test", id.Gateway, t)
 	nodeID := id.NewIdFromString("test", id.Node, t)
 	gateway := StartGateway(testID, GatewayAddress, NewImplementation(), nil,
-		nil)
+		nil, gossip.DefaultManagerFlags())
 	server := node.StartNode(nodeID, ServerAddress, 0, node.NewImplementation(),
 		nil, nil)
 	defer gateway.Shutdown()

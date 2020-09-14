@@ -97,7 +97,7 @@ func TestPhase_StreamPostPhaseSendReceive(t *testing.T) {
 		ack, err := streamClient.CloseAndRecv()
 
 		if err != nil {
-			t.Errorf("Failed to close and receive stream")
+			t.Errorf("Failed to close and receive stream: %+v", err)
 		}
 
 		if ack != nil && ack.Error != "" {

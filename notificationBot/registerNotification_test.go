@@ -13,6 +13,7 @@ import (
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/testkeys"
 	"gitlab.com/xx_network/comms/connect"
+	"gitlab.com/xx_network/comms/gossip"
 	"gitlab.com/xx_network/primitives/id"
 	"testing"
 )
@@ -34,7 +35,9 @@ func TestRegisterForNotifications(t *testing.T) {
 		NewImplementation(), certData, keyData)
 	defer notificationBot.Shutdown()
 	//Init Gateway
-	gw := gateway.StartGateway(testId, getNextAddress(), gateway.NewImplementation(), nil, nil)
+	gw := gateway.StartGateway(testId, getNextAddress(),
+		gateway.NewImplementation(), nil, nil,
+		gossip.DefaultManagerFlags())
 	defer gw.Shutdown()
 
 	ctx, _ := context.WithCancel(context.Background())

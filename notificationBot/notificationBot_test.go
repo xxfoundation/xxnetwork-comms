@@ -12,6 +12,7 @@ import (
 	"gitlab.com/elixxir/comms/gateway"
 	"gitlab.com/elixxir/comms/testkeys"
 	"gitlab.com/xx_network/comms/connect"
+	"gitlab.com/xx_network/comms/gossip"
 	"gitlab.com/xx_network/primitives/id"
 	"sync"
 	"testing"
@@ -42,7 +43,7 @@ func TestTLS(t *testing.T) {
 	// Start up a registration server
 	regAddress := getNextAddress()
 	gw := gateway.StartGateway(testId, regAddress, gateway.NewImplementation(),
-		certData, keyData)
+		certData, keyData, gossip.DefaultManagerFlags())
 	defer gw.Shutdown()
 
 	// Start up the notification bot
@@ -88,7 +89,7 @@ func TestComms_RequestNotifications(t *testing.T) {
 	testID := id.NewIdFromString("test", id.Generic, t)
 
 	gw := gateway.StartGateway(testID, GatewayAddress, gateway.NewImplementation(), nil,
-		nil)
+		nil, gossip.DefaultManagerFlags())
 	notificationBot := StartNotificationBot(testID, nbAddress, NewImplementation(),
 		nil, nil)
 	defer gw.Shutdown()
