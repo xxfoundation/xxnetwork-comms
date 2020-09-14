@@ -21,7 +21,6 @@ import (
 	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/keepalive"
-	"math"
 	"net"
 	"sync"
 	"sync/atomic"
@@ -60,7 +59,7 @@ type Host struct {
 	transmissionToken *token.Live
 
 	// Configure the maximum number of connection attempts
-	maxRetries int
+	maxRetries uint
 
 	// GRPC connection object
 	connection      *grpc.ClientConn
@@ -84,26 +83,19 @@ type Host struct {
 }
 
 // Creates a new Host object
-func NewHost(id *id.ID, address string, cert []byte, disableTimeout,
-	enableAuth bool) (host *Host, err error) {
+func NewHost(id *id.ID, address string, cert []byte, params HostParams) (host *Host, err error) {
 
 	// Initialize the Host object
 	host = &Host{
 		id:                id,
 		certificate:       cert,
-		enableAuth:        enableAuth,
+		enableAuth:        params.AuthEnabled,
 		transmissionToken: token.NewLive(),
 		receptionToken:    token.NewLive(),
+		maxRetries:        params.MaxRetries,
 	}
 
 	host.UpdateAddress(address)
-
-	// Set the max number of retries for establishing a connection
-	if disableTimeout {
-		host.maxRetries = math.MaxInt32
-	} else {
-		host.maxRetries = 100
-	}
 
 	// Configure the host credentials
 	err = host.setCredentials()
@@ -289,7 +281,8 @@ func (h *Host) connectHelper() (err error) {
 		" credentials: %+v", h.GetAddress(), securityDial)
 
 	// Attempt to establish a new connection
-	for numRetries := 0; numRetries < h.maxRetries && !h.isAlive(); numRetries++ {
+	var numRetries uint
+	for numRetries = 0; numRetries < h.maxRetries && !h.isAlive(); numRetries++ {
 		h.disconnect()
 
 		jww.INFO.Printf("Connecting to %+v. Attempt number %+v of %+v",
