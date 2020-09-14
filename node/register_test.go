@@ -25,7 +25,7 @@ func TestSendNodeRegistration(t *testing.T) {
 		registration.NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	defer reg.Shutdown()
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
 	host, err := manager.AddHost(testId, RegAddress, nil, false, false)
 	if err != nil {
@@ -49,7 +49,7 @@ func TestComms_SendPoll(t *testing.T) {
 		registration.NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	defer reg.Shutdown()
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
 	host, err := manager.AddHost(testId, RegAddress, nil, false, false)
 	if err != nil {
@@ -80,7 +80,7 @@ func TestComms_SendRegistrationCheck(t *testing.T) {
 		registration.NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	defer reg.Shutdown()
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
 	host, err := manager.AddHost(testId, RegAddress, nil, false, false)
 	if err != nil {

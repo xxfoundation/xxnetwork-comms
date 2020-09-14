@@ -23,7 +23,7 @@ func TestSendPutMessage(t *testing.T) {
 		gateway.NewImplementation(), nil, nil)
 	defer gw.Shutdown()
 	var c Comms
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
 	host, err := manager.AddHost(testID, gatewayAddress, nil, false, false)
 	if err != nil {
@@ -44,7 +44,7 @@ func TestSendCheckMessages(t *testing.T) {
 		gateway.NewImplementation(), nil, nil)
 	var c Comms
 	defer gw.Shutdown()
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
 	host, err := manager.AddHost(testID, gatewayAddress, nil, false, false)
 	if err != nil {
@@ -69,7 +69,7 @@ func TestSendGetMessage(t *testing.T) {
 	var c Comms
 	defer gw.Shutdown()
 
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
 	host, err := manager.AddHost(testID, gatewayAddress, nil, false, false)
 	if err != nil {
@@ -93,7 +93,7 @@ func TestSendRequestNonceMessage(t *testing.T) {
 		gateway.NewImplementation(), nil, nil)
 	defer gw.Shutdown()
 	var c Comms
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
 	host, err := manager.AddHost(testID, gatewayAddress, nil, false, false)
 	if err != nil {
@@ -114,7 +114,7 @@ func TestSendConfirmNonceMessage(t *testing.T) {
 		gateway.NewImplementation(), nil, nil)
 	defer gw.Shutdown()
 	var c Comms
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
 	host, err := manager.AddHost(testID, gatewayAddress, nil, false, false)
 	if err != nil {
@@ -136,7 +136,7 @@ func TestComms_SendPoll(t *testing.T) {
 		gateway.NewImplementation(), nil, nil)
 	defer gw.Shutdown()
 	var c Comms
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
 	host, err := manager.AddHost(testID, gatewayAddress, nil, false, false)
 	if err != nil {

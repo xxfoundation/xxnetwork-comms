@@ -31,7 +31,7 @@ func TestRegisterForNotifications(t *testing.T) {
 	if err != nil {
 		t.Errorf("Can't create client comms: %+v", err)
 	}
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
 	// Add notification bot to comm's manager
 	host, err := manager.AddHost(testId, nbAddress, nil, false, false)
@@ -63,7 +63,7 @@ func TestUnregisterForNotifications(t *testing.T) {
 	if err != nil {
 		t.Errorf("Can't create client comms: %+v", err)
 	}
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
 	// Add notification bot to comm's manager
 	host, err := manager.AddHost(testId, nbAddress, nil, false, false)

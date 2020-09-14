@@ -23,7 +23,7 @@ func TestSendAskOnline(t *testing.T) {
 	testID := id.NewIdFromString("test", id.Node, t)
 	server := StartNode(testID, ServerAddress, NewImplementation(), nil, nil)
 	defer server.Shutdown()
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
 	host, err := manager.AddHost(testID, ServerAddress, nil, false, false)
 	if err != nil {
@@ -42,7 +42,7 @@ func TestSendFinishRealtime(t *testing.T) {
 	testID := id.NewIdFromString("test", id.Node, t)
 	server := StartNode(testID, ServerAddress, NewImplementation(), nil, nil)
 	defer server.Shutdown()
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
 	host, err := manager.AddHost(testID, ServerAddress, nil, false, false)
 	if err != nil {
@@ -61,7 +61,7 @@ func TestSendNewRound(t *testing.T) {
 	testId := id.NewIdFromString("test", id.Node, t)
 	server := StartNode(testId, ServerAddress, NewImplementation(), nil, nil)
 	defer server.Shutdown()
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
 	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
 	if err != nil {
@@ -80,7 +80,7 @@ func TestSendPostPhase(t *testing.T) {
 	testId := id.NewIdFromString("test", id.Node, t)
 	server := StartNode(testId, ServerAddress, NewImplementation(), nil, nil)
 	defer server.Shutdown()
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
 	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
 	if err != nil {
@@ -99,7 +99,7 @@ func TestSendPostRoundPublicKey(t *testing.T) {
 	testId := id.NewIdFromString("test", id.Node, t)
 	server := StartNode(testId, ServerAddress, NewImplementation(), nil, nil)
 	defer server.Shutdown()
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
 	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
 	if err != nil {
@@ -118,7 +118,7 @@ func TestSendPostPrecompResult(t *testing.T) {
 	testId := id.NewIdFromString("test", id.Node, t)
 	server := StartNode(testId, ServerAddress, NewImplementation(), nil, nil)
 	defer server.Shutdown()
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
 	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
 	if err != nil {
@@ -146,7 +146,7 @@ func TestSendGetMeasure(t *testing.T) {
 	impl.Functions.GetMeasure = mockMeasure
 	server := StartNode(testId, ServerAddress, impl, nil, nil)
 	defer server.Shutdown()
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
 	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
 	if err != nil {
@@ -179,7 +179,7 @@ func TestSendGetMeasureError(t *testing.T) {
 	ri := pb.RoundInfo{
 		ID: uint64(3),
 	}
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
 	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
 	if err != nil {
@@ -198,7 +198,7 @@ func TestRoundTripPing(t *testing.T) {
 	testId := id.NewIdFromString("test", id.Node, t)
 	server := StartNode(testId, ServerAddress, impl, nil, nil)
 	defer server.Shutdown()
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
 	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
 	if err != nil {
@@ -228,7 +228,7 @@ func TestSendRoundError(t *testing.T) {
 	testId := id.NewIdFromString("test", id.Node, t)
 	server := StartNode(testId, ServerAddress, NewImplementation(), nil, nil)
 	defer server.Shutdown()
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
 	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
 	if err != nil {

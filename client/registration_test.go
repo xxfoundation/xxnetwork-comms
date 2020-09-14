@@ -30,7 +30,7 @@ func TestSendRegistrationMessage(t *testing.T) {
 	if err != nil {
 		t.Errorf("Can't create client comms: %+v", err)
 	}
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
 	host, err := manager.AddHost(testId, GatewayAddress, nil, false, false)
 	if err != nil {
@@ -56,7 +56,7 @@ func TestSendCheckClientVersionMessage(t *testing.T) {
 	if err != nil {
 		t.Errorf("Can't create client comms: %+v", err)
 	}
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
 	host, err := manager.AddHost(testId, GatewayAddress, nil, false, false)
 	if err != nil {
@@ -82,7 +82,7 @@ func TestSendGetUpdatedNDF(t *testing.T) {
 	if err != nil {
 		t.Errorf("Can't create client comms: %+v", err)
 	}
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
 	host, err := manager.AddHost(testId, GatewayAddress, nil, false, false)
 	if err != nil {

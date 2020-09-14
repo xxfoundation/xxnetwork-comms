@@ -27,7 +27,7 @@ func TestSendRequestNonceMessage(t *testing.T) {
 		nil, nil)
 	defer gateway.Shutdown()
 	defer server.Shutdown()
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
 	host, err := manager.AddHost(testID, ServerAddress, nil, false, false)
 	if err != nil {
@@ -57,7 +57,7 @@ func TestSendConfirmNonceMessage(t *testing.T) {
 		nil, nil)
 	defer gateway.Shutdown()
 	defer server.Shutdown()
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
 	host, err := manager.AddHost(testID, ServerAddress, nil, false, false)
 	if err != nil {
@@ -83,7 +83,7 @@ func TestPoll(t *testing.T) {
 		nil, nil)
 	defer gateway.Shutdown()
 	defer server.Shutdown()
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
 	host, err := manager.AddHost(testID, ServerAddress, nil, false, false)
 	if err != nil {
