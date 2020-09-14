@@ -57,7 +57,7 @@ func TestTLS(t *testing.T) {
 	defer gateway.Shutdown()
 	ServerAddress := getNextServerAddress()
 	testNodeID := id.NewIdFromString("test", id.Node, t)
-	server := node.StartNode(testNodeID, ServerAddress, node.NewImplementation(),
+	server := node.StartNode(testNodeID, ServerAddress, 0, node.NewImplementation(),
 		certData, keyData)
 	defer server.Shutdown()
 	var manager connect.Manager

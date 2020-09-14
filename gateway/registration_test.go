@@ -24,7 +24,7 @@ func TestSendRequestNonceMessage(t *testing.T) {
 	testID := id.NewIdFromString("test", id.Generic, t)
 	gateway := StartGateway(testID, GatewayAddress, NewImplementation(), nil,
 		nil, gossip.DefaultManagerFlags())
-	server := node.StartNode(testID, ServerAddress, node.NewImplementation(),
+	server := node.StartNode(testID, ServerAddress, 0, node.NewImplementation(),
 		nil, nil)
 	defer gateway.Shutdown()
 	defer server.Shutdown()
@@ -54,7 +54,7 @@ func TestSendConfirmNonceMessage(t *testing.T) {
 	testID := id.NewIdFromString("test", id.Generic, t)
 	gateway := StartGateway(testID, GatewayAddress, NewImplementation(), nil,
 		nil, gossip.DefaultManagerFlags())
-	server := node.StartNode(testID, ServerAddress, node.NewImplementation(),
+	server := node.StartNode(testID, ServerAddress, 0, node.NewImplementation(),
 		nil, nil)
 	defer gateway.Shutdown()
 	defer server.Shutdown()
@@ -80,7 +80,7 @@ func TestPoll(t *testing.T) {
 	testID := id.NewIdFromString("test", id.Generic, t)
 	gateway := StartGateway(testID, GatewayAddress, NewImplementation(), nil,
 		nil, gossip.DefaultManagerFlags())
-	server := node.StartNode(testID, ServerAddress, node.NewImplementation(),
+	server := node.StartNode(testID, ServerAddress, 0, node.NewImplementation(),
 		nil, nil)
 	defer gateway.Shutdown()
 	defer server.Shutdown()
