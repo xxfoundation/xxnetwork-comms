@@ -27,7 +27,9 @@ func TestSendNodeRegistration(t *testing.T) {
 	defer reg.Shutdown()
 	manager := connect.NewManagerTesting(t)
 
-	host, err := manager.AddHost(testId, RegAddress, nil, false, false)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testId, RegAddress, nil, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -51,7 +53,9 @@ func TestComms_SendPoll(t *testing.T) {
 	defer reg.Shutdown()
 	manager := connect.NewManagerTesting(t)
 
-	host, err := manager.AddHost(testId, RegAddress, nil, false, false)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testId, RegAddress, nil, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -82,7 +86,9 @@ func TestComms_SendRegistrationCheck(t *testing.T) {
 	defer reg.Shutdown()
 	manager := connect.NewManagerTesting(t)
 
-	host, err := manager.AddHost(testId, RegAddress, nil, false, false)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testId, RegAddress, nil, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}

@@ -207,7 +207,7 @@ func setupComm(t *testing.T) (*Instance, *mixmessages.NDF) {
 		t.Error(nil)
 	}
 
-	_, err = i.comm.AddHost(&id.Permissioning, "0.0.0.0:4200", pub, false, true)
+	_, err = i.comm.AddHost(&id.Permissioning, "0.0.0.0:4200", pub, connect.GetDefaultHostParams())
 	if err != nil {
 		t.Errorf("Failed to add permissioning host: %+v", err)
 	}
@@ -235,7 +235,7 @@ func TestInstance_RoundUpdate(t *testing.T) {
 		t.Error("Should have failed to get perm host")
 	}
 
-	_, err = i.comm.AddHost(&id.Permissioning, "0.0.0.0:4200", pub, false, true)
+	_, err = i.comm.AddHost(&id.Permissioning, "0.0.0.0:4200", pub, connect.GetDefaultHostParams())
 	if err != nil {
 		t.Errorf("failed to add bad host: %+v", err)
 	}

@@ -25,7 +25,9 @@ func TestSendAskOnline(t *testing.T) {
 	defer server.Shutdown()
 	manager := connect.NewManagerTesting(t)
 
-	host, err := manager.AddHost(testID, ServerAddress, nil, false, false)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testID, ServerAddress, nil, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -44,7 +46,9 @@ func TestSendFinishRealtime(t *testing.T) {
 	defer server.Shutdown()
 	manager := connect.NewManagerTesting(t)
 
-	host, err := manager.AddHost(testID, ServerAddress, nil, false, false)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testID, ServerAddress, nil, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -63,7 +67,9 @@ func TestSendNewRound(t *testing.T) {
 	defer server.Shutdown()
 	manager := connect.NewManagerTesting(t)
 
-	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testId, ServerAddress, nil, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -82,7 +88,9 @@ func TestSendPostPhase(t *testing.T) {
 	defer server.Shutdown()
 	manager := connect.NewManagerTesting(t)
 
-	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testId, ServerAddress, nil, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -101,7 +109,9 @@ func TestSendPostRoundPublicKey(t *testing.T) {
 	defer server.Shutdown()
 	manager := connect.NewManagerTesting(t)
 
-	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testId, ServerAddress, nil, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -120,7 +130,9 @@ func TestSendPostPrecompResult(t *testing.T) {
 	defer server.Shutdown()
 	manager := connect.NewManagerTesting(t)
 
-	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testId, ServerAddress, nil, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -148,7 +160,9 @@ func TestSendGetMeasure(t *testing.T) {
 	defer server.Shutdown()
 	manager := connect.NewManagerTesting(t)
 
-	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testId, ServerAddress, nil, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -181,7 +195,9 @@ func TestSendGetMeasureError(t *testing.T) {
 	}
 	manager := connect.NewManagerTesting(t)
 
-	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testId, ServerAddress, nil, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -200,7 +216,9 @@ func TestRoundTripPing(t *testing.T) {
 	defer server.Shutdown()
 	manager := connect.NewManagerTesting(t)
 
-	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testId, ServerAddress, nil, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -230,7 +248,9 @@ func TestSendRoundError(t *testing.T) {
 	defer server.Shutdown()
 	manager := connect.NewManagerTesting(t)
 
-	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testId, ServerAddress, nil, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}

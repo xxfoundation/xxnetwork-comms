@@ -53,7 +53,9 @@ func TestTLS(t *testing.T) {
 	manager := connect.NewManagerTesting(t)
 
 	// Add the host object to the manager
-	host, err := manager.AddHost(testId, regAddress, certData, false, false)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testId, regAddress, certData, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -95,7 +97,9 @@ func TestComms_RequestNotifications(t *testing.T) {
 	defer notificationBot.Shutdown()
 	manager := connect.NewManagerTesting(t)
 
-	host, err := manager.AddHost(testID, GatewayAddress, nil, false, false)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testID, GatewayAddress, nil, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}

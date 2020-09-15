@@ -34,7 +34,9 @@ func TestRegisterForNotifications(t *testing.T) {
 	manager := connect.NewManagerTesting(t)
 
 	// Add notification bot to comm's manager
-	host, err := manager.AddHost(testId, nbAddress, nil, false, false)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testId, nbAddress, nil, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -66,7 +68,9 @@ func TestUnregisterForNotifications(t *testing.T) {
 	manager := connect.NewManagerTesting(t)
 
 	// Add notification bot to comm's manager
-	host, err := manager.AddHost(testId, nbAddress, nil, false, false)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testId, nbAddress, nil, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
