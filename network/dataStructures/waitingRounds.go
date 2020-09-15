@@ -130,15 +130,20 @@ func (wr *WaitingRounds) getFurthest(exclude *set.Set) *pb.RoundInfo {
 	return nil
 }
 
-// GetSlice returns a slice of all round infos in the list
+// GetSlice returns a slice of all round infos in the list that have yet to
+// occur.
 func (wr *WaitingRounds) GetSlice() []*pb.RoundInfo {
 	wr.mux.RLock()
 	defer wr.mux.RUnlock()
 
-	roundInfos := make([]*pb.RoundInfo, wr.Len())
+	now := uint64(time.Now().Nanosecond())
+
+	var roundInfos []*pb.RoundInfo
 
 	for e, i := wr.rounds.Front(), 0; e != nil; e, i = e.Next(), i+1 {
-		roundInfos[i] = e.Value.(*pb.RoundInfo)
+		if getTime(e.Value.(*pb.RoundInfo)) > now {
+			roundInfos = append(roundInfos, e.Value.(*pb.RoundInfo))
+		}
 	}
 
 	// Return the last round in the list, which is the furthest in the future
