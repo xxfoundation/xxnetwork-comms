@@ -181,13 +181,34 @@ func TestWaitingRounds_GetUpcomingRealtime(t *testing.T) {
 	}
 }
 
+// Happy path of WaitingRounds.GetSlice().
+func TestWaitingRounds_GetSlice(t *testing.T) {
+	// Generate rounds and add to new list
+	expectedRounds, testRounds := createTestRoundInfos(25)
+	testWR := NewWaitingRounds()
+	testRounds = append(testRounds, &pb.RoundInfo{
+		ID:         rand.Uint64(),
+		State:      uint32(states.QUEUED),
+		Timestamps: []uint64{0, 0, 0, 0, 0}})
+	for _, round := range testRounds {
+		testWR.Insert(round)
+	}
+
+	testSlice := testWR.GetSlice()
+	if !reflect.DeepEqual(expectedRounds, testSlice) {
+		t.Errorf("GetSlice() returned slice with incorrect rounds."+
+			"\n\texepcted: %v\n\treceived: %v",
+			expectedRounds, testSlice)
+	}
+}
+
 // Generates two lists of round infos. The first is the expected rounds in the
 // correct order after inserting the second list of random round infos.
 func createTestRoundInfos(num int) ([]*pb.RoundInfo, []*pb.RoundInfo) {
 	rounds := make([]*pb.RoundInfo, num)
 	var expectedRounds []*pb.RoundInfo
 	randomRounds := make([]*pb.RoundInfo, num)
-	timeTrack := rand.Uint64()
+	timeTrack := uint64(time.Now().Nanosecond()) + 1000000
 
 	for i := 0; i < num; i++ {
 		rounds[i] = &pb.RoundInfo{
@@ -213,21 +234,4 @@ func createTestRoundInfos(num int) ([]*pb.RoundInfo, []*pb.RoundInfo) {
 	}
 
 	return expectedRounds, randomRounds
-}
-
-// Happy path of WaitingRounds.GetSlice().
-func TestWaitingRounds_GetSlice(t *testing.T) {
-	// Generate rounds and add to new list
-	expectedRounds, testRounds := createTestRoundInfos(25)
-	testWR := NewWaitingRounds()
-	for _, round := range testRounds {
-		testWR.Insert(round)
-	}
-
-	testSlice := testWR.GetSlice()
-	if !reflect.DeepEqual(expectedRounds, testSlice) {
-		t.Errorf("GetSlice() returned slice with incorrect rounds."+
-			"\n\texepcted: %v\n\treceived: %v",
-			expectedRounds, testSlice)
-	}
 }
