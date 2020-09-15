@@ -32,7 +32,9 @@ func TestSendRegistrationMessage(t *testing.T) {
 	}
 	manager := connect.NewManagerTesting(t)
 
-	host, err := manager.AddHost(testId, GatewayAddress, nil, false, false)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testId, GatewayAddress, nil, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -58,7 +60,9 @@ func TestSendCheckClientVersionMessage(t *testing.T) {
 	}
 	manager := connect.NewManagerTesting(t)
 
-	host, err := manager.AddHost(testId, GatewayAddress, nil, false, false)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testId, GatewayAddress, nil, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -84,7 +88,9 @@ func TestSendGetUpdatedNDF(t *testing.T) {
 	}
 	manager := connect.NewManagerTesting(t)
 
-	host, err := manager.AddHost(testId, GatewayAddress, nil, false, false)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testId, GatewayAddress, nil, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -135,7 +141,9 @@ func TestProtoComms_PollNdf(t *testing.T) {
 		t.Logf("RequestNdf should have failed to parse bad ndf: %+v", err)
 		t.Fail()
 	}
-	_, err = c.ProtoComms.AddHost(&id.Permissioning, RegistrationAddr, nil, false, false)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	_, err = c.ProtoComms.AddHost(&id.Permissioning, RegistrationAddr, nil, params)
 	if err != nil {
 		t.Errorf("Failed to add permissioning as a host: %+v", err)
 	}
@@ -166,7 +174,9 @@ func TestProtoComms_PollNdfRepeatedly(t *testing.T) {
 	defer mockPermServer.Shutdown()
 
 	// Add the host to the comms object
-	_, err = c.ProtoComms.AddHost(&id.Permissioning, RegistrationAddrErr, nil, false, false)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	_, err = c.ProtoComms.AddHost(&id.Permissioning, RegistrationAddrErr, nil, params)
 	if err != nil {
 		t.Errorf("Failed to add permissioning as a host: %+v", err)
 	}
