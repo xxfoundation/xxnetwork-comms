@@ -73,6 +73,7 @@ func StartGateway(id *id.ID, localServer string, handler Handler,
 	go func() {
 		pb.RegisterGatewayServer(gatewayServer.LocalServer, &gatewayServer)
 		messages.RegisterGenericServer(gatewayServer.LocalServer, &gatewayServer)
+		gossip.RegisterGossipServer(gatewayServer.LocalServer, gatewayServer.Manager)
 
 		// Register reflection service on gRPC server.
 		// This blocks for the lifetime of the listener.
