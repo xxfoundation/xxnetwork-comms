@@ -2,7 +2,7 @@ package connect
 
 // Params object for host creation
 type HostParams struct {
-	MaxRetries  uint
+	MaxRetries  uint32
 	AuthEnabled bool
 }
 
