@@ -48,9 +48,11 @@ func TestTLS(t *testing.T) {
 	// So, we need some way to add a connection to the manager for the client
 	defer rg.Shutdown()
 	var c client.Comms
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
-	host, err := manager.AddHost(testId, RegAddress, certData, false, false)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testId, RegAddress, certData, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}

@@ -413,7 +413,7 @@ func updateConns(def *ndf.NetworkDefinition, comms *connect.ProtoComms, gate, no
 						"hard coded ID. Invalid ID: %v", gwid.Marshal())
 				}
 
-				_, err := comms.AddHost(gwid, addr, []byte(h.TlsCertificate), false, true)
+				_, err := comms.AddHost(gwid, addr, []byte(h.TlsCertificate), connect.GetDefaultHostParams())
 				if err != nil {
 					return errors.WithMessagef(err, "Could not add gateway host %s", gwid)
 				}
@@ -440,7 +440,7 @@ func updateConns(def *ndf.NetworkDefinition, comms *connect.ProtoComms, gate, no
 						"hard coded ID. Invalid ID: %v", nid.Marshal())
 				}
 
-				_, err := comms.AddHost(nid, addr, []byte(h.TlsCertificate), false, true)
+				_, err := comms.AddHost(nid, addr, []byte(h.TlsCertificate), connect.GetDefaultHostParams())
 				if err != nil {
 					return errors.WithMessagef(err, "Could not add node host %s", nid)
 				}
