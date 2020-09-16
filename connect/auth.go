@@ -83,7 +83,7 @@ func (c *ProtoComms) clientHandshake(host *Host) (err error) {
 	if err != nil {
 		return errors.New(err.Error())
 	}
-	jww.ERROR.Printf("negotiatied Remote token: %v", remoteToken)
+	jww.TRACE.Printf("Negotiatied Remote token: %v", remoteToken)
 	// Assign the host token
 	host.transmissionToken.Set(remoteToken)
 
