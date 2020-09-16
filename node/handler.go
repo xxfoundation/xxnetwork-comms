@@ -19,6 +19,7 @@ import (
 	"gitlab.com/xx_network/primitives/id"
 	"google.golang.org/grpc/reflection"
 	"runtime/debug"
+	"strconv"
 )
 
 // Server object used to implement endpoints and top-level comms functionality
@@ -46,7 +47,8 @@ func StartNode(id *id.ID, localServer string, interconnectPort int, handler Hand
 	// Start up interconnect service
 	if interconnectPort != 0 {
 		go func() {
-			interconnect.StartCMixInterconnect(id, string(interconnectPort), handler, certPEMblock, keyPEMblock)
+
+			interconnect.StartCMixInterconnect(id, strconv.Itoa(interconnectPort), handler, certPEMblock, keyPEMblock)
 		}()
 	} else {
 		jww.WARN.Printf("Port for consensus not set, interconnect not started")
