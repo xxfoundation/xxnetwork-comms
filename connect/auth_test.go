@@ -73,7 +73,7 @@ func TestProtoComms_AuthenticatedReceiver(t *testing.T) {
 	copy(tkn[:], expectedVal)
 
 	// Add host
-	_, err := pc.AddHost(testID, "", nil, false, true)
+	_, err := pc.AddHost(testID, "", nil, GetDefaultHostParams())
 	if err != nil {
 		t.Errorf("Failed to add host: %+v", err)
 	}
@@ -123,7 +123,7 @@ func TestProtoComms_AuthenticatedReceiver_BadId(t *testing.T) {
 	copy(tkn[:], expectedVal)
 
 	// Add host
-	_, err := pc.AddHost(testID, "", nil, false, true)
+	_, err := pc.AddHost(testID, "", nil, GetDefaultHostParams())
 	if err != nil {
 		t.Errorf("Failed to add host: %+v", err)
 	}
@@ -196,7 +196,7 @@ func TestProtoComms_PackAuthenticatedMessage(t *testing.T) {
 
 	testId := id.NewIdFromString("test", id.Node, t)
 
-	host, err := NewHost(testId, "test", nil, false, true)
+	host, err := NewHost(testId, "test", nil, GetDefaultHostParams())
 	if err != nil {
 		t.Errorf("Unable to create host: %+v", err)
 	}
@@ -241,7 +241,7 @@ func TestProtoComms_ValidateToken(t *testing.T) {
 	copy(tkn[:], tokenBytes)
 
 	pub := testkeys.LoadFromPath(testkeys.GetNodeCertPath())
-	host, err := comm.AddHost(testId, "test", pub, false, true)
+	host, err := comm.AddHost(testId, "test", pub, GetDefaultHostParams())
 	if err != nil {
 		t.Errorf("Unable to create host: %+v", err)
 	}
@@ -295,7 +295,7 @@ func TestProtoComms_ValidateToken_BadId(t *testing.T) {
 	copy(tkn[:], tokenBytes)
 
 	pub := testkeys.LoadFromPath(testkeys.GetNodeCertPath())
-	host, err := comm.AddHost(testId, "test", pub, false, true)
+	host, err := comm.AddHost(testId, "test", pub, GetDefaultHostParams())
 	if err != nil {
 		t.Errorf("Unable to create host: %+v", err)
 	}

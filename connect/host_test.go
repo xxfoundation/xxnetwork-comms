@@ -18,7 +18,7 @@ func TestHost_address(t *testing.T) {
 	mgr := newManager()
 	testId := id.NewIdFromString("test", id.Node, t)
 	testAddress := "test"
-	host, err := mgr.AddHost(testId, testAddress, nil, false, false)
+	host, err := mgr.AddHost(testId, testAddress, nil, GetDefaultHostParams())
 	if err != nil {
 		t.Errorf("Unable to add host")
 		return
@@ -121,8 +121,7 @@ func TestHost_IsOnline(t *testing.T) {
 
 	// Create the host
 	host, err := NewHost(id.NewIdFromString("test", id.Gateway, t), addr, nil,
-		false,
-		false)
+		GetDefaultHostParams())
 	if err != nil {
 		t.Errorf("Unable to create host: %+v", host)
 		return

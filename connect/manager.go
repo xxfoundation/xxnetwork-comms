@@ -53,7 +53,7 @@ func (m *Manager) GetHost(hostId *id.ID) (*Host, bool) {
 
 // Creates and adds a Host object to the Manager using the given id
 func (m *Manager) AddHost(hid *id.ID, address string,
-	cert []byte, disableTimeout, enableAuth bool) (host *Host, err error) {
+	cert []byte, params HostParams) (host *Host, err error) {
 	m.mux.Lock()
 	defer m.mux.Unlock()
 
@@ -64,7 +64,7 @@ func (m *Manager) AddHost(hid *id.ID, address string,
 	}
 
 	//create the new host
-	host, err = NewHost(hid, address, cert, disableTimeout, enableAuth)
+	host, err = NewHost(hid, address, cert, params)
 	if err != nil {
 		return nil, err
 	}
