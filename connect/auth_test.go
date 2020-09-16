@@ -15,8 +15,8 @@ import (
 	"gitlab.com/elixxir/crypto/signature/rsa"
 	"gitlab.com/elixxir/crypto/xx"
 	"gitlab.com/elixxir/primitives/id"
+	token "gitlab.com/xx_network/comms/connect/token"
 	pb "gitlab.com/xx_network/comms/messages"
-	"sync"
 	"testing"
 )
 
@@ -60,30 +60,32 @@ func TestSignVerify(t *testing.T) {
 func TestProtoComms_AuthenticatedReceiver(t *testing.T) {
 	// Create comm object
 	pc := ProtoComms{
-		Manager:       Manager{},
-		tokens:        sync.Map{},
+		Manager:       newManager(),
+		tokens:        token.NewMap(),
 		LocalServer:   nil,
 		ListeningAddr: "",
 		privateKey:    nil,
 	}
 	// Create id and token
 	testID := id.NewIdFromString("testSender", id.Node, t)
-	token := []byte("testtoken")
+	expectedVal := []byte("testToken")
+	tkn := token.Token{}
+	copy(tkn[:], expectedVal)
 
 	// Add host
-	_, err := pc.AddHost(testID, "", nil, false, true)
+	_, err := pc.AddHost(testID, "", nil, GetDefaultHostParams())
 	if err != nil {
 		t.Errorf("Failed to add host: %+v", err)
 	}
 
 	// Get host
 	h, _ := pc.GetHost(testID)
-	h.receptionToken = token
+	h.receptionToken.Set(tkn)
 
 	msg := &pb.AuthenticatedMessage{
 		ID:        testID.Marshal(),
 		Signature: nil,
-		Token:     token,
+		Token:     tkn.Marshal(),
 		Message:   nil,
 	}
 
@@ -98,8 +100,9 @@ func TestProtoComms_AuthenticatedReceiver(t *testing.T) {
 	}
 
 	// Compare the tokens
-	if !bytes.Equal(auth.Sender.receptionToken, token) {
-		t.Errorf("Tokens do not match! \n\tExptected: %+v\n\tReceived: %+v", token, auth.Sender.receptionToken)
+	if !bytes.Equal(auth.Sender.receptionToken.GetBytes(), tkn[:]) {
+		t.Errorf("Tokens do not match! \n\tExptected: "+
+			"%+v\n\tReceived: %+v", tkn, auth.Sender.receptionToken)
 	}
 }
 
@@ -107,49 +110,51 @@ func TestProtoComms_AuthenticatedReceiver(t *testing.T) {
 func TestProtoComms_AuthenticatedReceiver_BadId(t *testing.T) {
 	// Create comm object
 	pc := ProtoComms{
-		Manager:       Manager{},
-		tokens:        sync.Map{},
+		Manager:       newManager(),
+		tokens:        token.NewMap(),
 		LocalServer:   nil,
 		ListeningAddr: "",
 		privateKey:    nil,
 	}
 	// Create id and token
 	testID := id.NewIdFromString("testSender", id.Node, t)
-	token := []byte("testtoken")
+	expectedVal := []byte("testToken")
+	tkn := token.Token{}
+	copy(tkn[:], expectedVal)
 
 	// Add host
-	_, err := pc.AddHost(testID, "", nil, false, true)
+	_, err := pc.AddHost(testID, "", nil, GetDefaultHostParams())
 	if err != nil {
 		t.Errorf("Failed to add host: %+v", err)
 	}
 
 	// Get host
 	h, _ := pc.GetHost(testID)
-	h.receptionToken = token
+	h.receptionToken.Set(tkn)
 
 	badId := []byte("badID")
 
 	msg := &pb.AuthenticatedMessage{
 		ID:        badId,
 		Signature: nil,
-		Token:     token,
+		Token:     tkn.Marshal(),
 		Message:   nil,
 	}
 
 	// Try the authenticated received
-	_, err = pc.AuthenticatedReceiver(msg)
-	if err != nil {
-		return
-	}
+	a, _ := pc.AuthenticatedReceiver(msg)
 
-	t.Errorf("Expected error path!"+
-		"Should not be able to marshal a message with id: %v", badId)
+	if a.IsAuthenticated {
+		t.Errorf("Expected error path!"+
+			"Should not be able to marshal a message with id: %v", badId)
+	}
 
 }
 
 // Happy path
 func TestProtoComms_GenerateToken(t *testing.T) {
 	comm := ProtoComms{
+		tokens:        token.NewMap(),
 		LocalServer:   nil,
 		ListeningAddr: "",
 		privateKey:    nil,
@@ -159,9 +164,14 @@ func TestProtoComms_GenerateToken(t *testing.T) {
 		t.Errorf("Unable to generate token: %+v", err)
 	}
 
-	token, ok := comm.tokens.Load(string(tokenBytes))
-	if !ok || token == nil {
-		t.Errorf("Unable to find token stored in internal map")
+	tkn, err := token.Unmarshal(tokenBytes)
+	if err != nil {
+		t.Errorf("Should be able to unmarshal token: %s", err)
+	}
+
+	ok := comm.tokens.Validate(tkn)
+	if !ok {
+		t.Errorf("Unable to validate token")
 	}
 }
 
@@ -173,6 +183,7 @@ func TestProtoComms_PackAuthenticatedMessage(t *testing.T) {
 		LocalServer:   nil,
 		ListeningAddr: "",
 		privateKey:    nil,
+		tokens:        token.NewMap(),
 	}
 
 	tokenBytes, err := comm.GenerateToken()
@@ -180,13 +191,16 @@ func TestProtoComms_PackAuthenticatedMessage(t *testing.T) {
 		t.Errorf("Unable to generate token: %+v", err)
 	}
 
+	tkn := token.Token{}
+	copy(tkn[:], tokenBytes)
+
 	testId := id.NewIdFromString("test", id.Node, t)
 
-	host, err := NewHost(testId, "test", nil, false, true)
+	host, err := NewHost(testId, "test", nil, GetDefaultHostParams())
 	if err != nil {
 		t.Errorf("Unable to create host: %+v", err)
 	}
-	host.transmissionToken = tokenBytes
+	host.transmissionToken.Set(tkn)
 
 	tokenMsg := &pb.AssignToken{
 		Token: tokenBytes,
@@ -198,7 +212,7 @@ func TestProtoComms_PackAuthenticatedMessage(t *testing.T) {
 	}
 	// Compare the tokens and id's
 	if bytes.Compare(msg.Token, tokenBytes) != 0 || !bytes.Equal(msg.ID, testServerId.Marshal()) {
-		t.Errorf("Expected packed message to have correct ID and Token: %+v",
+		t.Errorf("Expected packed message to have correct ID and Live: %+v",
 			msg)
 	}
 }
@@ -211,6 +225,8 @@ func TestProtoComms_ValidateToken(t *testing.T) {
 		LocalServer:   nil,
 		ListeningAddr: "",
 		privateKey:    nil,
+		tokens:        token.NewMap(),
+		Manager:       newManager(),
 	}
 	err := comm.setPrivateKey(testkeys.LoadFromPath(testkeys.GetNodeKeyPath()))
 	if err != nil {
@@ -221,13 +237,15 @@ func TestProtoComms_ValidateToken(t *testing.T) {
 	if err != nil || tokenBytes == nil {
 		t.Errorf("Unable to generate token: %+v", err)
 	}
+	tkn := token.Token{}
+	copy(tkn[:], tokenBytes)
 
 	pub := testkeys.LoadFromPath(testkeys.GetNodeCertPath())
-	host, err := comm.AddHost(testId, "test", pub, false, true)
+	host, err := comm.AddHost(testId, "test", pub, GetDefaultHostParams())
 	if err != nil {
 		t.Errorf("Unable to create host: %+v", err)
 	}
-	host.transmissionToken = tokenBytes
+	host.transmissionToken.Set(tkn)
 
 	tokenMsg := &pb.AssignToken{
 		Token: tokenBytes,
@@ -246,7 +264,7 @@ func TestProtoComms_ValidateToken(t *testing.T) {
 		t.Errorf("Expected to validate token: %+v", err)
 	}
 
-	if !bytes.Equal(msg.Token, host.transmissionToken) {
+	if !bytes.Equal(msg.Token, host.transmissionToken.GetBytes()) {
 		t.Errorf("Message token doesn't match message's token! "+
 			"Expected: %+v"+
 			"\n\tReceived: %+v", host.transmissionToken, msg.Token)
@@ -261,6 +279,8 @@ func TestProtoComms_ValidateToken_BadId(t *testing.T) {
 		LocalServer:   nil,
 		ListeningAddr: "",
 		privateKey:    nil,
+		tokens:        token.NewMap(),
+		Manager:       newManager(),
 	}
 	err := comm.setPrivateKey(testkeys.LoadFromPath(testkeys.GetNodeKeyPath()))
 	if err != nil {
@@ -271,13 +291,15 @@ func TestProtoComms_ValidateToken_BadId(t *testing.T) {
 	if err != nil || tokenBytes == nil {
 		t.Errorf("Unable to generate token: %+v", err)
 	}
+	tkn := token.Token{}
+	copy(tkn[:], tokenBytes)
 
 	pub := testkeys.LoadFromPath(testkeys.GetNodeCertPath())
-	host, err := comm.AddHost(testId, "test", pub, false, true)
+	host, err := comm.AddHost(testId, "test", pub, GetDefaultHostParams())
 	if err != nil {
 		t.Errorf("Unable to create host: %+v", err)
 	}
-	host.transmissionToken = tokenBytes
+	host.transmissionToken.Set(tkn)
 
 	tokenMsg := &pb.AssignToken{
 		Token: tokenBytes,
@@ -326,6 +348,8 @@ func TestProtoComms_ValidateTokenDynamic(t *testing.T) {
 	comm := ProtoComms{
 		Id:            uid,
 		ListeningAddr: "",
+		tokens:        token.NewMap(),
+		Manager:       newManager(),
 	}
 	err = comm.setPrivateKey(rsa.CreatePrivateKeyPem(privKey))
 	if err != nil {
@@ -336,6 +360,8 @@ func TestProtoComms_ValidateTokenDynamic(t *testing.T) {
 	if err != nil || tokenBytes == nil {
 		t.Errorf("Unable to generate token: %+v", err)
 	}
+	tkn := token.Token{}
+	copy(tkn[:], tokenBytes)
 
 	// For this test we won't addHost to Manager, we'll just create a host
 	// so we can compare to the dynamic one later
@@ -343,7 +369,7 @@ func TestProtoComms_ValidateTokenDynamic(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unable to create host: %+v", err)
 	}
-	host.transmissionToken = tokenBytes
+	host.transmissionToken.Set(tkn)
 	tokenMsg := &pb.AssignToken{
 		Token: tokenBytes,
 	}
@@ -373,7 +399,7 @@ func TestProtoComms_ValidateTokenDynamic(t *testing.T) {
 		t.Errorf("Expected host to be dynamic!")
 	}
 
-	if !bytes.Equal(msg.Token, host.receptionToken) {
+	if !bytes.Equal(msg.Token, host.receptionToken.GetBytes()) {
 		t.Errorf("Message token doesn't match message's token! "+
 			"Expected: %+v"+
 			"\n\tReceived: %+v", host.receptionToken, msg.Token)
