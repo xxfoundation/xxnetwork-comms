@@ -79,9 +79,6 @@ service Node {
     // Round error comm
     rpc RoundError (messages.AuthenticatedMessage) returns (messages.Ack) {
     }
-
-
-
 }
 
 // RoundInfo contains the # of precomputations ready for messages, among other
@@ -280,6 +277,10 @@ message GatewaySlotResponse{
     uint64 RoundID = 2;
 }
 
+// Gateway -> Gateway gossip of all Sender IDs in a Batch
+message BatchSenders {
+    repeated bytes SenderIds = 1;
+}
 
 // REGISTRATION MESSAGE SERVICE ------------------------------------------------
 

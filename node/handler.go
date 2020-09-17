@@ -14,10 +14,12 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/connect"
+	"gitlab.com/xx_network/comms/interconnect"
 	"gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/primitives/id"
 	"google.golang.org/grpc/reflection"
 	"runtime/debug"
+	"strconv"
 )
 
 // Server object used to implement endpoints and top-level comms functionality
@@ -29,7 +31,7 @@ type Comms struct {
 // Starts a new server on the address:port specified by listeningAddr
 // and a callback interface for server operations
 // with given path to public and private key for TLS connection
-func StartNode(id *id.ID, localServer string, handler Handler,
+func StartNode(id *id.ID, localServer string, interconnectPort int, handler Handler,
 	certPEMblock, keyPEMblock []byte) *Comms {
 	pc, lis, err := connect.StartCommServer(id, localServer,
 		certPEMblock, keyPEMblock)
@@ -42,7 +44,18 @@ func StartNode(id *id.ID, localServer string, handler Handler,
 		handler:    handler,
 	}
 
+	// Start up interconnect service
+	if interconnectPort != 0 {
+		go func() {
+
+			interconnect.StartCMixInterconnect(id, strconv.Itoa(interconnectPort), handler, certPEMblock, keyPEMblock)
+		}()
+	} else {
+		jww.WARN.Printf("Port for consensus not set, interconnect not started")
+	}
+
 	go func() {
+
 		// Register GRPC services to the listening address
 		mixmessages.RegisterNodeServer(mixmessageServer.LocalServer, &mixmessageServer)
 		messages.RegisterGenericServer(mixmessageServer.LocalServer, &mixmessageServer)
@@ -103,7 +116,7 @@ type Handler interface {
 	// NOTE: For now cMix nodes serve the NDF to the
 	//  consensus nodes, but this will be reversed
 	//  once consensus generates the NDF
-	GetNdf() ([]byte, error)
+	GetNDF() (*interconnect.NDF, error)
 }
 
 type implementationFunctions struct {
@@ -151,7 +164,7 @@ type implementationFunctions struct {
 	// NOTE: For now cMix nodes serve the NDF to the
 	//  consensus nodes, but this will be reversed
 	//  once consensus generates the NDF
-	GetNdf func() ([]byte, error)
+	GetNdf func() (*interconnect.NDF, error)
 }
 
 // Implementation allows users of the client library to set the
@@ -240,7 +253,7 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return nil
 			},
-			GetNdf: func() (bytes []byte, err error) {
+			GetNdf: func() (bytes *interconnect.NDF, err error) {
 				warn(um)
 				return nil, nil
 			},
@@ -330,6 +343,6 @@ func (s *Implementation) RoundError(err *mixmessages.RoundError, auth *connect.A
 // NOTE: For now cMix nodes serve the NDF to the
 //  consensus nodes, but this will be reversed
 //  once consensus generates the NDF
-func (s *Implementation) GetNdf() ([]byte, error) {
+func (s *Implementation) GetNDF() (*interconnect.NDF, error) {
 	return s.Functions.GetNdf()
 }

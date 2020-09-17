@@ -8,6 +8,7 @@ package dataStructures
 
 import (
 	"container/list"
+	"github.com/golang-collections/collections/set"
 	"github.com/pkg/errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/primitives/current"
@@ -100,28 +101,49 @@ func (wr *WaitingRounds) remove(newRound *pb.RoundInfo) {
 }
 
 // getFurthest returns the round that will occur furthest in the future. If the
-// list is empty, then nil is returned.
-func (wr *WaitingRounds) getFurthest() *pb.RoundInfo {
+// list is empty, then nil is returned. If the round is on the exclusion list,
+// then the following round is checked.
+func (wr *WaitingRounds) getFurthest(exclude *set.Set) *pb.RoundInfo {
 	wr.mux.RLock()
 	defer wr.mux.RUnlock()
 
+	// Return nil for an empty list
 	if wr.Len() == 0 {
 		return nil
 	}
 
-	// Return the last round in the list, which is the furthest in the future
-	return wr.rounds.Back().Value.(*pb.RoundInfo)
+	// If no rounds are excluded, return the last round in the list
+	if exclude == nil {
+		return wr.rounds.Back().Value.(*pb.RoundInfo)
+
+	}
+
+	// Return the last non-excluded round in the list
+	for e := wr.rounds.Back(); e != nil; e = e.Prev() {
+		r := e.Value.(*pb.RoundInfo)
+		if !exclude.Has(r) {
+			return r
+		}
+	}
+
+	// If all the rounds in the list are excluded, then return nil
+	return nil
 }
 
-// GetSlice returns a slice of all round infos in the list
+// GetSlice returns a slice of all round infos in the list that have yet to
+// occur.
 func (wr *WaitingRounds) GetSlice() []*pb.RoundInfo {
 	wr.mux.RLock()
 	defer wr.mux.RUnlock()
 
-	roundInfos := make([]*pb.RoundInfo, wr.Len())
+	now := uint64(time.Now().Nanosecond())
+
+	var roundInfos []*pb.RoundInfo
 
 	for e, i := wr.rounds.Front(), 0; e != nil; e, i = e.Next(), i+1 {
-		roundInfos[i] = e.Value.(*pb.RoundInfo)
+		if getTime(e.Value.(*pb.RoundInfo)) > now {
+			roundInfos = append(roundInfos, e.Value.(*pb.RoundInfo))
+		}
 	}
 
 	// Return the last round in the list, which is the furthest in the future
@@ -131,7 +153,7 @@ func (wr *WaitingRounds) GetSlice() []*pb.RoundInfo {
 // GetUpcomingRealtime returns the round that will occur furthest in the future.
 // If the list is empty, then it waits waits for a round to be added for the
 // specified duration. If no round is added, then an error is returned.
-func (wr *WaitingRounds) GetUpcomingRealtime(timeout time.Duration) (*pb.RoundInfo, error) {
+func (wr *WaitingRounds) GetUpcomingRealtime(timeout time.Duration, exclude *set.Set) (*pb.RoundInfo, error) {
 
 	// Start timeout timer
 	timer := time.NewTimer(timeout)
@@ -147,7 +169,7 @@ func (wr *WaitingRounds) GetUpcomingRealtime(timeout time.Duration) (*pb.RoundIn
 
 	// If rounds already exist in the list, then return the the correct round
 	// without waiting
-	round := wr.getFurthest()
+	round := wr.getFurthest(exclude)
 	if round != nil {
 		return round, nil
 	}
@@ -158,7 +180,7 @@ func (wr *WaitingRounds) GetUpcomingRealtime(timeout time.Duration) (*pb.RoundIn
 		case <-timer.C:
 			return nil, timeOutError
 		case <-sig:
-			round := wr.getFurthest()
+			round := wr.getFurthest(exclude)
 			if round != nil {
 				return round, nil
 			}

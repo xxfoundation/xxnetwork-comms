@@ -118,3 +118,28 @@ func TestRoundEvents_TriggerRoundEvent(t *testing.T) {
 		t.Error("second trigger shouldn't have resulted in a call")
 	}
 }
+
+// Add a round event with a channel and make sure it can be triggered
+func TestRoundEvents_AddRoundEventChan(t *testing.T) {
+	// Normal path
+	events := NewRoundEvents()
+	rid := id.Round(1)
+	eventChan := make(chan EventReturn)
+	events.AddRoundEventChan(rid, eventChan, time.Minute, states.PENDING)
+	events.TriggerRoundEvent(&pb.RoundInfo{
+		ID:    uint64(rid),
+		State: uint32(states.PENDING),
+	})
+
+	// wait for calling
+	time.Sleep(5 * time.Millisecond)
+	select {
+	case <-eventChan:
+		t.Log("event called")
+	default:
+		t.Error("no call")
+	}
+	if len(events.callbacks) != 0 {
+		t.Error("callback should have been removed after calling")
+	}
+}
