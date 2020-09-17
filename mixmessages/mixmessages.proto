@@ -251,15 +251,17 @@ message Slot {
 message GatewayPoll {
     NDFHash Partial = 1;
     uint64 LastUpdate = 2;
-    string LastMessageID = 3; // fixme: depracate this field
+    bytes ClientID = 3;
 }
 
 // Unified Client->Gateway polling response
 message GatewayPollResponse {
     NDF PartialNDF = 1; // Empty if no update needed
-    RoundInfo LastRound = 2; // Last round the gateway has messages from // fixme: depracate this field
-    repeated RoundInfo Updates = 3; // Empty if no update needed
-    repeated string NewMessageIDs = 4; // Empty if no update needed // fixme: depracate this field
+    repeated RoundInfo Updates = 2; // Empty if no update needed
+    uint64 LastTrackedRound = 3; // Id of the last round tracked
+    bytes KnownRounds = 4; // Rounds gateway knows about
+    repeated bytes FilterNew = 5; // Latest Bloom filter of the requested client
+    repeated bytes FilterOld = 6; // Previous Bloom filter of the requested client
 }
 
 // Client -> Gateway authentication message
