@@ -14,14 +14,15 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/base64"
+	"fmt"
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
-	"gitlab.com/elixxir/crypto/nonce"
 	"gitlab.com/elixxir/crypto/signature/rsa"
 	"gitlab.com/elixxir/crypto/xx"
 	"gitlab.com/elixxir/primitives/id"
+	"gitlab.com/xx_network/comms/connect/token"
 	pb "gitlab.com/xx_network/comms/messages"
 	"google.golang.org/grpc/metadata"
 )
@@ -32,9 +33,13 @@ type Auth struct {
 	IsAuthenticated bool
 	// The information about the Host that sent the authenticated communication
 	Sender *Host
+	// reason it isn't authenticated if authentication fails
+	Reason string
 }
 
 // Perform the client handshake to establish reverse-authentication
+// no lock is taken because this is assumed to be done exclusively under the
+// send lock taken in ProtoComms.transmit()
 func (c *ProtoComms) clientHandshake(host *Host) (err error) {
 
 	// Set up the context
@@ -47,6 +52,11 @@ func (c *ProtoComms) clientHandshake(host *Host) (err error) {
 		&pb.Ping{})
 	if err != nil {
 		return errors.New(err.Error())
+	}
+
+	remoteToken, err := token.Unmarshal(result.Token)
+	if err != nil {
+		return errors.Errorf("Failed to unmarshal token: %s", err)
 	}
 
 	// Pack the authenticated message with signature enabled
@@ -73,9 +83,9 @@ func (c *ProtoComms) clientHandshake(host *Host) (err error) {
 	if err != nil {
 		return errors.New(err.Error())
 	}
-
+	jww.TRACE.Printf("Negotiatied Remote token: %v", remoteToken)
 	// Assign the host token
-	host.transmissionToken = result.Token
+	host.transmissionToken.Set(remoteToken)
 
 	return
 }
@@ -93,7 +103,7 @@ func (c *ProtoComms) PackAuthenticatedMessage(msg proto.Message, host *Host,
 	// Build the authenticated message
 	authMsg := &pb.AuthenticatedMessage{
 		ID:      c.Id.Marshal(),
-		Token:   host.transmissionToken,
+		Token:   host.transmissionToken.GetBytes(),
 		Message: anyMsg,
 		Client: &pb.ClientID{
 			Salt:      make([]byte, 0),
@@ -117,7 +127,8 @@ func (c *ProtoComms) PackAuthenticatedContext(host *Host,
 	ctx context.Context) context.Context {
 
 	ctx = metadata.AppendToOutgoingContext(ctx, "ID", c.Id.String())
-	ctx = metadata.AppendToOutgoingContext(ctx, "TOKEN", base64.StdEncoding.EncodeToString(host.transmissionToken))
+	ctx = metadata.AppendToOutgoingContext(ctx, "TOKEN",
+		base64.StdEncoding.EncodeToString(host.transmissionToken.GetBytes()))
 	return ctx
 }
 
@@ -140,7 +151,7 @@ func UnpackAuthenticatedContext(ctx context.Context) (*pb.AuthenticatedMessage, 
 	tokenStr := md.Get("TOKEN")[0]
 	auth.Token, err = base64.StdEncoding.DecodeString(tokenStr)
 	if err != nil {
-		return nil, errors.WithMessage(err, "could not decode authentication Token")
+		return nil, errors.WithMessage(err, "could not decode authentication Live")
 	}
 
 	return auth, nil
@@ -148,14 +159,7 @@ func UnpackAuthenticatedContext(ctx context.Context) (*pb.AuthenticatedMessage, 
 
 // Generates a new token and adds it to internal state
 func (c *ProtoComms) GenerateToken() ([]byte, error) {
-	token, err := nonce.NewNonce(nonce.RegistrationTTL)
-	if err != nil {
-		return nil, err
-	}
-
-	c.tokens.Store(string(token.Bytes()), &token)
-	jww.DEBUG.Printf("Token generated: %v", token.Bytes())
-	return token.Bytes(), nil
+	return c.tokens.Generate().Marshal(), nil
 }
 
 // Performs the dynamic authentication process such that Hosts that were not
@@ -217,16 +221,14 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) (err error) {
 		}
 	}
 
-	// This logic prevents deadlocks when performing authentication with self
-	// TODO: This may require further review
-	if !msgID.Cmp(c.Id) || bytes.Compare(host.receptionToken, msg.Token) != 0 {
-		host.mux.Lock()
-		defer host.mux.Unlock()
-	}
-
 	// Get the signed token
 	tokenMsg := &pb.AssignToken{}
 	err = ptypes.UnmarshalAny(msg.Message, tokenMsg)
+	if err != nil {
+		return errors.Errorf("Unable to unmarshal token: %+v", err)
+	}
+
+	remoteToken, err := token.Unmarshal(tokenMsg.Token)
 	if err != nil {
 		return errors.Errorf("Unable to unmarshal token: %+v", err)
 	}
@@ -238,20 +240,14 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) (err error) {
 		}
 	}
 
-	// Verify the signed token was actually assigned
-	token, ok := c.tokens.Load(string(tokenMsg.Token))
+	ok = c.tokens.Validate(remoteToken)
 	if !ok {
-		return errors.Errorf("Unable to locate token: %+v", msg.Token)
+		jww.ERROR.Printf("Failed to validate token %v from %s", remoteToken, host)
+		return errors.Errorf("Failed to validate token: %v", remoteToken)
 	}
-
-	// Verify the signed token is not expired
-	if !token.(*nonce.Nonce).IsValid() {
-		return errors.Errorf("Invalid or expired token: %+v", tokenMsg.Token)
-	}
-
 	// Token has been validated and can be safely stored
-	host.receptionToken = tokenMsg.Token
-	jww.DEBUG.Printf("Token validated: %v", tokenMsg.Token)
+	host.receptionToken.Set(remoteToken)
+	jww.DEBUG.Printf("Live validated: %v", tokenMsg.Token)
 	return
 }
 
@@ -261,7 +257,12 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) (*Auth,
 	// Convert EntityID to ID
 	msgID, err := id.Unmarshal(msg.ID)
 	if err != nil {
-		return nil, err
+		return &Auth{
+			IsAuthenticated: false,
+			Sender:          &Host{},
+			Reason: fmt.Sprintf("Host {%v} cannot be "+
+				"unmarshaled: %s", msg.ID, err),
+		}, nil
 	}
 
 	// Try to obtain the Host for the specified ID
@@ -270,21 +271,46 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) (*Auth,
 		return &Auth{
 			IsAuthenticated: false,
 			Sender:          &Host{},
+			Reason:          fmt.Sprintf("Host {%s} cannot be found", msgID),
 		}, nil
 	}
 
-	// If host is found, mutex must be locked
-	host.mux.RLock()
-	defer host.mux.RUnlock()
+	remoteToken, err := token.Unmarshal(msg.Token)
+	if err != nil {
+		return &Auth{
+			IsAuthenticated: false,
+			Sender:          host,
+			Reason:          fmt.Sprintf("Token {%v} cannot be unmarshaled", msg.Token),
+		}, nil
+	}
 
-	// Check the token's validity
-	validToken := host.receptionToken != nil && msg.Token != nil &&
-		bytes.Compare(host.receptionToken, msg.Token) == 0
+	// get the hosts reception token
+	receptionToken, ok := host.receptionToken.Get()
+	if !ok {
+		return &Auth{
+			IsAuthenticated: false,
+			Sender:          host,
+			Reason: fmt.Sprintf("failed to authenticate token %v, "+
+				"no reception token for %s", remoteToken, host.id),
+		}, nil
+	}
+
+	// check if the tokens are the same
+	if !receptionToken.Equals(remoteToken) {
+		return &Auth{
+			IsAuthenticated: false,
+			Sender:          host,
+			Reason: fmt.Sprintf("failed to authenticate token %v, "+
+				"does not match reception token %v for %s", remoteToken,
+				receptionToken, host.id),
+		}, nil
+	}
 
 	// Assemble the Auth object
 	res := &Auth{
-		IsAuthenticated: validToken,
+		IsAuthenticated: true,
 		Sender:          host,
+		Reason:          "authenticated",
 	}
 
 	jww.TRACE.Printf("Authentication status: %v, ProvidedId: %v ProvidedToken: %v",
