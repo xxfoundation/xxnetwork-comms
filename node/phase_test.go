@@ -67,10 +67,11 @@ func TestPhase_StreamPostPhaseSendReceive(t *testing.T) {
 	}
 
 	// Init host/manager
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 	testId := id.NewIdFromString("test", id.Generic, t)
-	host, err := manager.AddHost(testId, servReceiverAddress, certData,
-		false, false)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testId, servReceiverAddress, certData, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -155,9 +156,9 @@ func TestGetPostPhaseStream_ErrorsWhenContextCanceled(t *testing.T) {
 	cancel()
 
 	// Init host/manager
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 	host, err := manager.AddHost(testID, servReceiverAddress, certData,
-		false, false)
+		connect.GetDefaultHostParams())
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}

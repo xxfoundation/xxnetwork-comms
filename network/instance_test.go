@@ -198,14 +198,16 @@ func setupComm(t *testing.T) (*Instance, *mixmessages.NDF) {
 	}
 
 	err = signature.Sign(f, privKey)
-
-	pc := &connect.ProtoComms{}
+	testManager := connect.NewManagerTesting(t)
+	pc := &connect.ProtoComms{
+		Manager: testManager,
+	}
 	i, err := NewInstance(pc, baseNDF, baseNDF)
 	if err != nil {
 		t.Error(nil)
 	}
 
-	_, err = i.comm.AddHost(&id.Permissioning, "0.0.0.0:4200", pub, false, true)
+	_, err = i.comm.AddHost(&id.Permissioning, "0.0.0.0:4200", pub, connect.GetDefaultHostParams())
 	if err != nil {
 		t.Errorf("Failed to add permissioning host: %+v", err)
 	}
@@ -222,15 +224,18 @@ func TestInstance_RoundUpdate(t *testing.T) {
 	priv := testkeys.LoadFromPath(testkeys.GetNodeKeyPath())
 	privKey, err := rsa.LoadPrivateKeyFromPem(priv)
 	err = signature.Sign(msg, privKey)
-
-	i, err := NewInstance(&connect.ProtoComms{}, testutils.NDF, testutils.NDF)
+	testManager := connect.NewManagerTesting(t)
+	pc := connect.ProtoComms{
+		Manager: testManager,
+	}
+	i, err := NewInstance(&pc, testutils.NDF, testutils.NDF)
 	pub := testkeys.LoadFromPath(testkeys.GetGatewayCertPath())
 	err = i.RoundUpdate(msg)
 	if err == nil {
 		t.Error("Should have failed to get perm host")
 	}
 
-	_, err = i.comm.AddHost(&id.Permissioning, "0.0.0.0:4200", pub, false, true)
+	_, err = i.comm.AddHost(&id.Permissioning, "0.0.0.0:4200", pub, connect.GetDefaultHostParams())
 	if err != nil {
 		t.Errorf("failed to add bad host: %+v", err)
 	}
@@ -310,10 +315,13 @@ func TestInstance_GetLastUpdateID(t *testing.T) {
 
 func TestInstance_UpdateGatewayConnections(t *testing.T) {
 	secured, _ := NewSecuredNdf(testutils.NDF)
-
+	testManager := connect.NewManagerTesting(t)
+	pc := &connect.ProtoComms{
+		Manager: testManager,
+	}
 	i := Instance{
 		full:       secured,
-		comm:       &connect.ProtoComms{},
+		comm:       pc,
 		ipOverride: ds.NewIpOverrideList(),
 	}
 	err := i.UpdateGatewayConnections()
@@ -323,7 +331,7 @@ func TestInstance_UpdateGatewayConnections(t *testing.T) {
 
 	i = Instance{
 		partial:    secured,
-		comm:       &connect.ProtoComms{},
+		comm:       pc,
 		ipOverride: ds.NewIpOverrideList(),
 	}
 	err = i.UpdateGatewayConnections()
@@ -344,10 +352,14 @@ func TestInstance_UpdateGatewayConnections_GatewayIdError(t *testing.T) {
 	testDef := *testutils.NDF
 	testDef.Nodes = []ndf.Node{{ID: id.TempGateway.Marshal()}}
 	secured, _ := NewSecuredNdf(&testDef)
+	testManager := connect.NewManagerTesting(t)
+	pc := &connect.ProtoComms{
+		Manager: testManager,
+	}
 
 	i := Instance{
 		full:       secured,
-		comm:       &connect.ProtoComms{},
+		comm:       pc,
 		ipOverride: ds.NewIpOverrideList(),
 	}
 	err := i.UpdateGatewayConnections()
@@ -359,10 +371,14 @@ func TestInstance_UpdateGatewayConnections_GatewayIdError(t *testing.T) {
 
 func TestInstance_UpdateNodeConnections(t *testing.T) {
 	secured, _ := NewSecuredNdf(testutils.NDF)
+	testManager := connect.NewManagerTesting(t)
+	pc := &connect.ProtoComms{
+		Manager: testManager,
+	}
 
 	i := Instance{
 		full:       secured,
-		comm:       &connect.ProtoComms{},
+		comm:       pc,
 		ipOverride: ds.NewIpOverrideList(),
 	}
 	err := i.UpdateNodeConnections()
@@ -372,7 +388,7 @@ func TestInstance_UpdateNodeConnections(t *testing.T) {
 
 	i = Instance{
 		partial:    secured,
-		comm:       &connect.ProtoComms{},
+		comm:       pc,
 		ipOverride: ds.NewIpOverrideList(),
 	}
 	err = i.UpdateNodeConnections()
@@ -393,10 +409,14 @@ func TestInstance_UpdateNodeConnections_NodeIdError(t *testing.T) {
 	testDef := *testutils.NDF
 	testDef.Nodes = []ndf.Node{{ID: id.Permissioning.Marshal()}}
 	secured, _ := NewSecuredNdf(&testDef)
+	testManager := connect.NewManagerTesting(t)
+	pc := &connect.ProtoComms{
+		Manager: testManager,
+	}
 
 	i := Instance{
 		full:       secured,
-		comm:       &connect.ProtoComms{},
+		comm:       pc,
 		ipOverride: ds.NewIpOverrideList(),
 	}
 	err := i.UpdateNodeConnections()
