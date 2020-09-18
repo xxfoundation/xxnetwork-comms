@@ -257,12 +257,7 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) (*Auth,
 	// Convert EntityID to ID
 	msgID, err := id.Unmarshal(msg.ID)
 	if err != nil {
-		return &Auth{
-			IsAuthenticated: false,
-			Sender:          &Host{},
-			Reason: fmt.Sprintf("Host {%v} cannot be "+
-				"unmarshaled: %s", msg.ID, err),
-		}, nil
+		return nil, err
 	}
 
 	// Try to obtain the Host for the specified ID
