@@ -8,8 +8,8 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/jwalterweatherman v1.1.0
 	github.com/stretchr/testify v1.6.1 // indirect
-	gitlab.com/elixxir/crypto v0.0.0-20200915165059-c7f41bbc86b4
-	gitlab.com/elixxir/primitives v0.0.0-20200916172343-37503735c7a1
+	gitlab.com/elixxir/crypto v0.0.0-20200921195205-bca0178268ec
+	gitlab.com/elixxir/primitives v0.0.0-20200915190719-f4586ec93f50
 	gitlab.com/xx_network/comms v0.0.0-20200915154643-d533291041b7
 	gitlab.com/xx_network/crypto v0.0.0-20200812183430-c77a5281c686
 	gitlab.com/xx_network/primitives v0.0.0-20200812183720-516a65a4a9b2
