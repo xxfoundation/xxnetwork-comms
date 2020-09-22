@@ -42,7 +42,6 @@ func TestMain(m *testing.M) {
 
 func TestSetCredentials_InvalidCert(t *testing.T) {
 	host := &Host{
-		address:     "",
 		certificate: []byte("test"),
 	}
 	err := host.setCredentials()
@@ -58,14 +57,14 @@ func TestConnectionManager_Disconnect(t *testing.T) {
 	test := 2
 	pass := 0
 	address := ServerAddress
-	var manager Manager
+	manager := newManager()
 	testId := id.NewIdFromString("testId", id.Node, t)
-	host, err := manager.AddHost(testId, address, nil, false, false)
+	host, err := manager.AddHost(testId, address, nil, GetDefaultHostParams())
 	if err != nil {
 		t.Errorf("Unable to call connnect: %+v", err)
 	}
 
-	_, inMap := manager.connections.Load(*testId)
+	_, inMap := manager.connections[*testId]
 
 	if !inMap {
 		t.Errorf("connect Function didn't add connection to map")
@@ -96,11 +95,11 @@ func TestConnectionManager_DisconnectAll(t *testing.T) {
 	pass := 0
 	address := ServerAddress
 	address2 := ServerAddress2
-	var manager Manager
+	manager := newManager()
 	testId := id.NewIdFromString("testId", id.Generic, t)
 	testId2 := id.NewIdFromString("TestId2", id.Generic, t)
 
-	host, err := manager.AddHost(testId, address, nil, false, false)
+	host, err := manager.AddHost(testId, address, nil, GetDefaultHostParams())
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -113,7 +112,7 @@ func TestConnectionManager_DisconnectAll(t *testing.T) {
 		pass++
 	}
 
-	host2, err := manager.AddHost(testId2, address2, nil, false, false)
+	host2, err := manager.AddHost(testId2, address2, nil, GetDefaultHostParams())
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -127,7 +126,7 @@ func TestConnectionManager_DisconnectAll(t *testing.T) {
 		t.Errorf("Unable to call connnect: %+v", err)
 	}
 
-	_, inMap = manager.connections.Load(*testId2)
+	_, inMap = manager.connections[*testId2]
 
 	if !inMap {
 		t.Errorf("connect Function didn't add connection to map")
@@ -152,13 +151,13 @@ func TestConnectionManager_DisconnectAll(t *testing.T) {
 }
 
 func TestConnectionManager_String(t *testing.T) {
-	var manager Manager
+	manager := newManager()
 	//t.Log(manager)
 
 	certPath := testkeys.GetNodeCertPath()
 	certData := testkeys.LoadFromPath(certPath)
 	testID := id.NewIdFromString("test", id.Node, t)
-	_, err := manager.AddHost(testID, "test", certData, false, false)
+	_, err := manager.AddHost(testID, "test", certData, GetDefaultHostParams())
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -170,7 +169,7 @@ func TestConnectionManager_String(t *testing.T) {
 // Show that if a connection is in the map,
 // it's no longer in the map after RemoveHost is called
 func TestConnectionManager_RemoveHost(t *testing.T) {
-	var manager Manager
+	manager := newManager()
 
 	// After adding the host, the connection should be accessible
 	id := id.NewIdFromString("i am a connection", id.Gateway, t)

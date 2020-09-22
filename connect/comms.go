@@ -16,13 +16,13 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/xx_network/crypto/signature/rsa"
 	"gitlab.com/xx_network/primitives/id"
+	"gitlab.com/xx_network/comms/connect/token"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/keepalive"
 	"math"
 	"net"
 	"strings"
-	"sync"
 	"time"
 )
 
@@ -56,7 +56,7 @@ var MaxConcurrentStreams = uint32(250000)
 // Proto object containing a gRPC server
 type ProtoComms struct {
 	// Inherit the Manager object
-	Manager
+	*Manager
 
 	// The network ID of this comms server
 	Id *id.ID
@@ -70,7 +70,7 @@ type ProtoComms struct {
 	// SERVER-ONLY FIELDS ------------------------------------------------------
 
 	// A map of reverse-authentication tokens
-	tokens sync.Map
+	tokens *token.Map
 
 	// Local network server
 	LocalServer *grpc.Server
@@ -97,6 +97,8 @@ func CreateCommClient(id *id.ID, pubKeyPem, privKeyPem,
 		Id:        id,
 		pubKeyPem: pubKeyPem,
 		salt:      salt,
+		tokens:    token.NewMap(),
+		Manager:   newManager(),
 	}
 
 	// Set the private key if specified
@@ -117,6 +119,8 @@ func StartCommServer(id *id.ID, localServer string, certPEMblock,
 	pc := &ProtoComms{
 		Id:            id,
 		ListeningAddr: localServer,
+		tokens:        token.NewMap(),
+		Manager:       newManager(),
 	}
 
 listen:
@@ -201,14 +205,6 @@ const (
 	con  = 1
 	auth = 2
 	send = 3
-	//maximum number of connection attempts. should be 1 because a connection
-	//is unlikely to be successful after a failure
-	maxConnects = 1
-	//maximum number of auth attempts. should be 3 because while a connection
-	//is unlikely to be successful after a failure, it is possible to attempt
-	//one on a dead connection and then need to do it again after the connection
-	//is resuscitated
-	maxAuths = 2
 )
 
 // Sets up or recovers the Host's connection
@@ -216,99 +212,17 @@ const (
 func (c *ProtoComms) Send(host *Host, f func(conn *grpc.ClientConn) (*any.Any,
 	error)) (result *any.Any, err error) {
 
-	if host.GetAddress() == "" {
-		return nil, errors.New("Host address is blank, host might be receive only.")
+	jww.TRACE.Printf("Attempting to send to host: %s", host)
+	fSh := func(conn *grpc.ClientConn) (interface{}, error) {
+		return f(conn)
 	}
 
-	numConnects, numAuths, lastEvent := 0, 0, 0
-
-connect:
-	// Ensure the connection is running
-	if !host.Connected() {
-		host.transmissionToken = nil
-		//do not attempt to connect again if multiple attempts have been made
-		if numConnects == maxConnects {
-			return nil, errors.WithMessage(err, "Maximum number of connects attempted")
-		}
-
-		//denote that a connection is being tried
-		lastEvent = con
-
-		//attempt to make the connection
-		jww.INFO.Printf("Host %s not connected, attempting to connect...", host.id.String())
-		err = host.connect()
-		//if connection cannot be made, do not retry
-		if err != nil {
-			return nil, errors.WithMessage(err, "Failed to connect")
-		}
-
-		//denote the connection attempt
-		numConnects++
-	}
-
-authorize:
-	// Establish authentication if required
-	if host.authenticationRequired() && host.transmissionToken == nil {
-		//do not attempt to connect again if multiple attempts have been made
-		if numAuths == maxAuths {
-			return nil, errors.New("Maximum number of authorizations attempted")
-		}
-
-		//do not try multiple auths in a row
-		if lastEvent == auth {
-			return nil, errors.New("Cannot attempt to authorize with host multiple times in a row")
-		}
-
-		//denote that an auth is being tried
-		lastEvent = auth
-
-		jww.INFO.Printf("Attempting to establish authentication with host %s", host.id.String())
-		err = host.authenticate(c.clientHandshake)
-		if err != nil {
-			//if failure of connection, retry connection
-			if isConnError(err) {
-				jww.INFO.Printf("Failed to auth due to connection issue: %s", err)
-				goto connect
-			}
-			//otherwise, return the error
-			return nil, errors.New("Failed to authenticate")
-		}
-
-		//denote the authorization attempt
-		numAuths++
-	}
-
-	//denote that a send is being tried
-	lastEvent = send
-	// Attempt to send to host
-	result, err = host.send(f)
-	// If failed to authenticate, retry negotiation by jumping to the top of the loop
+	anyFace, err := c.transmit(host, fSh)
 	if err != nil {
-		//if failure of connection, retry connection
-		if isConnError(err) {
-			jww.INFO.Printf("Failed send due to connection issue: %s", err)
-			goto connect
-		}
-
-		// Handle resetting authentication
-		if strings.Contains(err.Error(), AuthError(host.id).Error()) {
-			jww.INFO.Printf("Failed send due to auth error, retrying authentication: %s", err.Error())
-			host.transmissionToken = nil
-			goto authorize
-		}
-
-		// otherwise, return the error
-		return nil, errors.WithMessage(err, "Failed to send")
+		return nil, err
 	}
 
-	return result, err
-}
-
-// returns true if the connection error is one of the connection errors which
-// should be retried
-func isConnError(err error) bool {
-	return strings.Contains(err.Error(), "context deadline exceeded") ||
-		strings.Contains(err.Error(), "connection refused")
+	return anyFace.(*any.Any), err
 }
 
 // Sets up or recovers the Host's connection
@@ -317,22 +231,13 @@ func (c *ProtoComms) Stream(host *Host, f func(conn *grpc.ClientConn) (
 	interface{}, error)) (client interface{}, err error) {
 
 	// Ensure the connection is running
-	jww.TRACE.Printf("Attempting to send to host: %s", host)
-	if !host.Connected() {
-		err = host.connect()
-		if err != nil {
-			return
-		}
-	}
+	jww.TRACE.Printf("Attempting to stream to host: %s", host)
+	return c.transmit(host, f)
+}
 
-	//establish authentication if required
-	if host.authenticationRequired() {
-		err = host.authenticate(c.clientHandshake)
-		if err != nil {
-			return
-		}
-	}
-
-	// Run the send function
-	return host.stream(f)
+// returns true if the connection error is one of the connection errors which
+// should be retried
+func isConnError(err error) bool {
+	return strings.Contains(err.Error(), "context deadline exceeded") ||
+		strings.Contains(err.Error(), "connection refused")
 }

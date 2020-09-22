@@ -11,9 +11,12 @@ package connect
 
 import (
 	"fmt"
-	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
+	"gitlab.com/elixxir/crypto/signature/rsa"
+	tlsCreds "gitlab.com/elixxir/crypto/tls"
+	"gitlab.com/elixxir/primitives/id"
+	"gitlab.com/xx_network/comms/connect/token"
 	"gitlab.com/xx_network/crypto/signature/rsa"
 	tlsCreds "gitlab.com/xx_network/crypto/tls"
 	"gitlab.com/xx_network/primitives/id"
@@ -24,6 +27,7 @@ import (
 	"math"
 	"net"
 	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 )
@@ -39,33 +43,31 @@ var KaClientOpts = keepalive.ClientParameters{
 	PermitWithoutStream: true,
 }
 
-// Represents a reverse-authentication token
-type Token []byte
-
 // Information used to describe a connection to a host
 type Host struct {
 	// System-wide ID of the Host
 	id *id.ID
 
 	// address:Port being connected to
-	address string
+	addressAtomic atomic.Value
 
 	// PEM-format TLS Certificate
 	certificate []byte
 
 	/* Tokens shared with this Host establishing reverse authentication */
 
-	//  Token used for receiving from this host
-	receptionToken Token
+	//  Live used for receiving from this host
+	receptionToken *token.Live
 
-	// Token used for sending to this host
-	transmissionToken Token
+	// Live used for sending to this host
+	transmissionToken *token.Live
 
 	// Configure the maximum number of connection attempts
-	maxRetries int
+	maxRetries uint32
 
 	// GRPC connection object
-	connection *grpc.ClientConn
+	connection      *grpc.ClientConn
+	connectionCount uint64
 
 	// TLS credentials object used to establish the connection
 	credentials credentials.TransportCredentials
@@ -80,28 +82,28 @@ type Host struct {
 	// This is useful for determining whether a Host's key was hardcoded
 	dynamicHost bool
 
-	// Read/Write Mutex for thread safety
-	mux sync.RWMutex
+	// Send lock
+	sendMux sync.RWMutex
 }
 
 // Creates a new Host object
-func NewHost(id *id.ID, address string, cert []byte, disableTimeout,
-	enableAuth bool) (host *Host, err error) {
+func NewHost(id *id.ID, address string, cert []byte, params HostParams) (host *Host, err error) {
 
 	// Initialize the Host object
 	host = &Host{
-		id:          id,
-		address:     address,
-		certificate: cert,
-		enableAuth:  enableAuth,
+		id:                id,
+		certificate:       cert,
+		enableAuth:        params.AuthEnabled,
+		transmissionToken: token.NewLive(),
+		receptionToken:    token.NewLive(),
+		maxRetries:        params.MaxRetries,
 	}
 
-	// Set the max number of retries for establishing a connection
-	if disableTimeout {
-		host.maxRetries = math.MaxInt32
-	} else {
-		host.maxRetries = 100
+	if host.maxRetries == 0 {
+		host.maxRetries = math.MaxUint32
 	}
+
+	host.UpdateAddress(address)
 
 	// Configure the host credentials
 	err = host.setCredentials()
@@ -115,8 +117,10 @@ func newDynamicHost(id *id.ID, publicKey []byte) (host *Host, err error) {
 	// IMPORTANT: This flag must be set to true for all dynamic Hosts
 	//            because the security properties for these Hosts differ
 	host = &Host{
-		id:          id,
-		dynamicHost: true,
+		id:                id,
+		dynamicHost:       true,
+		transmissionToken: token.NewLive(),
+		receptionToken:    token.NewLive(),
 	}
 
 	// Create the RSA Public Key object
@@ -138,11 +142,12 @@ func (h *Host) GetPubKey() *rsa.PublicKey {
 }
 
 // Connected checks if the given Host's connection is alive
-func (h *Host) Connected() bool {
-	h.mux.RLock()
-	defer h.mux.RUnlock()
+// the uint is the connection count, it increments every time a reconnect occurs
+func (h *Host) Connected() (bool, uint64) {
+	h.sendMux.RLock()
+	defer h.sendMux.RUnlock()
 
-	return h.isAlive()
+	return h.isAlive() && !h.authenticationRequired(), h.connectionCount
 }
 
 // GetId returns the id of the host
@@ -152,21 +157,35 @@ func (h *Host) GetId() *id.ID {
 
 // GetAddress returns the address of the host.
 func (h *Host) GetAddress() string {
-	return h.address
+	a := h.addressAtomic.Load()
+	if a == nil {
+		return ""
+	}
+	return a.(string)
 }
 
 // UpdateAddress updates the address of the host
 func (h *Host) UpdateAddress(address string) {
-	h.address = address
+	h.addressAtomic.Store(address)
 }
 
 // Disconnect closes a the Host connection under the write lock
 func (h *Host) Disconnect() {
-	h.mux.Lock()
-	defer h.mux.Unlock()
+	h.sendMux.Lock()
+	defer h.sendMux.Unlock()
 
 	h.disconnect()
-	h.transmissionToken = nil
+}
+
+// ConditionalDisconnect closes a the Host connection under the write lock only
+// if the connection count has not increased
+func (h *Host) conditionalDisconnect(count uint64) {
+	h.sendMux.Lock()
+	defer h.sendMux.Unlock()
+
+	if count == h.connectionCount {
+		h.disconnect()
+	}
 }
 
 // Returns whether or not the Host is able to be contacted
@@ -193,72 +212,34 @@ func (h *Host) IsOnline() bool {
 
 // send checks that the host has a connection and sends if it does.
 // Operates under the host's read lock.
-func (h *Host) send(f func(conn *grpc.ClientConn) (*any.Any,
-	error)) (*any.Any, error) {
+func (h *Host) transmit(f func(conn *grpc.ClientConn) (interface{},
+	error)) (interface{}, error) {
 
-	h.mux.RLock()
-	defer h.mux.RUnlock()
-
-	if !h.isAlive() {
-		return nil, errors.New("Could not send, connection is not alive")
-	}
-
+	h.sendMux.RLock()
 	a, err := f(h.connection)
-	return a, err
-}
+	h.sendMux.RUnlock()
 
-// stream checks that the host has a connection and streams if it does.
-// Operates under the host's read lock.
-func (h *Host) stream(f func(conn *grpc.ClientConn) (
-	interface{}, error)) (interface{}, error) {
-
-	h.mux.RLock()
-	defer h.mux.RUnlock()
-
-	if !h.isAlive() {
-		return nil, errors.New("Could not stream, connection is not alive")
-	}
-
-	a, err := f(h.connection)
 	return a, err
 }
 
 // connect attempts to connect to the host if it does not have a valid connection
 func (h *Host) connect() error {
-	h.mux.Lock()
-	defer h.mux.Unlock()
-
-	//checks if the connection is active and skips reconnecting if it is
-	if h.isAlive() {
-		return nil
-	}
-
-	h.disconnect()
-	h.transmissionToken = nil
 
 	//connect to remote
 	if err := h.connectHelper(); err != nil {
 		return err
 	}
 
+	h.connectionCount++
+
 	return nil
 }
 
 // authenticationRequired Checks if new authentication is required with
-// the remote
+// the remote.  This is used exclusively under the lock in protocoms.transmit so
+// no lock is needed
 func (h *Host) authenticationRequired() bool {
-	h.mux.RLock()
-	defer h.mux.RUnlock()
-
-	return h.enableAuth && h.transmissionToken == nil
-}
-
-// Checks if the given Host's connection is alive
-func (h *Host) authenticate(handshake func(host *Host) error) error {
-	h.mux.Lock()
-	defer h.mux.Unlock()
-
-	return handshake(h)
+	return h.enableAuth && !h.transmissionToken.Has()
 }
 
 // isAlive returns true if the connection is non-nil and alive
@@ -281,11 +262,12 @@ func (h *Host) disconnect() {
 		err := h.connection.Close()
 		if err != nil {
 			jww.ERROR.Printf("Unable to close connection to %s: %+v",
-				h.address, errors.New(err.Error()))
+				h.GetAddress(), errors.New(err.Error()))
 		} else {
 			h.connection = nil
 		}
 	}
+	h.transmissionToken.Clear()
 }
 
 // connectHelper creates a connection while not under a write lock.
@@ -299,19 +281,20 @@ func (h *Host) connectHelper() (err error) {
 		securityDial = grpc.WithTransportCredentials(h.credentials)
 	} else {
 		// Create the gRPC client without TLS
-		jww.WARN.Printf("Connecting to %v without TLS!", h.address)
+		jww.WARN.Printf("Connecting to %v without TLS!", h.GetAddress())
 		securityDial = grpc.WithInsecure()
 	}
 
 	jww.DEBUG.Printf("Attempting to establish connection to %s using"+
-		" credentials: %+v", h.address, securityDial)
+		" credentials: %+v", h.GetAddress(), securityDial)
 
 	// Attempt to establish a new connection
-	for numRetries := 0; numRetries < h.maxRetries && !h.isAlive(); numRetries++ {
+	var numRetries uint32
+	for numRetries = 0; numRetries < h.maxRetries && !h.isAlive(); numRetries++ {
 		h.disconnect()
 
 		jww.INFO.Printf("Connecting to %+v. Attempt number %+v of %+v",
-			h.address, numRetries, h.maxRetries)
+			h.GetAddress(), numRetries, h.maxRetries)
 
 		// If timeout is enabled, the max wait time becomes
 		// ~14 seconds (with maxRetries=100)
@@ -322,13 +305,13 @@ func (h *Host) connectHelper() (err error) {
 		ctx, cancel := ConnectionContext(time.Duration(backoffTime))
 
 		// Create the connection
-		h.connection, err = grpc.DialContext(ctx, h.address,
+		h.connection, err = grpc.DialContext(ctx, h.GetAddress(),
 			securityDial,
 			grpc.WithBlock(),
 			grpc.WithKeepaliveParams(KaClientOpts))
 		if err != nil {
 			jww.ERROR.Printf("Attempt number %+v to connect to %s failed: %+v\n",
-				numRetries, h.address, errors.New(err.Error()))
+				numRetries, h.GetAddress(), errors.New(err.Error()))
 		}
 		cancel()
 	}
@@ -337,11 +320,12 @@ func (h *Host) connectHelper() (err error) {
 	if !h.isAlive() {
 		h.disconnect()
 		return errors.New(fmt.Sprintf(
-			"Last try to connect to %s failed. Giving up", h.address))
+			"Last try to connect to %s failed. Giving up",
+			h.GetAddress()))
 	}
 
 	// Add the successful connection to the Manager
-	jww.INFO.Printf("Successfully connected to %v", h.address)
+	jww.INFO.Printf("Successfully connected to %v", h.GetAddress())
 	return
 }
 
@@ -383,9 +367,9 @@ func (h *Host) setCredentials() error {
 
 // Stringer interface for connection
 func (h *Host) String() string {
-	h.mux.RLock()
-	defer h.mux.RUnlock()
-	addr := h.address
+	h.sendMux.RLock()
+	defer h.sendMux.RUnlock()
+	addr := h.GetAddress()
 	actualConnection := h.connection
 	creds := h.credentials
 
@@ -405,13 +389,13 @@ func (h *Host) String() string {
 		securityProtocol = creds.Info().SecurityProtocol
 	}
 	return fmt.Sprintf(
-		"ID: %v\tAddr: %v\tCertificate: %s...\tTransmission Token: %v"+
-			"\tReception Token: %+v \tEnableAuth: %v"+
+		"ID: %v\tAddr: %v\tCertificate: %s...\tTransmission Live: %v"+
+			"\tReception Live: %+v \tEnableAuth: %v"+
 			"\tMaxRetries: %v\tConnState: %v"+
 			"\tTLS ServerName: %v\tTLS ProtocolVersion: %v\t"+
 			"TLS SecurityVersion: %v\tTLS SecurityProtocol: %v\n",
-		h.id, addr, h.certificate, h.transmissionToken,
-		h.receptionToken, h.enableAuth, h.maxRetries, state,
+		h.id, addr, h.certificate, h.transmissionToken.GetBytes(),
+		h.receptionToken.GetBytes(), h.enableAuth, h.maxRetries, state,
 		serverName, protocolVersion, securityVersion, securityProtocol)
 }
 
