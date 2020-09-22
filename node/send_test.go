@@ -23,9 +23,11 @@ func TestSendAskOnline(t *testing.T) {
 	testID := id.NewIdFromString("test", id.Node, t)
 	server := StartNode(testID, ServerAddress, 0, NewImplementation(), nil, nil)
 	defer server.Shutdown()
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
-	host, err := manager.AddHost(testID, ServerAddress, nil, false, false)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testID, ServerAddress, nil, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -42,9 +44,11 @@ func TestSendFinishRealtime(t *testing.T) {
 	testID := id.NewIdFromString("test", id.Node, t)
 	server := StartNode(testID, ServerAddress, 0, NewImplementation(), nil, nil)
 	defer server.Shutdown()
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
-	host, err := manager.AddHost(testID, ServerAddress, nil, false, false)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testID, ServerAddress, nil, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -61,9 +65,11 @@ func TestSendNewRound(t *testing.T) {
 	testId := id.NewIdFromString("test", id.Node, t)
 	server := StartNode(testId, ServerAddress, 0, NewImplementation(), nil, nil)
 	defer server.Shutdown()
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
-	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testId, ServerAddress, nil, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -80,9 +86,11 @@ func TestSendPostPhase(t *testing.T) {
 	testId := id.NewIdFromString("test", id.Node, t)
 	server := StartNode(testId, ServerAddress, 0, NewImplementation(), nil, nil)
 	defer server.Shutdown()
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
-	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testId, ServerAddress, nil, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -99,9 +107,11 @@ func TestSendPostRoundPublicKey(t *testing.T) {
 	testId := id.NewIdFromString("test", id.Node, t)
 	server := StartNode(testId, ServerAddress, 0, NewImplementation(), nil, nil)
 	defer server.Shutdown()
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
-	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testId, ServerAddress, nil, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -118,9 +128,11 @@ func TestSendPostPrecompResult(t *testing.T) {
 	testId := id.NewIdFromString("test", id.Node, t)
 	server := StartNode(testId, ServerAddress, 0, NewImplementation(), nil, nil)
 	defer server.Shutdown()
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
-	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testId, ServerAddress, nil, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -146,9 +158,11 @@ func TestSendGetMeasure(t *testing.T) {
 	impl.Functions.GetMeasure = mockMeasure
 	server := StartNode(testId, ServerAddress, 0, impl, nil, nil)
 	defer server.Shutdown()
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
-	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testId, ServerAddress, nil, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -179,9 +193,11 @@ func TestSendGetMeasureError(t *testing.T) {
 	ri := pb.RoundInfo{
 		ID: uint64(3),
 	}
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
-	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testId, ServerAddress, nil, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -198,9 +214,11 @@ func TestRoundTripPing(t *testing.T) {
 	testId := id.NewIdFromString("test", id.Node, t)
 	server := StartNode(testId, ServerAddress, 0, impl, nil, nil)
 	defer server.Shutdown()
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
-	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testId, ServerAddress, nil, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -228,9 +246,11 @@ func TestSendRoundError(t *testing.T) {
 	testId := id.NewIdFromString("test", id.Node, t)
 	server := StartNode(testId, ServerAddress, 0, NewImplementation(), nil, nil)
 	defer server.Shutdown()
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
-	host, err := manager.AddHost(testId, ServerAddress, nil, false, false)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testId, ServerAddress, nil, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}

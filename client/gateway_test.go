@@ -24,9 +24,11 @@ func TestSendPutMessage(t *testing.T) {
 		gateway.NewImplementation(), nil, nil, gossip.DefaultManagerFlags())
 	defer gw.Shutdown()
 	var c Comms
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
-	host, err := manager.AddHost(testID, gatewayAddress, nil, false, false)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testID, gatewayAddress, nil, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -45,9 +47,11 @@ func TestSendCheckMessages(t *testing.T) {
 		gateway.NewImplementation(), nil, nil, gossip.DefaultManagerFlags())
 	var c Comms
 	defer gw.Shutdown()
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
-	host, err := manager.AddHost(testID, gatewayAddress, nil, false, false)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testID, gatewayAddress, nil, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -70,9 +74,11 @@ func TestSendGetMessage(t *testing.T) {
 	var c Comms
 	defer gw.Shutdown()
 
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
-	host, err := manager.AddHost(testID, gatewayAddress, nil, false, false)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testID, gatewayAddress, nil, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -94,9 +100,11 @@ func TestSendRequestNonceMessage(t *testing.T) {
 		gateway.NewImplementation(), nil, nil, gossip.DefaultManagerFlags())
 	defer gw.Shutdown()
 	var c Comms
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
-	host, err := manager.AddHost(testID, gatewayAddress, nil, false, false)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testID, gatewayAddress, nil, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -115,9 +123,11 @@ func TestSendConfirmNonceMessage(t *testing.T) {
 		gateway.NewImplementation(), nil, nil, gossip.DefaultManagerFlags())
 	defer gw.Shutdown()
 	var c Comms
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
-	host, err := manager.AddHost(testID, gatewayAddress, nil, false, false)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testID, gatewayAddress, nil, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -137,9 +147,11 @@ func TestComms_SendPoll(t *testing.T) {
 		gateway.NewImplementation(), nil, nil, gossip.DefaultManagerFlags())
 	defer gw.Shutdown()
 	var c Comms
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
-	host, err := manager.AddHost(testID, gatewayAddress, nil, false, false)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testID, gatewayAddress, nil, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}

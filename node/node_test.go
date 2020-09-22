@@ -45,9 +45,11 @@ func TestTLS(t *testing.T) {
 		certData, keyData)
 	defer server.Shutdown()
 	defer server2.Shutdown()
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
-	host, err := manager.AddHost(testNodeID, serverAddress, certData, false, false)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testNodeID, serverAddress, certData, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}

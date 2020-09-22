@@ -94,6 +94,9 @@ func (s *Comms) PostPhase(ctx context.Context, msg *messages.AuthenticatedMessag
 	}
 	// Call the server handler with the msg
 	err = s.handler.PostPhase(batchMsg, authState)
+	if err != nil {
+		return &messages.Ack{}, err
+	}
 	return &messages.Ack{}, err
 }
 
@@ -131,6 +134,9 @@ func (s *Comms) PostRoundPublicKey(ctx context.Context,
 	}
 
 	err = s.handler.PostRoundPublicKey(publicKeyMsg, authState)
+	if err != nil {
+		return &messages.Ack{}, err
+	}
 	return &messages.Ack{}, err
 }
 
