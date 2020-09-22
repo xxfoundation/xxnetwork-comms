@@ -207,7 +207,7 @@ message HistoricalRoundsResponse{
 // available in a round.
 message GetMessages{
     bytes ClientID = 1;
-    bytes RoundID = 2;
+    uint64 RoundID = 2;
 }
 
 // Gateway response to a GetMessages request
