@@ -9,7 +9,7 @@ package token
 import (
 	"bytes"
 	"github.com/pkg/errors"
-	"gitlab.com/elixxir/crypto/nonce"
+	"gitlab.com/xx_network/crypto/nonce"
 	"sync"
 )
 

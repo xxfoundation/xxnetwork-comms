@@ -8,7 +8,7 @@ package token
 
 import (
 	"bytes"
-	nonce2 "gitlab.com/elixxir/crypto/nonce"
+	nonce2 "gitlab.com/xx_network/crypto/nonce"
 	"reflect"
 	"testing"
 )

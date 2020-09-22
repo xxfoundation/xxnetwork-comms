@@ -32,7 +32,7 @@ import (
 func TestProtocol_AddGossipPeer(t *testing.T) {
 	p := setup(t)
 	testHostID := id.NewIdFromString("testhost", id.Node, t)
-	_, err := p.comms.AddHost(testHostID, "0.0.0.0:420", nil, true, false)
+	_, err := p.comms.AddHost(testHostID, "0.0.0.0:420", nil, connect.GetDefaultHostParams())
 	if err != nil {
 		t.Errorf("Failed to add test host: %+v", err)
 	}
@@ -179,7 +179,7 @@ func setup(t *testing.T) *Protocol {
 		return nil
 	}
 	c := &connect.ProtoComms{
-		Manager: connect.Manager{},
+		Manager: &connect.Manager{},
 	}
 	return &Protocol{
 		comms:            c,
@@ -445,7 +445,7 @@ func TestGossipNodes(t *testing.T) {
 		for j := 0; j < numNodes; j++ {
 			if i != j {
 				peers = append(peers, nodes[j])
-				_, err := managers[i].comms.AddHost(nodes[j], "127.0.0.1:"+ports[j], certPEM, false, false)
+				_, err := managers[i].comms.AddHost(nodes[j], "127.0.0.1:"+ports[j], certPEM, connect.GetDefaultHostParams())
 				if err != nil {
 					t.Fatal(err)
 				}
