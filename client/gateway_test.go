@@ -177,7 +177,7 @@ func TestComms_RequestMessages(t *testing.T) {
 	var c Comms
 	var manager connect.Manager
 
-	host, err := manager.AddHost(testID, gatewayAddress, nil, false, false)
+	host, err := manager.AddHost(testID, gatewayAddress, nil, connect.GetDefaultHostParams())
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -199,7 +199,7 @@ func TestComms_RequestHistoricalRounds(t *testing.T) {
 	var c Comms
 	var manager connect.Manager
 
-	host, err := manager.AddHost(testID, gatewayAddress, nil, false, false)
+	host, err := manager.AddHost(testID, gatewayAddress, nil, connect.GetDefaultHostParams())
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}

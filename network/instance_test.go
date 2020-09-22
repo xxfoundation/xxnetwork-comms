@@ -875,7 +875,7 @@ func TestInstance_RoundUpdateAddsToERS(t *testing.T) {
 	}
 
 	// Add a permissioning host
-	_, err = i.comm.AddHost(&id.Permissioning, "0.0.0.0:4200", pub, false, true)
+	_, err = i.comm.AddHost(&id.Permissioning, "0.0.0.0:4200", pub, connect.GetDefaultHostParams())
 	if err != nil {
 		t.Errorf("Failed to add permissioning host: %+v", err)
 	}
