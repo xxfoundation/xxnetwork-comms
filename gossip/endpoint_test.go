@@ -131,6 +131,6 @@ func TestManager_Endpoint_AddProtocol(t *testing.T) {
 
 }
 
-func TestComms_Stream(t *testing.T) {
-	// TODO: Implement test once streaming is enabled
-}
+//func TestComms_Stream(t *testing.T) {
+//	// TODO: Implement test once streaming is enabled
+//}
