@@ -206,8 +206,8 @@ func NewInstanceTesting(c *connect.ProtoComms, partial, full *ndf.NetworkDefinit
 		return nil, errors.Errorf("Unable to create instance: %+v", err)
 	}
 
-	instance.cmixGroup.UpdateCyclicGroupTesting(cmixGroup, t)
-	instance.e2eGroup.UpdateCyclicGroupTesting(e2eGroup, t)
+	instance.cmixGroup.UpdateCyclicGroupTesting(cmixGroup, i)
+	instance.e2eGroup.UpdateCyclicGroupTesting(e2eGroup, i)
 
 	return instance, nil
 }
