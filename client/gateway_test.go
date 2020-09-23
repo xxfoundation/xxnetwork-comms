@@ -61,31 +61,6 @@ func TestSendCheckMessages(t *testing.T) {
 	}
 }
 
-// Smoke test SendGetMessage
-func TestSendGetMessage(t *testing.T) {
-	gatewayAddress := getNextAddress()
-	testID := id.NewIdFromString("test", id.Gateway, t)
-	gw := gateway.StartGateway(testID, gatewayAddress,
-		gateway.NewImplementation(), nil, nil, gossip.DefaultManagerFlags())
-	var c Comms
-	defer gw.Shutdown()
-
-	var manager connect.Manager
-
-	host, err := manager.AddHost(testID, gatewayAddress, nil, false, false)
-	if err != nil {
-		t.Errorf("Unable to call NewHost: %+v", err)
-	}
-
-	testUserID := id.NewIdFromString("Test User", id.User, t)
-	testUserEntityID := &pb.ClientRequest{UserID: testUserID.Bytes()}
-
-	_, err = c.SendGetMessage(host, testUserEntityID)
-	if err != nil {
-		t.Errorf("GetMessage: Error received: %s", err)
-	}
-}
-
 // Smoke test SendRequestNonceMessage
 func TestSendRequestNonceMessage(t *testing.T) {
 	gatewayAddress := getNextAddress()
@@ -171,7 +146,7 @@ func TestComms_RequestMessages(t *testing.T) {
 	}
 
 	_, err = c.RequestMessages(host,
-		&pb.GetMessages{})
+		&pb.MessageRequest{})
 	if err != nil {
 		t.Errorf("SendPoll: Error received: %+v", err)
 	}

@@ -145,10 +145,6 @@ service Gateway {
     rpc CheckMessages (ClientRequest) returns (IDList) {
     }
 
-    // GetMessage a Batch from the gateway for the given message information
-    rpc GetMessage (ClientRequest) returns (Slot) {
-    }
-
     // PutMessage on the cMix Gateway
     rpc PutMessage (GatewaySlot) returns (GatewaySlotResponse) {
     }
@@ -170,48 +166,48 @@ service Gateway {
     }
 
     // Client -> Gateway historical round request
-    rpc RequestHistoricalRounds(HistoricalRounds) returns (HistoricalRoundsResponse) {
+    rpc RequestHistoricalRounds (HistoricalRounds) returns (HistoricalRoundsResponse) {
     }
 
     // Client -> Gateway message request
-    rpc RequestMessages(GetMessages) returns (GetMessagesResponse) {
+    rpc RequestMessages (MessageRequest) returns (RequestMessagesResponse) {
     }
 
     // Client -> Gateway bloom request
-    rpc RequestBloom(GetBloom) returns (GetBloomResponse) {
+    rpc RequestBloom (GetBloom) returns (GetBloomResponse) {
     }
 }
 
 // Client -> Gateway request for bloom filter for available messages
-message GetBloom{
+message GetBloom {
     bytes ClientID = 1;
 }
 
 // Gateway's response to client's request for bloom filters
-message GetBloomResponse{
+message GetBloomResponse {
     repeated bytes Filters = 1;
 }
 
 // Client -> gateway request for information about historical rounds
-message HistoricalRounds{
+message HistoricalRounds {
     repeated uint64 rounds = 1;
 }
 
 // Gateway's response to client's request for previous (historical) rounds
-message HistoricalRoundsResponse{
+message HistoricalRoundsResponse {
     repeated RoundInfo Rounds = 1;
 }
 
 // Client -> gateway request for available messages
 // The query will be a request for all messages
 // available in a round.
-message GetMessages{
+message MessageRequest {
     bytes ClientID = 1;
     uint64 RoundID = 2;
 }
 
 // Gateway response to a GetMessages request
-message GetMessagesResponse{
+message RequestMessagesResponse {
     repeated Slot Messages = 1;
     bool HasRound = 2;
 }

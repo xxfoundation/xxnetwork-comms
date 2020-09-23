@@ -25,8 +25,6 @@ import (
 type Handler interface {
 	// Return any MessageIDs in the buffer for this UserID
 	CheckMessages(userID *id.ID, messageID string, ipAddress string) ([]string, error)
-	// Returns the message matching the given parameters to the client
-	GetMessage(userID *id.ID, msgID string, ipAddress string) (*pb.Slot, error) // todo: depracate?
 	// Upload a message to the cMix Gateway
 	PutMessage(message *pb.GatewaySlot, ipAddress string) (*pb.GatewaySlotResponse, error)
 	// Pass-through for Registration Nonce Communication
@@ -41,7 +39,7 @@ type Handler interface {
 	// Client -> Gateway historical round request
 	RequestHistoricalRounds(msg *pb.HistoricalRounds) (*pb.HistoricalRoundsResponse, error)
 	// Client -> Gateway message request
-	RequestMessages(msg *pb.GetMessages) (*pb.GetMessagesResponse, error)
+	RequestMessages(msg *pb.MessageRequest) (*pb.RequestMessagesResponse, error)
 	// Client -> Gateway bloom request
 	RequestBloom(msg *pb.GetBloom) (*pb.GetBloomResponse, error)
 }
@@ -94,8 +92,6 @@ func StartGateway(id *id.ID, localServer string, handler Handler,
 type implementationFunctions struct {
 	// Return any MessageIDs in the buffer for this UserID
 	CheckMessages func(userID *id.ID, messageID string, ipAddress string) ([]string, error)
-	// Returns the message matching the given parameters to the client
-	GetMessage func(userID *id.ID, msgID string, ipAddress string) (*pb.Slot, error)
 	// Upload a message to the cMix Gateway
 	PutMessage func(message *pb.GatewaySlot, ipAddress string) (*pb.GatewaySlotResponse, error)
 	// Pass-through for Registration Nonce Communication
@@ -110,7 +106,7 @@ type implementationFunctions struct {
 	// Client -> Gateway historical round request
 	RequestHistoricalRounds func(msg *pb.HistoricalRounds) (*pb.HistoricalRoundsResponse, error)
 	// Client -> Gateway message request
-	RequestMessages func(msg *pb.GetMessages) (*pb.GetMessagesResponse, error)
+	RequestMessages func(msg *pb.MessageRequest) (*pb.RequestMessagesResponse, error)
 	// Client -> Gateway bloom request
 	RequestBloom func(msg *pb.GetBloom) (*pb.GetBloomResponse, error)
 }
@@ -133,10 +129,6 @@ func NewImplementation() *Implementation {
 			CheckMessages: func(userID *id.ID, messageID string, ipAddress string) ([]string, error) {
 				warn(um)
 				return nil, nil
-			},
-			GetMessage: func(userID *id.ID, msgID string, ipAddress string) (*pb.Slot, error) {
-				warn(um)
-				return &pb.Slot{}, nil
 			},
 			PutMessage: func(message *pb.GatewaySlot, ipAddress string) (*pb.GatewaySlotResponse, error) {
 				warn(um)
@@ -162,9 +154,9 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return &pb.HistoricalRoundsResponse{}, nil
 			},
-			RequestMessages: func(msg *pb.GetMessages) (*pb.GetMessagesResponse, error) {
+			RequestMessages: func(msg *pb.MessageRequest) (*pb.RequestMessagesResponse, error) {
 				warn(um)
-				return &pb.GetMessagesResponse{}, nil
+				return &pb.RequestMessagesResponse{}, nil
 			},
 			RequestBloom: func(msg *pb.GetBloom) (*pb.GetBloomResponse, error) {
 				warn(um)
@@ -178,12 +170,6 @@ func NewImplementation() *Implementation {
 func (s *Implementation) CheckMessages(userID *id.ID, messageID string, ipAddress string) (
 	[]string, error) {
 	return s.Functions.CheckMessages(userID, messageID, ipAddress)
-}
-
-// Returns the message matching the given parameters to the client
-func (s *Implementation) GetMessage(userID *id.ID, msgID string, ipAddress string) (
-	*pb.Slot, error) {
-	return s.Functions.GetMessage(userID, msgID, ipAddress)
 }
 
 // Upload a message to the cMix Gateway
@@ -219,7 +205,7 @@ func (s *Implementation) RequestHistoricalRounds(msg *pb.HistoricalRounds) (*pb.
 }
 
 // Client -> Gateway historical round request
-func (s *Implementation) RequestMessages(msg *pb.GetMessages) (*pb.GetMessagesResponse, error) {
+func (s *Implementation) RequestMessages(msg *pb.MessageRequest) (*pb.RequestMessagesResponse, error) {
 	return s.Functions.RequestMessages(msg)
 }
 

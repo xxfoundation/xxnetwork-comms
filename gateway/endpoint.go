@@ -54,29 +54,6 @@ func (g *Comms) CheckMessages(ctx context.Context,
 	return returnMsg, err
 }
 
-// Sends a message matching the given parameters to a client
-func (g *Comms) GetMessage(ctx context.Context, msg *pb.ClientRequest) (
-	*pb.Slot, error) {
-
-	// Get peer information from context
-	addr, _, err := connect.GetAddressFromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	userID, err := id.Unmarshal(msg.UserID)
-	if err != nil {
-		return nil, err
-	}
-
-	returnMsg, err := g.handler.GetMessage(userID, msg.LastMessageID, addr)
-	if err != nil {
-		// Return an empty message if no results
-		returnMsg = &pb.Slot{}
-	}
-	return returnMsg, err
-}
-
 // Receives a single message from a client
 func (g *Comms) PutMessage(ctx context.Context, msg *pb.GatewaySlot) (*pb.GatewaySlotResponse,
 	error) {
@@ -152,7 +129,7 @@ func (g *Comms) RequestHistoricalRounds(ctx context.Context, msg *pb.HistoricalR
 }
 
 // Client -> Gateway message request
-func (g *Comms) RequestMessages(ctx context.Context, msg *pb.GetMessages) (*pb.GetMessagesResponse, error) {
+func (g *Comms) RequestMessages(ctx context.Context, msg *pb.MessageRequest) (*pb.RequestMessagesResponse, error) {
 	return g.handler.RequestMessages(msg)
 }
 
