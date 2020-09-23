@@ -14,6 +14,7 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
+	"gitlab.com/elixxir/client/globals"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	ds "gitlab.com/elixxir/comms/network/dataStructures"
 	"gitlab.com/elixxir/crypto/cyclic"
@@ -22,6 +23,7 @@ import (
 	"gitlab.com/xx_network/crypto/signature"
 	"gitlab.com/xx_network/primitives/id"
 	"gitlab.com/xx_network/primitives/ndf"
+	"log"
 	"testing"
 )
 
@@ -188,9 +190,16 @@ func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition,
 
 // Utility function to create instance FOR TESTING PURPOSES ONLY
 func NewInstanceTesting(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition,
-	e2eGroup, cmixGroup *cyclic.Group, t *testing.T) (*Instance, error) {
-	if t == nil {
-		panic("This is a utility function for testing purposes only!")
+	e2eGroup, cmixGroup *cyclic.Group, i interface{}) (*Instance, error) {
+	switch i.(type) {
+	case *testing.T:
+		break
+	case *testing.M:
+		break
+	case *testing.B:
+		break
+	default:
+		jww.FATAL.Panicf("NewInstanceTesting is restricted to testing only. Got %T", i)
 	}
 	instance, err := NewInstance(c, partial, full, nil)
 	if err != nil {
