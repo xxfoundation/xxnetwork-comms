@@ -179,7 +179,7 @@ func setup(t *testing.T) *Protocol {
 		return nil
 	}
 	c := &connect.ProtoComms{
-		Manager: &connect.Manager{},
+		Manager: connect.NewManagerTesting(t),
 	}
 	return &Protocol{
 		comms:            c,
