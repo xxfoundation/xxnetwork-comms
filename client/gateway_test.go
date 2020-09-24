@@ -10,6 +10,7 @@ package client
 import (
 	"gitlab.com/elixxir/comms/gateway"
 	pb "gitlab.com/elixxir/comms/mixmessages"
+	"gitlab.com/elixxir/comms/testkeys"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/gossip"
 	"gitlab.com/xx_network/primitives/id"
@@ -171,19 +172,54 @@ func TestComms_SendPoll(t *testing.T) {
 func TestComms_RequestMessages(t *testing.T) {
 	gatewayAddress := getNextAddress()
 	testID := id.NewIdFromString("test", id.Gateway, t)
+	pk := testkeys.LoadFromPath(testkeys.GetGatewayKeyPath())
+
 	gw := gateway.StartGateway(testID, gatewayAddress,
 		gateway.NewImplementation(), nil, nil, gossip.DefaultManagerFlags())
 	defer gw.Shutdown()
-	var c Comms
-	var manager connect.Manager
+	c, err := NewClientComms(testID, nil, pk, nil)
+	if err != nil {
+		t.Errorf("Could not start client: %v", err)
+	}
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
 
-	host, err := manager.AddHost(testID, gatewayAddress, nil, connect.GetDefaultHostParams())
+	host, err := c.Manager.AddHost(testID, gatewayAddress, nil, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
 
 	_, err = c.RequestMessages(host,
 		&pb.GetMessages{})
+	if err != nil {
+		t.Errorf("SendPoll: Error received: %+v", err)
+	}
+}
+
+// Smoke test RequestBloom
+func TestComms_RequestBloom(t *testing.T) {
+	gatewayAddress := getNextAddress()
+	testID := id.NewIdFromString("test", id.Gateway, t)
+	gw := gateway.StartGateway(testID, gatewayAddress,
+		gateway.NewImplementation(), nil, nil, gossip.DefaultManagerFlags())
+	defer gw.Shutdown()
+	pk := testkeys.LoadFromPath(testkeys.GetGatewayKeyPath())
+
+	c, err := NewClientComms(testID, nil, pk, nil)
+	if err != nil {
+		t.Errorf("Could not start client: %v", err)
+	}
+
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+
+	host, err := c.Manager.AddHost(testID, gatewayAddress, nil, params)
+	if err != nil {
+		t.Errorf("Unable to call NewHost: %+v", err)
+	}
+
+	_, err = c.RequestBloom(host,
+		&pb.GetBloom{})
 	if err != nil {
 		t.Errorf("SendPoll: Error received: %+v", err)
 	}
@@ -196,16 +232,23 @@ func TestComms_RequestHistoricalRounds(t *testing.T) {
 	gw := gateway.StartGateway(testID, gatewayAddress,
 		gateway.NewImplementation(), nil, nil, gossip.DefaultManagerFlags())
 	defer gw.Shutdown()
-	var c Comms
-	var manager connect.Manager
+	pk := testkeys.LoadFromPath(testkeys.GetGatewayKeyPath())
 
-	host, err := manager.AddHost(testID, gatewayAddress, nil, connect.GetDefaultHostParams())
+	c, err := NewClientComms(testID, nil, pk, nil)
+	if err != nil {
+		t.Errorf("Could not start client: %v", err)
+	}
+
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+
+	host, err := c.Manager.AddHost(testID, gatewayAddress, nil, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
 
-	_, err = c.RequestBloom(host,
-		&pb.GetBloom{})
+	_, err = c.RequestHistoricalRounds(host,
+		&pb.HistoricalRounds{})
 	if err != nil {
 		t.Errorf("SendPoll: Error received: %+v", err)
 	}
