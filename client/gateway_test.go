@@ -10,6 +10,7 @@ package client
 import (
 	"gitlab.com/elixxir/comms/gateway"
 	pb "gitlab.com/elixxir/comms/mixmessages"
+	"gitlab.com/elixxir/comms/testkeys"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/gossip"
 	"gitlab.com/xx_network/primitives/id"
@@ -171,13 +172,19 @@ func TestComms_SendPoll(t *testing.T) {
 func TestComms_RequestMessages(t *testing.T) {
 	gatewayAddress := getNextAddress()
 	testID := id.NewIdFromString("test", id.Gateway, t)
+	pk := testkeys.LoadFromPath(testkeys.GetGatewayKeyPath())
+
 	gw := gateway.StartGateway(testID, gatewayAddress,
 		gateway.NewImplementation(), nil, nil, gossip.DefaultManagerFlags())
 	defer gw.Shutdown()
-	var c Comms
-	var manager connect.Manager
+	c, err := NewClientComms(testID, nil, pk, nil)
+	if err != nil {
+		t.Errorf("Could not start client: %v", err)
+	}
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
 
-	host, err := manager.AddHost(testID, gatewayAddress, nil, false, false)
+	host, err := c.Manager.AddHost(testID, gatewayAddress, nil, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -196,10 +203,17 @@ func TestComms_RequestHistoricalRounds(t *testing.T) {
 	gw := gateway.StartGateway(testID, gatewayAddress,
 		gateway.NewImplementation(), nil, nil, gossip.DefaultManagerFlags())
 	defer gw.Shutdown()
-	var c Comms
-	var manager connect.Manager
+	pk := testkeys.LoadFromPath(testkeys.GetGatewayKeyPath())
 
-	host, err := manager.AddHost(testID, gatewayAddress, nil, false, false)
+	c, err := NewClientComms(testID, nil, pk, nil)
+	if err != nil {
+		t.Errorf("Could not start client: %v", err)
+	}
+
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+
+	host, err := c.Manager.AddHost(testID, gatewayAddress, nil, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}

@@ -867,7 +867,10 @@ func TestInstance_RoundUpdateAddsToERS(t *testing.T) {
 	}
 
 	// Build the Instance object with an ERS memory map
-	pc := &connect.ProtoComms{}
+	pc := &connect.ProtoComms{
+		Manager: 	connect.NewManagerTesting(t),
+	}
+
 	var ers ds.ExternalRoundStorage = &ersMemMap{rounds: make(map[id.Round]*mixmessages.RoundInfo)}
 	i, err := NewInstance(pc, baseNDF, baseNDF, ers)
 	if err != nil {
@@ -875,7 +878,7 @@ func TestInstance_RoundUpdateAddsToERS(t *testing.T) {
 	}
 
 	// Add a permissioning host
-	_, err = i.comm.AddHost(&id.Permissioning, "0.0.0.0:4200", pub, false, true)
+	_, err = i.comm.AddHost(&id.Permissioning, "0.0.0.0:4200", pub, connect.GetDefaultHostParams())
 	if err != nil {
 		t.Errorf("Failed to add permissioning host: %+v", err)
 	}
