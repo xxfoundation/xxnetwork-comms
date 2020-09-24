@@ -219,7 +219,7 @@ func TestCircuit_GetHostAtIndex(t *testing.T) {
 	cert, _ := utils.ReadFile(testkeys.GetNodeCertPath())
 	circuit := NewCircuit(nodeIdList)
 	testID := id.NewIdFromString("test", id.Generic, t)
-	testHost, _ := connect.NewHost(testID, "test", cert, false, false)
+	testHost, _ := connect.NewHost(testID, "test", cert, connect.GetDefaultHostParams())
 	circuit.AddHost(testHost)
 
 	if !reflect.DeepEqual(circuit.hosts[0], testHost) {

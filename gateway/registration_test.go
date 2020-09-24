@@ -28,9 +28,11 @@ func TestSendRequestNonceMessage(t *testing.T) {
 		nil, nil)
 	defer gateway.Shutdown()
 	defer server.Shutdown()
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
-	host, err := manager.AddHost(testID, ServerAddress, nil, false, false)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testID, ServerAddress, nil, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -58,9 +60,11 @@ func TestSendConfirmNonceMessage(t *testing.T) {
 		nil, nil)
 	defer gateway.Shutdown()
 	defer server.Shutdown()
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
-	host, err := manager.AddHost(testID, ServerAddress, nil, false, false)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testID, ServerAddress, nil, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -84,9 +88,11 @@ func TestPoll(t *testing.T) {
 		nil, nil)
 	defer gateway.Shutdown()
 	defer server.Shutdown()
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
-	host, err := manager.AddHost(testID, ServerAddress, nil, false, false)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testID, ServerAddress, nil, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
