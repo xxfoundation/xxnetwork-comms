@@ -447,7 +447,6 @@ func TestGossipNodes(t *testing.T) {
 				peers = append(peers, nodes[j])
 				params := connect.GetDefaultHostParams()
 				params.AuthEnabled = false
-
 				_, err := managers[i].comms.AddHost(nodes[j], "127.0.0.1:"+ports[j], certPEM, params)
 				if err != nil {
 					t.Fatal(err)
