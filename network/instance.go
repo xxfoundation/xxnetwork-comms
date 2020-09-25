@@ -61,8 +61,8 @@ type Heartbeat struct {
 }
 
 // Combines a node and gateway together together for return over channels
-type NodeGateway struct{
-	Node ndf.Node
+type NodeGateway struct {
+	Node    ndf.Node
 	Gateway ndf.Gateway
 }
 
@@ -277,7 +277,7 @@ func (i *Instance) GetNodeAndGateway(ngid *id.ID) (NodeGateway, error) {
 	index := -1
 
 	def := i.GetFullNdf()
-	if def==nil{
+	if def == nil {
 		def = i.GetPartialNdf()
 	}
 
@@ -285,35 +285,35 @@ func (i *Instance) GetNodeAndGateway(ngid *id.ID) (NodeGateway, error) {
 
 	// depending on if the passed id is a node or gateway ID, look it up in the
 	// correct list
-	if ngid.GetType() == id.Node{
-		for i, n := range def.Get().Nodes{
-			if bytes.Compare(n.ID,idBytes)==0{
+	if ngid.GetType() == id.Node {
+		for i, n := range def.Get().Nodes {
+			if bytes.Compare(n.ID, idBytes) == 0 {
 				index = i
 				break
 			}
 		}
-	}else if ngid.GetType() == id.Gateway{
-		for i, g := range def.Get().Nodes{
-			if bytes.Compare(g.ID,idBytes)==0{
+	} else if ngid.GetType() == id.Gateway {
+		for i, g := range def.Get().Nodes {
+			if bytes.Compare(g.ID, idBytes) == 0 {
 				index = i
 				break
 			}
 		}
-	}else{
-		return NodeGateway{}, errors.Errorf("The passed ID is not for " +
+	} else {
+		return NodeGateway{}, errors.Errorf("The passed ID is not for "+
 			"a node or gateway: %s", ngid)
 	}
 
 	//if no node or gateway is found, return an error
-	if index==-1{
-		return NodeGateway{}, errors.Errorf("Failed to find Node or " +
+	if index == -1 {
+		return NodeGateway{}, errors.Errorf("Failed to find Node or "+
 			"Gateway with ID %s", ngid)
 	}
 
 	//return the found node and gateway
 	return NodeGateway{
 		Node:    def.Get().Nodes[index],
-		Gateway:  def.Get().Gateways[index],
+		Gateway: def.Get().Gateways[index],
 	}, nil
 }
 
@@ -589,7 +589,7 @@ func (i *Instance) updateConns(def *ndf.NetworkDefinition, isGateway, isNode boo
 				// Send events into Node Listener
 				if i.addGateway != nil {
 					ng := NodeGateway{
-						Node:   def.Nodes[index],
+						Node:    def.Nodes[index],
 						Gateway: gateway,
 					}
 
@@ -631,7 +631,7 @@ func (i *Instance) updateConns(def *ndf.NetworkDefinition, isGateway, isNode boo
 				// Send events into Node Listener
 				if i.addNode != nil {
 					ng := NodeGateway{
-						Node:   node,
+						Node:    node,
 						Gateway: def.Gateways[index],
 					}
 

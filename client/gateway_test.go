@@ -175,9 +175,11 @@ func TestComms_RequestMessages(t *testing.T) {
 		gateway.NewImplementation(), nil, nil, gossip.DefaultManagerFlags())
 	defer gw.Shutdown()
 	var c Comms
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
-	host, err := manager.AddHost(testID, gatewayAddress, nil, false, false)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testID, gatewayAddress, nil, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
@@ -197,9 +199,11 @@ func TestComms_RequestHistoricalRounds(t *testing.T) {
 		gateway.NewImplementation(), nil, nil, gossip.DefaultManagerFlags())
 	defer gw.Shutdown()
 	var c Comms
-	var manager connect.Manager
+	manager := connect.NewManagerTesting(t)
 
-	host, err := manager.AddHost(testID, gatewayAddress, nil, false, false)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testID, gatewayAddress, nil, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
