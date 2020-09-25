@@ -66,9 +66,6 @@ func (s *Comms) GetPostPhaseStreamClient(host *connect.Host,
 
 	ctx, cancel := s.getPostPhaseStreamContext(&header)
 
-	// Add authentication information to streaming context
-	ctx = s.PackAuthenticatedContext(host, ctx)
-
 	streamClient, err := s.getPostPhaseStream(host, ctx)
 	if err != nil {
 		return nil, nil, err
@@ -102,6 +99,10 @@ func (s *Comms) getPostPhaseStream(host *connect.Host,
 
 	// Create the Stream Function
 	f := func(conn *grpc.ClientConn) (interface{}, error) {
+
+		// Add authentication information to streaming context
+		ctx = s.PackAuthenticatedContext(host, ctx)
+
 		// Get the stream client
 		streamClient, err := pb.NewNodeClient(conn).StreamPostPhase(ctx)
 		if err != nil {
