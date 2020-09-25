@@ -17,7 +17,11 @@ import (
 
 // Test endpoint when manager has a protocol
 func TestManager_Endpoint_toProtocol(t *testing.T) {
-	m := NewManager(&connect.ProtoComms{}, DefaultManagerFlags())
+	pc := &connect.ProtoComms{
+		Manager: connect.NewManagerTesting(t),
+	}
+
+	m := NewManager(pc, DefaultManagerFlags())
 
 	var received bool
 	r := func(msg *GossipMsg) error {
@@ -47,7 +51,11 @@ func TestManager_Endpoint_toProtocol(t *testing.T) {
 
 // Test endpoint function when there is no protocol and no buffer record
 func TestManager_Endpoint_toNewBuffer(t *testing.T) {
-	m := NewManager(&connect.ProtoComms{}, DefaultManagerFlags())
+	pc := &connect.ProtoComms{
+		Manager: connect.NewManagerTesting(t),
+	}
+
+	m := NewManager(pc, DefaultManagerFlags())
 	_, err := m.Endpoint(context.Background(), &GossipMsg{
 		Tag:       "test",
 		Origin:    []byte("origin"),
@@ -68,7 +76,11 @@ func TestManager_Endpoint_toNewBuffer(t *testing.T) {
 
 // Test endpoint function when there is no protocol, but an existing buffer
 func TestComms_Endpoint_toExistingBuffer(t *testing.T) {
-	m := NewManager(&connect.ProtoComms{}, DefaultManagerFlags())
+	pc := &connect.ProtoComms{
+		Manager: connect.NewManagerTesting(t),
+	}
+
+	m := NewManager(pc, DefaultManagerFlags())
 	now := time.Now()
 	m.buffer["test"] = &MessageRecord{
 		Timestamp: now,
@@ -93,7 +105,11 @@ func TestComms_Endpoint_toExistingBuffer(t *testing.T) {
 }
 
 func TestManager_Endpoint_AddProtocol(t *testing.T) {
-	m := NewManager(&connect.ProtoComms{}, DefaultManagerFlags())
+	pc := &connect.ProtoComms{
+		Manager: connect.NewManagerTesting(t),
+	}
+
+	m := NewManager(pc, DefaultManagerFlags())
 	_, err := m.Endpoint(context.Background(), &GossipMsg{
 		Tag:       "test",
 		Origin:    []byte("origin"),

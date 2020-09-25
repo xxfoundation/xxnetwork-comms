@@ -2,7 +2,7 @@ package token
 
 import (
 	jww "github.com/spf13/jwalterweatherman"
-	"gitlab.com/elixxir/crypto/nonce"
+	"gitlab.com/xx_network/crypto/nonce"
 	"sync"
 )
 

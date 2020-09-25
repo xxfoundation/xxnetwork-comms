@@ -16,7 +16,11 @@ import (
 
 // Basic test on manager creation
 func TestNewManager(t *testing.T) {
-	m := NewManager(&connect.ProtoComms{}, DefaultManagerFlags())
+	pc := &connect.ProtoComms{
+		Manager: connect.NewManagerTesting(t),
+	}
+
+	m := NewManager(pc, DefaultManagerFlags())
 	if m.buffer == nil || m.protocols == nil {
 		t.Error("Failed to initialize all fields properly")
 	}
@@ -24,7 +28,11 @@ func TestNewManager(t *testing.T) {
 
 // Happy path test for adding new gossip protocol
 func TestManager_NewGossip(t *testing.T) {
-	m := NewManager(&connect.ProtoComms{}, DefaultManagerFlags())
+	pc := &connect.ProtoComms{
+		Manager: connect.NewManagerTesting(t),
+	}
+
+	m := NewManager(pc, DefaultManagerFlags())
 
 	r := func(msg *GossipMsg) error {
 		return nil
@@ -41,7 +49,11 @@ func TestManager_NewGossip(t *testing.T) {
 
 // Happy path test for new gossip protocol with messages in buffer for that tag
 func TestManager_NewGossip_WithBuffer(t *testing.T) {
-	m := NewManager(&connect.ProtoComms{}, DefaultManagerFlags())
+	pc := &connect.ProtoComms{
+		Manager: connect.NewManagerTesting(t),
+	}
+
+	m := NewManager(pc, DefaultManagerFlags())
 	m.buffer["test"] = &MessageRecord{
 		Timestamp: time.Time{},
 		Messages:  []*GossipMsg{{Tag: "testmsg"}},
@@ -74,7 +86,11 @@ func TestManager_NewGossip_WithBuffer(t *testing.T) {
 
 // Basic unit test for getting a protocol
 func TestManager_Get(t *testing.T) {
-	m := NewManager(&connect.ProtoComms{}, DefaultManagerFlags())
+	pc := &connect.ProtoComms{
+		Manager: connect.NewManagerTesting(t),
+	}
+
+	m := NewManager(pc, DefaultManagerFlags())
 	m.protocols = map[string]*Protocol{"test": {}}
 
 	_, ok := m.Get("test")
@@ -85,7 +101,11 @@ func TestManager_Get(t *testing.T) {
 
 // Basic unit test for deleting a protocol
 func TestManager_Delete(t *testing.T) {
-	m := NewManager(&connect.ProtoComms{}, DefaultManagerFlags())
+	pc := &connect.ProtoComms{
+		Manager: connect.NewManagerTesting(t),
+	}
+
+	m := NewManager(pc, DefaultManagerFlags())
 	m.protocols = map[string]*Protocol{"test": {}}
 
 	m.Delete("test")
