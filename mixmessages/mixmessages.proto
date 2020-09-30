@@ -282,6 +282,12 @@ message BatchSenders {
     repeated bytes SenderIds = 1;
 }
 
+// Gateway -> Gateway gossip of all recipient IDs in a Batch
+message Recipients {
+    repeated bytes SenderIds = 1;
+}
+
+
 // REGISTRATION MESSAGE SERVICE ------------------------------------------------
 
 // Registration service definition
