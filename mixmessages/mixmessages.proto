@@ -285,6 +285,7 @@ message BatchSenders {
 // Gateway -> Gateway gossip of all recipient IDs in a Batch
 message Recipients {
     repeated bytes RecipientIds = 1;
+    uint64 RoundID = 2;
 }
 
 
