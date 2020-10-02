@@ -299,7 +299,7 @@ func (h *Host) connectHelper() (err error) {
 		if backoffTime > 15 {
 			backoffTime = 15
 		}
-		ctx, cancel := ConnectionContext(time.Duration(backoffTime))
+		ctx, cancel := ConnectionContext(time.Duration(backoffTime) * time.Second)
 
 		// Create the connection
 		h.connection, err = grpc.DialContext(ctx, h.GetAddress(),
