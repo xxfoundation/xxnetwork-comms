@@ -252,6 +252,9 @@ message GatewayPoll {
     NDFHash Partial = 1;
     uint64 LastUpdate = 2;
     bytes ClientID = 3;
+    uint64 FirstRound = 4;
+    uint64 LastRound = 5;
+
 }
 
 // Unified Client->Gateway polling response
