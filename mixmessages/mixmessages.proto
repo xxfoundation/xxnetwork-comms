@@ -263,10 +263,10 @@ message GatewayPollResponse {
     repeated RoundInfo Updates = 2; // Empty if no update needed
     uint64 LastTrackedRound = 3; // Id of the last round tracked
     bytes KnownRounds = 4; // Rounds gateway knows about
-    repeated bytes UserFilterNew = 5; // Latest Bloom filter of the requested client
-    repeated bytes UserFilterOld = 6; // Previous Bloom filter of the requested client
-    repeated bytes EphemeralFilterNew = 7; // Latest Bloom filter of the requested ephemeral user
-    repeated bytes EphemeralFilterOld = 8; // Previous Bloom filter of the requested ephemeral user
+    bytes UserFilterNew = 5; // Latest Bloom filter of the requested client
+    bytes UserFilterOld = 6; // Previous Bloom filter of the requested client
+    bytes EphemeralFilterNew = 7; // Latest Bloom filter of the requested ephemeral user
+    bytes EphemeralFilterOld = 8; // Previous Bloom filter of the requested ephemeral user
 
 }
 
