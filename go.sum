@@ -160,6 +160,8 @@ gitlab.com/elixxir/crypto v0.0.0-20200921195205-bca0178268ec h1:8dnRUCSNz7knf+K5
 gitlab.com/elixxir/crypto v0.0.0-20200921195205-bca0178268ec/go.mod h1:1P3IMJ6i3L+5si0PiMvoo/qQXMsEhNVjn0yMUrm3eiA=
 gitlab.com/elixxir/crypto v0.0.0-20201005195400-f1f9c773c332 h1:zDBp9J5muvATFEx7NhF39xqD9bKwKOBIQ8Mf6FsJSi8=
 gitlab.com/elixxir/crypto v0.0.0-20201005195400-f1f9c773c332/go.mod h1:IWqcgmrUXHg1+lUM9CbNIvCDm6ySeHEpVaXuiMUK35M=
+gitlab.com/elixxir/crypto v0.0.0-20201005220333-86bc10616e5d h1:9csJlj5uzarXq4VUnaT8TbdL9aT3MkfFfqXTXNRrULs=
+gitlab.com/elixxir/crypto v0.0.0-20201005220333-86bc10616e5d/go.mod h1:SdvcSJvuFNcdk7eUcRnq6zn2mcsU3Ks5ywVAgw0V2f8=
 gitlab.com/elixxir/ekv v0.0.0-20200729182028-159355ea5842/go.mod h1:bXY0kgbV5BHYda4YY5/hiG5bjimGK+R3PYub5yM9C/s=
 gitlab.com/elixxir/primitives v0.0.0-20200706165052-9fe7a4fb99a3/go.mod h1:OQgUZq7SjnE0b+8+iIAT2eqQF+2IFHn73tOo+aV11mg=
 gitlab.com/elixxir/primitives v0.0.0-20200708185800-a06e961280e6/go.mod h1:OQgUZq7SjnE0b+8+iIAT2eqQF+2IFHn73tOo+aV11mg=
@@ -180,6 +182,8 @@ gitlab.com/elixxir/primitives v0.0.0-20200916172343-37503735c7a1 h1:51FDjTwXKVad
 gitlab.com/elixxir/primitives v0.0.0-20200916172343-37503735c7a1/go.mod h1:pJx2DZk9s8vVMnLN7x0hIPngDjbNSdOP6kk3RLlRxHg=
 gitlab.com/elixxir/primitives v0.0.0-20201005195316-d848a5322745 h1:MVnRYO9YAEtr6ZU+73OcajZhRol1zKwAHF7E7Skx3L0=
 gitlab.com/elixxir/primitives v0.0.0-20201005195316-d848a5322745/go.mod h1:kNp47yPqja2lHSiS4DddTvFpB/4D9dB2YKnw5c+LJCE=
+gitlab.com/elixxir/primitives v0.0.0-20201005220254-0ed72e5ce087 h1:tC81v3hxiGsChxjJpSP/kS69xF8JwmWaabzcLBYjJds=
+gitlab.com/elixxir/primitives v0.0.0-20201005220254-0ed72e5ce087/go.mod h1:kNp47yPqja2lHSiS4DddTvFpB/4D9dB2YKnw5c+LJCE=
 gitlab.com/xx_network/comms v0.0.0-20200805174823-841427dd5023/go.mod h1:owEcxTRl7gsoM8c3RQ5KAm5GstxrJp5tn+6JfQ4z5Hw=
 gitlab.com/xx_network/comms v0.0.0-20200915154643-d533291041b7 h1:lPx1wpkjNpwLaZ0pyd7/iCcdITjT+eCMmb0HXCVoIkk=
 gitlab.com/xx_network/comms v0.0.0-20200915154643-d533291041b7/go.mod h1:+jEkDQKoK51WLl2ZZuxfAZkz6YFbUQ+oZfH0dt2wIF0=
