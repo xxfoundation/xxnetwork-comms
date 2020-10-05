@@ -186,6 +186,7 @@ gitlab.com/elixxir/primitives v0.0.0-20201005195316-d848a5322745 h1:MVnRYO9YAEtr
 gitlab.com/elixxir/primitives v0.0.0-20201005195316-d848a5322745/go.mod h1:kNp47yPqja2lHSiS4DddTvFpB/4D9dB2YKnw5c+LJCE=
 gitlab.com/elixxir/primitives v0.0.0-20201005220254-0ed72e5ce087 h1:tC81v3hxiGsChxjJpSP/kS69xF8JwmWaabzcLBYjJds=
 gitlab.com/elixxir/primitives v0.0.0-20201005220254-0ed72e5ce087/go.mod h1:kNp47yPqja2lHSiS4DddTvFpB/4D9dB2YKnw5c+LJCE=
+gitlab.com/elixxir/primitives v0.0.0-20201005231810-020916f67bd6 h1:ZE7ee4VIr7j4pabISupi/jln8WXdztmQNB6Fy6BIP4I=
 gitlab.com/elixxir/primitives v0.0.0-20201005231810-020916f67bd6/go.mod h1:kNp47yPqja2lHSiS4DddTvFpB/4D9dB2YKnw5c+LJCE=
 gitlab.com/xx_network/comms v0.0.0-20200805174823-841427dd5023/go.mod h1:owEcxTRl7gsoM8c3RQ5KAm5GstxrJp5tn+6JfQ4z5Hw=
 gitlab.com/xx_network/comms v0.0.0-20200915154643-d533291041b7 h1:lPx1wpkjNpwLaZ0pyd7/iCcdITjT+eCMmb0HXCVoIkk=
