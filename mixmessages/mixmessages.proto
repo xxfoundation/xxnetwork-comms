@@ -286,6 +286,7 @@ message GatewaySlotResponse{
 // Gateway -> Gateway gossip of all Sender IDs in a Batch
 message BatchSenders {
     repeated bytes SenderIds = 1;
+    uint64 RoundID = 2;
 }
 
 // Gateway -> Gateway gossip of all recipient IDs in a Batch
