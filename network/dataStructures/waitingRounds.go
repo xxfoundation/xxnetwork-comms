@@ -11,7 +11,6 @@ import (
 	"github.com/golang-collections/collections/set"
 	"github.com/pkg/errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/elixxir/primitives/current"
 	"gitlab.com/elixxir/primitives/states"
 	"sync"
 	"time"
@@ -86,7 +85,7 @@ func (wr *WaitingRounds) Insert(newRound *pb.RoundInfo) {
 
 // getTime returns the timestamp for the round's realtime.
 func getTime(round *pb.RoundInfo) uint64 {
-	return round.Timestamps[current.REALTIME]
+	return round.Timestamps[states.REALTIME]
 }
 
 // remove deletes the round from the list if it exists.
