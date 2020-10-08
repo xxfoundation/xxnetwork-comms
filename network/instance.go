@@ -612,8 +612,9 @@ func (i *Instance) updateConns(def *ndf.NetworkDefinition, isGateway, isNode boo
 					return errors.Errorf("Gateway ID invalid, collides with a "+
 						"hard coded ID. Invalid ID: %v", gwid.Marshal())
 				}
-
-				_, err := i.comm.AddHost(gwid, addr, []byte(gateway.TlsCertificate), connect.GetDefaultHostParams())
+				gwParams := connect.GetDefaultHostParams()
+				gwParams.AuthEnabled = false
+				_, err := i.comm.AddHost(gwid, addr, []byte(gateway.TlsCertificate), gwParams)
 				if err != nil {
 					return errors.WithMessagef(err, "Could not add gateway host %s", gwid)
 				}
