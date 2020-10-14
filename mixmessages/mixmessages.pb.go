@@ -2425,7 +2425,7 @@ func (x *UserIdList) GetIDs() [][]byte {
 	return nil
 }
 
-// User registration
+// Holds information for a UDB user registration request
 type UDBUserRegistration struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -2497,6 +2497,7 @@ func (x *UDBUserRegistration) GetIdentitySignature() []byte {
 	return nil
 }
 
+// Identity describes a user and their cryptographic info
 type Identity struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -2560,6 +2561,7 @@ func (x *Identity) GetSalt() []byte {
 	return nil
 }
 
+// A response from UDB about a UDBUserRegistration request
 type UserRegistrationResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -2607,7 +2609,7 @@ func (x *UserRegistrationResponse) GetError() string {
 	return ""
 }
 
-// Fact registration
+// Holds information for a Fact registration request
 type FactRegisterRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -2671,6 +2673,7 @@ func (x *FactRegisterRequest) GetFactSig() []byte {
 	return nil
 }
 
+// Fact describes a Fact, namely what it is and what type it is
 type Fact struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -2726,6 +2729,7 @@ func (x *Fact) GetFactType() uint32 {
 	return 0
 }
 
+// FactRegisterResponse describes UDB's handling of a FactRegisterRequest request
 type FactRegisterResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -2781,7 +2785,7 @@ func (x *FactRegisterResponse) GetErr() string {
 	return ""
 }
 
-// Fact confirmation
+// Holds information for a Fact confirmation request
 type FactConfirmRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -2837,6 +2841,7 @@ func (x *FactConfirmRequest) GetCode() string {
 	return ""
 }
 
+// FactConfirmResponse describes UDB's handling of a FactConfirmResponse request
 type FactConfirmResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -2884,7 +2889,7 @@ func (x *FactConfirmResponse) GetErr() string {
 	return ""
 }
 
-// Fact removal
+// Holds information for a Fact removal request
 type FactRemovalRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -2940,6 +2945,7 @@ func (x *FactRemovalRequest) GetRemovalData() *FactRemoval {
 	return nil
 }
 
+// Describes what Fact to remove from UDB's database
 type FactRemoval struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -2995,6 +3001,7 @@ func (x *FactRemoval) GetFactType() uint32 {
 	return 0
 }
 
+// FactRemovalResponse describes UDB's handling of a FactRemovalRequest request
 type FactRemovalResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -6124,13 +6131,13 @@ var _NotificationBot_serviceDesc = grpc.ServiceDesc{
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type UDBClient interface {
-	// Handles RegisterUser
+	// Handles a UDB user registration request
 	RegisterUser(ctx context.Context, in *UDBUserRegistration, opts ...grpc.CallOption) (*UserRegistrationResponse, error)
-	// Handles RegisterFact
+	// Handles a request to register a Fact into the Fact database
 	RegisterFact(ctx context.Context, in *FactRegisterRequest, opts ...grpc.CallOption) (*FactRegisterResponse, error)
-	// Handles AskOnline
+	// Handles a request to confirm a Fact against the Fact database
 	ConfirmFact(ctx context.Context, in *FactConfirmRequest, opts ...grpc.CallOption) (*FactConfirmResponse, error)
-	// Handles AskOnline
+	// Handles a request to remove a Fact from the Fact database
 	RemoveFact(ctx context.Context, in *FactRemovalRequest, opts ...grpc.CallOption) (*FactRemovalResponse, error)
 }
 
@@ -6180,13 +6187,13 @@ func (c *uDBClient) RemoveFact(ctx context.Context, in *FactRemovalRequest, opts
 
 // UDBServer is the server API for UDB service.
 type UDBServer interface {
-	// Handles RegisterUser
+	// Handles a UDB user registration request
 	RegisterUser(context.Context, *UDBUserRegistration) (*UserRegistrationResponse, error)
-	// Handles RegisterFact
+	// Handles a request to register a Fact into the Fact database
 	RegisterFact(context.Context, *FactRegisterRequest) (*FactRegisterResponse, error)
-	// Handles AskOnline
+	// Handles a request to confirm a Fact against the Fact database
 	ConfirmFact(context.Context, *FactConfirmRequest) (*FactConfirmResponse, error)
-	// Handles AskOnline
+	// Handles a request to remove a Fact from the Fact database
 	RemoveFact(context.Context, *FactRemovalRequest) (*FactRemovalResponse, error)
 }
 

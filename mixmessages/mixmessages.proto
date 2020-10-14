@@ -445,24 +445,24 @@ message UserIdList {
 // UDB MESSAGE SERVICE ---------------------------------------------------------
 
 service UDB {
-    // Handles RegisterUser
+    // Handles a UDB user registration request
     rpc RegisterUser (UDBUserRegistration) returns (UserRegistrationResponse) {
     }
 
-    // Handles RegisterFact
+    // Handles a request to register a Fact into the Fact database
     rpc RegisterFact (FactRegisterRequest) returns (FactRegisterResponse) {
     }
 
-    // Handles AskOnline
+    // Handles a request to confirm a Fact against the Fact database
     rpc ConfirmFact (FactConfirmRequest) returns (FactConfirmResponse) {
     }
 
-    // Handles AskOnline
+    // Handles a request to remove a Fact from the Fact database
     rpc RemoveFact (FactRemovalRequest) returns (FactRemovalResponse) {
     }
 }
 
-// User registration
+// Holds information for a UDB user registration request
 message UDBUserRegistration {
     bytes PermissioningSignature = 1;
     string RSAPublicPem = 2;
@@ -470,55 +470,61 @@ message UDBUserRegistration {
     bytes IdentitySignature = 4; // (RSAPublicSign(Data.Digest()))
 }
 
+// Identity describes a user and their cryptographic info
 message Identity {
     string Username = 1;
     bytes dhPubKey = 2;
     bytes Salt = 3;
 }
 
+// A response from UDB about a UDBUserRegistration request
 message UserRegistrationResponse {
     string Error = 1;
 }
 
-
-// Fact registration
+// Holds information for a Fact registration request
 message FactRegisterRequest {
     bytes UID = 1;
     Fact Fact = 2;
     bytes FactSig = 3;// (RSAPublicSign(Fact.Digest()))
 }
 
+// Fact describes a Fact, namely what it is and what type it is
 message Fact {
     string Fact = 1;
     uint32 FactType = 2;
 }
 
+// FactRegisterResponse describes UDB's handling of a FactRegisterRequest request
 message FactRegisterResponse {
     string ConfirmationID = 1;
     string err = 2; // nil if success
 }
 
-// Fact confirmation
+// Holds information for a Fact confirmation request
 message FactConfirmRequest {
     string ConfirmationID = 1;
     string Code = 2;
 }
 
+// FactConfirmResponse describes UDB's handling of a FactConfirmResponse request
 message FactConfirmResponse {
     string err = 1;
 }
 
-// Fact removal
+// Holds information for a Fact removal request
 message FactRemovalRequest {
     bytes UID = 1;
     FactRemoval RemovalData = 2;
 }
 
+// Describes what Fact to remove from UDB's database
 message FactRemoval {
     string Fact = 1;
     uint32 FactType = 2;
 }
 
+// FactRemovalResponse describes UDB's handling of a FactRemovalRequest request
 message FactRemovalResponse {
     string err = 1;
 }
