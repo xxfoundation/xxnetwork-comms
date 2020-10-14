@@ -3762,7 +3762,29 @@ var file_mixmessages_proto_rawDesc = []byte{
 	0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x41, 0x75, 0x74, 0x68, 0x65, 0x6e,
 	0x74, 0x69, 0x63, 0x61, 0x74, 0x65, 0x64, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x1a, 0x0d,
 	0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x41, 0x63, 0x6b, 0x22, 0x00, 0x32,
-	0x05, 0x0a, 0x03, 0x55, 0x44, 0x42, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0xde, 0x02, 0x0a, 0x03, 0x55, 0x44, 0x42, 0x12, 0x59, 0x0a, 0x0c, 0x52, 0x65, 0x67, 0x69, 0x73,
+	0x74, 0x65, 0x72, 0x55, 0x73, 0x65, 0x72, 0x12, 0x20, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73,
+	0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x55, 0x44, 0x42, 0x55, 0x73, 0x65, 0x72, 0x52, 0x65, 0x67,
+	0x69, 0x73, 0x74, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x1a, 0x25, 0x2e, 0x6d, 0x69, 0x78, 0x6d,
+	0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x55, 0x73, 0x65, 0x72, 0x52, 0x65, 0x67, 0x69,
+	0x73, 0x74, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
+	0x22, 0x00, 0x12, 0x55, 0x0a, 0x0c, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x46, 0x61,
+	0x63, 0x74, 0x12, 0x20, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73,
+	0x2e, 0x46, 0x61, 0x63, 0x74, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x52, 0x65, 0x71,
+	0x75, 0x65, 0x73, 0x74, 0x1a, 0x21, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67,
+	0x65, 0x73, 0x2e, 0x46, 0x61, 0x63, 0x74, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x52,
+	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x52, 0x0a, 0x0b, 0x43, 0x6f, 0x6e,
+	0x66, 0x69, 0x72, 0x6d, 0x46, 0x61, 0x63, 0x74, 0x12, 0x1f, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65,
+	0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x46, 0x61, 0x63, 0x74, 0x43, 0x6f, 0x6e, 0x66, 0x69,
+	0x72, 0x6d, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x20, 0x2e, 0x6d, 0x69, 0x78, 0x6d,
+	0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x46, 0x61, 0x63, 0x74, 0x43, 0x6f, 0x6e, 0x66,
+	0x69, 0x72, 0x6d, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x51, 0x0a,
+	0x0a, 0x52, 0x65, 0x6d, 0x6f, 0x76, 0x65, 0x46, 0x61, 0x63, 0x74, 0x12, 0x1f, 0x2e, 0x6d, 0x69,
+	0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x46, 0x61, 0x63, 0x74, 0x52, 0x65,
+	0x6d, 0x6f, 0x76, 0x61, 0x6c, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x20, 0x2e, 0x6d,
+	0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x46, 0x61, 0x63, 0x74, 0x52,
+	0x65, 0x6d, 0x6f, 0x76, 0x61, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00,
+	0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -3908,42 +3930,50 @@ var file_mixmessages_proto_depIdxs = []int32{
 	23, // 68: mixmessages.Registration.CheckRegistration:input_type -> mixmessages.RegisteredNodeCheck
 	54, // 69: mixmessages.NotificationBot.UnregisterForNotifications:input_type -> messages.AuthenticatedMessage
 	54, // 70: mixmessages.NotificationBot.RegisterForNotifications:input_type -> messages.AuthenticatedMessage
-	55, // 71: mixmessages.Node.AskOnline:output_type -> messages.Ack
-	55, // 72: mixmessages.Node.CreateNewRound:output_type -> messages.Ack
-	55, // 73: mixmessages.Node.PostNewBatch:output_type -> messages.Ack
-	55, // 74: mixmessages.Node.FinishRealtime:output_type -> messages.Ack
-	55, // 75: mixmessages.Node.PostPhase:output_type -> messages.Ack
-	55, // 76: mixmessages.Node.StreamPostPhase:output_type -> messages.Ack
-	0,  // 77: mixmessages.Node.GetRoundBufferInfo:output_type -> mixmessages.RoundBufferInfo
-	31, // 78: mixmessages.Node.RequestNonce:output_type -> mixmessages.Nonce
-	33, // 79: mixmessages.Node.ConfirmRegistration:output_type -> mixmessages.RegistrationConfirmation
-	55, // 80: mixmessages.Node.PostRoundPublicKey:output_type -> messages.Ack
-	55, // 81: mixmessages.Node.PostPrecompResult:output_type -> messages.Ack
-	3,  // 82: mixmessages.Node.GetCompletedBatch:output_type -> mixmessages.Batch
-	2,  // 83: mixmessages.Node.GetMeasure:output_type -> mixmessages.RoundMetrics
-	7,  // 84: mixmessages.Node.Poll:output_type -> mixmessages.ServerPollResponse
-	55, // 85: mixmessages.Node.SendRoundTripPing:output_type -> messages.Ack
-	55, // 86: mixmessages.Node.RoundError:output_type -> messages.Ack
-	15, // 87: mixmessages.Gateway.CheckMessages:output_type -> mixmessages.IDList
-	16, // 88: mixmessages.Gateway.GetMessage:output_type -> mixmessages.Slot
-	20, // 89: mixmessages.Gateway.PutMessage:output_type -> mixmessages.GatewaySlotResponse
-	31, // 90: mixmessages.Gateway.RequestNonce:output_type -> mixmessages.Nonce
-	33, // 91: mixmessages.Gateway.ConfirmNonce:output_type -> mixmessages.RegistrationConfirmation
-	37, // 92: mixmessages.Gateway.PollForNotifications:output_type -> mixmessages.UserIdList
-	18, // 93: mixmessages.Gateway.Poll:output_type -> mixmessages.GatewayPollResponse
-	11, // 94: mixmessages.Gateway.RequestHistoricalRounds:output_type -> mixmessages.HistoricalRoundsResponse
-	13, // 95: mixmessages.Gateway.RequestMessages:output_type -> mixmessages.GetMessagesResponse
-	9,  // 96: mixmessages.Gateway.RequestBloom:output_type -> mixmessages.GetBloomResponse
-	28, // 97: mixmessages.Registration.RegisterUser:output_type -> mixmessages.UserRegistrationConfirmation
-	29, // 98: mixmessages.Registration.GetCurrentClientVersion:output_type -> mixmessages.ClientVersion
-	55, // 99: mixmessages.Registration.RegisterNode:output_type -> messages.Ack
-	25, // 100: mixmessages.Registration.PollNdf:output_type -> mixmessages.NDF
-	35, // 101: mixmessages.Registration.Poll:output_type -> mixmessages.PermissionPollResponse
-	22, // 102: mixmessages.Registration.CheckRegistration:output_type -> mixmessages.RegisteredNodeConfirmation
-	55, // 103: mixmessages.NotificationBot.UnregisterForNotifications:output_type -> messages.Ack
-	55, // 104: mixmessages.NotificationBot.RegisterForNotifications:output_type -> messages.Ack
-	71, // [71:105] is the sub-list for method output_type
-	37, // [37:71] is the sub-list for method input_type
+	38, // 71: mixmessages.UDB.RegisterUser:input_type -> mixmessages.UDBUserRegistration
+	41, // 72: mixmessages.UDB.RegisterFact:input_type -> mixmessages.FactRegisterRequest
+	44, // 73: mixmessages.UDB.ConfirmFact:input_type -> mixmessages.FactConfirmRequest
+	46, // 74: mixmessages.UDB.RemoveFact:input_type -> mixmessages.FactRemovalRequest
+	55, // 75: mixmessages.Node.AskOnline:output_type -> messages.Ack
+	55, // 76: mixmessages.Node.CreateNewRound:output_type -> messages.Ack
+	55, // 77: mixmessages.Node.PostNewBatch:output_type -> messages.Ack
+	55, // 78: mixmessages.Node.FinishRealtime:output_type -> messages.Ack
+	55, // 79: mixmessages.Node.PostPhase:output_type -> messages.Ack
+	55, // 80: mixmessages.Node.StreamPostPhase:output_type -> messages.Ack
+	0,  // 81: mixmessages.Node.GetRoundBufferInfo:output_type -> mixmessages.RoundBufferInfo
+	31, // 82: mixmessages.Node.RequestNonce:output_type -> mixmessages.Nonce
+	33, // 83: mixmessages.Node.ConfirmRegistration:output_type -> mixmessages.RegistrationConfirmation
+	55, // 84: mixmessages.Node.PostRoundPublicKey:output_type -> messages.Ack
+	55, // 85: mixmessages.Node.PostPrecompResult:output_type -> messages.Ack
+	3,  // 86: mixmessages.Node.GetCompletedBatch:output_type -> mixmessages.Batch
+	2,  // 87: mixmessages.Node.GetMeasure:output_type -> mixmessages.RoundMetrics
+	7,  // 88: mixmessages.Node.Poll:output_type -> mixmessages.ServerPollResponse
+	55, // 89: mixmessages.Node.SendRoundTripPing:output_type -> messages.Ack
+	55, // 90: mixmessages.Node.RoundError:output_type -> messages.Ack
+	15, // 91: mixmessages.Gateway.CheckMessages:output_type -> mixmessages.IDList
+	16, // 92: mixmessages.Gateway.GetMessage:output_type -> mixmessages.Slot
+	20, // 93: mixmessages.Gateway.PutMessage:output_type -> mixmessages.GatewaySlotResponse
+	31, // 94: mixmessages.Gateway.RequestNonce:output_type -> mixmessages.Nonce
+	33, // 95: mixmessages.Gateway.ConfirmNonce:output_type -> mixmessages.RegistrationConfirmation
+	37, // 96: mixmessages.Gateway.PollForNotifications:output_type -> mixmessages.UserIdList
+	18, // 97: mixmessages.Gateway.Poll:output_type -> mixmessages.GatewayPollResponse
+	11, // 98: mixmessages.Gateway.RequestHistoricalRounds:output_type -> mixmessages.HistoricalRoundsResponse
+	13, // 99: mixmessages.Gateway.RequestMessages:output_type -> mixmessages.GetMessagesResponse
+	9,  // 100: mixmessages.Gateway.RequestBloom:output_type -> mixmessages.GetBloomResponse
+	28, // 101: mixmessages.Registration.RegisterUser:output_type -> mixmessages.UserRegistrationConfirmation
+	29, // 102: mixmessages.Registration.GetCurrentClientVersion:output_type -> mixmessages.ClientVersion
+	55, // 103: mixmessages.Registration.RegisterNode:output_type -> messages.Ack
+	25, // 104: mixmessages.Registration.PollNdf:output_type -> mixmessages.NDF
+	35, // 105: mixmessages.Registration.Poll:output_type -> mixmessages.PermissionPollResponse
+	22, // 106: mixmessages.Registration.CheckRegistration:output_type -> mixmessages.RegisteredNodeConfirmation
+	55, // 107: mixmessages.NotificationBot.UnregisterForNotifications:output_type -> messages.Ack
+	55, // 108: mixmessages.NotificationBot.RegisterForNotifications:output_type -> messages.Ack
+	40, // 109: mixmessages.UDB.RegisterUser:output_type -> mixmessages.UserRegistrationResponse
+	43, // 110: mixmessages.UDB.RegisterFact:output_type -> mixmessages.FactRegisterResponse
+	45, // 111: mixmessages.UDB.ConfirmFact:output_type -> mixmessages.FactConfirmResponse
+	48, // 112: mixmessages.UDB.RemoveFact:output_type -> mixmessages.FactRemovalResponse
+	75, // [75:113] is the sub-list for method output_type
+	37, // [37:75] is the sub-list for method input_type
 	37, // [37:37] is the sub-list for extension type_name
 	37, // [37:37] is the sub-list for extension extendee
 	0,  // [0:37] is the sub-list for field type_name
@@ -6075,6 +6105,14 @@ var _NotificationBot_serviceDesc = grpc.ServiceDesc{
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type UDBClient interface {
+	// Handles RegisterUser
+	RegisterUser(ctx context.Context, in *UDBUserRegistration, opts ...grpc.CallOption) (*UserRegistrationResponse, error)
+	// Handles RegisterFact
+	RegisterFact(ctx context.Context, in *FactRegisterRequest, opts ...grpc.CallOption) (*FactRegisterResponse, error)
+	// Handles AskOnline
+	ConfirmFact(ctx context.Context, in *FactConfirmRequest, opts ...grpc.CallOption) (*FactConfirmResponse, error)
+	// Handles AskOnline
+	RemoveFact(ctx context.Context, in *FactRemovalRequest, opts ...grpc.CallOption) (*FactRemovalResponse, error)
 }
 
 type uDBClient struct {
@@ -6085,22 +6123,168 @@ func NewUDBClient(cc grpc.ClientConnInterface) UDBClient {
 	return &uDBClient{cc}
 }
 
+func (c *uDBClient) RegisterUser(ctx context.Context, in *UDBUserRegistration, opts ...grpc.CallOption) (*UserRegistrationResponse, error) {
+	out := new(UserRegistrationResponse)
+	err := c.cc.Invoke(ctx, "/mixmessages.UDB/RegisterUser", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *uDBClient) RegisterFact(ctx context.Context, in *FactRegisterRequest, opts ...grpc.CallOption) (*FactRegisterResponse, error) {
+	out := new(FactRegisterResponse)
+	err := c.cc.Invoke(ctx, "/mixmessages.UDB/RegisterFact", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *uDBClient) ConfirmFact(ctx context.Context, in *FactConfirmRequest, opts ...grpc.CallOption) (*FactConfirmResponse, error) {
+	out := new(FactConfirmResponse)
+	err := c.cc.Invoke(ctx, "/mixmessages.UDB/ConfirmFact", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *uDBClient) RemoveFact(ctx context.Context, in *FactRemovalRequest, opts ...grpc.CallOption) (*FactRemovalResponse, error) {
+	out := new(FactRemovalResponse)
+	err := c.cc.Invoke(ctx, "/mixmessages.UDB/RemoveFact", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UDBServer is the server API for UDB service.
 type UDBServer interface {
+	// Handles RegisterUser
+	RegisterUser(context.Context, *UDBUserRegistration) (*UserRegistrationResponse, error)
+	// Handles RegisterFact
+	RegisterFact(context.Context, *FactRegisterRequest) (*FactRegisterResponse, error)
+	// Handles AskOnline
+	ConfirmFact(context.Context, *FactConfirmRequest) (*FactConfirmResponse, error)
+	// Handles AskOnline
+	RemoveFact(context.Context, *FactRemovalRequest) (*FactRemovalResponse, error)
 }
 
 // UnimplementedUDBServer can be embedded to have forward compatible implementations.
 type UnimplementedUDBServer struct {
 }
 
+func (*UnimplementedUDBServer) RegisterUser(context.Context, *UDBUserRegistration) (*UserRegistrationResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RegisterUser not implemented")
+}
+func (*UnimplementedUDBServer) RegisterFact(context.Context, *FactRegisterRequest) (*FactRegisterResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RegisterFact not implemented")
+}
+func (*UnimplementedUDBServer) ConfirmFact(context.Context, *FactConfirmRequest) (*FactConfirmResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ConfirmFact not implemented")
+}
+func (*UnimplementedUDBServer) RemoveFact(context.Context, *FactRemovalRequest) (*FactRemovalResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemoveFact not implemented")
+}
+
 func RegisterUDBServer(s *grpc.Server, srv UDBServer) {
 	s.RegisterService(&_UDB_serviceDesc, srv)
+}
+
+func _UDB_RegisterUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UDBUserRegistration)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UDBServer).RegisterUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/mixmessages.UDB/RegisterUser",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UDBServer).RegisterUser(ctx, req.(*UDBUserRegistration))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UDB_RegisterFact_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FactRegisterRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UDBServer).RegisterFact(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/mixmessages.UDB/RegisterFact",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UDBServer).RegisterFact(ctx, req.(*FactRegisterRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UDB_ConfirmFact_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FactConfirmRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UDBServer).ConfirmFact(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/mixmessages.UDB/ConfirmFact",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UDBServer).ConfirmFact(ctx, req.(*FactConfirmRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UDB_RemoveFact_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FactRemovalRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UDBServer).RemoveFact(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/mixmessages.UDB/RemoveFact",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UDBServer).RemoveFact(ctx, req.(*FactRemovalRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 var _UDB_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "mixmessages.UDB",
 	HandlerType: (*UDBServer)(nil),
-	Methods:     []grpc.MethodDesc{},
-	Streams:     []grpc.StreamDesc{},
-	Metadata:    "mixmessages.proto",
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "RegisterUser",
+			Handler:    _UDB_RegisterUser_Handler,
+		},
+		{
+			MethodName: "RegisterFact",
+			Handler:    _UDB_RegisterFact_Handler,
+		},
+		{
+			MethodName: "ConfirmFact",
+			Handler:    _UDB_ConfirmFact_Handler,
+		},
+		{
+			MethodName: "RemoveFact",
+			Handler:    _UDB_RemoveFact_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "mixmessages.proto",
 }

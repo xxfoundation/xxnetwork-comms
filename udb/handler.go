@@ -71,6 +71,10 @@ type Handler interface {
 	// ClientCall inside UDB needs to implement this interface.
 	ClientCall(msg *pb.PermissioningPoll, auth *connect.Auth,
 		serverAddress string) (*pb.PermissionPollResponse, error)
+	RegisterUser(registration *pb.UDBUserRegistration) pb.UserRegistrationResponse
+	RegisterFact(request *pb.FactRegisterRequest) pb.FactRegisterResponse
+	ConfirmFact(request *pb.FactConfirmRequest) pb.FactConfirmResponse
+	RemoveFact(request *pb.FactRemovalRequest) pb.FactRemovalResponse
 }
 
 // implementationFunctions are the actual implementations of
@@ -81,6 +85,10 @@ type implementationFunctions struct {
 	// below).
 	ClientCall func(msg *pb.PermissioningPoll, auth *connect.Auth,
 		serverAddress string) (*pb.PermissionPollResponse, error)
+	RegisterUser func(registration *pb.UDBUserRegistration) pb.UserRegistrationResponse
+	RegisterFact func(request *pb.FactRegisterRequest) pb.FactRegisterResponse
+	ConfirmFact  func(request *pb.FactConfirmRequest) pb.FactConfirmResponse
+	RemoveFact   func(request *pb.FactRemovalRequest) pb.FactRemovalResponse
 }
 
 // Implementation allows users of the client library to set the
@@ -108,6 +116,22 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return &pb.PermissionPollResponse{}, nil
 			},
+			RegisterUser: func(registration *pb.UDBUserRegistration) pb.UserRegistrationResponse {
+				warn(um)
+				return pb.UserRegistrationResponse{}
+			},
+			RegisterFact: func(request *pb.FactRegisterRequest) pb.FactRegisterResponse {
+				warn(um)
+				return pb.FactRegisterResponse{}
+			},
+			ConfirmFact: func(request *pb.FactConfirmRequest) pb.FactConfirmResponse {
+				warn(um)
+				return pb.FactConfirmResponse{}
+			},
+			RemoveFact: func(request *pb.FactRemovalRequest) pb.FactRemovalResponse {
+				warn(um)
+				return pb.FactRemovalResponse{}
+			},
 		},
 	}
 }
@@ -119,4 +143,20 @@ func (s *Implementation) ClientCall(msg *pb.PermissioningPoll,
 	auth *connect.Auth, serverAddress string) (
 	*pb.PermissionPollResponse, error) {
 	return s.Functions.ClientCall(msg, auth, serverAddress)
+}
+
+func (s *Implementation) RegisterUser(registration *pb.UDBUserRegistration) pb.UserRegistrationResponse {
+	return s.Functions.RegisterUser(registration)
+}
+
+func (s *Implementation) RegisterFact(request *pb.FactRegisterRequest) pb.FactRegisterResponse {
+	return s.Functions.RegisterFact(request)
+}
+
+func (s *Implementation) ConfirmFact(request *pb.FactConfirmRequest) pb.FactConfirmResponse {
+	return s.Functions.ConfirmFact(request)
+}
+
+func (s *Implementation) RemoveFact(request *pb.FactRemovalRequest) pb.FactRemovalResponse {
+	return s.Functions.RemoveFact(request)
 }

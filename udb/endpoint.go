@@ -71,3 +71,19 @@ func (r *Comms) ClientCall(ctx context.Context,
 	// endpoint.go function:
 	return r.handler.ClientCall(pollMsg, authState, address)
 }
+
+func (r *Comms) RegisterUser(registration *pb.UDBUserRegistration) pb.UserRegistrationResponse {
+	return r.handler.RegisterUser(registration)
+}
+
+func (r *Comms) RegisterFact(request *pb.FactRegisterRequest) pb.FactRegisterResponse {
+	return r.handler.RegisterFact(request)
+}
+
+func (r *Comms) ConfirmFact(request *pb.FactConfirmRequest) pb.FactConfirmResponse {
+	return r.handler.ConfirmFact(request)
+}
+
+func (r *Comms) RemoveFact(request *pb.FactRemovalRequest) pb.FactRemovalResponse {
+	return r.handler.RemoveFact(request)
+}

@@ -445,7 +445,21 @@ message UserIdList {
 // UDB MESSAGE SERVICE ---------------------------------------------------------
 
 service UDB {
+    // Handles RegisterUser
+    rpc RegisterUser (UDBUserRegistration) returns (UserRegistrationResponse) {
+    }
 
+    // Handles RegisterFact
+    rpc RegisterFact (FactRegisterRequest) returns (FactRegisterResponse) {
+    }
+
+    // Handles AskOnline
+    rpc ConfirmFact (FactConfirmRequest) returns (FactConfirmResponse) {
+    }
+
+    // Handles AskOnline
+    rpc RemoveFact (FactRemovalRequest) returns (FactRemovalResponse) {
+    }
 }
 
 // User registration
