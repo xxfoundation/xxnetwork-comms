@@ -15,12 +15,11 @@ func (i *Identity) Digest() []byte {
 		jww.FATAL.Panicf("Could not get hash: %+v", err)
 	}
 
-	// Hash the auth key to generate the vector
+	// Hash the Identity data to generate the vector
 	h.Write([]byte(i.Username))
 	h.Write(i.DhPubKey)
 	h.Write(i.Salt)
-	authKeyHash := h.Sum(nil)
-	return authKeyHash
+	return h.Sum(nil)
 }
 
 // Function to digest Fact
@@ -32,16 +31,14 @@ func (i *Fact) Digest() []byte {
 		jww.FATAL.Panicf("Could not get hash: %+v", err)
 	}
 
-	// Hash the auth key to generate the vector
+	// Hash the fact data to generate the vector
 	h.Write([]byte(i.Fact))
-
 	// Convert FactType uint32 to []byte and write it to hash
 	bs := make([]byte, 4)
 	binary.LittleEndian.PutUint32(bs, i.FactType)
 	h.Write(bs)
 
-	authKeyHash := h.Sum(nil)
-	return authKeyHash
+	return h.Sum(nil)
 }
 
 // Function to digest FactRemoval
@@ -53,14 +50,12 @@ func (fr *FactRemoval) Digest() []byte {
 		jww.FATAL.Panicf("Could not get hash: %+v", err)
 	}
 
-	// Hash the auth key to generate the vector
+	// Hash the FactRemoval data to generate the vector
 	h.Write([]byte(fr.Fact))
-
 	// Convert FactType uint32 to []byte and write it to hash
 	bs := make([]byte, 4)
 	binary.LittleEndian.PutUint32(bs, fr.FactType)
 	h.Write(bs)
 
-	authKeyHash := h.Sum(nil)
-	return authKeyHash
+	return h.Sum(nil)
 }
