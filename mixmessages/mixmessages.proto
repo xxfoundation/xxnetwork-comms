@@ -442,6 +442,71 @@ message UserIdList {
     repeated bytes IDs = 1;
 }
 
+// UDB MESSAGE SERVICE ---------------------------------------------------------
+
+service UDB {
+
+}
+
+// User registration
+message UDBUserRegistration {
+    bytes PermissioningSignature = 1;
+    string RSAPublicPem = 2;
+    Identity IdentityRegistration = 3;
+    bytes IdentitySignature = 4; // (RSAPublicSign(Data.Digest()))
+}
+
+message Identity {
+    bytes dhPubKey = 1;
+    bytes Salt = 2;
+}
+
+message UserRegistrationResponse {
+    string Error = 1;
+}
+
+
+// Fact registration
+message FactRegisterRequest {
+    Fact Fact = 1;
+    bytes FactSig = 2;// (RSAPublicSign(Fact.Digest()))
+}
+
+message Fact {
+    string Fact = 1;
+    uint32 FactType = 2;
+}
+
+message FactRegisterResponse {
+    string ConfirmationID = 1;
+    string err = 2; // nil if success
+}
+
+// Fact confirmation
+message FactConfirmRequest {
+    string ConfirmationID = 1;
+    string Code = 2;
+}
+
+message FactConfirmResponse {
+    string err = 1;
+}
+
+// Fact removal
+message FactRemovalRequest {
+    bytes UID = 1;
+    FactRemoval RemovalData = 2;
+}
+
+message FactRemoval {
+    string Fact = 1;
+    uint32 FactType = 2;
+}
+
+message FactRemovalResponse {
+    string err = 1;
+}
+
 // GENERAL USE MESSAGES --------------------------------------------------------
 
 // Describes a round
