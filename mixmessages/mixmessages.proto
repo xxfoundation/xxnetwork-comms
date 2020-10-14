@@ -471,8 +471,9 @@ message UDBUserRegistration {
 }
 
 message Identity {
-    bytes dhPubKey = 1;
-    bytes Salt = 2;
+    string Username = 1;
+    bytes dhPubKey = 2;
+    bytes Salt = 3;
 }
 
 message UserRegistrationResponse {
@@ -482,8 +483,9 @@ message UserRegistrationResponse {
 
 // Fact registration
 message FactRegisterRequest {
-    Fact Fact = 1;
-    bytes FactSig = 2;// (RSAPublicSign(Fact.Digest()))
+    bytes UID = 1;
+    Fact Fact = 2;
+    bytes FactSig = 3;// (RSAPublicSign(Fact.Digest()))
 }
 
 message Fact {
