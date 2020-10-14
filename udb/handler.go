@@ -69,13 +69,13 @@ func StartServer(id *id.ID, localServer string, handler Handler,
 // library properly.
 type Handler interface {
 	// RegisterUser handles registering a user into the database
-	RegisterUser(registration *pb.UDBUserRegistration) pb.UserRegistrationResponse
+	RegisterUser(registration *pb.UDBUserRegistration) *pb.UserRegistrationResponse
 	// RegisterFact handles registering a fact into the database
-	RegisterFact(request *pb.FactRegisterRequest) pb.FactRegisterResponse
+	RegisterFact(request *pb.FactRegisterRequest) *pb.FactRegisterResponse
 	// ConfirmFact checks a Fact against the Fact database
-	ConfirmFact(request *pb.FactConfirmRequest) pb.FactConfirmResponse
+	ConfirmFact(request *pb.FactConfirmRequest) *pb.FactConfirmResponse
 	// RemoveFact removes a Fact from the Fact database
-	RemoveFact(request *pb.FactRemovalRequest) pb.FactRemovalResponse
+	RemoveFact(request *pb.FactRemovalRequest) *pb.FactRemovalResponse
 }
 
 // implementationFunctions are the actual implementations of
@@ -86,13 +86,13 @@ type implementationFunctions struct {
 	// below).
 
 	// RegisterUser handles registering a user into the database
-	RegisterUser func(registration *pb.UDBUserRegistration) pb.UserRegistrationResponse
+	RegisterUser func(registration *pb.UDBUserRegistration) *pb.UserRegistrationResponse
 	// RegisterFact handles registering a fact into the database
-	RegisterFact func(request *pb.FactRegisterRequest) pb.FactRegisterResponse
+	RegisterFact func(request *pb.FactRegisterRequest) *pb.FactRegisterResponse
 	// ConfirmFact checks a Fact against the Fact database
-	ConfirmFact func(request *pb.FactConfirmRequest) pb.FactConfirmResponse
+	ConfirmFact func(request *pb.FactConfirmRequest) *pb.FactConfirmResponse
 	// RemoveFact removes a Fact from the Fact database
-	RemoveFact func(request *pb.FactRemovalRequest) pb.FactRemovalResponse
+	RemoveFact func(request *pb.FactRemovalRequest) *pb.FactRemovalResponse
 }
 
 // Implementation allows users of the client library to set the
@@ -114,45 +114,45 @@ func NewImplementation() *Implementation {
 	return &Implementation{
 		Functions: implementationFunctions{
 			// Stub for RegisterUser which returns a blank message and prints a warning
-			RegisterUser: func(registration *pb.UDBUserRegistration) pb.UserRegistrationResponse {
+			RegisterUser: func(registration *pb.UDBUserRegistration) *pb.UserRegistrationResponse {
 				warn(um)
-				return pb.UserRegistrationResponse{}
+				return &pb.UserRegistrationResponse{}
 			},
 			// Stub for RegisterFact which returns a blank message and prints a warning
-			RegisterFact: func(request *pb.FactRegisterRequest) pb.FactRegisterResponse {
+			RegisterFact: func(request *pb.FactRegisterRequest) *pb.FactRegisterResponse {
 				warn(um)
-				return pb.FactRegisterResponse{}
+				return &pb.FactRegisterResponse{}
 			},
 			// Stub for ConfirmFact which returns a blank message and prints a warning
-			ConfirmFact: func(request *pb.FactConfirmRequest) pb.FactConfirmResponse {
+			ConfirmFact: func(request *pb.FactConfirmRequest) *pb.FactConfirmResponse {
 				warn(um)
-				return pb.FactConfirmResponse{}
+				return &pb.FactConfirmResponse{}
 			},
 			// Stub for RemoveFact which returns a blank message and prints a warning
-			RemoveFact: func(request *pb.FactRemovalRequest) pb.FactRemovalResponse {
+			RemoveFact: func(request *pb.FactRemovalRequest) *pb.FactRemovalResponse {
 				warn(um)
-				return pb.FactRemovalResponse{}
+				return &pb.FactRemovalResponse{}
 			},
 		},
 	}
 }
 
 // RegisterUser is called by the RegisterUser in endpoint.go. It calls the corresponding function in the interface.
-func (s *Implementation) RegisterUser(registration *pb.UDBUserRegistration) pb.UserRegistrationResponse {
+func (s *Implementation) RegisterUser(registration *pb.UDBUserRegistration) *pb.UserRegistrationResponse {
 	return s.Functions.RegisterUser(registration)
 }
 
 // RegisterFact is called by the RegisterFact in endpoint.go. It calls the corresponding function in the interface.
-func (s *Implementation) RegisterFact(request *pb.FactRegisterRequest) pb.FactRegisterResponse {
+func (s *Implementation) RegisterFact(request *pb.FactRegisterRequest) *pb.FactRegisterResponse {
 	return s.Functions.RegisterFact(request)
 }
 
 // ConfirmFact is called by the ConfirmFact in endpoint.go. It calls the corresponding function in the interface.
-func (s *Implementation) ConfirmFact(request *pb.FactConfirmRequest) pb.FactConfirmResponse {
+func (s *Implementation) ConfirmFact(request *pb.FactConfirmRequest) *pb.FactConfirmResponse {
 	return s.Functions.ConfirmFact(request)
 }
 
 // RemoveFact is called by the RemoveFact in endpoint.go. It calls the corresponding function in the interface.
-func (s *Implementation) RemoveFact(request *pb.FactRemovalRequest) pb.FactRemovalResponse {
+func (s *Implementation) RemoveFact(request *pb.FactRemovalRequest) *pb.FactRemovalResponse {
 	return s.Functions.RemoveFact(request)
 }

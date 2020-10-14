@@ -16,18 +16,18 @@ import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 )
 
-func (r *Comms) RegisterUser(registration *pb.UDBUserRegistration) pb.UserRegistrationResponse {
+func (r *Comms) RegisterUser(registration *pb.UDBUserRegistration) *pb.UserRegistrationResponse {
 	return r.handler.RegisterUser(registration)
 }
 
-func (r *Comms) RegisterFact(request *pb.FactRegisterRequest) pb.FactRegisterResponse {
+func (r *Comms) RegisterFact(request *pb.FactRegisterRequest) *pb.FactRegisterResponse {
 	return r.handler.RegisterFact(request)
 }
 
-func (r *Comms) ConfirmFact(request *pb.FactConfirmRequest) pb.FactConfirmResponse {
+func (r *Comms) ConfirmFact(request *pb.FactConfirmRequest) *pb.FactConfirmResponse {
 	return r.handler.ConfirmFact(request)
 }
 
-func (r *Comms) RemoveFact(request *pb.FactRemovalRequest) pb.FactRemovalResponse {
+func (r *Comms) RemoveFact(request *pb.FactRemovalRequest) *pb.FactRemovalResponse {
 	return r.handler.RemoveFact(request)
 }
