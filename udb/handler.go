@@ -68,12 +68,13 @@ func StartServer(id *id.ID, localServer string, handler Handler,
 // Handler is the interface udb has to implement to integrate with the comms
 // library properly.
 type Handler interface {
-	// ClientCall inside UDB needs to implement this interface.
-	ClientCall(msg *pb.PermissioningPoll, auth *connect.Auth,
-		serverAddress string) (*pb.PermissionPollResponse, error)
+	// RegisterUser handles registering a user into the database
 	RegisterUser(registration *pb.UDBUserRegistration) pb.UserRegistrationResponse
+	// RegisterFact handles registering a fact into the database
 	RegisterFact(request *pb.FactRegisterRequest) pb.FactRegisterResponse
+	// ConfirmFact checks a Fact against the Fact database
 	ConfirmFact(request *pb.FactConfirmRequest) pb.FactConfirmResponse
+	// RemoveFact removes a Fact from the Fact database
 	RemoveFact(request *pb.FactRemovalRequest) pb.FactRemovalResponse
 }
 
@@ -83,12 +84,15 @@ type implementationFunctions struct {
 	// set this to be the UDB version of the function. By default
 	// it's a dummy function that returns nothing (see NewImplementation
 	// below).
-	ClientCall func(msg *pb.PermissioningPoll, auth *connect.Auth,
-		serverAddress string) (*pb.PermissionPollResponse, error)
+
+	// RegisterUser handles registering a user into the database
 	RegisterUser func(registration *pb.UDBUserRegistration) pb.UserRegistrationResponse
+	// RegisterFact handles registering a fact into the database
 	RegisterFact func(request *pb.FactRegisterRequest) pb.FactRegisterResponse
-	ConfirmFact  func(request *pb.FactConfirmRequest) pb.FactConfirmResponse
-	RemoveFact   func(request *pb.FactRemovalRequest) pb.FactRemovalResponse
+	// ConfirmFact checks a Fact against the Fact database
+	ConfirmFact func(request *pb.FactConfirmRequest) pb.FactConfirmResponse
+	// RemoveFact removes a Fact from the Fact database
+	RemoveFact func(request *pb.FactRemovalRequest) pb.FactRemovalResponse
 }
 
 // Implementation allows users of the client library to set the
@@ -99,7 +103,7 @@ type Implementation struct {
 
 // NewImplementation returns a Implementation struct with all of the
 // function pointers returning nothing and printing an error.
-// Inside UDB, you would call this, then set "ClientCall" to your
+// Inside UDB, you would call this, then set all functions to your
 // own UDB version of the function.
 func NewImplementation() *Implementation {
 	um := "UNIMPLEMENTED FUNCTION!"
@@ -109,25 +113,22 @@ func NewImplementation() *Implementation {
 	}
 	return &Implementation{
 		Functions: implementationFunctions{
-			ClientCall: func(msg *pb.PermissioningPoll,
-				auth *connect.Auth,
-				serverAddress string) (
-				*pb.PermissionPollResponse, error) {
-				warn(um)
-				return &pb.PermissionPollResponse{}, nil
-			},
+			// Stub for RegisterUser which returns a blank message and prints a warning
 			RegisterUser: func(registration *pb.UDBUserRegistration) pb.UserRegistrationResponse {
 				warn(um)
 				return pb.UserRegistrationResponse{}
 			},
+			// Stub for RegisterFact which returns a blank message and prints a warning
 			RegisterFact: func(request *pb.FactRegisterRequest) pb.FactRegisterResponse {
 				warn(um)
 				return pb.FactRegisterResponse{}
 			},
+			// Stub for ConfirmFact which returns a blank message and prints a warning
 			ConfirmFact: func(request *pb.FactConfirmRequest) pb.FactConfirmResponse {
 				warn(um)
 				return pb.FactConfirmResponse{}
 			},
+			// Stub for RemoveFact which returns a blank message and prints a warning
 			RemoveFact: func(request *pb.FactRemovalRequest) pb.FactRemovalResponse {
 				warn(um)
 				return pb.FactRemovalResponse{}
@@ -136,27 +137,22 @@ func NewImplementation() *Implementation {
 	}
 }
 
-// ClientCall is called by the ClientCall in endpoint.go, which then calls
-// the function inside the implementationFunctions struct. It's made to
-// implement the interface.
-func (s *Implementation) ClientCall(msg *pb.PermissioningPoll,
-	auth *connect.Auth, serverAddress string) (
-	*pb.PermissionPollResponse, error) {
-	return s.Functions.ClientCall(msg, auth, serverAddress)
-}
-
+// RegisterUser is called by the RegisterUser in endpoint.go. It calls the corresponding function in the interface.
 func (s *Implementation) RegisterUser(registration *pb.UDBUserRegistration) pb.UserRegistrationResponse {
 	return s.Functions.RegisterUser(registration)
 }
 
+// RegisterFact is called by the RegisterFact in endpoint.go. It calls the corresponding function in the interface.
 func (s *Implementation) RegisterFact(request *pb.FactRegisterRequest) pb.FactRegisterResponse {
 	return s.Functions.RegisterFact(request)
 }
 
+// ConfirmFact is called by the ConfirmFact in endpoint.go. It calls the corresponding function in the interface.
 func (s *Implementation) ConfirmFact(request *pb.FactConfirmRequest) pb.FactConfirmResponse {
 	return s.Functions.ConfirmFact(request)
 }
 
+// RemoveFact is called by the RemoveFact in endpoint.go. It calls the corresponding function in the interface.
 func (s *Implementation) RemoveFact(request *pb.FactRemovalRequest) pb.FactRemovalResponse {
 	return s.Functions.RemoveFact(request)
 }
