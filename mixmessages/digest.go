@@ -1,7 +1,7 @@
 package mixmessages
 
 import (
-	"encoding/binary"
+	"github.com/golang/protobuf/proto"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/crypto/hash"
 )
@@ -15,10 +15,14 @@ func (i *Identity) Digest() []byte {
 		jww.FATAL.Panicf("Could not get hash: %+v", err)
 	}
 
+	// Marshal the message to put into the hash
+	mb, err := proto.Marshal(i)
+	if err != nil {
+		jww.FATAL.Panicf("Could not marshal: %+v", err)
+	}
+
 	// Hash the Identity data to generate the vector
-	h.Write([]byte(i.Username))
-	h.Write(i.DhPubKey)
-	h.Write(i.Salt)
+	h.Write(mb)
 	return h.Sum(nil)
 }
 
@@ -31,18 +35,19 @@ func (i *Fact) Digest() []byte {
 		jww.FATAL.Panicf("Could not get hash: %+v", err)
 	}
 
-	// Hash the fact data to generate the vector
-	h.Write([]byte(i.Fact))
-	// Convert FactType uint32 to []byte and write it to hash
-	bs := make([]byte, 4)
-	binary.LittleEndian.PutUint32(bs, i.FactType)
-	h.Write(bs)
+	// Marshal the message to put into the hash
+	mb, err := proto.Marshal(i)
+	if err != nil {
+		jww.FATAL.Panicf("Could not marshal: %+v", err)
+	}
 
+	// Hash the Fact data to generate the vector
+	h.Write(mb)
 	return h.Sum(nil)
 }
 
 // Function to digest FactRemoval
-func (fr *FactRemoval) Digest() []byte {
+func (i *FactRemoval) Digest() []byte {
 	//return hash(Fact |FactType )
 	// Generate the hash function
 	h, err := hash.NewCMixHash()
@@ -50,12 +55,13 @@ func (fr *FactRemoval) Digest() []byte {
 		jww.FATAL.Panicf("Could not get hash: %+v", err)
 	}
 
-	// Hash the FactRemoval data to generate the vector
-	h.Write([]byte(fr.Fact))
-	// Convert FactType uint32 to []byte and write it to hash
-	bs := make([]byte, 4)
-	binary.LittleEndian.PutUint32(bs, fr.FactType)
-	h.Write(bs)
+	// Marshal the message to put into the hash
+	mb, err := proto.Marshal(i)
+	if err != nil {
+		jww.FATAL.Panicf("Could not marshal: %+v", err)
+	}
 
+	// Hash the FactRemoval data to generate the vector
+	h.Write(mb)
 	return h.Sum(nil)
 }
