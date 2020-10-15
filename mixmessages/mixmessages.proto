@@ -442,6 +442,80 @@ message UserIdList {
     repeated bytes IDs = 1;
 }
 
+// UDB MESSAGE SERVICE ---------------------------------------------------------
+
+service UDB {
+    // Handles a UDB user registration request
+    rpc RegisterUser (UDBUserRegistration) returns (messages.Ack) {
+    }
+
+    // Handles a request to register a Fact into the Fact database
+    rpc RegisterFact (FactRegisterRequest) returns (FactRegisterResponse) {
+    }
+
+    // Handles a request to confirm a Fact against the Fact database
+    rpc ConfirmFact (FactConfirmRequest) returns (messages.Ack) {
+    }
+
+    // Handles a request to remove a Fact from the Fact database
+    rpc RemoveFact (FactRemovalRequest) returns (messages.Ack) {
+    }
+}
+
+// Holds information for a UDB user registration request
+message UDBUserRegistration {
+    bytes PermissioningSignature = 1;
+    string RSAPublicPem = 2;
+    Identity IdentityRegistration = 3;
+    bytes IdentitySignature = 4; // (RSAPublicSign(Data.Digest()))
+    FactRegisterRequest frs = 5;
+    bytes UID = 6;
+}
+
+// Identity describes a user and their cryptographic info
+message Identity {
+    string Username = 1;
+    bytes dhPubKey = 2;
+    bytes Salt = 3;
+}
+
+// Holds information for a Fact registration request
+message FactRegisterRequest {
+    bytes UID = 1;
+    Fact Fact = 2;
+    bytes FactSig = 3;// (RSAPublicSign(Fact.Digest()))
+}
+
+// Fact describes a Fact, namely what it is and what type it is
+message Fact {
+    string Fact = 1;
+    uint32 FactType = 2;
+}
+
+// FactRegisterResponse describes UDB's handling of a FactRegisterRequest request
+message FactRegisterResponse {
+    string ConfirmationID = 1;
+}
+
+// Holds information for a Fact confirmation request
+message FactConfirmRequest {
+    string ConfirmationID = 1;
+    string Code = 2;
+}
+
+// Holds information for a Fact removal request
+message FactRemovalRequest {
+    bytes UID = 1;
+    FactRemoval RemovalData = 2;
+}
+
+// Describes what Fact to remove from UDB's database
+message FactRemoval {
+    string Fact = 1;
+    uint32 FactType = 2;
+}
+
+
 // GENERAL USE MESSAGES --------------------------------------------------------
 
 // Describes a round

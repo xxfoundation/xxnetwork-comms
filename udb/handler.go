@@ -14,6 +14,8 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/connect"
+	"gitlab.com/xx_network/comms/messages"
+
 	//	"gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/primitives/id"
 	//	"google.golang.org/grpc/reflection"
@@ -68,9 +70,14 @@ func StartServer(id *id.ID, localServer string, handler Handler,
 // Handler is the interface udb has to implement to integrate with the comms
 // library properly.
 type Handler interface {
-	// ClientCall inside UDB needs to implement this interface.
-	ClientCall(msg *pb.PermissioningPoll, auth *connect.Auth,
-		serverAddress string) (*pb.PermissionPollResponse, error)
+	// RegisterUser handles registering a user into the database
+	RegisterUser(registration *pb.UDBUserRegistration) (*messages.Ack, error)
+	// RegisterFact handles registering a fact into the database
+	RegisterFact(request *pb.FactRegisterRequest) (*pb.FactRegisterResponse, error)
+	// ConfirmFact checks a Fact against the Fact database
+	ConfirmFact(request *pb.FactConfirmRequest) (*messages.Ack, error)
+	// RemoveFact removes a Fact from the Fact database
+	RemoveFact(request *pb.FactRemovalRequest) (*messages.Ack, error)
 }
 
 // implementationFunctions are the actual implementations of
@@ -79,8 +86,15 @@ type implementationFunctions struct {
 	// set this to be the UDB version of the function. By default
 	// it's a dummy function that returns nothing (see NewImplementation
 	// below).
-	ClientCall func(msg *pb.PermissioningPoll, auth *connect.Auth,
-		serverAddress string) (*pb.PermissionPollResponse, error)
+
+	// RegisterUser handles registering a user into the database
+	RegisterUser func(registration *pb.UDBUserRegistration) (*messages.Ack, error)
+	// RegisterFact handles registering a fact into the database
+	RegisterFact func(request *pb.FactRegisterRequest) (*pb.FactRegisterResponse, error)
+	// ConfirmFact checks a Fact against the Fact database
+	ConfirmFact func(request *pb.FactConfirmRequest) (*messages.Ack, error)
+	// RemoveFact removes a Fact from the Fact database
+	RemoveFact func(request *pb.FactRemovalRequest) (*messages.Ack, error)
 }
 
 // Implementation allows users of the client library to set the
@@ -91,7 +105,7 @@ type Implementation struct {
 
 // NewImplementation returns a Implementation struct with all of the
 // function pointers returning nothing and printing an error.
-// Inside UDB, you would call this, then set "ClientCall" to your
+// Inside UDB, you would call this, then set all functions to your
 // own UDB version of the function.
 func NewImplementation() *Implementation {
 	um := "UNIMPLEMENTED FUNCTION!"
@@ -101,22 +115,46 @@ func NewImplementation() *Implementation {
 	}
 	return &Implementation{
 		Functions: implementationFunctions{
-			ClientCall: func(msg *pb.PermissioningPoll,
-				auth *connect.Auth,
-				serverAddress string) (
-				*pb.PermissionPollResponse, error) {
+			// Stub for RegisterUser which returns a blank message and prints a warning
+			RegisterUser: func(registration *pb.UDBUserRegistration) (*messages.Ack, error) {
 				warn(um)
-				return &pb.PermissionPollResponse{}, nil
+				return &messages.Ack{}, nil
+			},
+			// Stub for RegisterFact which returns a blank message and prints a warning
+			RegisterFact: func(request *pb.FactRegisterRequest) (*pb.FactRegisterResponse, error) {
+				warn(um)
+				return &pb.FactRegisterResponse{}, nil
+			},
+			// Stub for ConfirmFact which returns a blank message and prints a warning
+			ConfirmFact: func(request *pb.FactConfirmRequest) (*messages.Ack, error) {
+				warn(um)
+				return &messages.Ack{}, nil
+			},
+			// Stub for RemoveFact which returns a blank message and prints a warning
+			RemoveFact: func(request *pb.FactRemovalRequest) (*messages.Ack, error) {
+				warn(um)
+				return &messages.Ack{}, nil
 			},
 		},
 	}
 }
 
-// ClientCall is called by the ClientCall in endpoint.go, which then calls
-// the function inside the implementationFunctions struct. It's made to
-// implement the interface.
-func (s *Implementation) ClientCall(msg *pb.PermissioningPoll,
-	auth *connect.Auth, serverAddress string) (
-	*pb.PermissionPollResponse, error) {
-	return s.Functions.ClientCall(msg, auth, serverAddress)
+// RegisterUser is called by the RegisterUser in endpoint.go. It calls the corresponding function in the interface.
+func (s *Implementation) RegisterUser(registration *pb.UDBUserRegistration) (*messages.Ack, error) {
+	return s.Functions.RegisterUser(registration)
+}
+
+// RegisterFact is called by the RegisterFact in endpoint.go. It calls the corresponding function in the interface.
+func (s *Implementation) RegisterFact(request *pb.FactRegisterRequest) (*pb.FactRegisterResponse, error) {
+	return s.Functions.RegisterFact(request)
+}
+
+// ConfirmFact is called by the ConfirmFact in endpoint.go. It calls the corresponding function in the interface.
+func (s *Implementation) ConfirmFact(request *pb.FactConfirmRequest) (*messages.Ack, error) {
+	return s.Functions.ConfirmFact(request)
+}
+
+// RemoveFact is called by the RemoveFact in endpoint.go. It calls the corresponding function in the interface.
+func (s *Implementation) RemoveFact(request *pb.FactRemovalRequest) (*messages.Ack, error) {
+	return s.Functions.RemoveFact(request)
 }
