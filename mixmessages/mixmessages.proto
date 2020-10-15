@@ -468,6 +468,8 @@ message UDBUserRegistration {
     string RSAPublicPem = 2;
     Identity IdentityRegistration = 3;
     bytes IdentitySignature = 4; // (RSAPublicSign(Data.Digest()))
+    FactRegisterRequest frs = 5;
+    bytes UID = 6;
 }
 
 // Identity describes a user and their cryptographic info
