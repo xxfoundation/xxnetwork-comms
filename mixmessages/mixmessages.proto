@@ -446,7 +446,7 @@ message UserIdList {
 
 service UDB {
     // Handles a UDB user registration request
-    rpc RegisterUser (UDBUserRegistration) returns (UserRegistrationResponse) {
+    rpc RegisterUser (UDBUserRegistration) returns (messages.Ack) {
     }
 
     // Handles a request to register a Fact into the Fact database
@@ -454,11 +454,11 @@ service UDB {
     }
 
     // Handles a request to confirm a Fact against the Fact database
-    rpc ConfirmFact (FactConfirmRequest) returns (FactConfirmResponse) {
+    rpc ConfirmFact (FactConfirmRequest) returns (messages.Ack) {
     }
 
     // Handles a request to remove a Fact from the Fact database
-    rpc RemoveFact (FactRemovalRequest) returns (FactRemovalResponse) {
+    rpc RemoveFact (FactRemovalRequest) returns (messages.Ack) {
     }
 }
 
@@ -479,11 +479,6 @@ message Identity {
     bytes Salt = 3;
 }
 
-// A response from UDB about a UDBUserRegistration request
-message UserRegistrationResponse {
-    string Error = 1;
-}
-
 // Holds information for a Fact registration request
 message FactRegisterRequest {
     bytes UID = 1;
@@ -500,18 +495,12 @@ message Fact {
 // FactRegisterResponse describes UDB's handling of a FactRegisterRequest request
 message FactRegisterResponse {
     string ConfirmationID = 1;
-    string err = 2; // nil if success
 }
 
 // Holds information for a Fact confirmation request
 message FactConfirmRequest {
     string ConfirmationID = 1;
     string Code = 2;
-}
-
-// FactConfirmResponse describes UDB's handling of a FactConfirmResponse request
-message FactConfirmResponse {
-    string err = 1;
 }
 
 // Holds information for a Fact removal request
@@ -526,10 +515,6 @@ message FactRemoval {
     uint32 FactType = 2;
 }
 
-// FactRemovalResponse describes UDB's handling of a FactRemovalRequest request
-message FactRemovalResponse {
-    string err = 1;
-}
 
 // GENERAL USE MESSAGES --------------------------------------------------------
 

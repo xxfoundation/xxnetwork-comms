@@ -14,20 +14,21 @@ package udb
 
 import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
+	"gitlab.com/xx_network/comms/messages"
 )
 
-func (r *Comms) RegisterUser(registration *pb.UDBUserRegistration) *pb.UserRegistrationResponse {
+func (r *Comms) RegisterUser(registration *pb.UDBUserRegistration) (*messages.Ack, error) {
 	return r.handler.RegisterUser(registration)
 }
 
-func (r *Comms) RegisterFact(request *pb.FactRegisterRequest) *pb.FactRegisterResponse {
+func (r *Comms) RegisterFact(request *pb.FactRegisterRequest) (*pb.FactRegisterResponse, error) {
 	return r.handler.RegisterFact(request)
 }
 
-func (r *Comms) ConfirmFact(request *pb.FactConfirmRequest) *pb.FactConfirmResponse {
+func (r *Comms) ConfirmFact(request *pb.FactConfirmRequest) (*messages.Ack, error) {
 	return r.handler.ConfirmFact(request)
 }
 
-func (r *Comms) RemoveFact(request *pb.FactRemovalRequest) *pb.FactRemovalResponse {
+func (r *Comms) RemoveFact(request *pb.FactRemovalRequest) (*messages.Ack, error) {
 	return r.handler.RemoveFact(request)
 }
