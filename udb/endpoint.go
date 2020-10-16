@@ -13,22 +13,77 @@
 package udb
 
 import (
+	"context"
+	"github.com/golang/protobuf/ptypes"
+	"github.com/pkg/errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/messages"
 )
 
-func (r *Comms) RegisterUser(registration *pb.UDBUserRegistration) (*messages.Ack, error) {
-	return r.handler.RegisterUser(registration)
+func (r *Comms) RegisterUser(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
+	// Create an auth object
+	authState, err := r.AuthenticatedReceiver(msg)
+	if err != nil {
+		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
+	}
+
+	// Unmarshall the any message to the message type needed
+	registration := &pb.UDBUserRegistration{}
+	err = ptypes.UnmarshalAny(msg.Message, registration)
+	if err != nil {
+		return nil, err
+	}
+
+	return r.handler.RegisterUser(registration, authState)
 }
 
-func (r *Comms) RegisterFact(request *pb.FactRegisterRequest) (*pb.FactRegisterResponse, error) {
-	return r.handler.RegisterFact(request)
+func (r *Comms) RegisterFact(ctx context.Context, msg *messages.AuthenticatedMessage) (*pb.FactRegisterResponse, error) {
+	// Create an auth object
+	authState, err := r.AuthenticatedReceiver(msg)
+	if err != nil {
+		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
+	}
+
+	// Unmarshall the any message to the message type needed
+	request := &pb.FactRegisterRequest{}
+	err = ptypes.UnmarshalAny(msg.Message, request)
+	if err != nil {
+		return nil, err
+	}
+
+	return r.handler.RegisterFact(request, authState)
 }
 
-func (r *Comms) ConfirmFact(request *pb.FactConfirmRequest) (*messages.Ack, error) {
-	return r.handler.ConfirmFact(request)
+func (r *Comms) ConfirmFact(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
+	// Create an auth object
+	authState, err := r.AuthenticatedReceiver(msg)
+	if err != nil {
+		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
+	}
+
+	// Unmarshall the any message to the message type needed
+	request := &pb.FactConfirmRequest{}
+	err = ptypes.UnmarshalAny(msg.Message, request)
+	if err != nil {
+		return nil, err
+	}
+
+	return r.handler.ConfirmFact(request, authState)
 }
 
-func (r *Comms) RemoveFact(request *pb.FactRemovalRequest) (*messages.Ack, error) {
-	return r.handler.RemoveFact(request)
+func (r *Comms) RemoveFact(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
+	// Create an auth object
+	authState, err := r.AuthenticatedReceiver(msg)
+	if err != nil {
+		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
+	}
+
+	// Unmarshall the any message to the message type needed
+	request := &pb.FactRemovalRequest{}
+	err = ptypes.UnmarshalAny(msg.Message, request)
+	if err != nil {
+		return nil, err
+	}
+
+	return r.handler.RemoveFact(request, authState)
 }
