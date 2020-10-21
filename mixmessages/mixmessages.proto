@@ -454,7 +454,7 @@ service UDB {
     }
 
     // Handles a request to confirm a Fact against the Fact database
-    rpc ConfirmFact (messages.AuthenticatedMessage) returns (Fact) {
+    rpc ConfirmFact (messages.AuthenticatedMessage) returns (messages.Ack) {
     }
 
     // Handles a request to remove a Fact from the Fact database
