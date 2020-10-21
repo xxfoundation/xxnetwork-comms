@@ -75,7 +75,7 @@ type Handler interface {
 	// RegisterFact handles registering a fact into the database
 	RegisterFact(request *pb.FactRegisterRequest, auth *connect.Auth) (*pb.FactRegisterResponse, error)
 	// ConfirmFact checks a Fact against the Fact database
-	ConfirmFact(request *pb.FactConfirmRequest, auth *connect.Auth) (*messages.Ack, error)
+	ConfirmFact(request *pb.FactConfirmRequest, auth *connect.Auth) (*pb.Fact, error)
 	// RemoveFact removes a Fact from the Fact database
 	RemoveFact(request *pb.FactRemovalRequest, auth *connect.Auth) (*messages.Ack, error)
 }
@@ -92,7 +92,7 @@ type implementationFunctions struct {
 	// RegisterFact handles registering a fact into the database
 	RegisterFact func(request *pb.FactRegisterRequest, auth *connect.Auth) (*pb.FactRegisterResponse, error)
 	// ConfirmFact checks a Fact against the Fact database
-	ConfirmFact func(request *pb.FactConfirmRequest, auth *connect.Auth) (*messages.Ack, error)
+	ConfirmFact func(request *pb.FactConfirmRequest, auth *connect.Auth) (*pb.Fact, error)
 	// RemoveFact removes a Fact from the Fact database
 	RemoveFact func(request *pb.FactRemovalRequest, auth *connect.Auth) (*messages.Ack, error)
 }
@@ -126,9 +126,9 @@ func NewImplementation() *Implementation {
 				return &pb.FactRegisterResponse{}, nil
 			},
 			// Stub for ConfirmFact which returns a blank message and prints a warning
-			ConfirmFact: func(request *pb.FactConfirmRequest, auth *connect.Auth) (*messages.Ack, error) {
+			ConfirmFact: func(request *pb.FactConfirmRequest, auth *connect.Auth) (*pb.Fact, error) {
 				warn(um)
-				return &messages.Ack{}, nil
+				return &pb.Fact{}, nil
 			},
 			// Stub for RemoveFact which returns a blank message and prints a warning
 			RemoveFact: func(request *pb.FactRemovalRequest, auth *connect.Auth) (*messages.Ack, error) {
@@ -150,7 +150,7 @@ func (s *Implementation) RegisterFact(request *pb.FactRegisterRequest, auth *con
 }
 
 // ConfirmFact is called by the ConfirmFact in endpoint.go. It calls the corresponding function in the interface.
-func (s *Implementation) ConfirmFact(request *pb.FactConfirmRequest, auth *connect.Auth) (*messages.Ack, error) {
+func (s *Implementation) ConfirmFact(request *pb.FactConfirmRequest, auth *connect.Auth) (*pb.Fact, error) {
 	return s.Functions.ConfirmFact(request, auth)
 }
 

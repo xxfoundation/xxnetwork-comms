@@ -54,7 +54,7 @@ func (r *Comms) RegisterFact(ctx context.Context, msg *messages.AuthenticatedMes
 	return r.handler.RegisterFact(request, authState)
 }
 
-func (r *Comms) ConfirmFact(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
+func (r *Comms) ConfirmFact(ctx context.Context, msg *messages.AuthenticatedMessage) (*pb.Fact, error) {
 	// Create an auth object
 	authState, err := r.AuthenticatedReceiver(msg)
 	if err != nil {
