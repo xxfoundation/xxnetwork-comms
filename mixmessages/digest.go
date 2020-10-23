@@ -45,23 +45,3 @@ func (i *Fact) Digest() []byte {
 	h.Write(mb)
 	return h.Sum(nil)
 }
-
-// Function to digest FactRemoval
-func (i *FactRemoval) Digest() []byte {
-	//return hash(Fact |FactType )
-	// Generate the hash function
-	h, err := hash.NewCMixHash()
-	if err != nil {
-		jww.FATAL.Panicf("Could not get hash: %+v", err)
-	}
-
-	// Marshal the message to put into the hash
-	mb, err := proto.Marshal(i)
-	if err != nil {
-		jww.FATAL.Panicf("Could not marshal: %+v", err)
-	}
-
-	// Hash the FactRemoval data to generate the vector
-	h.Write(mb)
-	return h.Sum(nil)
-}
