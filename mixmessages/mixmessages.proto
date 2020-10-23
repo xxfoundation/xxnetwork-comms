@@ -252,6 +252,9 @@ message GatewayPoll {
     NDFHash Partial = 1;
     uint64 LastUpdate = 2;
     bytes ClientID = 3;
+    uint64 FirstRound = 4;
+    uint64 LastRound = 5;
+
 }
 
 // Unified Client->Gateway polling response
@@ -260,8 +263,7 @@ message GatewayPollResponse {
     repeated RoundInfo Updates = 2; // Empty if no update needed
     uint64 LastTrackedRound = 3; // Id of the last round tracked
     bytes KnownRounds = 4; // Rounds gateway knows about
-    repeated bytes FilterNew = 5; // Latest Bloom filter of the requested client
-    repeated bytes FilterOld = 6; // Previous Bloom filter of the requested client
+    repeated bytes BloomFilters = 5; // Latest Bloom filter of the requested client
 }
 
 // Client -> Gateway authentication message
@@ -280,7 +282,15 @@ message GatewaySlotResponse{
 // Gateway -> Gateway gossip of all Sender IDs in a Batch
 message BatchSenders {
     repeated bytes SenderIds = 1;
+    uint64 RoundID = 2;
 }
+
+// Gateway -> Gateway gossip of all recipient IDs in a Batch
+message Recipients {
+    repeated bytes RecipientIds = 1;
+    uint64 RoundID = 2;
+}
+
 
 // REGISTRATION MESSAGE SERVICE ------------------------------------------------
 
