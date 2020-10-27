@@ -42,7 +42,7 @@ func NewManagerTesting(i interface{}) *Manager {
 	case *testing.B:
 		break
 	default:
-		jww.FATAL.Panicf("NewManagerTesting is restricted to testing only. Got %T", i)
+		jww.FATAL.Panicf("NewManagerTesting is for testing only. Got %T", i)
 	}
 	return newManager()
 }

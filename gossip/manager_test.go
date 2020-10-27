@@ -16,7 +16,6 @@ import (
 
 // Basic test on manager creation
 func TestNewManager(t *testing.T) {
-
 	pc := &connect.ProtoComms{
 		Manager: connect.NewManagerTesting(t),
 	}
