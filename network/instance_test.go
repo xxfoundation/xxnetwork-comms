@@ -867,9 +867,9 @@ func TestInstance_RoundUpdateAddsToERS(t *testing.T) {
 	}
 
 	// Build the Instance object with an ERS memory map
+	testManager := connect.NewManagerTesting(t)
 	pc := &connect.ProtoComms{
-		Manager: 	connect.NewManagerTesting(t),
-
+		Manager: testManager,
 	}
 	var ers ds.ExternalRoundStorage = &ersMemMap{rounds: make(map[id.Round]*mixmessages.RoundInfo)}
 	i, err := NewInstance(pc, baseNDF, baseNDF, ers)

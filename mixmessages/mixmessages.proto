@@ -252,6 +252,9 @@ message GatewayPoll {
     NDFHash Partial = 1;
     uint64 LastUpdate = 2;
     bytes ClientID = 3;
+    uint64 FirstRound = 4;
+    uint64 LastRound = 5;
+
 }
 
 // Unified Client->Gateway polling response
@@ -260,8 +263,7 @@ message GatewayPollResponse {
     repeated RoundInfo Updates = 2; // Empty if no update needed
     uint64 LastTrackedRound = 3; // Id of the last round tracked
     bytes KnownRounds = 4; // Rounds gateway knows about
-    repeated bytes FilterNew = 5; // Latest Bloom filter of the requested client
-    repeated bytes FilterOld = 6; // Previous Bloom filter of the requested client
+    repeated bytes BloomFilters = 5; // Latest Bloom filter of the requested client
 }
 
 // Client -> Gateway authentication message
@@ -280,7 +282,15 @@ message GatewaySlotResponse{
 // Gateway -> Gateway gossip of all Sender IDs in a Batch
 message BatchSenders {
     repeated bytes SenderIds = 1;
+    uint64 RoundID = 2;
 }
+
+// Gateway -> Gateway gossip of all recipient IDs in a Batch
+message Recipients {
+    repeated bytes RecipientIds = 1;
+    uint64 RoundID = 2;
+}
+
 
 // REGISTRATION MESSAGE SERVICE ------------------------------------------------
 
@@ -441,6 +451,74 @@ message NotificationToken {
 message UserIdList {
     repeated bytes IDs = 1;
 }
+
+// UDB MESSAGE SERVICE ---------------------------------------------------------
+
+service UDB {
+    // Handles a UDB user registration request
+    rpc RegisterUser (messages.AuthenticatedMessage) returns (messages.Ack) {
+    }
+
+    // Handles a request to register a Fact into the Fact database
+    rpc RegisterFact (messages.AuthenticatedMessage) returns (FactRegisterResponse) {
+    }
+
+    // Handles a request to confirm a Fact against the Fact database
+    rpc ConfirmFact (messages.AuthenticatedMessage) returns (messages.Ack) {
+    }
+
+    // Handles a request to remove a Fact from the Fact database
+    rpc RemoveFact (messages.AuthenticatedMessage) returns (messages.Ack) {
+    }
+}
+
+// Holds information for a UDB user registration request
+message UDBUserRegistration {
+    bytes PermissioningSignature = 1;
+    string RSAPublicPem = 2;
+    Identity IdentityRegistration = 3;
+    bytes IdentitySignature = 4; // (RSAPublicSign(Data.Digest()))
+    FactRegisterRequest frs = 5;
+    bytes UID = 6;
+}
+
+// Identity describes a user and their cryptographic info
+message Identity {
+    string Username = 1;
+    bytes dhPubKey = 2;
+    bytes Salt = 3;
+}
+
+// Holds information for a Fact registration request
+message FactRegisterRequest {
+    bytes UID = 1;
+    Fact Fact = 2;
+    bytes FactSig = 3;// (RSAPublicSign(Fact.Digest()))
+}
+
+// Fact describes a Fact, namely what it is and what type it is
+message Fact {
+    string Fact = 1;
+    uint32 FactType = 2;
+}
+
+// FactRegisterResponse describes UDB's handling of a FactRegisterRequest request
+message FactRegisterResponse {
+    string ConfirmationID = 1;
+}
+
+// Holds information for a Fact confirmation request
+message FactConfirmRequest {
+    string ConfirmationID = 1;
+    string Code = 2;
+}
+
+// Holds information for a Fact removal request
+message FactRemovalRequest {
+    bytes UID = 1;
+    Fact RemovalData = 2;
+}
+
 
 // GENERAL USE MESSAGES --------------------------------------------------------
 
