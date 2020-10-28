@@ -150,10 +150,10 @@ func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition,
 	}
 
 	cmix := ""
-	if full.CMIX.Prime != "" {
+	if full != nil && full.CMIX.Prime != "" {
 		cmix, _ = full.CMIX.String()
 	} else if partial.CMIX.Prime != "" {
-		cmix, _ = full.CMIX.String()
+		cmix, _ = partial.CMIX.String()
 	}
 
 	if cmix != "" {
@@ -164,7 +164,7 @@ func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition,
 	}
 
 	e2e := ""
-	if full.E2E.Prime != "" {
+	if full != nil && full.E2E.Prime != "" {
 		e2e, _ = full.E2E.String()
 	} else if partial.E2E.Prime != "" {
 		e2e, _ = partial.E2E.String()
@@ -188,17 +188,24 @@ func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition,
 
 // Utility function to create instance FOR TESTING PURPOSES ONLY
 func NewInstanceTesting(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition,
-	e2eGroup, cmixGroup *cyclic.Group, t *testing.T) (*Instance, error) {
-	if t == nil {
-		panic("This is a utility function for testing purposes only!")
+	e2eGroup, cmixGroup *cyclic.Group, i interface{}) (*Instance, error) {
+	switch i.(type) {
+	case *testing.T:
+		break
+	case *testing.M:
+		break
+	case *testing.B:
+		break
+	default:
+		jww.FATAL.Panicf("NewInstanceTesting is restricted to testing only. Got %T", i)
 	}
 	instance, err := NewInstance(c, partial, full, nil)
 	if err != nil {
 		return nil, errors.Errorf("Unable to create instance: %+v", err)
 	}
 
-	instance.cmixGroup.UpdateCyclicGroupTesting(cmixGroup, t)
-	instance.e2eGroup.UpdateCyclicGroupTesting(e2eGroup, t)
+	instance.cmixGroup.UpdateCyclicGroupTesting(cmixGroup, i)
+	instance.e2eGroup.UpdateCyclicGroupTesting(e2eGroup, i)
 
 	return instance, nil
 }
@@ -605,8 +612,9 @@ func (i *Instance) updateConns(def *ndf.NetworkDefinition, isGateway, isNode boo
 					return errors.Errorf("Gateway ID invalid, collides with a "+
 						"hard coded ID. Invalid ID: %v", gwid.Marshal())
 				}
-
-				_, err := i.comm.AddHost(gwid, addr, []byte(gateway.TlsCertificate), connect.GetDefaultHostParams())
+				gwParams := connect.GetDefaultHostParams()
+				gwParams.AuthEnabled = false
+				_, err := i.comm.AddHost(gwid, addr, []byte(gateway.TlsCertificate), gwParams)
 				if err != nil {
 					return errors.WithMessagef(err, "Could not add gateway host %s", gwid)
 				}
