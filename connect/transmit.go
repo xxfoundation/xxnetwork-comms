@@ -38,8 +38,8 @@ func (c *ProtoComms) transmit(host *Host, f func(conn *grpc.ClientConn) (interfa
 			return result, err
 		}
 		host.conditionalDisconnect(connectionCount)
-		jww.WARN.Printf("Failed to send to Host on attempt %v/%v",
-			numRetries+1, MaxRetries)
+		jww.WARN.Printf("Failed to send to Host on attempt %v/%v: %+v",
+			numRetries+1, MaxRetries, err)
 	}
 
 	return nil, err

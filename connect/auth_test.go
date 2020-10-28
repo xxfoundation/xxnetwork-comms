@@ -12,7 +12,7 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"gitlab.com/elixxir/crypto/csprng"
 	"gitlab.com/elixxir/crypto/xx"
-	"gitlab.com/xx_network/comms/connect/token"
+	token "gitlab.com/xx_network/comms/connect/token"
 	pb "gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/comms/testkeys"
 	"gitlab.com/xx_network/crypto/signature/rsa"

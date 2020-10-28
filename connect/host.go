@@ -13,10 +13,10 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
+	"gitlab.com/xx_network/comms/connect/token"
 	"gitlab.com/xx_network/crypto/signature/rsa"
 	tlsCreds "gitlab.com/xx_network/crypto/tls"
 	"gitlab.com/xx_network/primitives/id"
-	"gitlab.com/xx_network/comms/connect/token"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/credentials"
@@ -299,7 +299,7 @@ func (h *Host) connectHelper() (err error) {
 		if backoffTime > 15 {
 			backoffTime = 15
 		}
-		ctx, cancel := ConnectionContext(time.Duration(backoffTime))
+		ctx, cancel := ConnectionContext(time.Duration(backoffTime) * time.Second)
 
 		// Create the connection
 		h.connection, err = grpc.DialContext(ctx, h.GetAddress(),

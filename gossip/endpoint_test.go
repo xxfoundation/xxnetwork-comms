@@ -108,7 +108,6 @@ func TestManager_Endpoint_AddProtocol(t *testing.T) {
 	pc := &connect.ProtoComms{
 		Manager: connect.NewManagerTesting(t),
 	}
-
 	m := NewManager(pc, DefaultManagerFlags())
 	_, err := m.Endpoint(context.Background(), &GossipMsg{
 		Tag:       "test",
@@ -147,6 +146,6 @@ func TestManager_Endpoint_AddProtocol(t *testing.T) {
 
 }
 
-func TestComms_Stream(t *testing.T) {
-	// TODO: Implement test once streaming is enabled
-}
+//func TestComms_Stream(t *testing.T) {
+//	// TODO: Implement test once streaming is enabled
+//}

@@ -19,7 +19,6 @@ func TestNewManager(t *testing.T) {
 	pc := &connect.ProtoComms{
 		Manager: connect.NewManagerTesting(t),
 	}
-
 	m := NewManager(pc, DefaultManagerFlags())
 	if m.buffer == nil || m.protocols == nil {
 		t.Error("Failed to initialize all fields properly")
@@ -119,7 +118,11 @@ func TestManager_BufferMonitor(t *testing.T) {
 	flags := DefaultManagerFlags()
 	flags.BufferExpirationTime = 3 * time.Second
 	flags.MonitorThreadFrequency = 3 * time.Second
-	m := NewManager(&connect.ProtoComms{}, flags)
+	pc := &connect.ProtoComms{
+		Manager: connect.NewManagerTesting(t),
+	}
+
+	m := NewManager(pc, flags)
 	m.buffer["test"] = &MessageRecord{
 		Timestamp: time.Now(),
 		Messages:  nil,
