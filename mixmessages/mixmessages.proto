@@ -519,6 +519,24 @@ message FactRemovalRequest {
     Fact RemovalData = 2;
 }
 
+// CONNECTIVITY CHECKER --------------------------------------------------------
+
+service ConnectivityChecker {
+    rpc CheckConnectivity (Address) returns (ConnectivityResponse) {
+    }
+}
+
+message Address {
+    string IP = 1;
+    string Port = 2;
+}
+
+message ConnectivityResponse {
+    string CallerAddr = 1;
+    bool CallerAvailable = 2;
+    bool OtherAvailable = 3;
+}
+
 
 // GENERAL USE MESSAGES --------------------------------------------------------
 
