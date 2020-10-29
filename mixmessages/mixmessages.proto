@@ -421,11 +421,19 @@ message PermissioningPoll {
     string gatewayVersion = 9;
 }
 
+// Info containing error among a client
+// Passed server -> Permissioning via the poll comm
+message ClientError {
+    bytes ClientId = 1;
+    string Error = 2;
+}
+
 // Unified Server->Permissioning polling response
 message PermissionPollResponse {
     NDF FullNDF = 1; // Empty if no update needed
     NDF PartialNDF = 2; // Empty if no update needed
     repeated RoundInfo Updates = 3; // Empty if no update needed
+    ClientError Error = 4; // Client error information
 }
 
 
