@@ -31,9 +31,9 @@ func CheckConnectivity(senderIp, senderPort, ip, port string) (*ConnectivityResp
 		if ip != "" {
 			resp.CallerAvailable = checkConn(resp.CallerAddr)
 
-			resp.OtherAvailable = checkConn(fmt.Sprintf("%s:%s", ip, strconv.Itoa(port)))
+			resp.OtherAvailable = checkConn(fmt.Sprintf("%s:%s", ip, port))
 		} else {
-			resp.CallerAvailable = checkConn(fmt.Sprintf("%s:%s", senderIp, strconv.Itoa(port)))
+			resp.CallerAvailable = checkConn(fmt.Sprintf("%s:%s", senderIp, port))
 		}
 	} else {
 		resp.CallerAvailable = checkConn(resp.CallerAddr)
