@@ -13,7 +13,7 @@ import (
 	"encoding/json"
 	"github.com/pkg/errors"
 	"gitlab.com/elixxir/crypto/cyclic"
-	"gitlab.com/elixxir/crypto/large"
+	"gitlab.com/xx_network/crypto/large"
 	"gitlab.com/xx_network/primitives/ndf"
 	"sync"
 	"testing"
