@@ -415,10 +415,11 @@ message PermissioningPoll {
     uint64 LastUpdate = 3;
     uint32 Activity = 4;
     RoundError Error = 5; // Only Populated in the event of errors
-    string gatewayAddress = 6;
-    uint32 serverPort = 7;
-    string serverVersion = 8;
-    string gatewayVersion = 9;
+    repeated ClientError ClientError = 6; // Client error information
+    string gatewayAddress = 7;
+    uint32 serverPort = 8;
+    string serverVersion = 9;
+    string gatewayVersion = 10;
 }
 
 // Info containing error among a client
@@ -433,7 +434,6 @@ message PermissionPollResponse {
     NDF FullNDF = 1; // Empty if no update needed
     NDF PartialNDF = 2; // Empty if no update needed
     repeated RoundInfo Updates = 3; // Empty if no update needed
-    repeated ClientError Error = 4; // Client error information
 }
 
 
