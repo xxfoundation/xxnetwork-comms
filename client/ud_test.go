@@ -16,8 +16,7 @@ func TestComms_SendDeleteMessage(t *testing.T) {
 	udAddr := getNextAddress()
 	ud := udb.StartServer(&id.UDB, udAddr, udb.NewImplementation(), nil, nil)
 	_ = ud.Id
-	// FIXME: ud.Shutdown() causes a nil deference
-	//defer ud.Shutdown()
+	defer ud.Shutdown()
 	var c Comms
 	manager := connect.NewManagerTesting(t)
 
