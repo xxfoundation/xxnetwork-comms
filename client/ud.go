@@ -30,7 +30,7 @@ func (c *Comms) SendDeleteMessage(host *connect.Host, message *messages.Authenti
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Put message: %+v", message)
+	jww.DEBUG.Printf("Sending Delete message: %+v", message)
 	_, err := c.Send(host, f)
 	if err != nil {
 		return nil, err
