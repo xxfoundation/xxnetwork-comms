@@ -415,11 +415,12 @@ message PermissioningPoll {
     uint64 LastUpdate = 3;
     uint32 Activity = 4;
     RoundError Error = 5; // Only Populated in the event of errors
-    repeated ClientError ClientError = 6; // Client error information
-    string gatewayAddress = 7;
-    uint32 serverPort = 8;
-    string serverVersion = 9;
-    string gatewayVersion = 10;
+    string gatewayAddress = 6;
+    uint32 serverPort = 7;
+    string serverVersion = 8;
+    string gatewayVersion = 9;
+    repeated ClientError ClientError = 10; // Client error information
+
 }
 
 // Info containing error among a client
