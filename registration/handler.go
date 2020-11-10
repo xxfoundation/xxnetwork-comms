@@ -25,6 +25,7 @@ import (
 type Comms struct {
 	*connect.ProtoComms
 	handler Handler
+	pb.ConnectivityChecker
 }
 
 // Starts a new server on the address:port specified by localServer
@@ -45,6 +46,7 @@ func StartRegistrationServer(id *id.ID, localServer string, handler Handler,
 	}
 
 	go func() {
+		pb.RegisterConnectivityCheckerServer(registrationServer.LocalServer, &registrationServer)
 		pb.RegisterRegistrationServer(registrationServer.LocalServer, &registrationServer)
 		messages.RegisterGenericServer(registrationServer.LocalServer, &registrationServer)
 
