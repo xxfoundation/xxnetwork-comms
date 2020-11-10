@@ -239,5 +239,6 @@ func (c *ProtoComms) Stream(host *Host, f func(conn *grpc.ClientConn) (
 // should be retried
 func isConnError(err error) bool {
 	return strings.Contains(err.Error(), "context deadline exceeded") ||
-		strings.Contains(err.Error(), "connection refused")
+		strings.Contains(err.Error(), "connection refused") ||
+		strings.Contains(err.Error(), "host disconnected")
 }

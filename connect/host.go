@@ -213,8 +213,14 @@ func (h *Host) transmit(f func(conn *grpc.ClientConn) (interface{},
 	error)) (interface{}, error) {
 
 	h.sendMux.RLock()
+	defer h.sendMux.RUnlock()
+
+	// Check if connection is down
+	if h.connection == nil {
+		return nil, errors.New("Failed to transmit: host disconnected")
+	}
+
 	a, err := f(h.connection)
-	h.sendMux.RUnlock()
 
 	return a, err
 }
