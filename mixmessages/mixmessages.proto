@@ -415,10 +415,11 @@ message PermissioningPoll {
     uint64 LastUpdate = 3;
     uint32 Activity = 4;
     RoundError Error = 5; // Only Populated in the event of errors
-    string gatewayAddress = 6;
+    string GatewayAddress = 6;
     uint32 serverPort = 7;
     string serverVersion = 8;
     string gatewayVersion = 9;
+    string ServerAddress = 10;
 }
 
 // Unified Server->Permissioning polling response
