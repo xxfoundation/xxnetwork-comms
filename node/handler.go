@@ -152,8 +152,7 @@ type implementationFunctions struct {
 
 	GetCompletedBatch func(auth *connect.Auth) (*mixmessages.Batch, error)
 
-	Poll func(msg *mixmessages.ServerPoll, auth *connect.Auth,
-		gatewayAddress string) (*mixmessages.ServerPollResponse, error)
+	Poll func(msg *mixmessages.ServerPoll, auth *connect.Auth) (*mixmessages.ServerPollResponse, error)
 
 	SendRoundTripPing func(ping *mixmessages.RoundTripPing, auth *connect.Auth) error
 
@@ -237,7 +236,7 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return &mixmessages.Batch{}, nil
 			},
-			Poll: func(msg *mixmessages.ServerPoll, auth *connect.Auth, gatewayAddress string) (*mixmessages.ServerPollResponse, error) {
+			Poll: func(msg *mixmessages.ServerPoll, auth *connect.Auth) (*mixmessages.ServerPollResponse, error) {
 				warn(um)
 				return &mixmessages.ServerPollResponse{}, nil
 			},
@@ -321,9 +320,8 @@ func (s *Implementation) GetCompletedBatch(auth *connect.Auth) (*mixmessages.Bat
 	return s.Functions.GetCompletedBatch(auth)
 }
 
-func (s *Implementation) Poll(msg *mixmessages.ServerPoll, auth *connect.Auth,
-	gatewayAddress string) (*mixmessages.ServerPollResponse, error) {
-	return s.Functions.Poll(msg, auth, gatewayAddress)
+func (s *Implementation) Poll(msg *mixmessages.ServerPoll, auth *connect.Auth) (*mixmessages.ServerPollResponse, error) {
+	return s.Functions.Poll(msg, auth)
 }
 
 func (s *Implementation) SendRoundTripPing(ping *mixmessages.RoundTripPing, auth *connect.Auth) error {

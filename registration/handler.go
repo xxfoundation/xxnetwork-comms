@@ -80,9 +80,8 @@ type implementationFunctions struct {
 	GetCurrentClientVersion func() (version string, err error)
 	RegisterNode            func(salt []byte, serverAddr, serverTlsCert, gatewayAddr,
 		gatewayTlsCert, registrationCode string) error
-	PollNdf func(ndfHash []byte, auth *connect.Auth) ([]byte, error)
-	Poll    func(msg *pb.PermissioningPoll, auth *connect.Auth,
-		serverAddress string) (*pb.PermissionPollResponse, error)
+	PollNdf           func(ndfHash []byte, auth *connect.Auth) ([]byte, error)
+	Poll              func(msg *pb.PermissioningPoll, auth *connect.Auth) (*pb.PermissionPollResponse, error)
 	CheckRegistration func(msg *pb.RegisteredNodeCheck) (*pb.RegisteredNodeConfirmation, error)
 }
 
@@ -121,8 +120,7 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return nil, nil
 			},
-			Poll: func(msg *pb.PermissioningPoll, auth *connect.Auth,
-				serverAddress string) (*pb.PermissionPollResponse, error) {
+			Poll: func(msg *pb.PermissioningPoll, auth *connect.Auth) (*pb.PermissionPollResponse, error) {
 				warn(um)
 				return &pb.PermissionPollResponse{}, nil
 			},
@@ -156,8 +154,8 @@ func (s *Implementation) PollNdf(ndfHash []byte, auth *connect.Auth) ([]byte, er
 	return s.Functions.PollNdf(ndfHash, auth)
 }
 
-func (s *Implementation) Poll(msg *pb.PermissioningPoll, auth *connect.Auth, serverAddress string) (*pb.PermissionPollResponse, error) {
-	return s.Functions.Poll(msg, auth, serverAddress)
+func (s *Implementation) Poll(msg *pb.PermissioningPoll, auth *connect.Auth) (*pb.PermissionPollResponse, error) {
+	return s.Functions.Poll(msg, auth)
 }
 
 func (s *Implementation) CheckRegistration(msg *pb.RegisteredNodeCheck) (*pb.
