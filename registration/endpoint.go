@@ -131,16 +131,8 @@ func (r *Comms) Poll(ctx context.Context, msg *messages.AuthenticatedMessage) (*
 		return nil, err
 	}
 
-	// Get server IP and port
-	ip, _, err := connect.GetAddressFromContext(ctx)
-	if err != nil {
-		return &pb.PermissionPollResponse{}, err
-	}
-	port := pollMsg.ServerPort
-	address := fmt.Sprintf("%s:%d", ip, port)
-
 	//Return the new ndf
-	return r.handler.Poll(pollMsg, authState, address)
+	return r.handler.Poll(pollMsg, authState)
 }
 
 // Server -> Permissioning unified polling

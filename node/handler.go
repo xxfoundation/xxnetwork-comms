@@ -105,7 +105,7 @@ type Handler interface {
 	// GetCompletedBatch: gateway uses completed batch from the server
 	GetCompletedBatch(auth *connect.Auth) (*mixmessages.Batch, error)
 
-	Poll(msg *mixmessages.ServerPoll, auth *connect.Auth, gatewayAddress string) (*mixmessages.ServerPollResponse, error)
+	Poll(msg *mixmessages.ServerPoll, auth *connect.Auth) (*mixmessages.ServerPollResponse, error)
 
 	SendRoundTripPing(ping *mixmessages.RoundTripPing, auth *connect.Auth) error
 

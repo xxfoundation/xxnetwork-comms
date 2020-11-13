@@ -69,7 +69,7 @@ type Handler interface {
 	RegisterNode(salt []byte, serverAddr, serverTlsCert, gatewayAddr,
 		gatewayTlsCert, registrationCode string) error
 	PollNdf(ndfHash []byte, auth *connect.Auth) ([]byte, error)
-	Poll(msg *pb.PermissioningPoll, auth *connect.Auth, serverAddress string) (*pb.
+	Poll(msg *pb.PermissioningPoll, auth *connect.Auth) (*pb.
 		PermissionPollResponse, error)
 	CheckRegistration(msg *pb.RegisteredNodeCheck) (*pb.RegisteredNodeConfirmation, error)
 }

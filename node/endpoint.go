@@ -10,7 +10,6 @@
 package node
 
 import (
-	"fmt"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/pkg/errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
@@ -323,15 +322,7 @@ func (s *Comms) Poll(ctx context.Context, msg *messages.AuthenticatedMessage) (*
 		return nil, err
 	}
 
-	// Get gateway IP and port
-	ip, _, err := connect.GetAddressFromContext(ctx)
-	if err != nil {
-		return &pb.ServerPollResponse{}, err
-	}
-	port := pollMsg.GatewayPort
-	address := fmt.Sprintf("%s:%d", ip, port)
-
-	return s.handler.Poll(pollMsg, authState, address)
+	return s.handler.Poll(pollMsg, authState)
 }
 
 func (s *Comms) RoundError(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
