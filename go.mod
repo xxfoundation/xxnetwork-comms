@@ -11,10 +11,10 @@ require (
 	github.com/stretchr/testify v1.6.1 // indirect
 	github.com/zeebo/blake3 v0.1.0 // indirect
 	github.com/zeebo/pcg v1.0.0 // indirect
-	gitlab.com/elixxir/crypto v0.0.4
+	gitlab.com/elixxir/crypto v0.0.5-0.20201109185928-c90e6ff8110b
 	gitlab.com/elixxir/primitives v0.0.2
 	gitlab.com/xx_network/comms v0.0.3
-	gitlab.com/xx_network/crypto v0.0.4
+	gitlab.com/xx_network/crypto v0.0.5-0.20201109181127-e2ee3a1eff0c
 	gitlab.com/xx_network/primitives v0.0.2
 	gitlab.com/xx_network/ring v0.0.2
 	golang.org/x/crypto v0.0.0-20201016220609-9e8e0b390897 // indirect
