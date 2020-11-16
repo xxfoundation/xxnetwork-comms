@@ -11,9 +11,9 @@ require (
 	github.com/stretchr/testify v1.6.1 // indirect
 	github.com/zeebo/blake3 v0.1.0 // indirect
 	github.com/zeebo/pcg v1.0.0 // indirect
-	gitlab.com/elixxir/crypto v0.0.4
-	gitlab.com/elixxir/primitives v0.0.2
-	gitlab.com/xx_network/comms v0.0.3
+	gitlab.com/elixxir/crypto v0.0.5-0.20201110193609-6b5e881867b4
+	gitlab.com/elixxir/primitives v0.0.3-0.20201116174806-97f190989704
+	gitlab.com/xx_network/comms v0.0.4-0.20201110022115-4a6171cad07d
 	gitlab.com/xx_network/crypto v0.0.4
 	gitlab.com/xx_network/primitives v0.0.2
 	gitlab.com/xx_network/ring v0.0.2
