@@ -419,8 +419,12 @@ message PermissioningPoll {
     uint32 serverPort = 7;
     string serverVersion = 8;
     string gatewayVersion = 9;
-    repeated ClientError ClientError = 10; // Client error information
+    ClientErrors ClientError = 10; // Client error information
+}
 
+message ClientErrors {
+    repeated ClientError ClientErrors = 1; // Client error information
+    uint64 RoundID = 2;
 }
 
 // Info containing error among a client
