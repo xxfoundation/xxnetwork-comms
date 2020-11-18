@@ -66,7 +66,7 @@ func TestProtocol_RemoveGossipPeer(t *testing.T) {
 func TestProtocol_GetPeers(t *testing.T) {
 	p := setup(t)
 	testHostID := id.NewIdFromString("testhost", id.Node, t)
-	_, err := p.comms.AddHost(testHostID, "0.0.0.0:420", nil, true, false)
+	_, err := p.comms.AddHost(testHostID, "0.0.0.0:420", nil, connect.GetDefaultHostParams())
 	if err != nil {
 		t.Errorf("Failed to add test host: %+v", err)
 	}
