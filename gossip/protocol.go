@@ -237,7 +237,7 @@ func (p *Protocol) Gossip(msg *GossipMsg) (int, []error) {
 	for _, p := range peers {
 		sendErr := sendFunc(p) // TODO: Should this happen in a gofunc?
 		if sendErr != nil {
-			errs = append(errs, errors.WithMessagef(err, "Failed to send to ID %s", p))
+			errs = append(errs, errors.WithMessagef(sendErr, "Failed to send to ID %s", p))
 			errCount++
 		}
 	}

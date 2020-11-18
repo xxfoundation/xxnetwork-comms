@@ -8,9 +8,9 @@
 package connect
 
 import (
-	"gitlab.com/elixxir/primitives/utils"
 	"gitlab.com/xx_network/comms/testkeys"
 	"gitlab.com/xx_network/primitives/id"
+	"gitlab.com/xx_network/primitives/utils"
 	"reflect"
 	"testing"
 )
@@ -218,7 +218,7 @@ func TestCircuit_GetHostAtIndex(t *testing.T) {
 	cert, _ := utils.ReadFile(testkeys.GetNodeCertPath())
 	circuit := NewCircuit(nodeIdList)
 	testID := id.NewIdFromString("test", id.Generic, t)
-	testHost, _ := NewHost(testID, "test", cert, false, false)
+	testHost, _ := NewHost(testID, "test", cert, GetDefaultHostParams())
 	circuit.AddHost(testHost)
 
 	if !reflect.DeepEqual(circuit.hosts[0], testHost) {
