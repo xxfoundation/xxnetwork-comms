@@ -173,6 +173,20 @@ func (p *Protocol) AddGossipPeer(id *id.ID) error {
 	return nil
 }
 
+// Returns all peers in the gossip. Primarily for debugging.
+func (p *Protocol) GetPeers() []*id.ID {
+	p.peersLock.Lock()
+	defer p.peersLock.Unlock()
+
+	peersCopy := make([]*id.ID, len(p.peers))
+
+	for i, peer := range p.peers {
+		peersCopy[i] = peer.DeepCopy()
+	}
+
+	return peersCopy
+}
+
 // Remove a peer by ID to the Gossip protocol
 func (p *Protocol) RemoveGossipPeer(id *id.ID) error {
 	p.peersLock.Lock()

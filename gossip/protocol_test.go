@@ -62,6 +62,23 @@ func TestProtocol_RemoveGossipPeer(t *testing.T) {
 	}
 }
 
+// Test functionality of GetPeers
+func TestProtocol_GetPeers(t *testing.T) {
+	p := setup(t)
+	testHostID := id.NewIdFromString("testhost", id.Node, t)
+	_, err := p.comms.AddHost(testHostID, "0.0.0.0:420", nil, true, false)
+	if err != nil {
+		t.Errorf("Failed to add test host: %+v", err)
+	}
+	err = p.AddGossipPeer(testHostID)
+	if err != nil {
+		t.Errorf("Failed to add gossip peer: %+v", err)
+	}
+	if len(p.GetPeers()) == 0 {
+		t.Errorf("Did not properly add gossip peer")
+	}
+}
+
 // Error path
 func TestProtocol_RemoveGossipPeerError(t *testing.T) {
 	p := setup(t)
