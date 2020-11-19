@@ -12,6 +12,7 @@ package gossip
 import (
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/xx_network/comms/connect"
+	"gitlab.com/xx_network/crypto/csprng"
 	"gitlab.com/xx_network/primitives/id"
 	"sync"
 	"time"
@@ -81,6 +82,7 @@ func (m *Manager) NewGossip(tag string, flags ProtocolFlags,
 		receiver:     receiver,
 		verify:       verifier,
 		IsDefunct:    false,
+		crand: csprng.NewSystemRNG(),
 	}
 
 	m.protocols[tag] = tmp
