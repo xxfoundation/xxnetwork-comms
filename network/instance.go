@@ -580,6 +580,7 @@ func (i *Instance) GetPermissioningId() *id.ID {
 // Update host helper
 func (i *Instance) updateConns(def *ndf.NetworkDefinition, isGateway, isNode bool) error {
 	if isGateway {
+		jww.INFO.Printf("Checking %d gateways to see if they need to be added", len(def.Nodes))
 		for index, gateway := range def.Gateways {
 			gwid, err := id.Unmarshal(def.Nodes[index].ID)
 			if err != nil {
@@ -588,9 +589,10 @@ func (i *Instance) updateConns(def *ndf.NetworkDefinition, isGateway, isNode boo
 			gwid.SetType(id.Gateway)
 			//check if an ip override is registered
 			addr := i.ipOverride.CheckOverride(gwid, gateway.Address)
-
+			jww.INFO.Printf("Checking if %s is found", gwid)
 			//check if the host exists
 			host, ok := i.comm.GetHost(gwid)
+			jww.INFO.Printf("Checking if %s is found: %v", gwid, ok)
 			if !ok {
 
 				// Check if gateway ID collides with an existing hard coded ID
@@ -600,6 +602,7 @@ func (i *Instance) updateConns(def *ndf.NetworkDefinition, isGateway, isNode boo
 				}
 				gwParams := connect.GetDefaultHostParams()
 				gwParams.AuthEnabled = false
+				jww.INFO.Printf("Adding host for %s", gwid)
 				_, err := i.comm.AddHost(gwid, addr, []byte(gateway.TlsCertificate), gwParams)
 				if err != nil {
 					return errors.WithMessagef(err, "Could not add gateway host %s", gwid)
