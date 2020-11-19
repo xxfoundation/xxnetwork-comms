@@ -593,6 +593,18 @@ func (i *Instance) updateConns(def *ndf.NetworkDefinition, isGateway, isNode boo
 			host, ok := i.comm.GetHost(gwid)
 			if !ok {
 
+				// Check if gateway ID collides with an existing hard coded ID
+				if id.CollidesWithHardCodedID(gwid) {
+					return errors.Errorf("Gateway ID invalid, collides with a "+
+						"hard coded ID. Invalid ID: %v", gwid.Marshal())
+				}
+				gwParams := connect.GetDefaultHostParams()
+				gwParams.AuthEnabled = false
+				_, err := i.comm.AddHost(gwid, addr, []byte(gateway.TlsCertificate), gwParams)
+				if err != nil {
+					return errors.WithMessagef(err, "Could not add gateway host %s", gwid)
+				}
+
 				// Send events into Node Listener
 				if i.addGateway != nil {
 					ng := NodeGateway{
@@ -607,17 +619,7 @@ func (i *Instance) updateConns(def *ndf.NetworkDefinition, isGateway, isNode boo
 					}
 				}
 
-				// Check if gateway ID collides with an existing hard coded ID
-				if id.CollidesWithHardCodedID(gwid) {
-					return errors.Errorf("Gateway ID invalid, collides with a "+
-						"hard coded ID. Invalid ID: %v", gwid.Marshal())
-				}
-				gwParams := connect.GetDefaultHostParams()
-				gwParams.AuthEnabled = false
-				_, err := i.comm.AddHost(gwid, addr, []byte(gateway.TlsCertificate), gwParams)
-				if err != nil {
-					return errors.WithMessagef(err, "Could not add gateway host %s", gwid)
-				}
+
 			} else if host.GetAddress() != addr {
 				host.UpdateAddress(addr)
 			}
@@ -636,6 +638,17 @@ func (i *Instance) updateConns(def *ndf.NetworkDefinition, isGateway, isNode boo
 			host, ok := i.comm.GetHost(nid)
 			if !ok {
 
+				// Check if isNode ID collides with an existing hard coded ID
+				if id.CollidesWithHardCodedID(nid) {
+					return errors.Errorf("Node ID invalid, collides with a "+
+						"hard coded ID. Invalid ID: %v", nid.Marshal())
+				}
+
+				_, err := i.comm.AddHost(nid, addr, []byte(node.TlsCertificate), connect.GetDefaultHostParams())
+				if err != nil {
+					return errors.WithMessagef(err, "Could not add isNode host %s", nid)
+				}
+
 				// Send events into Node Listener
 				if i.addNode != nil {
 					ng := NodeGateway{
@@ -650,16 +663,6 @@ func (i *Instance) updateConns(def *ndf.NetworkDefinition, isGateway, isNode boo
 					}
 				}
 
-				// Check if isNode ID collides with an existing hard coded ID
-				if id.CollidesWithHardCodedID(nid) {
-					return errors.Errorf("Node ID invalid, collides with a "+
-						"hard coded ID. Invalid ID: %v", nid.Marshal())
-				}
-
-				_, err := i.comm.AddHost(nid, addr, []byte(node.TlsCertificate), connect.GetDefaultHostParams())
-				if err != nil {
-					return errors.WithMessagef(err, "Could not add isNode host %s", nid)
-				}
 			} else if host.GetAddress() != addr {
 				host.UpdateAddress(addr)
 			}
