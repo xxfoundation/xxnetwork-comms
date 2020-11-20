@@ -125,7 +125,7 @@ message ServerPoll {
     uint64 LastUpdate = 3;
     string Error = 4; // Only Populated in the event of errors
     string gatewayVersion = 5;
-    uint32 gatewayPort = 6;
+    string gatewayAddress = 6;
 }
 
 // Unified Gateway->Server polling response
@@ -415,12 +415,11 @@ message PermissioningPoll {
     uint64 LastUpdate = 3;
     uint32 Activity = 4;
     RoundError Error = 5; // Only Populated in the event of errors
-    string GatewayAddress = 6;
-    uint32 serverPort = 7;
-    string serverVersion = 8;
-    string gatewayVersion = 9;
-    string ServerAddress = 10;
-    repeated ClientError ClientErrors = 11; // Client error information
+    string gatewayAddress = 6;
+    string gatewayVersion = 7;
+    string serverAddress = 8;
+    string serverVersion = 9;
+    repeated ClientError ClientErrors = 10; // Client error information
 }
 
 
