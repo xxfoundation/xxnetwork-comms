@@ -16,7 +16,7 @@ require (
 	gitlab.com/xx_network/comms v0.0.4-0.20201110022115-4a6171cad07d
 	gitlab.com/xx_network/crypto v0.0.4
 	gitlab.com/xx_network/primitives v0.0.2
-	gitlab.com/xx_network/ring v0.0.2
+	gitlab.com/xx_network/ring v0.0.3-0.20201120004140-b0e268db06d1
 	golang.org/x/crypto v0.0.0-20201016220609-9e8e0b390897 // indirect
 	golang.org/x/net v0.0.0-20201029221708-28c70e62bb1d
 	golang.org/x/sys v0.0.0-20201029080932-201ba4db2418 // indirect
