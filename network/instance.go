@@ -511,7 +511,7 @@ func (i *Instance) GetLastUpdateID() int {
 
 // get the most recent round id
 func (i *Instance) GetLastRoundID() id.Round {
-	return i.roundData.GetLastRoundID()
+	return i.roundData.GetLastRoundID()-1
 }
 
 // Update gateway hosts based on most complete ndf
