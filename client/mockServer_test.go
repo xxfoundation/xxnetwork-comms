@@ -61,7 +61,7 @@ func (s *MockRegistration) PollNdf(clientNdfHash []byte, auth *connect.Auth) ([]
 	return []byte(testutils.ExampleJSON), nil
 }
 
-func (s *MockRegistration) Poll(*pb.PermissioningPoll, *connect.Auth, string) (*pb.PermissionPollResponse, error) {
+func (s *MockRegistration) Poll(*pb.PermissioningPoll, *connect.Auth) (*pb.PermissionPollResponse, error) {
 	return &pb.PermissionPollResponse{}, nil
 }
 
@@ -97,7 +97,7 @@ func (s *MockRegistrationError) PollNdf(clientNdfHash []byte, auth *connect.Auth
 	return []byte(testutils.ExampleJSON), nil
 }
 
-func (s *MockRegistrationError) Poll(*pb.PermissioningPoll, *connect.Auth, string) (*pb.PermissionPollResponse, error) {
+func (s *MockRegistrationError) Poll(*pb.PermissioningPoll, *connect.Auth) (*pb.PermissionPollResponse, error) {
 	if Retries < 5 {
 		Retries++
 		return nil, errors.New(ndf.NO_NDF)
