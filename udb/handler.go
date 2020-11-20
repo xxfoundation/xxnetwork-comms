@@ -10,11 +10,14 @@
 package udb
 
 import (
+	"context"
+	"github.com/pkg/errors"
 	//	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/messages"
+	"google.golang.org/grpc/reflection"
 
 	//	"gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/primitives/id"
@@ -30,40 +33,46 @@ type Comms struct {
 	// has all the functions called by endpoint.go
 }
 
+func (r *Comms) AuthenticateToken(ctx context.Context, message *messages.AuthenticatedMessage) (*messages.Ack, error) {
+	panic("implement me")
+}
+
+func (r *Comms) RequestToken(ctx context.Context, ping *messages.Ping) (*messages.AssignToken, error) {
+	panic("implement me")
+}
+
 // StartServer starts a new server on the address:port specified by localServer
 // and a callback interface for server operations
 // with given path to public and private key for TLS connection
 func StartServer(id *id.ID, localServer string, handler Handler,
 	certPEMblock, keyPEMblock []byte) *Comms {
-	/*
-		pc, lis, err := connect.StartCommServer(id, localServer,
-			certPEMblock, keyPEMblock)
-		if err != nil {
-			jww.FATAL.Panicf("Unable to start comms server: %+v", err)
+	pc, lis, err := connect.StartCommServer(id, localServer,
+		certPEMblock, keyPEMblock)
+	if err != nil {
+		jww.FATAL.Panicf("Unable to start comms server: %+v", err)
+	}
+
+	udbServer := Comms{
+		ProtoComms: pc,
+		handler:    handler,
+	}
+
+	go func() {
+		pb.RegisterUDBServer(udbServer.LocalServer,
+			&udbServer)
+		messages.RegisterGenericServer(udbServer.LocalServer,
+			&udbServer)
+
+		// Register reflection service on gRPC server.
+		reflection.Register(udbServer.LocalServer)
+		if err := udbServer.LocalServer.Serve(lis); err != nil {
+			err = errors.New(err.Error())
+			jww.FATAL.Panicf("Failed to serve: %+v", err)
 		}
-
-		udbServer := Comms{
-			ProtoComms: pc,
-			handler:    handler,
-		}
-
-		go func() {
-			pb.RegisterUDBServer(udbServer.LocalServer,
-				&udbServer)
-			messages.RegisterGenericServer(udbServer.LocalServer,
-				&udbServer)
-
-			// Register reflection service on gRPC server.
-			reflection.Register(udbServer.LocalServer)
-			if err := udbServer.LocalServer.Serve(lis); err != nil {
-				err = errors.New(err.Error())
-				jww.FATAL.Panicf("Failed to serve: %+v", err)
-			}
-			jww.INFO.Printf("Shutting down registration server listener:"+
-				" %s", lis)
-		}()
-		return &udbServer
-	*/
+		jww.INFO.Printf("Shutting down registration server listener:"+
+			" %s", lis)
+	}()
+	return &udbServer
 	return nil
 }
 

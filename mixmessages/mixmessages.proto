@@ -415,11 +415,12 @@ message PermissioningPoll {
     uint64 LastUpdate = 3;
     uint32 Activity = 4;
     RoundError Error = 5; // Only Populated in the event of errors
-    string gatewayAddress = 6;
+    string GatewayAddress = 6;
     uint32 serverPort = 7;
     string serverVersion = 8;
     string gatewayVersion = 9;
-    ClientErrors ClientError = 10; // Client error information
+    string ServerAddress = 10;
+    ClientErrors ClientError = 11; // Client error information
 }
 
 message ClientErrors {
@@ -530,6 +531,24 @@ message FactConfirmRequest {
 message FactRemovalRequest {
     bytes UID = 1;
     Fact RemovalData = 2;
+}
+
+// CONNECTIVITY CHECKER --------------------------------------------------------
+
+service ConnectivityChecker {
+    rpc CheckConnectivity (Address) returns (ConnectivityResponse) {
+    }
+}
+
+message Address {
+    string IP = 1;
+    string Port = 2;
+}
+
+message ConnectivityResponse {
+    string CallerAddr = 1;
+    bool CallerAvailable = 2;
+    bool OtherAvailable = 3;
 }
 
 
