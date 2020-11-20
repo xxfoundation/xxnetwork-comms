@@ -420,13 +420,9 @@ message PermissioningPoll {
     string serverVersion = 8;
     string gatewayVersion = 9;
     string ServerAddress = 10;
-    ClientErrors ClientError = 11; // Client error information
+    repeated ClientError ClientErrors = 11; // Client error information
 }
 
-message ClientErrors {
-    repeated ClientError ClientErrors = 1; // Client error information
-    uint64 RoundID = 2;
-}
 
 // Info containing error among a client
 // Passed server -> Permissioning via the poll comm
