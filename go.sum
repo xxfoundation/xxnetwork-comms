@@ -76,9 +76,9 @@ gitlab.com/xx_network/comms v0.0.4-0.20201119231004-a67d08045535/go.mod h1:YViGb
 gitlab.com/xx_network/crypto v0.0.3/go.mod h1:DF2HYvvCw9wkBybXcXAgQMzX+MiGbFPjwt3t17VRqRE=
 gitlab.com/xx_network/crypto v0.0.4 h1:lpKOL5mTJ2awWMfgBy30oD/UvJVrWZzUimSHlOdZZxo=
 gitlab.com/xx_network/crypto v0.0.4/go.mod h1:+lcQEy+Th4eswFgQDwT0EXKp4AXrlubxalwQFH5O0Mk=
-gitlab.com/xx_network/primitives v0.0.2 h1:Aqe0rg2yGhioEGCHvBRyEKHwS4GS8q/pqKwCDRkc4qA=
 gitlab.com/xx_network/primitives v0.0.0-20200803231956-9b192c57ea7c/go.mod h1:wtdCMr7DPePz9qwctNoAUzZtbOSHSedcK++3Df3psjA=
 gitlab.com/xx_network/primitives v0.0.0-20200804183002-f99f7a7284da/go.mod h1:OK9xevzWCaPO7b1wiluVJGk7R5ZsuC7pHY5hteZFQug=
+gitlab.com/xx_network/primitives v0.0.2 h1:Aqe0rg2yGhioEGCHvBRyEKHwS4GS8q/pqKwCDRkc4qA=
 gitlab.com/xx_network/primitives v0.0.2/go.mod h1:cs0QlFpdMDI6lAo61lDRH2JZz+3aVkHy+QogOB6F/qc=
 gitlab.com/xx_network/primitives v0.0.3-0.20201116234927-44e42fc91e7c h1:mYId667WIN97E6KhPw4HDYyCjWzsG7gCM/HLTNTCXZQ=
 gitlab.com/xx_network/primitives v0.0.3-0.20201116234927-44e42fc91e7c/go.mod h1:cs0QlFpdMDI6lAo61lDRH2JZz+3aVkHy+QogOB6F/qc=
