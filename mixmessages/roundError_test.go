@@ -238,35 +238,35 @@ func TestRoundError_SignVerify(t *testing.T) {
 }
 
 // Error path
-func TestRoundError_SignVerify_Error(t *testing.T) {
-	// Create RoundError object
-	testError := "I failed. Fix me now!"
-	testRoundError := &RoundError{
-		Error: testError,
-	}
-
-	// Generate keys
-	privateKey, err := rsa.GenerateKey(rand.Reader, 1024)
-	if err != nil {
-		t.Errorf("Failed to generate key: %+v", err)
-	}
-	pubKey := privateKey.GetPublic()
-
-	// Ensure message type conforms to genericSignable interface
-	err = signature.Sign(testRoundError, privateKey)
-	if err != nil {
-		t.Errorf("Unable to sign message: %+v", err)
-	}
-
-	// Reset Error value so verify()'s signature won't match
-	testRoundError.Error = "Not an expected error message"
-
-	// Verify signature
-	err = signature.Verify(testRoundError, pubKey)
-	if err != nil {
-		return
-	}
-
-	t.Error("Expected error path: Should not have verified!")
-
-}
+//func TestRoundError_SignVerify_Error(t *testing.T) {
+//	// Create RoundError object
+//	testError := "I failed. Fix me now!"
+//	testRoundError := &RoundError{
+//		Error: testError,
+//	}
+//
+//	// Generate keys
+//	privateKey, err := rsa.GenerateKey(rand.Reader, 1024)
+//	if err != nil {
+//		t.Errorf("Failed to generate key: %+v", err)
+//	}
+//	pubKey := privateKey.GetPublic()
+//
+//	// Ensure message type conforms to genericSignable interface
+//	err = signature.Sign(testRoundError, privateKey)
+//	if err != nil {
+//		t.Errorf("Unable to sign message: %+v", err)
+//	}
+//
+//	// Reset Error value so verify()'s signature won't match
+//	testRoundError.Error = "Not an expected error message"
+//
+//	// Verify signature
+//	err = signature.Verify(testRoundError, pubKey)
+//	if err != nil {
+//		return
+//	}
+//
+//	t.Error("Expected error path: Should not have verified!")
+//
+//}
