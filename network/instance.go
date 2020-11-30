@@ -19,7 +19,7 @@ import (
 	"gitlab.com/elixxir/crypto/cyclic"
 	"gitlab.com/elixxir/primitives/states"
 	"gitlab.com/xx_network/comms/connect"
-	"gitlab.com/xx_network/crypto/signature"
+	"gitlab.com/xx_network/comms/signature"
 	"gitlab.com/xx_network/primitives/id"
 	"gitlab.com/xx_network/primitives/ndf"
 	"testing"
@@ -511,7 +511,7 @@ func (i *Instance) GetLastUpdateID() int {
 
 // get the most recent round id
 func (i *Instance) GetLastRoundID() id.Round {
-	return i.roundData.GetLastRoundID()-1
+	return i.roundData.GetLastRoundID() - 1
 }
 
 // Update gateway hosts based on most complete ndf
@@ -618,7 +618,6 @@ func (i *Instance) updateConns(def *ndf.NetworkDefinition, isGateway, isNode boo
 						jww.WARN.Printf("Unable to send AddGateway event for id %s", gwid.String())
 					}
 				}
-
 
 			} else if host.GetAddress() != addr {
 				host.UpdateAddress(addr)
