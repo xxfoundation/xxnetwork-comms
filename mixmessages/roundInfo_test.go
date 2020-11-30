@@ -9,151 +9,44 @@ package mixmessages
 
 import (
 	"bytes"
+	"crypto"
 	"crypto/rand"
+	"encoding/base64"
 	"gitlab.com/elixxir/primitives/states"
 	"gitlab.com/xx_network/comms/messages"
-	"gitlab.com/xx_network/crypto/signature"
+	"gitlab.com/xx_network/comms/signature"
 	"gitlab.com/xx_network/crypto/signature/rsa"
+	"reflect"
 	"testing"
 )
 
 // Ensure message type conforms to genericSignable interface
-// If this ever fails, check for modifications in the crypto library
+// If this ever fails, check for modifications in the source library
 //  as well as for this message type
 var _ = signature.GenericSignable(&RoundInfo{})
-
-// Happy path
-func TestRoundInfo_ClearSignature(t *testing.T) {
-	// Create an RoundInfo and set it's signature
-	expectedSig := []byte{1, 2, 45, 67, 42}
-	sig := &messages.RSASignature{Signature: expectedSig}
-
-	testRoundInfo := &RoundInfo{
-		Signature: sig,
-	}
-
-	// Clear the signature
-	testRoundInfo.ClearSig()
-
-	// Check that the signature's values are nil after clearing
-	if testRoundInfo.GetNonce() != nil && testRoundInfo.GetSig() != nil {
-		t.Errorf("Signature's values should be nil after a ClearSignature() call!"+
-			"\n\tSignature is: %+v", testRoundInfo.Signature)
-	}
-}
-
-// ------------------------------- Nonce tests -----------------------------------------------------
-
-// Happy path
-func TestRoundInfo_GetNonce(t *testing.T) {
-	expectedNonce := []byte{1, 2, 45, 67, 42}
-
-	// Create message with nonce value
-	sig := &messages.RSASignature{Nonce: expectedNonce}
-	testRoundInfo := &RoundInfo{
-		Signature: sig,
-	}
-
-	// Retrieve the nonce
-	receivedNonce := testRoundInfo.GetNonce()
-
-	// Compare to the value originally set
-	if bytes.Compare(expectedNonce, receivedNonce) != 0 {
-		t.Errorf("Nonce does not match one that was set!"+
-			"Expected: %+v \n\t"+
-			"Received: %+v", expectedNonce, receivedNonce)
-
-	}
-}
-
-// Error path (nil object)
-func TestRoundInfo_GetNonce_NilObject(t *testing.T) {
-	// Create RoundInfo w/o signature object
-	testRoundInfo := &RoundInfo{}
-
-	// Attempt to get nonce
-	receivedSig := testRoundInfo.GetNonce()
-
-	// Received nonce should be nil
-	if receivedSig != nil {
-		t.Errorf("Nonce should default to nil if not set!")
-	}
-
-}
-
-//
-func TestRoundInfo_SetNonce(t *testing.T) {
-	// Create RoundInfo message
-	tempVal := []byte("fail Fail fail")
-	tempSig := &messages.RSASignature{Nonce: tempVal}
-	testRoundInfo := &RoundInfo{Signature: tempSig}
-
-	// Set the sig
-	expectedNonce := []byte{1, 2, 45, 67, 42}
-	testRoundInfo.SetNonce(expectedNonce)
-
-	// Check that the RoundInfo's signature is identical to the one set
-	if bytes.Compare(testRoundInfo.Signature.Nonce, expectedNonce) != 0 {
-		t.Errorf("Signature should match value it was set to! "+
-			"Expected: %+v \n\t"+
-			"Received: %+v", expectedNonce, testRoundInfo.Signature.Nonce)
-	}
-}
-
-// Happy path
-func TestRoundInfo_SetNonce_NilObject(t *testing.T) {
-	testRoundInfo := &RoundInfo{}
-
-	// Set the sig w/o signature being initialized
-	expectedNonce := []byte{1, 2, 45, 67, 42}
-	testRoundInfo.SetNonce(expectedNonce)
-
-	// Sig should be set to expected value
-	if bytes.Compare(testRoundInfo.Signature.Nonce, expectedNonce) != 0 {
-		t.Errorf("Signature should match value it was set to! "+
-			"Expected: %+v \n\t"+
-			"Received: %+v", expectedNonce, testRoundInfo.Signature.Nonce)
-	}
-}
-
-// Error path
-func TestRoundInfo_SetNonce_SetNil(t *testing.T) {
-	// Create signature object
-	expectedSig := []byte{1, 2, 45, 67, 42}
-	sig := &messages.RSASignature{
-		Signature: expectedSig,
-		Nonce:     expectedSig,
-	}
-
-	// Create RoundInfo message
-	testRoundInfo := &RoundInfo{Signature: sig}
-
-	// Set the sig to nil (error case)
-	err := testRoundInfo.SetNonce(nil)
-	if err != nil {
-		return
-	}
-
-	t.Errorf("Expected error path: Should not be able to set signature as nil")
-
-}
 
 // -------------------------- Signature tests --------------------------------------
 
 // Happy path
 func TestRoundInfo_SetSignature(t *testing.T) {
-	testSign := []byte{1, 2, 45, 67, 42}
+	expectedSign := []byte("expectedSig")
+	expectedNonce := []byte("expectedNonce")
 
 	testRoundInfo := &RoundInfo{}
 
+	expectedSignatureMessage := &messages.RSASignature{
+		Nonce:     expectedNonce,
+		Signature: expectedSign,
+	}
+
 	// Set the sig
-	testRoundInfo.SetSig(testSign)
+	testRoundInfo.SetSignature(expectedSign, expectedNonce)
 
 	// Check that the RoundInfo's signature is identical to the one set
-	if bytes.Compare(testRoundInfo.GetSig(), testSign) != 0 {
+	if !reflect.DeepEqual(expectedSignatureMessage, testRoundInfo.GetSignature()) {
 		t.Errorf("Signature should match value it was set to! "+
 			"Expected: %+v \n\t"+
-			"Received: %+v", testSign, testRoundInfo.GetSig())
+			"Received: %+v", expectedSign, testRoundInfo.GetSignature())
 	}
 }
 
@@ -161,35 +54,18 @@ func TestRoundInfo_SetSignature(t *testing.T) {
 func TestRoundInfo_SetSignature_Error(t *testing.T) {
 	testRoundInfo := &RoundInfo{}
 
-	// Set the sig
-	err := testRoundInfo.SetSig(nil)
-	if err != nil {
-		return
+	// Set the sig to nil (error case)
+	nonNilValue := []byte("notNil")
+	err := testRoundInfo.SetSignature(nonNilValue, nil)
+	if err == nil {
+		t.Errorf("Expected error path: Should not be able to set signature as nil")
 	}
 
-	t.Errorf("Expected error path: Should not be able to set signature as nil")
-
-}
-
-// Happy path
-func TestRoundInfo_GetSignature(t *testing.T) {
-	// Create roundInfo and set signature
-	expectedSig := []byte{1, 2, 45, 67, 42}
-	sig := &messages.RSASignature{Signature: expectedSig}
-
-	testRoundInfo := &RoundInfo{
-		Signature: sig,
+	err = testRoundInfo.SetSignature(nil, nonNilValue)
+	if err == nil {
+		t.Errorf("Expected error path: Should not be able to set nonce as nil")
 	}
 
-	// Fetch signature
-	receivedSig := testRoundInfo.GetSig()
-
-	// Compare fetched value to expected value
-	if bytes.Compare(expectedSig, receivedSig) != 0 {
-		t.Errorf("Signature does not match one that was set!"+
-			"Expected: %+v \n\t"+
-			"Received: %+v", expectedSig, receivedSig)
-	}
 }
 
 // Error path (nil signature)
@@ -198,7 +74,7 @@ func TestRoundInfo_GetSignature_NilObject(t *testing.T) {
 	testRoundInfo := &RoundInfo{}
 
 	// Attempt to get signature
-	receivedSig := testRoundInfo.GetSig()
+	receivedSig := testRoundInfo.GetSignature()
 
 	// Received sig should be nil
 	if receivedSig != nil {
@@ -207,11 +83,90 @@ func TestRoundInfo_GetSignature_NilObject(t *testing.T) {
 
 }
 
+// -------------------- Digest tests -------------------------------
+
+// Consistency test
+func TestRoundInfo_Digest_Consistency(t *testing.T) {
+	// Generate a message
+	testId := uint64(25)
+	testUpdateId := uint64(26)
+	testState := uint32(42)
+	testBatch := uint32(23)
+	testTopology := [][]byte{[]byte("test"), []byte("te"), []byte("st"), []byte("testtest")}
+	testRoundInfo := &RoundInfo{
+		ID:        testId,
+		UpdateID:  testUpdateId,
+		State:     testState,
+		BatchSize: testBatch,
+		Topology:  testTopology,
+	}
+	// Hardcoded digest output. Any changes are a smoke test of changing of
+	// crypto libraries
+	expectedDigestEncoded := "VzYAPzTYYASWQiKj7sux9zgTfVg+Ec0R4fIeBp3Gyes="
+
+	// Generate a digest
+	sha := crypto.SHA256.New()
+	testNonce := []byte("expectedNonce")
+	digest := testRoundInfo.Digest(testNonce, sha)
+
+	// Encode outputted digest to base64 encoded string
+	receivedDigestEncoded := base64.StdEncoding.EncodeToString(digest)
+
+	// Check the consistency of generated digest and hard-coded digest
+	if expectedDigestEncoded != receivedDigestEncoded {
+		t.Errorf("Consistency test failed for testNDF."+
+			"\n\tExpected: %v"+
+			"\n\tRecieved: %v", expectedDigestEncoded, receivedDigestEncoded)
+	}
+}
+
+// Test that digest output matches manual digest creation
+func TestRoundInfo_Digest(t *testing.T) {
+	// Generate a message
+	testId := uint64(25)
+	testUpdateId := uint64(26)
+	testState := uint32(42)
+	testBatch := uint32(23)
+	testTopology := [][]byte{[]byte("test"), []byte("te"), []byte("st"), []byte("testtest")}
+	testRoundInfo := &RoundInfo{
+		ID:        testId,
+		UpdateID:  testUpdateId,
+		State:     testState,
+		BatchSize: testBatch,
+		Topology:  testTopology,
+	}
+
+	// Generate a digest
+	sha := crypto.SHA256.New()
+	testNonce := []byte("expectedNonce")
+	receivedDigest := testRoundInfo.Digest(testNonce, sha)
+
+	// Manually generate the digest
+	sha.Reset()
+	sha.Write(serializeUin64(testId))
+	sha.Write(serializeUin64(testUpdateId))
+	sha.Write(serializeUin32(testState))
+	sha.Write(serializeUin32(testBatch))
+	for _, node := range testTopology {
+		sha.Write(node)
+	}
+	sha.Write(testNonce)
+	expectedDigest := sha.Sum(nil)
+
+	// Check that manual digest matches expected digest
+	if !bytes.Equal(receivedDigest, expectedDigest) {
+		t.Errorf("Digest did not output expected result."+
+			"\n\tExpected: %v"+
+			"\n\tRecieved: %v", expectedDigest, receivedDigest)
+	}
+
+}
+
 // ------------------------------ Sign/Verify tests -----------------------------------
 
 // Happy path
 func TestRoundInfo_SignVerify(t *testing.T) {
-	// Create roundInfo object (to be used for RoundInfo object)
+	// Create roundInfo object
 	testId := uint64(25)
 	testTopology := [][]byte{[]byte("test"), []byte("te"), []byte("st"), []byte("testtest")}
 	testBatch := uint32(23)

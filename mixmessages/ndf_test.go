@@ -9,120 +9,88 @@ package mixmessages
 
 import (
 	"bytes"
+	"crypto"
 	"crypto/rand"
+	"encoding/base64"
 	"gitlab.com/xx_network/comms/messages"
-	"gitlab.com/xx_network/crypto/signature"
+	"gitlab.com/xx_network/comms/signature"
 	"gitlab.com/xx_network/crypto/signature/rsa"
+	"reflect"
 	"testing"
 )
 
 // Ensure message type conforms to genericSignable interface
-// If this ever fails, check for modifications in the crypto library
+// If this ever fails, check for modifications in the source library
 //  as well as for this message type
 var _ = signature.GenericSignable(&NDF{})
 
-// Happy path
-func TestNDF_ClearSignature(t *testing.T) {
-	// Create signature object
-	expectedSig := []byte{1, 2, 45, 67, 42}
-	sig := &messages.RSASignature{
-		Signature: expectedSig,
-		Nonce:     expectedSig,
-	}
-
-	// Create ndf message
-	testNdf := &NDF{
-		Signature: sig,
-	}
-
-	// Clear the signature
-	testNdf.ClearSig()
-
-	// Check that the signature's values are nil after clearing
-	if testNdf.GetSig() != nil && testNdf.GetNonce() != nil {
-		t.Errorf("Signature's values should be nil after a ClearSignature() call!"+
-			"\n\tSignature is: %+v", testNdf.Signature)
-	}
-}
-
-// ------------------------------------ Signature tests ------------------------------------------
+// ------------------------------------ SiGet/Set tests ------------------------------------------
 
 // Happy path
 func TestNDF_SetSignature(t *testing.T) {
 	// Create ndf message
-	tempVal := []byte("fail Fail fail")
-	tempSig := &messages.RSASignature{Signature: tempVal}
-	testNdf := &NDF{Signature: tempSig}
-
-	// Set the sig
-	expectedSig := []byte{1, 2, 45, 67, 42}
-	testNdf.SetSig(expectedSig)
-
-	// Check that the ndf's signature is identical to the one set
-	if bytes.Compare(testNdf.Signature.Signature, expectedSig) != 0 {
-		t.Errorf("Signature should match value it was set to! "+
-			"Expected: %+v \n\t"+
-			"Received: %+v", expectedSig, testNdf.Signature.Signature)
-	}
-}
-
-// Happy path
-func TestNDF_SetSignature_NilObject(t *testing.T) {
 	testNdf := &NDF{}
 
-	// Set the sig w/o signature being initialized
-	expectedSig := []byte{1, 2, 45, 67, 42}
-	testNdf.SetSig(expectedSig)
+	// Set the sig
+	expectedSig := []byte("testSignature")
+	expectedNonce := []byte("testNonce")
+	testNdf.SetSignature(expectedSig, expectedNonce)
 
-	// Sig should be set to expected value
-	if bytes.Compare(testNdf.Signature.Signature, expectedSig) != 0 {
+	expectedSignatureMsg := &messages.RSASignature{
+		Nonce:     expectedNonce,
+		Signature: expectedSig,
+	}
+
+	// Check that the ndf's signature is identical to the one set
+	if !reflect.DeepEqual(expectedSignatureMsg, testNdf.Signature) {
 		t.Errorf("Signature should match value it was set to! "+
 			"Expected: %+v \n\t"+
-			"Received: %+v", expectedSig, testNdf.Signature.Signature)
+			"Received: %+v", expectedSignatureMsg, testNdf.Signature)
 	}
-
 }
 
-// Error path
-func TestNDF_SetSignature_SetNil(t *testing.T) {
-	// Create signature object
-	expectedSig := []byte{1, 2, 45, 67, 42}
-	sig := &messages.RSASignature{
-		Signature: expectedSig,
-		Nonce:     expectedSig,
-	}
-
+// Error path: attempt to set a nil signature or a nil nonce
+func TestNDF_SetSignature_Eror(t *testing.T) {
 	// Create ndf message
-	testNdf := &NDF{Signature: sig}
+	testNdf := &NDF{}
 
 	// Set the sig to nil (error case)
-	err := testNdf.SetSig(nil)
-	if err != nil {
-		return
+	nonNilValue := []byte("notNil")
+	err := testNdf.SetSignature(nonNilValue, nil)
+	if err == nil {
+		t.Errorf("Expected error path: Should not be able to set signature as nil")
 	}
 
-	t.Errorf("Expected error path: Should not be able to set signature as nil")
+	// Set the sig to nil (error case)
+	err = testNdf.SetSignature(nil, nonNilValue)
+	if err == nil {
+		t.Errorf("Expected error path: Should not be able to set nonce as nil")
+	}
 
 }
 
 // Happy path
 func TestNDF_GetSignature(t *testing.T) {
-	// Create ndf and set signature
-	expectedSig := []byte{1, 2, 45, 67, 42}
-	sig := &messages.RSASignature{Signature: expectedSig}
-	testNdf := &NDF{
-		Signature: sig,
+	// Create roundErr and set signature (without using setSignature)
+	expectedSig := []byte("expectedSig")
+	expectedNonce := []byte("expectedNonce")
+	expectedRsaSig := &messages.RSASignature{
+		Signature: expectedSig,
+		Nonce:     expectedNonce,
 	}
+
+	testNdf := &NDF{Signature: expectedRsaSig}
 
 	// Fetch signature
-	receivedSig := testNdf.GetSig()
+	receivedSig := testNdf.GetSignature()
 
 	// Compare fetched value to expected value
-	if bytes.Compare(expectedSig, receivedSig) != 0 {
+	if !reflect.DeepEqual(expectedRsaSig, receivedSig) {
 		t.Errorf("Signature does not match one that was set!"+
 			"Expected: %+v \n\t"+
-			"Received: %+v", expectedSig, receivedSig)
+			"Received: %+v", expectedRsaSig, receivedSig)
 	}
+
 }
 
 // Error path (nil signature)
@@ -131,7 +99,7 @@ func TestNDF_GetSignature_NilCase(t *testing.T) {
 	testNdf := &NDF{}
 
 	// Attempt to get signature
-	receivedSig := testNdf.GetSig()
+	receivedSig := testNdf.GetSignature()
 
 	// Received sig should be nil
 	if receivedSig != nil {
@@ -140,99 +108,57 @@ func TestNDF_GetSignature_NilCase(t *testing.T) {
 
 }
 
-// ----------------------------------------- Nonce tests ------------------------------------------------
+// -------------------- Digest tests -------------------------------
 
-// Happy path
-func TestNDF_GetNonce(t *testing.T) {
-	expectedNonce := []byte{1, 2, 45, 67, 42}
+// Consistency test
+func TestNDF_Digest_Consistency(t *testing.T) {
+	// Generate a message
+	expectedNdf := []byte("testNdf")
+	testNdf := &NDF{Ndf: expectedNdf}
 
-	// Create message with nonce value
-	sig := &messages.RSASignature{Nonce: expectedNonce}
-	testNdf := &NDF{
-		Signature: sig,
-	}
+	// Hardcoded digest output. Any changes are a smoke test of changing of
+	// crypto libraries
+	expectedDigestEncoded := "mofeBfAPPiowXkQ/tVfzcccX2UZmqkzSqjxV6fM1avE="
 
-	// Retrieve the nonce
-	receivedNonce := testNdf.GetNonce()
+	// Generate a digest
+	sha := crypto.SHA256.New()
+	testNonce := []byte("expectedNonce")
+	digest := testNdf.Digest(testNonce, sha)
 
-	// Compare to the value originally set
-	if bytes.Compare(expectedNonce, receivedNonce) != 0 {
-		t.Errorf("Nonce does not match one that was set!"+
-			"Expected: %+v \n\t"+
-			"Received: %+v", expectedNonce, receivedNonce)
+	// Encode outputted digest to base64 encoded string
+	receivedDigestEncoded := base64.StdEncoding.EncodeToString(digest)
 
-	}
-}
-
-// Error path (nil object)
-func TestNDF_GetNonce_NilObject(t *testing.T) {
-	// Create ndf w/o signature object
-	testNdf := &NDF{}
-
-	// Attempt to get nonce
-	receivedSig := testNdf.GetNonce()
-
-	// Received nonce should be nil
-	if receivedSig != nil {
-		t.Errorf("Nonce should default to nil if not set!")
-	}
-
-}
-
-//
-func TestNDF_SetNonce(t *testing.T) {
-	// Create ndf message
-	tempVal := []byte("fail Fail fail")
-	tempSig := &messages.RSASignature{Nonce: tempVal}
-	testNdf := &NDF{Signature: tempSig}
-
-	// Set the sig
-	expectedNonce := []byte{1, 2, 45, 67, 42}
-	testNdf.SetNonce(expectedNonce)
-
-	// Check that the ndf's signature is identical to the one set
-	if bytes.Compare(testNdf.Signature.Nonce, expectedNonce) != 0 {
-		t.Errorf("Signature should match value it was set to! "+
-			"Expected: %+v \n\t"+
-			"Received: %+v", expectedNonce, testNdf.Signature.Nonce)
+	// Check the consistency of generated digest and hard-coded digest
+	if expectedDigestEncoded != receivedDigestEncoded {
+		t.Errorf("Consistency test failed for testNDF."+
+			"\n\tExpected: %v"+
+			"\n\tRecieved: %v", expectedDigestEncoded, receivedDigestEncoded)
 	}
 }
 
-// Happy path
-func TestNDF_SetNonce_NilObject(t *testing.T) {
-	testNdf := &NDF{}
+// Test that digest output matches manual digest creation
+func TestNDF_Digest(t *testing.T) {
+	// Generate a message
+	expectedNdf := []byte("testNdf")
+	testNdf := &NDF{Ndf: expectedNdf}
 
-	// Set the sig w/o signature being initialized
-	expectedNonce := []byte{1, 2, 45, 67, 42}
-	testNdf.SetNonce(expectedNonce)
+	// Generate a digest
+	sha := crypto.SHA256.New()
+	testNonce := []byte("expectedNonce")
+	receivedDigest := testNdf.Digest(testNonce, sha)
 
-	// Sig should be set to expected value
-	if bytes.Compare(testNdf.Signature.Nonce, expectedNonce) != 0 {
-		t.Errorf("Signature should match value it was set to! "+
-			"Expected: %+v \n\t"+
-			"Received: %+v", expectedNonce, testNdf.Signature.Nonce)
+	// Manually generate the digest
+	sha.Reset()
+	sha.Write(expectedNdf)
+	sha.Write(testNonce)
+	expectedDigest := sha.Sum(nil)
+
+	// Check that manual digest matches expected digest
+	if !bytes.Equal(receivedDigest, expectedDigest) {
+		t.Errorf("Digest did not output expected result."+
+			"\n\tExpected: %v"+
+			"\n\tRecieved: %v", expectedDigest, receivedDigest)
 	}
-}
-
-// Error path
-func TestNDF_SetNonce_SetNil(t *testing.T) {
-	// Create signature object
-	expectedSig := []byte{1, 2, 45, 67, 42}
-	sig := &messages.RSASignature{
-		Signature: expectedSig,
-		Nonce:     expectedSig,
-	}
-
-	// Create ndf message
-	testNdf := &NDF{Signature: sig}
-
-	// Set the sig to nil (error case)
-	err := testNdf.SetNonce(nil)
-	if err != nil {
-		return
-	}
-
-	t.Errorf("Expected error path: Should not be able to set signature as nil")
 
 }
 
@@ -241,7 +167,7 @@ func TestNDF_SetNonce_SetNil(t *testing.T) {
 // Happy path
 func TestNdf_SignVerify(t *testing.T) {
 	// Create ndf object
-	ourNdf := []byte{25, 254, 123, 42}
+	ourNdf := []byte("testNdf")
 	testNdf := &NDF{
 		Ndf: ourNdf,
 	}
@@ -265,10 +191,10 @@ func TestNdf_SignVerify(t *testing.T) {
 	}
 }
 
-// Error path
+// Error path: Change internals of message between signing and verifying
 func TestNdf_SignVerify_Error(t *testing.T) {
 	// Create ndf object
-	ourNdf := []byte{25, 254, 123, 42}
+	ourNdf := []byte("testNdf")
 	testNdf := &NDF{
 		Ndf: ourNdf,
 	}
@@ -287,15 +213,13 @@ func TestNdf_SignVerify_Error(t *testing.T) {
 	}
 
 	// Reset ndf value so verify()'s signature won't match
-	testNdf.Ndf = []byte{1}
+	testNdf.Ndf = []byte("invalidChange")
 
 	// Verify signature
 	err = signature.Verify(testNdf, pubKey)
 	// Verify signature
-	if err != nil {
-		return
+	if err == nil {
+		t.Error("Expected error path: Should not have verified!")
 	}
-
-	t.Error("Expected error path: Should not have verified!")
 
 }
