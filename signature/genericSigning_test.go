@@ -9,32 +9,27 @@ package signature
 import (
 	"crypto/rand"
 	"errors"
-	"fmt"
+	"gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/crypto/signature/rsa"
+	"hash"
 	"testing"
 )
 
-var testSig *TestSignable
-
-func TestMain(m *testing.M) {
+func InitTestSignable() *TestSignable {
 	// Arbitrary test values
 	testId := []byte{1, 2, 3}
-	testTime := uint32(4)
-	testTopology := []string{"te", "st", "test"}
-	testSize := uint64(42)
 	// construct a TestSignable with arbitrary values
-	testSig = &TestSignable{
-		id:       testId,
-		time:     testTime,
-		topology: testTopology,
-		size:     testSize,
+	return &TestSignable{
+		id: testId,
 	}
 
-	m.Run()
 }
 
 // Happy path / smoke test
 func TestSign(t *testing.T) {
+	// Generate a test signable
+	testSig := InitTestSignable()
+
 	// Generate keys
 	privKey, err := rsa.GenerateKey(rand.Reader, 1024)
 	if err != nil {
@@ -48,17 +43,22 @@ func TestSign(t *testing.T) {
 		t.Errorf("Failed to sign message: %+v", err)
 	}
 
+	sigMsg := testSig.GetSignature()
+
 	// Check if the signature is valid
-	if !rsa.IsValidSignature(pubKey, testSig.GetSig()) {
+	if !rsa.IsValidSignature(pubKey, sigMsg.Signature) {
 		t.Errorf("Failed smoke test! Signature is not at least as long as the signer's public key."+
 			"\n\tSignature: %+v"+
-			"\n\tSigner's public key: %+v", len(testSig.GetSig()), pubKey.Size())
+			"\n\tSigner's public key: %+v", len(sigMsg.Signature), pubKey.Size())
 	}
 }
 
 // Error path
 func TestSign_Error(t *testing.T) {
-	// Generate keys
+	// Generate a test signable
+	testSig := InitTestSignable()
+
+	// Generate keys for signing
 	privKey, err := rsa.GenerateKey(rand.Reader, 1024)
 	if err != nil {
 		t.Errorf("Failed to generate private key: %+v", err)
@@ -70,10 +70,10 @@ func TestSign_Error(t *testing.T) {
 	if err != nil {
 		t.Errorf("Failed to sign: %+v", err)
 	}
-	ourSign := testSig.GetSig()
+	ourSign := testSig.GetSignature()
 
 	// Input a random set of bytes less than the signature
-	randByte := make([]byte, len(ourSign)/2)
+	randByte := make([]byte, len(ourSign.Signature)/2)
 	rand.Read(randByte)
 
 	// Compare signature to random set of bytes (expected to not match)
@@ -87,6 +87,9 @@ func TestSign_Error(t *testing.T) {
 
 // Happy path
 func TestSignVerify(t *testing.T) {
+	// Generate a test signable
+	testSig := InitTestSignable()
+
 	// Generate keys
 	privKey, err := rsa.GenerateKey(rand.Reader, 1024)
 	if err != nil {
@@ -108,7 +111,10 @@ func TestSignVerify(t *testing.T) {
 }
 
 // Error path
-/*func TestSignVerify_Error(t *testing.T) {
+func TestSignVerify_Error(t *testing.T) {
+	// Generate a test signable
+	testSig := InitTestSignable()
+
 	// Generate keys
 	privKey, err := rsa.GenerateKey(rand.Reader, 1024)
 	if err != nil {
@@ -120,8 +126,7 @@ func TestSignVerify(t *testing.T) {
 	Sign(testSig, privKey)
 
 	// Modify object post-signing
-	testSig.topology = []string{"fail", "fa", "il", "failfail"}
-	testSig.nonce = []byte("i will fail")
+	testSig.id = []byte("i will fail")
 	// Attempt to verify modified object
 	err = Verify(testSig, pubKey)
 	if err != nil {
@@ -129,51 +134,34 @@ func TestSignVerify(t *testing.T) {
 	}
 	t.Errorf("Expected error path: Verify should not return true")
 
-}*/
+}
 
 // --------- Create mock Signable object ------------------
 
 // Test struct with arbitrary fields to be signed and verified
 type TestSignable struct {
 	id        []byte
-	time      uint32
-	topology  []string
-	size      uint64
-	signature []byte
-	nonce     []byte
+	signature *messages.RSASignature
 }
 
-func (ts *TestSignable) String() string {
-	return fmt.Sprintf(
-		"ID: %v\tTime: %v\tTopology: %v\tSize: %v\tNonce: %v\n",
-		ts.id, ts.time, ts.topology, ts.size, ts.nonce)
+func (ts *TestSignable) Digest(nonce []byte, h hash.Hash) []byte {
+	h.Write(nonce)
+	h.Write(ts.id)
+	return h.Sum(nil)
 
 }
 
-func (ts *TestSignable) GetSig() []byte {
+func (ts *TestSignable) GetSignature() *messages.RSASignature {
 	return ts.signature
 }
 
-func (ts *TestSignable) ClearSig() {
-	ts.signature = nil
-}
-
-func (ts *TestSignable) SetSig(newSignature []byte) error {
-	if newSignature == nil {
+func (ts *TestSignable) SetSignature(signature, nonce []byte) error {
+	if signature == nil {
 		return errors.New("Cannot set signature to nil value")
 	}
-	ts.signature = newSignature
-	return nil
-}
-
-func (ts *TestSignable) GetNonce() []byte {
-	return ts.nonce
-}
-
-func (ts *TestSignable) SetNonce(newNonce []byte) error {
-	if newNonce == nil {
-		return errors.New("Cannot set signature to nil value")
+	ts.signature = &messages.RSASignature{
+		Nonce:     nonce,
+		Signature: signature,
 	}
-	ts.nonce = newNonce
 	return nil
 }

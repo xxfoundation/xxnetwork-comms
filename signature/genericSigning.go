@@ -36,7 +36,7 @@ type GenericSignable interface {
 	// SetSignature modifies the internal of the generic sign-able
 	// in order to save the newly created signature.
 	// It will generate an RSA signature message
-	SetSignature(signature, nonce []byte)
+	SetSignature(signature, nonce []byte) error
 }
 
 // Sign takes a genericSignable object, marshals the data intended to be signed.
@@ -54,7 +54,7 @@ func Sign(signable GenericSignable, privKey *rsa.PrivateKey) error {
 	}
 
 	// Prepare to hash the data
-	sha := crypto.SHA3_256
+	sha := crypto.SHA256
 	h := sha.New()
 
 	// Generate the serialized data
@@ -78,7 +78,10 @@ func Sign(signable GenericSignable, privKey *rsa.PrivateKey) error {
 	}
 
 	// And set the signature
-	signable.SetSignature(signature, ourNonce)
+	err = signable.SetSignature(signature, ourNonce)
+	if err != nil {
+		return errors.Errorf("Unable to finalize signature: %+v", err)
+	}
 
 	return nil
 }
@@ -95,7 +98,7 @@ func Verify(verifiable GenericSignable, pubKey *rsa.PublicKey) error {
 	sig := sigMsg.Signature
 
 	// Prepare to hash the data
-	sha := crypto.SHA3_256
+	sha := crypto.SHA256
 	h := sha.New()
 
 	// Get the data to replicate the signature
