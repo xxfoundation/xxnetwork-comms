@@ -82,7 +82,7 @@ func (m *Manager) NewGossip(tag string, flags ProtocolFlags,
 		receiver:     receiver,
 		verify:       verifier,
 		IsDefunct:    false,
-		crand: csprng.NewSystemRNG(),
+		crand:        csprng.NewSystemRNG(),
 	}
 
 	m.protocols[tag] = tmp

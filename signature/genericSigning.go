@@ -29,15 +29,14 @@ func init() {
 type GenericSignable interface {
 	// GetSignature returns the RSA signature.
 	// IF none exists, it creates it, adds it to the object, then returns it.
-	GetSignature()*messages.RSASignature
+	GetSignature() *messages.RSASignature
 	// Digest hashes the contents of the message in a repeatable manner
 	// using the provided cryptographic hash. It includes the nonce in the hash
-	Digest(nonce []byte, h hash.Hash)[]byte
+	Digest(nonce []byte, h hash.Hash) []byte
 	// SetSignature modifies the internal of the generic sign-able
 	// in order to save the newly created signature.
 	// It will generate an RSA signature message
 	SetSignature(signature, nonce []byte)
-
 }
 
 // Sign takes a genericSignable object, marshals the data intended to be signed.
@@ -62,7 +61,6 @@ func Sign(signable GenericSignable, privKey *rsa.PrivateKey) error {
 	data := signable.Digest(ourNonce, h)
 
 	// Get the data that is to be signed (including nonce)
-
 
 	// Sign the message
 	signature, err := rsa.Sign(rand, privKey, sha, data, nil)
@@ -100,11 +98,8 @@ func Verify(verifiable GenericSignable, pubKey *rsa.PublicKey) error {
 	sha := crypto.SHA3_256
 	h := sha.New()
 
-
 	// Get the data to replicate the signature
 	data := verifiable.Digest(nonce, h)
-
-
 
 	// Verify the signature using our implementation
 	err := rsa.Verify(pubKey, sha, data, sig, nil)
