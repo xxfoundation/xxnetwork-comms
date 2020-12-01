@@ -117,6 +117,10 @@ type Handler interface {
 	//  consensus nodes, but this will be reversed
 	//  once consensus generates the NDF
 	GetNDF() (*interconnect.NDF, error)
+
+	// GetPermissioningAddress gets gateway the permissioning server's address
+	// from server.
+	GetPermissioningAddress() (string, error)
 }
 
 type implementationFunctions struct {
@@ -164,6 +168,10 @@ type implementationFunctions struct {
 	//  consensus nodes, but this will be reversed
 	//  once consensus generates the NDF
 	GetNdf func() (*interconnect.NDF, error)
+
+	// GetPermissioningAddress gets gateway the permissioning server's address
+	// from server.
+	GetPermissioningAddress func() (string, error)
 }
 
 // Implementation allows users of the client library to set the
@@ -256,6 +264,10 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return nil, nil
 			},
+			GetPermissioningAddress: func() (string, error) {
+				warn(um)
+				return "", nil
+			},
 		},
 	}
 }
@@ -343,4 +355,10 @@ func (s *Implementation) RoundError(err *mixmessages.RoundError, auth *connect.A
 //  once consensus generates the NDF
 func (s *Implementation) GetNDF() (*interconnect.NDF, error) {
 	return s.Functions.GetNdf()
+}
+
+// GetPermissioningAddress gets gateway the permissioning server's address from
+// server.
+func (s *Implementation) GetPermissioningAddress() (string, error) {
+	return s.Functions.GetPermissioningAddress()
 }
