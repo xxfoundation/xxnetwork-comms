@@ -79,6 +79,10 @@ service Node {
     // Round error comm
     rpc RoundError (messages.AuthenticatedMessage) returns (messages.Ack) {
     }
+
+    // Server -> Gateway permissioning address
+    rpc GetPermissioningAddress (messages.Ping) returns (StrAddress) {
+    }
 }
 
 // RoundInfo contains the # of precomputations ready for messages, among other
@@ -537,6 +541,10 @@ message ConnectivityResponse {
     bool OtherAvailable = 3;
 }
 
+// For sending permission address Server -> Gateway
+message StrAddress {
+    string address = 1;
+}
 
 // GENERAL USE MESSAGES --------------------------------------------------------
 

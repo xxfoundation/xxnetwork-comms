@@ -26,7 +26,7 @@ type Handler interface {
 	// Return any MessageIDs in the buffer for this UserID
 	CheckMessages(userID *id.ID, messageID string, ipAddress string) ([]string, error)
 	// Returns the message matching the given parameters to the client
-	GetMessage(userID *id.ID, msgID string, ipAddress string) (*pb.Slot, error) // todo: depracate?
+	GetMessage(userID *id.ID, msgID string, ipAddress string) (*pb.Slot, error) // todo: depreciate?
 	// Upload a message to the cMix Gateway
 	PutMessage(message *pb.GatewaySlot, ipAddress string) (*pb.GatewaySlotResponse, error)
 	// Pass-through for Registration Nonce Communication
@@ -44,6 +44,8 @@ type Handler interface {
 	RequestMessages(msg *pb.GetMessages) (*pb.GetMessagesResponse, error)
 	// Client -> Gateway bloom request
 	RequestBloom(msg *pb.GetBloom) (*pb.GetBloomResponse, error)
+	// Gateway -> Server Permissioning IP request
+	PingServerForPermissioningAddress() (*pb.StrAddress, error)
 }
 
 // Gateway object used to implement endpoints and top-level comms functionality
@@ -113,6 +115,8 @@ type implementationFunctions struct {
 	RequestMessages func(msg *pb.GetMessages) (*pb.GetMessagesResponse, error)
 	// Client -> Gateway bloom request
 	RequestBloom func(msg *pb.GetBloom) (*pb.GetBloomResponse, error)
+	// Gateway -> Server Permissioning IP request
+	PingServerForPermissioningAddress func() (*pb.StrAddress, error)
 }
 
 // Implementation allows users of the client library to set the
@@ -170,6 +174,10 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return &pb.GetBloomResponse{}, nil
 			},
+			PingServerForPermissioningAddress: func() (*pb.StrAddress, error) {
+				warn(um)
+				return &pb.StrAddress{}, nil
+			},
 		},
 	}
 }
@@ -226,4 +234,9 @@ func (s *Implementation) RequestMessages(msg *pb.GetMessages) (*pb.GetMessagesRe
 // Client -> Gateway bloom request
 func (s *Implementation) RequestBloom(msg *pb.GetBloom) (*pb.GetBloomResponse, error) {
 	return s.Functions.RequestBloom(msg)
+}
+
+// Server -> Gateway permissioning address request.
+func (s *Implementation) PingServerForPermissioningAddress() (*pb.StrAddress, error) {
+	return s.Functions.PingServerForPermissioningAddress()
 }
