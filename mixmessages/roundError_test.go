@@ -79,28 +79,13 @@ func TestRoundError_GetSignature(t *testing.T) {
 	testRoundError := &RoundError{Signature: expectedRsaSig}
 
 	// Fetch signature
-	receivedSig := testRoundError.GetSignature()
+	receivedSig := testRoundError.GetSig()
 
 	// Compare fetched value to expected value
 	if !reflect.DeepEqual(expectedRsaSig, receivedSig) {
 		t.Errorf("Signature does not match one that was set!"+
 			"Expected: %+v \n\t"+
 			"Received: %+v", expectedRsaSig, receivedSig)
-	}
-
-}
-
-// Error path (nil signature)
-func TestRoundError_GetSignature_NilCase(t *testing.T) {
-	// Create RoundError w/o signature object
-	testRoundError := &RoundError{}
-
-	// Attempt to get signature
-	receivedSig := testRoundError.GetSignature()
-
-	// Received sig should be nil
-	if receivedSig != nil {
-		t.Errorf("Signature should default to nil if not set!")
 	}
 
 }

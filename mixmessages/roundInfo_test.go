@@ -43,10 +43,10 @@ func TestRoundInfo_SetSignature(t *testing.T) {
 	testRoundInfo.SetSignature(expectedSign, expectedNonce)
 
 	// Check that the RoundInfo's signature is identical to the one set
-	if !reflect.DeepEqual(expectedSignatureMessage, testRoundInfo.GetSignature()) {
+	if !reflect.DeepEqual(expectedSignatureMessage, testRoundInfo.GetSig()) {
 		t.Errorf("Signature should match value it was set to! "+
 			"Expected: %+v \n\t"+
-			"Received: %+v", expectedSign, testRoundInfo.GetSignature())
+			"Received: %+v", expectedSign, testRoundInfo.GetSig())
 	}
 }
 
@@ -64,21 +64,6 @@ func TestRoundInfo_SetSignature_Error(t *testing.T) {
 	err = testRoundInfo.SetSignature(nil, nonNilValue)
 	if err == nil {
 		t.Errorf("Expected error path: Should not be able to set nonce as nil")
-	}
-
-}
-
-// Error path (nil signature)
-func TestRoundInfo_GetSignature_NilObject(t *testing.T) {
-	// Create RoundInfo w/o signature object
-	testRoundInfo := &RoundInfo{}
-
-	// Attempt to get signature
-	receivedSig := testRoundInfo.GetSignature()
-
-	// Received sig should be nil
-	if receivedSig != nil {
-		t.Errorf("Signature should default to nil if not set!")
 	}
 
 }

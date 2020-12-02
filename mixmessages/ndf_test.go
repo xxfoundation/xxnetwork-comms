@@ -82,28 +82,13 @@ func TestNDF_GetSignature(t *testing.T) {
 	testNdf := &NDF{Signature: expectedRsaSig}
 
 	// Fetch signature
-	receivedSig := testNdf.GetSignature()
+	receivedSig := testNdf.GetSig()
 
 	// Compare fetched value to expected value
 	if !reflect.DeepEqual(expectedRsaSig, receivedSig) {
 		t.Errorf("Signature does not match one that was set!"+
 			"Expected: %+v \n\t"+
 			"Received: %+v", expectedRsaSig, receivedSig)
-	}
-
-}
-
-// Error path (nil signature)
-func TestNDF_GetSignature_NilCase(t *testing.T) {
-	// Create ndf w/o signature object
-	testNdf := &NDF{}
-
-	// Attempt to get signature
-	receivedSig := testNdf.GetSignature()
-
-	// Received sig should be nil
-	if receivedSig != nil {
-		t.Errorf("Signature should default to nil if not set!")
 	}
 
 }
