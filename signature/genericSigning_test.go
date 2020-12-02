@@ -41,9 +41,10 @@ func TestSign(t *testing.T) {
 	err = Sign(testSig, privKey)
 	if err != nil {
 		t.Errorf("Failed to sign message: %+v", err)
+		t.FailNow()
 	}
 
-	sigMsg := testSig.GetSignature()
+	sigMsg := testSig.GetSig()
 
 	// Check if the signature is valid
 	if !rsa.IsValidSignature(pubKey, sigMsg.Signature) {
@@ -70,7 +71,7 @@ func TestSign_Error(t *testing.T) {
 	if err != nil {
 		t.Errorf("Failed to sign: %+v", err)
 	}
-	ourSign := testSig.GetSignature()
+	ourSign := testSig.GetSig()
 
 	// Input a random set of bytes less than the signature
 	randByte := make([]byte, len(ourSign.Signature)/2)
@@ -151,8 +152,15 @@ func (ts *TestSignable) Digest(nonce []byte, h hash.Hash) []byte {
 
 }
 
-func (ts *TestSignable) GetSignature() *messages.RSASignature {
+func (ts *TestSignable) GetSig() *messages.RSASignature {
+	if ts.signature != nil {
+		return ts.signature
+	}
+
+	ts.signature = new(messages.RSASignature)
+
 	return ts.signature
+
 }
 
 func (ts *TestSignable) SetSignature(signature, nonce []byte) error {
