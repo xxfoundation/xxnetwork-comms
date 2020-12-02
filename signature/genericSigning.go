@@ -72,8 +72,16 @@ func Sign(signable GenericSignable, privKey *rsa.PrivateKey) error {
 	}
 
 	// Modify the signature for the new values
+	// NOTE: This is the only way to change the internal of the interface object.
+	// The code commented below would be cleaner, but the changes do not take
 	signable.GetSig().Signature = signature
 	signable.GetSig().Nonce = newNonce
+
+	//ourSig := signable.GetSig()
+	//ourSig = &messages.RSASignature{
+	//	Nonce:     newNonce,
+	//	Signature: signature,
+	//}
 
 	return nil
 }
