@@ -355,3 +355,12 @@ func (s *Comms) SendRoundTripPing(ctx context.Context, msg *messages.Authenticat
 	err = s.handler.SendRoundTripPing(roundTripPing, authState)
 	return &messages.Ack{}, err
 }
+
+// Server -> Gateway permissioning address
+func (s *Comms) GetPermissioningAddress(context.Context, *messages.Ping) (*pb.StrAddress, error) {
+	ip, err := s.handler.GetPermissioningAddress()
+	if err != nil {
+		return nil, err
+	}
+	return &pb.StrAddress{Address: ip}, nil
+}

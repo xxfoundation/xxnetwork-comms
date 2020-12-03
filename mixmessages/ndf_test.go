@@ -263,37 +263,37 @@ func TestNDF_SetNonce_SetNil(t *testing.T) {
 //	}
 //}
 
+// Fixme
 // Error path
-//func TestNdf_SignVerify_Error(t *testing.T) {
-//	// Create ndf object
-//	ourNdf := []byte{25, 254, 123, 42}
-//	testNdf := &NDF{
-//		Ndf: ourNdf,
-//	}
-//
-//	// Generate keys
-//	privateKey, err := rsa.GenerateKey(rand.Reader, 1024)
-//	if err != nil {
-//		t.Errorf("Failed to generate key: %+v", err)
-//	}
-//	pubKey := privateKey.GetPublic()
-//
-//	// Sign message
-//	err = signature.Sign(testNdf, privateKey)
-//	if err != nil {
-//		t.Errorf("Unable to sign message: %+v", err)
-//	}
-//
-//	// Reset ndf value so verify()'s signature won't match
-//	testNdf.Ndf = []byte{1}
-//
-//	// Verify signature
-//	err = signature.Verify(testNdf, pubKey)
-//	// Verify signature
-//	if err != nil {
-//		return
-//	}
-//
-//	t.Error("Expected error path: Should not have verified!")
-//
-//}
+/*func TestNdf_SignVerify_Error(t *testing.T) {
+	// Create ndf object
+	ourNdf := []byte{25, 254, 123, 42}
+	testNdf := &NDF{
+		Ndf: ourNdf,
+	}
+
+	// Generate keys
+	privateKey, err := rsa.GenerateKey(rand.Reader, 1024)
+	if err != nil {
+		t.Errorf("Failed to generate key: %+v", err)
+	}
+	pubKey := privateKey.GetPublic()
+
+	// Sign message
+	err = signature.Sign(testNdf, privateKey)
+	if err != nil {
+		t.Errorf("Unable to sign message: %+v", err)
+	}
+
+	// Reset ndf value so verify()'s signature won't match
+	testNdf.Ndf = []byte{1}
+
+	// Verify signature
+	err = signature.Verify(testNdf, pubKey)
+	// Verify signature
+	if err != nil {
+		return
+	}
+
+	t.Error("Expected error path: Should not have verified!")
+}*/

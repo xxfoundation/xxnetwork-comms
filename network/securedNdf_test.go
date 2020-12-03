@@ -80,10 +80,11 @@ func TestSecuredNdf_update(t *testing.T) {
 		t.Errorf("Could not update ndf: %s", err)
 	}
 
-	//err = sndf.update(&f, badPub)
-	//if err == nil {
-	//	t.Errorf("should have received bad key error")
-	//}
+	err = sndf.update(&f, badPub)
+	// Fixme
+	/*	if err == nil {
+		t.Errorf("should have received bad key error")
+	}*/
 
 }
 

@@ -242,42 +242,43 @@ func TestRoundInfo_SignVerify(t *testing.T) {
 
 }
 
+// Fixme
 // Error path
-//func TestRoundInfo_SignVerify_Error(t *testing.T) {
-//	// Create roundInfo object
-//	testId := uint64(25)
-//	testTopology := [][]byte{[]byte("test"), []byte("te"), []byte("st"), []byte("testtest")}
-//	testBatch := uint32(23)
-//	testRoundInfo := &RoundInfo{
-//		ID:        testId,
-//		Topology:  testTopology,
-//		BatchSize: testBatch,
-//	}
-//
-//	// Generate keys
-//	privateKey, err := rsa.GenerateKey(rand.Reader, 1024)
-//	if err != nil {
-//		t.Errorf("Failed to generate key: %+v", err)
-//	}
-//	pubKey := privateKey.GetPublic()
-//
-//	// Ensure message type conforms to genericSignable interface
-//	err = signature.Sign(testRoundInfo, privateKey)
-//	if err != nil {
-//		t.Errorf("Unable to sign message: %+v", err)
-//	}
-//
-//	// Reset Topology value so verify()'s signature won't match
-//	testRoundInfo.Topology = [][]byte{[]byte("I"), []byte("am"), []byte("totally"), []byte("failing right now")}
-//	// Verify signature
-//	err = signature.Verify(testRoundInfo, pubKey)
-//	if err != nil {
-//		return
-//	}
-//
-//	t.Error("Expected error path: Should not have verified!")
-//
-//}
+/*func TestRoundInfo_SignVerify_Error(t *testing.T) {
+	// Create roundInfo object
+	testId := uint64(25)
+	testTopology := [][]byte{[]byte("test"), []byte("te"), []byte("st"), []byte("testtest")}
+	testBatch := uint32(23)
+	testRoundInfo := &RoundInfo{
+		ID:        testId,
+		Topology:  testTopology,
+		BatchSize: testBatch,
+	}
+
+	// Generate keys
+	privateKey, err := rsa.GenerateKey(rand.Reader, 1024)
+	if err != nil {
+		t.Errorf("Failed to generate key: %+v", err)
+	}
+	pubKey := privateKey.GetPublic()
+
+	// Ensure message type conforms to genericSignable interface
+	err = signature.Sign(testRoundInfo, privateKey)
+	if err != nil {
+		t.Errorf("Unable to sign message: %+v", err)
+	}
+
+	// Reset Topology value so verify()'s signature won't match
+	testRoundInfo.Topology = [][]byte{[]byte("I"), []byte("am"), []byte("totally"), []byte("failing right now")}
+	// Verify signature
+	err = signature.Verify(testRoundInfo, pubKey)
+	if err != nil {
+		return
+	}
+
+	t.Error("Expected error path: Should not have verified!")
+
+}*/
 
 func TestRoundInfo_GetActivity(t *testing.T) {
 	expected := uint32(45)

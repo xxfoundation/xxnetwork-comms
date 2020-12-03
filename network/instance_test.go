@@ -241,10 +241,11 @@ func TestInstance_RoundUpdate(t *testing.T) {
 	if err != nil {
 		t.Errorf("failed to add bad host: %+v", err)
 	}
-	//err = i.RoundUpdate(msg)
-	//if err == nil {
-	//	t.Error("Should have failed to verify")
-	//}
+	err = i.RoundUpdate(msg)
+	// Fixme
+	/*	if err == nil {
+		t.Error("Should have failed to verify")
+	}*/
 
 	i, _ = setupComm(t)
 
