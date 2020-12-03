@@ -24,7 +24,7 @@ import (
 //  as well as for this message type
 var _ = signature.GenericSignable(&NDF{})
 
-// ------------------------------------ SiGet/Set tests ------------------------------------------
+// ------------------------------------ Get/Set tests ------------------------------------------
 
 // Happy path
 func TestNDF_SetSignature(t *testing.T) {

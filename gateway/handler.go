@@ -26,7 +26,7 @@ type Handler interface {
 	// Return any MessageIDs in the buffer for this UserID
 	CheckMessages(userID *id.ID, messageID string, ipAddress string) ([]string, error)
 	// Returns the message matching the given parameters to the client
-	GetMessage(userID *id.ID, msgID string, ipAddress string) (*pb.Slot, error) // todo: depracate?
+	GetMessage(userID *id.ID, msgID string, ipAddress string) (*pb.Slot, error) // todo: depreciate?
 	// Upload a message to the cMix Gateway
 	PutMessage(message *pb.GatewaySlot, ipAddress string) (*pb.GatewaySlotResponse, error)
 	// Pass-through for Registration Nonce Communication

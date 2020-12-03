@@ -1,18 +1,19 @@
 package gateway
 
 import (
-	"errors"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
+	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/connect"
+	"gitlab.com/xx_network/comms/messages"
 	"google.golang.org/grpc"
 )
 
-// Gateway -> Server CheckConnectivity Function
-func (g *Comms) SendCheckConnectivityMessage(host *connect.Host,
-	message *pb.Address) (*pb.ConnectivityResponse, error) {
+// SendGetPermissioningAddress ping server to return the address of
+// permissioning.
+func (g *Comms) SendGetPermissioningAddress(host *connect.Host) (string, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
@@ -21,7 +22,8 @@ func (g *Comms) SendCheckConnectivityMessage(host *connect.Host,
 		defer cancel()
 
 		// Send the message
-		resultMsg, err := pb.NewConnectivityCheckerClient(conn).CheckConnectivity(ctx, message)
+		resultMsg, err := pb.NewNodeClient(conn).GetPermissioningAddress(ctx,
+			&messages.Ping{})
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
@@ -29,13 +31,17 @@ func (g *Comms) SendCheckConnectivityMessage(host *connect.Host,
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending check connectivity message: %+v", message)
+	jww.DEBUG.Printf("Sending get permissioning address ping.")
 	resultMsg, err := g.Send(host, f)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	// Marshall the result
-	result := &pb.ConnectivityResponse{}
-	return result, ptypes.UnmarshalAny(resultMsg, result)
+	result := &pb.StrAddress{}
+	err = ptypes.UnmarshalAny(resultMsg, result)
+	if err != nil {
+		return "", err
+	}
+	return result.Address, nil
 }
