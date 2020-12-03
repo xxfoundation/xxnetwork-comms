@@ -11,7 +11,6 @@
 package mixmessages
 
 import (
-	"github.com/pkg/errors"
 	"gitlab.com/xx_network/comms/messages"
 	"hash"
 )
@@ -26,22 +25,6 @@ func (m *RoundError) GetSig() *messages.RSASignature {
 	m.Signature = new(messages.RSASignature)
 
 	return m.Signature
-}
-
-// SetSignature sets RoundError's signature to the newSig argument
-func (m *RoundError) SetSignature(newSig, nonce []byte) error {
-	// Cannot set signature to nil
-	if newSig == nil || nonce == nil {
-		return errors.New("Cannot set signature to nil")
-	}
-
-	// Set the signature value
-	m.Signature = &messages.RSASignature{
-		Signature: newSig,
-		Nonce:     nonce,
-	}
-
-	return nil
 }
 
 // Digest hashes the contents of the message in a repeatable manner

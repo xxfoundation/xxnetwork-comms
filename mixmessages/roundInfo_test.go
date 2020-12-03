@@ -28,42 +28,25 @@ var _ = signature.GenericSignable(&RoundInfo{})
 // -------------------------- Signature tests --------------------------------------
 
 // Happy path
-func TestRoundInfo_SetSignature(t *testing.T) {
-	expectedSign := []byte("expectedSig")
+func TestRoundInfo_GetSignature(t *testing.T) {
+	// Create roundErr and set signature (without using setSignature)
+	expectedSig := []byte("expectedSig")
 	expectedNonce := []byte("expectedNonce")
-
-	testRoundInfo := &RoundInfo{}
-
-	expectedSignatureMessage := &messages.RSASignature{
+	expectedRsaSig := &messages.RSASignature{
+		Signature: expectedSig,
 		Nonce:     expectedNonce,
-		Signature: expectedSign,
 	}
 
-	// Set the sig
-	testRoundInfo.SetSignature(expectedSign, expectedNonce)
+	testRoundError := &RoundInfo{Signature: expectedRsaSig}
 
-	// Check that the RoundInfo's signature is identical to the one set
-	if !reflect.DeepEqual(expectedSignatureMessage, testRoundInfo.GetSig()) {
-		t.Errorf("Signature should match value it was set to! "+
+	// Fetch signature
+	receivedSig := testRoundError.GetSig()
+
+	// Compare fetched value to expected value
+	if !reflect.DeepEqual(expectedRsaSig, receivedSig) {
+		t.Errorf("Signature does not match one that was set!"+
 			"Expected: %+v \n\t"+
-			"Received: %+v", expectedSign, testRoundInfo.GetSig())
-	}
-}
-
-// Error path
-func TestRoundInfo_SetSignature_Error(t *testing.T) {
-	testRoundInfo := &RoundInfo{}
-
-	// Set the sig to nil (error case)
-	nonNilValue := []byte("notNil")
-	err := testRoundInfo.SetSignature(nonNilValue, nil)
-	if err == nil {
-		t.Errorf("Expected error path: Should not be able to set signature as nil")
-	}
-
-	err = testRoundInfo.SetSignature(nil, nonNilValue)
-	if err == nil {
-		t.Errorf("Expected error path: Should not be able to set nonce as nil")
+			"Received: %+v", expectedRsaSig, receivedSig)
 	}
 
 }
@@ -182,9 +165,8 @@ func TestRoundInfo_SignVerify(t *testing.T) {
 
 }
 
-// Fixme
 // Error path
-/*func TestRoundInfo_SignVerify_Error(t *testing.T) {
+func TestRoundInfo_SignVerify_Error(t *testing.T) {
 	// Create roundInfo object
 	testId := uint64(25)
 	testTopology := [][]byte{[]byte("test"), []byte("te"), []byte("st"), []byte("testtest")}
@@ -218,7 +200,7 @@ func TestRoundInfo_SignVerify(t *testing.T) {
 
 	t.Error("Expected error path: Should not have verified!")
 
-}*/
+}
 
 func TestRoundInfo_GetActivity(t *testing.T) {
 	expected := uint32(45)

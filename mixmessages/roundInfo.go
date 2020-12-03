@@ -13,7 +13,6 @@ package mixmessages
 import (
 	"crypto"
 	"encoding/binary"
-	"github.com/pkg/errors"
 	"gitlab.com/elixxir/primitives/states"
 	"gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/primitives/id"
@@ -30,22 +29,6 @@ func (m *RoundInfo) GetSig() *messages.RSASignature {
 	m.Signature = new(messages.RSASignature)
 
 	return m.Signature
-}
-
-// SetSignature sets RoundError's signature to the newSig argument
-func (m *RoundInfo) SetSignature(newSig, nonce []byte) error {
-	// Cannot set signature to nil
-	if newSig == nil || nonce == nil {
-		return errors.New("Cannot set signature to nil")
-	}
-
-	// Set the signature value
-	m.Signature = &messages.RSASignature{
-		Signature: newSig,
-		Nonce:     nonce,
-	}
-
-	return nil
 }
 
 // Digest hashes the contents of the message in a repeatable manner

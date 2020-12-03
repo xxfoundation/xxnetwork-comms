@@ -24,47 +24,8 @@ import (
 //  as well as for this message type
 var _ = signature.GenericSignable(&RoundError{})
 
-// -------------------------------- Get/Set tests -----------------------------------------------------------
+// -------------------------------- Get tests -----------------------------------------------------------
 
-// Happy path
-func TestRoundError_SetSignature(t *testing.T) {
-	expectedSig := []byte("expectedSig")
-	expectedNonce := []byte("expectedNonce")
-	testRoundError := &RoundError{}
-
-	expectedRsaSig := &messages.RSASignature{
-		Signature: expectedSig,
-		Nonce:     expectedNonce,
-	}
-
-	// Set the sig
-	testRoundError.SetSignature(expectedSig, expectedNonce)
-
-	// Compare expected value to value in message
-	if !reflect.DeepEqual(expectedRsaSig, testRoundError.Signature) {
-		t.Errorf("Signature does not match one that was set!"+
-			"Expected: %+v \n\t"+
-			"Received: %+v", expectedRsaSig, testRoundError.Signature)
-	}
-}
-
-// Error path: attempt to set a nil signature or a nil nonce
-func TestRoundError_SetSignature_Error(t *testing.T) {
-	testRoundError := &RoundError{}
-
-	// Set the sig to nil (error case)
-	nonNilValue := []byte("notNil")
-	err := testRoundError.SetSignature(nonNilValue, nil)
-	if err == nil {
-		t.Errorf("Expected error path: Should not be able to set signature as nil")
-	}
-
-	err = testRoundError.SetSignature(nil, nonNilValue)
-	if err == nil {
-		t.Errorf("Expected error path: Should not be able to set nonce as nil")
-	}
-
-}
 
 // Happy path
 func TestRoundError_GetSignature(t *testing.T) {

@@ -24,50 +24,7 @@ import (
 //  as well as for this message type
 var _ = signature.GenericSignable(&NDF{})
 
-// ------------------------------------ Get/Set tests ------------------------------------------
-
-// Happy path
-func TestNDF_SetSignature(t *testing.T) {
-	// Create ndf message
-	testNdf := &NDF{}
-
-	// Set the sig
-	expectedSig := []byte("testSignature")
-	expectedNonce := []byte("testNonce")
-	testNdf.SetSignature(expectedSig, expectedNonce)
-
-	expectedSignatureMsg := &messages.RSASignature{
-		Nonce:     expectedNonce,
-		Signature: expectedSig,
-	}
-
-	// Check that the ndf's signature is identical to the one set
-	if !reflect.DeepEqual(expectedSignatureMsg, testNdf.Signature) {
-		t.Errorf("Signature should match value it was set to! "+
-			"Expected: %+v \n\t"+
-			"Received: %+v", expectedSignatureMsg, testNdf.Signature)
-	}
-}
-
-// Error path: attempt to set a nil signature or a nil nonce
-func TestNDF_SetSignature_Eror(t *testing.T) {
-	// Create ndf message
-	testNdf := &NDF{}
-
-	// Set the sig to nil (error case)
-	nonNilValue := []byte("notNil")
-	err := testNdf.SetSignature(nonNilValue, nil)
-	if err == nil {
-		t.Errorf("Expected error path: Should not be able to set signature as nil")
-	}
-
-	// Set the sig to nil (error case)
-	err = testNdf.SetSignature(nil, nonNilValue)
-	if err == nil {
-		t.Errorf("Expected error path: Should not be able to set nonce as nil")
-	}
-
-}
+// ------------------------------------ Get tests ------------------------------------------
 
 // Happy path
 func TestNDF_GetSignature(t *testing.T) {
