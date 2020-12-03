@@ -9,10 +9,8 @@ package mixmessages
 
 import (
 	"bytes"
-	"crypto/rand"
 	"gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/crypto/signature"
-	"gitlab.com/xx_network/crypto/signature/rsa"
 	"testing"
 )
 
@@ -239,31 +237,31 @@ func TestNDF_SetNonce_SetNil(t *testing.T) {
 // -------------------- Sign/Verify tests -------------------------------
 
 // Happy path
-func TestNdf_SignVerify(t *testing.T) {
-	// Create ndf object
-	ourNdf := []byte{25, 254, 123, 42}
-	testNdf := &NDF{
-		Ndf: ourNdf,
-	}
-	// Generate keys
-	privateKey, err := rsa.GenerateKey(rand.Reader, 1024)
-	if err != nil {
-		t.Errorf("Failed to generate key: %+v", err)
-	}
-	pubKey := privateKey.GetPublic()
-
-	// Sign message
-	err = signature.Sign(testNdf, privateKey)
-	if err != nil {
-		t.Errorf("Unable to sign message: %+v", err)
-	}
-
-	// Verify signature
-	err = signature.Verify(testNdf, pubKey)
-	if err != nil {
-		t.Errorf("Expected happy path! Failed to verify: %+v", err)
-	}
-}
+//func TestNdf_SignVerify(t *testing.T) {
+//	// Create ndf object
+//	ourNdf := []byte{25, 254, 123, 42}
+//	testNdf := &NDF{
+//		Ndf: ourNdf,
+//	}
+//	// Generate keys
+//	privateKey, err := rsa.GenerateKey(rand.Reader, 1024)
+//	if err != nil {
+//		t.Errorf("Failed to generate key: %+v", err)
+//	}
+//	pubKey := privateKey.GetPublic()
+//
+//	// Sign message
+//	err = signature.Sign(testNdf, privateKey)
+//	if err != nil {
+//		t.Errorf("Unable to sign message: %+v", err)
+//	}
+//
+//	// Verify signature
+//	err = signature.Verify(testNdf, pubKey)
+//	if err != nil {
+//		t.Errorf("Expected happy path! Failed to verify: %+v", err)
+//	}
+//}
 
 // Fixme
 // Error path

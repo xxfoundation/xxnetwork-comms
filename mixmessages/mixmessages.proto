@@ -423,6 +423,15 @@ message PermissioningPoll {
     string gatewayVersion = 7;
     string serverAddress = 8;
     string serverVersion = 9;
+    repeated ClientError ClientErrors = 10; // Client error information
+}
+
+
+// Info containing error among a client
+// Passed server -> Permissioning via the poll comm
+message ClientError {
+    bytes ClientId = 1;
+    string Error = 2;
 }
 
 // Unified Server->Permissioning polling response
