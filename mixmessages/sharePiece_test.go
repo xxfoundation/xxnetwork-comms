@@ -4,7 +4,6 @@
 // Use of this source code is governed by a license that can be found in the //
 // LICENSE file                                                              //
 ///////////////////////////////////////////////////////////////////////////////
-
 package mixmessages
 
 import (
@@ -20,14 +19,14 @@ import (
 )
 
 // Ensure message type conforms to genericSignable interface
-// If this ever fails, check for modifications in the crypto library
+// If this ever fails, check for modifications in the source library
 //  as well as for this message type
-var _ = signature.GenericSignable(&RoundError{})
+var _ = signature.GenericSignable(&SharePiece{})
 
-// -------------------------------- Get tests -----------------------------------------------------------
+// -------------------------- Signature tests --------------------------------------
 
 // Happy path
-func TestRoundError_GetSignature(t *testing.T) {
+func TestSharePiece_GetSignature(t *testing.T) {
 	// Create roundErr and set signature (without using setSignature)
 	expectedSig := []byte("expectedSig")
 	expectedNonce := []byte("expectedNonce")
@@ -36,7 +35,7 @@ func TestRoundError_GetSignature(t *testing.T) {
 		Nonce:     expectedNonce,
 	}
 
-	testRoundError := &RoundError{Signature: expectedRsaSig}
+	testRoundError := &SharePiece{Signature: expectedRsaSig}
 
 	// Fetch signature
 	receivedSig := testRoundError.GetSig()
@@ -53,25 +52,24 @@ func TestRoundError_GetSignature(t *testing.T) {
 // -------------------- Digest tests -------------------------------
 
 // Consistency test
-func TestRoundError_Digest_Consistency(t *testing.T) {
+func TestShare_Digest_Consistency(t *testing.T) {
 	// Generate a message
-	testNodeId := []byte("nodeId")
-	testError := "I failed. Fix me now!"
-	testID := uint64(0)
-	testRoundErr := &RoundError{
-		Id:     testID,
-		NodeId: testNodeId,
-		Error:  testError,
+	testRoundID := uint64(25)
+	testPiece := []byte("testPiece")
+	testTopology := [][]byte{[]byte("test"), []byte("te"), []byte("st"), []byte("testtest")}
+	testSharePiece := &SharePiece{
+		Piece:        testPiece,
+		Participants: testTopology,
+		RoundID:      testRoundID,
 	}
-
 	// Hardcoded digest output. Any changes are a smoke test of changing of
-	// crypto libraries
-	expectedDigestEncoded := "M6v7dGA97cSP4bAmp3wJoRkrnUse34ouEFQoMYgZG2w="
+	// lower level crypto libraries or changes of the digest() implementation
+	expectedDigestEncoded := "t42oN4TqtXvSjlv1OBYeXfsTLPoI/NyMKBk9NCXrTJ8="
 
 	// Generate a digest
 	sha := crypto.SHA256.New()
 	testNonce := []byte("expectedNonce")
-	digest := testRoundErr.Digest(testNonce, sha)
+	digest := testSharePiece.Digest(testNonce, sha)
 
 	// Encode outputted digest to base64 encoded string
 	receivedDigestEncoded := base64.StdEncoding.EncodeToString(digest)
@@ -85,27 +83,29 @@ func TestRoundError_Digest_Consistency(t *testing.T) {
 }
 
 // Test that digest output matches manual digest creation
-func TestRoundError_Digest(t *testing.T) {
+func TestSharePiece_Digest(t *testing.T) {
 	// Generate a message
-	testNodeId := []byte("nodeId")
-	testError := "I failed. Fix me now!"
-	testID := uint64(240)
-	testRoundErr := &RoundError{
-		Id:     testID,
-		NodeId: testNodeId,
-		Error:  testError,
+	testRoundID := uint64(25)
+	testPiece := []byte("testPiece")
+	testTopology := [][]byte{[]byte("test"), []byte("te"), []byte("st"), []byte("testtest")}
+	testSharePiece := &SharePiece{
+		Piece:        testPiece,
+		Participants: testTopology,
+		RoundID:      testRoundID,
 	}
+
 	// Generate a digest
 	sha := crypto.SHA256.New()
 	testNonce := []byte("expectedNonce")
-	receivedDigest := testRoundErr.Digest(testNonce, sha)
+	receivedDigest := testSharePiece.Digest(testNonce, sha)
 
 	// Manually generate the digest
 	sha.Reset()
-	sha.Write(testNodeId)
-	sha.Write([]byte(testError))
-	sha.Write(serializeUin64(testID))
-
+	sha.Write(testPiece)
+	sha.Write(serializeUin64(testRoundID))
+	for _, node := range testTopology {
+		sha.Write(node)
+	}
 	sha.Write(testNonce)
 	expectedDigest := sha.Sum(nil)
 
@@ -121,16 +121,15 @@ func TestRoundError_Digest(t *testing.T) {
 // ------------------------------ Sign/Verify tests -----------------------------------
 
 // Happy path
-func TestRoundError_SignVerify(t *testing.T) {
-
+func TestSharePiece_SignVerify(t *testing.T) {
 	// Generate a message
-	testNodeId := []byte("nodeId")
-	testError := "I failed. Fix me now!"
-	testID := uint64(240)
-	testRoundErr := &RoundError{
-		Id:     testID,
-		NodeId: testNodeId,
-		Error:  testError,
+	testRoundID := uint64(25)
+	testPiece := []byte("testPiece")
+	testTopology := [][]byte{[]byte("test"), []byte("te"), []byte("st"), []byte("testtest")}
+	testSharePiece := &SharePiece{
+		Piece:        testPiece,
+		Participants: testTopology,
+		RoundID:      testRoundID,
 	}
 	// Generate keys
 	privateKey, err := rsa.GenerateKey(rand.Reader, 1024)
@@ -139,30 +138,30 @@ func TestRoundError_SignVerify(t *testing.T) {
 	}
 	pubKey := privateKey.GetPublic()
 
-	// Sign message
-	err = signature.Sign(testRoundErr, privateKey)
+	// Ensure message type conforms to genericSignable interface
+	err = signature.Sign(testSharePiece, privateKey)
 	if err != nil {
 		t.Errorf("Unable to sign message: %+v", err)
 	}
 
 	// Verify signature
-	err = signature.Verify(testRoundErr, pubKey)
+	err = signature.Verify(testSharePiece, pubKey)
 	if err != nil {
 		t.Errorf("Expected happy path! Failed to verify: %+v", err)
 	}
 
 }
 
-// Error path: Change internals of message between signing and verifying
-func TestRoundError_SignVerify_Error(t *testing.T) {
+// Error path
+func TestShare_SignVerify_Error(t *testing.T) {
 	// Generate a message
-	testNodeId := []byte("nodeId")
-	testError := "I failed. Fix me now!"
-	testID := uint64(240)
-	testRoundErr := &RoundError{
-		Id:     testID,
-		NodeId: testNodeId,
-		Error:  testError,
+	testRoundID := uint64(25)
+	testPiece := []byte("testPiece")
+	testTopology := [][]byte{[]byte("test"), []byte("te"), []byte("st"), []byte("testtest")}
+	testSharePiece := &SharePiece{
+		Piece:        testPiece,
+		Participants: testTopology,
+		RoundID:      testRoundID,
 	}
 
 	// Generate keys
@@ -173,19 +172,19 @@ func TestRoundError_SignVerify_Error(t *testing.T) {
 	pubKey := privateKey.GetPublic()
 
 	// Ensure message type conforms to genericSignable interface
-	err = signature.Sign(testRoundErr, privateKey)
+	err = signature.Sign(testSharePiece, privateKey)
 	if err != nil {
 		t.Errorf("Unable to sign message: %+v", err)
 	}
 
-	// Reset Error value so verify()'s signature won't match
-	testRoundErr.Error = "invalidChange"
-
+	// Reset Participants value so verify()'s signature won't match
+	testSharePiece.Participants = [][]byte{[]byte("I"), []byte("am"), []byte("totally"), []byte("failing right now")}
 	// Verify signature
-	err = signature.Verify(testRoundErr, pubKey)
-	if err == nil {
-		t.Error("Expected error path: Should not have verified!")
-
+	err = signature.Verify(testSharePiece, pubKey)
+	if err != nil {
+		return
 	}
+
+	t.Error("Expected error path: Should not have verified!")
 
 }

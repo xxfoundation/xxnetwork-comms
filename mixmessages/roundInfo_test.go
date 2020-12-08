@@ -25,7 +25,7 @@ import (
 //  as well as for this message type
 var _ = signature.GenericSignable(&RoundInfo{})
 
-// -------------------------- Signature tests --------------------------------------
+// -------------------------- Get tests --------------------------------------
 
 // Happy path
 func TestRoundInfo_GetSignature(t *testing.T) {
@@ -201,6 +201,8 @@ func TestRoundInfo_SignVerify_Error(t *testing.T) {
 	t.Error("Expected error path: Should not have verified!")
 
 }
+
+// ---------------------- Non-genericSignable tests -----------------------------------
 
 func TestRoundInfo_GetActivity(t *testing.T) {
 	expected := uint32(45)

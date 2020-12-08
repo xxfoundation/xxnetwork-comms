@@ -83,6 +83,15 @@ service Node {
     // Server -> Gateway permissioning address
     rpc GetPermissioningAddress (messages.Ping) returns (StrAddress) {
     }
+
+    // Server -> Server initiating multi-party round DH key generation
+    rpc StartSharePhase (messages.AuthenticatedMessage) returns (messages.Ack) {
+    }
+
+    // Server -> Server passing state of multi-party round DH key generation
+    rpc SharePhaseRound (messages.AuthenticatedMessage) returns (messages.Ack) {
+    }
+
 }
 
 // RoundInfo contains the # of precomputations ready for messages, among other
@@ -140,6 +149,17 @@ message ServerPollResponse {
     repeated RoundInfo Updates = 4; //Empty if no update needed
     RoundInfo BatchRequest = 5; //Empty if no update needed
     repeated Slot slots = 6; //Empty if no update needed
+}
+
+// Used as part of Share phase for generation
+// of a multi-party Diffie-Helman key
+// Node <-> Node message
+message SharePiece {
+    bytes Piece = 1; // In progress round public key
+    repeated bytes participants = 2; // List of nodes who have participated
+    uint64 roundID = 3; // Id of round tied to round key generation
+    messages.RSASignature Signature = 4; // Signature tied to message sent by node
+
 }
 
 // GATEWAY MESSAGE SERVICE -----------------------------------------------------
