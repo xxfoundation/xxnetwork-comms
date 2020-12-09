@@ -373,13 +373,13 @@ func (s *Comms) StartSharePhase(ctx context.Context, msg *messages.Authenticated
 		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
 	}
 	//Marshall the any message to the message type needed
-	sharePiece := &messages.Ping{}
-	err = ptypes.UnmarshalAny(msg.Message, sharePiece)
+	startShare := &pb.RoundInfo{}
+	err = ptypes.UnmarshalAny(msg.Message, startShare)
 	if err != nil {
 		return nil, err
 	}
 
-	err = s.handler.StartSharePhase(authState)
+	err = s.handler.StartSharePhase(nil, authState)
 	return &messages.Ack{}, err
 
 }

@@ -122,7 +122,7 @@ type Handler interface {
 	GetPermissioningAddress() (string, error)
 
 	// Server -> Server initiating multi-party round DH key generation
-	StartSharePhase(auth *connect.Auth) error
+	StartSharePhase(ri *mixmessages.RoundInfo, auth *connect.Auth) error
 
 	// Server -> Server passing state of multi-party round DH key generation
 	SharePhaseRound(sharedPiece *mixmessages.SharePiece, auth *connect.Auth) error
@@ -179,7 +179,7 @@ type implementationFunctions struct {
 	GetPermissioningAddress func() (string, error)
 
 	// Server -> Server initiating multi-party round DH key generation
-	StartSharePhase func(auth *connect.Auth) error
+	StartSharePhase func(ri *mixmessages.RoundInfo, auth *connect.Auth) error
 
 	// Server -> Server passing state of multi-party round DH key generation
 	SharePhaseRound func(sharedPiece *mixmessages.SharePiece, auth *connect.Auth) error
@@ -279,7 +279,7 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return "", nil
 			},
-			StartSharePhase: func(auth *connect.Auth) error {
+			StartSharePhase: func(roundInfo *mixmessages.RoundInfo, auth *connect.Auth) error {
 				warn(um)
 				return nil
 			},
@@ -383,8 +383,8 @@ func (s *Implementation) GetPermissioningAddress() (string, error) {
 }
 
 // Server -> Server initiating multi-party round DH key generation
-func (s *Implementation) StartSharePhase(auth *connect.Auth) error {
-	return s.Functions.StartSharePhase(auth)
+func (s *Implementation) StartSharePhase(ri *mixmessages.RoundInfo, auth *connect.Auth) error {
+	return s.Functions.StartSharePhase(ri, auth)
 }
 
 // Server -> Server passing state of multi-party round DH key generation
