@@ -364,3 +364,41 @@ func (s *Comms) GetPermissioningAddress(context.Context, *messages.Ping) (*pb.St
 	}
 	return &pb.StrAddress{Address: ip}, nil
 }
+
+// Server -> Server initiating multi-party round DH key generation
+func (s *Comms) StartSharePhase(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
+	// Verify the message authentication
+	authState, err := s.AuthenticatedReceiver(msg)
+	if err != nil {
+		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
+	}
+	//Marshall the any message to the message type needed
+	sharePiece := &messages.Ping{}
+	err = ptypes.UnmarshalAny(msg.Message, sharePiece)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.handler.StartSharePhase(authState)
+	return &messages.Ack{}, err
+
+}
+
+// Server -> Server passing state of multi-party round DH key generation
+func (s *Comms) SharePhaseRound(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
+	// Verify the message authentication
+	authState, err := s.AuthenticatedReceiver(msg)
+	if err != nil {
+		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
+	}
+
+	//Marshall the any message to the message type needed
+	sharePiece := &pb.SharePiece{}
+	err = ptypes.UnmarshalAny(msg.Message, sharePiece)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.handler.SharePhaseRound(sharePiece, authState)
+	return &messages.Ack{}, err
+}

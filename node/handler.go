@@ -47,7 +47,6 @@ func StartNode(id *id.ID, localServer string, interconnectPort int, handler Hand
 	// Start up interconnect service
 	if interconnectPort != 0 {
 		go func() {
-
 			interconnect.StartCMixInterconnect(id, strconv.Itoa(interconnectPort), handler, certPEMblock, keyPEMblock)
 		}()
 	} else {
@@ -121,6 +120,12 @@ type Handler interface {
 	// GetPermissioningAddress gets gateway the permissioning server's address
 	// from server.
 	GetPermissioningAddress() (string, error)
+
+	// Server -> Server initiating multi-party round DH key generation
+	StartSharePhase(auth *connect.Auth) error
+
+	// Server -> Server passing state of multi-party round DH key generation
+	SharePhaseRound(sharedPiece *mixmessages.SharePiece, auth *connect.Auth) error
 }
 
 type implementationFunctions struct {
@@ -172,6 +177,12 @@ type implementationFunctions struct {
 	// GetPermissioningAddress gets gateway the permissioning server's address
 	// from server.
 	GetPermissioningAddress func() (string, error)
+
+	// Server -> Server initiating multi-party round DH key generation
+	StartSharePhase func(auth *connect.Auth) error
+
+	// Server -> Server passing state of multi-party round DH key generation
+	SharePhaseRound func(sharedPiece *mixmessages.SharePiece, auth *connect.Auth) error
 }
 
 // Implementation allows users of the client library to set the
@@ -268,6 +279,14 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return "", nil
 			},
+			StartSharePhase: func(auth *connect.Auth) error {
+				warn(um)
+				return nil
+			},
+			SharePhaseRound: func(sharedPiece *mixmessages.SharePiece, auth *connect.Auth) error {
+				warn(um)
+				return nil
+			},
 		},
 	}
 }
@@ -361,4 +380,14 @@ func (s *Implementation) GetNDF() (*interconnect.NDF, error) {
 // server.
 func (s *Implementation) GetPermissioningAddress() (string, error) {
 	return s.Functions.GetPermissioningAddress()
+}
+
+// Server -> Server initiating multi-party round DH key generation
+func (s *Implementation) StartSharePhase(auth *connect.Auth) error {
+	return s.Functions.StartSharePhase(auth)
+}
+
+// Server -> Server passing state of multi-party round DH key generation
+func (s *Implementation) SharePhaseRound(sharedPiece *mixmessages.SharePiece, auth *connect.Auth) error {
+	return s.Functions.SharePhaseRound(sharedPiece, auth)
 }
