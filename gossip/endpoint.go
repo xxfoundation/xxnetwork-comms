@@ -11,6 +11,7 @@ package gossip
 
 import (
 	"context"
+	jww "github.com/spf13/jwalterweatherman"
 	"time"
 )
 
@@ -20,10 +21,17 @@ func (m *Manager) Endpoint(ctx context.Context, msg *GossipMsg) (*Ack, error) {
 	defer m.protocolLock.RUnlock()
 
 	if protocol, ok := m.protocols[msg.Tag]; ok {
-		err := protocol.receive(msg)
-		if err != nil {
-			return nil, err
-		}
+		// Sometimes the callbacks can block on waiting for appropriate state.
+		// This ensures that they will not interfere with the comms endpoint and
+		// operate on their own schedule.
+		go func(protocol *Protocol, msg *GossipMsg) {
+			err := protocol.receive(msg)
+			if err != nil {
+				jww.ERROR.Printf("Reception of protocol %s encountered an "+
+					"error: %+v", msg.Tag, err)
+				return
+			}
+		}(protocol, msg)
 		return &Ack{}, nil
 	}
 
