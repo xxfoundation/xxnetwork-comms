@@ -44,6 +44,8 @@ func TestManager_Endpoint_toProtocol(t *testing.T) {
 		t.Errorf("Failed to send: %+v", err)
 	}
 
+	time.Sleep(5 * time.Millisecond)
+
 	if !received {
 		t.Errorf("Didn't receive message in protocol")
 	}
