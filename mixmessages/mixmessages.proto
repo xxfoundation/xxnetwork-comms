@@ -109,6 +109,11 @@ message Batch {
     repeated Slot slots = 3;
 }
 
+message CompletedBatch {
+    uint64 RoundID = 1;
+    repeated Slot slots = 2;
+}
+
 // Used as part of header for streaming post phase
 message BatchInfo {
     RoundInfo Round = 1;
@@ -139,7 +144,7 @@ message ServerPollResponse {
     NDF PartialNDF = 3; //Empty if no update needed
     repeated RoundInfo Updates = 4; //Empty if no update needed
     RoundInfo BatchRequest = 5; //Empty if no update needed
-    repeated Slot slots = 6; //Empty if no update needed
+    CompletedBatch Batch = 6; //Empty if no update needed
 }
 
 // GATEWAY MESSAGE SERVICE -----------------------------------------------------
