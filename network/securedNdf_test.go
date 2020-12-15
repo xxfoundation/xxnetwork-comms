@@ -12,7 +12,7 @@ import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	ds "gitlab.com/elixxir/comms/network/dataStructures"
 	"gitlab.com/elixxir/comms/testutils"
-	"gitlab.com/xx_network/crypto/signature"
+	"gitlab.com/xx_network/comms/signature"
 	"gitlab.com/xx_network/crypto/signature/rsa"
 	"gitlab.com/xx_network/primitives/ndf"
 	"math/rand"

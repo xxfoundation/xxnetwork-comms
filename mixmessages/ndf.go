@@ -11,69 +11,31 @@
 package mixmessages
 
 import (
-	"github.com/pkg/errors"
 	"gitlab.com/xx_network/comms/messages"
+	"hash"
 )
 
-// SetSignature sets NDF's signature to the newSig argument
-func (m *NDF) SetSig(newSig []byte) error {
-	// Cannot set signature to nil
-	if newSig == nil {
-		return errors.New("Cannot set signature to nil")
-	}
-
-	// If the signature object is nil, create it and set value
-	if m.Signature == nil {
-		m.Signature = &messages.RSASignature{Signature: newSig}
-		return nil
-	}
-
-	// Set value otherwise
-	m.Signature.Signature = newSig
-	return nil
-}
-
-// ClearSignature clears out NDF's signature
-func (m *NDF) ClearSig() {
+// GetSig returns the RSA signature.
+// IF none exists, it creates it, adds it to the object, then returns it.
+func (m *NDF) GetSig() *messages.RSASignature {
 	if m.Signature != nil {
-		m.Signature.Signature = nil
+		return m.Signature
 	}
+
+	m.Signature = new(messages.RSASignature)
+
+	return m.Signature
 }
 
-// GetNonce gets the value of the nonce
-func (m *NDF) GetNonce() []byte {
-	// If the signature object is nil, then value is nil
-	if m.Signature == nil {
-		return nil
-	}
+// Digest hashes the contents of the message in a repeatable manner
+// using the provided cryptographic hash. It includes the nonce in the hash
+func (m *NDF) Digest(nonce []byte, h hash.Hash) []byte {
+	h.Reset()
 
-	return m.Signature.GetNonce()
-}
+	// Hash the ndf and the nonce
+	h.Write(m.Ndf)
+	h.Write(nonce)
 
-// SetSignature sets NDF's nonce to the newNonce argument
-func (m *NDF) SetNonce(newNonce []byte) error {
-	// Cannot set nonce to nil
-	if newNonce == nil {
-		return errors.New("Cannot set nonce to nil")
-	}
-
-	// If the signature object is nil, create it and set value
-	if m.Signature == nil {
-		m.Signature = &messages.RSASignature{Nonce: newNonce}
-		return nil
-	}
-
-	// Set value otherwise
-	m.Signature.Nonce = newNonce
-
-	return nil
-}
-
-// GetSignature gets the value of the signature in RSASignature
-func (m *NDF) GetSig() []byte {
-	if m.Signature == nil {
-		return nil
-	}
-
-	return m.GetSignature().Signature
+	// Return the hash
+	return h.Sum(nil)
 }
