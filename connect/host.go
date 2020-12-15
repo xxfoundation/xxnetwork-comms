@@ -29,13 +29,15 @@ import (
 	"time"
 )
 
+const infinityTime = time.Duration(math.MaxInt64)
+
 // KaClientOpts are the keepalive options for clients
 // TODO: Set via configuration
 var KaClientOpts = keepalive.ClientParameters{
-	// Wait 1s before pinging to keepalive
-	Time: 1 * time.Second,
-	// 2s after ping before closing
-	Timeout: 2 * time.Second,
+	// Never ping to keepalive
+	Time: infinityTime,
+	// 60s after ping before closing
+	Timeout: 60 * time.Second,
 	// For all connections, streaming and nonstreaming
 	PermitWithoutStream: true,
 }
