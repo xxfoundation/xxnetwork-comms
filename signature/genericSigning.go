@@ -19,13 +19,8 @@ import (
 	"hash"
 )
 
-func init() {
-	jww.ERROR.Println("Signature verification is curently disabled, if you " +
-		"get this message STOP OPERATION and contact the developers at " +
-		"nodes@xx.network")
-}
-
-// Interface for signing generically
+// Interface for our GenericSignable structure, to be used for protobuffs we want
+// to be able to cryptographically sign
 type GenericSignable interface {
 	// GetSig returns the RSA signature.
 	// IF none exists, it creates it, adds it to the object, then returns it.
