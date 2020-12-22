@@ -10,6 +10,7 @@
 package connect
 
 import (
+	"encoding/base64"
 	"fmt"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
@@ -97,6 +98,9 @@ func NewHost(id *id.ID, address string, cert []byte, params HostParams) (host *H
 		receptionToken:    token.NewLive(),
 		maxRetries:        params.MaxRetries,
 	}
+
+	jww.INFO.Printf("New Host Created: %s", host)
+	jww.TRACE.Printf("New Host Certificate for %v: %s...", id, cert)
 
 	if host.maxRetries == 0 {
 		host.maxRetries = math.MaxUint32
@@ -393,15 +397,25 @@ func (h *Host) String() string {
 		protocolVersion = creds.Info().ProtocolVersion
 		securityProtocol = creds.Info().SecurityProtocol
 	}
+
+	transmitStr := base64.StdEncoding.EncodeToString(
+		h.transmissionToken.GetBytes())
+	receptStr := base64.StdEncoding.EncodeToString(
+		h.receptionToken.GetBytes())
 	return fmt.Sprintf(
-		"ID: %v\tAddr: %v\tCertificate: %s...\tTransmission Live: %v"+
-			"\tReception Live: %+v \tEnableAuth: %v"+
+		"ID: %v\tAddr: %v\tTransmission Live: %s"+
+			"\tReception Live: %s \tEnableAuth: %v"+
 			"\tMaxRetries: %v\tConnState: %v"+
 			"\tTLS ServerName: %v\tTLS ProtocolVersion: %v\t"+
-			"TLS SecurityVersion: %v\tTLS SecurityProtocol: %v\n",
-		h.id, addr, h.certificate, h.transmissionToken.GetBytes(),
-		h.receptionToken.GetBytes(), h.enableAuth, h.maxRetries, state,
-		serverName, protocolVersion, securityVersion, securityProtocol)
+			"TLS SecurityVersion: %v\tTLS SecurityProtocol: %v",
+		h.id, addr, transmitStr, receptStr, h.enableAuth, h.maxRetries,
+		state, serverName, protocolVersion, securityVersion,
+		securityProtocol)
+}
+
+// Stringer interface for connection
+func (h *Host) StringVerbose() string {
+	return fmt.Sprintf("%s\t CERTIFICATE: %s", h, h.certificate)
 }
 
 func (h *Host) SetTestPublicKey(key *rsa.PublicKey, t interface{}) {
