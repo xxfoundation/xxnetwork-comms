@@ -570,9 +570,10 @@ message RoundInfo {
     uint32 BatchSize = 4;
     repeated bytes Topology = 5; // List of NodeIDs
     repeated uint64 Timestamps = 6; // List of state timestamps in UTC
-    repeated RoundError Errors = 7; // List of errors which occured
-    uint32 ResourceQueueTimeoutMillis = 8; // Timeout for resource queue on nodes
-    messages.RSASignature Signature = 9;
+    repeated RoundError Errors = 7; // List of round errors which occurred
+    repeated ClientError ClientErrors = 8;
+    uint32 ResourceQueueTimeoutMillis = 9; // Timeout for resource queue on nodes
+    messages.RSASignature Signature = 10;
 }
 
 // RoundError will be used to describe a round error
