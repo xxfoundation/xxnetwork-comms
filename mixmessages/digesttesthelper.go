@@ -55,12 +55,16 @@ func checkdigest(t *testing.T, gs signature.GenericSignable) {
 			randomVal := make([]byte, 4)
 			rand.Read(randomVal)
 			valField.SetBytes(randomVal)
+
 		case uint32:
 			valField.SetUint(uint64(rand.Uint32()))
+
 		case uint64:
 			valField.SetUint(rand.Uint64())
+
 		case string:
 			valField.SetString(RandStringRunes(4))
+
 		case [][]uint8:
 			arr := [][]uint8{
 				{uint8(rand.Int()), uint8(rand.Int())},
@@ -68,10 +72,12 @@ func checkdigest(t *testing.T, gs signature.GenericSignable) {
 			}
 			v := reflect.ValueOf(arr)
 			valField.Set(v)
+
 		case []uint64:
 			arr := []uint64{rand.Uint64(), rand.Uint64(), rand.Uint64()}
 			v := reflect.ValueOf(arr)
 			valField.Set(v)
+
 		case []*RoundError:
 			randNodeId := make([]byte, 33)
 			rand.Read(randNodeId)
@@ -89,6 +95,25 @@ func checkdigest(t *testing.T, gs signature.GenericSignable) {
 			}
 			v := reflect.ValueOf(rea)
 			valField.Set(v)
+
+		case []*ClientError:
+			randClientId := make([]byte, 33)
+			rand.Read(randClientId)
+			randClientId2 := make([]byte, 33)
+			rand.Read(randClientId2)
+			rea := []*ClientError{
+				{
+					ClientId: randClientId,
+					Error:    RandStringRunes(4),
+				},
+				{
+					ClientId: randClientId2,
+					Error:    RandStringRunes(4),
+				},
+			}
+			v := reflect.ValueOf(rea)
+			valField.Set(v)
+
 		default:
 			t.Errorf("checkdigest doesn't know how to handle type %s\n", reflect.TypeOf(valField.Interface()))
 		}

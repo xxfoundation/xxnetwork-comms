@@ -61,6 +61,13 @@ func (m *RoundInfo) Digest(nonce []byte, h hash.Hash) []byte {
 		h.Write(serializeUin64(timeStamp))
 	}
 
+	// Hash ClientErrors
+	for _, clientError := range m.ClientErrors {
+		sha := crypto.SHA256.New()
+		data := clientError.Digest(nonce, sha)
+		h.Write(data)
+	}
+
 	// Hash the
 	for _, roundErr := range m.Errors {
 		sha := crypto.SHA256.New()
