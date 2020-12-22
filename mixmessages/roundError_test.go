@@ -26,7 +26,6 @@ var _ = signature.GenericSignable(&RoundError{})
 
 // -------------------------------- Get tests -----------------------------------------------------------
 
-
 // Happy path
 func TestRoundError_GetSignature(t *testing.T) {
 	// Create roundErr and set signature (without using setSignature)
@@ -52,6 +51,20 @@ func TestRoundError_GetSignature(t *testing.T) {
 }
 
 // -------------------- Digest tests -------------------------------
+
+func TestRoundError_DigestTestHelper(t *testing.T) {
+	// Generate a message
+	testNodeId := []byte("nodeId")
+	testError := "I failed. Fix me now!"
+	testID := uint64(0)
+	testRoundErr := &RoundError{
+		Id:     testID,
+		NodeId: testNodeId,
+		Error:  testError,
+	}
+
+	checkdigest(t, testRoundErr)
+}
 
 // Consistency test
 func TestRoundError_Digest_Consistency(t *testing.T) {

@@ -48,6 +48,9 @@ func (m *RoundInfo) Digest(nonce []byte, h hash.Hash) []byte {
 	// Serialize and hash batch size
 	h.Write(serializeUin32(m.BatchSize))
 
+	// Serialize and hash resource queue timeout
+	h.Write(serializeUin32(m.ResourceQueueTimeoutMillis))
+
 	// Hash the topology
 	for _, node := range m.Topology {
 		h.Write(node)

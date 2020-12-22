@@ -52,6 +52,20 @@ func TestNDF_GetSignature(t *testing.T) {
 
 // -------------------- Digest tests -------------------------------
 
+func TestNDF_DigestTestHelper(t *testing.T) {
+	// Create roundErr and set signature (without using setSignature)
+	expectedSig := []byte("expectedSig")
+	expectedNonce := []byte("expectedNonce")
+	expectedRsaSig := &messages.RSASignature{
+		Signature: expectedSig,
+		Nonce:     expectedNonce,
+	}
+
+	testNdf := &NDF{Signature: expectedRsaSig}
+
+	checkdigest(t, testNdf)
+}
+
 // Consistency test
 func TestNDF_Digest_Consistency(t *testing.T) {
 	// Generate a message

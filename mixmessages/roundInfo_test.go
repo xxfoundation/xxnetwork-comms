@@ -53,6 +53,24 @@ func TestRoundInfo_GetSignature(t *testing.T) {
 
 // -------------------- Digest tests -------------------------------
 
+func TestRoundInfo_DigestTestHelper(t *testing.T) {
+	// Generate a message
+	testId := uint64(25)
+	testUpdateId := uint64(26)
+	testState := uint32(42)
+	testBatch := uint32(23)
+	testTopology := [][]byte{[]byte("test"), []byte("te"), []byte("st"), []byte("testtest")}
+	testRoundInfo := &RoundInfo{
+		ID:        testId,
+		UpdateID:  testUpdateId,
+		State:     testState,
+		BatchSize: testBatch,
+		Topology:  testTopology,
+	}
+
+	checkdigest(t, testRoundInfo)
+}
+
 // Consistency test
 func TestRoundInfo_Digest_Consistency(t *testing.T) {
 	// Generate a message
@@ -70,7 +88,7 @@ func TestRoundInfo_Digest_Consistency(t *testing.T) {
 	}
 	// Hardcoded digest output. Any changes are a smoke test of changing of
 	// crypto libraries
-	expectedDigestEncoded := "VzYAPzTYYASWQiKj7sux9zgTfVg+Ec0R4fIeBp3Gyes="
+	expectedDigestEncoded := "ZBL5a9GvuJANixwO/P9gMvQK5do3+7OFg/IBS9wH/pE="
 
 	// Generate a digest
 	sha := crypto.SHA256.New()
@@ -95,13 +113,15 @@ func TestRoundInfo_Digest(t *testing.T) {
 	testUpdateId := uint64(26)
 	testState := uint32(42)
 	testBatch := uint32(23)
+	testResourceQueueTimeout := uint32(1000)
 	testTopology := [][]byte{[]byte("test"), []byte("te"), []byte("st"), []byte("testtest")}
 	testRoundInfo := &RoundInfo{
-		ID:        testId,
-		UpdateID:  testUpdateId,
-		State:     testState,
-		BatchSize: testBatch,
-		Topology:  testTopology,
+		ID:                         testId,
+		UpdateID:                   testUpdateId,
+		State:                      testState,
+		BatchSize:                  testBatch,
+		Topology:                   testTopology,
+		ResourceQueueTimeoutMillis: testResourceQueueTimeout,
 	}
 
 	// Generate a digest
@@ -115,6 +135,7 @@ func TestRoundInfo_Digest(t *testing.T) {
 	sha.Write(serializeUin64(testUpdateId))
 	sha.Write(serializeUin32(testState))
 	sha.Write(serializeUin32(testBatch))
+	sha.Write(serializeUin32(testResourceQueueTimeout))
 	for _, node := range testTopology {
 		sha.Write(node)
 	}
