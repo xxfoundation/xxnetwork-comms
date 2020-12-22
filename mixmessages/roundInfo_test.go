@@ -54,20 +54,7 @@ func TestRoundInfo_GetSignature(t *testing.T) {
 // -------------------- Digest tests -------------------------------
 
 func TestRoundInfo_DigestTestHelper(t *testing.T) {
-	// Generate a message
-	testId := uint64(25)
-	testUpdateId := uint64(26)
-	testState := uint32(42)
-	testBatch := uint32(23)
-	testTopology := [][]byte{[]byte("test"), []byte("te"), []byte("st"), []byte("testtest")}
-	testRoundInfo := &RoundInfo{
-		ID:        testId,
-		UpdateID:  testUpdateId,
-		State:     testState,
-		BatchSize: testBatch,
-		Topology:  testTopology,
-	}
-
+	testRoundInfo := &RoundInfo{}
 	checkdigest(t, testRoundInfo)
 }
 

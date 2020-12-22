@@ -53,16 +53,7 @@ func TestRoundError_GetSignature(t *testing.T) {
 // -------------------- Digest tests -------------------------------
 
 func TestRoundError_DigestTestHelper(t *testing.T) {
-	// Generate a message
-	testNodeId := []byte("nodeId")
-	testError := "I failed. Fix me now!"
-	testID := uint64(0)
-	testRoundErr := &RoundError{
-		Id:     testID,
-		NodeId: testNodeId,
-		Error:  testError,
-	}
-
+	testRoundErr := &RoundError{}
 	checkdigest(t, testRoundErr)
 }
 
