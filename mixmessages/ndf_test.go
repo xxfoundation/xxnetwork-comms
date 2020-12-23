@@ -52,6 +52,11 @@ func TestNDF_GetSignature(t *testing.T) {
 
 // -------------------- Digest tests -------------------------------
 
+func TestNDF_DigestTestHelper(t *testing.T) {
+	testNdf := &NDF{}
+	checkdigest(t, testNdf)
+}
+
 // Consistency test
 func TestNDF_Digest_Consistency(t *testing.T) {
 	// Generate a message
