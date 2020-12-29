@@ -86,6 +86,11 @@ func (i *Instance) SetAddGatewayChan(c chan NodeGateway) {
 	i.addGateway = c
 }
 
+// Return AddGateway channel from Instance
+func (i *Instance) GetAddGatewayChan() chan NodeGateway {
+	return i.addGateway
+}
+
 // Register RemoveGateway channel with Instance
 func (i *Instance) SetRemoveGatewayChan(c chan *id.ID) {
 	i.removeGateway = c
