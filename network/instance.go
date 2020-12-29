@@ -305,7 +305,7 @@ func (i *Instance) GetNodeAndGateway(ngid *id.ID) (NodeGateway, error) {
 			}
 		}
 	} else if ngid.GetType() == id.Gateway {
-		for i, g := range def.Get().Nodes {
+		for i, g := range def.Get().Gateways {
 			if bytes.Compare(g.ID, idBytes) == 0 {
 				index = i
 				break
