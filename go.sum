@@ -1,3 +1,4 @@
+github.com/badoux/checkmail v1.2.1/go.mod h1:XroCOBU5zzZJcLvgwU15I+2xXyCdTWXyR9MGfRhBYy0=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
@@ -41,6 +42,7 @@ github.com/mitchellh/go-homedir v1.1.0 h1:lukF9ziXFxDFPkA1vsr5zpc1XuPDn/wFntq5mG
 github.com/mitchellh/go-homedir v1.1.0/go.mod h1:SfyaCUpYCn1Vlf4IUYiD9fPX4A5wJrkLzIz1N1q0pr0=
 github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e h1:fD57ERR4JtEqsWbfPhv4DMiApHyliiK5xCTNVSPiaAs=
 github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e/go.mod h1:zD1mROLANZcx1PVRCS0qkT7pwLkGfwJo4zjcN/Tysno=
+github.com/nyaruka/phonenumbers v1.0.60/go.mod h1:sDaTZ/KPX5f8qyV9qN+hIm+4ZBARJrupC6LuhshJq1U=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
@@ -64,8 +66,12 @@ github.com/zeebo/pcg v1.0.0 h1:dt+dx+HvX8g7Un32rY9XWoYnd0NmKmrIzpHF7qiTDj0=
 github.com/zeebo/pcg v1.0.0/go.mod h1:09F0S9iiKrwn9rlI5yjLkmrug154/YRW6KnnXVDM/l4=
 gitlab.com/elixxir/crypto v0.0.7-0.20201217200352-0ba771a66932 h1:GCvdkpwwmU1DTZtpT4P2jjYuPcDQ6pBKkzP0vo7oRM8=
 gitlab.com/elixxir/crypto v0.0.7-0.20201217200352-0ba771a66932/go.mod h1:nqSNe486j6ua96nv1et6x2ESl/qXevkx7f31GowMRh4=
+gitlab.com/elixxir/crypto v0.0.7-0.20210104223925-7dfd3ad55d5c h1:/iLLZvu5mbFXxcjLoguZwKxHslEmaTqR4csfa8X1zIQ=
+gitlab.com/elixxir/crypto v0.0.7-0.20210104223925-7dfd3ad55d5c/go.mod h1:cEn3ghYlk7Fhz1dOu3OEw9v9nIZNYH6hqnjHlTLxFiA=
 gitlab.com/elixxir/primitives v0.0.3-0.20201217193438-8ebfc882f1de h1:DxEMJ2GC9CTe9dQlmX5Zr6qtNm7MU74MtmWSJeXxrFw=
 gitlab.com/elixxir/primitives v0.0.3-0.20201217193438-8ebfc882f1de/go.mod h1:H1OZ6ZXzTB3G4nOEdJzBJ7BySRnivpJTkTphxazFCl4=
+gitlab.com/elixxir/primitives v0.0.3-0.20210104223605-0e47af99d9d5 h1:gFnu6lXLNG7jMRpR0990iRimotw1eMsV4wQU9tce3JQ=
+gitlab.com/elixxir/primitives v0.0.3-0.20210104223605-0e47af99d9d5/go.mod h1:BLL0lkR9foigqmsz1p3OLnwACBhS9fd3mVk9Ftflg9E=
 gitlab.com/xx_network/comms v0.0.4-0.20201217200138-87075d5b4ffd h1:4LjS3UuBNA/AaglIJ+k1IBoxYgCWt+FM1MPYxjAFfaQ=
 gitlab.com/xx_network/comms v0.0.4-0.20201217200138-87075d5b4ffd/go.mod h1:/vIk6tSrDqk/7HZOdrbSXZT+kEL43HIoz60AoZTzTXg=
 gitlab.com/xx_network/crypto v0.0.5-0.20201217195719-cc31e1d1eee3 h1:xXJAkvhHZl5CUX8/9rqe8hod5FbqZrxwMuT8cG48Mxs=
