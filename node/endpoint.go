@@ -379,7 +379,7 @@ func (s *Comms) StartSharePhase(ctx context.Context, msg *messages.Authenticated
 		return nil, err
 	}
 
-	err = s.handler.StartSharePhase(nil, authState)
+	err = s.handler.StartSharePhase(startShare, authState)
 	return &messages.Ack{}, err
 
 }
