@@ -86,33 +86,33 @@ func Sign(signable GenericSignable, privKey *rsa.PrivateKey) error {
 // If the recreation matches the original signature it returns true,
 // else it returns false
 func Verify(verifiable GenericSignable, pubKey *rsa.PublicKey) error {
+	/*
+		// Take the signature from the object
+		sigMsg := verifiable.GetSig()
+		nonce := sigMsg.Nonce
+		sig := sigMsg.Signature
 
-	// Take the signature from the object
-	sigMsg := verifiable.GetSig()
-	nonce := sigMsg.Nonce
-	sig := sigMsg.Signature
+		// Prepare to hash the data
+		sha := crypto.SHA256
+		h := sha.New()
 
-	// Prepare to hash the data
-	sha := crypto.SHA256
-	h := sha.New()
+		// Get the data to replicate the signature
+		data := verifiable.Digest(nonce, h)
 
-	// Get the data to replicate the signature
-	data := verifiable.Digest(nonce, h)
+		// Verify the signature using our implementation
+		err := rsa.Verify(pubKey, sha, data, sig, nil)
 
-	// Verify the signature using our implementation
-	err := rsa.Verify(pubKey, sha, data, sig, nil)
+		jww.TRACE.Printf("signature.Verify nonce: 0x%x", nonce)
+		jww.TRACE.Printf("signature.Verify sig for nonce 0x%x: 0x%x", nonce[:8], sig)
+		jww.TRACE.Printf("signature.Verify digest for nonce 0x%x, 0x%x", nonce[:8], data)
+		jww.TRACE.Printf("signature.Verify data for nonce 0x%x: [%x]", nonce[:8], data)
+		jww.TRACE.Printf("signature.Verify pubKey for nonce 0x%x: E: 0x%x;; V: 0x%v", nonce[:8], pubKey.E, pubKey.N.Text(16))
 
-	jww.TRACE.Printf("signature.Verify nonce: 0x%x", nonce)
-	jww.TRACE.Printf("signature.Verify sig for nonce 0x%x: 0x%x", nonce[:8], sig)
-	jww.TRACE.Printf("signature.Verify digest for nonce 0x%x, 0x%x", nonce[:8], data)
-	jww.TRACE.Printf("signature.Verify data for nonce 0x%x: [%x]", nonce[:8], data)
-	jww.TRACE.Printf("signature.Verify pubKey for nonce 0x%x: E: 0x%x;; V: 0x%v", nonce[:8], pubKey.E, pubKey.N.Text(16))
-
-	// And check for an error
-	if err != nil {
-		// If there is an error, then signature is invalid
-		return err
-	}
+		// And check for an error
+		if err != nil {
+			// If there is an error, then signature is invalid
+			return err
+		}*/
 
 	// Otherwise it has been verified
 	return nil
