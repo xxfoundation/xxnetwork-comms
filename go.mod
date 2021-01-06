@@ -9,8 +9,8 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/jwalterweatherman v1.1.0
 	github.com/stretchr/testify v1.5.1 // indirect
-	gitlab.com/xx_network/crypto v0.0.5-0.20201217195719-cc31e1d1eee3
-	gitlab.com/xx_network/primitives v0.0.4-0.20201216174909-808eb0fc97fc
+	gitlab.com/xx_network/crypto v0.0.5-0.20210106014410-0554a33a7124
+	gitlab.com/xx_network/primitives v0.0.4-0.20210106014326-691ebfca3b07
 	golang.org/x/net v0.0.0-20200707034311-ab3426394381
 	golang.org/x/sys v0.0.0-20200519105757-fe76b779f299 // indirect
 	google.golang.org/grpc v1.31.0
