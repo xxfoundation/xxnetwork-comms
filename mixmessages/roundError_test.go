@@ -52,6 +52,11 @@ func TestRoundError_GetSignature(t *testing.T) {
 
 // -------------------- Digest tests -------------------------------
 
+func TestRoundError_DigestTestHelper(t *testing.T) {
+	testRoundErr := &RoundError{}
+	checkdigest(t, testRoundErr)
+}
+
 // Consistency test
 func TestRoundError_Digest_Consistency(t *testing.T) {
 	// Generate a message

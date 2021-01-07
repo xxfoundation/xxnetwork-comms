@@ -118,6 +118,11 @@ message Batch {
     repeated Slot slots = 3;
 }
 
+message CompletedBatch {
+    uint64 RoundID = 1;
+    repeated Slot slots = 2;
+}
+
 // Used as part of header for streaming post phase
 message BatchInfo {
     RoundInfo Round = 1;
@@ -148,7 +153,7 @@ message ServerPollResponse {
     NDF PartialNDF = 3; //Empty if no update needed
     repeated RoundInfo Updates = 4; //Empty if no update needed
     RoundInfo BatchRequest = 5; //Empty if no update needed
-    repeated Slot slots = 6; //Empty if no update needed
+    CompletedBatch Batch = 6; //Empty if no update needed
 }
 
 // Used as part of Share phase for generation
@@ -278,7 +283,6 @@ message GatewayPoll {
     bytes ClientID = 3;
     uint64 FirstRound = 4;
     uint64 LastRound = 5;
-
 }
 
 // Unified Client->Gateway polling response
@@ -374,14 +378,14 @@ message NDF{
 // The registration server is free to ignore these addresses and
 // derive the address from the network connection.
 message NodeRegistration {
-      bytes  Salt = 1;
+    bytes  Salt = 1;
     string ServerTlsCert = 2;
     string ServerAddress = 3;
-      uint32 ServerPort       = 4; // Note: there is no uint16
-      string GatewayTlsCert   = 5;
-      string GatewayAddress   = 6;
-      uint32 GatewayPort      = 7; // Note: there is no uint16
-      string RegistrationCode = 8;
+    uint32 ServerPort = 4; // Note: there is no uint16
+    string GatewayTlsCert = 5;
+    string GatewayAddress = 6;
+    uint32 GatewayPort = 7; // Note: there is no uint16
+    string RegistrationCode = 8;
 }
 
 // UserRegistration message to initialize registration process
@@ -585,9 +589,10 @@ message RoundInfo {
     uint32 BatchSize = 4;
     repeated bytes Topology = 5; // List of NodeIDs
     repeated uint64 Timestamps = 6; // List of state timestamps in UTC
-    repeated RoundError Errors = 7; // List of errors which occured
-    uint32 ResourceQueueTimeoutMillis = 8; // Timeout for resource queue on nodes
-    messages.RSASignature Signature = 9;
+    repeated RoundError Errors = 7; // List of round errors which occurred
+    repeated ClientError ClientErrors = 8;
+    uint32 ResourceQueueTimeoutMillis = 9; // Timeout for resource queue on nodes
+    messages.RSASignature Signature = 10;
 }
 
 // RoundError will be used to describe a round error
