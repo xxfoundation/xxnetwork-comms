@@ -48,6 +48,9 @@ func (m *RoundInfo) Digest(nonce []byte, h hash.Hash) []byte {
 	// Serialize and hash batch size
 	h.Write(serializeUin32(m.BatchSize))
 
+	// Serialize and hash resource queue timeout
+	h.Write(serializeUin32(m.ResourceQueueTimeoutMillis))
+
 	// Hash the topology
 	for _, node := range m.Topology {
 		h.Write(node)
@@ -56,6 +59,13 @@ func (m *RoundInfo) Digest(nonce []byte, h hash.Hash) []byte {
 	// Serialize and hash the timestamps
 	for _, timeStamp := range m.Timestamps {
 		h.Write(serializeUin64(timeStamp))
+	}
+
+	// Hash ClientErrors
+	for _, clientError := range m.ClientErrors {
+		sha := crypto.SHA256.New()
+		data := clientError.Digest(nonce, sha)
+		h.Write(data)
 	}
 
 	// Hash the

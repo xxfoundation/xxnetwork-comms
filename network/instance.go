@@ -86,6 +86,11 @@ func (i *Instance) SetAddGatewayChan(c chan NodeGateway) {
 	i.addGateway = c
 }
 
+// Return AddGateway channel from Instance
+func (i *Instance) GetAddGatewayChan() chan NodeGateway {
+	return i.addGateway
+}
+
 // Register RemoveGateway channel with Instance
 func (i *Instance) SetRemoveGatewayChan(c chan *id.ID) {
 	i.removeGateway = c
@@ -300,7 +305,7 @@ func (i *Instance) GetNodeAndGateway(ngid *id.ID) (NodeGateway, error) {
 			}
 		}
 	} else if ngid.GetType() == id.Gateway {
-		for i, g := range def.Get().Nodes {
+		for i, g := range def.Get().Gateways {
 			if bytes.Compare(g.ID, idBytes) == 0 {
 				index = i
 				break
