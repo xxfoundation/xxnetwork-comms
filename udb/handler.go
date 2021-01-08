@@ -33,12 +33,22 @@ type Comms struct {
 	// has all the functions called by endpoint.go
 }
 
-func (r *Comms) AuthenticateToken(ctx context.Context, message *messages.AuthenticatedMessage) (*messages.Ack, error) {
-	panic("implement me")
+// Handles validation of reverse-authentication tokens
+func (r *Comms) AuthenticateToken(ctx context.Context,
+	msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
+	err := r.ValidateToken(msg)
+	if err != nil {
+		jww.ERROR.Printf("Unable to authenticate token: %+v", err)
+	}
+	return &messages.Ack{}, err
 }
 
-func (r *Comms) RequestToken(ctx context.Context, ping *messages.Ping) (*messages.AssignToken, error) {
-	panic("implement me")
+// Handles reception of reverse-authentication token requests
+func (r *Comms) RequestToken(context.Context, *messages.Ping) (*messages.AssignToken, error) {
+	token, err := r.GenerateToken()
+	return &messages.AssignToken{
+		Token: token,
+	}, err
 }
 
 // StartServer starts a new server on the address:port specified by localServer
