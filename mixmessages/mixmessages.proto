@@ -372,13 +372,15 @@ message NodeRegistration {
 message UserRegistration {
     string RegistrationCode = 1;
     string ClientRSAPubKey = 2;
+    string ClientReceptionRSAPubKey = 3;
 }
 
 // UserRegistrationConfirmation to confirm registration with users
 message UserRegistrationConfirmation {
     // RegistrationServer-Signed Client Public Key
     messages.RSASignature ClientSignedByServer = 1;
-    string Error = 2;
+    messages.RSASignature ClientReceptionSignedByServer = 2;
+    string Error = 3;
 }
 
 // ClientVersion contains a version string for the client
@@ -573,6 +575,7 @@ message RoundInfo {
     repeated ClientError ClientErrors = 8;
     uint32 ResourceQueueTimeoutMillis = 9; // Timeout for resource queue on nodes
     messages.RSASignature Signature = 10;
+    uint32 AddressSpaceSize = 11;
 }
 
 // RoundError will be used to describe a round error
