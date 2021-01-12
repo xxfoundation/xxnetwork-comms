@@ -10,6 +10,7 @@ package connect
 import (
 	"errors"
 	"gitlab.com/xx_network/primitives/id"
+	"strings"
 	"testing"
 )
 
@@ -23,6 +24,13 @@ func TestAuthError(t *testing.T) {
 		t.Errorf("returned error not as expected: Expected: %s, received: %s",
 			expectedAuthErrorStr, result.Error())
 	}
+
+	result = AuthError(nil)
+	if result == nil || !strings.Contains(result.Error(), "due to nil id"){
+		t.Errorf("returned error not as expected: Expected: %s, received: %s",
+			"due to nil id", result.Error())
+	}
+
 }
 
 func TestIsAuthError(t *testing.T) {
