@@ -206,6 +206,8 @@ func (p *Protocol) RemoveGossipPeer(id *id.ID) error {
 	return errors.Errorf("Could not remove peer for ID %s", id)
 }
 
+// Sets smallGossip, indicating that the next gossip message has
+// been determined arbitrarily small enough to send to all peers
 func (p *Protocol) SetSmallGossip() {
 	p.smallGossip = true
 }
