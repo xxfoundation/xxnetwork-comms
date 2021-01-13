@@ -29,6 +29,7 @@ import (
 // Defines the type of Gossip message fingerprints
 // hash(tag, origin, payload, signature)
 type Fingerprint [16]byte
+
 const minimumPeers = 20
 
 // NewFingerprint creates a new fingerprint from a byte slice
