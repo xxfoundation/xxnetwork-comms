@@ -18,6 +18,7 @@ import (
 	"gitlab.com/xx_network/crypto/signature/rsa"
 	tlsCreds "gitlab.com/xx_network/crypto/tls"
 	"gitlab.com/xx_network/primitives/id"
+	"gitlab.com/xx_network/primitives/rateLimiting"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/credentials"
@@ -84,6 +85,9 @@ type Host struct {
 
 	// Send lock
 	sendMux sync.RWMutex
+
+	coolOffBucket *rateLimiting.Bucket
+	inCoolOff     bool
 }
 
 // Creates a new Host object
@@ -97,6 +101,12 @@ func NewHost(id *id.ID, address string, cert []byte, params HostParams) (host *H
 		transmissionToken: token.NewLive(),
 		receptionToken:    token.NewLive(),
 		maxRetries:        params.MaxRetries,
+	}
+
+	if params.EnableCoolOff {
+		host.coolOffBucket = rateLimiting.CreateBucket(
+			params.NumSendsBeforeCoolOff+1, params.NumSendsBeforeCoolOff+1,
+			params.CoolOffTimeout, nil)
 	}
 
 	jww.INFO.Printf("New Host Created: %s", host)

@@ -4,9 +4,11 @@ import (
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	"google.golang.org/grpc"
+	"strings"
 )
 
 const MaxRetries = 3
+const inCoolDownErr = "Host is in cool down. Cannot connect."
 
 // Sets up or recovers the Host's connection
 // Then runs the given Send function
@@ -24,6 +26,9 @@ func (c *ProtoComms) transmit(host *Host, f func(conn *grpc.ClientConn) (interfa
 		if !connected {
 			connectionCount, err = c.connect(host, connectionCount)
 			if err != nil {
+				if strings.Contains(err.Error(), inCoolDownErr) {
+					return nil, err
+				}
 				jww.WARN.Printf("Failed to connect to Host on attempt "+
 					"%v/%v : %s", numRetries+1, MaxRetries, err)
 				continue
@@ -48,6 +53,20 @@ func (c *ProtoComms) transmit(host *Host, f func(conn *grpc.ClientConn) (interfa
 func (c *ProtoComms) connect(host *Host, count uint64) (uint64, error) {
 	host.sendMux.Lock()
 	defer host.sendMux.Unlock()
+
+	if host.coolOffBucket != nil {
+		if host.inCoolOff {
+			if host.coolOffBucket.IsEmpty() {
+				host.inCoolOff = false
+			} else {
+				return 0, errors.New(inCoolDownErr)
+			}
+		}
+		host.inCoolOff = !host.coolOffBucket.Add(1)
+		if host.inCoolOff {
+			return 0, errors.New(inCoolDownErr)
+		}
+	}
 
 	//if the connection is alive return, it is possible for another transmission
 	//to connect between releasing the read lock and taking the write lick
