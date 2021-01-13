@@ -81,6 +81,10 @@ type Protocol struct {
 	peers     []*id.ID
 	peersLock sync.RWMutex
 
+	// Set when next gossip message is sufficiently small enough
+	// to send to all peers. Unset upon gossip of said message
+	smallGossip bool
+
 	// Stores the Gossip-related configuration flags
 	flags ProtocolFlags
 
@@ -202,6 +206,10 @@ func (p *Protocol) RemoveGossipPeer(id *id.ID) error {
 	return errors.Errorf("Could not remove peer for ID %s", id)
 }
 
+func (p *Protocol) SetSmallGossip() {
+	p.smallGossip = true
+}
+
 // Builds and sends a GossipMsg
 func (p *Protocol) Gossip(msg *GossipMsg) (int, []error) {
 	// Internal helper to send the input gossip msg to a given id
@@ -241,6 +249,8 @@ func (p *Protocol) Gossip(msg *GossipMsg) (int, []error) {
 			errCount++
 		}
 	}
+	// Reset message tracker upon gossiping message
+	p.smallGossip = false
 	if errCount > 0 {
 		return len(peers), errs
 	} else {
@@ -252,6 +262,11 @@ func (p *Protocol) Gossip(msg *GossipMsg) (int, []error) {
 func (p *Protocol) getPeers() ([]*id.ID, error) {
 	p.peersLock.RLock()
 	defer p.peersLock.RUnlock()
+
+	// If we are sending a small message, return all peers as a send list
+	if p.smallGossip {
+		return p.peers, nil
+	}
 
 	// Check fanout
 	size := len(p.peers)
