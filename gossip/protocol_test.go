@@ -62,40 +62,6 @@ func TestProtocol_RemoveGossipPeer(t *testing.T) {
 	}
 }
 
-// Test functionality of SetSmallGossipSetSmallGossip
-func TestProtocol_SetSmallGossip(t *testing.T) {
-	p := setup(t)
-	// Test smallGossip is not set on setup
-	if p.smallGossip {
-		t.Errorf("Small gossip should not be set on setup")
-	}
-
-	// Explicitly set small gossip
-	p.SetSmallGossip()
-
-	// Test smallGossip is set on SetSmallGossip call
-	if !p.smallGossip {
-		t.Errorf("Small gossip should be set after SetSmallGossip call")
-	}
-
-	// Gossip an arbitrary message
-	testHostID := id.NewIdFromString("testhost", id.Node, t)
-	testHostID2 := id.NewIdFromString("testhost2", id.Node, t)
-	p.peers = []*id.ID{testHostID, testHostID2}
-	_, _ = p.Gossip(&GossipMsg{
-		Tag:       "test",
-		Origin:    nil,
-		Payload:   nil,
-		Signature: nil,
-	})
-
-	// Check that gossiping has implicitly reset smallGossip
-	if p.smallGossip {
-		t.Errorf("Small gossip should not be set after Gossip call")
-	}
-
-}
-
 // Test functionality of GetPeers
 func TestProtocol_GetPeers(t *testing.T) {
 	p := setup(t)
@@ -400,7 +366,8 @@ func testGetPeers(p *Protocol, t *testing.T) {
 
 	// Test if resulted list size matches fanout/expectedSize
 	if len(list) != expectedSize {
-		t.Errorf("getPeers() returned unexpected list size! Fanout = %d", p.flags.FanOut)
+		t.Errorf("getPeers() returned unexpected list size! Fanout = %d. " +
+			"\n\tExpected: %d \n\tReceived: %d", p.flags.FanOut, expectedSize, len(list))
 	}
 }
 
