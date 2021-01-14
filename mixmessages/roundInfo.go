@@ -42,6 +42,9 @@ func (m *RoundInfo) Digest(nonce []byte, h hash.Hash) []byte {
 	// Serialize and hash UpdateId
 	h.Write(serializeUin64(m.UpdateID))
 
+	// Serialise and hash AddressSpaceSize
+	h.Write(serializeUin32(m.AddressSpaceSize))
+
 	// Serialize and hash state
 	h.Write(serializeUin32(m.State))
 
