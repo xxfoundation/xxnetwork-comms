@@ -366,13 +366,14 @@ func testGetPeers(p *Protocol, t *testing.T) {
 
 	// Test if resulted list size matches fanout/expectedSize
 	if len(list) != expectedSize {
-		t.Errorf("getPeers() returned unexpected list size! Fanout = %d", p.flags.FanOut)
+		t.Errorf("getPeers() returned unexpected list size! Fanout = %d. "+
+			"\n\tExpected: %d \n\tReceived: %d", p.flags.FanOut, expectedSize, len(list))
 	}
 }
 
 func TestProtocol_getPeers(t *testing.T) {
 	// Initialize Default Variables
-	size := 10
+	size := 25
 	p := &Protocol{
 		comms:            nil,
 		fingerprints:     nil,

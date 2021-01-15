@@ -30,6 +30,8 @@ import (
 // hash(tag, origin, payload, signature)
 type Fingerprint [16]byte
 
+const minimumPeers = 20
+
 // NewFingerprint creates a new fingerprint from a byte slice
 func NewFingerprint(data [16]byte) Fingerprint {
 	fp := Fingerprint{}
@@ -256,10 +258,11 @@ func (p *Protocol) getPeers() ([]*id.ID, error) {
 	// Check fanout
 	size := len(p.peers)
 	fanout := int(p.flags.FanOut)
+
 	if p.flags.FanOut < 1 {
 		fanout = int(math.Ceil(math.Sqrt(float64(size))))
 	}
-	if size <= fanout {
+	if size <= fanout || size < minimumPeers {
 		return p.peers, nil
 	}
 
