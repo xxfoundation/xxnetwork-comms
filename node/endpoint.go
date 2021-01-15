@@ -402,3 +402,22 @@ func (s *Comms) SharePhaseRound(ctx context.Context, msg *messages.Authenticated
 	err = s.handler.SharePhaseRound(sharePiece, authState)
 	return &messages.Ack{}, err
 }
+
+// Server -> Server sending multi-party round DH final key
+func (s *Comms) ShareFinalKey(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
+	// Verify the message authentication
+	authState, err := s.AuthenticatedReceiver(msg)
+	if err != nil {
+		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
+	}
+
+	//Marshall the any message to the message type needed
+	sharePiece := &pb.SharePiece{}
+	err = ptypes.UnmarshalAny(msg.Message, sharePiece)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.handler.ShareFinalKey(sharePiece, authState)
+	return &messages.Ack{}, err
+}

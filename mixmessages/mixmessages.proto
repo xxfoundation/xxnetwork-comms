@@ -92,6 +92,10 @@ service Node {
     rpc SharePhaseRound (messages.AuthenticatedMessage) returns (messages.Ack) {
     }
 
+    // Server -> Server received final key
+    rpc ShareFinalKey (messages.AuthenticatedMessage) returns (messages.Ack) {
+    }
+
 }
 
 // RoundInfo contains the # of precomputations ready for messages, among other

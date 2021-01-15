@@ -126,6 +126,9 @@ type Handler interface {
 
 	// Server -> Server passing state of multi-party round DH key generation
 	SharePhaseRound(sharedPiece *mixmessages.SharePiece, auth *connect.Auth) error
+
+	// Server -> Server sending multi-party round DH key
+	ShareFinalKey(sharedPiece *mixmessages.SharePiece, auth *connect.Auth) error
 }
 
 type implementationFunctions struct {
@@ -183,6 +186,9 @@ type implementationFunctions struct {
 
 	// Server -> Server passing state of multi-party round DH key generation
 	SharePhaseRound func(sharedPiece *mixmessages.SharePiece, auth *connect.Auth) error
+
+	// Server -> Server sending multi-party round DH key
+	ShareFinalKey func(sharedPiece *mixmessages.SharePiece, auth *connect.Auth) error
 }
 
 // Implementation allows users of the client library to set the
@@ -284,6 +290,10 @@ func NewImplementation() *Implementation {
 				return nil
 			},
 			SharePhaseRound: func(sharedPiece *mixmessages.SharePiece, auth *connect.Auth) error {
+				warn(um)
+				return nil
+			},
+			ShareFinalKey: func(sharedPiece *mixmessages.SharePiece, auth *connect.Auth) error {
 				warn(um)
 				return nil
 			},
@@ -390,4 +400,10 @@ func (s *Implementation) StartSharePhase(ri *mixmessages.RoundInfo, auth *connec
 // Server -> Server passing state of multi-party round DH key generation
 func (s *Implementation) SharePhaseRound(sharedPiece *mixmessages.SharePiece, auth *connect.Auth) error {
 	return s.Functions.SharePhaseRound(sharedPiece, auth)
+}
+
+
+// Server -> Server sending multi-party round DH final key
+func (s *Implementation) ShareFinalKey(sharedPiece *mixmessages.SharePiece, auth *connect.Auth) error {
+	return s.Functions.ShareFinalKey(sharedPiece, auth)
 }

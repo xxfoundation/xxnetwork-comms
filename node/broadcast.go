@@ -340,7 +340,7 @@ func (s *Comms) SendStartSharePhase(host *connect.Host, ri *pb.RoundInfo) (*mess
 
 }
 
-// Server -> Server initiating multi-party round DH key generation
+// Server -> Server sending multi-party round DH key piece
 func (s *Comms) SendSharePhase(host *connect.Host, sharedPiece *pb.SharePiece) (*messages.Ack, error) {
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
@@ -356,6 +356,43 @@ func (s *Comms) SendSharePhase(host *connect.Host, sharedPiece *pb.SharePiece) (
 
 		// Send the message
 		resultMsg, err := pb.NewNodeClient(conn).SharePhaseRound(ctx,
+			authMsg)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+		return ptypes.MarshalAny(resultMsg)
+	}
+
+	// Execute the Send function
+	jww.DEBUG.Printf("Sending Share Phase message...")
+	jww.TRACE.Printf("Sending Share Phase message: %+v", sharedPiece)
+	resultMsg, err := s.Send(host, f)
+	if err != nil {
+		return nil, err
+	}
+
+	// Marshall the result
+	result := &messages.Ack{}
+	return result, ptypes.UnmarshalAny(resultMsg, result)
+
+}
+
+// Server -> Server sending multi-party round DH final key
+func (s *Comms) SendFinalKey(host *connect.Host, sharedPiece *pb.SharePiece) (*messages.Ack, error) {
+	// Create the Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := connect.MessagingContext()
+		defer cancel()
+
+		//Pack the message as an authenticated message
+		authMsg, err := s.PackAuthenticatedMessage(sharedPiece, host, false)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+
+		// Send the message
+		resultMsg, err := pb.NewNodeClient(conn).ShareFinalKey(ctx,
 			authMsg)
 		if err != nil {
 			return nil, errors.New(err.Error())
