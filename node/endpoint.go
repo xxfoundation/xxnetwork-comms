@@ -116,29 +116,6 @@ func (s *Comms) StreamPostPhase(server pb.Node_StreamPostPhaseServer) error {
 	return s.handler.StreamPostPhase(server, authState)
 }
 
-// Handle a PostRoundPublicKey message
-func (s *Comms) PostRoundPublicKey(ctx context.Context,
-	msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
-
-	// Verify the message authentication
-	authState, err := s.AuthenticatedReceiver(msg)
-	if err != nil {
-		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
-	}
-	//Marshall the any message to the message type needed
-	publicKeyMsg := &pb.RoundPublicKey{}
-	err = ptypes.UnmarshalAny(msg.Message, publicKeyMsg)
-	if err != nil {
-		return nil, errors.New(err.Error())
-	}
-
-	err = s.handler.PostRoundPublicKey(publicKeyMsg, authState)
-	if err != nil {
-		return &messages.Ack{}, err
-	}
-	return &messages.Ack{}, err
-}
-
 // GetBufferInfo returns buffer size (number of completed precomputations)
 func (s *Comms) GetRoundBufferInfo(ctx context.Context,
 	msg *messages.AuthenticatedMessage) (

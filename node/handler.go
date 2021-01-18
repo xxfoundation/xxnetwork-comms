@@ -88,9 +88,6 @@ type Handler interface {
 
 	StreamPostPhase(server mixmessages.Node_StreamPostPhaseServer, auth *connect.Auth) error
 
-	// Server interface for share broadcast
-	PostRoundPublicKey(message *mixmessages.RoundPublicKey, auth *connect.Auth) error
-
 	// Server interface for RequestNonceMessage
 	RequestNonce(salt []byte, RSAPubKey string, DHPubKey,
 		RSASignedByRegistration, DHSignedByClientRSA []byte, auth *connect.Auth) ([]byte, []byte, error)
@@ -148,9 +145,6 @@ type implementationFunctions struct {
 
 	// Server interface for internode streaming messages
 	StreamPostPhase func(message mixmessages.Node_StreamPostPhaseServer, auth *connect.Auth) error
-
-	// Server interface for share broadcast
-	PostRoundPublicKey func(message *mixmessages.RoundPublicKey, auth *connect.Auth) error
 
 	// Server interface for RequestNonceMessage
 	RequestNonce func(salt []byte, RSAPubKey string, DHPubKey,
@@ -219,10 +213,6 @@ func NewImplementation() *Implementation {
 				return nil
 			},
 			StreamPostPhase: func(message mixmessages.Node_StreamPostPhaseServer, auth *connect.Auth) error {
-				warn(um)
-				return nil
-			},
-			PostRoundPublicKey: func(message *mixmessages.RoundPublicKey, auth *connect.Auth) error {
 				warn(um)
 				return nil
 			},
@@ -318,12 +308,6 @@ func (s *Implementation) PostPhase(m *mixmessages.Batch, auth *connect.Auth) err
 // Server Interface for streaming phase messages
 func (s *Implementation) StreamPostPhase(m mixmessages.Node_StreamPostPhaseServer, auth *connect.Auth) error {
 	return s.Functions.StreamPostPhase(m, auth)
-}
-
-// Server Interface for the share message
-func (s *Implementation) PostRoundPublicKey(message *mixmessages.
-	RoundPublicKey, auth *connect.Auth) error {
-	return s.Functions.PostRoundPublicKey(message, auth)
 }
 
 // GetRoundBufferInfo returns # of completed precomputations

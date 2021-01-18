@@ -51,10 +51,6 @@ service Node {
     rpc ConfirmRegistration (messages.AuthenticatedMessage) returns (RegistrationConfirmation) {
     }
 
-    // PostRoundPublicKey sets the public cypher key for a round on other nodes
-    rpc PostRoundPublicKey (messages.AuthenticatedMessage) returns (messages.Ack) {
-    }
-
     // PostPrecompResult finalizes the precomputation results with each node from the last node
     // sending the final PayloadA and PayloadB precomputations
     rpc PostPrecompResult (messages.AuthenticatedMessage) returns (messages.Ack) {
