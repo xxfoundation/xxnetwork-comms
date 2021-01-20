@@ -275,7 +275,7 @@ message GatewayPollResponse {
 
 // Holds a set of ClientBloom and their associated metadata
 message ClientBlooms {
-    uint32 Period = 1;
+    int64 Period = 1;
     int64 FirstTimestamp = 2;
     repeated ClientBloom Filters = 3;
 }
