@@ -284,7 +284,7 @@ message ClientBlooms {
 message ClientBloom {
     bytes Filter = 1;
     uint64 FirstRound = 2;
-    uint32 LastRound = 3;
+    uint32 RoundRange = 3;
 }
 
 
