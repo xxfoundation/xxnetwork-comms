@@ -261,7 +261,10 @@ message GatewayPoll {
     NDFHash Partial = 1;
     uint64 LastUpdate = 2;
     bytes ReceptionID = 3;
-    int64 BloomTimestamp = 4;
+
+    // Define range for ClientBloomFilter searches
+    int64 StartTimestamp = 4;
+    int64 EndTimestamp = 5;
 }
 
 // Unified Client->Gateway polling response
@@ -276,7 +279,7 @@ message GatewayPollResponse {
 // Holds a set of ClientBloom and their associated metadata
 message ClientBlooms {
     int64 Period = 1;
-    int64 FirstTimestamp = 2;
+    int64 FirstTimestamp = 2;  // Earliest timestamp of the included BloomFilters
     repeated ClientBloom Filters = 3;
 }
 
