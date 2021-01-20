@@ -270,14 +270,14 @@ message GatewayPollResponse {
     repeated RoundInfo Updates = 2; // Empty if no update needed
     uint64 LastTrackedRound = 3; // Id of the last round tracked
     bytes KnownRounds = 4; // Rounds gateway knows about
-    ClientBlooms blooms = 5; // Latest Bloom filter of the requested client
+    ClientBlooms Filters = 5; // Set of ClientBloomFilters requested by Client
 }
 
 // Holds a set of ClientBloom and their associated metadata
 message ClientBlooms {
     uint32 Period = 1;
     uint64 FirstTimestamp = 2;
-    repeated ClientBloom blooms = 3;
+    repeated ClientBloom Filters = 3;
 }
 
 // Hold a ClientBloomFilter and its associated metadata
