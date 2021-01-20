@@ -261,7 +261,7 @@ message GatewayPoll {
     NDFHash Partial = 1;
     uint64 LastUpdate = 2;
     bytes ReceptionID = 3;
-    uint64 BloomTimestamp = 4;
+    int64 BloomTimestamp = 4;
 }
 
 // Unified Client->Gateway polling response
