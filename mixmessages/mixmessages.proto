@@ -290,7 +290,6 @@ message ClientBloom {
     uint32 RoundRange = 3;
 }
 
-
 // Client -> Gateway authentication message
 message GatewaySlot{
     Slot Message = 1;
