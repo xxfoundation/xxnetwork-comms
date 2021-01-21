@@ -150,14 +150,6 @@ message ServerPollResponse {
 // GATEWAY MESSAGE SERVICE -----------------------------------------------------
 
 service Gateway {
-    // Request a list of MessageIDs from the gateway for the given UserID
-    rpc CheckMessages (ClientRequest) returns (IDList) {
-    }
-
-    // GetMessage a Batch from the gateway for the given message information
-    rpc GetMessage (ClientRequest) returns (Slot) {
-    }
-
     // PutMessage on the cMix Gateway
     rpc PutMessage (GatewaySlot) returns (GatewaySlotResponse) {
     }
@@ -223,12 +215,6 @@ message GetMessages{
 message GetMessagesResponse{
     repeated Slot Messages = 1;
     bool HasRound = 2;
-}
-
-// ClientRequest message for clients to poll new CMIX messages
-message ClientRequest {
-    bytes UserID = 1; // 128 bit length
-    string LastMessageID = 2;
 }
 
 // The message for clients to poll the gateway for Message IDs

@@ -23,10 +23,6 @@ import (
 
 // Handler interface for the Gateway
 type Handler interface {
-	// Return any MessageIDs in the buffer for this UserID
-	CheckMessages(userID *id.ID, messageID string, ipAddress string) ([]string, error)
-	// Returns the message matching the given parameters to the client
-	GetMessage(userID *id.ID, msgID string, ipAddress string) (*pb.Slot, error) // todo: depreciate?
 	// Upload a message to the cMix Gateway
 	PutMessage(message *pb.GatewaySlot, ipAddress string) (*pb.GatewaySlotResponse, error)
 	// Pass-through for Registration Nonce Communication
@@ -92,10 +88,6 @@ func StartGateway(id *id.ID, localServer string, handler Handler,
 
 // Handler implementation for the Gateway
 type implementationFunctions struct {
-	// Return any MessageIDs in the buffer for this UserID
-	CheckMessages func(userID *id.ID, messageID string, ipAddress string) ([]string, error)
-	// Returns the message matching the given parameters to the client
-	GetMessage func(userID *id.ID, msgID string, ipAddress string) (*pb.Slot, error)
 	// Upload a message to the cMix Gateway
 	PutMessage func(message *pb.GatewaySlot, ipAddress string) (*pb.GatewaySlotResponse, error)
 	// Pass-through for Registration Nonce Communication
@@ -130,14 +122,6 @@ func NewImplementation() *Implementation {
 	}
 	return &Implementation{
 		Functions: implementationFunctions{
-			CheckMessages: func(userID *id.ID, messageID string, ipAddress string) ([]string, error) {
-				warn(um)
-				return nil, nil
-			},
-			GetMessage: func(userID *id.ID, msgID string, ipAddress string) (*pb.Slot, error) {
-				warn(um)
-				return &pb.Slot{}, nil
-			},
 			PutMessage: func(message *pb.GatewaySlot, ipAddress string) (*pb.GatewaySlotResponse, error) {
 				warn(um)
 				return new(pb.GatewaySlotResponse), nil
@@ -172,18 +156,6 @@ func NewImplementation() *Implementation {
 			},
 		},
 	}
-}
-
-// Return any MessageIDs in the buffer for this UserID
-func (s *Implementation) CheckMessages(userID *id.ID, messageID string, ipAddress string) (
-	[]string, error) {
-	return s.Functions.CheckMessages(userID, messageID, ipAddress)
-}
-
-// Returns the message matching the given parameters to the client
-func (s *Implementation) GetMessage(userID *id.ID, msgID string, ipAddress string) (
-	*pb.Slot, error) {
-	return s.Functions.GetMessage(userID, msgID, ipAddress)
 }
 
 // Upload a message to the cMix Gateway

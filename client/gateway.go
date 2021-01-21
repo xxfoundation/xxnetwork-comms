@@ -50,65 +50,6 @@ func (c *Comms) SendPutMessage(host *connect.Host, message *pb.GatewaySlot) (*pb
 }
 
 // Client -> Gateway Send Function
-func (c *Comms) SendCheckMessages(host *connect.Host,
-	message *pb.ClientRequest) (*pb.IDList, error) {
-
-	// Create the Send Function
-	f := func(conn *grpc.ClientConn) (*any.Any, error) {
-		// Set up the context
-		ctx, cancel := connect.MessagingContext()
-		defer cancel()
-
-		// Send the message
-		resultMsg, err := pb.NewGatewayClient(conn).CheckMessages(ctx, message)
-		if err != nil {
-			return nil, errors.New(err.Error())
-		}
-		return ptypes.MarshalAny(resultMsg)
-	}
-
-	// Execute the Send function
-	jww.DEBUG.Printf("Sending Check message: %+v", message)
-	resultMsg, err := c.Send(host, f)
-	if err != nil {
-		return nil, err
-	}
-	// Marshall the result
-	result := &pb.IDList{}
-	return result, ptypes.UnmarshalAny(resultMsg, result)
-}
-
-// Client -> Gateway Send Function
-func (c *Comms) SendGetMessage(host *connect.Host,
-	message *pb.ClientRequest) (*pb.Slot, error) {
-
-	// Create the Send Function
-	f := func(conn *grpc.ClientConn) (*any.Any, error) {
-		// Set up the context
-		ctx, cancel := connect.MessagingContext()
-		defer cancel()
-
-		// Send the message
-		resultMsg, err := pb.NewGatewayClient(conn).GetMessage(ctx, message)
-		if err != nil {
-			return nil, errors.New(err.Error())
-		}
-		return ptypes.MarshalAny(resultMsg)
-	}
-
-	// Execute the Send function
-	jww.DEBUG.Printf("Sending Get message: %+v", message)
-	resultMsg, err := c.Send(host, f)
-	if err != nil {
-		return nil, err
-	}
-
-	// Marshall the result
-	result := &pb.Slot{}
-	return result, ptypes.UnmarshalAny(resultMsg, result)
-}
-
-// Client -> Gateway Send Function
 func (c *Comms) SendRequestNonceMessage(host *connect.Host,
 	message *pb.NonceRequest) (*pb.Nonce, error) {
 
