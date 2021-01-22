@@ -44,7 +44,7 @@ func (r *Comms) RegisterUser(ctx context.Context, msg *pb.UserRegistration) (
 	// Obtain the signed key by passing to registration server
 	pubKey := msg.GetClientRSAPubKey()
 	reptPubKey := msg.GetClientReceptionRSAPubKey()
-	signature, err := r.handler.RegisterUser(msg.GetRegistrationCode(), pubKey, reptPubKey)
+	signature, receptionSignature, err := r.handler.RegisterUser(msg.GetRegistrationCode(), pubKey, reptPubKey)
 	// Obtain the error message, if any
 	errMsg := ""
 	if err != nil {
@@ -56,6 +56,9 @@ func (r *Comms) RegisterUser(ctx context.Context, msg *pb.UserRegistration) (
 	return &pb.UserRegistrationConfirmation{
 		ClientSignedByServer: &messages.RSASignature{
 			Signature: signature,
+		},
+		ClientReceptionSignedByServer: &messages.RSASignature{
+			Signature: receptionSignature,
 		},
 		Error: errMsg,
 	}, err
