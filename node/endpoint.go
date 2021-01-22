@@ -116,29 +116,6 @@ func (s *Comms) StreamPostPhase(server pb.Node_StreamPostPhaseServer) error {
 	return s.handler.StreamPostPhase(server, authState)
 }
 
-// Handle a PostRoundPublicKey message
-func (s *Comms) PostRoundPublicKey(ctx context.Context,
-	msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
-
-	// Verify the message authentication
-	authState, err := s.AuthenticatedReceiver(msg)
-	if err != nil {
-		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
-	}
-	//Marshall the any message to the message type needed
-	publicKeyMsg := &pb.RoundPublicKey{}
-	err = ptypes.UnmarshalAny(msg.Message, publicKeyMsg)
-	if err != nil {
-		return nil, errors.New(err.Error())
-	}
-
-	err = s.handler.PostRoundPublicKey(publicKeyMsg, authState)
-	if err != nil {
-		return &messages.Ack{}, err
-	}
-	return &messages.Ack{}, err
-}
-
 // GetBufferInfo returns buffer size (number of completed precomputations)
 func (s *Comms) GetRoundBufferInfo(ctx context.Context,
 	msg *messages.AuthenticatedMessage) (
@@ -363,4 +340,61 @@ func (s *Comms) GetPermissioningAddress(context.Context, *messages.Ping) (*pb.St
 		return nil, err
 	}
 	return &pb.StrAddress{Address: ip}, nil
+}
+
+// Server -> Server initiating multi-party round DH key generation
+func (s *Comms) StartSharePhase(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
+	// Verify the message authentication
+	authState, err := s.AuthenticatedReceiver(msg)
+	if err != nil {
+		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
+	}
+	//Marshall the any message to the message type needed
+	startShare := &pb.RoundInfo{}
+	err = ptypes.UnmarshalAny(msg.Message, startShare)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.handler.StartSharePhase(startShare, authState)
+	return &messages.Ack{}, err
+
+}
+
+// Server -> Server passing state of multi-party round DH key generation
+func (s *Comms) SharePhaseRound(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
+	// Verify the message authentication
+	authState, err := s.AuthenticatedReceiver(msg)
+	if err != nil {
+		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
+	}
+
+	//Marshall the any message to the message type needed
+	sharePiece := &pb.SharePiece{}
+	err = ptypes.UnmarshalAny(msg.Message, sharePiece)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.handler.SharePhaseRound(sharePiece, authState)
+	return &messages.Ack{}, err
+}
+
+// Server -> Server sending multi-party round DH final key
+func (s *Comms) ShareFinalKey(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
+	// Verify the message authentication
+	authState, err := s.AuthenticatedReceiver(msg)
+	if err != nil {
+		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
+	}
+
+	//Marshall the any message to the message type needed
+	sharePiece := &pb.SharePiece{}
+	err = ptypes.UnmarshalAny(msg.Message, sharePiece)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.handler.ShareFinalKey(sharePiece, authState)
+	return &messages.Ack{}, err
 }

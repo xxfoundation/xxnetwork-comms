@@ -60,7 +60,10 @@ message Pong {}
 Run the following command in the base project directory
 (assuming you've set gRPC up correctly per the main README):
 
-`protoc  -I mixmessages/ mixmessages/mixmessages.proto --go_out=plugins=grpc:mixmessages`
+```
+go get -u github.com/golang/protobuf/protoc-gen-go
+protoc -I vendor/ -I mixmessages/ mixmessages/mixmessages.proto --go_out=plugins=grpc:mixmessages
+```
 
 This enables interacting with your new messages like normal go `structs`.
 
