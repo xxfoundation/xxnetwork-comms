@@ -73,6 +73,8 @@ gitlab.com/elixxir/crypto v0.0.7-0.20210120234842-4e026775427c h1:6md4LIBqcVzPRz
 gitlab.com/elixxir/crypto v0.0.7-0.20210120234842-4e026775427c/go.mod h1:SOlVdUWSO/rqZ/pi6AeIrCnF+p65opck1M2v7rGz4GI=
 gitlab.com/elixxir/crypto v0.0.7-0.20210121204803-2caab60ff687 h1:tBlYA/jUOquWpe7bGZBQtvngbfbHsyt11aKZ761++8k=
 gitlab.com/elixxir/crypto v0.0.7-0.20210121204803-2caab60ff687/go.mod h1:7egP0+qiVyZnqcBlRr4rL0FhGNkqDCNEygungCAp7NM=
+gitlab.com/elixxir/crypto v0.0.7-0.20210122203651-a435a4de4d5e h1:rNrDkG9tQZpSc361tLTx9kJFNxFMlhZcxBx4gMLPmTk=
+gitlab.com/elixxir/crypto v0.0.7-0.20210122203651-a435a4de4d5e/go.mod h1:LrpSkyGPZVbXgkXHFF0z4Cu+mvMv/g6huYMCntQJz4o=
 gitlab.com/elixxir/primitives v0.0.0-20200731184040-494269b53b4d/go.mod h1:OQgUZq7SjnE0b+8+iIAT2eqQF+2IFHn73tOo+aV11mg=
 gitlab.com/elixxir/primitives v0.0.0-20200804170709-a1896d262cd9/go.mod h1:p0VelQda72OzoUckr1O+vPW0AiFe0nyKQ6gYcmFSuF8=
 gitlab.com/elixxir/primitives v0.0.0-20200804182913-788f47bded40/go.mod h1:tzdFFvb1ESmuTCOl1z6+yf6oAICDxH2NPUemVgoNLxc=
@@ -85,6 +87,8 @@ gitlab.com/elixxir/primitives v0.0.3-0.20210120174718-802bdcda9dbb h1:BA/qishMQw
 gitlab.com/elixxir/primitives v0.0.3-0.20210120174718-802bdcda9dbb/go.mod h1:Ph6isHUDVjmRUd9DioyKpd8W9J52gKBiDeue4DCygXA=
 gitlab.com/elixxir/primitives v0.0.3-0.20210121204717-e15ada7f0a73 h1:9h+pCc1ceIWDR1CM5sdoV7KHvNYzKQRJjeIfc26fyDU=
 gitlab.com/elixxir/primitives v0.0.3-0.20210121204717-e15ada7f0a73/go.mod h1:bGYfAGerVVZhNzh+PxOMZVG7iYAUfInYvtdAkAqgiY8=
+gitlab.com/elixxir/primitives v0.0.3-0.20210122185056-ad244787d961 h1:BUN6bUBmTeebwYvTQ5yVi1iJlNAhjR7kEndcsV339dE=
+gitlab.com/elixxir/primitives v0.0.3-0.20210122185056-ad244787d961/go.mod h1:bGYfAGerVVZhNzh+PxOMZVG7iYAUfInYvtdAkAqgiY8=
 gitlab.com/xx_network/comms v0.0.0-20200805174823-841427dd5023/go.mod h1:owEcxTRl7gsoM8c3RQ5KAm5GstxrJp5tn+6JfQ4z5Hw=
 gitlab.com/xx_network/comms v0.0.4-0.20210115175102-ad5814bff11c h1:MRxHypL++mTDzVJq503ePBW3aGHE5FTG1ybac8rGK0A=
 gitlab.com/xx_network/comms v0.0.4-0.20210115175102-ad5814bff11c/go.mod h1:12OZe2Ol9lEk7JTm48GQ4zj1O01SH0ygfLqOb8EHrtU=

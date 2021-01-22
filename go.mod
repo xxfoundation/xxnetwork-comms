@@ -10,8 +10,8 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0
 	github.com/zeebo/blake3 v0.1.0 // indirect
 	github.com/zeebo/pcg v1.0.0 // indirect
-	gitlab.com/elixxir/crypto v0.0.7-0.20210121204803-2caab60ff687
-	gitlab.com/elixxir/primitives v0.0.3-0.20210121204717-e15ada7f0a73
+	gitlab.com/elixxir/crypto v0.0.7-0.20210122203651-a435a4de4d5e
+	gitlab.com/elixxir/primitives v0.0.3-0.20210122185056-ad244787d961
 	gitlab.com/xx_network/comms v0.0.4-0.20210121204701-7a1eb0542424
 	gitlab.com/xx_network/crypto v0.0.5-0.20210121204626-b251b926e4f7
 	gitlab.com/xx_network/primitives v0.0.4-0.20210121203635-8a771fc14f8a
