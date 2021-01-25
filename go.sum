@@ -76,6 +76,8 @@ gitlab.com/elixxir/crypto v0.0.7-0.20210113224347-cc4926b30fba h1:GtjhegVf6L9MZ6
 gitlab.com/elixxir/crypto v0.0.7-0.20210113224347-cc4926b30fba/go.mod h1:JDC7EFs5V97qourZyiSHBiiXHGUoKWX9XtJVhfEvpC4=
 gitlab.com/elixxir/crypto v0.0.7-0.20210122203651-a435a4de4d5e h1:rNrDkG9tQZpSc361tLTx9kJFNxFMlhZcxBx4gMLPmTk=
 gitlab.com/elixxir/crypto v0.0.7-0.20210122203651-a435a4de4d5e/go.mod h1:LrpSkyGPZVbXgkXHFF0z4Cu+mvMv/g6huYMCntQJz4o=
+gitlab.com/elixxir/crypto v0.0.7-0.20210125223043-72e029309669 h1:w8MRKv5prtDQ/4KGWJBA+OBiHxF6wJsu132A+t14s1A=
+gitlab.com/elixxir/crypto v0.0.7-0.20210125223043-72e029309669/go.mod h1:6/S+SL6pz4TbYrnQy7o0bd2WJsRP61gSw+CrsEBsKjw=
 gitlab.com/elixxir/primitives v0.0.0-20200731184040-494269b53b4d/go.mod h1:OQgUZq7SjnE0b+8+iIAT2eqQF+2IFHn73tOo+aV11mg=
 gitlab.com/elixxir/primitives v0.0.0-20200804170709-a1896d262cd9/go.mod h1:p0VelQda72OzoUckr1O+vPW0AiFe0nyKQ6gYcmFSuF8=
 gitlab.com/elixxir/primitives v0.0.0-20200804182913-788f47bded40/go.mod h1:tzdFFvb1ESmuTCOl1z6+yf6oAICDxH2NPUemVgoNLxc=
@@ -88,6 +90,8 @@ gitlab.com/elixxir/primitives v0.0.3-0.20210107183456-9cf6fe2de1e5 h1:50HbCJWirp
 gitlab.com/elixxir/primitives v0.0.3-0.20210107183456-9cf6fe2de1e5/go.mod h1:Ph6isHUDVjmRUd9DioyKpd8W9J52gKBiDeue4DCygXA=
 gitlab.com/elixxir/primitives v0.0.3-0.20210122185056-ad244787d961 h1:BUN6bUBmTeebwYvTQ5yVi1iJlNAhjR7kEndcsV339dE=
 gitlab.com/elixxir/primitives v0.0.3-0.20210122185056-ad244787d961/go.mod h1:bGYfAGerVVZhNzh+PxOMZVG7iYAUfInYvtdAkAqgiY8=
+gitlab.com/elixxir/primitives v0.0.3-0.20210125222950-fc017397c606 h1:4TFYO7S1YcBnIpT0Ru2ogUTWEutcV3bQ0VD4FiIMTLA=
+gitlab.com/elixxir/primitives v0.0.3-0.20210125222950-fc017397c606/go.mod h1:bGYfAGerVVZhNzh+PxOMZVG7iYAUfInYvtdAkAqgiY8=
 gitlab.com/xx_network/comms v0.0.0-20200805174823-841427dd5023/go.mod h1:owEcxTRl7gsoM8c3RQ5KAm5GstxrJp5tn+6JfQ4z5Hw=
 gitlab.com/xx_network/comms v0.0.4-0.20201217200138-87075d5b4ffd h1:4LjS3UuBNA/AaglIJ+k1IBoxYgCWt+FM1MPYxjAFfaQ=
 gitlab.com/xx_network/comms v0.0.4-0.20201217200138-87075d5b4ffd/go.mod h1:/vIk6tSrDqk/7HZOdrbSXZT+kEL43HIoz60AoZTzTXg=
@@ -125,6 +129,7 @@ golang.org/x/crypto v0.0.0-20200707235045-ab33eee955e0/go.mod h1:LzIPMQfyMNhhGPh
 golang.org/x/crypto v0.0.0-20200728195943-123391ffb6de/go.mod h1:LzIPMQfyMNhhGPhUkYOs5KpL4U8rLKemX1yGLhDgUto=
 golang.org/x/crypto v0.0.0-20201016220609-9e8e0b390897 h1:pLI5jrR7OSLijeIDcmRxNmw2api+jEfxLoykJVice/E=
 golang.org/x/crypto v0.0.0-20201016220609-9e8e0b390897/go.mod h1:LzIPMQfyMNhhGPhUkYOs5KpL4U8rLKemX1yGLhDgUto=
+golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad h1:DN0cp81fZ3njFcrLCytUHRSUkqBjfTo4Tx9RJTWs0EY=
 golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad/go.mod h1:jdWPYTVW3xRLrWPugEBEK3UY2ZEsg3UU495nc5E+M+I=
 golang.org/x/exp v0.0.0-20190121172915-509febef88a4/go.mod h1:CJ0aWSM057203Lf6IL+f9T1iT9GByDxfZKAQTCR3kQA=
 golang.org/x/lint v0.0.0-20190227174305-5b3e6a55c961/go.mod h1:wehouNa3lNwaWXcvxsM5YxQ5yQlVC4a0KAMCusXpPoU=
