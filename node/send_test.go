@@ -101,27 +101,6 @@ func TestSendPostPhase(t *testing.T) {
 	}
 }
 
-// Smoke test SendPostRoundPublicKey
-func TestSendPostRoundPublicKey(t *testing.T) {
-	ServerAddress := getNextServerAddress()
-	testId := id.NewIdFromString("test", id.Node, t)
-	server := StartNode(testId, ServerAddress, 0, NewImplementation(), nil, nil)
-	defer server.Shutdown()
-	manager := connect.NewManagerTesting(t)
-
-	params := connect.GetDefaultHostParams()
-	params.AuthEnabled = false
-	host, err := manager.AddHost(testId, ServerAddress, nil, params)
-	if err != nil {
-		t.Errorf("Unable to call NewHost: %+v", err)
-	}
-
-	_, err = server.SendPostRoundPublicKey(host, &pb.RoundPublicKey{})
-	if err != nil {
-		t.Errorf("PostRoundPublicKey: Error received: %s", err)
-	}
-}
-
 // TestPostPrecompResult Smoke test
 func TestSendPostPrecompResult(t *testing.T) {
 	ServerAddress := getNextServerAddress()
