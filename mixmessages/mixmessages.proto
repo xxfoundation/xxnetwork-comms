@@ -277,9 +277,8 @@ message GatewayPoll {
 message GatewayPollResponse {
     NDF PartialNDF = 1; // Empty if no update needed
     repeated RoundInfo Updates = 2; // Empty if no update needed
-    uint64 LastTrackedRound = 3; // Id of the last round tracked
-    bytes KnownRounds = 4; // Rounds gateway knows about
-    ClientBlooms Filters = 5; // Set of ClientBloomFilters requested by Client
+    bytes KnownRounds = 3; // Rounds gateway knows about
+    ClientBlooms Filters = 4; // Set of ClientBloomFilters requested by Client
 }
 
 // Holds a set of ClientBloom and their associated metadata
