@@ -40,59 +40,6 @@ func TestSendPutMessage(t *testing.T) {
 	}
 }
 
-// Smoke test SendCheckMessages
-func TestSendCheckMessages(t *testing.T) {
-	gatewayAddress := getNextAddress()
-	testID := id.NewIdFromString("test", id.Gateway, t)
-	gw := gateway.StartGateway(testID, gatewayAddress,
-		gateway.NewImplementation(), nil, nil, gossip.DefaultManagerFlags())
-	var c Comms
-	defer gw.Shutdown()
-	manager := connect.NewManagerTesting(t)
-
-	params := connect.GetDefaultHostParams()
-	params.AuthEnabled = false
-	host, err := manager.AddHost(testID, gatewayAddress, nil, params)
-	if err != nil {
-		t.Errorf("Unable to call NewHost: %+v", err)
-	}
-
-	testUserID := id.NewIdFromString("Test User", id.User, t)
-	testUserEntityID := &pb.ClientRequest{UserID: testUserID.Bytes()}
-
-	_, err = c.SendCheckMessages(host, testUserEntityID)
-	if err != nil {
-		t.Errorf("CheckMessages: Error received: %s", err)
-	}
-}
-
-// Smoke test SendGetMessage
-func TestSendGetMessage(t *testing.T) {
-	gatewayAddress := getNextAddress()
-	testID := id.NewIdFromString("test", id.Gateway, t)
-	gw := gateway.StartGateway(testID, gatewayAddress,
-		gateway.NewImplementation(), nil, nil, gossip.DefaultManagerFlags())
-	var c Comms
-	defer gw.Shutdown()
-
-	manager := connect.NewManagerTesting(t)
-
-	params := connect.GetDefaultHostParams()
-	params.AuthEnabled = false
-	host, err := manager.AddHost(testID, gatewayAddress, nil, params)
-	if err != nil {
-		t.Errorf("Unable to call NewHost: %+v", err)
-	}
-
-	testUserID := id.NewIdFromString("Test User", id.User, t)
-	testUserEntityID := &pb.ClientRequest{UserID: testUserID.Bytes()}
-
-	_, err = c.SendGetMessage(host, testUserEntityID)
-	if err != nil {
-		t.Errorf("GetMessage: Error received: %s", err)
-	}
-}
-
 // Smoke test SendRequestNonceMessage
 func TestSendRequestNonceMessage(t *testing.T) {
 	gatewayAddress := getNextAddress()

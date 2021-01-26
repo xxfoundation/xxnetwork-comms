@@ -4,7 +4,6 @@
 // Use of this source code is governed by a license that can be found in the //
 // LICENSE file                                                              //
 ///////////////////////////////////////////////////////////////////////////////
-
 package mixmessages
 
 import (
@@ -12,7 +11,6 @@ import (
 	"crypto"
 	"crypto/rand"
 	"encoding/base64"
-	"gitlab.com/elixxir/primitives/states"
 	"gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/comms/signature"
 	"gitlab.com/xx_network/crypto/signature/rsa"
@@ -23,12 +21,12 @@ import (
 // Ensure message type conforms to genericSignable interface
 // If this ever fails, check for modifications in the source library
 //  as well as for this message type
-var _ = signature.GenericSignable(&RoundInfo{})
+var _ = signature.GenericSignable(&SharePiece{})
 
-// -------------------------- Get tests --------------------------------------
+// -------------------------- Signature tests --------------------------------------
 
 // Happy path
-func TestRoundInfo_GetSignature(t *testing.T) {
+func TestSharePiece_GetSignature(t *testing.T) {
 	// Create roundErr and set signature (without using setSignature)
 	expectedSig := []byte("expectedSig")
 	expectedNonce := []byte("expectedNonce")
@@ -37,7 +35,7 @@ func TestRoundInfo_GetSignature(t *testing.T) {
 		Nonce:     expectedNonce,
 	}
 
-	testRoundError := &RoundInfo{Signature: expectedRsaSig}
+	testRoundError := &SharePiece{Signature: expectedRsaSig}
 
 	// Fetch signature
 	receivedSig := testRoundError.GetSig()
@@ -53,34 +51,25 @@ func TestRoundInfo_GetSignature(t *testing.T) {
 
 // -------------------- Digest tests -------------------------------
 
-func TestRoundInfo_DigestTestHelper(t *testing.T) {
-	testRoundInfo := &RoundInfo{}
-	checkdigest(t, testRoundInfo)
-}
-
 // Consistency test
-func TestRoundInfo_Digest_Consistency(t *testing.T) {
+func TestShare_Digest_Consistency(t *testing.T) {
 	// Generate a message
-	testId := uint64(25)
-	testUpdateId := uint64(26)
-	testState := uint32(42)
-	testBatch := uint32(23)
+	testRoundID := uint64(25)
+	testPiece := []byte("testPiece")
 	testTopology := [][]byte{[]byte("test"), []byte("te"), []byte("st"), []byte("testtest")}
-	testRoundInfo := &RoundInfo{
-		ID:        testId,
-		UpdateID:  testUpdateId,
-		State:     testState,
-		BatchSize: testBatch,
-		Topology:  testTopology,
+	testSharePiece := &SharePiece{
+		Piece:        testPiece,
+		Participants: testTopology,
+		RoundID:      testRoundID,
 	}
 	// Hardcoded digest output. Any changes are a smoke test of changing of
-	// crypto libraries
-	expectedDigestEncoded := "sh9LLXS1lx7l6nUIiCNyiuvCpIB9KfsjSsZRMU73HfQ="
+	// lower level crypto libraries or changes of the digest() implementation
+	expectedDigestEncoded := "t42oN4TqtXvSjlv1OBYeXfsTLPoI/NyMKBk9NCXrTJ8="
 
 	// Generate a digest
 	sha := crypto.SHA256.New()
 	testNonce := []byte("expectedNonce")
-	digest := testRoundInfo.Digest(testNonce, sha)
+	digest := testSharePiece.Digest(testNonce, sha)
 
 	// Encode outputted digest to base64 encoded string
 	receivedDigestEncoded := base64.StdEncoding.EncodeToString(digest)
@@ -94,43 +83,32 @@ func TestRoundInfo_Digest_Consistency(t *testing.T) {
 }
 
 // Test that digest output matches manual digest creation
-func TestRoundInfo_Digest(t *testing.T) {
+func TestSharePiece_Digest(t *testing.T) {
 	// Generate a message
-	testId := uint64(25)
-	testUpdateId := uint64(26)
-	testState := uint32(42)
-	testBatch := uint32(23)
-	testResourceQueueTimeout := uint32(1000)
-	testAddressSpaceSize := uint32(10)
+	testRoundID := uint64(25)
+	testPiece := []byte("testPiece")
 	testTopology := [][]byte{[]byte("test"), []byte("te"), []byte("st"), []byte("testtest")}
-	testRoundInfo := &RoundInfo{
-		ID:                         testId,
-		UpdateID:                   testUpdateId,
-		State:                      testState,
-		BatchSize:                  testBatch,
-		Topology:                   testTopology,
-		ResourceQueueTimeoutMillis: testResourceQueueTimeout,
-		AddressSpaceSize:           testAddressSpaceSize,
+	testSharePiece := &SharePiece{
+		Piece:        testPiece,
+		Participants: testTopology,
+		RoundID:      testRoundID,
 	}
 
 	// Generate a digest
 	sha := crypto.SHA256.New()
 	testNonce := []byte("expectedNonce")
-	receivedDigest := testRoundInfo.Digest(testNonce, sha)
+	receivedDigest := testSharePiece.Digest(testNonce, sha)
 
 	// Manually generate the digest
 	sha.Reset()
-	sha.Write(serializeUin64(testId))
-	sha.Write(serializeUin64(testUpdateId))
-	sha.Write(serializeUin32(testAddressSpaceSize))
-	sha.Write(serializeUin32(testState))
-	sha.Write(serializeUin32(testBatch))
-	sha.Write(serializeUin32(testResourceQueueTimeout))
+	sha.Write(testPiece)
+	sha.Write(serializeUin64(testRoundID))
 	for _, node := range testTopology {
 		sha.Write(node)
 	}
 	sha.Write(testNonce)
 	expectedDigest := sha.Sum(nil)
+
 	// Check that manual digest matches expected digest
 	if !bytes.Equal(receivedDigest, expectedDigest) {
 		t.Errorf("Digest did not output expected result."+
@@ -143,17 +121,16 @@ func TestRoundInfo_Digest(t *testing.T) {
 // ------------------------------ Sign/Verify tests -----------------------------------
 
 // Happy path
-func TestRoundInfo_SignVerify(t *testing.T) {
-	// Create roundInfo object
-	testId := uint64(25)
+func TestSharePiece_SignVerify(t *testing.T) {
+	// Generate a message
+	testRoundID := uint64(25)
+	testPiece := []byte("testPiece")
 	testTopology := [][]byte{[]byte("test"), []byte("te"), []byte("st"), []byte("testtest")}
-	testBatch := uint32(23)
-	testRoundInfo := &RoundInfo{
-		ID:        testId,
-		Topology:  testTopology,
-		BatchSize: testBatch,
+	testSharePiece := &SharePiece{
+		Piece:        testPiece,
+		Participants: testTopology,
+		RoundID:      testRoundID,
 	}
-
 	// Generate keys
 	privateKey, err := rsa.GenerateKey(rand.Reader, 1024)
 	if err != nil {
@@ -162,13 +139,13 @@ func TestRoundInfo_SignVerify(t *testing.T) {
 	pubKey := privateKey.GetPublic()
 
 	// Ensure message type conforms to genericSignable interface
-	err = signature.Sign(testRoundInfo, privateKey)
+	err = signature.Sign(testSharePiece, privateKey)
 	if err != nil {
 		t.Errorf("Unable to sign message: %+v", err)
 	}
 
 	// Verify signature
-	err = signature.Verify(testRoundInfo, pubKey)
+	err = signature.Verify(testSharePiece, pubKey)
 	if err != nil {
 		t.Errorf("Expected happy path! Failed to verify: %+v", err)
 	}
@@ -176,15 +153,15 @@ func TestRoundInfo_SignVerify(t *testing.T) {
 }
 
 // Error path
-func TestRoundInfo_SignVerify_Error(t *testing.T) {
-	// Create roundInfo object
-	testId := uint64(25)
+func TestShare_SignVerify_Error(t *testing.T) {
+	// Generate a message
+	testRoundID := uint64(25)
+	testPiece := []byte("testPiece")
 	testTopology := [][]byte{[]byte("test"), []byte("te"), []byte("st"), []byte("testtest")}
-	testBatch := uint32(23)
-	testRoundInfo := &RoundInfo{
-		ID:        testId,
-		Topology:  testTopology,
-		BatchSize: testBatch,
+	testSharePiece := &SharePiece{
+		Piece:        testPiece,
+		Participants: testTopology,
+		RoundID:      testRoundID,
 	}
 
 	// Generate keys
@@ -195,36 +172,19 @@ func TestRoundInfo_SignVerify_Error(t *testing.T) {
 	pubKey := privateKey.GetPublic()
 
 	// Ensure message type conforms to genericSignable interface
-	err = signature.Sign(testRoundInfo, privateKey)
+	err = signature.Sign(testSharePiece, privateKey)
 	if err != nil {
 		t.Errorf("Unable to sign message: %+v", err)
 	}
 
-	// Reset Topology value so verify()'s signature won't match
-	testRoundInfo.Topology = [][]byte{[]byte("I"), []byte("am"), []byte("totally"), []byte("failing right now")}
+	// Reset Participants value so verify()'s signature won't match
+	testSharePiece.Participants = [][]byte{[]byte("I"), []byte("am"), []byte("totally"), []byte("failing right now")}
 	// Verify signature
-	err = signature.Verify(testRoundInfo, pubKey)
+	err = signature.Verify(testSharePiece, pubKey)
 	if err != nil {
 		return
 	}
 
 	t.Error("Expected error path: Should not have verified!")
 
-}
-
-// ---------------------- Non-genericSignable tests -----------------------------------
-
-func TestRoundInfo_GetActivity(t *testing.T) {
-	expected := uint32(45)
-	testRoundInfo := &RoundInfo{
-		State: expected,
-	}
-
-	received := testRoundInfo.GetRoundState()
-
-	if received != states.Round(expected) {
-		t.Errorf("Received does not match expected for getter function! "+
-			"Expected: %+v \n\t"+
-			"Received: %+v", expected, received)
-	}
 }

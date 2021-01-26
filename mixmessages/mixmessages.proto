@@ -51,10 +51,6 @@ service Node {
     rpc ConfirmRegistration (messages.AuthenticatedMessage) returns (RegistrationConfirmation) {
     }
 
-    // PostRoundPublicKey sets the public cypher key for a round on other nodes
-    rpc PostRoundPublicKey (messages.AuthenticatedMessage) returns (messages.Ack) {
-    }
-
     // PostPrecompResult finalizes the precomputation results with each node from the last node
     // sending the final PayloadA and PayloadB precomputations
     rpc PostPrecompResult (messages.AuthenticatedMessage) returns (messages.Ack) {
@@ -83,6 +79,19 @@ service Node {
     // Server -> Gateway permissioning address
     rpc GetPermissioningAddress (messages.Ping) returns (StrAddress) {
     }
+
+    // Server -> Server initiating multi-party round DH key generation
+    rpc StartSharePhase (messages.AuthenticatedMessage) returns (messages.Ack) {
+    }
+
+    // Server -> Server passing state of multi-party round DH key generation
+    rpc SharePhaseRound (messages.AuthenticatedMessage) returns (messages.Ack) {
+    }
+
+    // Server -> Server received final key
+    rpc ShareFinalKey (messages.AuthenticatedMessage) returns (messages.Ack) {
+    }
+
 }
 
 // RoundInfo contains the # of precomputations ready for messages, among other
@@ -147,17 +156,20 @@ message ServerPollResponse {
     CompletedBatch Batch = 6; //Empty if no update needed
 }
 
+// Used as part of Share phase for generation
+// of a multi-party Diffie-Helman key
+// Node <-> Node message
+message SharePiece {
+    bytes Piece = 1; // In progress round public key
+    repeated bytes participants = 2; // List of nodes who have participated
+    uint64 roundID = 3; // Id of round tied to round key generation
+    messages.RSASignature Signature = 4; // Signature tied to message sent by node
+
+}
+
 // GATEWAY MESSAGE SERVICE -----------------------------------------------------
 
 service Gateway {
-    // Request a list of MessageIDs from the gateway for the given UserID
-    rpc CheckMessages (ClientRequest) returns (IDList) {
-    }
-
-    // GetMessage a Batch from the gateway for the given message information
-    rpc GetMessage (ClientRequest) returns (Slot) {
-    }
-
     // PutMessage on the cMix Gateway
     rpc PutMessage (GatewaySlot) returns (GatewaySlotResponse) {
     }
@@ -225,12 +237,6 @@ message GetMessagesResponse{
     bool HasRound = 2;
 }
 
-// ClientRequest message for clients to poll new CMIX messages
-message ClientRequest {
-    bytes UserID = 1; // 128 bit length
-    string LastMessageID = 2;
-}
-
 // The message for clients to poll the gateway for Message IDs
 message IDList {
     repeated string IDs = 1;
@@ -260,9 +266,11 @@ message Slot {
 message GatewayPoll {
     NDFHash Partial = 1;
     uint64 LastUpdate = 2;
-    bytes ClientID = 3;
-    uint64 FirstRound = 4;
-    uint64 LastRound = 5;
+    bytes ReceptionID = 3;
+
+    // Define range for ClientBloomFilter searches
+    int64 StartTimestamp = 4;
+    int64 EndTimestamp = 5;
 }
 
 // Unified Client->Gateway polling response
@@ -271,7 +279,21 @@ message GatewayPollResponse {
     repeated RoundInfo Updates = 2; // Empty if no update needed
     uint64 LastTrackedRound = 3; // Id of the last round tracked
     bytes KnownRounds = 4; // Rounds gateway knows about
-    repeated bytes BloomFilters = 5; // Latest Bloom filter of the requested client
+    ClientBlooms Filters = 5; // Set of ClientBloomFilters requested by Client
+}
+
+// Holds a set of ClientBloom and their associated metadata
+message ClientBlooms {
+    int64 Period = 1;
+    int64 FirstTimestamp = 2;  // Earliest timestamp of the included BloomFilters
+    repeated ClientBloom Filters = 3;
+}
+
+// Hold a ClientBloomFilter and its associated metadata
+message ClientBloom {
+    bytes Filter = 1;
+    uint64 FirstRound = 2;
+    uint32 RoundRange = 3;
 }
 
 // Client -> Gateway authentication message
