@@ -17,6 +17,7 @@ import (
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/messages"
 	"google.golang.org/grpc/reflection"
+	"net"
 	"runtime/debug"
 )
 
@@ -24,12 +25,14 @@ import (
 // endpoints and top-level comms functionality
 type Comms struct {
 	*connect.ProtoComms
-	handler Handler
+	handler  Handler
+	listener net.Listener
 }
 
 // Starts a new server on the address:port specified by localServer
 // and a callback interface for server operations
 // with given path to public and private key for TLS connection
+// Does NOT start listening in this function
 func StartRegistrationServer(id *id.ID, localServer string, handler Handler,
 	certPEMblock, keyPEMblock []byte) *Comms {
 
@@ -42,23 +45,27 @@ func StartRegistrationServer(id *id.ID, localServer string, handler Handler,
 	registrationServer := Comms{
 		ProtoComms: pc,
 		handler:    handler,
+		listener:   lis,
 	}
 
+	return &registrationServer
+}
+
+// Begin listening on the Comms.listener and serve content
+func (r *Comms) Listen() {
 	go func() {
-		pb.RegisterRegistrationServer(registrationServer.LocalServer, &registrationServer)
-		messages.RegisterGenericServer(registrationServer.LocalServer, &registrationServer)
+		pb.RegisterRegistrationServer(r.LocalServer, r)
+		messages.RegisterGenericServer(r.LocalServer, r)
 
 		// Register reflection service on gRPC server.
-		reflection.Register(registrationServer.LocalServer)
-		if err := registrationServer.LocalServer.Serve(lis); err != nil {
+		reflection.Register(r.LocalServer)
+		if err := r.LocalServer.Serve(r.listener); err != nil {
 			err = errors.New(err.Error())
 			jww.FATAL.Panicf("Failed to serve: %+v", err)
 		}
 		jww.INFO.Printf("Shutting down registration server listener:"+
-			" %s", lis)
+			" %s", r.listener)
 	}()
-
-	return &registrationServer
 }
 
 type Handler interface {
