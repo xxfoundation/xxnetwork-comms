@@ -337,7 +337,7 @@ service Registration {
     }
 
     // Obtain NDF from the Registration Server
-    rpc PollNdf (messages.AuthenticatedMessage) returns (NDF) {
+    rpc PollNdf (NDFHash) returns (NDF) {
     }
 
     // Server -> Permissioning unified polling
