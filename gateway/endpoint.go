@@ -10,6 +10,7 @@
 package gateway
 
 import (
+	"github.com/golang/protobuf/ptypes"
 	"github.com/pkg/errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/connect"
@@ -77,12 +78,30 @@ func (g *Comms) ConfirmNonce(ctx context.Context,
 	return g.handler.ConfirmNonce(msg, addr)
 }
 
+// Gateway -> Gateway message sharing within a team
+func (g *Comms) ShareMessages(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
+
+	authState, err := g.AuthenticatedReceiver(msg)
+	if err != nil {
+		return nil, errors.Errorf("Unable to handle reception of AuthenticatedMessage: %+v", err)
+	}
+
+	// Marshall the any message to the message type needed
+	roundMessages := &pb.RoundMessages{}
+	err = ptypes.UnmarshalAny(msg.Message, roundMessages)
+	if err != nil {
+		return nil, err
+	}
+
+	return &messages.Ack{}, g.handler.ShareMessages(roundMessages, authState)
+}
+
 // Ping gateway to ask for users to notify
 func (g *Comms) PollForNotifications(ctx context.Context, msg *messages.AuthenticatedMessage) (*pb.UserIdList, error) {
 
 	authState, err := g.AuthenticatedReceiver(msg)
 	if err != nil {
-		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
+		return nil, errors.Errorf("Unable to handle reception of AuthenticatedMessage: %+v", err)
 	}
 
 	ids, err := g.handler.PollForNotifications(authState)

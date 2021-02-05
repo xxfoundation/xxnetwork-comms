@@ -116,3 +116,29 @@ func (g *Comms) GetCompletedBatch(host *connect.Host) (*pb.Batch, error) {
 	result := &pb.Batch{}
 	return result, ptypes.UnmarshalAny(resultMsg, result)
 }
+
+// Gateway -> Gateway message sharing within a team
+func (g *Comms) SendShareMessages(host *connect.Host, messages *pb.RoundMessages) error {
+
+	// Create the Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := connect.MessagingContext()
+		defer cancel()
+		authMsg, err := g.PackAuthenticatedMessage(messages, host, false)
+		if err != nil {
+			return nil, err
+		}
+		// Send the message
+		_, err = pb.NewGatewayClient(conn).ShareMessages(ctx, authMsg)
+		if err != nil {
+			err = errors.New(err.Error())
+		}
+		return nil, err
+	}
+
+	// Execute the Send function
+	jww.TRACE.Printf("Sending Share Messages message: %+v", messages)
+	_, err := g.Send(host, f)
+	return err
+}

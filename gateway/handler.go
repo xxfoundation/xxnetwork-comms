@@ -40,6 +40,8 @@ type Handler interface {
 	RequestMessages(msg *pb.GetMessages) (*pb.GetMessagesResponse, error)
 	// Client -> Gateway bloom request
 	RequestBloom(msg *pb.GetBloom) (*pb.GetBloomResponse, error)
+	// Gateway -> Gateway message sharing within a team
+	ShareMessages(msg *pb.RoundMessages, auth *connect.Auth) error
 }
 
 // Gateway object used to implement endpoints and top-level comms functionality
@@ -105,6 +107,8 @@ type implementationFunctions struct {
 	RequestMessages func(msg *pb.GetMessages) (*pb.GetMessagesResponse, error)
 	// Client -> Gateway bloom request
 	RequestBloom func(msg *pb.GetBloom) (*pb.GetBloomResponse, error)
+	// Gateway -> Gateway message sharing within a team
+	ShareMessages func(msg *pb.RoundMessages, auth *connect.Auth) error
 }
 
 // Implementation allows users of the client library to set the
@@ -154,6 +158,10 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return &pb.GetBloomResponse{}, nil
 			},
+			ShareMessages: func(msg *pb.RoundMessages, auth *connect.Auth) error {
+				warn(um)
+				return nil
+			},
 		},
 	}
 }
@@ -198,4 +206,9 @@ func (s *Implementation) RequestMessages(msg *pb.GetMessages) (*pb.GetMessagesRe
 // Client -> Gateway bloom request
 func (s *Implementation) RequestBloom(msg *pb.GetBloom) (*pb.GetBloomResponse, error) {
 	return s.Functions.RequestBloom(msg)
+}
+
+// Gateway -> Gateway message sharing within a team
+func (s *Implementation) ShareMessages(msg *pb.RoundMessages, auth *connect.Auth) error {
+	return s.Functions.ShareMessages(msg, auth)
 }
