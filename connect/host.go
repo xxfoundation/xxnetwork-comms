@@ -443,6 +443,7 @@ func (h *Host) SetTestPublicKey(key *rsa.PublicKey, t interface{}) {
 	h.rsaPublicKey = key
 }
 
+// Set host to dynamic (for testing use)
 func (h *Host) SetTestDynamic(t interface{}) {
 	switch t.(type) {
 	case *testing.T:
@@ -450,7 +451,7 @@ func (h *Host) SetTestDynamic(t interface{}) {
 	case *testing.M:
 		break
 	default:
-		jww.FATAL.Panicf("SetTestPublicKey is restricted to testing only. Got %T", t)
+		jww.FATAL.Panicf("SetTestDynamic is restricted to testing only. Got %T", t)
 	}
 	h.dynamicHost = true
 }
