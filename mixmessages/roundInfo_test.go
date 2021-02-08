@@ -75,7 +75,7 @@ func TestRoundInfo_Digest_Consistency(t *testing.T) {
 	}
 	// Hardcoded digest output. Any changes are a smoke test of changing of
 	// crypto libraries
-	expectedDigestEncoded := "sh9LLXS1lx7l6nUIiCNyiuvCpIB9KfsjSsZRMU73HfQ="
+	expectedDigestEncoded := "ZBL5a9GvuJANixwO/P9gMvQK5do3+7OFg/IBS9wH/pE="
 
 	// Generate a digest
 	sha := crypto.SHA256.New()

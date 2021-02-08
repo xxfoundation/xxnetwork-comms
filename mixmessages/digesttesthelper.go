@@ -7,6 +7,7 @@ import (
 	"gitlab.com/xx_network/comms/signature"
 	"math/rand"
 	"reflect"
+	"strings"
 	"testing"
 	"time"
 )
@@ -44,7 +45,7 @@ func checkdigest(t *testing.T, gs signature.GenericSignable) {
 		valField := r.Field(i)
 		typeField := r.Type().Field(i)
 
-		if typeField.Name == "Signature" || typeField.Name == "state" || typeField.Name == "sizeCache" || typeField.Name == "unknownFields" {
+		if typeField.Name == "Signature" || typeField.Name == "state" || typeField.Name == "sizeCache" || typeField.Name == "unknownFields" || strings.Contains(typeField.Name, "XXX") {
 			fmt.Printf("Skipping field.\n")
 			continue
 		}
