@@ -201,6 +201,11 @@ service Gateway {
     // Client -> Gateway bloom request
     rpc RequestBloom(GetBloom) returns (GetBloomResponse) {
     }
+
+    // Gateway -> Gateway message sharing within a team
+    // Has RoundMessages underlying type
+    rpc ShareMessages(messages.AuthenticatedMessage) returns (messages.Ack) {
+    }
 }
 
 // Client -> Gateway request for bloom filter for available messages
@@ -213,7 +218,7 @@ message GetBloomResponse{
     repeated bytes Filters = 1;
 }
 
-// Client -> gateway request for information about historical rounds
+// Client -> Gateway request for information about historical rounds
 message HistoricalRounds{
     repeated uint64 rounds = 1;
 }
@@ -223,7 +228,7 @@ message HistoricalRoundsResponse{
     repeated RoundInfo Rounds = 1;
 }
 
-// Client -> gateway request for available messages
+// Client -> Gateway request for available messages
 // The query will be a request for all messages
 // available in a round.
 message GetMessages{
@@ -235,6 +240,12 @@ message GetMessages{
 message GetMessagesResponse{
     repeated Slot Messages = 1;
     bool HasRound = 2;
+}
+
+// Gateway -> Gateway message sharing within a team
+message RoundMessages {
+    uint64 RoundId = 1;
+    repeated Slot Messages = 2;
 }
 
 // The message for clients to poll the gateway for Message IDs
