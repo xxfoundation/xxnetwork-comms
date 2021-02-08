@@ -57,7 +57,7 @@ func (s *MockRegistration) RegisterNode(salt []byte, serverAddr, serverTlsCert, 
 	return nil
 }
 
-func (s *MockRegistration) PollNdf(clientNdfHash []byte, auth *connect.Auth) ([]byte, error) {
+func (s *MockRegistration) PollNdf(clientNdfHash []byte) ([]byte, error) {
 	return []byte(testutils.ExampleJSON), nil
 }
 
@@ -89,7 +89,7 @@ func (s *MockRegistrationError) RegisterNode(salt []byte, serverAddr, serverTlsC
 	return nil
 }
 
-func (s *MockRegistrationError) PollNdf(clientNdfHash []byte, auth *connect.Auth) ([]byte, error) {
+func (s *MockRegistrationError) PollNdf(clientNdfHash []byte) ([]byte, error) {
 	if Retries < 5 {
 		Retries++
 		return nil, errors.New(ndf.NO_NDF)

@@ -98,13 +98,9 @@ func (c *Comms) RequestNdf(host *connect.Host,
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
 
-		authMsg, err := c.PackAuthenticatedMessage(message, host, false)
-		if err != nil {
-			return nil, errors.New(err.Error())
-		}
 		// Send the message
 		resultMsg, err := pb.NewRegistrationClient(
-			conn).PollNdf(ctx, authMsg)
+			conn).PollNdf(ctx, message)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
