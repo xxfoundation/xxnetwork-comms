@@ -101,7 +101,6 @@ func TestRoundInfo_Digest(t *testing.T) {
 	testState := uint32(42)
 	testBatch := uint32(23)
 	testResourceQueueTimeout := uint32(1000)
-	testAddressSpaceSize := uint32(10)
 	testTopology := [][]byte{[]byte("test"), []byte("te"), []byte("st"), []byte("testtest")}
 	testRoundInfo := &RoundInfo{
 		ID:                         testId,
@@ -110,7 +109,6 @@ func TestRoundInfo_Digest(t *testing.T) {
 		BatchSize:                  testBatch,
 		Topology:                   testTopology,
 		ResourceQueueTimeoutMillis: testResourceQueueTimeout,
-		AddressSpaceSize:           testAddressSpaceSize,
 	}
 
 	// Generate a digest
@@ -122,7 +120,6 @@ func TestRoundInfo_Digest(t *testing.T) {
 	sha.Reset()
 	sha.Write(serializeUin64(testId))
 	sha.Write(serializeUin64(testUpdateId))
-	sha.Write(serializeUin32(testAddressSpaceSize))
 	sha.Write(serializeUin32(testState))
 	sha.Write(serializeUin32(testBatch))
 	sha.Write(serializeUin32(testResourceQueueTimeout))

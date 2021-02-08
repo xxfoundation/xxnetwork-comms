@@ -575,7 +575,6 @@ message RoundInfo {
     repeated ClientError ClientErrors = 8;
     uint32 ResourceQueueTimeoutMillis = 9; // Timeout for resource queue on nodes
     messages.RSASignature Signature = 10;
-    uint32 AddressSpaceSize = 11;
 }
 
 // RoundError will be used to describe a round error
