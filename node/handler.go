@@ -47,7 +47,6 @@ func StartNode(id *id.ID, localServer string, interconnectPort int, handler Hand
 	// Start up interconnect service
 	if interconnectPort != 0 {
 		go func() {
-
 			interconnect.StartCMixInterconnect(id, strconv.Itoa(interconnectPort), handler, certPEMblock, keyPEMblock)
 		}()
 	} else {
@@ -89,9 +88,6 @@ type Handler interface {
 
 	StreamPostPhase(server mixmessages.Node_StreamPostPhaseServer, auth *connect.Auth) error
 
-	// Server interface for share broadcast
-	PostRoundPublicKey(message *mixmessages.RoundPublicKey, auth *connect.Auth) error
-
 	// Server interface for RequestNonceMessage
 	RequestNonce(salt []byte, RSAPubKey string, DHPubKey,
 		RSASignedByRegistration, DHSignedByClientRSA []byte, auth *connect.Auth) ([]byte, []byte, error)
@@ -121,6 +117,15 @@ type Handler interface {
 	// GetPermissioningAddress gets gateway the permissioning server's address
 	// from server.
 	GetPermissioningAddress() (string, error)
+
+	// Server -> Server initiating multi-party round DH key generation
+	StartSharePhase(ri *mixmessages.RoundInfo, auth *connect.Auth) error
+
+	// Server -> Server passing state of multi-party round DH key generation
+	SharePhaseRound(sharedPiece *mixmessages.SharePiece, auth *connect.Auth) error
+
+	// Server -> Server sending multi-party round DH key
+	ShareFinalKey(sharedPiece *mixmessages.SharePiece, auth *connect.Auth) error
 }
 
 type implementationFunctions struct {
@@ -140,9 +145,6 @@ type implementationFunctions struct {
 
 	// Server interface for internode streaming messages
 	StreamPostPhase func(message mixmessages.Node_StreamPostPhaseServer, auth *connect.Auth) error
-
-	// Server interface for share broadcast
-	PostRoundPublicKey func(message *mixmessages.RoundPublicKey, auth *connect.Auth) error
 
 	// Server interface for RequestNonceMessage
 	RequestNonce func(salt []byte, RSAPubKey string, DHPubKey,
@@ -172,6 +174,15 @@ type implementationFunctions struct {
 	// GetPermissioningAddress gets gateway the permissioning server's address
 	// from server.
 	GetPermissioningAddress func() (string, error)
+
+	// Server -> Server initiating multi-party round DH key generation
+	StartSharePhase func(ri *mixmessages.RoundInfo, auth *connect.Auth) error
+
+	// Server -> Server passing state of multi-party round DH key generation
+	SharePhaseRound func(sharedPiece *mixmessages.SharePiece, auth *connect.Auth) error
+
+	// Server -> Server sending multi-party round DH key
+	ShareFinalKey func(sharedPiece *mixmessages.SharePiece, auth *connect.Auth) error
 }
 
 // Implementation allows users of the client library to set the
@@ -202,10 +213,6 @@ func NewImplementation() *Implementation {
 				return nil
 			},
 			StreamPostPhase: func(message mixmessages.Node_StreamPostPhaseServer, auth *connect.Auth) error {
-				warn(um)
-				return nil
-			},
-			PostRoundPublicKey: func(message *mixmessages.RoundPublicKey, auth *connect.Auth) error {
 				warn(um)
 				return nil
 			},
@@ -268,6 +275,18 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return "", nil
 			},
+			StartSharePhase: func(roundInfo *mixmessages.RoundInfo, auth *connect.Auth) error {
+				warn(um)
+				return nil
+			},
+			SharePhaseRound: func(sharedPiece *mixmessages.SharePiece, auth *connect.Auth) error {
+				warn(um)
+				return nil
+			},
+			ShareFinalKey: func(sharedPiece *mixmessages.SharePiece, auth *connect.Auth) error {
+				warn(um)
+				return nil
+			},
 		},
 	}
 }
@@ -289,12 +308,6 @@ func (s *Implementation) PostPhase(m *mixmessages.Batch, auth *connect.Auth) err
 // Server Interface for streaming phase messages
 func (s *Implementation) StreamPostPhase(m mixmessages.Node_StreamPostPhaseServer, auth *connect.Auth) error {
 	return s.Functions.StreamPostPhase(m, auth)
-}
-
-// Server Interface for the share message
-func (s *Implementation) PostRoundPublicKey(message *mixmessages.
-	RoundPublicKey, auth *connect.Auth) error {
-	return s.Functions.PostRoundPublicKey(message, auth)
 }
 
 // GetRoundBufferInfo returns # of completed precomputations
@@ -361,4 +374,19 @@ func (s *Implementation) GetNDF() (*interconnect.NDF, error) {
 // server.
 func (s *Implementation) GetPermissioningAddress() (string, error) {
 	return s.Functions.GetPermissioningAddress()
+}
+
+// Server -> Server initiating multi-party round DH key generation
+func (s *Implementation) StartSharePhase(ri *mixmessages.RoundInfo, auth *connect.Auth) error {
+	return s.Functions.StartSharePhase(ri, auth)
+}
+
+// Server -> Server passing state of multi-party round DH key generation
+func (s *Implementation) SharePhaseRound(sharedPiece *mixmessages.SharePiece, auth *connect.Auth) error {
+	return s.Functions.SharePhaseRound(sharedPiece, auth)
+}
+
+// Server -> Server sending multi-party round DH final key
+func (s *Implementation) ShareFinalKey(sharedPiece *mixmessages.SharePiece, auth *connect.Auth) error {
+	return s.Functions.ShareFinalKey(sharedPiece, auth)
 }
