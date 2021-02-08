@@ -165,7 +165,7 @@ func (h *Host) Connected() (bool, uint64) {
 
 // GetId returns the id of the host
 func (h *Host) GetId() *id.ID {
-	if h ==nil{
+	if h == nil {
 		return &id.ID{}
 	}
 	return h.id
@@ -441,4 +441,17 @@ func (h *Host) SetTestPublicKey(key *rsa.PublicKey, t interface{}) {
 		jww.FATAL.Panicf("SetTestPublicKey is restricted to testing only. Got %T", t)
 	}
 	h.rsaPublicKey = key
+}
+
+// Set host to dynamic (for testing use)
+func (h *Host) SetTestDynamic(t interface{}) {
+	switch t.(type) {
+	case *testing.T:
+		break
+	case *testing.M:
+		break
+	default:
+		jww.FATAL.Panicf("SetTestDynamic is restricted to testing only. Got %T", t)
+	}
+	h.dynamicHost = true
 }
