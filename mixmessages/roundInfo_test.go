@@ -75,7 +75,7 @@ func TestRoundInfo_Digest_Consistency(t *testing.T) {
 	}
 	// Hardcoded digest output. Any changes are a smoke test of changing of
 	// crypto libraries
-	expectedDigestEncoded := "sh9LLXS1lx7l6nUIiCNyiuvCpIB9KfsjSsZRMU73HfQ="
+	expectedDigestEncoded := "5JubUJL0XrIbx4G69V+SNHzY0w9Bs3LcZQnNd+ZJMZQ="
 
 	// Generate a digest
 	sha := crypto.SHA256.New()
@@ -122,10 +122,10 @@ func TestRoundInfo_Digest(t *testing.T) {
 	sha.Reset()
 	sha.Write(serializeUin64(testId))
 	sha.Write(serializeUin64(testUpdateId))
-	sha.Write(serializeUin32(testAddressSpaceSize))
 	sha.Write(serializeUin32(testState))
 	sha.Write(serializeUin32(testBatch))
 	sha.Write(serializeUin32(testResourceQueueTimeout))
+	sha.Write(serializeUin32(testAddressSpaceSize))
 	for _, node := range testTopology {
 		sha.Write(node)
 	}
