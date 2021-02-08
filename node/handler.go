@@ -386,7 +386,6 @@ func (s *Implementation) SharePhaseRound(sharedPiece *mixmessages.SharePiece, au
 	return s.Functions.SharePhaseRound(sharedPiece, auth)
 }
 
-
 // Server -> Server sending multi-party round DH final key
 func (s *Implementation) ShareFinalKey(sharedPiece *mixmessages.SharePiece, auth *connect.Auth) error {
 	return s.Functions.ShareFinalKey(sharedPiece, auth)
