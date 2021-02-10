@@ -38,6 +38,7 @@ func (g *Comms) SendRequestNonceMessage(host *connect.Host,
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
+
 		return ptypes.MarshalAny(resultMsg)
 	}
 

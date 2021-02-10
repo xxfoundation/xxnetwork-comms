@@ -429,11 +429,12 @@ message NonceRequest {
     messages.RSASignature RequestSignature = 5;
 }
 
-// Nonce message to reply to client from server
+// Nonce message to reply to client from server (going through gateway)
 message Nonce {
     bytes Nonce = 1;
     bytes DHPubKey = 2;
-    string Error = 3;
+    bytes IdentityHash = 3;
+    string Error = 4;
 }
 
 // RequestRegistrationConfirmation returning proof of registration

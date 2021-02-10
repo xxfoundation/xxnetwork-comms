@@ -152,23 +152,13 @@ func (s *Comms) RequestNonce(ctx context.Context,
 	}
 
 	// Obtain the nonce by passing to server
-	nonce, pk, err := s.handler.RequestNonce(nonceRequest.GetSalt(),
-		nonceRequest.GetClientRSAPubKey(), nonceRequest.GetClientDHPubKey(),
-		nonceRequest.GetClientSignedByServer().Signature,
-		nonceRequest.GetRequestSignature().Signature, authState)
-
-	// Obtain the error message, if any
-	errMsg := ""
+	nonce, err := s.handler.RequestNonce(nonceRequest, authState)
 	if err != nil {
-		errMsg = err.Error()
+
 	}
 
 	// Return the NonceMessage
-	return &pb.Nonce{
-		Nonce:    nonce,
-		DHPubKey: pk,
-		Error:    errMsg,
-	}, err
+	return nonce, err
 }
 
 // Handles Registration Nonce Confirmation
