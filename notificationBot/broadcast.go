@@ -22,11 +22,11 @@ import (
 
 // NotificationBot -> Permissioning
 // Fixme: figure out what to do with notification bot and unified polling
-//func (nb *Comms) RequestNdf(host *connect.Host, message *pb.NDFHash) (*pb.NDF, error) {
-//
-//	// Call the ProtoComms RequestNdf call
-//	return nb.ProtoComms.RequestNdf(host, message)
-//}
+func (nb *Comms) RequestNdf(host *connect.Host, message *pb.NDFHash) (*pb.NDF, error) {
+
+	// Call the ProtoComms RequestNdf call
+	return nb.RequestNdf(host, message)
+}
 
 // Notification Bot -> Gateway
 func (nb *Comms) RequestNotifications(host *connect.Host) (*pb.UserIdList, error) {
