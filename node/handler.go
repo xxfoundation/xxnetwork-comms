@@ -92,7 +92,8 @@ type Handler interface {
 	RequestNonce(nonceRequest *mixmessages.NonceRequest, auth *connect.Auth) (*mixmessages.Nonce, error)
 
 	// Server interface for ConfirmNonceMessage
-	ConfirmRegistration(UserID *id.ID, Signature []byte, auth *connect.Auth) ([]byte, []byte, error)
+	ConfirmRegistration(requestConfirmation *mixmessages.RequestRegistrationConfirmation,
+		auth *connect.Auth) (*mixmessages.RegistrationConfirmation, error)
 
 	// PostPrecompResult interface to finalize both payloads' precomps
 	PostPrecompResult(roundID uint64, slots []*mixmessages.Slot, auth *connect.Auth) error
@@ -148,7 +149,8 @@ type implementationFunctions struct {
 	// Server interface for RequestNonceMessage
 	RequestNonce func(nonceRequest *mixmessages.NonceRequest, auth *connect.Auth) (*mixmessages.Nonce, error)
 	// Server interface for ConfirmNonceMessage
-	ConfirmRegistration func(UserID *id.ID, Signature []byte, auth *connect.Auth) ([]byte, []byte, error)
+	ConfirmRegistration func(requestConfirmation *mixmessages.RequestRegistrationConfirmation,
+		auth *connect.Auth) (*mixmessages.RegistrationConfirmation, error)
 
 	// PostPrecompResult interface to finalize both payloads' precomputations
 	PostPrecompResult func(roundID uint64,
@@ -235,9 +237,10 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return &mixmessages.Nonce{}, nil
 			},
-			ConfirmRegistration: func(UserID *id.ID, Signature []byte, auth *connect.Auth) ([]byte, []byte, error) {
+			ConfirmRegistration: func(requestConfirmation *mixmessages.RequestRegistrationConfirmation,
+				auth *connect.Auth) (*mixmessages.RegistrationConfirmation, error) {
 				warn(um)
-				return nil, nil, nil
+				return &mixmessages.RegistrationConfirmation{}, nil
 			},
 			PostPrecompResult: func(roundID uint64,
 				slots []*mixmessages.Slot, auth *connect.Auth) error {
@@ -318,8 +321,9 @@ func (s *Implementation) RequestNonce(nonceRequest *mixmessages.NonceRequest, au
 }
 
 // Server interface for ConfirmNonceMessage
-func (s *Implementation) ConfirmRegistration(UserID *id.ID, Signature []byte, auth *connect.Auth) ([]byte, []byte, error) {
-	return s.Functions.ConfirmRegistration(UserID, Signature, auth)
+func (s *Implementation) ConfirmRegistration(requestConfirmation *mixmessages.RequestRegistrationConfirmation,
+	auth *connect.Auth) (*mixmessages.RegistrationConfirmation, error) {
+	return s.Functions.ConfirmRegistration(requestConfirmation, auth)
 }
 
 // PostPrecompResult interface to finalize both payloads' precomputations

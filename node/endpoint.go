@@ -15,7 +15,6 @@ import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/messages"
-	"gitlab.com/xx_network/primitives/id"
 	"golang.org/x/net/context"
 )
 
@@ -178,29 +177,8 @@ func (s *Comms) ConfirmRegistration(ctx context.Context,
 		return nil, err
 	}
 
-	userID, err := id.Unmarshal(regConfirmRequest.GetUserID())
-	if err != nil {
-		return nil, errors.Errorf("Unable to unmarshal user ID: %+v", err)
-	}
-
 	// Obtain signed client public key by passing to server
-	signature, clientGwKey, err := s.handler.ConfirmRegistration(userID,
-		regConfirmRequest.NonceSignedByClient.Signature, authState)
-
-	// Obtain the error message, if any
-	errMsg := ""
-	if err != nil {
-		errMsg = err.Error()
-	}
-
-	// Return the RegistrationConfirmation
-	return &pb.RegistrationConfirmation{
-		ClientSignedByServer: &messages.RSASignature{
-			Signature: signature,
-		},
-		Error:            errMsg,
-		ClientGatewayKey: clientGwKey,
-	}, err
+	return s.handler.ConfirmRegistration(regConfirmRequest, authState)
 }
 
 // PostPrecompResult sends final Message and AD precomputations.
