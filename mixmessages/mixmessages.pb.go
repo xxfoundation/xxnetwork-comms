@@ -2305,10 +2305,9 @@ type Nonce struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Nonce        []byte `protobuf:"bytes,1,opt,name=Nonce,proto3" json:"Nonce,omitempty"`
-	DHPubKey     []byte `protobuf:"bytes,2,opt,name=DHPubKey,proto3" json:"DHPubKey,omitempty"`
-	IdentityHash []byte `protobuf:"bytes,3,opt,name=IdentityHash,proto3" json:"IdentityHash,omitempty"`
-	Error        string `protobuf:"bytes,4,opt,name=Error,proto3" json:"Error,omitempty"`
+	Nonce    []byte `protobuf:"bytes,1,opt,name=Nonce,proto3" json:"Nonce,omitempty"`
+	DHPubKey []byte `protobuf:"bytes,2,opt,name=DHPubKey,proto3" json:"DHPubKey,omitempty"`
+	Error    string `protobuf:"bytes,3,opt,name=Error,proto3" json:"Error,omitempty"`
 }
 
 func (x *Nonce) Reset() {
@@ -2357,13 +2356,6 @@ func (x *Nonce) GetDHPubKey() []byte {
 	return nil
 }
 
-func (x *Nonce) GetIdentityHash() []byte {
-	if x != nil {
-		return x.IdentityHash
-	}
-	return nil
-}
-
 func (x *Nonce) GetError() string {
 	if x != nil {
 		return x.Error
@@ -2379,7 +2371,8 @@ type RequestRegistrationConfirmation struct {
 
 	UserID              []byte                 `protobuf:"bytes,1,opt,name=userID,proto3" json:"userID,omitempty"`
 	NonceSignedByClient *messages.RSASignature `protobuf:"bytes,2,opt,name=NonceSignedByClient,proto3" json:"NonceSignedByClient,omitempty"`
-	Error               string                 `protobuf:"bytes,3,opt,name=Error,proto3" json:"Error,omitempty"`
+	IdSignedByClient    *messages.RSASignature `protobuf:"bytes,3,opt,name=IdSignedByClient,proto3" json:"IdSignedByClient,omitempty"`
+	Error               string                 `protobuf:"bytes,4,opt,name=Error,proto3" json:"Error,omitempty"`
 }
 
 func (x *RequestRegistrationConfirmation) Reset() {
@@ -2424,6 +2417,13 @@ func (x *RequestRegistrationConfirmation) GetUserID() []byte {
 func (x *RequestRegistrationConfirmation) GetNonceSignedByClient() *messages.RSASignature {
 	if x != nil {
 		return x.NonceSignedByClient
+	}
+	return nil
+}
+
+func (x *RequestRegistrationConfirmation) GetIdSignedByClient() *messages.RSASignature {
+	if x != nil {
+		return x.IdSignedByClient
 	}
 	return nil
 }
@@ -3924,24 +3924,26 @@ var file_mixmessages_proto_rawDesc = []byte{
 	0x65, 0x73, 0x74, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x74, 0x75, 0x72, 0x65, 0x18, 0x05, 0x20, 0x01,
 	0x28, 0x0b, 0x32, 0x16, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x52, 0x53,
 	0x41, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x74, 0x75, 0x72, 0x65, 0x52, 0x10, 0x52, 0x65, 0x71, 0x75,
-	0x65, 0x73, 0x74, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x74, 0x75, 0x72, 0x65, 0x22, 0x73, 0x0a, 0x05,
+	0x65, 0x73, 0x74, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x74, 0x75, 0x72, 0x65, 0x22, 0x4f, 0x0a, 0x05,
 	0x4e, 0x6f, 0x6e, 0x63, 0x65, 0x12, 0x14, 0x0a, 0x05, 0x4e, 0x6f, 0x6e, 0x63, 0x65, 0x18, 0x01,
 	0x20, 0x01, 0x28, 0x0c, 0x52, 0x05, 0x4e, 0x6f, 0x6e, 0x63, 0x65, 0x12, 0x1a, 0x0a, 0x08, 0x44,
 	0x48, 0x50, 0x75, 0x62, 0x4b, 0x65, 0x79, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x08, 0x44,
-	0x48, 0x50, 0x75, 0x62, 0x4b, 0x65, 0x79, 0x12, 0x22, 0x0a, 0x0c, 0x49, 0x64, 0x65, 0x6e, 0x74,
-	0x69, 0x74, 0x79, 0x48, 0x61, 0x73, 0x68, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x0c, 0x49,
-	0x64, 0x65, 0x6e, 0x74, 0x69, 0x74, 0x79, 0x48, 0x61, 0x73, 0x68, 0x12, 0x14, 0x0a, 0x05, 0x45,
-	0x72, 0x72, 0x6f, 0x72, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x45, 0x72, 0x72, 0x6f,
-	0x72, 0x22, 0x99, 0x01, 0x0a, 0x1f, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x52, 0x65, 0x67,
-	0x69, 0x73, 0x74, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x72, 0x6d,
-	0x61, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x16, 0x0a, 0x06, 0x75, 0x73, 0x65, 0x72, 0x49, 0x44, 0x18,
-	0x01, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x06, 0x75, 0x73, 0x65, 0x72, 0x49, 0x44, 0x12, 0x48, 0x0a,
-	0x13, 0x4e, 0x6f, 0x6e, 0x63, 0x65, 0x53, 0x69, 0x67, 0x6e, 0x65, 0x64, 0x42, 0x79, 0x43, 0x6c,
-	0x69, 0x65, 0x6e, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x16, 0x2e, 0x6d, 0x65, 0x73,
-	0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x52, 0x53, 0x41, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x74, 0x75,
-	0x72, 0x65, 0x52, 0x13, 0x4e, 0x6f, 0x6e, 0x63, 0x65, 0x53, 0x69, 0x67, 0x6e, 0x65, 0x64, 0x42,
+	0x48, 0x50, 0x75, 0x62, 0x4b, 0x65, 0x79, 0x12, 0x14, 0x0a, 0x05, 0x45, 0x72, 0x72, 0x6f, 0x72,
+	0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x45, 0x72, 0x72, 0x6f, 0x72, 0x22, 0xdd, 0x01,
+	0x0a, 0x1f, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x72,
+	0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x72, 0x6d, 0x61, 0x74, 0x69, 0x6f,
+	0x6e, 0x12, 0x16, 0x0a, 0x06, 0x75, 0x73, 0x65, 0x72, 0x49, 0x44, 0x18, 0x01, 0x20, 0x01, 0x28,
+	0x0c, 0x52, 0x06, 0x75, 0x73, 0x65, 0x72, 0x49, 0x44, 0x12, 0x48, 0x0a, 0x13, 0x4e, 0x6f, 0x6e,
+	0x63, 0x65, 0x53, 0x69, 0x67, 0x6e, 0x65, 0x64, 0x42, 0x79, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74,
+	0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x16, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65,
+	0x73, 0x2e, 0x52, 0x53, 0x41, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x74, 0x75, 0x72, 0x65, 0x52, 0x13,
+	0x4e, 0x6f, 0x6e, 0x63, 0x65, 0x53, 0x69, 0x67, 0x6e, 0x65, 0x64, 0x42, 0x79, 0x43, 0x6c, 0x69,
+	0x65, 0x6e, 0x74, 0x12, 0x42, 0x0a, 0x10, 0x49, 0x64, 0x53, 0x69, 0x67, 0x6e, 0x65, 0x64, 0x42,
+	0x79, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x16, 0x2e,
+	0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x52, 0x53, 0x41, 0x53, 0x69, 0x67, 0x6e,
+	0x61, 0x74, 0x75, 0x72, 0x65, 0x52, 0x10, 0x49, 0x64, 0x53, 0x69, 0x67, 0x6e, 0x65, 0x64, 0x42,
 	0x79, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x12, 0x14, 0x0a, 0x05, 0x45, 0x72, 0x72, 0x6f, 0x72,
-	0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x45, 0x72, 0x72, 0x6f, 0x72, 0x22, 0xa8, 0x01,
+	0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x45, 0x72, 0x72, 0x6f, 0x72, 0x22, 0xa8, 0x01,
 	0x0a, 0x18, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43, 0x6f,
 	0x6e, 0x66, 0x69, 0x72, 0x6d, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x4a, 0x0a, 0x14, 0x43, 0x6c,
 	0x69, 0x65, 0x6e, 0x74, 0x53, 0x69, 0x67, 0x6e, 0x65, 0x64, 0x42, 0x79, 0x53, 0x65, 0x72, 0x76,
@@ -4402,109 +4404,110 @@ var file_mixmessages_proto_depIdxs = []int32{
 	57, // 27: mixmessages.NonceRequest.ClientSignedByServer:type_name -> messages.RSASignature
 	57, // 28: mixmessages.NonceRequest.RequestSignature:type_name -> messages.RSASignature
 	57, // 29: mixmessages.RequestRegistrationConfirmation.NonceSignedByClient:type_name -> messages.RSASignature
-	57, // 30: mixmessages.RegistrationConfirmation.ClientSignedByServer:type_name -> messages.RSASignature
-	29, // 31: mixmessages.PermissioningPoll.Full:type_name -> mixmessages.NDFHash
-	29, // 32: mixmessages.PermissioningPoll.Partial:type_name -> mixmessages.NDFHash
-	55, // 33: mixmessages.PermissioningPoll.Error:type_name -> mixmessages.RoundError
-	40, // 34: mixmessages.PermissioningPoll.ClientErrors:type_name -> mixmessages.ClientError
-	30, // 35: mixmessages.PermissionPollResponse.FullNDF:type_name -> mixmessages.NDF
-	30, // 36: mixmessages.PermissionPollResponse.PartialNDF:type_name -> mixmessages.NDF
-	54, // 37: mixmessages.PermissionPollResponse.Updates:type_name -> mixmessages.RoundInfo
-	45, // 38: mixmessages.UDBUserRegistration.IdentityRegistration:type_name -> mixmessages.Identity
-	46, // 39: mixmessages.UDBUserRegistration.frs:type_name -> mixmessages.FactRegisterRequest
-	47, // 40: mixmessages.FactRegisterRequest.Fact:type_name -> mixmessages.Fact
-	47, // 41: mixmessages.FactRemovalRequest.RemovalData:type_name -> mixmessages.Fact
-	55, // 42: mixmessages.RoundInfo.Errors:type_name -> mixmessages.RoundError
-	40, // 43: mixmessages.RoundInfo.ClientErrors:type_name -> mixmessages.ClientError
-	57, // 44: mixmessages.RoundInfo.Signature:type_name -> messages.RSASignature
-	57, // 45: mixmessages.RoundError.Signature:type_name -> messages.RSASignature
-	58, // 46: mixmessages.Node.AskOnline:input_type -> messages.Ping
-	59, // 47: mixmessages.Node.CreateNewRound:input_type -> messages.AuthenticatedMessage
-	59, // 48: mixmessages.Node.PostNewBatch:input_type -> messages.AuthenticatedMessage
-	59, // 49: mixmessages.Node.FinishRealtime:input_type -> messages.AuthenticatedMessage
-	59, // 50: mixmessages.Node.PostPhase:input_type -> messages.AuthenticatedMessage
-	18, // 51: mixmessages.Node.StreamPostPhase:input_type -> mixmessages.Slot
-	59, // 52: mixmessages.Node.GetRoundBufferInfo:input_type -> messages.AuthenticatedMessage
-	59, // 53: mixmessages.Node.RequestNonce:input_type -> messages.AuthenticatedMessage
-	59, // 54: mixmessages.Node.ConfirmRegistration:input_type -> messages.AuthenticatedMessage
-	59, // 55: mixmessages.Node.PostPrecompResult:input_type -> messages.AuthenticatedMessage
-	59, // 56: mixmessages.Node.GetCompletedBatch:input_type -> messages.AuthenticatedMessage
-	59, // 57: mixmessages.Node.GetMeasure:input_type -> messages.AuthenticatedMessage
-	59, // 58: mixmessages.Node.Poll:input_type -> messages.AuthenticatedMessage
-	59, // 59: mixmessages.Node.SendRoundTripPing:input_type -> messages.AuthenticatedMessage
-	59, // 60: mixmessages.Node.RoundError:input_type -> messages.AuthenticatedMessage
-	58, // 61: mixmessages.Node.GetPermissioningAddress:input_type -> messages.Ping
-	59, // 62: mixmessages.Node.StartSharePhase:input_type -> messages.AuthenticatedMessage
-	59, // 63: mixmessages.Node.SharePhaseRound:input_type -> messages.AuthenticatedMessage
-	59, // 64: mixmessages.Node.ShareFinalKey:input_type -> messages.AuthenticatedMessage
-	23, // 65: mixmessages.Gateway.PutMessage:input_type -> mixmessages.GatewaySlot
-	35, // 66: mixmessages.Gateway.RequestNonce:input_type -> mixmessages.NonceRequest
-	37, // 67: mixmessages.Gateway.ConfirmNonce:input_type -> mixmessages.RequestRegistrationConfirmation
-	59, // 68: mixmessages.Gateway.PollForNotifications:input_type -> messages.AuthenticatedMessage
-	19, // 69: mixmessages.Gateway.Poll:input_type -> mixmessages.GatewayPoll
-	12, // 70: mixmessages.Gateway.RequestHistoricalRounds:input_type -> mixmessages.HistoricalRounds
-	14, // 71: mixmessages.Gateway.RequestMessages:input_type -> mixmessages.GetMessages
-	10, // 72: mixmessages.Gateway.RequestBloom:input_type -> mixmessages.GetBloom
-	59, // 73: mixmessages.Gateway.ShareMessages:input_type -> messages.AuthenticatedMessage
-	32, // 74: mixmessages.Registration.RegisterUser:input_type -> mixmessages.UserRegistration
-	58, // 75: mixmessages.Registration.GetCurrentClientVersion:input_type -> messages.Ping
-	31, // 76: mixmessages.Registration.RegisterNode:input_type -> mixmessages.NodeRegistration
-	29, // 77: mixmessages.Registration.PollNdf:input_type -> mixmessages.NDFHash
-	59, // 78: mixmessages.Registration.Poll:input_type -> messages.AuthenticatedMessage
-	28, // 79: mixmessages.Registration.CheckRegistration:input_type -> mixmessages.RegisteredNodeCheck
-	59, // 80: mixmessages.NotificationBot.UnregisterForNotifications:input_type -> messages.AuthenticatedMessage
-	59, // 81: mixmessages.NotificationBot.RegisterForNotifications:input_type -> messages.AuthenticatedMessage
-	59, // 82: mixmessages.UDB.RegisterUser:input_type -> messages.AuthenticatedMessage
-	59, // 83: mixmessages.UDB.RegisterFact:input_type -> messages.AuthenticatedMessage
-	59, // 84: mixmessages.UDB.ConfirmFact:input_type -> messages.AuthenticatedMessage
-	59, // 85: mixmessages.UDB.RemoveFact:input_type -> messages.AuthenticatedMessage
-	51, // 86: mixmessages.ConnectivityChecker.CheckConnectivity:input_type -> mixmessages.Address
-	60, // 87: mixmessages.Node.AskOnline:output_type -> messages.Ack
-	60, // 88: mixmessages.Node.CreateNewRound:output_type -> messages.Ack
-	60, // 89: mixmessages.Node.PostNewBatch:output_type -> messages.Ack
-	60, // 90: mixmessages.Node.FinishRealtime:output_type -> messages.Ack
-	60, // 91: mixmessages.Node.PostPhase:output_type -> messages.Ack
-	60, // 92: mixmessages.Node.StreamPostPhase:output_type -> messages.Ack
-	0,  // 93: mixmessages.Node.GetRoundBufferInfo:output_type -> mixmessages.RoundBufferInfo
-	36, // 94: mixmessages.Node.RequestNonce:output_type -> mixmessages.Nonce
-	38, // 95: mixmessages.Node.ConfirmRegistration:output_type -> mixmessages.RegistrationConfirmation
-	60, // 96: mixmessages.Node.PostPrecompResult:output_type -> messages.Ack
-	3,  // 97: mixmessages.Node.GetCompletedBatch:output_type -> mixmessages.Batch
-	2,  // 98: mixmessages.Node.GetMeasure:output_type -> mixmessages.RoundMetrics
-	8,  // 99: mixmessages.Node.Poll:output_type -> mixmessages.ServerPollResponse
-	60, // 100: mixmessages.Node.SendRoundTripPing:output_type -> messages.Ack
-	60, // 101: mixmessages.Node.RoundError:output_type -> messages.Ack
-	53, // 102: mixmessages.Node.GetPermissioningAddress:output_type -> mixmessages.StrAddress
-	60, // 103: mixmessages.Node.StartSharePhase:output_type -> messages.Ack
-	60, // 104: mixmessages.Node.SharePhaseRound:output_type -> messages.Ack
-	60, // 105: mixmessages.Node.ShareFinalKey:output_type -> messages.Ack
-	24, // 106: mixmessages.Gateway.PutMessage:output_type -> mixmessages.GatewaySlotResponse
-	36, // 107: mixmessages.Gateway.RequestNonce:output_type -> mixmessages.Nonce
-	38, // 108: mixmessages.Gateway.ConfirmNonce:output_type -> mixmessages.RegistrationConfirmation
-	43, // 109: mixmessages.Gateway.PollForNotifications:output_type -> mixmessages.UserIdList
-	20, // 110: mixmessages.Gateway.Poll:output_type -> mixmessages.GatewayPollResponse
-	13, // 111: mixmessages.Gateway.RequestHistoricalRounds:output_type -> mixmessages.HistoricalRoundsResponse
-	15, // 112: mixmessages.Gateway.RequestMessages:output_type -> mixmessages.GetMessagesResponse
-	11, // 113: mixmessages.Gateway.RequestBloom:output_type -> mixmessages.GetBloomResponse
-	60, // 114: mixmessages.Gateway.ShareMessages:output_type -> messages.Ack
-	33, // 115: mixmessages.Registration.RegisterUser:output_type -> mixmessages.UserRegistrationConfirmation
-	34, // 116: mixmessages.Registration.GetCurrentClientVersion:output_type -> mixmessages.ClientVersion
-	60, // 117: mixmessages.Registration.RegisterNode:output_type -> messages.Ack
-	30, // 118: mixmessages.Registration.PollNdf:output_type -> mixmessages.NDF
-	41, // 119: mixmessages.Registration.Poll:output_type -> mixmessages.PermissionPollResponse
-	27, // 120: mixmessages.Registration.CheckRegistration:output_type -> mixmessages.RegisteredNodeConfirmation
-	60, // 121: mixmessages.NotificationBot.UnregisterForNotifications:output_type -> messages.Ack
-	60, // 122: mixmessages.NotificationBot.RegisterForNotifications:output_type -> messages.Ack
-	60, // 123: mixmessages.UDB.RegisterUser:output_type -> messages.Ack
-	48, // 124: mixmessages.UDB.RegisterFact:output_type -> mixmessages.FactRegisterResponse
-	60, // 125: mixmessages.UDB.ConfirmFact:output_type -> messages.Ack
-	60, // 126: mixmessages.UDB.RemoveFact:output_type -> messages.Ack
-	52, // 127: mixmessages.ConnectivityChecker.CheckConnectivity:output_type -> mixmessages.ConnectivityResponse
-	87, // [87:128] is the sub-list for method output_type
-	46, // [46:87] is the sub-list for method input_type
-	46, // [46:46] is the sub-list for extension type_name
-	46, // [46:46] is the sub-list for extension extendee
-	0,  // [0:46] is the sub-list for field type_name
+	57, // 30: mixmessages.RequestRegistrationConfirmation.IdSignedByClient:type_name -> messages.RSASignature
+	57, // 31: mixmessages.RegistrationConfirmation.ClientSignedByServer:type_name -> messages.RSASignature
+	29, // 32: mixmessages.PermissioningPoll.Full:type_name -> mixmessages.NDFHash
+	29, // 33: mixmessages.PermissioningPoll.Partial:type_name -> mixmessages.NDFHash
+	55, // 34: mixmessages.PermissioningPoll.Error:type_name -> mixmessages.RoundError
+	40, // 35: mixmessages.PermissioningPoll.ClientErrors:type_name -> mixmessages.ClientError
+	30, // 36: mixmessages.PermissionPollResponse.FullNDF:type_name -> mixmessages.NDF
+	30, // 37: mixmessages.PermissionPollResponse.PartialNDF:type_name -> mixmessages.NDF
+	54, // 38: mixmessages.PermissionPollResponse.Updates:type_name -> mixmessages.RoundInfo
+	45, // 39: mixmessages.UDBUserRegistration.IdentityRegistration:type_name -> mixmessages.Identity
+	46, // 40: mixmessages.UDBUserRegistration.frs:type_name -> mixmessages.FactRegisterRequest
+	47, // 41: mixmessages.FactRegisterRequest.Fact:type_name -> mixmessages.Fact
+	47, // 42: mixmessages.FactRemovalRequest.RemovalData:type_name -> mixmessages.Fact
+	55, // 43: mixmessages.RoundInfo.Errors:type_name -> mixmessages.RoundError
+	40, // 44: mixmessages.RoundInfo.ClientErrors:type_name -> mixmessages.ClientError
+	57, // 45: mixmessages.RoundInfo.Signature:type_name -> messages.RSASignature
+	57, // 46: mixmessages.RoundError.Signature:type_name -> messages.RSASignature
+	58, // 47: mixmessages.Node.AskOnline:input_type -> messages.Ping
+	59, // 48: mixmessages.Node.CreateNewRound:input_type -> messages.AuthenticatedMessage
+	59, // 49: mixmessages.Node.PostNewBatch:input_type -> messages.AuthenticatedMessage
+	59, // 50: mixmessages.Node.FinishRealtime:input_type -> messages.AuthenticatedMessage
+	59, // 51: mixmessages.Node.PostPhase:input_type -> messages.AuthenticatedMessage
+	18, // 52: mixmessages.Node.StreamPostPhase:input_type -> mixmessages.Slot
+	59, // 53: mixmessages.Node.GetRoundBufferInfo:input_type -> messages.AuthenticatedMessage
+	59, // 54: mixmessages.Node.RequestNonce:input_type -> messages.AuthenticatedMessage
+	59, // 55: mixmessages.Node.ConfirmRegistration:input_type -> messages.AuthenticatedMessage
+	59, // 56: mixmessages.Node.PostPrecompResult:input_type -> messages.AuthenticatedMessage
+	59, // 57: mixmessages.Node.GetCompletedBatch:input_type -> messages.AuthenticatedMessage
+	59, // 58: mixmessages.Node.GetMeasure:input_type -> messages.AuthenticatedMessage
+	59, // 59: mixmessages.Node.Poll:input_type -> messages.AuthenticatedMessage
+	59, // 60: mixmessages.Node.SendRoundTripPing:input_type -> messages.AuthenticatedMessage
+	59, // 61: mixmessages.Node.RoundError:input_type -> messages.AuthenticatedMessage
+	58, // 62: mixmessages.Node.GetPermissioningAddress:input_type -> messages.Ping
+	59, // 63: mixmessages.Node.StartSharePhase:input_type -> messages.AuthenticatedMessage
+	59, // 64: mixmessages.Node.SharePhaseRound:input_type -> messages.AuthenticatedMessage
+	59, // 65: mixmessages.Node.ShareFinalKey:input_type -> messages.AuthenticatedMessage
+	23, // 66: mixmessages.Gateway.PutMessage:input_type -> mixmessages.GatewaySlot
+	35, // 67: mixmessages.Gateway.RequestNonce:input_type -> mixmessages.NonceRequest
+	37, // 68: mixmessages.Gateway.ConfirmNonce:input_type -> mixmessages.RequestRegistrationConfirmation
+	59, // 69: mixmessages.Gateway.PollForNotifications:input_type -> messages.AuthenticatedMessage
+	19, // 70: mixmessages.Gateway.Poll:input_type -> mixmessages.GatewayPoll
+	12, // 71: mixmessages.Gateway.RequestHistoricalRounds:input_type -> mixmessages.HistoricalRounds
+	14, // 72: mixmessages.Gateway.RequestMessages:input_type -> mixmessages.GetMessages
+	10, // 73: mixmessages.Gateway.RequestBloom:input_type -> mixmessages.GetBloom
+	59, // 74: mixmessages.Gateway.ShareMessages:input_type -> messages.AuthenticatedMessage
+	32, // 75: mixmessages.Registration.RegisterUser:input_type -> mixmessages.UserRegistration
+	58, // 76: mixmessages.Registration.GetCurrentClientVersion:input_type -> messages.Ping
+	31, // 77: mixmessages.Registration.RegisterNode:input_type -> mixmessages.NodeRegistration
+	29, // 78: mixmessages.Registration.PollNdf:input_type -> mixmessages.NDFHash
+	59, // 79: mixmessages.Registration.Poll:input_type -> messages.AuthenticatedMessage
+	28, // 80: mixmessages.Registration.CheckRegistration:input_type -> mixmessages.RegisteredNodeCheck
+	59, // 81: mixmessages.NotificationBot.UnregisterForNotifications:input_type -> messages.AuthenticatedMessage
+	59, // 82: mixmessages.NotificationBot.RegisterForNotifications:input_type -> messages.AuthenticatedMessage
+	59, // 83: mixmessages.UDB.RegisterUser:input_type -> messages.AuthenticatedMessage
+	59, // 84: mixmessages.UDB.RegisterFact:input_type -> messages.AuthenticatedMessage
+	59, // 85: mixmessages.UDB.ConfirmFact:input_type -> messages.AuthenticatedMessage
+	59, // 86: mixmessages.UDB.RemoveFact:input_type -> messages.AuthenticatedMessage
+	51, // 87: mixmessages.ConnectivityChecker.CheckConnectivity:input_type -> mixmessages.Address
+	60, // 88: mixmessages.Node.AskOnline:output_type -> messages.Ack
+	60, // 89: mixmessages.Node.CreateNewRound:output_type -> messages.Ack
+	60, // 90: mixmessages.Node.PostNewBatch:output_type -> messages.Ack
+	60, // 91: mixmessages.Node.FinishRealtime:output_type -> messages.Ack
+	60, // 92: mixmessages.Node.PostPhase:output_type -> messages.Ack
+	60, // 93: mixmessages.Node.StreamPostPhase:output_type -> messages.Ack
+	0,  // 94: mixmessages.Node.GetRoundBufferInfo:output_type -> mixmessages.RoundBufferInfo
+	36, // 95: mixmessages.Node.RequestNonce:output_type -> mixmessages.Nonce
+	38, // 96: mixmessages.Node.ConfirmRegistration:output_type -> mixmessages.RegistrationConfirmation
+	60, // 97: mixmessages.Node.PostPrecompResult:output_type -> messages.Ack
+	3,  // 98: mixmessages.Node.GetCompletedBatch:output_type -> mixmessages.Batch
+	2,  // 99: mixmessages.Node.GetMeasure:output_type -> mixmessages.RoundMetrics
+	8,  // 100: mixmessages.Node.Poll:output_type -> mixmessages.ServerPollResponse
+	60, // 101: mixmessages.Node.SendRoundTripPing:output_type -> messages.Ack
+	60, // 102: mixmessages.Node.RoundError:output_type -> messages.Ack
+	53, // 103: mixmessages.Node.GetPermissioningAddress:output_type -> mixmessages.StrAddress
+	60, // 104: mixmessages.Node.StartSharePhase:output_type -> messages.Ack
+	60, // 105: mixmessages.Node.SharePhaseRound:output_type -> messages.Ack
+	60, // 106: mixmessages.Node.ShareFinalKey:output_type -> messages.Ack
+	24, // 107: mixmessages.Gateway.PutMessage:output_type -> mixmessages.GatewaySlotResponse
+	36, // 108: mixmessages.Gateway.RequestNonce:output_type -> mixmessages.Nonce
+	38, // 109: mixmessages.Gateway.ConfirmNonce:output_type -> mixmessages.RegistrationConfirmation
+	43, // 110: mixmessages.Gateway.PollForNotifications:output_type -> mixmessages.UserIdList
+	20, // 111: mixmessages.Gateway.Poll:output_type -> mixmessages.GatewayPollResponse
+	13, // 112: mixmessages.Gateway.RequestHistoricalRounds:output_type -> mixmessages.HistoricalRoundsResponse
+	15, // 113: mixmessages.Gateway.RequestMessages:output_type -> mixmessages.GetMessagesResponse
+	11, // 114: mixmessages.Gateway.RequestBloom:output_type -> mixmessages.GetBloomResponse
+	60, // 115: mixmessages.Gateway.ShareMessages:output_type -> messages.Ack
+	33, // 116: mixmessages.Registration.RegisterUser:output_type -> mixmessages.UserRegistrationConfirmation
+	34, // 117: mixmessages.Registration.GetCurrentClientVersion:output_type -> mixmessages.ClientVersion
+	60, // 118: mixmessages.Registration.RegisterNode:output_type -> messages.Ack
+	30, // 119: mixmessages.Registration.PollNdf:output_type -> mixmessages.NDF
+	41, // 120: mixmessages.Registration.Poll:output_type -> mixmessages.PermissionPollResponse
+	27, // 121: mixmessages.Registration.CheckRegistration:output_type -> mixmessages.RegisteredNodeConfirmation
+	60, // 122: mixmessages.NotificationBot.UnregisterForNotifications:output_type -> messages.Ack
+	60, // 123: mixmessages.NotificationBot.RegisterForNotifications:output_type -> messages.Ack
+	60, // 124: mixmessages.UDB.RegisterUser:output_type -> messages.Ack
+	48, // 125: mixmessages.UDB.RegisterFact:output_type -> mixmessages.FactRegisterResponse
+	60, // 126: mixmessages.UDB.ConfirmFact:output_type -> messages.Ack
+	60, // 127: mixmessages.UDB.RemoveFact:output_type -> messages.Ack
+	52, // 128: mixmessages.ConnectivityChecker.CheckConnectivity:output_type -> mixmessages.ConnectivityResponse
+	88, // [88:129] is the sub-list for method output_type
+	47, // [47:88] is the sub-list for method input_type
+	47, // [47:47] is the sub-list for extension type_name
+	47, // [47:47] is the sub-list for extension extendee
+	0,  // [0:47] is the sub-list for field type_name
 }
 
 func init() { file_mixmessages_proto_init() }

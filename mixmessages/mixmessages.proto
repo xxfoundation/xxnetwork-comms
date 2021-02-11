@@ -433,15 +433,15 @@ message NonceRequest {
 message Nonce {
     bytes Nonce = 1;
     bytes DHPubKey = 2;
-    bytes IdentityHash = 3;
-    string Error = 4;
+    string Error = 3;
 }
 
 // RequestRegistrationConfirmation returning proof of registration
 message RequestRegistrationConfirmation {
     bytes userID = 1;
     messages.RSASignature NonceSignedByClient = 2;
-    string Error = 3;
+    messages.RSASignature IdSignedByClient = 3;
+    string Error = 4;
 }
 
 // RegistrationConfirmation returning proof of registration
