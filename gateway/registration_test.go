@@ -70,7 +70,7 @@ func TestSendConfirmNonceMessage(t *testing.T) {
 	}
 
 	reg := &pb.RequestRegistrationConfirmation{UserID: testID.Bytes()}
-	reg.NonceSignedByClient = &messages.RSASignature{}
+	reg.SignedData = &messages.RSASignature{}
 	_, err = gateway.SendConfirmNonceMessage(host, reg)
 	if err != nil {
 		t.Errorf("SendConfirmNonceMessage: Error received: %s", err)
