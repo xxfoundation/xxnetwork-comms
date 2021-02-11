@@ -170,14 +170,6 @@ message SharePiece {
 // GATEWAY MESSAGE SERVICE -----------------------------------------------------
 
 service Gateway {
-    // Request a list of MessageIDs from the gateway for the given UserID
-    rpc CheckMessages (ClientRequest) returns (IDList) {
-    }
-
-    // GetMessage a Batch from the gateway for the given message information
-    rpc GetMessage (ClientRequest) returns (Slot) {
-    }
-
     // PutMessage on the cMix Gateway
     rpc PutMessage (GatewaySlot) returns (GatewaySlotResponse) {
     }
@@ -209,6 +201,11 @@ service Gateway {
     // Client -> Gateway bloom request
     rpc RequestBloom(GetBloom) returns (GetBloomResponse) {
     }
+
+    // Gateway -> Gateway message sharing within a team
+    // Has RoundMessages underlying type
+    rpc ShareMessages(messages.AuthenticatedMessage) returns (messages.Ack) {
+    }
 }
 
 // Client -> Gateway request for bloom filter for available messages
@@ -221,7 +218,7 @@ message GetBloomResponse{
     repeated bytes Filters = 1;
 }
 
-// Client -> gateway request for information about historical rounds
+// Client -> Gateway request for information about historical rounds
 message HistoricalRounds{
     repeated uint64 rounds = 1;
 }
@@ -231,7 +228,7 @@ message HistoricalRoundsResponse{
     repeated RoundInfo Rounds = 1;
 }
 
-// Client -> gateway request for available messages
+// Client -> Gateway request for available messages
 // The query will be a request for all messages
 // available in a round.
 message GetMessages{
@@ -245,10 +242,10 @@ message GetMessagesResponse{
     bool HasRound = 2;
 }
 
-// ClientRequest message for clients to poll new CMIX messages
-message ClientRequest {
-    bytes UserID = 1; // 128 bit length
-    string LastMessageID = 2;
+// Gateway -> Gateway message sharing within a team
+message RoundMessages {
+    uint64 RoundId = 1;
+    repeated Slot Messages = 2;
 }
 
 // The message for clients to poll the gateway for Message IDs
@@ -280,18 +277,33 @@ message Slot {
 message GatewayPoll {
     NDFHash Partial = 1;
     uint64 LastUpdate = 2;
-    bytes ClientID = 3;
-    uint64 FirstRound = 4;
-    uint64 LastRound = 5;
+    bytes ReceptionID = 3;
+
+    // Define range for ClientBloomFilter searches
+    int64 StartTimestamp = 4;
+    int64 EndTimestamp = 5;
 }
 
 // Unified Client->Gateway polling response
 message GatewayPollResponse {
     NDF PartialNDF = 1; // Empty if no update needed
     repeated RoundInfo Updates = 2; // Empty if no update needed
-    uint64 LastTrackedRound = 3; // Id of the last round tracked
-    bytes KnownRounds = 4; // Rounds gateway knows about
-    repeated bytes BloomFilters = 5; // Latest Bloom filter of the requested client
+    bytes KnownRounds = 3; // Rounds gateway knows about
+    ClientBlooms Filters = 4; // Set of ClientBloomFilters requested by Client
+}
+
+// Holds a set of ClientBloom and their associated metadata
+message ClientBlooms {
+    int64 Period = 1;
+    int64 FirstTimestamp = 2;  // Earliest timestamp of the included BloomFilters
+    repeated ClientBloom Filters = 3;
+}
+
+// Hold a ClientBloomFilter and its associated metadata
+message ClientBloom {
+    bytes Filter = 1;
+    uint64 FirstRound = 2;
+    uint32 RoundRange = 3;
 }
 
 // Client -> Gateway authentication message
@@ -392,13 +404,15 @@ message NodeRegistration {
 message UserRegistration {
     string RegistrationCode = 1;
     string ClientRSAPubKey = 2;
+    string ClientReceptionRSAPubKey = 3;
 }
 
 // UserRegistrationConfirmation to confirm registration with users
 message UserRegistrationConfirmation {
     // RegistrationServer-Signed Client Public Key
     messages.RSASignature ClientSignedByServer = 1;
-    string Error = 2;
+    messages.RSASignature ClientReceptionSignedByServer = 2;
+    string Error = 3;
 }
 
 // ClientVersion contains a version string for the client
@@ -593,6 +607,7 @@ message RoundInfo {
     repeated ClientError ClientErrors = 8;
     uint32 ResourceQueueTimeoutMillis = 9; // Timeout for resource queue on nodes
     messages.RSASignature Signature = 10;
+    uint32 AddressSpaceSize = 11;
 }
 
 // RoundError will be used to describe a round error

@@ -67,8 +67,8 @@ func (s *MockRegistration) Poll(*pb.PermissioningPoll, *connect.Auth) (*pb.Permi
 
 // Registers a user and returns a signed public key
 func (s *MockRegistration) RegisterUser(registrationCode,
-	key string) (hash []byte, err error) {
-	return nil, nil
+	key, reptKey string) (sig, receptionSig []byte, err error) {
+	return nil, nil, nil
 }
 
 func (s *MockRegistration) GetCurrentClientVersion() (version string, err error) {
@@ -107,8 +107,8 @@ func (s *MockRegistrationError) Poll(*pb.PermissioningPoll, *connect.Auth) (*pb.
 
 // Registers a user and returns a signed public key
 func (s *MockRegistrationError) RegisterUser(registrationCode,
-	key string) (hash []byte, err error) {
-	return nil, nil
+	key, reptKey string) (sig, receptionSig []byte, err error) {
+	return nil, nil, nil
 }
 
 func (s *MockRegistrationError) GetCurrentClientVersion() (version string, err error) {

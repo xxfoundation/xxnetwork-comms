@@ -105,3 +105,29 @@ func TestGetCompletedBatch(t *testing.T) {
 		t.Errorf("GetCompletedBatch: Expected batch with no slots")
 	}
 }
+
+// Smoke test SendShareMessages
+func TestComms_SendShareMessages(t *testing.T) {
+	GatewayAddress := getNextGatewayAddress()
+	GatewayAddress2 := getNextGatewayAddress()
+	testID := id.NewIdFromString("test", id.Gateway, t)
+	testID2 := id.NewIdFromString("test2", id.Gateway, t)
+	gateway := StartGateway(testID, GatewayAddress, NewImplementation(), nil,
+		nil, gossip.DefaultManagerFlags())
+	gateway2 := StartGateway(testID2, GatewayAddress2, NewImplementation(), nil, nil, gossip.DefaultManagerFlags())
+	defer gateway.Shutdown()
+	defer gateway2.Shutdown()
+	manager := connect.NewManagerTesting(t)
+
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testID, GatewayAddress2, nil, params)
+	if err != nil {
+		t.Errorf("Unable to call NewHost: %+v", err)
+	}
+
+	err = gateway.SendShareMessages(host, &pb.RoundMessages{})
+	if err != nil {
+		t.Errorf("ShareMessages: Error received: %s", err)
+	}
+}

@@ -11,7 +11,7 @@ import (
 )
 
 // Server -> Server CheckConnectivity Function
-func (g *Comms) SendCheckConnectivityMessage(host *connect.Host,
+func (s *Comms) SendCheckConnectivityMessage(host *connect.Host,
 	message *pb.Address) (*pb.ConnectivityResponse, error) {
 
 	// Create the Send Function
@@ -30,7 +30,7 @@ func (g *Comms) SendCheckConnectivityMessage(host *connect.Host,
 
 	// Execute the Send function
 	jww.DEBUG.Printf("Sending Request Nonce message: %+v", message)
-	resultMsg, err := g.Send(host, f)
+	resultMsg, err := s.Send(host, f)
 	if err != nil {
 		return nil, err
 	}

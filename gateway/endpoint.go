@@ -10,11 +10,11 @@
 package gateway
 
 import (
+	"github.com/golang/protobuf/ptypes"
 	"github.com/pkg/errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/messages"
-	"gitlab.com/xx_network/primitives/id"
 	"golang.org/x/net/context"
 )
 
@@ -30,51 +30,6 @@ func (g *Comms) RequestToken(context.Context, *messages.Ping) (*messages.AssignT
 	return &messages.AssignToken{
 		Token: token,
 	}, err
-}
-
-// Sends new MessageIDs in the buffer to a client
-func (g *Comms) CheckMessages(ctx context.Context,
-	msg *pb.ClientRequest) (*pb.IDList, error) {
-
-	// Get peer information from context
-	addr, _, err := connect.GetAddressFromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-	userID, err := id.Unmarshal(msg.UserID)
-	if err != nil {
-		return nil, err
-	}
-
-	msgIds, err := g.handler.CheckMessages(userID, msg.LastMessageID, addr)
-	returnMsg := &pb.IDList{}
-	if err == nil {
-		returnMsg.IDs = msgIds
-	}
-	return returnMsg, err
-}
-
-// Sends a message matching the given parameters to a client
-func (g *Comms) GetMessage(ctx context.Context, msg *pb.ClientRequest) (
-	*pb.Slot, error) {
-
-	// Get peer information from context
-	addr, _, err := connect.GetAddressFromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	userID, err := id.Unmarshal(msg.UserID)
-	if err != nil {
-		return nil, err
-	}
-
-	returnMsg, err := g.handler.GetMessage(userID, msg.LastMessageID, addr)
-	if err != nil {
-		// Return an empty message if no results
-		returnMsg = &pb.Slot{}
-	}
-	return returnMsg, err
 }
 
 // Receives a single message from a client
@@ -123,12 +78,30 @@ func (g *Comms) ConfirmNonce(ctx context.Context,
 	return g.handler.ConfirmNonce(msg, addr)
 }
 
+// Gateway -> Gateway message sharing within a team
+func (g *Comms) ShareMessages(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
+
+	authState, err := g.AuthenticatedReceiver(msg)
+	if err != nil {
+		return nil, errors.Errorf("Unable to handle reception of AuthenticatedMessage: %+v", err)
+	}
+
+	// Marshall the any message to the message type needed
+	roundMessages := &pb.RoundMessages{}
+	err = ptypes.UnmarshalAny(msg.Message, roundMessages)
+	if err != nil {
+		return nil, err
+	}
+
+	return &messages.Ack{}, g.handler.ShareMessages(roundMessages, authState)
+}
+
 // Ping gateway to ask for users to notify
 func (g *Comms) PollForNotifications(ctx context.Context, msg *messages.AuthenticatedMessage) (*pb.UserIdList, error) {
 
 	authState, err := g.AuthenticatedReceiver(msg)
 	if err != nil {
-		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
+		return nil, errors.Errorf("Unable to handle reception of AuthenticatedMessage: %+v", err)
 	}
 
 	ids, err := g.handler.PollForNotifications(authState)

@@ -23,10 +23,6 @@ import (
 
 // Handler interface for the Gateway
 type Handler interface {
-	// Return any MessageIDs in the buffer for this UserID
-	CheckMessages(userID *id.ID, messageID string, ipAddress string) ([]string, error)
-	// Returns the message matching the given parameters to the client
-	GetMessage(userID *id.ID, msgID string, ipAddress string) (*pb.Slot, error) // todo: depreciate?
 	// Upload a message to the cMix Gateway
 	PutMessage(message *pb.GatewaySlot, ipAddress string) (*pb.GatewaySlotResponse, error)
 	// Pass-through for Registration Nonce Communication
@@ -44,6 +40,8 @@ type Handler interface {
 	RequestMessages(msg *pb.GetMessages) (*pb.GetMessagesResponse, error)
 	// Client -> Gateway bloom request
 	RequestBloom(msg *pb.GetBloom) (*pb.GetBloomResponse, error)
+	// Gateway -> Gateway message sharing within a team
+	ShareMessages(msg *pb.RoundMessages, auth *connect.Auth) error
 }
 
 // Gateway object used to implement endpoints and top-level comms functionality
@@ -92,10 +90,6 @@ func StartGateway(id *id.ID, localServer string, handler Handler,
 
 // Handler implementation for the Gateway
 type implementationFunctions struct {
-	// Return any MessageIDs in the buffer for this UserID
-	CheckMessages func(userID *id.ID, messageID string, ipAddress string) ([]string, error)
-	// Returns the message matching the given parameters to the client
-	GetMessage func(userID *id.ID, msgID string, ipAddress string) (*pb.Slot, error)
 	// Upload a message to the cMix Gateway
 	PutMessage func(message *pb.GatewaySlot, ipAddress string) (*pb.GatewaySlotResponse, error)
 	// Pass-through for Registration Nonce Communication
@@ -113,6 +107,8 @@ type implementationFunctions struct {
 	RequestMessages func(msg *pb.GetMessages) (*pb.GetMessagesResponse, error)
 	// Client -> Gateway bloom request
 	RequestBloom func(msg *pb.GetBloom) (*pb.GetBloomResponse, error)
+	// Gateway -> Gateway message sharing within a team
+	ShareMessages func(msg *pb.RoundMessages, auth *connect.Auth) error
 }
 
 // Implementation allows users of the client library to set the
@@ -130,14 +126,6 @@ func NewImplementation() *Implementation {
 	}
 	return &Implementation{
 		Functions: implementationFunctions{
-			CheckMessages: func(userID *id.ID, messageID string, ipAddress string) ([]string, error) {
-				warn(um)
-				return nil, nil
-			},
-			GetMessage: func(userID *id.ID, msgID string, ipAddress string) (*pb.Slot, error) {
-				warn(um)
-				return &pb.Slot{}, nil
-			},
 			PutMessage: func(message *pb.GatewaySlot, ipAddress string) (*pb.GatewaySlotResponse, error) {
 				warn(um)
 				return new(pb.GatewaySlotResponse), nil
@@ -170,20 +158,12 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return &pb.GetBloomResponse{}, nil
 			},
+			ShareMessages: func(msg *pb.RoundMessages, auth *connect.Auth) error {
+				warn(um)
+				return nil
+			},
 		},
 	}
-}
-
-// Return any MessageIDs in the buffer for this UserID
-func (s *Implementation) CheckMessages(userID *id.ID, messageID string, ipAddress string) (
-	[]string, error) {
-	return s.Functions.CheckMessages(userID, messageID, ipAddress)
-}
-
-// Returns the message matching the given parameters to the client
-func (s *Implementation) GetMessage(userID *id.ID, msgID string, ipAddress string) (
-	*pb.Slot, error) {
-	return s.Functions.GetMessage(userID, msgID, ipAddress)
 }
 
 // Upload a message to the cMix Gateway
@@ -226,4 +206,9 @@ func (s *Implementation) RequestMessages(msg *pb.GetMessages) (*pb.GetMessagesRe
 // Client -> Gateway bloom request
 func (s *Implementation) RequestBloom(msg *pb.GetBloom) (*pb.GetBloomResponse, error) {
 	return s.Functions.RequestBloom(msg)
+}
+
+// Gateway -> Gateway message sharing within a team
+func (s *Implementation) ShareMessages(msg *pb.RoundMessages, auth *connect.Auth) error {
+	return s.Functions.ShareMessages(msg, auth)
 }
