@@ -85,7 +85,7 @@ func (wr *WaitingRounds) Insert(newRound *pb.RoundInfo) {
 
 // getTime returns the timestamp for the round's realtime.
 func getTime(round *pb.RoundInfo) uint64 {
-	return round.Timestamps[states.REALTIME]
+	return round.Timestamps[states.QUEUED]
 }
 
 // remove deletes the round from the list if it exists.
