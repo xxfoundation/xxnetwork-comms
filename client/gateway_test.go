@@ -143,35 +143,6 @@ func TestComms_RequestMessages(t *testing.T) {
 	}
 }
 
-// Smoke test RequestBloom
-func TestComms_RequestBloom(t *testing.T) {
-	gatewayAddress := getNextAddress()
-	testID := id.NewIdFromString("test", id.Gateway, t)
-	gw := gateway.StartGateway(testID, gatewayAddress,
-		gateway.NewImplementation(), nil, nil, gossip.DefaultManagerFlags())
-	defer gw.Shutdown()
-	pk := testkeys.LoadFromPath(testkeys.GetGatewayKeyPath())
-
-	c, err := NewClientComms(testID, nil, pk, nil)
-	if err != nil {
-		t.Errorf("Could not start client: %v", err)
-	}
-
-	params := connect.GetDefaultHostParams()
-	params.AuthEnabled = false
-
-	host, err := c.Manager.AddHost(testID, gatewayAddress, nil, params)
-	if err != nil {
-		t.Errorf("Unable to call NewHost: %+v", err)
-	}
-
-	_, err = c.RequestBloom(host,
-		&pb.GetBloom{})
-	if err != nil {
-		t.Errorf("SendPoll: Error received: %+v", err)
-	}
-}
-
 // Smoke test RequestHistoricalRounds
 func TestComms_RequestHistoricalRounds(t *testing.T) {
 	gatewayAddress := getNextAddress()
