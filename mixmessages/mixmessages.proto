@@ -198,24 +198,10 @@ service Gateway {
     rpc RequestMessages(GetMessages) returns (GetMessagesResponse) {
     }
 
-    // Client -> Gateway bloom request
-    rpc RequestBloom(GetBloom) returns (GetBloomResponse) {
-    }
-
     // Gateway -> Gateway message sharing within a team
     // Has RoundMessages underlying type
     rpc ShareMessages(messages.AuthenticatedMessage) returns (messages.Ack) {
     }
-}
-
-// Client -> Gateway request for bloom filter for available messages
-message GetBloom{
-    bytes ClientID = 1;
-}
-
-// Gateway's response to client's request for bloom filters
-message GetBloomResponse{
-    repeated bytes Filters = 1;
 }
 
 // Client -> Gateway request for information about historical rounds
