@@ -252,7 +252,7 @@ func createTestRoundInfos(num int) ([]*pb.RoundInfo, []*pb.RoundInfo) {
 			Timestamps: make([]uint64, current.NUM_STATES),
 		}
 		timeTrack += uint64(rand.Int63n(10000))
-		rounds[i].Timestamps[current.REALTIME] = timeTrack
+		rounds[i].Timestamps[current.STANDBY] = timeTrack
 
 		if i%2 == 1 {
 			rounds[i].State = uint32(states.QUEUED)
