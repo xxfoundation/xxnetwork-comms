@@ -4,7 +4,7 @@
 [![coverage report](https://gitlab.com/elixxir/comms/badges/master/coverage.svg)](https://gitlab.com/elixxir/comms/commits/master)
 
 This library implements functionality for communications operations in
-the xxnetwork system.
+the xx network system.
 
 ## How to run tests
 
