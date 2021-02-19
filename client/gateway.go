@@ -197,32 +197,3 @@ func (c *Comms) RequestMessages(host *connect.Host,
 	result := &pb.GetMessagesResponse{}
 	return result, ptypes.UnmarshalAny(resultMsg, result)
 }
-
-// Client -> Gateway Send Function
-func (c *Comms) RequestBloom(host *connect.Host,
-	message *pb.GetBloom) (*pb.GetBloomResponse, error) {
-	// Create the Send Function
-	f := func(conn *grpc.ClientConn) (*any.Any, error) {
-		// Set up the context
-		ctx, cancel := connect.MessagingContext()
-		defer cancel()
-
-		// Send the message
-		resultMsg, err := pb.NewGatewayClient(conn).RequestBloom(ctx, message)
-		if err != nil {
-			return nil, errors.New(err.Error())
-		}
-		return ptypes.MarshalAny(resultMsg)
-	}
-
-	// Execute the Send function
-	jww.DEBUG.Printf("Sending Poll message: %+v", message)
-	resultMsg, err := c.Send(host, f)
-	if err != nil {
-		return nil, err
-	}
-
-	// Marshall the result
-	result := &pb.GetBloomResponse{}
-	return result, ptypes.UnmarshalAny(resultMsg, result)
-}

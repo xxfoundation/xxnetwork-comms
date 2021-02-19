@@ -13,7 +13,6 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/pkg/errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/messages"
 	"golang.org/x/net/context"
 )
@@ -36,14 +35,8 @@ func (g *Comms) RequestToken(context.Context, *messages.Ping) (*messages.AssignT
 func (g *Comms) PutMessage(ctx context.Context, msg *pb.GatewaySlot) (*pb.GatewaySlotResponse,
 	error) {
 
-	// Get peer information from context
-	addr, _, err := connect.GetAddressFromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-
 	// Upload a message to the cMix Gateway at the peer's IP address
-	returnMsg, err := g.handler.PutMessage(msg, addr)
+	returnMsg, err := g.handler.PutMessage(msg)
 	if err != nil {
 		returnMsg = &pb.GatewaySlotResponse{}
 
@@ -55,27 +48,14 @@ func (g *Comms) PutMessage(ctx context.Context, msg *pb.GatewaySlot) (*pb.Gatewa
 func (g *Comms) RequestNonce(ctx context.Context,
 	msg *pb.NonceRequest) (*pb.Nonce, error) {
 
-	// Get peer information from context
-	addr, _, err := connect.GetAddressFromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	return g.handler.RequestNonce(msg, addr)
+	return g.handler.RequestNonce(msg)
 }
 
 // Pass-through for Registration Nonce Confirmation
 func (g *Comms) ConfirmNonce(ctx context.Context,
-	msg *pb.RequestRegistrationConfirmation) (*pb.RegistrationConfirmation,
-	error) {
+	msg *pb.RequestRegistrationConfirmation) (*pb.RegistrationConfirmation, error) {
 
-	// Get peer information from context
-	addr, _, err := connect.GetAddressFromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	return g.handler.ConfirmNonce(msg, addr)
+	return g.handler.ConfirmNonce(msg)
 }
 
 // Gateway -> Gateway message sharing within a team
@@ -127,9 +107,4 @@ func (g *Comms) RequestHistoricalRounds(ctx context.Context, msg *pb.HistoricalR
 // Client -> Gateway message request
 func (g *Comms) RequestMessages(ctx context.Context, msg *pb.GetMessages) (*pb.GetMessagesResponse, error) {
 	return g.handler.RequestMessages(msg)
-}
-
-// Client -> Gateway bloom filter request
-func (g *Comms) RequestBloom(ctx context.Context, msg *pb.GetBloom) (*pb.GetBloomResponse, error) {
-	return g.handler.RequestBloom(msg)
 }

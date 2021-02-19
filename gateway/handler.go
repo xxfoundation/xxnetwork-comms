@@ -24,11 +24,11 @@ import (
 // Handler interface for the Gateway
 type Handler interface {
 	// Upload a message to the cMix Gateway
-	PutMessage(message *pb.GatewaySlot, ipAddress string) (*pb.GatewaySlotResponse, error)
+	PutMessage(message *pb.GatewaySlot) (*pb.GatewaySlotResponse, error)
 	// Pass-through for Registration Nonce Communication
-	RequestNonce(message *pb.NonceRequest, ipAddress string) (*pb.Nonce, error)
+	RequestNonce(message *pb.NonceRequest) (*pb.Nonce, error)
 	// Pass-through for Registration Nonce Confirmation
-	ConfirmNonce(message *pb.RequestRegistrationConfirmation, ipAddress string) (*pb.
+	ConfirmNonce(message *pb.RequestRegistrationConfirmation) (*pb.
 		RegistrationConfirmation, error)
 	// Ping gateway to ask for users to notify
 	PollForNotifications(auth *connect.Auth) ([]*id.ID, error)
@@ -38,8 +38,6 @@ type Handler interface {
 	RequestHistoricalRounds(msg *pb.HistoricalRounds) (*pb.HistoricalRoundsResponse, error)
 	// Client -> Gateway message request
 	RequestMessages(msg *pb.GetMessages) (*pb.GetMessagesResponse, error)
-	// Client -> Gateway bloom request
-	RequestBloom(msg *pb.GetBloom) (*pb.GetBloomResponse, error)
 	// Gateway -> Gateway message sharing within a team
 	ShareMessages(msg *pb.RoundMessages, auth *connect.Auth) error
 }
@@ -91,11 +89,11 @@ func StartGateway(id *id.ID, localServer string, handler Handler,
 // Handler implementation for the Gateway
 type implementationFunctions struct {
 	// Upload a message to the cMix Gateway
-	PutMessage func(message *pb.GatewaySlot, ipAddress string) (*pb.GatewaySlotResponse, error)
+	PutMessage func(message *pb.GatewaySlot) (*pb.GatewaySlotResponse, error)
 	// Pass-through for Registration Nonce Communication
-	RequestNonce func(message *pb.NonceRequest, ipAddress string) (*pb.Nonce, error)
+	RequestNonce func(message *pb.NonceRequest) (*pb.Nonce, error)
 	// Pass-through for Registration Nonce Confirmation
-	ConfirmNonce func(message *pb.RequestRegistrationConfirmation, ipAddress string) (*pb.
+	ConfirmNonce func(message *pb.RequestRegistrationConfirmation) (*pb.
 			RegistrationConfirmation, error)
 	// Ping gateway to ask for users to notify
 	PollForNotifications func(auth *connect.Auth) ([]*id.ID, error)
@@ -105,8 +103,6 @@ type implementationFunctions struct {
 	RequestHistoricalRounds func(msg *pb.HistoricalRounds) (*pb.HistoricalRoundsResponse, error)
 	// Client -> Gateway message request
 	RequestMessages func(msg *pb.GetMessages) (*pb.GetMessagesResponse, error)
-	// Client -> Gateway bloom request
-	RequestBloom func(msg *pb.GetBloom) (*pb.GetBloomResponse, error)
 	// Gateway -> Gateway message sharing within a team
 	ShareMessages func(msg *pb.RoundMessages, auth *connect.Auth) error
 }
@@ -126,15 +122,15 @@ func NewImplementation() *Implementation {
 	}
 	return &Implementation{
 		Functions: implementationFunctions{
-			PutMessage: func(message *pb.GatewaySlot, ipAddress string) (*pb.GatewaySlotResponse, error) {
+			PutMessage: func(message *pb.GatewaySlot) (*pb.GatewaySlotResponse, error) {
 				warn(um)
 				return new(pb.GatewaySlotResponse), nil
 			},
-			RequestNonce: func(message *pb.NonceRequest, ipAddress string) (*pb.Nonce, error) {
+			RequestNonce: func(message *pb.NonceRequest) (*pb.Nonce, error) {
 				warn(um)
 				return new(pb.Nonce), nil
 			},
-			ConfirmNonce: func(message *pb.RequestRegistrationConfirmation, ipAddress string) (*pb.RegistrationConfirmation, error) {
+			ConfirmNonce: func(message *pb.RequestRegistrationConfirmation) (*pb.RegistrationConfirmation, error) {
 				warn(um)
 				return new(pb.RegistrationConfirmation), nil
 			},
@@ -154,10 +150,6 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return &pb.GetMessagesResponse{}, nil
 			},
-			RequestBloom: func(msg *pb.GetBloom) (*pb.GetBloomResponse, error) {
-				warn(um)
-				return &pb.GetBloomResponse{}, nil
-			},
 			ShareMessages: func(msg *pb.RoundMessages, auth *connect.Auth) error {
 				warn(um)
 				return nil
@@ -167,20 +159,19 @@ func NewImplementation() *Implementation {
 }
 
 // Upload a message to the cMix Gateway
-func (s *Implementation) PutMessage(message *pb.GatewaySlot, ipAddress string) (*pb.GatewaySlotResponse, error) {
-	return s.Functions.PutMessage(message, ipAddress)
+func (s *Implementation) PutMessage(message *pb.GatewaySlot) (*pb.GatewaySlotResponse, error) {
+	return s.Functions.PutMessage(message)
 }
 
 // Pass-through for Registration Nonce Communication
-func (s *Implementation) RequestNonce(message *pb.NonceRequest, ipAddress string) (
+func (s *Implementation) RequestNonce(message *pb.NonceRequest) (
 	*pb.Nonce, error) {
-	return s.Functions.RequestNonce(message, ipAddress)
+	return s.Functions.RequestNonce(message)
 }
 
 // Pass-through for Registration Nonce Confirmation
-func (s *Implementation) ConfirmNonce(message *pb.RequestRegistrationConfirmation,
-	ipAddress string) (*pb.RegistrationConfirmation, error) {
-	return s.Functions.ConfirmNonce(message, ipAddress)
+func (s *Implementation) ConfirmNonce(message *pb.RequestRegistrationConfirmation) (*pb.RegistrationConfirmation, error) {
+	return s.Functions.ConfirmNonce(message)
 }
 
 // Ping gateway to ask for users to notify
@@ -201,11 +192,6 @@ func (s *Implementation) RequestHistoricalRounds(msg *pb.HistoricalRounds) (*pb.
 // Client -> Gateway historical round request
 func (s *Implementation) RequestMessages(msg *pb.GetMessages) (*pb.GetMessagesResponse, error) {
 	return s.Functions.RequestMessages(msg)
-}
-
-// Client -> Gateway bloom request
-func (s *Implementation) RequestBloom(msg *pb.GetBloom) (*pb.GetBloomResponse, error) {
-	return s.Functions.RequestBloom(msg)
 }
 
 // Gateway -> Gateway message sharing within a team
