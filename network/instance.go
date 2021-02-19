@@ -519,6 +519,11 @@ func (i *Instance) GetLastRoundID() id.Round {
 	return i.roundData.GetLastRoundID() - 1
 }
 
+// Get the oldest round id
+func (i *Instance) GetOldestRoundID() id.Round  {
+	return i.roundData.GetOldestRoundID()
+}
+
 // Update gateway hosts based on most complete ndf
 func (i *Instance) UpdateGatewayConnections() error {
 	if i.full != nil {
