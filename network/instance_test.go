@@ -316,6 +316,49 @@ func TestInstance_GetLastUpdateID(t *testing.T) {
 	i.GetLastUpdateID()
 }
 
+func TestInstance_GetOldestRoundID(t *testing.T) {
+	i := Instance{
+		roundData: ds.NewData(),
+	}
+
+	expectedOldRound := id.Round(0)
+	_ = i.roundData.UpsertRound(&mixmessages.RoundInfo{ID: uint64(expectedOldRound)})
+	_ = i.roundData.UpsertRound(&mixmessages.RoundInfo{ID:uint64(2)})
+
+
+	returned := i.GetOldestRoundID()
+	if returned != expectedOldRound {
+		t.Errorf("Failed to get oldest round from buffer." +
+			"\n\tExpected: %v" +
+			"\n\tReceived: %v", expectedOldRound, returned)
+	}
+}
+
+// Test which forces a full buffer, causing overwriting of old rounds
+func TestInstance_GetOldestRoundID_ManyRounds(t *testing.T) {
+	testInstance := Instance{
+		roundData: ds.NewData(),
+	}
+
+	// Ensure a circle back in the round buffer
+	for i := 1; i <= ds.RoundInfoBufLen ; i++ {
+		_ = testInstance.roundData.UpsertRound(&mixmessages.RoundInfo{ID: uint64(i)})
+
+	}
+
+	// This will have oldest round as 0, until we reach RoundInfoBufLen, then
+	// round 0 will be overwritten by the newest round,
+	// moving the oldest round to round 1
+	expected := id.Round(1)
+	returned := testInstance.GetOldestRoundID()
+	if returned !=  expected {
+		t.Errorf("Failed to get oldest round from buffer." +
+			"\n\tExpected: %v" +
+			"\n\tReceived: %v", 1, returned)
+	}
+}
+
+
 func TestInstance_UpdateGatewayConnections(t *testing.T) {
 	secured, _ := NewSecuredNdf(testutils.NDF)
 	testManager := connect.NewManagerTesting(t)
