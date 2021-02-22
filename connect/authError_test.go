@@ -26,7 +26,7 @@ func TestAuthError(t *testing.T) {
 	}
 
 	result = AuthError(nil)
-	if result == nil || !strings.Contains(result.Error(), "due to nil id"){
+	if result == nil || !strings.Contains(result.Error(), "due to nil id") {
 		t.Errorf("returned error not as expected: Expected: %s, received: %s",
 			"due to nil id", result.Error())
 	}

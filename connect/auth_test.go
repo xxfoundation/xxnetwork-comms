@@ -30,6 +30,8 @@ func TestSignVerify(t *testing.T) {
 		t.Errorf("Error setting private key: %+v", err)
 	}
 
+	c.Id = id.NewIdFromBytes([]byte("Kirby"), t)
+
 	private := c.GetPrivateKey()
 	pub := private.Public().(*rsa.PublicKey)
 
@@ -42,7 +44,7 @@ func TestSignVerify(t *testing.T) {
 		t.Errorf("Error converting to Any type: %+v", err)
 	}
 
-	signature, err := c.signMessage(wrappedMessage)
+	signature, err := c.signMessage(wrappedMessage, c.Id)
 	if err != nil {
 		t.Errorf("Error signing message: %+v", err)
 	}

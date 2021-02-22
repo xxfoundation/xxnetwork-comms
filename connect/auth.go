@@ -113,7 +113,7 @@ func (c *ProtoComms) PackAuthenticatedMessage(msg proto.Message, host *Host,
 
 	// If signature is enabled, sign the message and add to payload
 	if enableSignature && !c.disableAuth {
-		authMsg.Signature, err = c.signMessage(msg)
+		authMsg.Signature, err = c.signMessage(msg, host.GetId())
 		if err != nil {
 			return nil, err
 		}
@@ -327,7 +327,7 @@ func (c *ProtoComms) DisableAuth() {
 
 // Takes a message and returns its signature
 // The message is signed with the ProtoComms RSA PrivateKey
-func (c *ProtoComms) signMessage(msg proto.Message) ([]byte, error) {
+func (c *ProtoComms) signMessage(msg proto.Message, recipientID *id.ID) ([]byte, error) {
 	// Hash the message data
 	msgBytes, err := proto.Marshal(msg)
 	if err != nil {
@@ -336,6 +336,9 @@ func (c *ProtoComms) signMessage(msg proto.Message) ([]byte, error) {
 	options := rsa.NewDefaultOptions()
 	hash := options.Hash.New()
 	hash.Write(msgBytes)
+	// Hash in the ID of the intended recipient. This prevents potential
+	// replay attacks
+	hash.Write(recipientID.Bytes())
 	hashed := hash.Sum(nil)
 
 	// Obtain the private key
@@ -363,6 +366,10 @@ func (c *ProtoComms) verifyMessage(msg proto.Message, signature []byte, host *Ho
 	options := rsa.NewDefaultOptions()
 	hash := options.Hash.New()
 	hash.Write(msgBytes)
+	// Hash in the ID of the intended recipient (since we are verifying,
+	// it is implied we are the intended recipient). This prevents potential
+	// replay attacks
+	hash.Write(c.Id.Bytes())
 	hashed := hash.Sum(nil)
 
 	// Verify signature of message using host public key

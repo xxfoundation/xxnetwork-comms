@@ -165,7 +165,7 @@ func (h *Host) Connected() (bool, uint64) {
 
 // GetId returns the id of the host
 func (h *Host) GetId() *id.ID {
-	if h ==nil{
+	if h == nil {
 		return &id.ID{}
 	}
 	return h.id
