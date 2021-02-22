@@ -425,7 +425,7 @@ message Nonce {
 // RequestRegistrationConfirmation returning proof of registration
 message RequestRegistrationConfirmation {
     bytes userID = 1;
-    messages.RSASignature SignedData = 2;
+    messages.RSASignature NonceSignedByClient = 2;
     string Error = 3;
 }
 
