@@ -361,7 +361,8 @@ func (c *ProtoComms) signMessage(msg proto.Message, recipientID *id.ID) ([]byte,
 func (c *ProtoComms) verifyMessage(msg proto.Message, signature []byte, host *Host) error {
 
 	// Deal with edge case in which gateways and servers
-	// haven't added each other as hosts yet
+	// haven't added each other as hosts yet, and dealing with
+	// temporary or dummy ID's
 	var idToHash *id.ID
 	if host.id.Cmp(&id.DummyUser) || host.id.Cmp(&id.TempGateway) {
 		idToHash = &id.DummyUser
