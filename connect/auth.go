@@ -366,10 +366,9 @@ func (c *ProtoComms) verifyMessage(msg proto.Message, signature []byte, host *Ho
 	options := rsa.NewDefaultOptions()
 	hash := options.Hash.New()
 	hash.Write(msgBytes)
-	// Hash in the ID of the intended recipient (since we are verifying,
-	// it is implied we are the intended recipient). This prevents potential
+	// Hash in the ID of the intended recipient. This prevents potential
 	// replay attacks
-	hash.Write(c.Id.Bytes())
+	hash.Write(host.id.Bytes())
 	hashed := hash.Sum(nil)
 
 	// Verify signature of message using host public key
