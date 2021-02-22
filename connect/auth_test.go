@@ -31,6 +31,7 @@ func TestSignVerify(t *testing.T) {
 	}
 
 	testId := id.NewIdFromBytes([]byte("Kirby"), t)
+	c.Id = testId
 
 	private := c.GetPrivateKey()
 	pub := private.Public().(*rsa.PublicKey)
@@ -50,7 +51,7 @@ func TestSignVerify(t *testing.T) {
 	}
 
 	host := &Host{
-		id: testId,
+		id:           testId,
 		rsaPublicKey: pub,
 	}
 

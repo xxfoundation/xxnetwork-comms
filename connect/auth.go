@@ -360,6 +360,16 @@ func (c *ProtoComms) signMessage(msg proto.Message, recipientID *id.ID) ([]byte,
 // using Host public key, returning an error if invalid
 func (c *ProtoComms) verifyMessage(msg proto.Message, signature []byte, host *Host) error {
 
+	// Deal with edge case in which gateways and servers
+	// haven't added each other as hosts yet
+	var idToHash *id.ID
+	if host.id.Cmp(&id.DummyUser) || host.id.Cmp(&id.TempGateway) {
+		idToHash = &id.DummyUser
+		idToHash.SetType(id.Node)
+	} else {
+		idToHash = c.Id
+	}
+
 	// Get hashed data of the message
 	msgBytes, err := proto.Marshal(msg)
 	if err != nil {
@@ -370,10 +380,11 @@ func (c *ProtoComms) verifyMessage(msg proto.Message, signature []byte, host *Ho
 	hash.Write(msgBytes)
 	// Hash in the ID of the intended recipient. This prevents potential
 	// replay attacks
-	hash.Write(c.Id.Bytes())
+	hash.Write(idToHash.Bytes())
 	hashed := hash.Sum(nil)
-	jww.TRACE.Printf("VerifyMessage hash: %v", hashed)
-	jww.TRACE.Printf("Hashed with ID: %v", host.id)
+	jww.TRACE.Printf("222VerifyMessage hash: %v", hashed)
+	jww.TRACE.Printf("HASHED ID: %v", idToHash)
+	jww.TRACE.Printf("HOST ID: %v", host.id)
 
 	// Verify signature of message using host public key
 	err = rsa.Verify(host.rsaPublicKey, options.Hash, hashed, signature, nil)
