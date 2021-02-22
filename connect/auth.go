@@ -370,7 +370,7 @@ func (c *ProtoComms) verifyMessage(msg proto.Message, signature []byte, host *Ho
 	hash.Write(msgBytes)
 	// Hash in the ID of the intended recipient. This prevents potential
 	// replay attacks
-	hash.Write(host.id.Bytes())
+	hash.Write(c.Id.Bytes())
 	hashed := hash.Sum(nil)
 	jww.TRACE.Printf("VerifyMessage hash: %v", hashed)
 	jww.TRACE.Printf("Hashed with ID: %v", host.id)
