@@ -12,9 +12,9 @@ require (
 	github.com/zeebo/pcg v1.0.0 // indirect
 	gitlab.com/elixxir/crypto v0.0.7-0.20210216174551-f806f79610eb
 	gitlab.com/elixxir/primitives v0.0.3-0.20210216174458-2a23825c1eb1
-	gitlab.com/xx_network/comms v0.0.4-0.20210216174438-0790d1f1f225
+	gitlab.com/xx_network/comms v0.0.4-0.20210222223248-64832f7445d1
 	gitlab.com/xx_network/crypto v0.0.5-0.20210216174356-e81e1ddf8fb7
-	gitlab.com/xx_network/primitives v0.0.4-0.20210215192713-e32335847d4f
+	gitlab.com/xx_network/primitives v0.0.4-0.20210219231511-983054dbee36
 	gitlab.com/xx_network/ring v0.0.2
 	golang.org/x/net v0.0.0-20201029221708-28c70e62bb1d
 	golang.org/x/sys v0.0.0-20201029080932-201ba4db2418 // indirect
