@@ -341,6 +341,7 @@ func (c *ProtoComms) signMessage(msg proto.Message, recipientID *id.ID) ([]byte,
 	hash.Write(recipientID.Bytes())
 	hashed := hash.Sum(nil)
 
+	jww.TRACE.Printf("SignMessage: Signing for host ID [%v]", recipientID)
 	jww.TRACE.Printf("SignMessage: hash data: %v", hashed)
 	jww.TRACE.Printf("SignMessage: Hashed with ID: %v", recipientID)
 
@@ -385,6 +386,7 @@ func (c *ProtoComms) verifyMessage(msg proto.Message, signature []byte, host *Ho
 	hash.Write(idToHash.Bytes())
 	hashed := hash.Sum(nil)
 
+	jww.TRACE.Printf("VerifyMessage: Verifying host ID [%v]", host.GetId())
 	jww.TRACE.Printf("VerifyMessage: hash data: %v", hashed)
 	jww.TRACE.Printf("VerifyMessage: Hashed with ID: %v", idToHash)
 
