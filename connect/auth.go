@@ -340,8 +340,9 @@ func (c *ProtoComms) signMessage(msg proto.Message, recipientID *id.ID) ([]byte,
 	// replay attacks
 	hash.Write(recipientID.Bytes())
 	hashed := hash.Sum(nil)
-	jww.TRACE.Printf("SignMessage hash: %v", hashed)
-	jww.TRACE.Printf("Hashed with ID: %v", recipientID)
+
+	jww.TRACE.Printf("SignMessage: hash data: %v", hashed)
+	jww.TRACE.Printf("SignMessage: Hashed with ID: %v", recipientID)
 
 	// Obtain the private key
 	key := c.GetPrivateKey()
@@ -383,9 +384,9 @@ func (c *ProtoComms) verifyMessage(msg proto.Message, signature []byte, host *Ho
 	// replay attacks
 	hash.Write(idToHash.Bytes())
 	hashed := hash.Sum(nil)
-	jww.TRACE.Printf("222VerifyMessage hash: %v", hashed)
-	jww.TRACE.Printf("HASHED ID: %v", idToHash)
-	jww.TRACE.Printf("HOST ID: %v", host.id)
+
+	jww.TRACE.Printf("VerifyMessage: hash data: %v", hashed)
+	jww.TRACE.Printf("VerifyMessage: Hashed with ID: %v", idToHash)
 
 	// Verify signature of message using host public key
 	err = rsa.Verify(host.rsaPublicKey, options.Hash, hashed, signature, nil)
