@@ -57,3 +57,8 @@ func (d *Data) GetRound(id int) (*mixmessages.RoundInfo, error) {
 func (d *Data) GetLastRoundID() id.Round {
 	return id.Round(d.rounds.GetNewestId())
 }
+
+// Gets the ID of the oldest roundd in the buffer
+func (d *Data) GetOldestRoundID() id.Round  {
+	return id.Round(d.rounds.GetOldestId())
+}
