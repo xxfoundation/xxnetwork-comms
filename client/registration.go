@@ -45,7 +45,7 @@ func (c *Comms) SendRegistrationMessage(host *connect.Host,
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Registration message: %+v", message)
+	jww.TRACE.Printf("Sending Registration message: %+v", message)
 	resultMsg, err := c.Send(host, f)
 	if err != nil {
 		return nil, err
@@ -76,7 +76,7 @@ func (c *Comms) SendGetCurrentClientVersionMessage(
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Get Client Version message...")
+	jww.TRACE.Printf("Sending Get Client Version message...")
 	resultMsg, err := c.Send(host, f)
 	if err != nil {
 		return nil, err
@@ -108,7 +108,7 @@ func (c *Comms) RequestNdf(host *connect.Host,
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Request Ndf message: %+v", message)
+	jww.TRACE.Printf("Sending Request Ndf message: %+v", message)
 	resultMsg, err := c.Send(host, f)
 	if err != nil {
 		return nil, err

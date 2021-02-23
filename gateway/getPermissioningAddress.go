@@ -31,7 +31,7 @@ func (g *Comms) SendGetPermissioningAddress(host *connect.Host) (string, error) 
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending get permissioning address ping.")
+	jww.TRACE.Printf("Sending get permissioning address ping.")
 	resultMsg, err := g.Send(host, f)
 	if err != nil {
 		return "", err

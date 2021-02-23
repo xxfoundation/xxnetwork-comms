@@ -43,7 +43,7 @@ func (s *Comms) SendRoundError(host *connect.Host, message *pb.RoundError) (*mes
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Round Error message: %+v", message)
+	jww.TRACE.Printf("Sending Round Error message: %+v", message)
 	resultMsg, err := s.Send(host, f)
 	if err != nil {
 		return nil, err
@@ -76,7 +76,7 @@ func (s *Comms) SendGetMeasure(host *connect.Host,
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Get Measure message: %+v", message)
+	jww.TRACE.Printf("Sending Get Measure message: %+v", message)
 	resultMsg, err := s.Send(host, f)
 	if err != nil {
 		return nil, err
@@ -105,7 +105,7 @@ func (s *Comms) SendAskOnline(host *connect.Host) (*messages.Ack, error) {
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Ask Online message...")
+	jww.TRACE.Printf("Sending Ask Online message...")
 	resultMsg, err := s.Send(host, f)
 	if err != nil {
 		return nil, err
@@ -141,7 +141,7 @@ func (s *Comms) SendFinishRealtime(host *connect.Host,
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Finish Realtime message: %+v", message)
+	jww.TRACE.Printf("Sending Finish Realtime message: %+v", message)
 	resultMsg, err := s.Send(host, f)
 	if err != nil {
 		return nil, err
@@ -176,7 +176,7 @@ func (s *Comms) SendNewRound(host *connect.Host,
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending New Round message: %+v", message)
+	jww.TRACE.Printf("Sending New Round message: %+v", message)
 	resultMsg, err := s.Send(host, f)
 	if err != nil {
 		return nil, err
@@ -219,7 +219,7 @@ func (s *Comms) SendPostPrecompResult(host *connect.Host,
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Post Precomp Result message...")
+	jww.TRACE.Printf("Sending Post Precomp Result message...")
 	// jww.TRACE.Printf("Sending Post Precomp Result message: %+v", slots)
 	resultMsg, err := s.Send(host, f)
 	if err != nil {

@@ -72,7 +72,7 @@ func (g *Comms) GetRoundBufferInfo(host *connect.Host) (*pb.RoundBufferInfo, err
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Get Round Buffer info message...")
+	jww.TRACE.Printf("Sending Get Round Buffer info message...")
 	resultMsg, err := g.Send(host, f)
 	if err != nil {
 		return nil, err

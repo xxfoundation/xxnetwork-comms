@@ -36,7 +36,7 @@ func (c *Comms) SendDeleteMessage(host *connect.Host, message *pb.FactRemovalReq
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Delete message: %+v", message)
+	jww.TRACE.Printf("Sending Delete message: %+v", message)
 	_, err := c.Send(host, f)
 	if err != nil {
 		return nil, err
@@ -70,7 +70,7 @@ func (c *Comms) SendRegisterUser(host *connect.Host, message *pb.UDBUserRegistra
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Delete message: %+v", message)
+	jww.TRACE.Printf("Sending Delete message: %+v", message)
 	_, err := c.Send(host, f)
 	if err != nil {
 		return nil, err
@@ -104,7 +104,7 @@ func (c *Comms) SendRegisterFact(host *connect.Host, message *pb.FactRegisterReq
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Delete message: %+v", message)
+	jww.TRACE.Printf("Sending Delete message: %+v", message)
 	_, err := c.Send(host, f)
 	if err != nil {
 		return nil, err
@@ -138,7 +138,7 @@ func (c *Comms) SendConfirmFact(host *connect.Host, message *pb.FactConfirmReque
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Delete message: %+v", message)
+	jww.TRACE.Printf("Sending Delete message: %+v", message)
 	_, err := c.Send(host, f)
 	if err != nil {
 		return nil, err
