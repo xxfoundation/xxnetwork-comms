@@ -38,7 +38,7 @@ func (c *Comms) SendPutMessage(host *connect.Host, message *pb.GatewaySlot) (*pb
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Put message: %+v", message)
+	jww.TRACE.Printf("Sending Put message: %+v", message)
 	resultMsg, err := c.Send(host, f)
 	if err != nil {
 		return nil, err
