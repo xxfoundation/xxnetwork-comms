@@ -42,7 +42,7 @@ func (g *Comms) SendRequestNonceMessage(host *connect.Host,
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Request Nonce message: %+v", message)
+	jww.TRACE.Printf("Sending Request Nonce message: %+v", message)
 	resultMsg, err := g.Send(host, f)
 	if err != nil {
 		return nil, err
@@ -76,7 +76,7 @@ func (g *Comms) SendConfirmNonceMessage(host *connect.Host,
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Confirm Nonce message: %+v", message)
+	jww.TRACE.Printf("Sending Confirm Nonce message: %+v", message)
 	resultMsg, err := g.Send(host, f)
 	if err != nil {
 		return nil, err

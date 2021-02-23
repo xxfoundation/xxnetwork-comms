@@ -29,7 +29,7 @@ func (s *Comms) SendCheckConnectivityMessage(host *connect.Host,
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Request Nonce message: %+v", message)
+	jww.TRACE.Printf("Sending Request Nonce message: %+v", message)
 	resultMsg, err := s.Send(host, f)
 	if err != nil {
 		return nil, err

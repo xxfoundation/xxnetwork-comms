@@ -44,7 +44,7 @@ func (c *Comms) RegisterForNotifications(host *connect.Host,
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending RegisterForNotification message: %+v", message)
+	jww.TRACE.Printf("Sending RegisterForNotification message: %+v", message)
 	resultMsg, err := c.Send(host, f)
 	if err != nil {
 		return nil, err
@@ -79,7 +79,7 @@ func (c *Comms) UnregisterForNotifications(host *connect.Host) (*messages.Ack, e
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending UnregisterForNotification message")
+	jww.TRACE.Printf("Sending UnregisterForNotification message")
 	resultMsg, err := c.Send(host, f)
 	if err != nil {
 		return nil, err
