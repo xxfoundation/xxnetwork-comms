@@ -364,7 +364,14 @@ func (c *ProtoComms) verifyMessage(msg proto.Message, signature []byte, host *Ho
 
 	// Deal with edge case in which gateways and servers
 	// haven't added each other as hosts yet, and dealing with
-	// temporary or dummy ID's
+	// temporary or dummy ID's. Specifically mitigates
+	// gateway's requesting the permissioning address for it's node.
+	// fixme: there should be a better way of doing this. Suggested solutions:
+	//  - Adding the permissioning address to gateway's config file
+	//      (difficult/breaking on deployment side)
+	//  = Having the gateway generate the Node's ID on startup. The node's
+	//    ID could be pregenerated, ie generated along with it's certs
+	//    and added to the Node field in gateway's config (also deployment side)
 	var idToHash *id.ID
 	if host.id.Cmp(&id.DummyUser) || host.id.Cmp(&id.TempGateway) {
 		idToHash = &id.DummyUser
