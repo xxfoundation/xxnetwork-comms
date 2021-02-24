@@ -15,7 +15,6 @@ import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/messages"
-	"gitlab.com/xx_network/primitives/id"
 	"golang.org/x/net/context"
 )
 
@@ -152,23 +151,13 @@ func (s *Comms) RequestNonce(ctx context.Context,
 	}
 
 	// Obtain the nonce by passing to server
-	nonce, pk, err := s.handler.RequestNonce(nonceRequest.GetSalt(),
-		nonceRequest.GetClientRSAPubKey(), nonceRequest.GetClientDHPubKey(),
-		nonceRequest.GetClientSignedByServer().Signature,
-		nonceRequest.GetRequestSignature().Signature, authState)
-
-	// Obtain the error message, if any
-	errMsg := ""
+	nonce, err := s.handler.RequestNonce(nonceRequest, authState)
 	if err != nil {
-		errMsg = err.Error()
+
 	}
 
 	// Return the NonceMessage
-	return &pb.Nonce{
-		Nonce:    nonce,
-		DHPubKey: pk,
-		Error:    errMsg,
-	}, err
+	return nonce, err
 }
 
 // Handles Registration Nonce Confirmation
@@ -188,29 +177,8 @@ func (s *Comms) ConfirmRegistration(ctx context.Context,
 		return nil, err
 	}
 
-	userID, err := id.Unmarshal(regConfirmRequest.GetUserID())
-	if err != nil {
-		return nil, errors.Errorf("Unable to unmarshal user ID: %+v", err)
-	}
-
 	// Obtain signed client public key by passing to server
-	signature, clientGwKey, err := s.handler.ConfirmRegistration(userID,
-		regConfirmRequest.NonceSignedByClient.Signature, authState)
-
-	// Obtain the error message, if any
-	errMsg := ""
-	if err != nil {
-		errMsg = err.Error()
-	}
-
-	// Return the RegistrationConfirmation
-	return &pb.RegistrationConfirmation{
-		ClientSignedByServer: &messages.RSASignature{
-			Signature: signature,
-		},
-		Error:            errMsg,
-		ClientGatewayKey: clientGwKey,
-	}, err
+	return s.handler.ConfirmRegistration(regConfirmRequest, authState)
 }
 
 // PostPrecompResult sends final Message and AD precomputations.
