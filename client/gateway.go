@@ -158,7 +158,7 @@ func (c *Comms) RequestHistoricalRounds(host *connect.Host,
 	}
 
 	// Execute the Send function
-	jww.TRACE.Printf("Sending Poll message: %+v", message)
+	jww.TRACE.Printf("Requesting Historical Rounds: %+v", message)
 	resultMsg, err := c.Send(host, f)
 	if err != nil {
 		return nil, err
@@ -187,7 +187,7 @@ func (c *Comms) RequestMessages(host *connect.Host,
 	}
 
 	// Execute the Send function
-	jww.TRACE.Printf("Sending Poll message: %+v", message)
+	jww.TRACE.Printf("Requesing Messages: %+v", message)
 	resultMsg, err := c.Send(host, f)
 	if err != nil {
 		return nil, err
