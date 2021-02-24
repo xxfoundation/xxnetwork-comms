@@ -326,10 +326,6 @@ service Registration {
     rpc RegisterUser (UserRegistration) returns (UserRegistrationConfirmation) {
     }
 
-    // Client uses this to check if the version needs to be updated
-    rpc GetCurrentClientVersion (messages.Ping) returns (ClientVersion) {
-    }
-
     // Node registration for the permissioning server
     rpc RegisterNode (NodeRegistration) returns (messages.Ack) {
     }
