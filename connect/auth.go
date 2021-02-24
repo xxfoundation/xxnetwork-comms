@@ -386,10 +386,9 @@ func (c *ProtoComms) verifyMessage(msg proto.Message, signature []byte, host *Ho
 	hash.Write(idToHash.Bytes())
 	hashed := hash.Sum(nil)
 
-	// todo: bump to trace before merge
-	jww.DEBUG.Printf("VerifyMessage: Verifying host ID [%v]", host.GetId())
-	jww.DEBUG.Printf("VerifyMessage: hash data: %v", hashed)
-	jww.DEBUG.Printf("VerifyMessage: Hashed with ID: %v", idToHash)
+	jww.TRACE.Printf("VerifyMessage: Verifying host ID [%v]", host.GetId())
+	jww.TRACE.Printf("VerifyMessage: hash data: %v", hashed)
+	jww.TRACE.Printf("VerifyMessage: Hashed with ID: %v", idToHash)
 
 	// Verify signature of message using host public key
 	err = rsa.Verify(host.rsaPublicKey, options.Hash, hashed, signature, nil)
