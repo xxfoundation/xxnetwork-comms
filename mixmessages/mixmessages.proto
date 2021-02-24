@@ -268,6 +268,8 @@ message GatewayPoll {
     // Define range for ClientBloomFilter searches
     int64 StartTimestamp = 4;
     int64 EndTimestamp = 5;
+
+    bytes ClientVersion = 6;
 }
 
 // Unified Client->Gateway polling response
