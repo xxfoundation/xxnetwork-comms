@@ -369,7 +369,7 @@ func (c *ProtoComms) verifyMessage(msg proto.Message, signature []byte, host *Ho
 	// fixme: there should be a better way of doing this. Suggested solutions:
 	//  - Adding the permissioning address to gateway's config file
 	//      (difficult/breaking on deployment side)
-	//  = Having the gateway generate the Node's ID on startup. The node's
+	//  - Having the gateway generate the Node's ID on startup. The node's
 	//    ID could be pregenerated, ie generated along with it's certs
 	//    and added to the Node field in gateway's config (also deployment side)
 	var idToHash *id.ID
