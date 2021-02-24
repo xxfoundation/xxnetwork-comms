@@ -16,13 +16,32 @@ import (
 	"context"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/pkg/errors"
+	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/messages"
 )
 
-func (r *Comms) RegisterUser(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
+// Handles validation of reverse-authentication tokens
+func (u *Comms) AuthenticateToken(ctx context.Context,
+	msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
+	err := u.ValidateToken(msg)
+	if err != nil {
+		jww.ERROR.Printf("Unable to authenticate token: %+v", err)
+	}
+	return &messages.Ack{}, err
+}
+
+// Handles reception of reverse-authentication token requests
+func (u *Comms) RequestToken(context.Context, *messages.Ping) (*messages.AssignToken, error) {
+	token, err := u.GenerateToken()
+	return &messages.AssignToken{
+		Token: token,
+	}, err
+}
+
+func (u *Comms) RegisterUser(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
 	// Create an auth object
-	authState, err := r.AuthenticatedReceiver(msg)
+	authState, err := u.AuthenticatedReceiver(msg)
 	if err != nil {
 		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
 	}
@@ -34,12 +53,12 @@ func (r *Comms) RegisterUser(ctx context.Context, msg *messages.AuthenticatedMes
 		return nil, err
 	}
 
-	return r.handler.RegisterUser(registration, authState)
+	return u.handler.RegisterUser(registration, authState)
 }
 
-func (r *Comms) RegisterFact(ctx context.Context, msg *messages.AuthenticatedMessage) (*pb.FactRegisterResponse, error) {
+func (u *Comms) RegisterFact(ctx context.Context, msg *messages.AuthenticatedMessage) (*pb.FactRegisterResponse, error) {
 	// Create an auth object
-	authState, err := r.AuthenticatedReceiver(msg)
+	authState, err := u.AuthenticatedReceiver(msg)
 	if err != nil {
 		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
 	}
@@ -51,12 +70,12 @@ func (r *Comms) RegisterFact(ctx context.Context, msg *messages.AuthenticatedMes
 		return nil, err
 	}
 
-	return r.handler.RegisterFact(request, authState)
+	return u.handler.RegisterFact(request, authState)
 }
 
-func (r *Comms) ConfirmFact(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
+func (u *Comms) ConfirmFact(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
 	// Create an auth object
-	authState, err := r.AuthenticatedReceiver(msg)
+	authState, err := u.AuthenticatedReceiver(msg)
 	if err != nil {
 		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
 	}
@@ -68,12 +87,12 @@ func (r *Comms) ConfirmFact(ctx context.Context, msg *messages.AuthenticatedMess
 		return nil, err
 	}
 
-	return r.handler.ConfirmFact(request, authState)
+	return u.handler.ConfirmFact(request, authState)
 }
 
-func (r *Comms) RemoveFact(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
+func (u *Comms) RemoveFact(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
 	// Create an auth object
-	authState, err := r.AuthenticatedReceiver(msg)
+	authState, err := u.AuthenticatedReceiver(msg)
 	if err != nil {
 		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
 	}
@@ -85,5 +104,5 @@ func (r *Comms) RemoveFact(ctx context.Context, msg *messages.AuthenticatedMessa
 		return nil, err
 	}
 
-	return r.handler.RemoveFact(request, authState)
+	return u.handler.RemoveFact(request, authState)
 }
