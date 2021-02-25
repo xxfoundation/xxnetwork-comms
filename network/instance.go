@@ -587,6 +587,10 @@ func (i *Instance) GetPermissioningId() *id.ID {
 
 }
 
+func (i *Instance) connectGatewayToGateway() {
+
+}
+
 // Update host helper
 func (i *Instance) updateConns(def *ndf.NetworkDefinition, isGateway, isNode bool) error {
 	if isGateway {
@@ -608,8 +612,13 @@ func (i *Instance) updateConns(def *ndf.NetworkDefinition, isGateway, isNode boo
 					return errors.Errorf("Gateway ID invalid, collides with a "+
 						"hard coded ID. Invalid ID: %v", gwid.Marshal())
 				}
+
+				// If this entity is a gateway, other gateway hosts
+				// should have auth enabled. Otherwise, disable auth
 				gwParams := connect.GetDefaultHostParams()
-				gwParams.AuthEnabled = false
+				if i.comm.Id.GetType() != id.Gateway {
+					gwParams.AuthEnabled = false
+				}
 				_, err := i.comm.AddHost(gwid, addr, []byte(gateway.TlsCertificate), gwParams)
 				if err != nil {
 					return errors.WithMessagef(err, "Could not add gateway host %s", gwid)
