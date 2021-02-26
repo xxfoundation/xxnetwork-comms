@@ -26,7 +26,7 @@ import (
 
 func TestBannedNodePartialNDFRemoval(t *testing.T) {
 	oldNDF, _ := NewSecuredNdf(testutils.NDF)
-	newNDF, _, _ := ndf.DecodeNDF(`{
+	newNDF, _ := ndf.Unmarshal([]byte(`{
 	"Timestamp": "2019-06-04T20:48:48-07:00",
 	"gateways": [
 		{
@@ -73,7 +73,7 @@ func TestBannedNodePartialNDFRemoval(t *testing.T) {
 		"Small_prime": "7FFFFFFFFFFFFFFFE487ED5110B4611A62633145C06E0E68948127044533E63A0105DF531D89CD9128A5043CC71A026EF7CA8CD9E69D218D98158536F92F8A1BA7F09AB6B6A8E122F242DABB312F3F637A262174D31BF6B585FFAE5B7A035BF6F71C35FDAD44CFD2D74F9208BE258FF324943328F6722D9EE1003E5C50B1DF82CC6D241B0E2AE9CD348B1FD47E9267AFC1B2AE91EE51D6CB0E3179AB1042A95DCF6A9483B84B4B36B3861AA7255E4C0278BA3604650C10BE19482F23171B671DF1CF3B960C074301CD93C1D17603D147DAE2AEF837A62964EF15E5FB4AAC0B8C1CCAA4BE754AB5728AE9130C4C7D02880AB9472D455655347FFFFFFFFFFFFFFF",
 		"Generator": "02"
 	}
-}`)
+}`))
 
 	rmNodes, err := getBannedNodes(oldNDF.Get().Nodes, newNDF.Nodes)
 	if err != nil {
@@ -324,13 +324,12 @@ func TestInstance_GetOldestRoundID(t *testing.T) {
 
 	expectedOldRound := id.Round(0)
 	_ = i.roundData.UpsertRound(&mixmessages.RoundInfo{ID: uint64(expectedOldRound)})
-	_ = i.roundData.UpsertRound(&mixmessages.RoundInfo{ID:uint64(2)})
-
+	_ = i.roundData.UpsertRound(&mixmessages.RoundInfo{ID: uint64(2)})
 
 	returned := i.GetOldestRoundID()
 	if returned != expectedOldRound {
-		t.Errorf("Failed to get oldest round from buffer." +
-			"\n\tExpected: %v" +
+		t.Errorf("Failed to get oldest round from buffer."+
+			"\n\tExpected: %v"+
 			"\n\tReceived: %v", expectedOldRound, returned)
 	}
 }
@@ -342,7 +341,7 @@ func TestInstance_GetOldestRoundID_ManyRounds(t *testing.T) {
 	}
 
 	// Ensure a circle back in the round buffer
-	for i := 1; i <= ds.RoundInfoBufLen ; i++ {
+	for i := 1; i <= ds.RoundInfoBufLen; i++ {
 		_ = testInstance.roundData.UpsertRound(&mixmessages.RoundInfo{ID: uint64(i)})
 
 	}
@@ -352,13 +351,12 @@ func TestInstance_GetOldestRoundID_ManyRounds(t *testing.T) {
 	// moving the oldest round to round 1
 	expected := id.Round(1)
 	returned := testInstance.GetOldestRoundID()
-	if returned !=  expected {
-		t.Errorf("Failed to get oldest round from buffer." +
-			"\n\tExpected: %v" +
+	if returned != expected {
+		t.Errorf("Failed to get oldest round from buffer."+
+			"\n\tExpected: %v"+
 			"\n\tReceived: %v", 1, returned)
 	}
 }
-
 
 func TestInstance_UpdateGatewayConnections(t *testing.T) {
 	secured, _ := NewSecuredNdf(testutils.NDF)
@@ -711,7 +709,7 @@ func TestInstance_NodeEventModel(t *testing.T) {
 	}
 
 	// Get the NDF
-	newNdf, _, err := ndf.DecodeNDF(string(f.Ndf))
+	newNdf, err := ndf.Unmarshal(f.Ndf)
 	if err != nil {
 		t.Errorf(err.Error())
 		return
