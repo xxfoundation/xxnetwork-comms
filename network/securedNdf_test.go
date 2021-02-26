@@ -21,16 +21,16 @@ import (
 
 func setup() *ds.Ndf {
 	msg := &pb.NDF{
-		Ndf: []byte(testutils.ExampleNDF),
+		Ndf: testutils.ExampleNDF,
 	}
-	ndf := &ds.Ndf{}
+	netDef := &ds.Ndf{}
 
-	_ = ndf.Update(msg)
-	return ndf
+	_ = netDef.Update(msg)
+	return netDef
 }
 
 func TestNewSecuredNdf(t *testing.T) {
-	d, _, _ := ndf.DecodeNDF(testutils.ExampleNDF)
+	d, _ := ndf.Unmarshal(testutils.ExampleNDF)
 	sndf, err := NewSecuredNdf(d)
 	if err != nil {
 		t.Error(err)
