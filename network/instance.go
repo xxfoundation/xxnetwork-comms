@@ -587,10 +587,6 @@ func (i *Instance) GetPermissioningId() *id.ID {
 
 }
 
-func (i *Instance) connectGatewayToGateway() {
-
-}
-
 // Update host helper
 func (i *Instance) updateConns(def *ndf.NetworkDefinition, isGateway, isNode bool) error {
 	if isGateway {
