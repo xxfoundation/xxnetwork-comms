@@ -3,17 +3,20 @@ module gitlab.com/elixxir/comms
 go 1.13
 
 require (
+	github.com/badoux/checkmail v1.2.1 // indirect
 	github.com/golang-collections/collections v0.0.0-20130729185459-604e922904d3
 	github.com/golang/protobuf v1.4.3
 	github.com/google/go-cmp v0.5.2 // indirect
+	github.com/nyaruka/phonenumbers v1.0.60 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/jwalterweatherman v1.1.0
+	github.com/stretchr/testify v1.6.1 // indirect
 	github.com/zeebo/blake3 v0.1.0 // indirect
 	github.com/zeebo/pcg v1.0.0 // indirect
-	gitlab.com/elixxir/crypto v0.0.7-0.20210226172354-61ccadb9e62b
-	gitlab.com/elixxir/primitives v0.0.3-0.20210226172337-12a5b835ae9c
-	gitlab.com/xx_network/comms v0.0.4-0.20210226172330-06c9cfcbe7a9
-	gitlab.com/xx_network/crypto v0.0.5-0.20210226172317-cc20fe85f961
+	gitlab.com/elixxir/crypto v0.0.7-0.20210226164631-dd11d922075b
+	gitlab.com/elixxir/primitives v0.0.3-0.20210225184649-54d1b20caf89
+	gitlab.com/xx_network/comms v0.0.4-0.20210224201327-b0ce36c0c989
+	gitlab.com/xx_network/crypto v0.0.5-0.20210225184630-793a5fc60d3a
 	gitlab.com/xx_network/primitives v0.0.4-0.20210226165312-9df25e918a42
 	gitlab.com/xx_network/ring v0.0.2
 	golang.org/x/net v0.0.0-20201029221708-28c70e62bb1d
@@ -23,6 +26,9 @@ require (
 	google.golang.org/genproto v0.0.0-20201030142918-24207fddd1c3 // indirect
 	google.golang.org/grpc v1.33.1
 	google.golang.org/protobuf v1.25.0
+	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
+	gopkg.in/yaml.v2 v2.4.0 // indirect
+	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776 // indirect
 )
 
 replace google.golang.org/grpc => github.com/grpc/grpc-go v1.27.1
