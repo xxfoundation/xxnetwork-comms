@@ -10,7 +10,6 @@
 package udb
 
 import (
-	"context"
 	"github.com/pkg/errors"
 	//	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
@@ -31,24 +30,6 @@ type Comms struct {
 	*connect.ProtoComms
 	handler Handler // an object that implements the interface below, which
 	// has all the functions called by endpoint.go
-}
-
-// Handles validation of reverse-authentication tokens
-func (r *Comms) AuthenticateToken(ctx context.Context,
-	msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
-	err := r.ValidateToken(msg)
-	if err != nil {
-		jww.ERROR.Printf("Unable to authenticate token: %+v", err)
-	}
-	return &messages.Ack{}, err
-}
-
-// Handles reception of reverse-authentication token requests
-func (r *Comms) RequestToken(context.Context, *messages.Ping) (*messages.AssignToken, error) {
-	token, err := r.GenerateToken()
-	return &messages.AssignToken{
-		Token: token,
-	}, err
 }
 
 // StartServer starts a new server on the address:port specified by localServer

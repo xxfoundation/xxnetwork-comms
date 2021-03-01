@@ -89,11 +89,11 @@ type Handler interface {
 	StreamPostPhase(server mixmessages.Node_StreamPostPhaseServer, auth *connect.Auth) error
 
 	// Server interface for RequestNonceMessage
-	RequestNonce(salt []byte, RSAPubKey string, DHPubKey,
-		RSASignedByRegistration, DHSignedByClientRSA []byte, auth *connect.Auth) ([]byte, []byte, error)
+	RequestNonce(nonceRequest *mixmessages.NonceRequest, auth *connect.Auth) (*mixmessages.Nonce, error)
 
 	// Server interface for ConfirmNonceMessage
-	ConfirmRegistration(UserID *id.ID, Signature []byte, auth *connect.Auth) ([]byte, []byte, error)
+	ConfirmRegistration(requestConfirmation *mixmessages.RequestRegistrationConfirmation,
+		auth *connect.Auth) (*mixmessages.RegistrationConfirmation, error)
 
 	// PostPrecompResult interface to finalize both payloads' precomps
 	PostPrecompResult(roundID uint64, slots []*mixmessages.Slot, auth *connect.Auth) error
@@ -147,10 +147,10 @@ type implementationFunctions struct {
 	StreamPostPhase func(message mixmessages.Node_StreamPostPhaseServer, auth *connect.Auth) error
 
 	// Server interface for RequestNonceMessage
-	RequestNonce func(salt []byte, RSAPubKey string, DHPubKey,
-		RSASigFromReg, RSASigDH []byte, auth *connect.Auth) ([]byte, []byte, error)
+	RequestNonce func(nonceRequest *mixmessages.NonceRequest, auth *connect.Auth) (*mixmessages.Nonce, error)
 	// Server interface for ConfirmNonceMessage
-	ConfirmRegistration func(UserID *id.ID, Signature []byte, auth *connect.Auth) ([]byte, []byte, error)
+	ConfirmRegistration func(requestConfirmation *mixmessages.RequestRegistrationConfirmation,
+		auth *connect.Auth) (*mixmessages.RegistrationConfirmation, error)
 
 	// PostPrecompResult interface to finalize both payloads' precomputations
 	PostPrecompResult func(roundID uint64,
@@ -233,14 +233,14 @@ func NewImplementation() *Implementation {
 				return 0, nil
 			},
 
-			RequestNonce: func(salt []byte, RSAPubKey string, DHPubKey,
-				RSASig, RSASigDH []byte, auth *connect.Auth) ([]byte, []byte, error) {
+			RequestNonce: func(nonceRequest *mixmessages.NonceRequest, auth *connect.Auth) (*mixmessages.Nonce, error) {
 				warn(um)
-				return nil, nil, nil
+				return &mixmessages.Nonce{}, nil
 			},
-			ConfirmRegistration: func(UserID *id.ID, Signature []byte, auth *connect.Auth) ([]byte, []byte, error) {
+			ConfirmRegistration: func(requestConfirmation *mixmessages.RequestRegistrationConfirmation,
+				auth *connect.Auth) (*mixmessages.RegistrationConfirmation, error) {
 				warn(um)
-				return nil, nil, nil
+				return &mixmessages.RegistrationConfirmation{}, nil
 			},
 			PostPrecompResult: func(roundID uint64,
 				slots []*mixmessages.Slot, auth *connect.Auth) error {
@@ -316,14 +316,14 @@ func (s *Implementation) GetRoundBufferInfo(auth *connect.Auth) (int, error) {
 }
 
 // Server interface for RequestNonceMessage
-func (s *Implementation) RequestNonce(salt []byte, RSAPubKey string, DHPubKey,
-	RSASigFromReg, RSASigDH []byte, auth *connect.Auth) ([]byte, []byte, error) {
-	return s.Functions.RequestNonce(salt, RSAPubKey, DHPubKey, RSASigFromReg, RSASigDH, auth)
+func (s *Implementation) RequestNonce(nonceRequest *mixmessages.NonceRequest, auth *connect.Auth) (*mixmessages.Nonce, error) {
+	return s.Functions.RequestNonce(nonceRequest, auth)
 }
 
 // Server interface for ConfirmNonceMessage
-func (s *Implementation) ConfirmRegistration(UserID *id.ID, Signature []byte, auth *connect.Auth) ([]byte, []byte, error) {
-	return s.Functions.ConfirmRegistration(UserID, Signature, auth)
+func (s *Implementation) ConfirmRegistration(requestConfirmation *mixmessages.RequestRegistrationConfirmation,
+	auth *connect.Auth) (*mixmessages.RegistrationConfirmation, error) {
+	return s.Functions.ConfirmRegistration(requestConfirmation, auth)
 }
 
 // PostPrecompResult interface to finalize both payloads' precomputations

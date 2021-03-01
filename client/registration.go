@@ -138,7 +138,7 @@ func (c *Comms) RetrieveNdf(currentDef *ndf.NetworkDefinition) (*ndf.NetworkDefi
 	jww.INFO.Printf("Remote NDF: %s", string(response.Ndf))
 
 	//Otherwise pull the ndf out of the response
-	updatedNdf, _, err := ndf.DecodeNDF(string(response.Ndf))
+	updatedNdf, err := ndf.Unmarshal(response.Ndf)
 	if err != nil {
 		//If there was an error decoding ndf
 		errMsg := errors.Errorf("Failed to decode response to ndf: %v", err)

@@ -413,7 +413,7 @@ message NonceRequest {
     messages.RSASignature RequestSignature = 5;
 }
 
-// Nonce message to reply to client from server
+// Nonce message to reply to client from server (going through gateway)
 message Nonce {
     bytes Nonce = 1;
     bytes DHPubKey = 2;
@@ -555,22 +555,6 @@ message FactRemovalRequest {
 }
 
 // CONNECTIVITY CHECKER --------------------------------------------------------
-
-service ConnectivityChecker {
-    rpc CheckConnectivity (Address) returns (ConnectivityResponse) {
-    }
-}
-
-message Address {
-    string IP = 1;
-    string Port = 2;
-}
-
-message ConnectivityResponse {
-    string CallerAddr = 1;
-    bool CallerAvailable = 2;
-    bool OtherAvailable = 3;
-}
 
 // For sending permission address Server -> Gateway
 message StrAddress {

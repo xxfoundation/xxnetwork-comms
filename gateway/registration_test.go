@@ -38,7 +38,7 @@ func TestSendRequestNonceMessage(t *testing.T) {
 	}
 
 	RSASignature := &messages.RSASignature{
-		Signature: []byte{},
+		Signature: []byte("test"),
 	}
 
 	_, err = gateway.SendRequestNonceMessage(host,
