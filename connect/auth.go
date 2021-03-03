@@ -374,7 +374,7 @@ func (c *ProtoComms) verifyMessage(msg proto.Message, signature []byte, host *Ho
 	//    and added to the Node field in gateway's config (also deployment side)
 	var idToHash *id.ID
 	if host.id.Cmp(&id.DummyUser) || host.id.Cmp(&id.TempGateway) {
-		idToHash = &id.DummyUser
+		idToHash = id.DummyUser.DeepCopy()
 		idToHash.SetType(id.Node)
 	} else {
 		idToHash = c.Id
