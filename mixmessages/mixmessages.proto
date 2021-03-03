@@ -276,6 +276,7 @@ message GatewayPollResponse {
     repeated RoundInfo Updates = 2; // Empty if no update needed
     bytes KnownRounds = 3; // Rounds gateway knows about
     ClientBlooms Filters = 4; // Set of ClientBloomFilters requested by Client
+    uint64 EarliestRound = 5; // The earliest round the gateway still has info for
 }
 
 // Holds a set of ClientBloom and their associated metadata
