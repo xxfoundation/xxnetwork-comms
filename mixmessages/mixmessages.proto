@@ -290,6 +290,8 @@ message ClientBloom {
     bytes Filter = 1;
     uint64 FirstRound = 2;
     uint32 RoundRange = 3;
+    uint32 Size = 4;
+    uint32 NumOfHashes = 5;
 }
 
 // Client -> Gateway authentication message
