@@ -520,7 +520,7 @@ func (i *Instance) GetLastRoundID() id.Round {
 }
 
 // Get the oldest round id
-func (i *Instance) GetOldestRoundID() id.Round  {
+func (i *Instance) GetOldestRoundID() id.Round {
 	return i.roundData.GetOldestRoundID()
 }
 
@@ -610,6 +610,8 @@ func (i *Instance) updateConns(def *ndf.NetworkDefinition, isGateway, isNode boo
 				}
 				gwParams := connect.GetDefaultHostParams()
 				gwParams.AuthEnabled = false
+				gwParams.MaxRetries = 3
+				gwParams.EnableCoolOff = true
 				_, err := i.comm.AddHost(gwid, addr, []byte(gateway.TlsCertificate), gwParams)
 				if err != nil {
 					return errors.WithMessagef(err, "Could not add gateway host %s", gwid)
