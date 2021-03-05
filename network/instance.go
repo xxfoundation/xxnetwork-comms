@@ -520,7 +520,7 @@ func (i *Instance) GetLastRoundID() id.Round {
 }
 
 // Get the oldest round id
-func (i *Instance) GetOldestRoundID() id.Round  {
+func (i *Instance) GetOldestRoundID() id.Round {
 	return i.roundData.GetOldestRoundID()
 }
 
@@ -612,6 +612,8 @@ func (i *Instance) updateConns(def *ndf.NetworkDefinition, isGateway, isNode boo
 				// If this entity is a gateway, other gateway hosts
 				// should have auth enabled. Otherwise, disable auth
 				gwParams := connect.GetDefaultHostParams()
+				gwParams.MaxRetries = 3
+				gwParams.EnableCoolOff = true
 				if i.comm.Id.GetType() != id.Gateway {
 					gwParams.AuthEnabled = false
 				}

@@ -10,10 +10,10 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0
 	github.com/zeebo/blake3 v0.1.0 // indirect
 	github.com/zeebo/pcg v1.0.0 // indirect
-	gitlab.com/elixxir/crypto v0.0.7-0.20210226194937-5d641d5a31bc
-	gitlab.com/elixxir/primitives v0.0.3-0.20210304231024-6e483533729f
-	gitlab.com/xx_network/comms v0.0.4-0.20210303175419-d244a9576345
-	gitlab.com/xx_network/crypto v0.0.5-0.20210226194923-5f470e2a2533
+	gitlab.com/elixxir/crypto v0.0.7-0.20210305221450-c94429c34886
+	gitlab.com/elixxir/primitives v0.0.3-0.20210305221357-0b3f19cc3c8a
+	gitlab.com/xx_network/comms v0.0.4-0.20210305221336-a7e28febdbf6
+	gitlab.com/xx_network/crypto v0.0.5-0.20210305221255-f0ef174f5135
 	gitlab.com/xx_network/primitives v0.0.4-0.20210303180604-1ee442e6463f
 	gitlab.com/xx_network/ring v0.0.2
 	golang.org/x/net v0.0.0-20201029221708-28c70e62bb1d
