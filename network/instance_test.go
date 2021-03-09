@@ -119,7 +119,7 @@ func TestNewInstanceTesting_Error(t *testing.T) {
 
 //tests newInstance errors properly when there is no NDF
 func TestNewInstance_NilNDFs(t *testing.T) {
-	_, err := NewInstance(&connect.ProtoComms{}, nil, nil, nil)
+	_, err := NewInstance(&connect.ProtoComms{}, nil, nil, nil, 0)
 	if err == nil {
 		t.Errorf("Creation of NewInstance without an ndf succeded")
 	} else if !strings.Contains(err.Error(), "Cannot create a network "+
@@ -164,7 +164,12 @@ func TestInstance_GetRoundUpdate(t *testing.T) {
 	i := Instance{
 		roundUpdates: ds.NewUpdates(),
 	}
-	_ = i.roundUpdates.AddRound(&mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(1)})
+
+	ri := &mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(1)}
+	testutils.SignRoundInfo(ri)
+	rnd := ds.NewRound(ri, testutils.LoadKeyTesting(t))
+
+	_ = i.roundUpdates.AddRound(rnd)
 	r, err := i.GetRoundUpdate(1)
 	if err != nil || r == nil {
 		t.Errorf("Failed to retrieve round update: %+v", err)
@@ -175,8 +180,16 @@ func TestInstance_GetRoundUpdates(t *testing.T) {
 	i := Instance{
 		roundUpdates: ds.NewUpdates(),
 	}
-	_ = i.roundUpdates.AddRound(&mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(1)})
-	_ = i.roundUpdates.AddRound(&mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(2)})
+
+	roundInfoOne := &mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(1)}
+	testutils.SignRoundInfo(roundInfoOne)
+	roundInfoTwo := &mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(2)}
+	testutils.SignRoundInfo(roundInfoTwo)
+	roundOne := ds.NewRound(roundInfoOne, testutils.LoadKeyTesting(t))
+	roundTwo := ds.NewRound(roundInfoTwo, testutils.LoadKeyTesting(t))
+
+	_ = i.roundUpdates.AddRound(roundOne)
+	_ = i.roundUpdates.AddRound(roundTwo)
 	r := i.GetRoundUpdates(1)
 	if r == nil {
 		t.Errorf("Failed to retrieve round updates")
@@ -204,7 +217,7 @@ func setupComm(t *testing.T) (*Instance, *mixmessages.NDF) {
 	pc := &connect.ProtoComms{
 		Manager: testManager,
 	}
-	i, err := NewInstance(pc, baseNDF, baseNDF, nil)
+	i, err := NewInstance(pc, baseNDF, baseNDF, nil, 0)
 	if err != nil {
 		t.Error(nil)
 	}
@@ -230,7 +243,7 @@ func TestInstance_RoundUpdate(t *testing.T) {
 	pc := connect.ProtoComms{
 		Manager: testManager,
 	}
-	i, err := NewInstance(&pc, testutils.NDF, testutils.NDF, nil)
+	i, err := NewInstance(&pc, testutils.NDF, testutils.NDF, nil, 0)
 	pub := testkeys.LoadFromPath(testkeys.GetGatewayCertPath())
 	err = i.RoundUpdate(msg)
 	if err == nil {
@@ -312,7 +325,11 @@ func TestInstance_GetLastUpdateID(t *testing.T) {
 	i := Instance{
 		roundUpdates: ds.NewUpdates(),
 	}
-	_ = i.roundUpdates.AddRound(&mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(1)})
+
+	ri := &mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(1)}
+	rnd := ds.NewRound(ri, testutils.LoadKeyTesting(t))
+
+	_ = i.roundUpdates.AddRound(rnd)
 	i.GetLastUpdateID()
 }
 
@@ -914,7 +931,7 @@ func TestInstance_RoundUpdateAddsToERS(t *testing.T) {
 		Manager: testManager,
 	}
 	var ers ds.ExternalRoundStorage = &ersMemMap{rounds: make(map[id.Round]*mixmessages.RoundInfo)}
-	i, err := NewInstance(pc, baseNDF, baseNDF, ers)
+	i, err := NewInstance(pc, baseNDF, baseNDF, ers, 0)
 	if err != nil {
 		t.Error(nil)
 	}
