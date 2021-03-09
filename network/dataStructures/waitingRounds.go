@@ -8,7 +8,6 @@ package dataStructures
 
 import (
 	"container/list"
-	"fmt"
 	"github.com/golang-collections/collections/set"
 	"github.com/pkg/errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
@@ -59,7 +58,6 @@ func (wr *WaitingRounds) Insert(newRound *Round) {
 		for e := wr.rounds.Back(); e != nil; e = e.Prev() {
 			// If the new round is larger, than add it before
 			extractedRound := e.Value.(*Round)
-			// todo: check no panics occur
 			if getTime(newRound) > getTime(extractedRound) {
 				wr.rounds.InsertAfter(newRound, e)
 
@@ -96,7 +94,6 @@ func (wr *WaitingRounds) remove(newRound *Round) {
 	// Look for a node with a matching ID from the list
 	for e := wr.rounds.Back(); e != nil; e = e.Prev() {
 		extractedRound := e.Value.(*Round)
-		// todo: check no panics occur
 		if extractedRound.info.ID == newRound.info.ID {
 			wr.rounds.Remove(e)
 			return
@@ -118,7 +115,6 @@ func (wr *WaitingRounds) getFurthest(exclude *set.Set) *Round {
 
 	// If no rounds are excluded, return the last round in the list
 	if exclude == nil {
-		fmt.Println("exclude is nil ")
 		return wr.rounds.Back().Value.(*Round)
 
 	}
@@ -126,9 +122,6 @@ func (wr *WaitingRounds) getFurthest(exclude *set.Set) *Round {
 	// Return the last non-excluded round in the list
 	for e := wr.rounds.Back(); e != nil; e = e.Prev() {
 		r := e.Value.(*Round)
-		fmt.Printf("r val: %v\n", r)
-		fmt.Printf("r info: %v\n", r.info)
-
 		if !exclude.Has(r) {
 			return r
 		}
@@ -150,7 +143,6 @@ func (wr *WaitingRounds) GetSlice() []*pb.RoundInfo {
 	for e, i := wr.rounds.Front(), 0; e != nil; e, i = e.Next(), i+1 {
 		iter++
 		extractedRound := e.Value.(*Round)
-		// todo: check no panics occur
 		if getTime(extractedRound) > now {
 			roundInfos = append(roundInfos, extractedRound.info)
 		}

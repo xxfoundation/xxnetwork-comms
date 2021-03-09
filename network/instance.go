@@ -462,15 +462,15 @@ func (i *Instance) RoundUpdate(info *pb.RoundInfo) error {
 	}
 
 	rnd := ds.NewRound(info, perm.GetPubKey())
-
-	// todo: modify here
-	err := signature.Verify(info, perm.GetPubKey())
-	if err != nil {
-		return errors.WithMessage(err, fmt.Sprintf("Could not validate "+
-			"the roundInfo signature: %+v", info))
+	if i.validationLevel == Strict {
+		err := signature.Verify(info, perm.GetPubKey())
+		if err != nil {
+			return errors.WithMessage(err, fmt.Sprintf("Could not validate "+
+				"the roundInfo signature: %+v", info))
+		}
 	}
 
-	err = i.roundUpdates.AddRound(rnd)
+	err := i.roundUpdates.AddRound(rnd)
 	if err != nil {
 		return err
 	}
