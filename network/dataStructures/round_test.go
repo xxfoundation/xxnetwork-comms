@@ -22,10 +22,10 @@ func TestNewRound(t *testing.T) {
 
 	// Check that values in object match inputted values
 	if rnd.info != ri || rnd.pubkey != pubKey {
-		t.Errorf("Initial round values from constructor are not expected." +
-			"\n\tExpected round info: %v" +
-			"\n\tReceived round info: %v" +
-			"\n\tExpected public key: %v" +
+		t.Errorf("Initial round values from constructor are not expected."+
+			"\n\tExpected round info: %v"+
+			"\n\tReceived round info: %v"+
+			"\n\tExpected public key: %v"+
 			"\n\tReceived public key: %v",
 			ri, rnd.info, pubKey, rnd.pubkey)
 	}
@@ -33,7 +33,7 @@ func TestNewRound(t *testing.T) {
 }
 
 // Unit test of Get()
-func TestNewRound_Get(t *testing.T)  {
+func TestNewRound_Get(t *testing.T) {
 	pubKey := testutils.LoadKeyTesting(t)
 	ri := &mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(1)}
 	// Mock signature of roundInfo as it will be verified in codepath
@@ -47,9 +47,9 @@ func TestNewRound_Get(t *testing.T)  {
 
 	// Check that the returned round info matches inputted value
 	retrievedRI := rnd.Get()
-	if retrievedRI !=ri {
-		t.Errorf("RoundInfo from Get() not expected." +
-			"\n\tExpected: %v" +
+	if retrievedRI != ri {
+		t.Errorf("RoundInfo from Get() not expected."+
+			"\n\tExpected: %v"+
 			"\n\tReceived: %v", ri, retrievedRI)
 	}
 

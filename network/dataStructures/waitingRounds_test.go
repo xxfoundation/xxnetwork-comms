@@ -226,7 +226,7 @@ func TestWaitingRounds_GetSlice(t *testing.T) {
 	expectedRounds, testRounds := createTestRoundInfos(25, t)
 	testWR := NewWaitingRounds()
 
-	ri :=  &pb.RoundInfo{
+	ri := &pb.RoundInfo{
 		ID:         rand.Uint64(),
 		State:      uint32(states.QUEUED),
 		Timestamps: []uint64{0, 0, 0, 0, 0},

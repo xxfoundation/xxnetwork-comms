@@ -27,14 +27,14 @@ import (
 
 // The Instance struct stores a combination of comms info and round info for servers
 type Instance struct {
-	comm         *connect.ProtoComms
-	cmixGroup    *ds.Group // make a wrapper structure containing a group and a rwlock
-	e2eGroup     *ds.Group
-	partial      *SecuredNdf
-	full         *SecuredNdf
-	roundUpdates *ds.Updates
-	roundData    *ds.Data
-	ers          ds.ExternalRoundStorage
+	comm            *connect.ProtoComms
+	cmixGroup       *ds.Group // make a wrapper structure containing a group and a rwlock
+	e2eGroup        *ds.Group
+	partial         *SecuredNdf
+	full            *SecuredNdf
+	roundUpdates    *ds.Updates
+	roundData       *ds.Data
+	ers             ds.ExternalRoundStorage
 	validationLevel ValidationType
 
 	ipOverride *ds.IpOverrideList
@@ -483,7 +483,6 @@ func (i *Instance) RoundUpdate(info *pb.RoundInfo) error {
 		if i.validationLevel != Lazy {
 			_ = rnd.Get()
 		}
-
 
 		// Intentionally suppress error
 		_ = i.ers.Store(info)

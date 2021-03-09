@@ -62,7 +62,7 @@ func TestUpdates_GetUpdates(t *testing.T) {
 	// Construct a second eound
 	roundInfoTwo := &mixmessages.RoundInfo{
 		ID:       0,
-		UpdateID: uint64(updateID+1),
+		UpdateID: uint64(updateID + 1),
 	}
 	if err := testutils.SignRoundInfo(roundInfoTwo); err != nil {
 		t.Errorf("Failed to sign mock round info: %v", err)

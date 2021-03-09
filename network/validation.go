@@ -11,7 +11,8 @@ package network
 //	Lazy: Only check we're involved, only verifies the first retrieval
 //	None: no signature checks are done
 type ValidationType uint8
-const(
+
+const (
 	Strict ValidationType = iota
 	Lazy
 	None

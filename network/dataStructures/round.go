@@ -14,7 +14,7 @@ import (
 	"sync/atomic"
 )
 
-type Round struct{
+type Round struct {
 	info            *pb.RoundInfo
 	needsValidation *uint32
 	pubkey          *rsa.PublicKey
@@ -29,7 +29,7 @@ func NewRound(ri *pb.RoundInfo, pubkey *rsa.PublicKey) *Round {
 	}
 }
 
-func (r *Round) Get() *pb.RoundInfo{
+func (r *Round) Get() *pb.RoundInfo {
 	if atomic.LoadUint32(r.needsValidation) == 0 {
 		// Check the sig, panic if failure
 		err := signature.Verify(r.info, r.pubkey)
@@ -38,7 +38,7 @@ func (r *Round) Get() *pb.RoundInfo{
 				"the roundInfo signature: %+v: %v", r.info, err)
 		}
 
-		atomic.StoreUint32(r.needsValidation,1)
+		atomic.StoreUint32(r.needsValidation, 1)
 	}
 	return r.info
 }
