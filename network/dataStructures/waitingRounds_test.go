@@ -120,11 +120,11 @@ func TestWaitingRounds_getFurthest(t *testing.T) {
 // Happy path of WaitingRounds.getFurthest() with half the rounds excluded
 func TestWaitingRounds_getFurthest_Exclude(t *testing.T) {
 	// Generate rounds
-	expectedRounds, _ := createTestRoundInfos(25, t)
+	expectedRounds, testRounds := createTestRoundInfos(25, t)
 
 	// Add rounds to list
 	testWR := NewWaitingRounds()
-	for _, round := range expectedRounds {
+	for _, round := range testRounds {
 		testWR.Insert(round)
 	}
 
@@ -259,34 +259,28 @@ func TestWaitingRounds_GetSlice(t *testing.T) {
 // Generates two lists of round infos. The first is the expected rounds in the
 // correct order after inserting the second list of random round infos.
 func createTestRoundInfos(num int, t *testing.T) ([]*Round, []*Round) {
-	rounds := make([]*pb.RoundInfo, num)
+	rounds := make([]*Round, num)
 	var expectedRounds []*Round
 	randomRounds := make([]*Round, num)
 	timeTrack := uint64(time.Now().Nanosecond()) + 100000000
-
 	for i := 0; i < num; i++ {
-		rounds[i] = &pb.RoundInfo{
+		rounds[i] = NewRound(&pb.RoundInfo{
 			ID:         rand.Uint64(),
 			State:      uint32(rand.Int63n(int64(states.NUM_STATES) - 1)),
 			Timestamps: make([]uint64, current.NUM_STATES),
-		}
-
+		}, testutils.LoadKeyTesting(t))
 		timeTrack += uint64(rand.Int63n(10000))
-		rounds[i].Timestamps[current.STANDBY] = timeTrack
+		rounds[i].info.Timestamps[current.STANDBY] = timeTrack
 		if i%2 == 1 {
-			rounds[i].State = uint32(states.QUEUED)
+			rounds[i].info.State = uint32(states.QUEUED)
 		}
-
-		if rounds[i].State == uint32(states.QUEUED) {
-			rnd := NewRound(rounds[i], testutils.LoadKeyTesting(t))
-			expectedRounds = append(expectedRounds, rnd)
+		if rounds[i].info.State == uint32(states.QUEUED) {
+			expectedRounds = append(expectedRounds, rounds[i])
 		}
 	}
-
 	perm := rand.Perm(num)
 	for i, v := range perm {
-		randomRounds[v] = NewRound(rounds[i], testutils.LoadKeyTesting(t))
+		randomRounds[v] = rounds[i]
 	}
-
 	return expectedRounds, randomRounds
 }
