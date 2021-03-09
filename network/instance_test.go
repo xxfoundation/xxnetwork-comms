@@ -15,7 +15,6 @@ import (
 	"gitlab.com/elixxir/primitives/states"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/signature"
-	"gitlab.com/xx_network/crypto/signature/rsa"
 	"gitlab.com/xx_network/primitives/id"
 	"gitlab.com/xx_network/primitives/ndf"
 	"reflect"
@@ -167,7 +166,11 @@ func TestInstance_GetRoundUpdate(t *testing.T) {
 
 	ri := &mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(1)}
 	testutils.SignRoundInfo(ri, t)
-	rnd := ds.NewRound(ri, testutils.LoadKeyTesting(t))
+	pubKey, err := testutils.LoadPublicKeyTesting(t)
+	if err != nil {
+		t.Errorf("Failed to load test key: %v", err)
+	}
+	rnd := ds.NewRound(ri, pubKey)
 
 	_ = i.roundUpdates.AddRound(rnd)
 	r, err := i.GetRoundUpdate(1)
@@ -180,13 +183,18 @@ func TestInstance_GetRoundUpdates(t *testing.T) {
 	i := Instance{
 		roundUpdates: ds.NewUpdates(),
 	}
+	pubKey, err := testutils.LoadPublicKeyTesting(t)
+	if err != nil {
+		t.Errorf("Failed to load public key: %v", err)
+		t.FailNow()
+	}
 
 	roundInfoOne := &mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(1)}
 	testutils.SignRoundInfo(roundInfoOne, t)
 	roundInfoTwo := &mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(2)}
 	testutils.SignRoundInfo(roundInfoTwo, t)
-	roundOne := ds.NewRound(roundInfoOne, testutils.LoadKeyTesting(t))
-	roundTwo := ds.NewRound(roundInfoTwo, testutils.LoadKeyTesting(t))
+	roundOne := ds.NewRound(roundInfoOne, pubKey)
+	roundTwo := ds.NewRound(roundInfoTwo, pubKey)
 
 	_ = i.roundUpdates.AddRound(roundOne)
 	_ = i.roundUpdates.AddRound(roundTwo)
@@ -197,8 +205,11 @@ func TestInstance_GetRoundUpdates(t *testing.T) {
 }
 
 func setupComm(t *testing.T) (*Instance, *mixmessages.NDF) {
-	priv := testkeys.LoadFromPath(testkeys.GetNodeKeyPath())
-	privKey, err := rsa.LoadPrivateKeyFromPem(priv)
+	privKey, err := testutils.LoadPrivateKeyTesting(t)
+	if err != nil {
+		t.Errorf("Could not load key: %v", err)
+		t.FailNow()
+	}
 	pub := testkeys.LoadFromPath(testkeys.GetNodeCertPath())
 	if err != nil {
 		t.Errorf("Could not generate rsa key: %s", err)
@@ -236,8 +247,11 @@ func TestInstance_RoundUpdate(t *testing.T) {
 		State:     6,
 		BatchSize: 8,
 	}
-	priv := testkeys.LoadFromPath(testkeys.GetNodeKeyPath())
-	privKey, err := rsa.LoadPrivateKeyFromPem(priv)
+	privKey, err := testutils.LoadPrivateKeyTesting(t)
+	if err != nil {
+		t.Errorf("Failed to load private key: %v", err)
+		t.FailNow()
+	}
 	err = signature.Sign(msg, privKey)
 	testManager := connect.NewManagerTesting(t)
 	pc := connect.ProtoComms{
@@ -327,7 +341,12 @@ func TestInstance_GetLastUpdateID(t *testing.T) {
 	}
 
 	ri := &mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(1)}
-	rnd := ds.NewRound(ri, testutils.LoadKeyTesting(t))
+	pubKey, err := testutils.LoadPublicKeyTesting(t)
+	if err != nil {
+		t.Errorf("Failed to load public key: %v", err)
+		t.FailNow()
+	}
+	rnd := ds.NewRound(ri, pubKey)
 
 	_ = i.roundUpdates.AddRound(rnd)
 	i.GetLastUpdateID()
@@ -752,8 +771,11 @@ func TestInstance_NodeEventModel(t *testing.T) {
 	if err != nil {
 		t.Errorf(err.Error())
 	}
-	priv := testkeys.LoadFromPath(testkeys.GetNodeKeyPath())
-	privKey, _ := rsa.LoadPrivateKeyFromPem(priv)
+	privKey, err := testutils.LoadPrivateKeyTesting(t)
+	if err != nil {
+		t.Errorf("Failed to load private key: %v", err)
+		t.FailNow()
+	}
 	err = signature.Sign(f, privKey)
 
 	// Set up channels that reduce counter by the number of items they receive
@@ -796,17 +818,12 @@ func TestInstance_RoundUpdates(t *testing.T) {
 	nwHealth := make(chan Heartbeat, 10)
 	i.SetNetworkHealthChan(nwHealth)
 
-	// Build a basic RoundInfo object and sign it
-	privKey, err := rsa.LoadPrivateKeyFromPem(testkeys.LoadFromPath(testkeys.GetNodeKeyPath()))
-	if err != nil {
-		t.Errorf("Could not get rsa key: %s", err)
-	}
 	r := &mixmessages.RoundInfo{
 		ID:       2,
 		UpdateID: 4,
 		State:    uint32(states.COMPLETED),
 	}
-	err = signature.Sign(r, privKey)
+	err := testutils.SignRoundInfo(r, t)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -892,10 +909,10 @@ func createBadNdf(t *testing.T) *mixmessages.NDF {
 	if err != nil {
 		t.Errorf("Could not generate serialized ndf: %s", err)
 	}
-	priv := testkeys.LoadFromPath(testkeys.GetNodeKeyPath())
-	privKey, err := rsa.LoadPrivateKeyFromPem(priv)
+	privKey, err := testutils.LoadPrivateKeyTesting(t)
 	if err != nil {
-		t.Errorf("Could not generate rsa key: %s", err)
+		t.Errorf("Failed to load private key: %v", err)
+		t.FailNow()
 	}
 
 	err = signature.Sign(f, privKey)
@@ -906,8 +923,11 @@ func createBadNdf(t *testing.T) *mixmessages.NDF {
 // Test that a new round update is inputted into the ERS map
 func TestInstance_RoundUpdateAddsToERS(t *testing.T) {
 	// Get signing certificates
-	priv := testkeys.LoadFromPath(testkeys.GetNodeKeyPath())
-	privKey, err := rsa.LoadPrivateKeyFromPem(priv)
+	privKey, err := testutils.LoadPrivateKeyTesting(t)
+	if err != nil {
+		t.Errorf("Failed to load private key: %v", err)
+		t.FailNow()
+	}
 	pub := testkeys.LoadFromPath(testkeys.GetNodeCertPath())
 	if err != nil {
 		t.Errorf("Could not get rsa key: %s", err)

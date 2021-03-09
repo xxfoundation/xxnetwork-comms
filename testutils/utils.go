@@ -17,9 +17,36 @@ import (
 	"testing"
 )
 
-func LoadKeyTesting(t *testing.T) *rsa.PublicKey {
-	if t == nil {
-		jww.FATAL.Panicf("LoadKeyTesting is a testing only function")
+func LoadPublicKeyTesting(i interface{}) (*rsa.PublicKey, error) {
+	switch i.(type) {
+	case *testing.T:
+		break
+	case *testing.M:
+		break
+	case *testing.B:
+		break
+	default:
+		jww.FATAL.Panicf("SignRoundInfo is restricted to testing only. Got %T", i)
+	}
+
+	privKey, err := LoadPrivateKeyTesting(i)
+	if err != nil {
+		return nil, errors.Errorf("Could not load private key: %v", err)
+	}
+
+	return privKey.GetPublic(), nil
+}
+
+func LoadPrivateKeyTesting(i interface{}) (*rsa.PrivateKey, error) {
+	switch i.(type) {
+	case *testing.T:
+		break
+	case *testing.M:
+		break
+	case *testing.B:
+		break
+	default:
+		jww.FATAL.Panicf("SignRoundInfo is restricted to testing only. Got %T", i)
 	}
 
 	keyPath := testkeys.GetNodeKeyPath()
@@ -27,11 +54,11 @@ func LoadKeyTesting(t *testing.T) *rsa.PublicKey {
 
 	privKey, err := rsa.LoadPrivateKeyFromPem(keyData)
 	if err != nil {
-		t.Errorf("Could not load public key: %v", err)
-		t.FailNow()
+		return nil, errors.Errorf("Could not load public key: %v", err)
 	}
 
-	return privKey.GetPublic()
+	return privKey, nil
+
 }
 
 // Utility function which signs a round info message

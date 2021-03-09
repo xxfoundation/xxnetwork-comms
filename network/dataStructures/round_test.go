@@ -15,7 +15,7 @@ import (
 
 // Smoke test for constructor
 func TestNewRound(t *testing.T) {
-	pubKey := testutils.LoadKeyTesting(t)
+	pubKey, _ := testutils.LoadPublicKeyTesting(t)
 	ri := &mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(1)}
 
 	rnd := NewRound(ri, pubKey)
@@ -34,7 +34,7 @@ func TestNewRound(t *testing.T) {
 
 // Unit test of Get()
 func TestNewRound_Get(t *testing.T) {
-	pubKey := testutils.LoadKeyTesting(t)
+	pubKey, _ := testutils.LoadPublicKeyTesting(t)
 	ri := &mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(1)}
 	// Mock signature of roundInfo as it will be verified in codepath
 	testutils.SignRoundInfo(ri, t)

@@ -234,7 +234,12 @@ func TestWaitingRounds_GetSlice(t *testing.T) {
 
 	testutils.SignRoundInfo(ri, t)
 
-	rnd := NewRound(ri, testutils.LoadKeyTesting(t))
+	pubKey, err := testutils.LoadPublicKeyTesting(t)
+	if err != nil {
+		t.Errorf("Failed to load public key: %v", err)
+		t.FailNow()
+	}
+	rnd := NewRound(ri, pubKey)
 
 	testRounds = append(testRounds, rnd)
 	for _, round := range testRounds {
@@ -263,12 +268,18 @@ func createTestRoundInfos(num int, t *testing.T) ([]*Round, []*Round) {
 	var expectedRounds []*Round
 	randomRounds := make([]*Round, num)
 	timeTrack := uint64(time.Now().Nanosecond()) + 100000000
+	pubKey, err := testutils.LoadPublicKeyTesting(t)
+	if err != nil {
+		t.Errorf("Failed to load public key: %v", err)
+		t.FailNow()
+	}
+
 	for i := 0; i < num; i++ {
 		rounds[i] = NewRound(&pb.RoundInfo{
 			ID:         rand.Uint64(),
 			State:      uint32(rand.Int63n(int64(states.NUM_STATES) - 1)),
 			Timestamps: make([]uint64, current.NUM_STATES),
-		}, testutils.LoadKeyTesting(t))
+		}, pubKey)
 		timeTrack += uint64(rand.Int63n(10000))
 		rounds[i].info.Timestamps[current.STANDBY] = timeTrack
 		if i%2 == 1 {

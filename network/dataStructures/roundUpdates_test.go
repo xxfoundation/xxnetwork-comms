@@ -20,8 +20,13 @@ func TestUpdates_AddRound(t *testing.T) {
 		ID:       0,
 		UpdateID: 0,
 	}
-	rnd := NewRound(ri, testutils.LoadKeyTesting(t))
-	err := u.AddRound(rnd)
+	pubKey, err := testutils.LoadPublicKeyTesting(t)
+	if err != nil {
+		t.Errorf("Failed to load public key: %v", err)
+		t.FailNow()
+	}
+	rnd := NewRound(ri, pubKey)
+	err = u.AddRound(rnd)
 	if err != nil {
 		t.Errorf("Failed to add round: %+v", err)
 	}
@@ -38,9 +43,14 @@ func TestUpdates_GetUpdate(t *testing.T) {
 	if err := testutils.SignRoundInfo(ri, t); err != nil {
 		t.Errorf("Failed to sign mock round info: %v", err)
 	}
-	rnd := NewRound(ri, testutils.LoadKeyTesting(t))
+	pubKey, err := testutils.LoadPublicKeyTesting(t)
+	if err != nil {
+		t.Errorf("Failed to load public key: %v", err)
+		t.FailNow()
+	}
+	rnd := NewRound(ri, pubKey)
 	_ = u.AddRound(rnd)
-	_, err := u.GetUpdate(updateID)
+	_, err = u.GetUpdate(updateID)
 	if err != nil {
 		t.Errorf("Failed to get update: %+v", err)
 	}
@@ -57,7 +67,12 @@ func TestUpdates_GetUpdates(t *testing.T) {
 	if err := testutils.SignRoundInfo(roundInfoOne, t); err != nil {
 		t.Errorf("Failed to sign mock round info: %v", err)
 	}
-	roundOne := NewRound(roundInfoOne, testutils.LoadKeyTesting(t))
+	pubKey, err := testutils.LoadPublicKeyTesting(t)
+	if err != nil {
+		t.Errorf("Failed to load public key: %v", err)
+		t.FailNow()
+	}
+	roundOne := NewRound(roundInfoOne, pubKey)
 
 	// Construct a second eound
 	roundInfoTwo := &mixmessages.RoundInfo{
@@ -67,7 +82,8 @@ func TestUpdates_GetUpdates(t *testing.T) {
 	if err := testutils.SignRoundInfo(roundInfoTwo, t); err != nil {
 		t.Errorf("Failed to sign mock round info: %v", err)
 	}
-	roundTwo := NewRound(roundInfoTwo, testutils.LoadKeyTesting(t))
+
+	roundTwo := NewRound(roundInfoTwo, pubKey)
 
 	_ = u.AddRound(roundOne)
 	// Add second round twice (shouldn't duplicate)

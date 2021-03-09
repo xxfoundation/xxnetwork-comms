@@ -104,7 +104,12 @@ func TestRoundEvents_TriggerRoundEvent(t *testing.T) {
 		t.Errorf("Failed to sign mock round info: %v", err)
 	}
 
-	rnd := NewRound(ri, testutils.LoadKeyTesting(t))
+	pubKey, err := testutils.LoadPublicKeyTesting(t)
+	if err != nil {
+		t.Errorf("Failed to load public key: %v", err)
+		t.FailNow()
+	}
+	rnd := NewRound(ri, pubKey)
 	events.TriggerRoundEvent(rnd)
 
 	// wait for calling
@@ -143,7 +148,12 @@ func TestRoundEvents_AddRoundEventChan(t *testing.T) {
 		t.Errorf("Failed to sign mock round info: %v", err)
 	}
 
-	rnd := NewRound(ri, testutils.LoadKeyTesting(t))
+	pubKey, err := testutils.LoadPublicKeyTesting(t)
+	if err != nil {
+		t.Errorf("Failed to load public key: %v", err)
+		t.FailNow()
+	}
+	rnd := NewRound(ri, pubKey)
 	events.TriggerRoundEvent(rnd)
 
 	// wait for calling
