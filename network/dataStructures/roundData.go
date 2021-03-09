@@ -33,7 +33,7 @@ func NewData() *Data {
 }
 
 // Upsert a round into the ring bugger
-func (d *Data) UpsertRound(r *mixmessages.RoundInfo) error {
+func (d *Data) UpsertRound(r *mixmessages.RoundInfo) error { // same thing as round updates
 	//find the round location
 	//check the new state is newer then the current
 	//replace the round info object
@@ -41,7 +41,7 @@ func (d *Data) UpsertRound(r *mixmessages.RoundInfo) error {
 }
 
 // Get a given round id from the ring buffer
-func (d *Data) GetRound(id int) (*mixmessages.RoundInfo, error) {
+func (d *Data) GetRound(id int) (*mixmessages.RoundInfo, error) { // keep this return signature
 	val, err := d.rounds.GetById(id)
 	if err != nil {
 		return nil, errors.Wrapf(err, "Failed to get update with id %d", id)

@@ -125,15 +125,18 @@ func (r *RoundEvents) AddRoundEvent(rid id.Round, callback RoundEventCallback, t
 
 // TriggerRoundEvent signals all round events matching the passed RoundInfo
 // according to its ID and state
-func (r *RoundEvents) TriggerRoundEvent(ri *pb.RoundInfo) {
+func (r *RoundEvents) TriggerRoundEvent(rnd *Round) {
 	r.mux.RLock()
 	defer r.mux.RUnlock()
+
 	// Try to find callbacks
-	callbacks, ok := r.callbacks[id.Round(ri.ID)]
-	if !ok {
+	callbacks, ok := r.callbacks[id.Round(rnd.info.ID)]
+	if !ok || len(callbacks[rnd.info.State]) == 0 {
 		return
 	}
-	for _, event := range callbacks[ri.State] {
-		event.signal <- ri
+
+	for _, event := range callbacks[rnd.info.State] {
+		// Retrieve and validate the round info
+		event.signal <- rnd.Get()
 	}
 }
