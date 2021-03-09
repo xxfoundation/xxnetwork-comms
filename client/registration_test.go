@@ -45,34 +45,6 @@ func TestSendRegistrationMessage(t *testing.T) {
 	}
 }
 
-// Smoke test SendCheckClientVersion
-func TestSendCheckClientVersionMessage(t *testing.T) {
-	GatewayAddress := getNextAddress()
-	testId := id.NewIdFromString("test", id.Generic, t)
-	clientId := id.NewIdFromString("client", id.Generic, t)
-
-	rg := registration.StartRegistrationServer(testId, GatewayAddress,
-		registration.NewImplementation(), nil, nil)
-	defer rg.Shutdown()
-	c, err := NewClientComms(clientId, nil, nil, nil)
-	if err != nil {
-		t.Errorf("Can't create client comms: %+v", err)
-	}
-	manager := connect.NewManagerTesting(t)
-
-	params := connect.GetDefaultHostParams()
-	params.AuthEnabled = false
-	host, err := manager.AddHost(testId, GatewayAddress, nil, params)
-	if err != nil {
-		t.Errorf("Unable to call NewHost: %+v", err)
-	}
-
-	_, err = c.SendGetCurrentClientVersionMessage(host)
-	if err != nil {
-		t.Errorf("CheckClientVersion: Error received: %s", err)
-	}
-}
-
 //Smoke test RequestNdf
 func TestSendGetUpdatedNDF(t *testing.T) {
 	GatewayAddress := getNextAddress()
