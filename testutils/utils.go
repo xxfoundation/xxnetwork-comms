@@ -35,7 +35,18 @@ func LoadKeyTesting(t *testing.T) *rsa.PublicKey {
 }
 
 // Utility function which signs a round info message
-func SignRoundInfo(ri *pb.RoundInfo) error {
+func SignRoundInfo(ri *pb.RoundInfo, i interface{}) error {
+	switch i.(type) {
+	case *testing.T:
+		break
+	case *testing.M:
+		break
+	case *testing.B:
+		break
+	default:
+		jww.FATAL.Panicf("SignRoundInfo is restricted to testing only. Got %T", i)
+	}
+
 	keyPath := testkeys.GetNodeKeyPath()
 	keyData := testkeys.LoadFromPath(keyPath)
 

@@ -166,7 +166,7 @@ func TestInstance_GetRoundUpdate(t *testing.T) {
 	}
 
 	ri := &mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(1)}
-	testutils.SignRoundInfo(ri)
+	testutils.SignRoundInfo(ri, t)
 	rnd := ds.NewRound(ri, testutils.LoadKeyTesting(t))
 
 	_ = i.roundUpdates.AddRound(rnd)
@@ -182,9 +182,9 @@ func TestInstance_GetRoundUpdates(t *testing.T) {
 	}
 
 	roundInfoOne := &mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(1)}
-	testutils.SignRoundInfo(roundInfoOne)
+	testutils.SignRoundInfo(roundInfoOne, t)
 	roundInfoTwo := &mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(2)}
-	testutils.SignRoundInfo(roundInfoTwo)
+	testutils.SignRoundInfo(roundInfoTwo, t)
 	roundOne := ds.NewRound(roundInfoOne, testutils.LoadKeyTesting(t))
 	roundTwo := ds.NewRound(roundInfoTwo, testutils.LoadKeyTesting(t))
 

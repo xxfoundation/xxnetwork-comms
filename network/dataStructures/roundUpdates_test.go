@@ -35,7 +35,7 @@ func TestUpdates_GetUpdate(t *testing.T) {
 		ID:       0,
 		UpdateID: uint64(updateID),
 	}
-	if err := testutils.SignRoundInfo(ri); err != nil {
+	if err := testutils.SignRoundInfo(ri, t); err != nil {
 		t.Errorf("Failed to sign mock round info: %v", err)
 	}
 	rnd := NewRound(ri, testutils.LoadKeyTesting(t))
@@ -54,7 +54,7 @@ func TestUpdates_GetUpdates(t *testing.T) {
 		ID:       0,
 		UpdateID: uint64(updateID),
 	}
-	if err := testutils.SignRoundInfo(roundInfoOne); err != nil {
+	if err := testutils.SignRoundInfo(roundInfoOne, t); err != nil {
 		t.Errorf("Failed to sign mock round info: %v", err)
 	}
 	roundOne := NewRound(roundInfoOne, testutils.LoadKeyTesting(t))
@@ -64,7 +64,7 @@ func TestUpdates_GetUpdates(t *testing.T) {
 		ID:       0,
 		UpdateID: uint64(updateID + 1),
 	}
-	if err := testutils.SignRoundInfo(roundInfoTwo); err != nil {
+	if err := testutils.SignRoundInfo(roundInfoTwo, t); err != nil {
 		t.Errorf("Failed to sign mock round info: %v", err)
 	}
 	roundTwo := NewRound(roundInfoTwo, testutils.LoadKeyTesting(t))

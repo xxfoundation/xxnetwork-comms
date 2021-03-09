@@ -37,7 +37,7 @@ func TestNewRound_Get(t *testing.T) {
 	pubKey := testutils.LoadKeyTesting(t)
 	ri := &mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(1)}
 	// Mock signature of roundInfo as it will be verified in codepath
-	testutils.SignRoundInfo(ri)
+	testutils.SignRoundInfo(ri, t)
 	rnd := NewRound(ri, pubKey)
 
 	// Check the initial value of the atomic value (lazily)

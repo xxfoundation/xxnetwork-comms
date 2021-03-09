@@ -159,7 +159,7 @@ func TestWaitingRounds_GetUpcomingRealtime_NoWait(t *testing.T) {
 	testWR := NewWaitingRounds()
 
 	for _, round := range testRounds {
-		testutils.SignRoundInfo(round.info)
+		testutils.SignRoundInfo(round.info, t)
 		testWR.Insert(round)
 	}
 
@@ -202,7 +202,7 @@ func TestWaitingRounds_GetUpcomingRealtime(t *testing.T) {
 	for i, round := range expectedRounds {
 		go func(round *Round) {
 			time.Sleep(30 * time.Millisecond)
-			testutils.SignRoundInfo(round.info)
+			testutils.SignRoundInfo(round.info, t)
 			testWR.Insert(round)
 		}(round)
 
@@ -232,7 +232,7 @@ func TestWaitingRounds_GetSlice(t *testing.T) {
 		Timestamps: []uint64{0, 0, 0, 0, 0},
 	}
 
-	testutils.SignRoundInfo(ri)
+	testutils.SignRoundInfo(ri, t)
 
 	rnd := NewRound(ri, testutils.LoadKeyTesting(t))
 
