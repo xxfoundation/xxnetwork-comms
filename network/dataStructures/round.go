@@ -14,12 +14,16 @@ import (
 	"sync/atomic"
 )
 
+// Structure wraps a round info object with the
+// key to verify the protobuff's signature
+// and a state track for verifying
 type Round struct {
 	info            *pb.RoundInfo
 	needsValidation *uint32
 	pubkey          *rsa.PublicKey
 }
 
+// Constructor of a Round object.
 func NewRound(ri *pb.RoundInfo, pubkey *rsa.PublicKey) *Round {
 	validationDefault := uint32(0)
 	return &Round{
@@ -29,6 +33,9 @@ func NewRound(ri *pb.RoundInfo, pubkey *rsa.PublicKey) *Round {
 	}
 }
 
+// Get returns the round info object. If we have not
+// validated the signature before, we then verify.
+// Later calls will not need validation
 func (r *Round) Get() *pb.RoundInfo {
 	if atomic.LoadUint32(r.needsValidation) == 0 {
 		// Check the sig, panic if failure
