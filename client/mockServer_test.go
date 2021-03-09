@@ -71,10 +71,6 @@ func (s *MockRegistration) RegisterUser(registrationCode,
 	return nil, nil, nil
 }
 
-func (s *MockRegistration) GetCurrentClientVersion() (version string, err error) {
-	return "", nil
-}
-
 func (s *MockRegistration) CheckRegistration(msg *pb.RegisteredNodeCheck) (*pb.RegisteredNodeConfirmation, error) {
 	return nil, nil
 }
@@ -109,11 +105,6 @@ func (s *MockRegistrationError) Poll(*pb.PermissioningPoll, *connect.Auth) (*pb.
 func (s *MockRegistrationError) RegisterUser(registrationCode,
 	key, reptKey string) (sig, receptionSig []byte, err error) {
 	return nil, nil, nil
-}
-
-func (s *MockRegistrationError) GetCurrentClientVersion() (version string, err error) {
-	return "", nil
-
 }
 
 func (s *MockRegistrationError) CheckRegistration(msg *pb.RegisteredNodeCheck) (*pb.RegisteredNodeConfirmation, error) {
