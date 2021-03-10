@@ -56,15 +56,9 @@ func TestTLS(t *testing.T) {
 	// Add the host object to the manager
 	params := connect.GetDefaultHostParams()
 	params.AuthEnabled = false
-	host, err := manager.AddHost(testId, regAddress, certData, params)
+	_, err := manager.AddHost(testId, regAddress, certData, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
-	}
-
-	// Attempt to poll NDF
-	_, err = notificationBot.RequestNotifications(host)
-	if err != nil {
-		t.Error(err)
 	}
 
 }
@@ -83,31 +77,4 @@ func TestBadCerts(t *testing.T) {
 	// This should panic and cause the defer func above to run
 	_ = StartNotificationBot(testID, Address, NewImplementation(),
 		[]byte("bad cert"), []byte("bad key"))
-}
-
-func TestComms_RequestNotifications(t *testing.T) {
-	GatewayAddress := getNextAddress()
-	nbAddress := getNextAddress()
-	testID := id.NewIdFromString("test", id.Generic, t)
-
-	gw := gateway.StartGateway(testID, GatewayAddress, gateway.NewImplementation(), nil,
-		nil, gossip.DefaultManagerFlags())
-	notificationBot := StartNotificationBot(testID, nbAddress, NewImplementation(),
-		nil, nil)
-	defer gw.Shutdown()
-	defer notificationBot.Shutdown()
-	manager := connect.NewManagerTesting(t)
-
-	params := connect.GetDefaultHostParams()
-	params.AuthEnabled = false
-	host, err := manager.AddHost(testID, GatewayAddress, nil, params)
-	if err != nil {
-		t.Errorf("Unable to call NewHost: %+v", err)
-	}
-
-	_, err = notificationBot.RequestNotifications(host)
-	if err != nil {
-		t.Errorf("SendGetSignedCertMessage: Error received: %s", err)
-	}
-
 }
