@@ -182,10 +182,6 @@ service Gateway {
     rpc ConfirmNonce (RequestRegistrationConfirmation) returns (RegistrationConfirmation) {
     }
 
-    // Notifications->Gateway request for users with pending notifications
-    rpc PollForNotifications (messages.AuthenticatedMessage) returns (UserIdList) {
-    }
-
     // Client -> Gateway unified polling
     rpc Poll (GatewayPoll) returns (GatewayPollResponse) {
     }
