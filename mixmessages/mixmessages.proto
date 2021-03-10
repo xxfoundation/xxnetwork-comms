@@ -268,6 +268,8 @@ message GatewayPoll {
     // Define range for ClientBloomFilter searches
     int64 StartTimestamp = 4;
     int64 EndTimestamp = 5;
+
+    bytes ClientVersion = 6;
 }
 
 // Unified Client->Gateway polling response
@@ -327,10 +329,6 @@ message Recipients {
 service Registration {
     // Client uses this to register its user with the system
     rpc RegisterUser (UserRegistration) returns (UserRegistrationConfirmation) {
-    }
-
-    // Client uses this to check if the version needs to be updated
-    rpc GetCurrentClientVersion (messages.Ping) returns (ClientVersion) {
     }
 
     // Node registration for the permissioning server

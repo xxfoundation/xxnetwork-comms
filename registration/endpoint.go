@@ -64,18 +64,6 @@ func (r *Comms) RegisterUser(ctx context.Context, msg *pb.UserRegistration) (
 	}, err
 }
 
-// CheckClientVersion event handler which checks whether the client library
-// version is compatible with the network
-func (r *Comms) GetCurrentClientVersion(ctx context.Context, ping *messages.Ping) (*pb.ClientVersion, error) {
-
-	version, err := r.handler.GetCurrentClientVersion()
-
-	// Return the confirmation message
-	return &pb.ClientVersion{
-		Version: version,
-	}, err
-}
-
 // Handle a node registration event
 func (r *Comms) RegisterNode(ctx context.Context, msg *pb.NodeRegistration) (
 	*messages.Ack, error) {
