@@ -39,6 +39,10 @@ type Instance struct {
 
 	ipOverride *ds.IpOverrideList
 
+	// Determines whether auth is enabled
+	// on communication with gateways
+	gatewayAuth bool
+
 	// Network Health
 	networkHealth chan Heartbeat
 
@@ -616,10 +620,13 @@ func (i *Instance) updateConns(def *ndf.NetworkDefinition, isGateway, isNode boo
 					return errors.Errorf("Gateway ID invalid, collides with a "+
 						"hard coded ID. Invalid ID: %v", gwid.Marshal())
 				}
+
+				// If this entity is a gateway, other gateway hosts
+				// should have auth enabled. Otherwise, disable auth
 				gwParams := connect.GetDefaultHostParams()
-				gwParams.AuthEnabled = false
 				gwParams.MaxRetries = 3
 				gwParams.EnableCoolOff = true
+				gwParams.AuthEnabled = i.gatewayAuth
 				_, err := i.comm.AddHost(gwid, addr, []byte(gateway.TlsCertificate), gwParams)
 				if err != nil {
 					return errors.WithMessagef(err, "Could not add gateway host %s", gwid)
@@ -688,4 +695,10 @@ func (i *Instance) updateConns(def *ndf.NetworkDefinition, isGateway, isNode boo
 		}
 	}
 	return nil
+}
+
+// SetGatewayAuth will force authentication on all communications with gateways
+// intended for use between Gateway <-> Gateway communications
+func (i *Instance) SetGatewayAuthentication() {
+	i.gatewayAuth = true
 }
