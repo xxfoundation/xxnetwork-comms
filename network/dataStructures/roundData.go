@@ -59,6 +59,6 @@ func (d *Data) GetLastRoundID() id.Round {
 }
 
 // Gets the ID of the oldest roundd in the buffer
-func (d *Data) GetOldestRoundID() id.Round  {
+func (d *Data) GetOldestRoundID() id.Round {
 	return id.Round(d.rounds.GetOldestId())
 }
