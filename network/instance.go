@@ -478,7 +478,7 @@ func (i *Instance) RoundUpdate(info *pb.RoundInfo) error {
 	if err != nil {
 		return err
 	}
-	err = i.roundData.UpsertRound(info)
+	err = i.roundData.UpsertRound(rnd)
 	if err != nil {
 		return err
 	}

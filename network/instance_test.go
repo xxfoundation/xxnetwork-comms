@@ -152,7 +152,18 @@ func TestInstance_GetRound(t *testing.T) {
 	i := Instance{
 		roundData: ds.NewData(),
 	}
-	_ = i.roundData.UpsertRound(&mixmessages.RoundInfo{ID: uint64(1)})
+
+	// Construct a mock round object
+	ri := &mixmessages.RoundInfo{ID: uint64(1)}
+
+	pubKey, err := testutils.LoadPublicKeyTesting(t)
+	if err != nil {
+		t.Errorf("Failed to load public key: %v", err)
+		t.FailNow()
+	}
+	rnd := ds.NewRound(ri, pubKey)
+
+	_ = i.roundData.UpsertRound(rnd)
 	r, err := i.GetRound(id.Round(1))
 	if err != nil || r == nil {
 		t.Errorf("Failed to retrieve round: %+v", err)
@@ -332,7 +343,16 @@ func TestInstance_GetLastRoundID(t *testing.T) {
 	i := Instance{
 		roundData: ds.NewData(),
 	}
-	_ = i.roundData.UpsertRound(&mixmessages.RoundInfo{ID: uint64(1)})
+
+	ri := &mixmessages.RoundInfo{ID: uint64(1)}
+	pubKey, err := testutils.LoadPublicKeyTesting(t)
+	if err != nil {
+		t.Errorf("Failed to load public key: %v", err)
+		t.FailNow()
+	}
+	rnd := ds.NewRound(ri, pubKey)
+
+	_ = i.roundData.UpsertRound(rnd)
 	i.GetLastRoundID()
 }
 
@@ -358,15 +378,26 @@ func TestInstance_GetOldestRoundID(t *testing.T) {
 		roundData: ds.NewData(),
 	}
 
-	expectedOldRound := id.Round(0)
-	_ = i.roundData.UpsertRound(&mixmessages.RoundInfo{ID: uint64(expectedOldRound)})
-	_ = i.roundData.UpsertRound(&mixmessages.RoundInfo{ID: uint64(2)})
+	expectedOldRoundId := id.Round(0)
+	expectedOldRoundInfo := &mixmessages.RoundInfo{ID: uint64(expectedOldRoundId)}
+	pubKey, err := testutils.LoadPublicKeyTesting(t)
+	if err != nil {
+		t.Errorf("Failed to load public key: %v", err)
+		t.FailNow()
+	}
+	expectedOldRound := ds.NewRound(expectedOldRoundInfo, pubKey)
+
+	mockRoundInfo := &mixmessages.RoundInfo{ID: uint64(2)}
+	mockRound := ds.NewRound(mockRoundInfo, pubKey)
+
+	_ = i.roundData.UpsertRound(expectedOldRound)
+	_ = i.roundData.UpsertRound(mockRound)
 
 	returned := i.GetOldestRoundID()
-	if returned != expectedOldRound {
+	if returned != expectedOldRoundId {
 		t.Errorf("Failed to get oldest round from buffer."+
 			"\n\tExpected: %v"+
-			"\n\tReceived: %v", expectedOldRound, returned)
+			"\n\tReceived: %v", expectedOldRoundId, returned)
 	}
 }
 
@@ -376,9 +407,17 @@ func TestInstance_GetOldestRoundID_ManyRounds(t *testing.T) {
 		roundData: ds.NewData(),
 	}
 
+	pubKey, err := testutils.LoadPublicKeyTesting(t)
+	if err != nil {
+		t.Errorf("Failed to load public key: %v", err)
+		t.FailNow()
+	}
+
 	// Ensure a circle back in the round buffer
 	for i := 1; i <= ds.RoundInfoBufLen; i++ {
-		_ = testInstance.roundData.UpsertRound(&mixmessages.RoundInfo{ID: uint64(i)})
+		ri := &mixmessages.RoundInfo{ID: uint64(i)}
+		rnd := ds.NewRound(ri, pubKey)
+		_ = testInstance.roundData.UpsertRound(rnd)
 
 	}
 
