@@ -18,8 +18,7 @@ import (
 )
 
 // Used for creating connections with the default timeout
-func ConnectionContext(seconds time.Duration) (context.Context, context.CancelFunc) {
-	waitingPeriod := seconds * time.Second
+func ConnectionContext(waitingPeriod time.Duration) (context.Context, context.CancelFunc) {
 	jww.DEBUG.Printf("Timing out in: %s", waitingPeriod)
 	ctx, cancel := context.WithTimeout(context.Background(),
 		waitingPeriod)

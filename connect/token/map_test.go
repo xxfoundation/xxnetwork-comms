@@ -1,7 +1,14 @@
+///////////////////////////////////////////////////////////////////////////////
+// Copyright © 2020 xx network SEZC                                          //
+//                                                                           //
+// Use of this source code is governed by a license that can be found in the //
+// LICENSE file                                                              //
+///////////////////////////////////////////////////////////////////////////////
+
 package token
 
 import (
-	nonce2 "gitlab.com/elixxir/crypto/nonce"
+	nonce2 "gitlab.com/xx_network/crypto/nonce"
 	"testing"
 )
 

@@ -14,9 +14,9 @@ import (
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
-	"gitlab.com/elixxir/crypto/signature/rsa"
-	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/xx_network/comms/connect/token"
+	"gitlab.com/xx_network/crypto/signature/rsa"
+	"gitlab.com/xx_network/primitives/id"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/keepalive"
@@ -30,22 +30,22 @@ import (
 
 // KaOpts are Keepalive options for servers
 var KaOpts = keepalive.ServerParameters{
-	// Idle for at most 5s
-	MaxConnectionIdle: 5 * time.Second,
+	// Idle for at most 60s
+	MaxConnectionIdle: 60 * time.Second,
 	// Reset after an hour
 	MaxConnectionAge: 1 * time.Hour,
 	// w/ 1m grace shutdown
 	MaxConnectionAgeGrace: 1 * time.Minute,
-	// ping if no activity after 1s
-	Time: 1 * time.Second,
-	// Close conn 2 seconds after ping
-	Timeout: 2 * time.Second,
+	// Never ping to keepalive
+	Time: infinityTime,
+	// Close connection 60 seconds after ping
+	Timeout: 60 * time.Second,
 }
 
 // KaEnforcement are keepalive enforcement options for servers
 var KaEnforcement = keepalive.EnforcementPolicy{
-	// Client should wait at least 250ms
-	MinTime: 250 * time.Millisecond,
+	// Client should never send keep alive ping
+	MinTime: infinityTime,
 	// Doing KA on non-streams is OK
 	PermitWithoutStream: true,
 }
@@ -158,7 +158,6 @@ listen:
 			grpc.MaxRecvMsgSize(math.MaxInt32),
 			grpc.KeepaliveParams(KaOpts),
 			grpc.KeepaliveEnforcementPolicy(KaEnforcement))
-
 	} else {
 		// Create the gRPC server without TLS
 		jww.WARN.Printf("Starting server with TLS disabled...")
@@ -240,5 +239,6 @@ func (c *ProtoComms) Stream(host *Host, f func(conn *grpc.ClientConn) (
 // should be retried
 func isConnError(err error) bool {
 	return strings.Contains(err.Error(), "context deadline exceeded") ||
-		strings.Contains(err.Error(), "connection refused")
+		strings.Contains(err.Error(), "connection refused") ||
+		strings.Contains(err.Error(), "host disconnected")
 }

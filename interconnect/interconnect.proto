@@ -1,0 +1,22 @@
+///////////////////////////////////////////////////////////////////////////////
+// Copyright © 2020 xx network SEZC                                          //
+//                                                                           //
+// Use of this source code is governed by a license that can be found in the //
+// LICENSE file                                                              //
+///////////////////////////////////////////////////////////////////////////////
+
+syntax = "proto3";
+import "gitlab.com/xx_network/comms/messages/messages.proto";
+
+package interconnect;
+
+// RPC for handling communication between cmix nodes and consensus nodes
+service Interconnect {
+    rpc GetNDF (messages.Ping) returns (NDF);
+}
+
+// The Network Definition File is defined as a
+// JSON structure in primitives/ndf.
+message NDF {
+    bytes Ndf = 1;
+}

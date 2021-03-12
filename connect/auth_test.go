@@ -10,13 +10,13 @@ package connect
 import (
 	"bytes"
 	"github.com/golang/protobuf/ptypes"
-	"gitlab.com/elixxir/comms/testkeys"
-	"gitlab.com/elixxir/crypto/csprng"
-	"gitlab.com/elixxir/crypto/signature/rsa"
-	"gitlab.com/elixxir/crypto/xx"
-	"gitlab.com/elixxir/primitives/id"
 	token "gitlab.com/xx_network/comms/connect/token"
 	pb "gitlab.com/xx_network/comms/messages"
+	"gitlab.com/xx_network/comms/testkeys"
+	"gitlab.com/xx_network/crypto/csprng"
+	"gitlab.com/xx_network/crypto/signature/rsa"
+	"gitlab.com/xx_network/crypto/xx"
+	"gitlab.com/xx_network/primitives/id"
 	"testing"
 )
 
@@ -30,6 +30,9 @@ func TestSignVerify(t *testing.T) {
 		t.Errorf("Error setting private key: %+v", err)
 	}
 
+	testId := id.NewIdFromBytes([]byte("Kirby"), t)
+	c.Id = testId
+
 	private := c.GetPrivateKey()
 	pub := private.Public().(*rsa.PublicKey)
 
@@ -42,16 +45,17 @@ func TestSignVerify(t *testing.T) {
 		t.Errorf("Error converting to Any type: %+v", err)
 	}
 
-	signature, err := c.SignMessage(wrappedMessage)
+	signature, err := c.signMessage(wrappedMessage, testId)
 	if err != nil {
 		t.Errorf("Error signing message: %+v", err)
 	}
 
 	host := &Host{
+		id:           testId,
 		rsaPublicKey: pub,
 	}
 
-	err = c.VerifyMessage(wrappedMessage, signature, host)
+	err = c.verifyMessage(wrappedMessage, signature, host)
 	if err != nil {
 		t.Errorf("Error verifying signature")
 	}

@@ -1,0 +1,29 @@
+///////////////////////////////////////////////////////////////////////////////
+// Copyright © 2020 xx network SEZC                                          //
+//                                                                           //
+// Use of this source code is governed by a license that can be found in the //
+// LICENSE file                                                              //
+///////////////////////////////////////////////////////////////////////////////
+
+syntax = "proto3";
+
+package gossip;
+
+// RPC for handling generic reception of Gossip messages
+service Gossip {
+    rpc Endpoint (GossipMsg) returns (Ack);
+    rpc Stream (stream GossipMsg) returns (Ack);
+}
+
+// Generic response message providing an error message from remote servers
+message Ack {
+    string Error = 1;
+}
+
+// Generic message used for a variety of Gossip protocols
+message GossipMsg {
+    string Tag = 1;
+    bytes  Origin = 2;
+    bytes  Payload = 3;
+    bytes  Signature = 4;
+}

@@ -13,7 +13,7 @@ import (
 	"bytes"
 	"fmt"
 	jww "github.com/spf13/jwalterweatherman"
-	"gitlab.com/elixxir/primitives/id"
+	"gitlab.com/xx_network/primitives/id"
 	"sync"
 	"testing"
 )
@@ -33,9 +33,16 @@ func newManager() *Manager {
 	}
 }
 
-func NewManagerTesting(t *testing.T) *Manager {
-	if t == nil {
-		jww.FATAL.Panicf("NewMangerTesting is for testing only")
+func NewManagerTesting(i interface{}) *Manager {
+	switch i.(type) {
+	case *testing.T:
+		break
+	case *testing.M:
+		break
+	case *testing.B:
+		break
+	default:
+		jww.FATAL.Panicf("NewManagerTesting is for testing only. Got %T", i)
 	}
 	return newManager()
 }

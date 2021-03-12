@@ -19,11 +19,11 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
-	"gitlab.com/elixxir/crypto/signature/rsa"
-	"gitlab.com/elixxir/crypto/xx"
-	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/xx_network/comms/connect/token"
 	pb "gitlab.com/xx_network/comms/messages"
+	"gitlab.com/xx_network/crypto/signature/rsa"
+	"gitlab.com/xx_network/crypto/xx"
+	"gitlab.com/xx_network/primitives/id"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -113,7 +113,7 @@ func (c *ProtoComms) PackAuthenticatedMessage(msg proto.Message, host *Host,
 
 	// If signature is enabled, sign the message and add to payload
 	if enableSignature && !c.disableAuth {
-		authMsg.Signature, err = c.SignMessage(msg)
+		authMsg.Signature, err = c.signMessage(msg, host.GetId())
 		if err != nil {
 			return nil, err
 		}
@@ -235,7 +235,7 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) (err error) {
 
 	// Verify the token signature unless disableAuth has been set for testing
 	if !c.disableAuth {
-		if err := c.VerifyMessage(tokenMsg, msg.Signature, host); err != nil {
+		if err := c.verifyMessage(tokenMsg, msg.Signature, host); err != nil {
 			return errors.Errorf("Invalid token signature: %+v", err)
 		}
 	}
@@ -327,7 +327,7 @@ func (c *ProtoComms) DisableAuth() {
 
 // Takes a message and returns its signature
 // The message is signed with the ProtoComms RSA PrivateKey
-func (c *ProtoComms) SignMessage(msg proto.Message) ([]byte, error) {
+func (c *ProtoComms) signMessage(msg proto.Message, recipientID *id.ID) ([]byte, error) {
 	// Hash the message data
 	msgBytes, err := proto.Marshal(msg)
 	if err != nil {
@@ -336,7 +336,14 @@ func (c *ProtoComms) SignMessage(msg proto.Message) ([]byte, error) {
 	options := rsa.NewDefaultOptions()
 	hash := options.Hash.New()
 	hash.Write(msgBytes)
+	// Hash in the ID of the intended recipient. This prevents potential
+	// replay attacks
+	hash.Write(recipientID.Bytes())
 	hashed := hash.Sum(nil)
+
+	jww.TRACE.Printf("SignMessage: Signing for host ID [%v]", recipientID)
+	jww.TRACE.Printf("SignMessage: hash data: %v", hashed)
+	jww.TRACE.Printf("SignMessage: Hashed with ID: %v", recipientID)
 
 	// Obtain the private key
 	key := c.GetPrivateKey()
@@ -353,7 +360,25 @@ func (c *ProtoComms) SignMessage(msg proto.Message) ([]byte, error) {
 
 // Takes a message and a Host, verifies the signature
 // using Host public key, returning an error if invalid
-func (c *ProtoComms) VerifyMessage(msg proto.Message, signature []byte, host *Host) error {
+func (c *ProtoComms) verifyMessage(msg proto.Message, signature []byte, host *Host) error {
+
+	// Deal with edge case in which gateways and servers
+	// haven't added each other as hosts yet, and dealing with
+	// temporary or dummy ID's. Specifically mitigates
+	// gateway's requesting the permissioning address for it's node.
+	// fixme: there should be a better way of doing this. Suggested solutions:
+	//  - Adding the permissioning address to gateway's config file
+	//      (difficult/breaking on deployment side)
+	//  - Having the gateway generate the Node's ID on startup. The node's
+	//    ID could be pregenerated, ie generated along with it's certs
+	//    and added to the Node field in gateway's config (also deployment side)
+	var idToHash *id.ID
+	if host.id.Cmp(&id.DummyUser) || host.id.Cmp(&id.TempGateway) {
+		idToHash = id.DummyUser.DeepCopy()
+		idToHash.SetType(id.Node)
+	} else {
+		idToHash = c.Id
+	}
 
 	// Get hashed data of the message
 	msgBytes, err := proto.Marshal(msg)
@@ -363,7 +388,14 @@ func (c *ProtoComms) VerifyMessage(msg proto.Message, signature []byte, host *Ho
 	options := rsa.NewDefaultOptions()
 	hash := options.Hash.New()
 	hash.Write(msgBytes)
+	// Hash in the ID of the intended recipient. This prevents potential
+	// replay attacks
+	hash.Write(idToHash.Bytes())
 	hashed := hash.Sum(nil)
+
+	jww.TRACE.Printf("VerifyMessage: Verifying host ID [%v]", host.GetId())
+	jww.TRACE.Printf("VerifyMessage: hash data: %v", hashed)
+	jww.TRACE.Printf("VerifyMessage: Hashed with ID: %v", idToHash)
 
 	// Verify signature of message using host public key
 	err = rsa.Verify(host.rsaPublicKey, options.Hash, hashed, signature, nil)

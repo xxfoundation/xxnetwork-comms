@@ -10,13 +10,15 @@
 package connect
 
 import (
+	"encoding/base64"
 	"fmt"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
-	"gitlab.com/elixxir/crypto/signature/rsa"
-	tlsCreds "gitlab.com/elixxir/crypto/tls"
-	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/xx_network/comms/connect/token"
+	"gitlab.com/xx_network/crypto/signature/rsa"
+	tlsCreds "gitlab.com/xx_network/crypto/tls"
+	"gitlab.com/xx_network/primitives/id"
+	"gitlab.com/xx_network/primitives/rateLimiting"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/credentials"
@@ -29,13 +31,15 @@ import (
 	"time"
 )
 
+const infinityTime = time.Duration(math.MaxInt64)
+
 // KaClientOpts are the keepalive options for clients
 // TODO: Set via configuration
 var KaClientOpts = keepalive.ClientParameters{
-	// Wait 1s before pinging to keepalive
-	Time: 1 * time.Second,
-	// 2s after ping before closing
-	Timeout: 2 * time.Second,
+	// Never ping to keepalive
+	Time: infinityTime,
+	// 60s after ping before closing
+	Timeout: 60 * time.Second,
 	// For all connections, streaming and nonstreaming
 	PermitWithoutStream: true,
 }
@@ -81,6 +85,9 @@ type Host struct {
 
 	// Send lock
 	sendMux sync.RWMutex
+
+	coolOffBucket *rateLimiting.Bucket
+	inCoolOff     bool
 }
 
 // Creates a new Host object
@@ -95,6 +102,15 @@ func NewHost(id *id.ID, address string, cert []byte, params HostParams) (host *H
 		receptionToken:    token.NewLive(),
 		maxRetries:        params.MaxRetries,
 	}
+
+	if params.EnableCoolOff {
+		host.coolOffBucket = rateLimiting.CreateBucket(
+			params.NumSendsBeforeCoolOff+1, params.NumSendsBeforeCoolOff+1,
+			params.CoolOffTimeout, nil)
+	}
+
+	jww.INFO.Printf("New Host Created: %s", host)
+	jww.TRACE.Printf("New Host Certificate for %v: %s...", id, cert)
 
 	if host.maxRetries == 0 {
 		host.maxRetries = math.MaxUint32
@@ -149,6 +165,9 @@ func (h *Host) Connected() (bool, uint64) {
 
 // GetId returns the id of the host
 func (h *Host) GetId() *id.ID {
+	if h == nil {
+		return &id.ID{}
+	}
 	return h.id
 }
 
@@ -213,8 +232,14 @@ func (h *Host) transmit(f func(conn *grpc.ClientConn) (interface{},
 	error)) (interface{}, error) {
 
 	h.sendMux.RLock()
+	defer h.sendMux.RUnlock()
+
+	// Check if connection is down
+	if h.connection == nil {
+		return nil, errors.New("Failed to transmit: host disconnected")
+	}
+
 	a, err := f(h.connection)
-	h.sendMux.RUnlock()
 
 	return a, err
 }
@@ -299,7 +324,7 @@ func (h *Host) connectHelper() (err error) {
 		if backoffTime > 15 {
 			backoffTime = 15
 		}
-		ctx, cancel := ConnectionContext(time.Duration(backoffTime))
+		ctx, cancel := ConnectionContext(time.Duration(backoffTime) * time.Second)
 
 		// Create the connection
 		h.connection, err = grpc.DialContext(ctx, h.GetAddress(),
@@ -385,15 +410,25 @@ func (h *Host) String() string {
 		protocolVersion = creds.Info().ProtocolVersion
 		securityProtocol = creds.Info().SecurityProtocol
 	}
+
+	transmitStr := base64.StdEncoding.EncodeToString(
+		h.transmissionToken.GetBytes())
+	receptStr := base64.StdEncoding.EncodeToString(
+		h.receptionToken.GetBytes())
 	return fmt.Sprintf(
-		"ID: %v\tAddr: %v\tCertificate: %s...\tTransmission Live: %v"+
-			"\tReception Live: %+v \tEnableAuth: %v"+
+		"ID: %v\tAddr: %v\tTransmission Live: %s"+
+			"\tReception Live: %s \tEnableAuth: %v"+
 			"\tMaxRetries: %v\tConnState: %v"+
 			"\tTLS ServerName: %v\tTLS ProtocolVersion: %v\t"+
-			"TLS SecurityVersion: %v\tTLS SecurityProtocol: %v\n",
-		h.id, addr, h.certificate, h.transmissionToken.GetBytes(),
-		h.receptionToken.GetBytes(), h.enableAuth, h.maxRetries, state,
-		serverName, protocolVersion, securityVersion, securityProtocol)
+			"TLS SecurityVersion: %v\tTLS SecurityProtocol: %v",
+		h.id, addr, transmitStr, receptStr, h.enableAuth, h.maxRetries,
+		state, serverName, protocolVersion, securityVersion,
+		securityProtocol)
+}
+
+// Stringer interface for connection
+func (h *Host) StringVerbose() string {
+	return fmt.Sprintf("%s\t CERTIFICATE: %s", h, h.certificate)
 }
 
 func (h *Host) SetTestPublicKey(key *rsa.PublicKey, t interface{}) {
@@ -406,4 +441,17 @@ func (h *Host) SetTestPublicKey(key *rsa.PublicKey, t interface{}) {
 		jww.FATAL.Panicf("SetTestPublicKey is restricted to testing only. Got %T", t)
 	}
 	h.rsaPublicKey = key
+}
+
+// Set host to dynamic (for testing use)
+func (h *Host) SetTestDynamic(t interface{}) {
+	switch t.(type) {
+	case *testing.T:
+		break
+	case *testing.M:
+		break
+	default:
+		jww.FATAL.Panicf("SetTestDynamic is restricted to testing only. Got %T", t)
+	}
+	h.dynamicHost = true
 }

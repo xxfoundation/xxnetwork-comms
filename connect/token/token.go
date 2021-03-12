@@ -4,12 +4,13 @@
 // Use of this source code is governed by a license that can be found in the //
 // LICENSE file                                                              //
 ///////////////////////////////////////////////////////////////////////////////
+
 package token
 
 import (
 	"bytes"
 	"github.com/pkg/errors"
-	"gitlab.com/elixxir/crypto/nonce"
+	"gitlab.com/xx_network/crypto/nonce"
 	"sync"
 )
 
