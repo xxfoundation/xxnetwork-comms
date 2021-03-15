@@ -132,7 +132,7 @@ func TestWaitingRounds_getFurthest_Exclude(t *testing.T) {
 	exclude := set.New()
 	for i, round := range expectedRounds {
 		if i%2 == 0 {
-			exclude.Insert(round)
+			exclude.Insert(round.info)
 		}
 	}
 

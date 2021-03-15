@@ -122,7 +122,9 @@ func (wr *WaitingRounds) getFurthest(exclude *set.Set) *Round {
 	// Return the last non-excluded round in the list
 	for e := wr.rounds.Back(); e != nil; e = e.Prev() {
 		r := e.Value.(*Round)
-		if !exclude.Has(r) {
+		// Can't guarantee round object's pointers will
+		// be exact match of value in set
+		if !exclude.Has(r.info) {
 			return r
 		}
 	}
