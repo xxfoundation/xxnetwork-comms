@@ -9,6 +9,7 @@ package dataStructures
 
 import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
+	"gitlab.com/elixxir/comms/testutils"
 	"gitlab.com/elixxir/primitives/states"
 	"gitlab.com/xx_network/primitives/id"
 	"testing"
@@ -92,10 +93,24 @@ func TestRoundEvents_TriggerRoundEvent(t *testing.T) {
 	events.AddRoundEvent(rid, func(ri *pb.RoundInfo, timedOut bool) {
 		called = true
 	}, time.Minute, states.PENDING)
-	events.TriggerRoundEvent(&pb.RoundInfo{
+
+	// Construct a mock round object
+	ri := &pb.RoundInfo{
 		ID:    uint64(rid),
 		State: uint32(states.PENDING),
-	})
+	}
+
+	if err := testutils.SignRoundInfo(ri, t); err != nil {
+		t.Errorf("Failed to sign mock round info: %v", err)
+	}
+
+	pubKey, err := testutils.LoadPublicKeyTesting(t)
+	if err != nil {
+		t.Errorf("Failed to load public key: %v", err)
+		t.FailNow()
+	}
+	rnd := NewRound(ri, pubKey)
+	events.TriggerRoundEvent(rnd)
 
 	// wait for calling
 	time.Sleep(5 * time.Millisecond)
@@ -109,10 +124,7 @@ func TestRoundEvents_TriggerRoundEvent(t *testing.T) {
 	// No matching round events: nothing should happen
 	// (just to cover that branch)
 	called = false
-	events.TriggerRoundEvent(&pb.RoundInfo{
-		ID:    uint64(rid),
-		State: uint32(states.PENDING),
-	})
+	events.TriggerRoundEvent(rnd)
 	time.Sleep(5 * time.Millisecond)
 	if called {
 		t.Error("second trigger shouldn't have resulted in a call")
@@ -126,10 +138,23 @@ func TestRoundEvents_AddRoundEventChan(t *testing.T) {
 	rid := id.Round(1)
 	eventChan := make(chan EventReturn)
 	events.AddRoundEventChan(rid, eventChan, time.Minute, states.PENDING)
-	events.TriggerRoundEvent(&pb.RoundInfo{
+
+	// Construct a mock round object
+	ri := &pb.RoundInfo{
 		ID:    uint64(rid),
 		State: uint32(states.PENDING),
-	})
+	}
+	if err := testutils.SignRoundInfo(ri, t); err != nil {
+		t.Errorf("Failed to sign mock round info: %v", err)
+	}
+
+	pubKey, err := testutils.LoadPublicKeyTesting(t)
+	if err != nil {
+		t.Errorf("Failed to load public key: %v", err)
+		t.FailNow()
+	}
+	rnd := NewRound(ri, pubKey)
+	events.TriggerRoundEvent(rnd)
 
 	// wait for calling
 	time.Sleep(5 * time.Millisecond)

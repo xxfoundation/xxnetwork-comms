@@ -15,7 +15,6 @@ import (
 	"gitlab.com/elixxir/primitives/states"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/signature"
-	"gitlab.com/xx_network/crypto/signature/rsa"
 	"gitlab.com/xx_network/primitives/id"
 	"gitlab.com/xx_network/primitives/ndf"
 	"reflect"
@@ -119,7 +118,7 @@ func TestNewInstanceTesting_Error(t *testing.T) {
 
 //tests newInstance errors properly when there is no NDF
 func TestNewInstance_NilNDFs(t *testing.T) {
-	_, err := NewInstance(&connect.ProtoComms{}, nil, nil, nil)
+	_, err := NewInstance(&connect.ProtoComms{}, nil, nil, nil, 0)
 	if err == nil {
 		t.Errorf("Creation of NewInstance without an ndf succeded")
 	} else if !strings.Contains(err.Error(), "Cannot create a network "+
@@ -153,10 +152,51 @@ func TestInstance_GetRound(t *testing.T) {
 	i := Instance{
 		roundData: ds.NewData(),
 	}
-	_ = i.roundData.UpsertRound(&mixmessages.RoundInfo{ID: uint64(1)})
+
+	// Construct a mock round object
+	ri := &mixmessages.RoundInfo{ID: uint64(1)}
+	testutils.SignRoundInfo(ri, t)
+
+	pubKey, err := testutils.LoadPublicKeyTesting(t)
+	if err != nil {
+		t.Errorf("Failed to load public key: %v", err)
+		t.FailNow()
+	}
+	rnd := ds.NewRound(ri, pubKey)
+
+	_ = i.roundData.UpsertRound(rnd)
 	r, err := i.GetRound(id.Round(1))
 	if err != nil || r == nil {
 		t.Errorf("Failed to retrieve round: %+v", err)
+	}
+}
+
+func TestInstance_GetWrappedRound(t *testing.T) {
+	i := Instance{
+		roundData: ds.NewData(),
+	}
+
+	// Construct a mock round object
+	ri := &mixmessages.RoundInfo{ID: uint64(1)}
+	testutils.SignRoundInfo(ri, t)
+
+	pubKey, err := testutils.LoadPublicKeyTesting(t)
+	if err != nil {
+		t.Errorf("Failed to load public key: %v", err)
+		t.FailNow()
+	}
+	rnd := ds.NewRound(ri, pubKey)
+
+	_ = i.roundData.UpsertRound(rnd)
+	retrieved, err := i.GetWrappedRound(id.Round(1))
+	if err != nil || retrieved == nil {
+		t.Errorf("Failed to retrieve round: %+v", err)
+	}
+
+	if !reflect.DeepEqual(rnd, retrieved) {
+		t.Errorf("Retrieved value did not match expected!"+
+			"\n\tExpected: %v"+
+			"\n\tReceived: %v", rnd, retrieved)
 	}
 }
 
@@ -164,7 +204,16 @@ func TestInstance_GetRoundUpdate(t *testing.T) {
 	i := Instance{
 		roundUpdates: ds.NewUpdates(),
 	}
-	_ = i.roundUpdates.AddRound(&mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(1)})
+
+	ri := &mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(1)}
+	testutils.SignRoundInfo(ri, t)
+	pubKey, err := testutils.LoadPublicKeyTesting(t)
+	if err != nil {
+		t.Errorf("Failed to load test key: %v", err)
+	}
+	rnd := ds.NewRound(ri, pubKey)
+
+	_ = i.roundUpdates.AddRound(rnd)
 	r, err := i.GetRoundUpdate(1)
 	if err != nil || r == nil {
 		t.Errorf("Failed to retrieve round update: %+v", err)
@@ -175,8 +224,21 @@ func TestInstance_GetRoundUpdates(t *testing.T) {
 	i := Instance{
 		roundUpdates: ds.NewUpdates(),
 	}
-	_ = i.roundUpdates.AddRound(&mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(1)})
-	_ = i.roundUpdates.AddRound(&mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(2)})
+	pubKey, err := testutils.LoadPublicKeyTesting(t)
+	if err != nil {
+		t.Errorf("Failed to load public key: %v", err)
+		t.FailNow()
+	}
+
+	roundInfoOne := &mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(1)}
+	testutils.SignRoundInfo(roundInfoOne, t)
+	roundInfoTwo := &mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(2)}
+	testutils.SignRoundInfo(roundInfoTwo, t)
+	roundOne := ds.NewRound(roundInfoOne, pubKey)
+	roundTwo := ds.NewRound(roundInfoTwo, pubKey)
+
+	_ = i.roundUpdates.AddRound(roundOne)
+	_ = i.roundUpdates.AddRound(roundTwo)
 	r := i.GetRoundUpdates(1)
 	if r == nil {
 		t.Errorf("Failed to retrieve round updates")
@@ -184,8 +246,11 @@ func TestInstance_GetRoundUpdates(t *testing.T) {
 }
 
 func setupComm(t *testing.T) (*Instance, *mixmessages.NDF) {
-	priv := testkeys.LoadFromPath(testkeys.GetNodeKeyPath())
-	privKey, err := rsa.LoadPrivateKeyFromPem(priv)
+	privKey, err := testutils.LoadPrivateKeyTesting(t)
+	if err != nil {
+		t.Errorf("Could not load key: %v", err)
+		t.FailNow()
+	}
 	pub := testkeys.LoadFromPath(testkeys.GetNodeCertPath())
 	if err != nil {
 		t.Errorf("Could not generate rsa key: %s", err)
@@ -205,7 +270,7 @@ func setupComm(t *testing.T) (*Instance, *mixmessages.NDF) {
 		Id:      id.NewIdFromString("User", id.User, t),
 		Manager: testManager,
 	}
-	i, err := NewInstance(pc, baseNDF, baseNDF, nil)
+	i, err := NewInstance(pc, baseNDF, baseNDF, nil, 0)
 	if err != nil {
 		t.Error(nil)
 	}
@@ -224,14 +289,17 @@ func TestInstance_RoundUpdate(t *testing.T) {
 		State:     6,
 		BatchSize: 8,
 	}
-	priv := testkeys.LoadFromPath(testkeys.GetNodeKeyPath())
-	privKey, err := rsa.LoadPrivateKeyFromPem(priv)
+	privKey, err := testutils.LoadPrivateKeyTesting(t)
+	if err != nil {
+		t.Errorf("Failed to load private key: %v", err)
+		t.FailNow()
+	}
 	err = signature.Sign(msg, privKey)
 	testManager := connect.NewManagerTesting(t)
 	pc := connect.ProtoComms{
 		Manager: testManager,
 	}
-	i, err := NewInstance(&pc, testutils.NDF, testutils.NDF, nil)
+	i, err := NewInstance(&pc, testutils.NDF, testutils.NDF, nil, 0)
 	pub := testkeys.LoadFromPath(testkeys.GetGatewayCertPath())
 	err = i.RoundUpdate(msg)
 	if err == nil {
@@ -305,7 +373,16 @@ func TestInstance_GetLastRoundID(t *testing.T) {
 	i := Instance{
 		roundData: ds.NewData(),
 	}
-	_ = i.roundData.UpsertRound(&mixmessages.RoundInfo{ID: uint64(1)})
+
+	ri := &mixmessages.RoundInfo{ID: uint64(1)}
+	pubKey, err := testutils.LoadPublicKeyTesting(t)
+	if err != nil {
+		t.Errorf("Failed to load public key: %v", err)
+		t.FailNow()
+	}
+	rnd := ds.NewRound(ri, pubKey)
+
+	_ = i.roundData.UpsertRound(rnd)
 	i.GetLastRoundID()
 }
 
@@ -313,7 +390,16 @@ func TestInstance_GetLastUpdateID(t *testing.T) {
 	i := Instance{
 		roundUpdates: ds.NewUpdates(),
 	}
-	_ = i.roundUpdates.AddRound(&mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(1)})
+
+	ri := &mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(1)}
+	pubKey, err := testutils.LoadPublicKeyTesting(t)
+	if err != nil {
+		t.Errorf("Failed to load public key: %v", err)
+		t.FailNow()
+	}
+	rnd := ds.NewRound(ri, pubKey)
+
+	_ = i.roundUpdates.AddRound(rnd)
 	i.GetLastUpdateID()
 }
 
@@ -322,15 +408,26 @@ func TestInstance_GetOldestRoundID(t *testing.T) {
 		roundData: ds.NewData(),
 	}
 
-	expectedOldRound := id.Round(0)
-	_ = i.roundData.UpsertRound(&mixmessages.RoundInfo{ID: uint64(expectedOldRound)})
-	_ = i.roundData.UpsertRound(&mixmessages.RoundInfo{ID: uint64(2)})
+	expectedOldRoundId := id.Round(0)
+	expectedOldRoundInfo := &mixmessages.RoundInfo{ID: uint64(expectedOldRoundId)}
+	pubKey, err := testutils.LoadPublicKeyTesting(t)
+	if err != nil {
+		t.Errorf("Failed to load public key: %v", err)
+		t.FailNow()
+	}
+	expectedOldRound := ds.NewRound(expectedOldRoundInfo, pubKey)
+
+	mockRoundInfo := &mixmessages.RoundInfo{ID: uint64(2)}
+	mockRound := ds.NewRound(mockRoundInfo, pubKey)
+
+	_ = i.roundData.UpsertRound(expectedOldRound)
+	_ = i.roundData.UpsertRound(mockRound)
 
 	returned := i.GetOldestRoundID()
-	if returned != expectedOldRound {
+	if returned != expectedOldRoundId {
 		t.Errorf("Failed to get oldest round from buffer."+
 			"\n\tExpected: %v"+
-			"\n\tReceived: %v", expectedOldRound, returned)
+			"\n\tReceived: %v", expectedOldRoundId, returned)
 	}
 }
 
@@ -340,9 +437,17 @@ func TestInstance_GetOldestRoundID_ManyRounds(t *testing.T) {
 		roundData: ds.NewData(),
 	}
 
+	pubKey, err := testutils.LoadPublicKeyTesting(t)
+	if err != nil {
+		t.Errorf("Failed to load public key: %v", err)
+		t.FailNow()
+	}
+
 	// Ensure a circle back in the round buffer
 	for i := 1; i <= ds.RoundInfoBufLen; i++ {
-		_ = testInstance.roundData.UpsertRound(&mixmessages.RoundInfo{ID: uint64(i)})
+		ri := &mixmessages.RoundInfo{ID: uint64(i)}
+		rnd := ds.NewRound(ri, pubKey)
+		_ = testInstance.roundData.UpsertRound(rnd)
 
 	}
 
@@ -737,8 +842,11 @@ func TestInstance_NodeEventModel(t *testing.T) {
 	if err != nil {
 		t.Errorf(err.Error())
 	}
-	priv := testkeys.LoadFromPath(testkeys.GetNodeKeyPath())
-	privKey, _ := rsa.LoadPrivateKeyFromPem(priv)
+	privKey, err := testutils.LoadPrivateKeyTesting(t)
+	if err != nil {
+		t.Errorf("Failed to load private key: %v", err)
+		t.FailNow()
+	}
 	err = signature.Sign(f, privKey)
 
 	// Set up channels that reduce counter by the number of items they receive
@@ -781,17 +889,12 @@ func TestInstance_RoundUpdates(t *testing.T) {
 	nwHealth := make(chan Heartbeat, 10)
 	i.SetNetworkHealthChan(nwHealth)
 
-	// Build a basic RoundInfo object and sign it
-	privKey, err := rsa.LoadPrivateKeyFromPem(testkeys.LoadFromPath(testkeys.GetNodeKeyPath()))
-	if err != nil {
-		t.Errorf("Could not get rsa key: %s", err)
-	}
 	r := &mixmessages.RoundInfo{
 		ID:       2,
 		UpdateID: 4,
 		State:    uint32(states.COMPLETED),
 	}
-	err = signature.Sign(r, privKey)
+	err := testutils.SignRoundInfo(r, t)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -877,10 +980,10 @@ func createBadNdf(t *testing.T) *mixmessages.NDF {
 	if err != nil {
 		t.Errorf("Could not generate serialized ndf: %s", err)
 	}
-	priv := testkeys.LoadFromPath(testkeys.GetNodeKeyPath())
-	privKey, err := rsa.LoadPrivateKeyFromPem(priv)
+	privKey, err := testutils.LoadPrivateKeyTesting(t)
 	if err != nil {
-		t.Errorf("Could not generate rsa key: %s", err)
+		t.Errorf("Failed to load private key: %v", err)
+		t.FailNow()
 	}
 
 	err = signature.Sign(f, privKey)
@@ -891,8 +994,11 @@ func createBadNdf(t *testing.T) *mixmessages.NDF {
 // Test that a new round update is inputted into the ERS map
 func TestInstance_RoundUpdateAddsToERS(t *testing.T) {
 	// Get signing certificates
-	priv := testkeys.LoadFromPath(testkeys.GetNodeKeyPath())
-	privKey, err := rsa.LoadPrivateKeyFromPem(priv)
+	privKey, err := testutils.LoadPrivateKeyTesting(t)
+	if err != nil {
+		t.Errorf("Failed to load private key: %v", err)
+		t.FailNow()
+	}
 	pub := testkeys.LoadFromPath(testkeys.GetNodeCertPath())
 	if err != nil {
 		t.Errorf("Could not get rsa key: %s", err)
@@ -916,7 +1022,7 @@ func TestInstance_RoundUpdateAddsToERS(t *testing.T) {
 		Manager: testManager,
 	}
 	var ers ds.ExternalRoundStorage = &ersMemMap{rounds: make(map[id.Round]*mixmessages.RoundInfo)}
-	i, err := NewInstance(pc, baseNDF, baseNDF, ers)
+	i, err := NewInstance(pc, baseNDF, baseNDF, ers, 0)
 	if err != nil {
 		t.Error(nil)
 	}

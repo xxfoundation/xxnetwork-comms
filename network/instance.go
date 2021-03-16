@@ -27,14 +27,15 @@ import (
 
 // The Instance struct stores a combination of comms info and round info for servers
 type Instance struct {
-	comm         *connect.ProtoComms
-	cmixGroup    *ds.Group // make a wrapper structure containing a group and a rwlock
-	e2eGroup     *ds.Group
-	partial      *SecuredNdf
-	full         *SecuredNdf
-	roundUpdates *ds.Updates
-	roundData    *ds.Data
-	ers          ds.ExternalRoundStorage
+	comm            *connect.ProtoComms
+	cmixGroup       *ds.Group // make a wrapper structure containing a group and a rwlock
+	e2eGroup        *ds.Group
+	partial         *SecuredNdf
+	full            *SecuredNdf
+	roundUpdates    *ds.Updates
+	roundData       *ds.Data
+	ers             ds.ExternalRoundStorage
+	validationLevel ValidationType
 
 	ipOverride *ds.IpOverrideList
 
@@ -123,7 +124,7 @@ func (i *Instance) GetFullNdf() *SecuredNdf {
 // Initializer for instance structs from base comms and NDF, you can put in nil for
 // ERS if you don't want to use it
 func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition,
-	ers ds.ExternalRoundStorage) (*Instance, error) {
+	ers ds.ExternalRoundStorage, validationLevel ValidationType) (*Instance, error) {
 	var partialNdf *SecuredNdf
 	var fullNdf *SecuredNdf
 	var err error
@@ -188,6 +189,7 @@ func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition,
 
 	i.waitingRounds = ds.NewWaitingRounds()
 	i.events = ds.NewRoundEvents()
+	i.validationLevel = validationLevel
 
 	// Set our ERS to the passed in ERS object (or nil)
 	i.ers = ers
@@ -208,7 +210,7 @@ func NewInstanceTesting(c *connect.ProtoComms, partial, full *ndf.NetworkDefinit
 	default:
 		jww.FATAL.Panicf("NewInstanceTesting is restricted to testing only. Got %T", i)
 	}
-	instance, err := NewInstance(c, partial, full, nil)
+	instance, err := NewInstance(c, partial, full, nil, 0)
 	if err != nil {
 		return nil, errors.Errorf("Unable to create instance: %+v", err)
 	}
@@ -463,27 +465,35 @@ func (i *Instance) RoundUpdate(info *pb.RoundInfo) error {
 			"for round info verification")
 	}
 
-	err := signature.Verify(info, perm.GetPubKey())
-	if err != nil {
-		return errors.WithMessage(err, fmt.Sprintf("Could not validate "+
-			"the roundInfo signature: %+v", info))
+	rnd := ds.NewRound(info, perm.GetPubKey())
+	if i.validationLevel == Strict {
+		err := signature.Verify(info, perm.GetPubKey())
+		if err != nil {
+			return errors.WithMessage(err, fmt.Sprintf("Could not validate "+
+				"the roundInfo signature: %+v", info))
+		}
 	}
 
-	err = i.roundUpdates.AddRound(info)
+	err := i.roundUpdates.AddRound(rnd)
 	if err != nil {
 		return err
 	}
-	err = i.roundData.UpsertRound(info)
+	err = i.roundData.UpsertRound(rnd)
 	if err != nil {
 		return err
 	}
 	if i.ers != nil {
+		// If we are not lazy, we validate the info before storage
+		if i.validationLevel != Lazy {
+			_ = rnd.Get()
+		}
+
 		// Intentionally suppress error
 		_ = i.ers.Store(info)
 	}
 
-	i.events.TriggerRoundEvent(info)
-	i.waitingRounds.Insert(info)
+	i.events.TriggerRoundEvent(rnd)
+	i.waitingRounds.Insert(rnd)
 	return nil
 }
 
@@ -494,13 +504,17 @@ func (i *Instance) GetE2EGroup() *cyclic.Group {
 
 // GetE2EGroup gets the cmixGroup from the instance
 func (i *Instance) GetCmixGroup() *cyclic.Group {
-
 	return i.cmixGroup.Get()
 }
 
-// Get the round of a given ID
+// Get the round of a given ID as a roundInfo (protobuff)
 func (i *Instance) GetRound(id id.Round) (*pb.RoundInfo, error) {
 	return i.roundData.GetRound(int(id))
+}
+
+// Get the round of a given ID as a ds.Round object
+func (i *Instance) GetWrappedRound(id id.Round) (*ds.Round, error) {
+	return i.roundData.GetWrappedRound(int(id))
 }
 
 // Get an update ID
@@ -588,7 +602,6 @@ func (i *Instance) GetPermissioningCert() string {
 // GetPermissioningId gets the permissioning ID from primitives
 func (i *Instance) GetPermissioningId() *id.ID {
 	return &id.Permissioning
-
 }
 
 // Update host helper

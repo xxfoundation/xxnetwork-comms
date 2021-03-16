@@ -11,6 +11,7 @@ package dataStructures
 
 import (
 	"github.com/pkg/errors"
+	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/ring"
 )
@@ -31,8 +32,8 @@ func NewUpdates() *Updates {
 }
 
 // Add a round to the ring buffer
-func (u *Updates) AddRound(info *pb.RoundInfo) error {
-	return u.updates.UpsertById(int(info.UpdateID), info)
+func (u *Updates) AddRound(rnd *Round) error {
+	return u.updates.UpsertById(int(rnd.info.UpdateID), rnd)
 }
 
 // Get a given update ID from the ring buffer
@@ -42,7 +43,14 @@ func (u *Updates) GetUpdate(id int) (*pb.RoundInfo, error) {
 	if err != nil {
 		return nil, errors.Wrapf(err, "Failed to get update with id %d", id)
 	}
-	return val.(*pb.RoundInfo), nil
+
+	rnd, ok := val.(*Round)
+	if !ok {
+		jww.FATAL.Panicf("Could not get proper round structure from round update buffer")
+	}
+
+	// Retrieve/validate and return the round info object
+	return rnd.Get(), nil
 }
 
 //gets all updates after a given ID
@@ -58,7 +66,9 @@ func (u *Updates) GetUpdates(id int) []*pb.RoundInfo {
 	addCount := 0
 	for _, face := range interfaceList {
 		if face != nil {
-			infoList[addCount] = face.(*pb.RoundInfo)
+			rnd := face.(*Round)
+			// Retrieve and validate the round info object
+			infoList[addCount] = rnd.Get()
 			addCount++
 		}
 

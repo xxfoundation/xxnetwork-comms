@@ -11,6 +11,7 @@ import (
 	"container/list"
 	"github.com/golang-collections/collections/set"
 	pb "gitlab.com/elixxir/comms/mixmessages"
+	"gitlab.com/elixxir/comms/testutils"
 	"gitlab.com/elixxir/primitives/current"
 	"gitlab.com/elixxir/primitives/states"
 	"math/rand"
@@ -49,7 +50,7 @@ func TestWaitingRounds_Len(t *testing.T) {
 // Happy path of WaitingRounds.Insert().
 func TestWaitingRounds_Insert(t *testing.T) {
 	// Generate rounds
-	expectedRounds, testRounds := createTestRoundInfos(25)
+	expectedRounds, testRounds := createTestRoundInfos(25, t)
 
 	// Add rounds to list
 	testWR := NewWaitingRounds()
@@ -64,7 +65,7 @@ func TestWaitingRounds_Insert(t *testing.T) {
 
 	// Check if they are in the correct order
 	for e, i := testWR.rounds.Front(), 0; e != nil; e, i = e.Next(), i+1 {
-		if expectedRounds[i] != e.Value {
+		if expectedRounds[i].info != e.Value.(*Round).info {
 			t.Errorf("Insert() did not inser the correct element at position %d."+
 				"\n\texpected: %v\n\trecieved: %v", i, expectedRounds[i], e.Value)
 		}
@@ -74,7 +75,7 @@ func TestWaitingRounds_Insert(t *testing.T) {
 // Happy path of WaitingRounds.remove().
 func TestWaitingRounds_remove(t *testing.T) {
 	// Generate rounds
-	expectedRounds, testRounds := createTestRoundInfos(25)
+	expectedRounds, testRounds := createTestRoundInfos(25, t)
 
 	// Add rounds to list
 	testWR := NewWaitingRounds()
@@ -95,7 +96,7 @@ func TestWaitingRounds_remove(t *testing.T) {
 // Happy path of WaitingRounds.getFurthest().
 func TestWaitingRounds_getFurthest(t *testing.T) {
 	// Generate rounds
-	expectedRounds, testRounds := createTestRoundInfos(25)
+	expectedRounds, testRounds := createTestRoundInfos(25, t)
 
 	// Add rounds to list
 	testWR := NewWaitingRounds()
@@ -104,7 +105,7 @@ func TestWaitingRounds_getFurthest(t *testing.T) {
 	}
 
 	for i := len(expectedRounds) - 1; i >= 0; i-- {
-		if expectedRounds[i] != testWR.getFurthest(nil) {
+		if !reflect.DeepEqual(expectedRounds[i], testWR.getFurthest(nil)) {
 			t.Errorf("getFurthest() did not return the expected round."+
 				"\n\texpected: %v\n\trecieved: %v", expectedRounds[i], testWR.getFurthest(nil))
 		}
@@ -119,7 +120,7 @@ func TestWaitingRounds_getFurthest(t *testing.T) {
 // Happy path of WaitingRounds.getFurthest() with half the rounds excluded
 func TestWaitingRounds_getFurthest_Exclude(t *testing.T) {
 	// Generate rounds
-	expectedRounds, testRounds := createTestRoundInfos(25)
+	expectedRounds, testRounds := createTestRoundInfos(25, t)
 
 	// Add rounds to list
 	testWR := NewWaitingRounds()
@@ -131,15 +132,16 @@ func TestWaitingRounds_getFurthest_Exclude(t *testing.T) {
 	exclude := set.New()
 	for i, round := range expectedRounds {
 		if i%2 == 0 {
-			exclude.Insert(round)
+			exclude.Insert(round.info)
 		}
 	}
 
 	for i := len(expectedRounds) - 1; i >= 0; i-- {
 		if i%2 == 1 {
-			if expectedRounds[i] != testWR.getFurthest(exclude) {
+			received := testWR.getFurthest(exclude)
+			if !reflect.DeepEqual(expectedRounds[i], received) {
 				t.Errorf("getFurthest() did not return the expected round."+
-					"\n\texpected: %v\n\trecieved: %v", expectedRounds[i], testWR.getFurthest(exclude))
+					"\n\texpected: %v\n\trecieved: %v", expectedRounds[i], received)
 			}
 			testWR.remove(expectedRounds[i])
 		}
@@ -153,10 +155,11 @@ func TestWaitingRounds_getFurthest_Exclude(t *testing.T) {
 // and no waiting occurs.
 func TestWaitingRounds_GetUpcomingRealtime_NoWait(t *testing.T) {
 	// Generate rounds and add to new list
-	expectedRounds, testRounds := createTestRoundInfos(25)
+	expectedRounds, testRounds := createTestRoundInfos(25, t)
 	testWR := NewWaitingRounds()
 
 	for _, round := range testRounds {
+		testutils.SignRoundInfo(round.info, t)
 		testWR.Insert(round)
 	}
 
@@ -166,7 +169,7 @@ func TestWaitingRounds_GetUpcomingRealtime_NoWait(t *testing.T) {
 			t.Errorf("GetUpcomingRealtime() returned an unexpected error."+
 				"\n\terror: %v", err)
 		}
-		if expectedRounds[i] != furthestRound {
+		if expectedRounds[i].info != furthestRound {
 			t.Errorf("GetUpcomingRealtime() did not return the expected round (%d)."+
 				"\n\texpected: %v\n\trecieved: %v", i, expectedRounds[i], furthestRound)
 		}
@@ -193,12 +196,13 @@ func TestWaitingRounds_GetUpcomingRealtime_TimeoutError(t *testing.T) {
 // Happy path of WaitingRounds.GetUpcomingRealtime().
 func TestWaitingRounds_GetUpcomingRealtime(t *testing.T) {
 	// Generate rounds and WaitingRound
-	expectedRounds, _ := createTestRoundInfos(25)
+	expectedRounds, _ := createTestRoundInfos(25, t)
 	testWR := NewWaitingRounds()
 
 	for i, round := range expectedRounds {
-		go func(round *pb.RoundInfo) {
+		go func(round *Round) {
 			time.Sleep(30 * time.Millisecond)
+			testutils.SignRoundInfo(round.info, t)
 			testWR.Insert(round)
 		}(round)
 
@@ -208,7 +212,7 @@ func TestWaitingRounds_GetUpcomingRealtime(t *testing.T) {
 			t.Errorf("GetUpcomingRealtime() returned an unexpected error (%d)."+
 				"\n\terror: %v", i, err)
 		}
-		if round != furthestRound {
+		if round.info != furthestRound {
 			t.Errorf("GetUpcomingRealtime() did not return the expected round (%d)."+
 				"\n\texpected: %v\n\trecieved: %v", i, round, furthestRound)
 		}
@@ -219,54 +223,75 @@ func TestWaitingRounds_GetUpcomingRealtime(t *testing.T) {
 // Happy path of WaitingRounds.GetSlice().
 func TestWaitingRounds_GetSlice(t *testing.T) {
 	// Generate rounds and add to new list
-	expectedRounds, testRounds := createTestRoundInfos(25)
+	expectedRounds, testRounds := createTestRoundInfos(25, t)
 	testWR := NewWaitingRounds()
-	testRounds = append(testRounds, &pb.RoundInfo{
+
+	ri := &pb.RoundInfo{
 		ID:         rand.Uint64(),
 		State:      uint32(states.QUEUED),
-		Timestamps: []uint64{0, 0, 0, 0, 0}})
+		Timestamps: []uint64{0, 0, 0, 0, 0},
+	}
+
+	testutils.SignRoundInfo(ri, t)
+
+	pubKey, err := testutils.LoadPublicKeyTesting(t)
+	if err != nil {
+		t.Errorf("Failed to load public key: %v", err)
+		t.FailNow()
+	}
+	rnd := NewRound(ri, pubKey)
+
+	testRounds = append(testRounds, rnd)
 	for _, round := range testRounds {
 		testWR.Insert(round)
 	}
 
 	testSlice := testWR.GetSlice()
-	if !reflect.DeepEqual(expectedRounds, testSlice) {
+
+	// Convert Round slice to round info slice
+	expectedRoundInfos := make([]*pb.RoundInfo, 0)
+	for _, val := range expectedRounds {
+		expectedRoundInfos = append(expectedRoundInfos, val.info)
+	}
+
+	if !reflect.DeepEqual(expectedRoundInfos, testSlice) {
 		t.Errorf("GetSlice() returned slice with incorrect rounds."+
 			"\n\texepcted: %v\n\treceived: %v",
-			expectedRounds, testSlice)
+			expectedRoundInfos, testSlice)
 	}
 }
 
 // Generates two lists of round infos. The first is the expected rounds in the
 // correct order after inserting the second list of random round infos.
-func createTestRoundInfos(num int) ([]*pb.RoundInfo, []*pb.RoundInfo) {
-	rounds := make([]*pb.RoundInfo, num)
-	var expectedRounds []*pb.RoundInfo
-	randomRounds := make([]*pb.RoundInfo, num)
-	timeTrack := uint64(time.Now().Nanosecond()) + 1000000
+func createTestRoundInfos(num int, t *testing.T) ([]*Round, []*Round) {
+	rounds := make([]*Round, num)
+	var expectedRounds []*Round
+	randomRounds := make([]*Round, num)
+	timeTrack := uint64(time.Now().Nanosecond()) + 100000000
+	pubKey, err := testutils.LoadPublicKeyTesting(t)
+	if err != nil {
+		t.Errorf("Failed to load public key: %v", err)
+		t.FailNow()
+	}
 
 	for i := 0; i < num; i++ {
-		rounds[i] = &pb.RoundInfo{
+		rounds[i] = NewRound(&pb.RoundInfo{
 			ID:         rand.Uint64(),
 			State:      uint32(rand.Int63n(int64(states.NUM_STATES) - 1)),
 			Timestamps: make([]uint64, current.NUM_STATES),
-		}
+		}, pubKey)
 		timeTrack += uint64(rand.Int63n(10000))
-		rounds[i].Timestamps[current.STANDBY] = timeTrack
-
+		rounds[i].info.Timestamps[current.STANDBY] = timeTrack
 		if i%2 == 1 {
-			rounds[i].State = uint32(states.QUEUED)
+			rounds[i].info.State = uint32(states.QUEUED)
 		}
-
-		if rounds[i].State == uint32(states.QUEUED) {
+		if rounds[i].info.State == uint32(states.QUEUED) {
 			expectedRounds = append(expectedRounds, rounds[i])
 		}
 	}
-
 	perm := rand.Perm(num)
 	for i, v := range perm {
 		randomRounds[v] = rounds[i]
 	}
-
 	return expectedRounds, randomRounds
 }
