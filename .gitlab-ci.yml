@@ -23,7 +23,7 @@ before_script:
 
 stages:
   - build
-  - trigger_integration
+  - triggers
 
 build:
   stage: build
