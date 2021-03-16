@@ -507,9 +507,14 @@ func (i *Instance) GetCmixGroup() *cyclic.Group {
 	return i.cmixGroup.Get()
 }
 
-// Get the round of a given ID
+// Get the round of a given ID as a roundInfo (protobuff)
 func (i *Instance) GetRound(id id.Round) (*pb.RoundInfo, error) {
 	return i.roundData.GetRound(int(id))
+}
+
+// Get the round of a given ID as a ds.Round object
+func (i *Instance) GetWrappedRound(id id.Round) (*ds.Round, error) {
+	return i.roundData.GetWrappedRound(int(id))
 }
 
 // Get an update ID
