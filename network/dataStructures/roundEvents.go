@@ -135,8 +135,11 @@ func (r *RoundEvents) TriggerRoundEvent(rnd *Round) {
 		return
 	}
 
+	// Retrieve and validate the round info
+	roundInfo := rnd.Get()
+
+	// Send round info to every event in the list
 	for _, event := range callbacks[rnd.info.State] {
-		// Retrieve and validate the round info
-		event.signal <- rnd.Get()
+		event.signal <- roundInfo
 	}
 }

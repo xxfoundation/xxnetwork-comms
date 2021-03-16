@@ -42,6 +42,7 @@ func TestData_GetRound(t *testing.T) {
 		ID:       0,
 		UpdateID: 0,
 	}
+	testutils.SignRoundInfo(ri, t)
 
 	pubKey, err := testutils.LoadPublicKeyTesting(t)
 	if err != nil {
@@ -65,6 +66,7 @@ func TestData_ComparisonFunc(t *testing.T) {
 		ID:       2,
 		UpdateID: 3,
 	}
+	testutils.SignRoundInfo(roundInfoOne, t)
 
 	pubKey, err := testutils.LoadPublicKeyTesting(t)
 	if err != nil {
@@ -79,6 +81,8 @@ func TestData_ComparisonFunc(t *testing.T) {
 		ID:       2,
 		UpdateID: 4,
 	}
+	testutils.SignRoundInfo(roundInfoTwo, t)
+
 	roundTwo := NewRound(roundInfoTwo, pubKey)
 	_ = d.UpsertRound(roundTwo)
 	r, err := d.GetRound(2)

@@ -33,6 +33,19 @@ func NewRound(ri *pb.RoundInfo, pubkey *rsa.PublicKey) *Round {
 	}
 }
 
+// Constructor of an already verified round object
+// Intended for use by round creator.
+func NewVerifiedRound(ri *pb.RoundInfo, pubkey *rsa.PublicKey) *Round {
+	jww.WARN.Print("NewVerifiedRound is intended for use by round creator")
+	// Set validation to done on creation
+	validationDefault := uint32(1)
+	return &Round{
+		info:            ri,
+		needsValidation: &validationDefault,
+		pubkey:          pubkey,
+	}
+}
+
 // Get returns the round info object. If we have not
 // validated the signature before, we then verify.
 // Later calls will not need validation

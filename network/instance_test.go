@@ -155,6 +155,7 @@ func TestInstance_GetRound(t *testing.T) {
 
 	// Construct a mock round object
 	ri := &mixmessages.RoundInfo{ID: uint64(1)}
+	testutils.SignRoundInfo(ri, t)
 
 	pubKey, err := testutils.LoadPublicKeyTesting(t)
 	if err != nil {
