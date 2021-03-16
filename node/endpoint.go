@@ -10,11 +10,9 @@
 package node
 
 import (
-	"fmt"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/pkg/errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/messages"
 	"golang.org/x/net/context"
@@ -97,7 +95,7 @@ func (s *Comms) PostPhase(ctx context.Context, msg *messages.AuthenticatedMessag
 	if err != nil {
 		return &messages.Ack{}, err
 	}
-	return &messages.Ack{}, nil
+	return &messages.Ack{}, err
 }
 
 // Handle a phase event using a stream server
@@ -115,29 +113,6 @@ func (s *Comms) StreamPostPhase(server pb.Node_StreamPostPhaseServer) error {
 
 	// Verify the message authentication
 	return s.handler.StreamPostPhase(server, authState)
-}
-
-// Handle a PostRoundPublicKey message
-func (s *Comms) PostRoundPublicKey(ctx context.Context,
-	msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
-
-	// Verify the message authentication
-	authState, err := s.AuthenticatedReceiver(msg)
-	if err != nil {
-		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
-	}
-	//Marshall the any message to the message type needed
-	publicKeyMsg := &pb.RoundPublicKey{}
-	err = ptypes.UnmarshalAny(msg.Message, publicKeyMsg)
-	if err != nil {
-		return nil, errors.New(err.Error())
-	}
-
-	err = s.handler.PostRoundPublicKey(publicKeyMsg, authState)
-	if err != nil {
-		return &messages.Ack{}, err
-	}
-	return &messages.Ack{}, nil
 }
 
 // GetBufferInfo returns buffer size (number of completed precomputations)
@@ -176,23 +151,13 @@ func (s *Comms) RequestNonce(ctx context.Context,
 	}
 
 	// Obtain the nonce by passing to server
-	nonce, pk, err := s.handler.RequestNonce(nonceRequest.GetSalt(),
-		nonceRequest.GetClientRSAPubKey(), nonceRequest.GetClientDHPubKey(),
-		nonceRequest.GetClientSignedByServer().Signature,
-		nonceRequest.GetRequestSignature().Signature, authState)
-
-	// Obtain the error message, if any
-	errMsg := ""
+	nonce, err := s.handler.RequestNonce(nonceRequest, authState)
 	if err != nil {
-		errMsg = err.Error()
+
 	}
 
 	// Return the NonceMessage
-	return &pb.Nonce{
-		Nonce:    nonce,
-		DHPubKey: pk,
-		Error:    errMsg,
-	}, err
+	return nonce, err
 }
 
 // Handles Registration Nonce Confirmation
@@ -212,28 +177,8 @@ func (s *Comms) ConfirmRegistration(ctx context.Context,
 		return nil, err
 	}
 
-	userID, err := id.Unmarshal(regConfirmRequest.GetUserID())
-	if err != nil {
-		return nil, errors.Errorf("Unable to unmarshal user ID: %+v", err)
-	}
-
 	// Obtain signed client public key by passing to server
-	signature, err := s.handler.ConfirmRegistration(userID,
-		regConfirmRequest.NonceSignedByClient.Signature, authState)
-
-	// Obtain the error message, if any
-	errMsg := ""
-	if err != nil {
-		errMsg = err.Error()
-	}
-
-	// Return the RegistrationConfirmation
-	return &pb.RegistrationConfirmation{
-		ClientSignedByServer: &messages.RSASignature{
-			Signature: signature,
-		},
-		Error: errMsg,
-	}, err
+	return s.handler.ConfirmRegistration(regConfirmRequest, authState)
 }
 
 // PostPrecompResult sends final Message and AD precomputations.
@@ -322,15 +267,7 @@ func (s *Comms) Poll(ctx context.Context, msg *messages.AuthenticatedMessage) (*
 		return nil, err
 	}
 
-	// Get gateway IP and port
-	ip, _, err := connect.GetAddressFromContext(ctx)
-	if err != nil {
-		return &pb.ServerPollResponse{}, err
-	}
-	port := pollMsg.GatewayPort
-	address := fmt.Sprintf("%s:%d", ip, port)
-
-	return s.handler.Poll(pollMsg, authState, address)
+	return s.handler.Poll(pollMsg, authState)
 }
 
 func (s *Comms) RoundError(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
@@ -361,5 +298,71 @@ func (s *Comms) SendRoundTripPing(ctx context.Context, msg *messages.Authenticat
 	}
 
 	err = s.handler.SendRoundTripPing(roundTripPing, authState)
+	return &messages.Ack{}, err
+}
+
+// Server -> Gateway permissioning address
+func (s *Comms) GetPermissioningAddress(context.Context, *messages.Ping) (*pb.StrAddress, error) {
+	ip, err := s.handler.GetPermissioningAddress()
+	if err != nil {
+		return nil, err
+	}
+	return &pb.StrAddress{Address: ip}, nil
+}
+
+// Server -> Server initiating multi-party round DH key generation
+func (s *Comms) StartSharePhase(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
+	// Verify the message authentication
+	authState, err := s.AuthenticatedReceiver(msg)
+	if err != nil {
+		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
+	}
+	//Marshall the any message to the message type needed
+	startShare := &pb.RoundInfo{}
+	err = ptypes.UnmarshalAny(msg.Message, startShare)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.handler.StartSharePhase(startShare, authState)
+	return &messages.Ack{}, err
+
+}
+
+// Server -> Server passing state of multi-party round DH key generation
+func (s *Comms) SharePhaseRound(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
+	// Verify the message authentication
+	authState, err := s.AuthenticatedReceiver(msg)
+	if err != nil {
+		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
+	}
+
+	//Marshall the any message to the message type needed
+	sharePiece := &pb.SharePiece{}
+	err = ptypes.UnmarshalAny(msg.Message, sharePiece)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.handler.SharePhaseRound(sharePiece, authState)
+	return &messages.Ack{}, err
+}
+
+// Server -> Server sending multi-party round DH final key
+func (s *Comms) ShareFinalKey(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
+	// Verify the message authentication
+	authState, err := s.AuthenticatedReceiver(msg)
+	if err != nil {
+		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
+	}
+
+	//Marshall the any message to the message type needed
+	sharePiece := &pb.SharePiece{}
+	err = ptypes.UnmarshalAny(msg.Message, sharePiece)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.handler.ShareFinalKey(sharePiece, authState)
 	return &messages.Ack{}, err
 }

@@ -10,9 +10,10 @@ package gateway
 import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/node"
-	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/xx_network/comms/connect"
+	"gitlab.com/xx_network/comms/gossip"
 	"gitlab.com/xx_network/comms/messages"
+	"gitlab.com/xx_network/primitives/id"
 	"testing"
 )
 
@@ -22,8 +23,8 @@ func TestSendRequestNonceMessage(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	testID := id.NewIdFromString("test", id.Generic, t)
 	gateway := StartGateway(testID, GatewayAddress, NewImplementation(), nil,
-		nil)
-	server := node.StartNode(testID, ServerAddress, node.NewImplementation(),
+		nil, gossip.DefaultManagerFlags())
+	server := node.StartNode(testID, ServerAddress, 0, node.NewImplementation(),
 		nil, nil)
 	defer gateway.Shutdown()
 	defer server.Shutdown()
@@ -37,7 +38,7 @@ func TestSendRequestNonceMessage(t *testing.T) {
 	}
 
 	RSASignature := &messages.RSASignature{
-		Signature: []byte{},
+		Signature: []byte("test"),
 	}
 
 	_, err = gateway.SendRequestNonceMessage(host,
@@ -54,8 +55,8 @@ func TestSendConfirmNonceMessage(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	testID := id.NewIdFromString("test", id.Generic, t)
 	gateway := StartGateway(testID, GatewayAddress, NewImplementation(), nil,
-		nil)
-	server := node.StartNode(testID, ServerAddress, node.NewImplementation(),
+		nil, gossip.DefaultManagerFlags())
+	server := node.StartNode(testID, ServerAddress, 0, node.NewImplementation(),
 		nil, nil)
 	defer gateway.Shutdown()
 	defer server.Shutdown()
@@ -82,8 +83,8 @@ func TestPoll(t *testing.T) {
 
 	testID := id.NewIdFromString("test", id.Generic, t)
 	gateway := StartGateway(testID, GatewayAddress, NewImplementation(), nil,
-		nil)
-	server := node.StartNode(testID, ServerAddress, node.NewImplementation(),
+		nil, gossip.DefaultManagerFlags())
+	server := node.StartNode(testID, ServerAddress, 0, node.NewImplementation(),
 		nil, nil)
 	defer gateway.Shutdown()
 	defer server.Shutdown()

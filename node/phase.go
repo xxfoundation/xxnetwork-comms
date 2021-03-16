@@ -47,7 +47,7 @@ func (s *Comms) SendPostPhase(host *connect.Host,
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Post Phase message: %+v", message)
+	jww.TRACE.Printf("Sending Post Phase message: %+v", message)
 	resultMsg, err := s.Send(host, f)
 	if err != nil {
 		return nil, err

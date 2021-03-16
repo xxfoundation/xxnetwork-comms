@@ -11,9 +11,9 @@ import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/registration"
 	"gitlab.com/elixxir/comms/testutils"
-	"gitlab.com/elixxir/primitives/id"
-	"gitlab.com/elixxir/primitives/ndf"
 	"gitlab.com/xx_network/comms/connect"
+	"gitlab.com/xx_network/primitives/id"
+	"gitlab.com/xx_network/primitives/ndf"
 	"testing"
 )
 
@@ -42,34 +42,6 @@ func TestSendRegistrationMessage(t *testing.T) {
 	_, err = c.SendRegistrationMessage(host, &pb.UserRegistration{})
 	if err != nil {
 		t.Errorf("RegistrationMessage: Error received: %s", err)
-	}
-}
-
-// Smoke test SendCheckClientVersion
-func TestSendCheckClientVersionMessage(t *testing.T) {
-	GatewayAddress := getNextAddress()
-	testId := id.NewIdFromString("test", id.Generic, t)
-	clientId := id.NewIdFromString("client", id.Generic, t)
-
-	rg := registration.StartRegistrationServer(testId, GatewayAddress,
-		registration.NewImplementation(), nil, nil)
-	defer rg.Shutdown()
-	c, err := NewClientComms(clientId, nil, nil, nil)
-	if err != nil {
-		t.Errorf("Can't create client comms: %+v", err)
-	}
-	manager := connect.NewManagerTesting(t)
-
-	params := connect.GetDefaultHostParams()
-	params.AuthEnabled = false
-	host, err := manager.AddHost(testId, GatewayAddress, nil, params)
-	if err != nil {
-		t.Errorf("Unable to call NewHost: %+v", err)
-	}
-
-	_, err = c.SendGetCurrentClientVersionMessage(host)
-	if err != nil {
-		t.Errorf("CheckClientVersion: Error received: %s", err)
 	}
 }
 

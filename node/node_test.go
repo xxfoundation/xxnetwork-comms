@@ -10,8 +10,8 @@ package node
 import (
 	"fmt"
 	"gitlab.com/elixxir/comms/testkeys"
-	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/xx_network/comms/connect"
+	"gitlab.com/xx_network/primitives/id"
 	"sync"
 	"testing"
 )
@@ -38,10 +38,10 @@ func TestTLS(t *testing.T) {
 	certData := testkeys.LoadFromPath(certPath)
 	testNodeID := id.NewIdFromString("test", id.Node, t)
 
-	server := StartNode(testNodeID, serverAddress, NewImplementation(),
+	server := StartNode(testNodeID, serverAddress, 0, NewImplementation(),
 		certData, keyData)
 	serverAddress2 := getNextServerAddress()
-	server2 := StartNode(testNodeID, serverAddress2, NewImplementation(),
+	server2 := StartNode(testNodeID, serverAddress2, 0, NewImplementation(),
 		certData, keyData)
 	defer server.Shutdown()
 	defer server2.Shutdown()
@@ -70,6 +70,6 @@ func TestBadCerts(t *testing.T) {
 
 	testID := id.NewIdFromString("test", id.Node, t)
 
-	_ = StartNode(testID, Address, NewImplementation(),
+	_ = StartNode(testID, Address, 0, NewImplementation(),
 		[]byte("bad cert"), []byte("bad key"))
 }

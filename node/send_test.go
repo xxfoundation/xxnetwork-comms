@@ -11,9 +11,9 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/pkg/errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/messages"
+	"gitlab.com/xx_network/primitives/id"
 	"testing"
 )
 
@@ -21,7 +21,7 @@ import (
 func TestSendAskOnline(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	testID := id.NewIdFromString("test", id.Node, t)
-	server := StartNode(testID, ServerAddress, NewImplementation(), nil, nil)
+	server := StartNode(testID, ServerAddress, 0, NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	manager := connect.NewManagerTesting(t)
 
@@ -42,7 +42,7 @@ func TestSendAskOnline(t *testing.T) {
 func TestSendFinishRealtime(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	testID := id.NewIdFromString("test", id.Node, t)
-	server := StartNode(testID, ServerAddress, NewImplementation(), nil, nil)
+	server := StartNode(testID, ServerAddress, 0, NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	manager := connect.NewManagerTesting(t)
 
@@ -63,7 +63,7 @@ func TestSendFinishRealtime(t *testing.T) {
 func TestSendNewRound(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	testId := id.NewIdFromString("test", id.Node, t)
-	server := StartNode(testId, ServerAddress, NewImplementation(), nil, nil)
+	server := StartNode(testId, ServerAddress, 0, NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	manager := connect.NewManagerTesting(t)
 
@@ -84,7 +84,7 @@ func TestSendNewRound(t *testing.T) {
 func TestSendPostPhase(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	testId := id.NewIdFromString("test", id.Node, t)
-	server := StartNode(testId, ServerAddress, NewImplementation(), nil, nil)
+	server := StartNode(testId, ServerAddress, 0, NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	manager := connect.NewManagerTesting(t)
 
@@ -101,32 +101,11 @@ func TestSendPostPhase(t *testing.T) {
 	}
 }
 
-// Smoke test SendPostRoundPublicKey
-func TestSendPostRoundPublicKey(t *testing.T) {
-	ServerAddress := getNextServerAddress()
-	testId := id.NewIdFromString("test", id.Node, t)
-	server := StartNode(testId, ServerAddress, NewImplementation(), nil, nil)
-	defer server.Shutdown()
-	manager := connect.NewManagerTesting(t)
-
-	params := connect.GetDefaultHostParams()
-	params.AuthEnabled = false
-	host, err := manager.AddHost(testId, ServerAddress, nil, params)
-	if err != nil {
-		t.Errorf("Unable to call NewHost: %+v", err)
-	}
-
-	_, err = server.SendPostRoundPublicKey(host, &pb.RoundPublicKey{})
-	if err != nil {
-		t.Errorf("PostRoundPublicKey: Error received: %s", err)
-	}
-}
-
 // TestPostPrecompResult Smoke test
 func TestSendPostPrecompResult(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	testId := id.NewIdFromString("test", id.Node, t)
-	server := StartNode(testId, ServerAddress, NewImplementation(), nil, nil)
+	server := StartNode(testId, ServerAddress, 0, NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	manager := connect.NewManagerTesting(t)
 
@@ -156,7 +135,7 @@ func TestSendGetMeasure(t *testing.T) {
 		return &mockReturn, nil
 	}
 	impl.Functions.GetMeasure = mockMeasure
-	server := StartNode(testId, ServerAddress, impl, nil, nil)
+	server := StartNode(testId, ServerAddress, 0, impl, nil, nil)
 	defer server.Shutdown()
 	manager := connect.NewManagerTesting(t)
 
@@ -187,7 +166,7 @@ func TestSendGetMeasureError(t *testing.T) {
 		return nil, errors.New("Test error")
 	}
 	impl.Functions.GetMeasure = mockMeasureError
-	server := StartNode(testId, ServerAddress, impl, nil, nil)
+	server := StartNode(testId, ServerAddress, 0, impl, nil, nil)
 	defer server.Shutdown()
 
 	ri := pb.RoundInfo{
@@ -212,7 +191,7 @@ func TestRoundTripPing(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	impl := NewImplementation()
 	testId := id.NewIdFromString("test", id.Node, t)
-	server := StartNode(testId, ServerAddress, impl, nil, nil)
+	server := StartNode(testId, ServerAddress, 0, impl, nil, nil)
 	defer server.Shutdown()
 	manager := connect.NewManagerTesting(t)
 
@@ -244,7 +223,7 @@ func TestRoundTripPing(t *testing.T) {
 func TestSendRoundError(t *testing.T) {
 	ServerAddress := getNextServerAddress()
 	testId := id.NewIdFromString("test", id.Node, t)
-	server := StartNode(testId, ServerAddress, NewImplementation(), nil, nil)
+	server := StartNode(testId, ServerAddress, 0, NewImplementation(), nil, nil)
 	defer server.Shutdown()
 	manager := connect.NewManagerTesting(t)
 

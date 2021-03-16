@@ -4,7 +4,7 @@
 [![coverage report](https://gitlab.com/elixxir/comms/badges/master/coverage.svg)](https://gitlab.com/elixxir/comms/commits/master)
 
 This library implements functionality for communications operations in
-the xxnetwork system.
+the xx network system.
 
 ## How to run tests
 
@@ -59,6 +59,7 @@ run the following command in the terminal in order to regenerate the
 `mixmessage.pb.go` file:
 
 ```
+go get -u github.com/golang/protobuf/protoc-gen-go
 protoc -I vendor/ -I mixmessages/ mixmessages/mixmessages.proto --go_out=plugins=grpc:mixmessages
 ```
 

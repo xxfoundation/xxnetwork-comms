@@ -43,7 +43,7 @@ func (s *Comms) SendRoundError(host *connect.Host, message *pb.RoundError) (*mes
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Round Error message: %+v", message)
+	jww.TRACE.Printf("Sending Round Error message: %+v", message)
 	resultMsg, err := s.Send(host, f)
 	if err != nil {
 		return nil, err
@@ -76,7 +76,7 @@ func (s *Comms) SendGetMeasure(host *connect.Host,
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Get Measure message: %+v", message)
+	jww.TRACE.Printf("Sending Get Measure message: %+v", message)
 	resultMsg, err := s.Send(host, f)
 	if err != nil {
 		return nil, err
@@ -105,7 +105,7 @@ func (s *Comms) SendAskOnline(host *connect.Host) (*messages.Ack, error) {
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Ask Online message...")
+	jww.TRACE.Printf("Sending Ask Online message...")
 	resultMsg, err := s.Send(host, f)
 	if err != nil {
 		return nil, err
@@ -141,7 +141,7 @@ func (s *Comms) SendFinishRealtime(host *connect.Host,
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Finish Realtime message: %+v", message)
+	jww.TRACE.Printf("Sending Finish Realtime message: %+v", message)
 	resultMsg, err := s.Send(host, f)
 	if err != nil {
 		return nil, err
@@ -176,42 +176,7 @@ func (s *Comms) SendNewRound(host *connect.Host,
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending New Round message: %+v", message)
-	resultMsg, err := s.Send(host, f)
-	if err != nil {
-		return nil, err
-	}
-
-	// Marshall the result
-	result := &messages.Ack{}
-	return result, ptypes.UnmarshalAny(resultMsg, result)
-}
-
-// Server -> Server Send Function
-func (s *Comms) SendPostRoundPublicKey(host *connect.Host,
-	message *pb.RoundPublicKey) (*messages.Ack, error) {
-
-	// Create the Send Function
-	f := func(conn *grpc.ClientConn) (*any.Any, error) {
-		// Set up the context
-		ctx, cancel := connect.MessagingContext()
-		defer cancel()
-		//Format to authenticated message type
-		authMsg, err := s.PackAuthenticatedMessage(message, host, false)
-		if err != nil {
-			return nil, errors.New(err.Error())
-		}
-
-		// Send the message
-		resultMsg, err := pb.NewNodeClient(conn).PostRoundPublicKey(ctx, authMsg)
-		if err != nil {
-			return nil, errors.New(err.Error())
-		}
-		return ptypes.MarshalAny(resultMsg)
-	}
-
-	// Execute the Send function
-	jww.DEBUG.Printf("Sending Post Round Public Key message: %+v", message)
+	jww.TRACE.Printf("Sending New Round message: %+v", message)
 	resultMsg, err := s.Send(host, f)
 	if err != nil {
 		return nil, err
@@ -254,8 +219,8 @@ func (s *Comms) SendPostPrecompResult(host *connect.Host,
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Post Precomp Result message...")
-	//jww.TRACE.Printf("Sending Post Precomp Result message: %+v", slots)
+	jww.TRACE.Printf("Sending Post Precomp Result message...")
+	// jww.TRACE.Printf("Sending Post Precomp Result message: %+v", slots)
 	resultMsg, err := s.Send(host, f)
 	if err != nil {
 		return nil, err
@@ -301,4 +266,115 @@ func (s *Comms) RoundTripPing(host *connect.Host, rtPing *pb.RoundTripPing) (*me
 	// Marshall the result
 	result := &messages.Ack{}
 	return result, ptypes.UnmarshalAny(resultMsg, result)
+}
+
+// Server -> Server initiating multi-party round DH key generation
+func (s *Comms) SendStartSharePhase(host *connect.Host, ri *pb.RoundInfo) (*messages.Ack, error) {
+	// Create the Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := connect.MessagingContext()
+		defer cancel()
+
+		//Pack the message as an authenticated message
+		authMsg, err := s.PackAuthenticatedMessage(ri, host, false)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+
+		// Send the message
+		resultMsg, err := pb.NewNodeClient(conn).StartSharePhase(ctx,
+			authMsg)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+		return ptypes.MarshalAny(resultMsg)
+	}
+
+	// Execute the Send function
+	jww.DEBUG.Printf("Sending Start Share Phase message...")
+	jww.TRACE.Printf("Sending Start Share Phase message: %+v", ri)
+	resultMsg, err := s.Send(host, f)
+	if err != nil {
+		return nil, err
+	}
+
+	// Marshall the result
+	result := &messages.Ack{}
+	return result, ptypes.UnmarshalAny(resultMsg, result)
+
+}
+
+// Server -> Server sending multi-party round DH key piece
+func (s *Comms) SendSharePhase(host *connect.Host, sharedPiece *pb.SharePiece) (*messages.Ack, error) {
+	// Create the Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := connect.MessagingContext()
+		defer cancel()
+
+		//Pack the message as an authenticated message
+		authMsg, err := s.PackAuthenticatedMessage(sharedPiece, host, false)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+
+		// Send the message
+		resultMsg, err := pb.NewNodeClient(conn).SharePhaseRound(ctx,
+			authMsg)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+		return ptypes.MarshalAny(resultMsg)
+	}
+
+	// Execute the Send function
+	jww.DEBUG.Printf("Sending Share Phase message...")
+	jww.TRACE.Printf("Sending Share Phase message: %+v", sharedPiece)
+	resultMsg, err := s.Send(host, f)
+	if err != nil {
+		return nil, err
+	}
+
+	// Marshall the result
+	result := &messages.Ack{}
+	return result, ptypes.UnmarshalAny(resultMsg, result)
+
+}
+
+// Server -> Server sending multi-party round DH final key
+func (s *Comms) SendFinalKey(host *connect.Host, sharedPiece *pb.SharePiece) (*messages.Ack, error) {
+	// Create the Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := connect.MessagingContext()
+		defer cancel()
+
+		//Pack the message as an authenticated message
+		authMsg, err := s.PackAuthenticatedMessage(sharedPiece, host, false)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+
+		// Send the message
+		resultMsg, err := pb.NewNodeClient(conn).ShareFinalKey(ctx,
+			authMsg)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+		return ptypes.MarshalAny(resultMsg)
+	}
+
+	// Execute the Send function
+	jww.DEBUG.Printf("Sending Share Phase message...")
+	jww.TRACE.Printf("Sending Share Phase message: %+v", sharedPiece)
+	resultMsg, err := s.Send(host, f)
+	if err != nil {
+		return nil, err
+	}
+
+	// Marshall the result
+	result := &messages.Ack{}
+	return result, ptypes.UnmarshalAny(resultMsg, result)
+
 }

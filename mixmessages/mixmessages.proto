@@ -51,10 +51,6 @@ service Node {
     rpc ConfirmRegistration (messages.AuthenticatedMessage) returns (RegistrationConfirmation) {
     }
 
-    // PostRoundPublicKey sets the public cypher key for a round on other nodes
-    rpc PostRoundPublicKey (messages.AuthenticatedMessage) returns (messages.Ack) {
-    }
-
     // PostPrecompResult finalizes the precomputation results with each node from the last node
     // sending the final PayloadA and PayloadB precomputations
     rpc PostPrecompResult (messages.AuthenticatedMessage) returns (messages.Ack) {
@@ -80,7 +76,21 @@ service Node {
     rpc RoundError (messages.AuthenticatedMessage) returns (messages.Ack) {
     }
 
+    // Server -> Gateway permissioning address
+    rpc GetPermissioningAddress (messages.Ping) returns (StrAddress) {
+    }
 
+    // Server -> Server initiating multi-party round DH key generation
+    rpc StartSharePhase (messages.AuthenticatedMessage) returns (messages.Ack) {
+    }
+
+    // Server -> Server passing state of multi-party round DH key generation
+    rpc SharePhaseRound (messages.AuthenticatedMessage) returns (messages.Ack) {
+    }
+
+    // Server -> Server received final key
+    rpc ShareFinalKey (messages.AuthenticatedMessage) returns (messages.Ack) {
+    }
 
 }
 
@@ -108,6 +118,11 @@ message Batch {
     repeated Slot slots = 3;
 }
 
+message CompletedBatch {
+    uint64 RoundID = 1;
+    repeated Slot slots = 2;
+}
+
 // Used as part of header for streaming post phase
 message BatchInfo {
     RoundInfo Round = 1;
@@ -128,7 +143,7 @@ message ServerPoll {
     uint64 LastUpdate = 3;
     string Error = 4; // Only Populated in the event of errors
     string gatewayVersion = 5;
-    uint32 gatewayPort = 6;
+    string gatewayAddress = 6;
 }
 
 // Unified Gateway->Server polling response
@@ -138,22 +153,25 @@ message ServerPollResponse {
     NDF PartialNDF = 3; //Empty if no update needed
     repeated RoundInfo Updates = 4; //Empty if no update needed
     RoundInfo BatchRequest = 5; //Empty if no update needed
-    repeated Slot slots = 6; //Empty if no update needed
+    CompletedBatch Batch = 6; //Empty if no update needed
+}
+
+// Used as part of Share phase for generation
+// of a multi-party Diffie-Helman key
+// Node <-> Node message
+message SharePiece {
+    bytes Piece = 1; // In progress round public key
+    repeated bytes participants = 2; // List of nodes who have participated
+    uint64 roundID = 3; // Id of round tied to round key generation
+    messages.RSASignature Signature = 4; // Signature tied to message sent by node
+
 }
 
 // GATEWAY MESSAGE SERVICE -----------------------------------------------------
 
 service Gateway {
-    // Request a list of MessageIDs from the gateway for the given UserID
-    rpc CheckMessages (ClientRequest) returns (IDList) {
-    }
-
-    // GetMessage a Batch from the gateway for the given message information
-    rpc GetMessage (ClientRequest) returns (Slot) {
-    }
-
     // PutMessage on the cMix Gateway
-    rpc PutMessage (Slot) returns (messages.Ack) {
+    rpc PutMessage (GatewaySlot) returns (GatewaySlotResponse) {
     }
 
     // RequestNonce returns a Nonce to the user
@@ -171,12 +189,49 @@ service Gateway {
     // Client -> Gateway unified polling
     rpc Poll (GatewayPoll) returns (GatewayPollResponse) {
     }
+
+    // Client -> Gateway historical round request
+    rpc RequestHistoricalRounds(HistoricalRounds) returns (HistoricalRoundsResponse) {
+    }
+
+    // Client -> Gateway message request
+    rpc RequestMessages(GetMessages) returns (GetMessagesResponse) {
+    }
+
+    // Gateway -> Gateway message sharing within a team
+    // Has RoundMessages underlying type
+    rpc ShareMessages(messages.AuthenticatedMessage) returns (messages.Ack) {
+    }
 }
 
-// ClientRequest message for clients to poll new CMIX messages
-message ClientRequest {
-    bytes UserID = 1; // 128 bit length
-    string LastMessageID = 2;
+// Client -> Gateway request for information about historical rounds
+message HistoricalRounds{
+    repeated uint64 rounds = 1;
+}
+
+// Gateway's response to client's request for previous (historical) rounds
+message HistoricalRoundsResponse{
+    repeated RoundInfo Rounds = 1;
+}
+
+// Client -> Gateway request for available messages
+// The query will be a request for all messages
+// available in a round.
+message GetMessages{
+    bytes ClientID = 1;
+    uint64 RoundID = 2;
+}
+
+// Gateway response to a GetMessages request
+message GetMessagesResponse{
+    repeated Slot Messages = 1;
+    bool HasRound = 2;
+}
+
+// Gateway -> Gateway message sharing within a team
+message RoundMessages {
+    uint64 RoundId = 1;
+    repeated Slot Messages = 2;
 }
 
 // The message for clients to poll the gateway for Message IDs
@@ -208,16 +263,63 @@ message Slot {
 message GatewayPoll {
     NDFHash Partial = 1;
     uint64 LastUpdate = 2;
-    string LastMessageID = 3;
+    bytes ReceptionID = 3;
+
+    // Define range for ClientBloomFilter searches
+    int64 StartTimestamp = 4;
+    int64 EndTimestamp = 5;
+
+    bytes ClientVersion = 6;
 }
 
 // Unified Client->Gateway polling response
 message GatewayPollResponse {
     NDF PartialNDF = 1; // Empty if no update needed
-    RoundInfo LastRound = 2; // Last round the gateway has messages from
-    repeated RoundInfo Updates = 3; // Empty if no update needed
-    repeated string NewMessageIDs = 4; // Empty if no update needed
+    repeated RoundInfo Updates = 2; // Empty if no update needed
+    bytes KnownRounds = 3; // Rounds gateway knows about
+    ClientBlooms Filters = 4; // Set of ClientBloomFilters requested by Client
+    uint64 EarliestRound = 5; // The earliest round the gateway still has info for
 }
+
+// Holds a set of ClientBloom and their associated metadata
+message ClientBlooms {
+    int64 Period = 1;
+    int64 FirstTimestamp = 2;  // Earliest timestamp of the included BloomFilters
+    repeated ClientBloom Filters = 3;
+}
+
+// Hold a ClientBloomFilter and its associated metadata
+message ClientBloom {
+    bytes Filter = 1;
+    uint64 FirstRound = 2;
+    uint32 RoundRange = 3;
+}
+
+// Client -> Gateway authentication message
+message GatewaySlot{
+    Slot Message = 1;
+    uint64 RoundID = 2;
+    bytes MAC = 3;
+}
+
+// Gateway -> Client authentication response
+message GatewaySlotResponse{
+    bool accepted = 1;
+    uint64 RoundID = 2;
+}
+
+// Gateway -> Gateway gossip of all Sender IDs in a Batch
+message BatchSenders {
+    repeated bytes SenderIds = 1;
+    uint64 RoundID = 2;
+}
+
+// Gateway -> Gateway gossip of all recipient IDs in a Batch
+message Recipients {
+    repeated bytes RecipientIds = 1;
+    uint64 RoundID = 2;
+}
+
 
 // REGISTRATION MESSAGE SERVICE ------------------------------------------------
 
@@ -227,16 +329,12 @@ service Registration {
     rpc RegisterUser (UserRegistration) returns (UserRegistrationConfirmation) {
     }
 
-    // Client uses this to check if the version needs to be updated
-    rpc GetCurrentClientVersion (messages.Ping) returns (ClientVersion) {
-    }
-
     // Node registration for the permissioning server
     rpc RegisterNode (NodeRegistration) returns (messages.Ack) {
     }
 
     // Obtain NDF from the Registration Server
-    rpc PollNdf (messages.AuthenticatedMessage) returns (NDF) {
+    rpc PollNdf (NDFHash) returns (NDF) {
     }
 
     // Server -> Permissioning unified polling
@@ -277,27 +375,29 @@ message NDF{
 // The registration server is free to ignore these addresses and
 // derive the address from the network connection.
 message NodeRegistration {
-      bytes  Salt = 1;
+    bytes  Salt = 1;
     string ServerTlsCert = 2;
     string ServerAddress = 3;
-      uint32 ServerPort       = 4; // Note: there is no uint16
-      string GatewayTlsCert   = 5;
-      string GatewayAddress   = 6;
-      uint32 GatewayPort      = 7; // Note: there is no uint16
-      string RegistrationCode = 8;
+    uint32 ServerPort = 4; // Note: there is no uint16
+    string GatewayTlsCert = 5;
+    string GatewayAddress = 6;
+    uint32 GatewayPort = 7; // Note: there is no uint16
+    string RegistrationCode = 8;
 }
 
 // UserRegistration message to initialize registration process
 message UserRegistration {
     string RegistrationCode = 1;
     string ClientRSAPubKey = 2;
+    string ClientReceptionRSAPubKey = 3;
 }
 
 // UserRegistrationConfirmation to confirm registration with users
 message UserRegistrationConfirmation {
     // RegistrationServer-Signed Client Public Key
     messages.RSASignature ClientSignedByServer = 1;
-    string Error = 2;
+    messages.RSASignature ClientReceptionSignedByServer = 2;
+    string Error = 3;
 }
 
 // ClientVersion contains a version string for the client
@@ -314,7 +414,7 @@ message NonceRequest {
     messages.RSASignature RequestSignature = 5;
 }
 
-// Nonce message to reply to client from server
+// Nonce message to reply to client from server (going through gateway)
 message Nonce {
     bytes Nonce = 1;
     bytes DHPubKey = 2;
@@ -331,7 +431,8 @@ message RequestRegistrationConfirmation {
 // RegistrationConfirmation returning proof of registration
 message RegistrationConfirmation {
     messages.RSASignature ClientSignedByServer = 1;
-    string Error = 2;
+    bytes ClientGatewayKey = 2;
+    string Error = 3;
 }
 
 // Unified Server->Permissioning polling message
@@ -342,9 +443,18 @@ message PermissioningPoll {
     uint32 Activity = 4;
     RoundError Error = 5; // Only Populated in the event of errors
     string gatewayAddress = 6;
-    uint32 serverPort = 7;
-    string serverVersion = 8;
-    string gatewayVersion = 9;
+    string gatewayVersion = 7;
+    string serverAddress = 8;
+    string serverVersion = 9;
+    repeated ClientError ClientErrors = 10; // Client error information
+}
+
+
+// Info containing error among a client
+// Passed server -> Permissioning via the poll comm
+message ClientError {
+    bytes ClientId = 1;
+    string Error = 2;
 }
 
 // Unified Server->Permissioning polling response
@@ -378,6 +488,80 @@ message UserIdList {
     repeated bytes IDs = 1;
 }
 
+// UDB MESSAGE SERVICE ---------------------------------------------------------
+
+service UDB {
+    // Handles a UDB user registration request
+    rpc RegisterUser (messages.AuthenticatedMessage) returns (messages.Ack) {
+    }
+
+    // Handles a request to register a Fact into the Fact database
+    rpc RegisterFact (messages.AuthenticatedMessage) returns (FactRegisterResponse) {
+    }
+
+    // Handles a request to confirm a Fact against the Fact database
+    rpc ConfirmFact (messages.AuthenticatedMessage) returns (messages.Ack) {
+    }
+
+    // Handles a request to remove a Fact from the Fact database
+    rpc RemoveFact (messages.AuthenticatedMessage) returns (messages.Ack) {
+    }
+}
+
+// Holds information for a UDB user registration request
+message UDBUserRegistration {
+    bytes PermissioningSignature = 1;
+    string RSAPublicPem = 2;
+    Identity IdentityRegistration = 3;
+    bytes IdentitySignature = 4; // (RSAPublicSign(Data.Digest()))
+    FactRegisterRequest frs = 5;
+    bytes UID = 6;
+}
+
+// Identity describes a user and their cryptographic info
+message Identity {
+    string Username = 1;
+    bytes dhPubKey = 2;
+    bytes Salt = 3;
+}
+
+// Holds information for a Fact registration request
+message FactRegisterRequest {
+    bytes UID = 1;
+    Fact Fact = 2;
+    bytes FactSig = 3;// (RSAPublicSign(Fact.Digest()))
+}
+
+// Fact describes a Fact, namely what it is and what type it is
+message Fact {
+    string Fact = 1;
+    uint32 FactType = 2;
+}
+
+// FactRegisterResponse describes UDB's handling of a FactRegisterRequest request
+message FactRegisterResponse {
+    string ConfirmationID = 1;
+}
+
+// Holds information for a Fact confirmation request
+message FactConfirmRequest {
+    string ConfirmationID = 1;
+    string Code = 2;
+}
+
+// Holds information for a Fact removal request
+message FactRemovalRequest {
+    bytes UID = 1;
+    Fact RemovalData = 2;
+}
+
+// CONNECTIVITY CHECKER --------------------------------------------------------
+
+// For sending permission address Server -> Gateway
+message StrAddress {
+    string address = 1;
+}
+
 // GENERAL USE MESSAGES --------------------------------------------------------
 
 // Describes a round
@@ -388,9 +572,11 @@ message RoundInfo {
     uint32 BatchSize = 4;
     repeated bytes Topology = 5; // List of NodeIDs
     repeated uint64 Timestamps = 6; // List of state timestamps in UTC
-    repeated RoundError Errors = 7; // List of errors which occured
-    uint32 ResourceQueueTimeoutMillis = 8; // Timeout for resource queue on nodes
-    messages.RSASignature Signature = 9;
+    repeated RoundError Errors = 7; // List of round errors which occurred
+    repeated ClientError ClientErrors = 8;
+    uint32 ResourceQueueTimeoutMillis = 9; // Timeout for resource queue on nodes
+    messages.RSASignature Signature = 10;
+    uint32 AddressSpaceSize = 11;
 }
 
 // RoundError will be used to describe a round error

@@ -9,9 +9,9 @@ package dataStructures
 
 import (
 	"gitlab.com/elixxir/comms/testkeys"
-	"gitlab.com/elixxir/primitives/id"
-	"gitlab.com/elixxir/primitives/utils"
 	"gitlab.com/xx_network/comms/connect"
+	"gitlab.com/xx_network/primitives/id"
+	"gitlab.com/xx_network/primitives/utils"
 	"reflect"
 	"testing"
 )

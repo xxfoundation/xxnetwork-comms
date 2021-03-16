@@ -13,9 +13,9 @@ import (
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/messages"
+	"gitlab.com/xx_network/primitives/id"
 	"google.golang.org/grpc/reflection"
 	"runtime/debug"
 )
@@ -62,25 +62,23 @@ func StartRegistrationServer(id *id.ID, localServer string, handler Handler,
 }
 
 type Handler interface {
-	RegisterUser(registrationCode, pubKey string) (signature []byte, err error)
-	GetCurrentClientVersion() (version string, err error)
+	RegisterUser(registrationCode, ClientReceptionRSAPubKey string,
+		ClientReceptionSignedByServer string) (signature []byte, receptionSignature []byte, err error)
 	RegisterNode(salt []byte, serverAddr, serverTlsCert, gatewayAddr,
 		gatewayTlsCert, registrationCode string) error
-	PollNdf(ndfHash []byte, auth *connect.Auth) ([]byte, error)
-	Poll(msg *pb.PermissioningPoll, auth *connect.Auth, serverAddress string) (*pb.
+	PollNdf(ndfHash []byte) ([]byte, error)
+	Poll(msg *pb.PermissioningPoll, auth *connect.Auth) (*pb.
 		PermissionPollResponse, error)
 	CheckRegistration(msg *pb.RegisteredNodeCheck) (*pb.RegisteredNodeConfirmation, error)
 }
 
 type implementationFunctions struct {
-	RegisterUser func(registrationCode, pubKey string) (signature []byte,
-		err error)
-	GetCurrentClientVersion func() (version string, err error)
-	RegisterNode            func(salt []byte, serverAddr, serverTlsCert, gatewayAddr,
+	RegisterUser func(registrationCode, ClientReceptionRSAPubKey string,
+		ClientReceptionSignedByServer string) (signature, receptionSignature []byte, err error)
+	RegisterNode func(salt []byte, serverAddr, serverTlsCert, gatewayAddr,
 		gatewayTlsCert, registrationCode string) error
-	PollNdf func(ndfHash []byte, auth *connect.Auth) ([]byte, error)
-	Poll    func(msg *pb.PermissioningPoll, auth *connect.Auth,
-		serverAddress string) (*pb.PermissionPollResponse, error)
+	PollNdf           func(ndfHash []byte) ([]byte, error)
+	Poll              func(msg *pb.PermissioningPoll, auth *connect.Auth) (*pb.PermissionPollResponse, error)
 	CheckRegistration func(msg *pb.RegisteredNodeCheck) (*pb.RegisteredNodeConfirmation, error)
 }
 
@@ -102,25 +100,20 @@ func NewImplementation() *Implementation {
 		Functions: implementationFunctions{
 
 			RegisterUser: func(registrationCode,
-				pubKey string) (signature []byte, err error) {
+				pubKey, reptPubKey string) (signature, receptionSignature []byte, err error) {
 				warn(um)
-				return nil, nil
-			},
-			GetCurrentClientVersion: func() (version string, err error) {
-				warn(um)
-				return "", nil
+				return nil, nil, nil
 			},
 			RegisterNode: func(salt []byte, serverAddr, serverTlsCert, gatewayAddr,
 				gatewayTlsCert, registrationCode string) error {
 				warn(um)
 				return nil
 			},
-			PollNdf: func(ndfHash []byte, auth *connect.Auth) ([]byte, error) {
+			PollNdf: func(ndfHash []byte) ([]byte, error) {
 				warn(um)
 				return nil, nil
 			},
-			Poll: func(msg *pb.PermissioningPoll, auth *connect.Auth,
-				serverAddress string) (*pb.PermissionPollResponse, error) {
+			Poll: func(msg *pb.PermissioningPoll, auth *connect.Auth) (*pb.PermissionPollResponse, error) {
 				warn(um)
 				return &pb.PermissionPollResponse{}, nil
 			},
@@ -136,12 +129,8 @@ func NewImplementation() *Implementation {
 
 // Registers a user and returns a signed public key
 func (s *Implementation) RegisterUser(registrationCode,
-	pubKey string) (signature []byte, err error) {
-	return s.Functions.RegisterUser(registrationCode, pubKey)
-}
-
-func (s *Implementation) GetCurrentClientVersion() (string, error) {
-	return s.Functions.GetCurrentClientVersion()
+	pubKey, reptPubKey string) (signature, receptionSignature []byte, err error) {
+	return s.Functions.RegisterUser(registrationCode, pubKey, reptPubKey)
 }
 
 func (s *Implementation) RegisterNode(salt []byte, serverAddr, serverTlsCert, gatewayAddr,
@@ -150,12 +139,12 @@ func (s *Implementation) RegisterNode(salt []byte, serverAddr, serverTlsCert, ga
 		gatewayTlsCert, registrationCode)
 }
 
-func (s *Implementation) PollNdf(ndfHash []byte, auth *connect.Auth) ([]byte, error) {
-	return s.Functions.PollNdf(ndfHash, auth)
+func (s *Implementation) PollNdf(ndfHash []byte) ([]byte, error) {
+	return s.Functions.PollNdf(ndfHash)
 }
 
-func (s *Implementation) Poll(msg *pb.PermissioningPoll, auth *connect.Auth, serverAddress string) (*pb.PermissionPollResponse, error) {
-	return s.Functions.Poll(msg, auth, serverAddress)
+func (s *Implementation) Poll(msg *pb.PermissioningPoll, auth *connect.Auth) (*pb.PermissionPollResponse, error) {
+	return s.Functions.Poll(msg, auth)
 }
 
 func (s *Implementation) CheckRegistration(msg *pb.RegisteredNodeCheck) (*pb.

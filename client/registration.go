@@ -16,10 +16,9 @@ import (
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/elixxir/primitives/id"
-	"gitlab.com/elixxir/primitives/ndf"
 	"gitlab.com/xx_network/comms/connect"
-	"gitlab.com/xx_network/comms/messages"
+	"gitlab.com/xx_network/primitives/id"
+	"gitlab.com/xx_network/primitives/ndf"
 	"google.golang.org/grpc"
 	"strings"
 	"time"
@@ -45,7 +44,7 @@ func (c *Comms) SendRegistrationMessage(host *connect.Host,
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Registration message: %+v", message)
+	jww.TRACE.Printf("Sending Registration message: %+v", message)
 	resultMsg, err := c.Send(host, f)
 	if err != nil {
 		return nil, err
@@ -53,37 +52,6 @@ func (c *Comms) SendRegistrationMessage(host *connect.Host,
 
 	// Marshall the result
 	result := &pb.UserRegistrationConfirmation{}
-	return result, ptypes.UnmarshalAny(resultMsg, result)
-}
-
-// Client -> Registration Send Function
-func (c *Comms) SendGetCurrentClientVersionMessage(
-	host *connect.Host) (*pb.ClientVersion, error) {
-
-	// Create the Send Function
-	f := func(conn *grpc.ClientConn) (*any.Any, error) {
-		// Set up the context
-		ctx, cancel := connect.MessagingContext()
-		defer cancel()
-
-		// Send the message
-		resultMsg, err := pb.NewRegistrationClient(
-			conn).GetCurrentClientVersion(ctx, &messages.Ping{})
-		if err != nil {
-			return nil, errors.New(err.Error())
-		}
-		return ptypes.MarshalAny(resultMsg)
-	}
-
-	// Execute the Send function
-	jww.DEBUG.Printf("Sending Get Client Version message...")
-	resultMsg, err := c.Send(host, f)
-	if err != nil {
-		return nil, err
-	}
-
-	// Marshall the result
-	result := &pb.ClientVersion{}
 	return result, ptypes.UnmarshalAny(resultMsg, result)
 }
 
@@ -98,13 +66,9 @@ func (c *Comms) RequestNdf(host *connect.Host,
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
 
-		authMsg, err := c.PackAuthenticatedMessage(message, host, false)
-		if err != nil {
-			return nil, errors.New(err.Error())
-		}
 		// Send the message
 		resultMsg, err := pb.NewRegistrationClient(
-			conn).PollNdf(ctx, authMsg)
+			conn).PollNdf(ctx, message)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
@@ -112,7 +76,7 @@ func (c *Comms) RequestNdf(host *connect.Host,
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Request Ndf message: %+v", message)
+	jww.TRACE.Printf("Sending Request Ndf message: %+v", message)
 	resultMsg, err := c.Send(host, f)
 	if err != nil {
 		return nil, err
@@ -174,7 +138,7 @@ func (c *Comms) RetrieveNdf(currentDef *ndf.NetworkDefinition) (*ndf.NetworkDefi
 	jww.INFO.Printf("Remote NDF: %s", string(response.Ndf))
 
 	//Otherwise pull the ndf out of the response
-	updatedNdf, _, err := ndf.DecodeNDF(string(response.Ndf))
+	updatedNdf, err := ndf.Unmarshal(response.Ndf)
 	if err != nil {
 		//If there was an error decoding ndf
 		errMsg := errors.Errorf("Failed to decode response to ndf: %v", err)

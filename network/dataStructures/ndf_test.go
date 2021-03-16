@@ -15,7 +15,7 @@ import (
 
 func setup() *Ndf {
 	msg := &mixmessages.NDF{
-		Ndf: []byte(testutils.ExampleNDF),
+		Ndf: testutils.ExampleNDF,
 	}
 	ndf := &Ndf{}
 
@@ -33,7 +33,7 @@ func TestNdf_Get(t *testing.T) {
 
 func TestNdf_Update(t *testing.T) {
 	msg := &mixmessages.NDF{
-		Ndf: []byte(testutils.ExampleNDF),
+		Ndf: testutils.ExampleNDF,
 	}
 	badMsg := &mixmessages.NDF{
 		Ndf: []byte("lasagna"),

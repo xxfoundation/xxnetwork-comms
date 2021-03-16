@@ -13,8 +13,8 @@ import (
 	"encoding/json"
 	"github.com/pkg/errors"
 	"gitlab.com/elixxir/crypto/cyclic"
-	"gitlab.com/elixxir/crypto/large"
-	"gitlab.com/elixxir/primitives/ndf"
+	"gitlab.com/xx_network/crypto/large"
+	"gitlab.com/xx_network/primitives/ndf"
 	"sync"
 	"testing"
 )
@@ -72,10 +72,18 @@ func (g *Group) Update(newGroup string) error {
 
 // Utility function for NewInstanceTesting that directly sets cyclic.Group object
 // USED FOR TESTING PURPOSED ONLY
-func (g Group) UpdateCyclicGroupTesting(group *cyclic.Group, t *testing.T) {
-	if t == nil {
+func (g Group) UpdateCyclicGroupTesting(group *cyclic.Group, i interface{}) {
+	switch i.(type) {
+	case *testing.T:
+		break
+	case *testing.M:
+		break
+	case *testing.B:
+		break
+	default:
 		panic("Should not be able to directly set cyclic group outside of testing purposes")
 	}
+
 	g.cyclicGroup = group
 }
 

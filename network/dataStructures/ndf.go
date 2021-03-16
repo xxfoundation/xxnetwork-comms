@@ -14,7 +14,7 @@ import (
 	"crypto/sha256"
 	"github.com/pkg/errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/elixxir/primitives/ndf"
+	"gitlab.com/xx_network/primitives/ndf"
 	"sync"
 )
 
@@ -43,7 +43,7 @@ func NewNdf(definition *ndf.NetworkDefinition) (*Ndf, error) {
 func (file *Ndf) Update(m *pb.NDF) error {
 
 	//build the ndf object
-	decoded, _, err := ndf.DecodeNDF(string(m.Ndf))
+	decoded, err := ndf.Unmarshal(m.Ndf)
 
 	if err != nil {
 		return errors.WithMessage(err, "Could not decode the NDF")

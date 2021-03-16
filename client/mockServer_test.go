@@ -14,8 +14,8 @@ import (
 	"github.com/pkg/errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/testutils"
-	"gitlab.com/elixxir/primitives/ndf"
 	"gitlab.com/xx_network/comms/connect"
+	"gitlab.com/xx_network/primitives/ndf"
 	"sync"
 )
 
@@ -57,22 +57,18 @@ func (s *MockRegistration) RegisterNode(salt []byte, serverAddr, serverTlsCert, 
 	return nil
 }
 
-func (s *MockRegistration) PollNdf(clientNdfHash []byte, auth *connect.Auth) ([]byte, error) {
+func (s *MockRegistration) PollNdf(clientNdfHash []byte) ([]byte, error) {
 	return []byte(testutils.ExampleJSON), nil
 }
 
-func (s *MockRegistration) Poll(*pb.PermissioningPoll, *connect.Auth, string) (*pb.PermissionPollResponse, error) {
+func (s *MockRegistration) Poll(*pb.PermissioningPoll, *connect.Auth) (*pb.PermissionPollResponse, error) {
 	return &pb.PermissionPollResponse{}, nil
 }
 
 // Registers a user and returns a signed public key
 func (s *MockRegistration) RegisterUser(registrationCode,
-	key string) (hash []byte, err error) {
-	return nil, nil
-}
-
-func (s *MockRegistration) GetCurrentClientVersion() (version string, err error) {
-	return "", nil
+	key, reptKey string) (sig, receptionSig []byte, err error) {
+	return nil, nil, nil
 }
 
 func (s *MockRegistration) CheckRegistration(msg *pb.RegisteredNodeCheck) (*pb.RegisteredNodeConfirmation, error) {
@@ -89,7 +85,7 @@ func (s *MockRegistrationError) RegisterNode(salt []byte, serverAddr, serverTlsC
 	return nil
 }
 
-func (s *MockRegistrationError) PollNdf(clientNdfHash []byte, auth *connect.Auth) ([]byte, error) {
+func (s *MockRegistrationError) PollNdf(clientNdfHash []byte) ([]byte, error) {
 	if Retries < 5 {
 		Retries++
 		return nil, errors.New(ndf.NO_NDF)
@@ -97,7 +93,7 @@ func (s *MockRegistrationError) PollNdf(clientNdfHash []byte, auth *connect.Auth
 	return []byte(testutils.ExampleJSON), nil
 }
 
-func (s *MockRegistrationError) Poll(*pb.PermissioningPoll, *connect.Auth, string) (*pb.PermissionPollResponse, error) {
+func (s *MockRegistrationError) Poll(*pb.PermissioningPoll, *connect.Auth) (*pb.PermissionPollResponse, error) {
 	if Retries < 5 {
 		Retries++
 		return nil, errors.New(ndf.NO_NDF)
@@ -107,13 +103,8 @@ func (s *MockRegistrationError) Poll(*pb.PermissioningPoll, *connect.Auth, strin
 
 // Registers a user and returns a signed public key
 func (s *MockRegistrationError) RegisterUser(registrationCode,
-	key string) (hash []byte, err error) {
-	return nil, nil
-}
-
-func (s *MockRegistrationError) GetCurrentClientVersion() (version string, err error) {
-	return "", nil
-
+	key, reptKey string) (sig, receptionSig []byte, err error) {
+	return nil, nil, nil
 }
 
 func (s *MockRegistrationError) CheckRegistration(msg *pb.RegisteredNodeCheck) (*pb.RegisteredNodeConfirmation, error) {

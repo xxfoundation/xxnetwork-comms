@@ -12,8 +12,9 @@ import (
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/node"
 	"gitlab.com/elixxir/comms/testkeys"
-	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/xx_network/comms/connect"
+	"gitlab.com/xx_network/comms/gossip"
+	"gitlab.com/xx_network/primitives/id"
 	"sync"
 	"testing"
 )
@@ -52,11 +53,11 @@ func TestTLS(t *testing.T) {
 	GatewayAddress := getNextGatewayAddress()
 	testID := id.NewIdFromString("test", id.Gateway, t)
 	gateway := StartGateway(testID, GatewayAddress, NewImplementation(),
-		certData, keyData)
+		certData, keyData, gossip.DefaultManagerFlags())
 	defer gateway.Shutdown()
 	ServerAddress := getNextServerAddress()
 	testNodeID := id.NewIdFromString("test", id.Node, t)
-	server := node.StartNode(testNodeID, ServerAddress, node.NewImplementation(),
+	server := node.StartNode(testNodeID, ServerAddress, 0, node.NewImplementation(),
 		certData, keyData)
 	defer server.Shutdown()
 	manager := connect.NewManagerTesting(t)
@@ -85,5 +86,5 @@ func TestBadCerts(t *testing.T) {
 
 	testID := id.NewIdFromString("test", id.Node, t)
 	_ = StartGateway(testID, Address, NewImplementation(),
-		[]byte("bad cert"), []byte("bad key"))
+		[]byte("bad cert"), []byte("bad key"), gossip.DefaultManagerFlags())
 }

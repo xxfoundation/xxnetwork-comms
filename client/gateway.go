@@ -20,7 +20,7 @@ import (
 )
 
 // Client -> Gateway Send Function
-func (c *Comms) SendPutMessage(host *connect.Host, message *pb.Slot) error {
+func (c *Comms) SendPutMessage(host *connect.Host, message *pb.GatewaySlot) (*pb.GatewaySlotResponse, error) {
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
@@ -28,75 +28,24 @@ func (c *Comms) SendPutMessage(host *connect.Host, message *pb.Slot) error {
 		defer cancel()
 
 		// Send the message
-		_, err := pb.NewGatewayClient(conn).PutMessage(ctx, message)
+		resultMsg, err := pb.NewGatewayClient(conn).PutMessage(ctx, message)
 		if err != nil {
 			err = errors.New(err.Error())
-		}
-		return nil, err
-	}
-
-	// Execute the Send function
-	jww.DEBUG.Printf("Sending Put message: %+v", message)
-	_, err := c.Send(host, f)
-	return err
-}
-
-// Client -> Gateway Send Function
-func (c *Comms) SendCheckMessages(host *connect.Host,
-	message *pb.ClientRequest) (*pb.IDList, error) {
-
-	// Create the Send Function
-	f := func(conn *grpc.ClientConn) (*any.Any, error) {
-		// Set up the context
-		ctx, cancel := connect.MessagingContext()
-		defer cancel()
-
-		// Send the message
-		resultMsg, err := pb.NewGatewayClient(conn).CheckMessages(ctx, message)
-		if err != nil {
 			return nil, errors.New(err.Error())
+
 		}
 		return ptypes.MarshalAny(resultMsg)
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Check message: %+v", message)
-	resultMsg, err := c.Send(host, f)
-	if err != nil {
-		return nil, err
-	}
-	// Marshall the result
-	result := &pb.IDList{}
-	return result, ptypes.UnmarshalAny(resultMsg, result)
-}
-
-// Client -> Gateway Send Function
-func (c *Comms) SendGetMessage(host *connect.Host,
-	message *pb.ClientRequest) (*pb.Slot, error) {
-
-	// Create the Send Function
-	f := func(conn *grpc.ClientConn) (*any.Any, error) {
-		// Set up the context
-		ctx, cancel := connect.MessagingContext()
-		defer cancel()
-
-		// Send the message
-		resultMsg, err := pb.NewGatewayClient(conn).GetMessage(ctx, message)
-		if err != nil {
-			return nil, errors.New(err.Error())
-		}
-		return ptypes.MarshalAny(resultMsg)
-	}
-
-	// Execute the Send function
-	jww.DEBUG.Printf("Sending Get message: %+v", message)
+	jww.TRACE.Printf("Sending Put message: %+v", message)
 	resultMsg, err := c.Send(host, f)
 	if err != nil {
 		return nil, err
 	}
 
-	// Marshall the result
-	result := &pb.Slot{}
+	result := &pb.GatewaySlotResponse{}
+
 	return result, ptypes.UnmarshalAny(resultMsg, result)
 }
 
@@ -121,7 +70,7 @@ func (c *Comms) SendRequestNonceMessage(host *connect.Host,
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Request Nonce message: %+v", message)
+	jww.TRACE.Printf("Sending Request Nonce message: %+v", message)
 	resultMsg, err := c.Send(host, f)
 	if err != nil {
 		return nil, err
@@ -151,7 +100,7 @@ func (c *Comms) SendConfirmNonceMessage(host *connect.Host,
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Confirm Nonce message: %+v", message)
+	jww.TRACE.Printf("Sending Confirm Nonce message: %+v", message)
 	resultMsg, err := c.Send(host, f)
 	if err != nil {
 		return nil, err
@@ -180,7 +129,7 @@ func (c *Comms) SendPoll(host *connect.Host,
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Poll message: %+v", message)
+	jww.TRACE.Printf("Sending Poll message: %+v", message)
 	resultMsg, err := c.Send(host, f)
 	if err != nil {
 		return nil, err
@@ -188,5 +137,63 @@ func (c *Comms) SendPoll(host *connect.Host,
 
 	// Marshall the result
 	result := &pb.GatewayPollResponse{}
+	return result, ptypes.UnmarshalAny(resultMsg, result)
+}
+
+// Client -> Gateway Send Function
+func (c *Comms) RequestHistoricalRounds(host *connect.Host,
+	message *pb.HistoricalRounds) (*pb.HistoricalRoundsResponse, error) {
+	// Create the Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := connect.MessagingContext()
+		defer cancel()
+
+		// Send the message
+		resultMsg, err := pb.NewGatewayClient(conn).RequestHistoricalRounds(ctx, message)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+		return ptypes.MarshalAny(resultMsg)
+	}
+
+	// Execute the Send function
+	jww.TRACE.Printf("Requesting Historical Rounds: %+v", message)
+	resultMsg, err := c.Send(host, f)
+	if err != nil {
+		return nil, err
+	}
+
+	// Marshall the result
+	result := &pb.HistoricalRoundsResponse{}
+	return result, ptypes.UnmarshalAny(resultMsg, result)
+}
+
+// Client -> Gateway Send Function
+func (c *Comms) RequestMessages(host *connect.Host,
+	message *pb.GetMessages) (*pb.GetMessagesResponse, error) {
+	// Create the Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := connect.MessagingContext()
+		defer cancel()
+
+		// Send the message
+		resultMsg, err := pb.NewGatewayClient(conn).RequestMessages(ctx, message)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+		return ptypes.MarshalAny(resultMsg)
+	}
+
+	// Execute the Send function
+	jww.TRACE.Printf("Requesing Messages: %+v", message)
+	resultMsg, err := c.Send(host, f)
+	if err != nil {
+		return nil, err
+	}
+
+	// Marshall the result
+	result := &pb.GetMessagesResponse{}
 	return result, ptypes.UnmarshalAny(resultMsg, result)
 }
