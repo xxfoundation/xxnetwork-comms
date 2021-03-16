@@ -171,6 +171,35 @@ func TestInstance_GetRound(t *testing.T) {
 	}
 }
 
+func TestInstance_GetWrappedRound(t *testing.T) {
+	i := Instance{
+		roundData: ds.NewData(),
+	}
+
+	// Construct a mock round object
+	ri := &mixmessages.RoundInfo{ID: uint64(1)}
+	testutils.SignRoundInfo(ri, t)
+
+	pubKey, err := testutils.LoadPublicKeyTesting(t)
+	if err != nil {
+		t.Errorf("Failed to load public key: %v", err)
+		t.FailNow()
+	}
+	rnd := ds.NewRound(ri, pubKey)
+
+	_ = i.roundData.UpsertRound(rnd)
+	retrieved, err := i.GetWrappedRound(id.Round(1))
+	if err != nil || retrieved == nil {
+		t.Errorf("Failed to retrieve round: %+v", err)
+	}
+
+	if !reflect.DeepEqual(rnd, retrieved) {
+		t.Errorf("Retrieved value did not match expected!"+
+			"\n\tExpected: %v"+
+			"\n\tReceived: %v", rnd, retrieved)
+	}
+}
+
 func TestInstance_GetRoundUpdate(t *testing.T) {
 	i := Instance{
 		roundUpdates: ds.NewUpdates(),

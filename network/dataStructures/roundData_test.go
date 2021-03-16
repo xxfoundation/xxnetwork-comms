@@ -10,6 +10,7 @@ package dataStructures
 import (
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/testutils"
+	"reflect"
 	"testing"
 )
 
@@ -55,6 +56,36 @@ func TestData_GetRound(t *testing.T) {
 	_, err = d.GetRound(0)
 	if err != nil {
 		t.Errorf("Failed to get roundinfo with proper id")
+	}
+}
+
+func TestData_GetWrappedRound(t *testing.T) {
+	d := NewData()
+
+	// Construct a mock round object
+	ri := &mixmessages.RoundInfo{
+		ID:       0,
+		UpdateID: 0,
+	}
+	testutils.SignRoundInfo(ri, t)
+
+	pubKey, err := testutils.LoadPublicKeyTesting(t)
+	if err != nil {
+		t.Errorf("Failed to load public key: %v", err)
+		t.FailNow()
+	}
+	rnd := NewRound(ri, pubKey)
+
+	_ = d.UpsertRound(rnd)
+	retrieved, err := d.GetWrappedRound(0)
+	if err != nil {
+		t.Errorf("Failed to get roundinfo with proper id")
+	}
+
+	if !reflect.DeepEqual(rnd, retrieved) {
+		t.Errorf("Retrieved value did not match expected!"+
+			"\n\tExpected: %v"+
+			"\n\tReceived: %v", rnd, retrieved)
 	}
 }
 

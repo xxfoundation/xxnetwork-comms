@@ -32,6 +32,27 @@ func TestNewRound(t *testing.T) {
 
 }
 
+// Smoke test for other constructor
+func TestNewVerifiedRound(t *testing.T) {
+	pubKey, _ := testutils.LoadPublicKeyTesting(t)
+	ri := &mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(1)}
+
+	rnd := NewVerifiedRound(ri, pubKey)
+
+	// Check that values in object match inputted values
+	if rnd.info != ri || rnd.pubkey != pubKey || *rnd.needsValidation != 1 {
+		t.Errorf("Initial round values from constructor are not expected."+
+			"\n\tExpected round info: %v"+
+			"\n\tReceived round info: %v"+
+			"\n\tExpected public key: %v"+
+			"\n\tReceived public key: %v"+
+			"\n\tExpected needsValidation: %v"+
+			"\n\tReceived needsValidation: %v",
+			ri, rnd.info, pubKey, rnd.pubkey, rnd.needsValidation, 1)
+	}
+
+}
+
 // Unit test of Get()
 func TestNewRound_Get(t *testing.T) {
 	pubKey, _ := testutils.LoadPublicKeyTesting(t)
