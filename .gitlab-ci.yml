@@ -56,7 +56,7 @@ build:
 build_client:
   stage: triggers
   variables:
-    - MIN_CODE_COVERAGE: "30"
+    MIN_CODE_COVERAGE: "30"
   trigger:
     project: elixxir/client
     branch: $CI_COMMIT_REF_NAME
