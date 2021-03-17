@@ -55,7 +55,7 @@ build:
 
 build_client:
   stage: triggers
-  variable:
+  variables:
     - MIN_CODE_COVERAGE: "30"
   trigger:
     project: elixxir/client
