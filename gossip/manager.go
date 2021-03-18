@@ -75,8 +75,6 @@ func (m *Manager) NewGossip(tag string, flags ProtocolFlags,
 	m.protocolLock.Lock()
 	defer m.protocolLock.Unlock()
 
-
-
 	tmp := &Protocol{
 		fingerprints: map[Fingerprint]*uint64{},
 		comms:        m.comms,
@@ -154,12 +152,16 @@ func (m *Manager) bufferMonitor() chan bool {
 }
 
 
+//launches numWorkers routines to handle sending of gossips for this protocol
 func launchSendWorkers(numWorkers uint8, reciever chan sendInstructions){
 	for i:=uint8(0);i<numWorkers;i++{
 		go func(){
 			for {
+				//get a gossip send
 				instructions := <-reciever
+				// do the send
 				err := instructions.sendFunc(instructions.peer)
+				//handle errors if they occur
 				if err!=nil{
 					select{
 					case instructions.errChannel<-errors.WithMessagef(err,
@@ -168,6 +170,7 @@ func launchSendWorkers(numWorkers uint8, reciever chan sendInstructions){
 						jww.WARN.Println("Could not transmit gossip error")
 					}
 				}
+				//signal the wait group
 				instructions.wait.Done()
 			}
 		}()

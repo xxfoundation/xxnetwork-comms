@@ -249,6 +249,7 @@ func (p *Protocol) Gossip(msg *GossipMsg) (int, []error) {
 	errCh := make(chan error, len(peers))
 	wg := sync.WaitGroup{}
 	wg.Add(len(peers))
+	//send signals to the worker threads to do the sends
 	for _, peer := range peers {
 		p.sendWorkers <- sendInstructions{
 			sendFunc:   sendFunc,
@@ -265,6 +266,7 @@ func (p *Protocol) Gossip(msg *GossipMsg) (int, []error) {
 	done := false
 	var errs []error
 	for !done{
+		//pull from the channel until errors are exhausted
 		select{
 			case newErr := <- errCh:
 				errs = append(errs, newErr)
