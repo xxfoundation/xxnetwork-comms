@@ -629,7 +629,7 @@ func (i *Instance) updateConns(def *ndf.NetworkDefinition, isGateway, isNode boo
 				// If this entity is a gateway, other gateway hosts
 				// should have auth enabled. Otherwise, disable auth
 				gwParams := connect.GetDefaultHostParams()
-				gwParams.MaxRetries = 3
+				gwParams.MaxRetries = 1
 				gwParams.EnableCoolOff = true
 				gwParams.AuthEnabled = i.gatewayAuth
 				_, err := i.comm.AddHost(gwid, addr, []byte(gateway.TlsCertificate), gwParams)
