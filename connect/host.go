@@ -312,6 +312,7 @@ func (h *Host) connectHelper() (err error) {
 
 	// Attempt to establish a new connection
 	var numRetries uint32
+	//todo-remove this retry block when grpc is updated
 	for numRetries = 0; numRetries < h.maxRetries && !h.isAlive(); numRetries++ {
 		h.disconnect()
 
@@ -320,11 +321,11 @@ func (h *Host) connectHelper() (err error) {
 
 		// If timeout is enabled, the max wait time becomes
 		// ~14 seconds (with maxRetries=100)
-		backoffTime := 2 * (numRetries/16 + 1)
-		if backoffTime > 15 {
-			backoffTime = 15
+		backoffTime := 300 * (numRetries/16 + 1)
+		if backoffTime > 15000 {
+			backoffTime = 15000
 		}
-		ctx, cancel := ConnectionContext(time.Duration(backoffTime) * time.Second)
+		ctx, cancel := ConnectionContext(time.Duration(backoffTime) * time.Millisecond)
 
 		// Create the connection
 		h.connection, err = grpc.DialContext(ctx, h.GetAddress(),
