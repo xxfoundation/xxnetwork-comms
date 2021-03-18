@@ -415,6 +415,24 @@ func TestProtocol_getPeers(t *testing.T) {
 // Show that the gossip protocol reliably shares data with all nodes
 // Show that data that's valid propagates, and that data that's not valid doesn't
 func TestGossipNodes(t *testing.T) {
+	timeout := time.After(30 * time.Second)
+	done := make(chan bool)
+
+	go func() {
+
+		runGossipNodesTest(t)
+		done <- true
+	}()
+
+	select {
+	case <-timeout:
+		t.Fatal("timed out, Check your resource limits " +
+			"(ulimit -aS / ulimit -aH). " +
+			"Most likely you need to set 'ulimit -n 65535'")
+	case <-done:
+	}
+}
+func runGossipNodesTest(t *testing.T) {
 	// Have some nodes
 	numNodes := 100
 	portOffset := 24671
