@@ -198,17 +198,23 @@ func setup(t *testing.T) *Protocol {
 	c := &connect.ProtoComms{
 		Manager: connect.NewManagerTesting(t),
 	}
-	return &Protocol{
+
+	flags := DefaultProtocolFlags()
+	p :=  &Protocol{
 		comms:            c,
 		fingerprints:     map[Fingerprint]*uint64{},
 		fingerprintsLock: sync.RWMutex{},
 		peers:            []*id.ID{},
 		peersLock:        sync.RWMutex{},
-		flags:            ProtocolFlags{},
+		flags:            flags,
 		receiver:         r,
 		verify:           v,
 		IsDefunct:        false,
+		sendWorkers: 	  make(chan sendInstructions, 100*flags.NumParallelSends),
 	}
+
+	launchSendWorkers(flags.NumParallelSends, p.sendWorkers)
+	return p
 }
 
 // Test uniqueness of fingerprint function
@@ -465,6 +471,7 @@ func TestGossipNodes(t *testing.T) {
 				peers = append(peers, nodes[j])
 				params := connect.GetDefaultHostParams()
 				params.AuthEnabled = false
+				params.MaxRetries = 3
 				_, err := managers[i].comms.AddHost(nodes[j], "127.0.0.1:"+ports[j], certPEM, params)
 				if err != nil {
 					t.Fatal(err)

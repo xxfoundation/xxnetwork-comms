@@ -59,6 +59,7 @@ type ProtocolFlags struct {
 	FanOut                  uint8  // Default = 0
 	MaxRecordedFingerprints uint64 // Default = 10000000
 	MaximumReSends          uint64 // Default = 3
+	NumParallelSends        uint8  // Default = 5
 }
 
 // Returns a ProtocolFlags object with all flags set to their defaults
@@ -67,6 +68,7 @@ func DefaultProtocolFlags() ProtocolFlags {
 		FanOut:                  0,
 		MaxRecordedFingerprints: 10000000,
 		MaximumReSends:          3,
+		NumParallelSends:        5,
 	}
 }
 
@@ -98,6 +100,16 @@ type Protocol struct {
 
 	// Random Reader
 	crand io.Reader
+
+	// worker pool channel for sending
+	sendWorkers chan sendInstructions
+}
+
+type sendInstructions struct{
+	sendFunc func(id *id.ID) error
+	peer *id.ID
+	errChannel chan error
+	wait *sync.WaitGroup
 }
 
 // Marks a Protocol as Defunct such that it will ignore new messages
@@ -234,16 +246,34 @@ func (p *Protocol) Gossip(msg *GossipMsg) (int, []error) {
 	}
 
 	// Send message to each peer
-	errCount := 0
-	var errs []error
-	for _, p := range peers {
-		sendErr := sendFunc(p) // TODO: Should this happen in a gofunc?
-		if sendErr != nil {
-			errs = append(errs, errors.WithMessagef(sendErr, "Failed to send to ID %s", p))
-			errCount++
+	errCh := make(chan error, len(peers))
+	wg := sync.WaitGroup{}
+	wg.Add(len(peers))
+	for _, peer := range peers {
+		p.sendWorkers <- sendInstructions{
+			sendFunc:   sendFunc,
+			peer:       peer.DeepCopy(),
+			errChannel: errCh,
+			wait:       &wg,
 		}
 	}
-	if errCount > 0 {
+
+	//wait for sends to complete
+	wg.Wait()
+
+	//get any errors
+	done := false
+	var errs []error
+	for !done{
+		select{
+			case newErr := <- errCh:
+				errs = append(errs, newErr)
+			default:
+				done = true
+		}
+	}
+
+	if len(errs) > 0 {
 		return len(peers), errs
 	} else {
 		return len(peers), nil
