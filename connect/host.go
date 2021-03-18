@@ -322,8 +322,16 @@ func (h *Host) connectHelper() (err error) {
 		// ~14 seconds (with maxRetries=100)
 		backoffTime := 2 * (numRetries/16 + 1)
 		if backoffTime > 15 {
-			backoffTime = 15
+			// If we are connecting to a gateway, backoff quicker
+			if h.id.GetType() == id.Gateway {
+				backoffTime = 1
+			} else {
+				backoffTime = 15
+			}
 		}
+
+
+
 		ctx, cancel := ConnectionContext(time.Duration(backoffTime) * time.Second)
 
 		// Create the connection
