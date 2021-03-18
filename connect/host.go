@@ -341,9 +341,9 @@ func (h *Host) connectHelper() (err error) {
 	// Verify that the connection was established successfully
 	if !h.isAlive() {
 		h.disconnect()
-		return fmt.Errorf(
+		return errors.New(fmt.Sprintf(
 			"Last try to connect to %s failed. Giving up",
-			h.GetAddress())
+			h.GetAddress()))
 	}
 
 	// Add the successful connection to the Manager
