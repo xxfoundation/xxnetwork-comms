@@ -10,7 +10,6 @@
 package connect
 
 import (
-	"encoding/base64"
 	"fmt"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
@@ -393,38 +392,10 @@ func (h *Host) String() string {
 	h.sendMux.RLock()
 	defer h.sendMux.RUnlock()
 	addr := h.GetAddress()
-	actualConnection := h.connection
-	creds := h.credentials
 
-	var state connectivity.State
-	if actualConnection != nil {
-		state = actualConnection.GetState()
-	}
-
-	serverName := "<nil>"
-	protocolVersion := "<nil>"
-	securityVersion := "<nil>"
-	securityProtocol := "<nil>"
-	if creds != nil {
-		serverName = creds.Info().ServerName
-		securityVersion = creds.Info().SecurityVersion
-		protocolVersion = creds.Info().ProtocolVersion
-		securityProtocol = creds.Info().SecurityProtocol
-	}
-
-	transmitStr := base64.StdEncoding.EncodeToString(
-		h.transmissionToken.GetBytes())
-	receptStr := base64.StdEncoding.EncodeToString(
-		h.receptionToken.GetBytes())
 	return fmt.Sprintf(
-		"ID: %v\tAddr: %v\tTransmission Live: %s"+
-			"\tReception Live: %s \tEnableAuth: %v"+
-			"\tMaxRetries: %v\tConnState: %v"+
-			"\tTLS ServerName: %v\tTLS ProtocolVersion: %v\t"+
-			"TLS SecurityVersion: %v\tTLS SecurityProtocol: %v",
-		h.id, addr, transmitStr, receptStr, h.enableAuth, h.maxRetries,
-		state, serverName, protocolVersion, securityVersion,
-		securityProtocol)
+		"ID: %v\tAddr: %v",
+		h.id, addr)
 }
 
 // Stringer interface for connection
