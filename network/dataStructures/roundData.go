@@ -44,13 +44,16 @@ func (d *Data) UpsertRound(r *Round) error {
 func (d *Data) GetRound(id int) (*mixmessages.RoundInfo, error) {
 	val, err := d.rounds.GetById(id)
 	if err != nil {
-		return nil, errors.Wrapf(err, "Failed to get update with id %d", id)
+		return nil, errors.Wrapf(err, "Failed to get round by id with " +
+			"%d", id)
 	}
-	var rtn *mixmessages.RoundInfo
-	if val != nil {
-		rtn = val.(*Round).Get()
+
+	if val == nil {
+		return nil, errors.Errorf("Failed to get round by id with %d, " +
+			"got nil round", id)
 	}
-	return rtn, nil
+
+	return val.(*Round).Get(), nil
 }
 
 // Get a given round id from the ring buffer as a round object
