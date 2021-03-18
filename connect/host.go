@@ -315,7 +315,7 @@ func (h *Host) connectHelper() (err error) {
 	for numRetries = 0; numRetries < h.maxRetries && !h.isAlive(); numRetries++ {
 		h.disconnect()
 
-		jww.INFO.Printf("Connecting to %+v. Attempt number %+v of %+v",
+		jww.DEBUG.Printf("Connecting to %+v Attempt number %+v of %+v",
 			h.GetAddress(), numRetries, h.maxRetries)
 
 		// If timeout is enabled, the max wait time becomes
@@ -332,8 +332,8 @@ func (h *Host) connectHelper() (err error) {
 			grpc.WithBlock(),
 			grpc.WithKeepaliveParams(KaClientOpts))
 		if err != nil {
-			jww.ERROR.Printf("Attempt number %+v to connect to %s failed: %+v\n",
-				numRetries, h.GetAddress(), errors.New(err.Error()))
+			jww.DEBUG.Printf("Attempt number %+v to connect to %s failed\n",
+				numRetries, h.GetAddress())
 		}
 		cancel()
 	}
