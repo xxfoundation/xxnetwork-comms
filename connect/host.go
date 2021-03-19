@@ -108,9 +108,6 @@ func NewHost(id *id.ID, address string, cert []byte, params HostParams) (host *H
 			params.CoolOffTimeout, nil)
 	}
 
-	jww.INFO.Printf("New Host Created: %s", host)
-	jww.TRACE.Printf("New Host Certificate for %v: %s...", id, cert)
-
 	if host.maxRetries == 0 {
 		host.maxRetries = math.MaxUint32
 	}
@@ -119,6 +116,10 @@ func NewHost(id *id.ID, address string, cert []byte, params HostParams) (host *H
 
 	// Configure the host credentials
 	err = host.setCredentials()
+
+	//print logs
+	jww.INFO.Printf("New Host Created: %s", host)
+	jww.TRACE.Printf("New Host Certificate for %v: %s...", id, cert)
 	return
 }
 
