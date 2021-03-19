@@ -8,16 +8,13 @@ require (
 	github.com/google/go-cmp v0.5.2 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/jwalterweatherman v1.1.0
-	github.com/zeebo/blake3 v0.1.0 // indirect
-	github.com/zeebo/pcg v1.0.0 // indirect
-	gitlab.com/elixxir/crypto v0.0.7-0.20210316212419-025ba777a80b
+	gitlab.com/elixxir/crypto v0.0.7-0.20210319231554-b73b6e62ddbc
 	gitlab.com/elixxir/primitives v0.0.3-0.20210309193003-ef42ebb4800b
-	gitlab.com/xx_network/comms v0.0.4-0.20210319033117-b91d7e8f22d0
-	gitlab.com/xx_network/crypto v0.0.5-0.20210316212152-504c0a1e0da0
+	gitlab.com/xx_network/comms v0.0.4-0.20210319231451-770f527d2e37
+	gitlab.com/xx_network/crypto v0.0.5-0.20210319231335-249c6b1aa323
 	gitlab.com/xx_network/primitives v0.0.4-0.20210309173740-eb8cd411334a
 	gitlab.com/xx_network/ring v0.0.2
 	golang.org/x/net v0.0.0-20201029221708-28c70e62bb1d
-	golang.org/x/sys v0.0.0-20201029080932-201ba4db2418 // indirect
 	golang.org/x/text v0.3.4 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/genproto v0.0.0-20201030142918-24207fddd1c3 // indirect
