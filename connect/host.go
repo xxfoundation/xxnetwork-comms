@@ -24,6 +24,7 @@ import (
 	"google.golang.org/grpc/keepalive"
 	"math"
 	"net"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -82,6 +83,18 @@ type Host struct {
 	// This is useful for determining whether a Host's key was hardcoded
 	dynamicHost bool
 
+	/* Metrics related flags */
+
+	// State tracking for host metric
+	metrics *Metric
+
+	// If set, metric handling will be enabled on this host
+	enableMetrics bool
+
+	// List of sending errors that are deemed unimportant
+	// Reception of these errors will not update the Metric's state
+	excludeMetricErrors []string
+
 	// Send lock
 	sendMux sync.RWMutex
 
@@ -94,12 +107,15 @@ func NewHost(id *id.ID, address string, cert []byte, params HostParams) (host *H
 
 	// Initialize the Host object
 	host = &Host{
-		id:                id,
-		certificate:       cert,
-		enableAuth:        params.AuthEnabled,
-		transmissionToken: token.NewLive(),
-		receptionToken:    token.NewLive(),
-		maxRetries:        params.MaxRetries,
+		id:                  id,
+		certificate:         cert,
+		enableAuth:          params.AuthEnabled,
+		transmissionToken:   token.NewLive(),
+		receptionToken:      token.NewLive(),
+		maxRetries:          params.MaxRetries,
+		enableMetrics:       false,
+		excludeMetricErrors: make([]string, 0),
+		metrics:             NewMetric(),
 	}
 
 	if params.EnableCoolOff {
@@ -183,6 +199,23 @@ func (h *Host) GetAddress() string {
 // UpdateAddress updates the address of the host
 func (h *Host) UpdateAddress(address string) {
 	h.addressAtomic.Store(address)
+}
+
+// GetMetrics returns a deep copy of Host's Metric
+func (h *Host) GetMetrics() *Metric {
+	return h.metrics.Get()
+}
+
+// IsExcludedError determines if err is within the list
+// of excludeMetricErrors.  Returns true if it's an excluded error,
+// false if it is not
+func (h *Host) IsExcludedError(err error) bool {
+	for _, excludedErr := range h.excludeMetricErrors {
+		if strings.Contains(excludedErr, err.Error()) {
+			return true
+		}
+	}
+	return false
 }
 
 // Disconnect closes a the Host connection under the write lock
