@@ -101,14 +101,14 @@ func NewHost(id *id.ID, address string, cert []byte, params HostParams) (host *H
 
 	// Initialize the Host object
 	host = &Host{
-		id:                  id,
-		certificate:         cert,
-		enableAuth:          params.AuthEnabled,
-		transmissionToken:   token.NewLive(),
-		receptionToken:      token.NewLive(),
-		maxRetries:          params.MaxRetries,
-		metrics:             newMetric(),
-		params: params,
+		id:                id,
+		certificate:       cert,
+		enableAuth:        params.AuthEnabled,
+		transmissionToken: token.NewLive(),
+		receptionToken:    token.NewLive(),
+		maxRetries:        params.MaxRetries,
+		metrics:           newMetric(),
+		params:            params,
 	}
 
 	if params.EnableCoolOff {
