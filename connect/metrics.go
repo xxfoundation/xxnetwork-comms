@@ -37,7 +37,7 @@ func (m *Metric) IncrementErrors() {
 	atomic.AddUint64(m.errorCounter, 1)
 }
 
-// DeepCopy creates a copy of Metric.
+// deepCopy creates a copy of Metric.
 func (m *Metric) deepCopy() *Metric {
 	newErrCounter := atomic.LoadUint64(m.errorCounter)
 	return &Metric{
