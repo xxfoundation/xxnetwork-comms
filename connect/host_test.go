@@ -169,7 +169,7 @@ func TestHost_IsExcludedError(t *testing.T) {
 		"451 Page Blocked",
 		"Could not validate"}
 
-	host.excludeMetricErrors = excludedErrors
+	host.params.ExcludeMetricErrors = excludedErrors
 
 	// Check if excluded error is in list
 	if !host.IsExcludedMetricError(excludedErr) {

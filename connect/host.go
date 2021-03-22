@@ -88,20 +88,14 @@ type Host struct {
 	// State tracking for host metric
 	metrics *Metric
 
-	// If set, metric handling will be enabled on this host
-	// Intended to be non-mutable
-	enableMetrics bool
-
-	// List of sending errors that are deemed unimportant
-	// Reception of these errors will not update the Metric's state
-	// Intended to be non-mutable
-	excludeMetricErrors []string
-
 	// Send lock
 	sendMux sync.RWMutex
 
 	coolOffBucket *rateLimiting.Bucket
 	inCoolOff     bool
+
+	// Stored unmutable default values
+	params HostParams
 }
 
 // Creates a new Host object
@@ -116,8 +110,7 @@ func NewHost(id *id.ID, address string, cert []byte, params HostParams) (host *H
 		receptionToken:      token.NewLive(),
 		maxRetries:          params.MaxRetries,
 		metrics:             newMetric(),
-		excludeMetricErrors: params.ExcludeMetricErrors,
-		enableMetrics:       params.EnableMetrics,
+		params: params,
 	}
 
 	if params.EnableCoolOff {
@@ -213,7 +206,7 @@ func (h *Host) GetMetrics() *Metric {
 // of excludeMetricErrors.  Returns true if it's an excluded error,
 // false if it is not
 func (h *Host) IsExcludedMetricError(err string) bool {
-	for _, excludedErr := range h.excludeMetricErrors {
+	for _, excludedErr := range h.params.ExcludeMetricErrors {
 		if strings.Contains(excludedErr, err) {
 			return true
 		}
@@ -277,7 +270,7 @@ func (h *Host) transmit(f func(conn *grpc.ClientConn) (interface{},
 
 	a, err := f(h.connection)
 
-	if h.enableMetrics && err != nil {
+	if h.params.EnableMetrics && err != nil {
 		// Checks if the received error is a among excluded errors
 		// If it is not an excluded error, update host's metrics
 		if !h.IsExcludedMetricError(err.Error()) {
