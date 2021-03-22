@@ -14,7 +14,7 @@ import (
 
 // Smoke test for constructor
 func TestNewMetric(t *testing.T) {
-	metric := NewMetric()
+	metric := newMetric()
 
 	expectedErrCnt := uint64(0)
 	expectedMetric := &Metric{
@@ -30,7 +30,7 @@ func TestNewMetric(t *testing.T) {
 
 // Unit test of deepCopy
 func TestMetric_deepCopy(t *testing.T) {
-	metric := NewMetric()
+	metric := newMetric()
 
 	metricCopy := metric.deepCopy()
 
@@ -41,42 +41,42 @@ func TestMetric_deepCopy(t *testing.T) {
 	}
 }
 
-// Unit test for IncrementErrors
+// Unit test for incrementErrors
 func TestMetric_IncrementErrors(t *testing.T) {
 	expectedCount := 25
-	metric := NewMetric()
+	metric := newMetric()
 
 	for i := 0; i < expectedCount; i++ {
-		metric.IncrementErrors()
+		metric.incrementErrors()
 	}
 
 	if *metric.errorCounter != uint64(expectedCount) {
-		t.Errorf("IncrementErrors did not "+
+		t.Errorf("incrementErrors did not "+
 			"result in expected error count."+
 			"\n\tExpected: %v"+
 			"\n\tReceived: %v", expectedCount, *metric.errorCounter)
 	}
 }
 
-// Unit test for Get()
+// Unit test for get()
 func TestMetric_Get(t *testing.T) {
 	expectedCount := 25
-	metric := NewMetric()
+	metric := newMetric()
 
 	for i := 0; i < expectedCount; i++ {
-		metric.IncrementErrors()
+		metric.incrementErrors()
 	}
 
 	// Check that the metricCopy has the expected error count
-	metricCopy := metric.Get()
+	metricCopy := metric.get()
 	if *metricCopy.errorCounter != uint64(expectedCount) {
-		t.Errorf("Get() did not pull expected state."+
+		t.Errorf("get() did not pull expected state."+
 			"\n\tExpected: %v"+
 			"\n\tReceived: %v", expectedCount, *metricCopy.errorCounter)
 	}
 
 	// Check that the original metric's state has been reset
 	if *metric.errorCounter != uint64(0) {
-		t.Errorf("Get call should reset state for metric")
+		t.Errorf("get call should reset state for metric")
 	}
 }

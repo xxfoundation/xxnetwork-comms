@@ -198,7 +198,7 @@ func TestHost_GetMetrics(t *testing.T) {
 
 	expectedCount := 25
 	for i := 0; i < expectedCount; i++ {
-		host.metrics.IncrementErrors()
+		host.metrics.incrementErrors()
 	}
 
 	// Check that the metricCopy has the expected error count
@@ -211,7 +211,7 @@ func TestHost_GetMetrics(t *testing.T) {
 
 	// Check that the original metric's state has been reset
 	if *host.metrics.errorCounter != uint64(0) {
-		t.Errorf("Get call should reset state for metric")
+		t.Errorf("get call should reset state for metric")
 	}
 
 }

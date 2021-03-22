@@ -116,9 +116,9 @@ func NewHost(id *id.ID, address string, cert []byte, params HostParams) (host *H
 		transmissionToken:   token.NewLive(),
 		receptionToken:      token.NewLive(),
 		maxRetries:          params.MaxRetries,
-		enableMetrics:       false,
-		excludeMetricErrors: make([]string, 0),
-		metrics:             NewMetric(),
+		metrics:             newMetric(),
+		excludeMetricErrors: params.ExcludeMetricErrors,
+		enableMetrics:       params.EnableMetrics,
 	}
 
 	if params.EnableCoolOff {
@@ -207,7 +207,7 @@ func (h *Host) UpdateAddress(address string) {
 // GetMetrics returns a deep copy of Host's Metric
 // This resets the state of metrics
 func (h *Host) GetMetrics() *Metric {
-	return h.metrics.Get()
+	return h.metrics.get()
 }
 
 // IsExcludedMetricError determines if err is within the list
@@ -279,6 +279,14 @@ func (h *Host) transmit(f func(conn *grpc.ClientConn) (interface{},
 	}
 
 	a, err := f(h.connection)
+
+	if h.enableMetrics && err != nil {
+		// Checks if the received error is a among excluded errors
+		// If it is not an excluded error, update host's metrics
+		if !h.IsExcludedMetricError(err.Error()) {
+			h.metrics.incrementErrors()
+		}
+	}
 
 	return a, err
 }
