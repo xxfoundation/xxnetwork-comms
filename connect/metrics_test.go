@@ -70,8 +70,7 @@ func TestMetric_Get(t *testing.T) {
 	// Check that the metricCopy has the expected error count
 	metricCopy := metric.Get()
 	if *metricCopy.errorCounter != uint64(expectedCount) {
-		t.Errorf("Get() did not "+
-			"result in expected error count."+
+		t.Errorf("Get() did not pull expected state."+
 			"\n\tExpected: %v"+
 			"\n\tReceived: %v", expectedCount, *metricCopy.errorCounter)
 	}

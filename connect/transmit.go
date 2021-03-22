@@ -56,7 +56,7 @@ func (c *ProtoComms) transmit(host *Host, f func(conn *grpc.ClientConn) (interfa
 
 	// Checks if the received error is a among excluded errors
 	// If it is not an excluded error, update host's metrics
-	if !host.IsExcludedError(err) {
+	if !host.IsExcludedError(err.Error()) {
 		host.metrics.IncrementErrors()
 	}
 

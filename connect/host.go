@@ -205,6 +205,7 @@ func (h *Host) UpdateAddress(address string) {
 }
 
 // GetMetrics returns a deep copy of Host's Metric
+// This resets the state of metrics
 func (h *Host) GetMetrics() *Metric {
 	return h.metrics.Get()
 }
@@ -212,11 +213,11 @@ func (h *Host) GetMetrics() *Metric {
 // IsExcludedError determines if err is within the list
 // of excludeMetricErrors.  Returns true if it's an excluded error,
 // false if it is not
-func (h *Host) IsExcludedError(err error) bool {
+func (h *Host) IsExcludedError(err string) bool {
 	h.excludedMetricMux.RLock()
 	defer h.excludedMetricMux.RUnlock()
 	for _, excludedErr := range h.excludeMetricErrors {
-		if strings.Contains(excludedErr, err.Error()) {
+		if strings.Contains(excludedErr, err) {
 			return true
 		}
 	}
