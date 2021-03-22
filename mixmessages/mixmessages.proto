@@ -220,13 +220,13 @@ message HistoricalRoundsResponse{
 message GetMessages{
     bytes ClientID = 1;
     uint64 RoundID = 2;
+    bytes Target = 3;
 }
 
 // Gateway response to a GetMessages request
 message GetMessagesResponse{
     repeated Slot Messages = 1;
     bool HasRound = 2;
-    bytes Target = 3;
 }
 
 // Gateway -> Gateway message sharing within a team
@@ -301,13 +301,13 @@ message GatewaySlot{
     Slot Message = 1;
     uint64 RoundID = 2;
     bytes MAC = 3;
+    bytes Target = 4;
 }
 
 // Gateway -> Client authentication response
 message GatewaySlotResponse{
     bool accepted = 1;
     uint64 RoundID = 2;
-    bytes Target = 3;
 }
 
 // Gateway -> Gateway gossip of all Sender IDs in a Batch
@@ -414,6 +414,7 @@ message NonceRequest {
     messages.RSASignature ClientSignedByServer = 3;
     bytes ClientDHPubKey = 4;
     messages.RSASignature RequestSignature = 5;
+    bytes Target = 6;
 }
 
 // Nonce message to reply to client from server (going through gateway)
@@ -421,7 +422,6 @@ message Nonce {
     bytes Nonce = 1;
     bytes DHPubKey = 2;
     string Error = 3;
-    bytes Target = 4;
 }
 
 // RequestRegistrationConfirmation returning proof of registration
@@ -429,6 +429,7 @@ message RequestRegistrationConfirmation {
     bytes userID = 1;
     messages.RSASignature NonceSignedByClient = 2;
     string Error = 3;
+    bytes Target = 4;
 }
 
 // RegistrationConfirmation returning proof of registration
@@ -436,7 +437,6 @@ message RegistrationConfirmation {
     messages.RSASignature ClientSignedByServer = 1;
     bytes ClientGatewayKey = 2;
     string Error = 3;
-    bytes Target = 4;
 }
 
 // Unified Server->Permissioning polling message
