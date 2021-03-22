@@ -97,9 +97,6 @@ type Host struct {
 	// Intended to be non-mutable
 	excludeMetricErrors []string
 
-	// Lock for modifying excludeMetricErrors
-	excludedMetricMux sync.RWMutex
-
 	// Send lock
 	sendMux sync.RWMutex
 
@@ -216,8 +213,6 @@ func (h *Host) GetMetrics() *Metric {
 // of excludeMetricErrors.  Returns true if it's an excluded error,
 // false if it is not
 func (h *Host) IsExcludedMetricError(err string) bool {
-	h.excludedMetricMux.RLock()
-	defer h.excludedMetricMux.RUnlock()
 	for _, excludedErr := range h.excludeMetricErrors {
 		if strings.Contains(excludedErr, err) {
 			return true
