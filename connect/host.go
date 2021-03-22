@@ -89,10 +89,12 @@ type Host struct {
 	metrics *Metric
 
 	// If set, metric handling will be enabled on this host
+	// Intended to be non-mutable
 	enableMetrics bool
 
 	// List of sending errors that are deemed unimportant
 	// Reception of these errors will not update the Metric's state
+	// Intended to be non-mutable
 	excludeMetricErrors []string
 
 	// Lock for modifying excludeMetricErrors
