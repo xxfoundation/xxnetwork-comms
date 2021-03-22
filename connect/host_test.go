@@ -149,7 +149,7 @@ func TestHost_IsOnline(t *testing.T) {
 	}
 }
 
-// Full test of IsExcludedMetricError
+// Full test of isExcludedMetricError
 func TestHost_IsExcludedError(t *testing.T) {
 	addr := "0.0.0.0:10234"
 
@@ -171,14 +171,14 @@ func TestHost_IsExcludedError(t *testing.T) {
 	host.params.ExcludeMetricErrors = excludedErrors
 
 	// Check if excluded error is in list
-	if !host.IsExcludedMetricError(excludedErr) {
+	if !host.isExcludedMetricError(excludedErr) {
 		t.Errorf("Excluded error expected to be in excluded error list."+
 			"\n\tExcluded error: %s"+
 			"\n\tError list: %v", excludedErr, excludedErrors)
 	}
 
 	// Check if non-excluded error is not in the list
-	if host.IsExcludedMetricError(nonExcludedErr) {
+	if host.isExcludedMetricError(nonExcludedErr) {
 		t.Errorf("Non-excluded error found to be in excluded error list")
 	}
 }

@@ -192,10 +192,10 @@ func (h *Host) GetMetrics() *Metric {
 	return h.metrics.get()
 }
 
-// IsExcludedMetricError determines if err is within the list
+// isExcludedMetricError determines if err is within the list
 // of excludeMetricErrors.  Returns true if it's an excluded error,
 // false if it is not
-func (h *Host) IsExcludedMetricError(err string) bool {
+func (h *Host) isExcludedMetricError(err string) bool {
 	for _, excludedErr := range h.params.ExcludeMetricErrors {
 		if strings.Contains(excludedErr, err) {
 			return true
@@ -263,7 +263,7 @@ func (h *Host) transmit(f func(conn *grpc.ClientConn) (interface{},
 	if h.params.EnableMetrics && err != nil {
 		// Checks if the received error is a among excluded errors
 		// If it is not an excluded error, update host's metrics
-		if !h.IsExcludedMetricError(err.Error()) {
+		if !h.isExcludedMetricError(err.Error()) {
 			h.metrics.incrementErrors()
 		}
 	}
