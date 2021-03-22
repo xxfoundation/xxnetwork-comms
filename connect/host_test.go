@@ -34,7 +34,6 @@ func TestHost_GetCertificate(t *testing.T) {
 
 	host := Host{
 		certificate:  testCert,
-		maxRetries:   0,
 		connection:   nil,
 		credentials:  nil,
 		rsaPublicKey: nil,

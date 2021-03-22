@@ -63,9 +63,6 @@ type Host struct {
 	// Live used for sending to this host
 	transmissionToken *token.Live
 
-	// Configure the maximum number of connection attempts
-	maxRetries uint32
-
 	// GRPC connection object
 	connection      *grpc.ClientConn
 	connectionCount uint64
@@ -75,9 +72,6 @@ type Host struct {
 
 	// RSA Public Key corresponding to the TLS Certificate
 	rsaPublicKey *rsa.PublicKey
-
-	// If set, reverse authentication will be established with this Host
-	enableAuth bool
 
 	// Indicates whether dynamic authentication was used for this Host
 	// This is useful for determining whether a Host's key was hardcoded
@@ -92,7 +86,7 @@ type Host struct {
 	coolOffBucket *rateLimiting.Bucket
 	inCoolOff     bool
 
-	// Stored unmutable default values
+	// Stored default values (should be non-mutated)
 	params HostParams
 }
 
@@ -103,10 +97,8 @@ func NewHost(id *id.ID, address string, cert []byte, params HostParams) (host *H
 	host = &Host{
 		id:                id,
 		certificate:       cert,
-		enableAuth:        params.AuthEnabled,
 		transmissionToken: token.NewLive(),
 		receptionToken:    token.NewLive(),
-		maxRetries:        params.MaxRetries,
 		metrics:           newMetric(),
 		params:            params,
 	}
@@ -117,8 +109,8 @@ func NewHost(id *id.ID, address string, cert []byte, params HostParams) (host *H
 			params.CoolOffTimeout, nil)
 	}
 
-	if host.maxRetries == 0 {
-		host.maxRetries = math.MaxUint32
+	if host.params.MaxRetries == 0 {
+		host.params.MaxRetries = math.MaxUint32
 	}
 
 	host.UpdateAddress(address)
@@ -296,7 +288,7 @@ func (h *Host) connect() error {
 // the remote.  This is used exclusively under the lock in protocoms.transmit so
 // no lock is needed
 func (h *Host) authenticationRequired() bool {
-	return h.enableAuth && !h.transmissionToken.Has()
+	return h.params.AuthEnabled && !h.transmissionToken.Has()
 }
 
 // isAlive returns true if the connection is non-nil and alive
@@ -348,11 +340,11 @@ func (h *Host) connectHelper() (err error) {
 	// Attempt to establish a new connection
 	var numRetries uint32
 	//todo-remove this retry block when grpc is updated
-	for numRetries = 0; numRetries < h.maxRetries && !h.isAlive(); numRetries++ {
+	for numRetries = 0; numRetries < h.params.MaxRetries && !h.isAlive(); numRetries++ {
 		h.disconnect()
 
 		jww.DEBUG.Printf("Connecting to %+v Attempt number %+v of %+v",
-			h.GetAddress(), numRetries, h.maxRetries)
+			h.GetAddress(), numRetries, h.params.MaxRetries)
 
 		// If timeout is enabled, the max wait time becomes
 		// ~14 seconds (with maxRetries=100)
