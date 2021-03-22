@@ -321,7 +321,7 @@ func (h *Host) connectHelper() (err error) {
 
 		// If timeout is enabled, the max wait time becomes
 		// ~14 seconds (with maxRetries=100)
-		backoffTime := 500 * (numRetries/16 + 1)
+		backoffTime := 2000 * (numRetries/16 + 1)
 		if backoffTime > 15000 {
 			backoffTime = 15000
 		}
