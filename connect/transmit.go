@@ -1,3 +1,10 @@
+///////////////////////////////////////////////////////////////////////////////
+// Copyright © 2020 xx network SEZC                                          //
+//                                                                           //
+// Use of this source code is governed by a license that can be found in the //
+// LICENSE file                                                              //
+///////////////////////////////////////////////////////////////////////////////
+
 package connect
 
 import (
@@ -45,6 +52,12 @@ func (c *ProtoComms) transmit(host *Host, f func(conn *grpc.ClientConn) (interfa
 		host.conditionalDisconnect(connectionCount)
 		jww.WARN.Printf("Failed to send to Host on attempt %v/%v: %+v",
 			numRetries+1, MaxRetries, err)
+	}
+
+	// Checks if the received error is a among excluded errors
+	// If it is not an excluded error, update host's metrics
+	if !host.IsExcludedError(err) {
+		host.metrics.IncrementErrors()
 	}
 
 	return nil, err
