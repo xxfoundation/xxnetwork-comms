@@ -9,6 +9,7 @@ package dataStructures
 
 import (
 	"container/list"
+	"fmt"
 	"github.com/golang-collections/collections/set"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/testutils"
@@ -31,7 +32,7 @@ func TestNewWaitingRounds(t *testing.T) {
 
 	if !reflect.DeepEqual(expectedWR, testWR) {
 		t.Errorf("NewWaitingRounds() did not return the expected object."+
-			"\n\texpected: %#v\n\trecieved: %#v", expectedWR, testWR)
+			"\nexpected: %#v\nrecieved: %#v", expectedWR, testWR)
 	}
 }
 
@@ -43,7 +44,7 @@ func TestWaitingRounds_Len(t *testing.T) {
 
 	if expectedLen != testWR.Len() {
 		t.Errorf("Len() did not return the expected length."+
-			"\n\texpected: %d\n\trecieved: %d", expectedLen, testWR.Len())
+			"\nexpected: %d\nrecieved: %d", expectedLen, testWR.Len())
 	}
 }
 
@@ -60,14 +61,14 @@ func TestWaitingRounds_Insert(t *testing.T) {
 
 	if len(expectedRounds) != testWR.Len() {
 		t.Fatalf("List does not have the expected length."+
-			"\n\texpected: %v\n\trecieved: %v", len(expectedRounds), testWR.Len())
+			"\nexpected: %v\nrecieved: %v", len(expectedRounds), testWR.Len())
 	}
 
 	// Check if they are in the correct order
 	for e, i := testWR.rounds.Front(), 0; e != nil; e, i = e.Next(), i+1 {
 		if expectedRounds[i].info != e.Value.(*Round).info {
 			t.Errorf("Insert() did not inser the correct element at position %d."+
-				"\n\texpected: %v\n\trecieved: %v", i, expectedRounds[i], e.Value)
+				"\nexpected: %v\nrecieved: %v", i, expectedRounds[i], e.Value)
 		}
 	}
 }
@@ -105,14 +106,15 @@ func TestWaitingRounds_getFurthest(t *testing.T) {
 	}
 
 	for i := len(expectedRounds) - 1; i >= 0; i-- {
-		if !reflect.DeepEqual(expectedRounds[i], testWR.getFurthest(nil)) {
+		if !reflect.DeepEqual(expectedRounds[i], testWR.getFurthest(nil, 0)) {
 			t.Errorf("getFurthest() did not return the expected round."+
-				"\n\texpected: %v\n\trecieved: %v", expectedRounds[i], testWR.getFurthest(nil))
+				"\nexpected: %+v\nrecieved: %+v",
+				expectedRounds[i].info, testWR.getFurthest(nil, 0).info)
 		}
 		testWR.remove(expectedRounds[i])
 	}
 
-	if testWR.getFurthest(nil) != nil {
+	if testWR.getFurthest(nil, 0) != nil {
 		t.Errorf("getFurthest() did not return nil on empty list.")
 	}
 }
@@ -138,15 +140,15 @@ func TestWaitingRounds_getFurthest_Exclude(t *testing.T) {
 
 	for i := len(expectedRounds) - 1; i >= 0; i-- {
 		if i%2 == 1 {
-			received := testWR.getFurthest(exclude)
+			received := testWR.getFurthest(exclude, 0)
 			if !reflect.DeepEqual(expectedRounds[i], received) {
 				t.Errorf("getFurthest() did not return the expected round."+
-					"\n\texpected: %v\n\trecieved: %v", expectedRounds[i], received)
+					"\nexpected: %v\nrecieved: %v", expectedRounds[i], received)
 			}
 			testWR.remove(expectedRounds[i])
 		}
 	}
-	if testWR.getFurthest(exclude) != nil {
+	if testWR.getFurthest(exclude, 0) != nil {
 		t.Errorf("getFurthest() did not return nil on empty list.")
 	}
 }
@@ -158,20 +160,23 @@ func TestWaitingRounds_GetUpcomingRealtime_NoWait(t *testing.T) {
 	expectedRounds, testRounds := createTestRoundInfos(25, t)
 	testWR := NewWaitingRounds()
 
-	for _, round := range testRounds {
-		testutils.SignRoundInfo(round.info, t)
+	for i, round := range testRounds {
+		err := testutils.SignRoundInfo(round.info, t)
+		if err != nil {
+			t.Errorf("Failed to sign round info #%d: %+v", i, err)
+		}
 		testWR.Insert(round)
 	}
 
 	for i := len(expectedRounds) - 1; i >= 0; i-- {
-		furthestRound, err := testWR.GetUpcomingRealtime(300*time.Millisecond, set.New())
+		furthestRound, err := testWR.GetUpcomingRealtime(300*time.Millisecond, set.New(), 0)
 		if err != nil {
 			t.Errorf("GetUpcomingRealtime() returned an unexpected error."+
 				"\n\terror: %v", err)
 		}
 		if expectedRounds[i].info != furthestRound {
 			t.Errorf("GetUpcomingRealtime() did not return the expected round (%d)."+
-				"\n\texpected: %v\n\trecieved: %v", i, expectedRounds[i], furthestRound)
+				"\nexpected: %v\nrecieved: %v", i, expectedRounds[i], furthestRound)
 		}
 		testWR.remove(expectedRounds[i])
 	}
@@ -182,14 +187,14 @@ func TestWaitingRounds_GetUpcomingRealtime_NoWait(t *testing.T) {
 func TestWaitingRounds_GetUpcomingRealtime_TimeoutError(t *testing.T) {
 	testWR := NewWaitingRounds()
 
-	furthestRound, err := testWR.GetUpcomingRealtime(300*time.Millisecond, set.New())
+	furthestRound, err := testWR.GetUpcomingRealtime(300*time.Millisecond, set.New(), 0)
 	if err != timeOutError {
 		t.Errorf("GetUpcomingRealtime() did not time out when expected."+
-			"\n\texpected: %v\n\treceived: %v", timeOutError, err)
+			"\nexpected: %v\n\treceived: %v", timeOutError, err)
 	}
 	if furthestRound != nil {
 		t.Errorf("GetUpcomingRealtime() did not return nil on empty list."+
-			"\n\texpected: %v\n\trecieved: %v", nil, furthestRound)
+			"\nexpected: %v\nrecieved: %v", nil, furthestRound)
 	}
 }
 
@@ -202,11 +207,14 @@ func TestWaitingRounds_GetUpcomingRealtime(t *testing.T) {
 	for i, round := range expectedRounds {
 		go func(round *Round) {
 			time.Sleep(30 * time.Millisecond)
-			testutils.SignRoundInfo(round.info, t)
+			err := testutils.SignRoundInfo(round.info, t)
+			if err != nil {
+				t.Errorf("Failed to sign round info #%d: %+v", i, err)
+			}
 			testWR.Insert(round)
 		}(round)
 
-		furthestRound, err := testWR.GetUpcomingRealtime(5*time.Second, set.New())
+		furthestRound, err := testWR.GetUpcomingRealtime(5*time.Second, set.New(), 0)
 
 		if err != nil {
 			t.Errorf("GetUpcomingRealtime() returned an unexpected error (%d)."+
@@ -214,7 +222,7 @@ func TestWaitingRounds_GetUpcomingRealtime(t *testing.T) {
 		}
 		if round.info != furthestRound {
 			t.Errorf("GetUpcomingRealtime() did not return the expected round (%d)."+
-				"\n\texpected: %v\n\trecieved: %v", i, round, furthestRound)
+				"\nexpected: %v\nrecieved: %v", i, round, furthestRound)
 		}
 		testWR.remove(round)
 	}
@@ -232,7 +240,10 @@ func TestWaitingRounds_GetSlice(t *testing.T) {
 		Timestamps: []uint64{0, 0, 0, 0, 0},
 	}
 
-	testutils.SignRoundInfo(ri, t)
+	err := testutils.SignRoundInfo(ri, t)
+	if err != nil {
+		t.Errorf("Failed to sign round info: %+v", err)
+	}
 
 	pubKey, err := testutils.LoadPublicKeyTesting(t)
 	if err != nil {
@@ -266,8 +277,8 @@ func TestWaitingRounds_GetSlice(t *testing.T) {
 func createTestRoundInfos(num int, t *testing.T) ([]*Round, []*Round) {
 	rounds := make([]*Round, num)
 	var expectedRounds []*Round
+	startTime := time.Now().Add(5 * time.Second)
 	randomRounds := make([]*Round, num)
-	timeTrack := uint64(time.Now().Nanosecond()) + 100000000
 	pubKey, err := testutils.LoadPublicKeyTesting(t)
 	if err != nil {
 		t.Errorf("Failed to load public key: %v", err)
@@ -280,13 +291,14 @@ func createTestRoundInfos(num int, t *testing.T) ([]*Round, []*Round) {
 			State:      uint32(rand.Int63n(int64(states.NUM_STATES) - 1)),
 			Timestamps: make([]uint64, current.NUM_STATES),
 		}, pubKey)
-		timeTrack += uint64(rand.Int63n(10000))
-		rounds[i].info.Timestamps[current.STANDBY] = timeTrack
+		rounds[i].info.Timestamps[states.QUEUED] = uint64(startTime.UnixNano())
+		startTime = startTime.Add(100 * time.Millisecond)
 		if i%2 == 1 {
 			rounds[i].info.State = uint32(states.QUEUED)
-		}
-		if rounds[i].info.State == uint32(states.QUEUED) {
 			expectedRounds = append(expectedRounds, rounds[i])
+			fmt.Printf("id #%d: %d\n", i, rounds[i].info.ID)
+		} else if rounds[i].info.State == uint32(states.QUEUED) {
+			rounds[i].info.State = uint32(states.REALTIME)
 		}
 	}
 	perm := rand.Perm(num)

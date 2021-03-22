@@ -104,11 +104,11 @@ func (wr *WaitingRounds) remove(newRound *Round) {
 // getFurthest returns the round that will occur furthest in the future. If the
 // list is empty, then nil is returned. If the round is on the exclusion list,
 // then the following round is checked.
-func (wr *WaitingRounds) getFurthest(exclude *set.Set, cuttoffDelta time.Duration) *Round {
+func (wr *WaitingRounds) getFurthest(exclude *set.Set, cutoffDelta time.Duration) *Round {
 	wr.mux.RLock()
 	defer wr.mux.RUnlock()
 
-	earliestStart := time.Now().Add(cuttoffDelta)
+	earliestStart := time.Now().Add(cutoffDelta)
 
 	// Return nil for an empty list
 	if wr.Len() == 0 {
