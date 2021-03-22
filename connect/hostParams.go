@@ -33,7 +33,7 @@ type HostParams struct {
 	ExcludeMetricErrors []string
 }
 
-// get default set of host params
+// Get default set of host params
 func GetDefaultHostParams() HostParams {
 	return HostParams{
 		MaxRetries:            100,
