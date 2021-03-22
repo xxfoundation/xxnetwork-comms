@@ -226,6 +226,7 @@ message GetMessages{
 message GetMessagesResponse{
     repeated Slot Messages = 1;
     bool HasRound = 2;
+    bytes Target = 3;
 }
 
 // Gateway -> Gateway message sharing within a team
@@ -306,6 +307,7 @@ message GatewaySlot{
 message GatewaySlotResponse{
     bool accepted = 1;
     uint64 RoundID = 2;
+    bytes Target = 3;
 }
 
 // Gateway -> Gateway gossip of all Sender IDs in a Batch
@@ -419,6 +421,7 @@ message Nonce {
     bytes Nonce = 1;
     bytes DHPubKey = 2;
     string Error = 3;
+    bytes Target = 4;
 }
 
 // RequestRegistrationConfirmation returning proof of registration
@@ -433,6 +436,7 @@ message RegistrationConfirmation {
     messages.RSASignature ClientSignedByServer = 1;
     bytes ClientGatewayKey = 2;
     string Error = 3;
+    bytes Target = 4;
 }
 
 // Unified Server->Permissioning polling message
