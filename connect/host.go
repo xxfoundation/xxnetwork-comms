@@ -210,10 +210,10 @@ func (h *Host) GetMetrics() *Metric {
 	return h.metrics.Get()
 }
 
-// IsExcludedError determines if err is within the list
+// IsExcludedMetricError determines if err is within the list
 // of excludeMetricErrors.  Returns true if it's an excluded error,
 // false if it is not
-func (h *Host) IsExcludedError(err string) bool {
+func (h *Host) IsExcludedMetricError(err string) bool {
 	h.excludedMetricMux.RLock()
 	defer h.excludedMetricMux.RUnlock()
 	for _, excludedErr := range h.excludeMetricErrors {
