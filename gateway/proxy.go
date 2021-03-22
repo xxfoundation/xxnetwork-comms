@@ -5,6 +5,8 @@
 // LICENSE file                                                              //
 ///////////////////////////////////////////////////////////////////////////////
 
+// Contains gateway -> gateway proxying functionality
+
 package gateway
 
 import (
