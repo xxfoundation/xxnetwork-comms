@@ -83,8 +83,6 @@ type Host struct {
 	// This is useful for determining whether a Host's key was hardcoded
 	dynamicHost bool
 
-	/* Metrics related flags */
-
 	// State tracking for host metric
 	metrics *Metric
 
