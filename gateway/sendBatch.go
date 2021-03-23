@@ -199,7 +199,4 @@ func (g *Comms) ReportGatewayPings(host *connect.Host, report *pb.GatewayPingRep
 	_, err := g.Send(host, f)
 	return err
 
-
-
-
 }
