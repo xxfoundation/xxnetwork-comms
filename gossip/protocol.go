@@ -68,7 +68,7 @@ func DefaultProtocolFlags() ProtocolFlags {
 		FanOut:                  0,
 		MaxRecordedFingerprints: 10000000,
 		MaximumReSends:          3,
-		NumParallelSends:        5,
+		NumParallelSends:        30,
 	}
 }
 
@@ -105,11 +105,11 @@ type Protocol struct {
 	sendWorkers chan sendInstructions
 }
 
-type sendInstructions struct{
-	sendFunc func(id *id.ID) error
-	peer *id.ID
+type sendInstructions struct {
+	sendFunc   func(id *id.ID) error
+	peer       *id.ID
 	errChannel chan error
-	wait *sync.WaitGroup
+	wait       *sync.WaitGroup
 }
 
 // Marks a Protocol as Defunct such that it will ignore new messages
@@ -265,13 +265,13 @@ func (p *Protocol) Gossip(msg *GossipMsg) (int, []error) {
 	//get any errors
 	done := false
 	var errs []error
-	for !done{
+	for !done {
 		//pull from the channel until errors are exhausted
-		select{
-			case newErr := <- errCh:
-				errs = append(errs, newErr)
-			default:
-				done = true
+		select {
+		case newErr := <-errCh:
+			errs = append(errs, newErr)
+		default:
+			done = true
 		}
 	}
 
