@@ -46,7 +46,7 @@ type Handler interface {
 	// Gateway -> Gateway ping which checks if the pinged gateway is open
 	// for arbitrary communication. Receiver returns it's own gateway ID
 	// to the sender
-	GatewayPing(msg *messages.AuthenticatedMessage) (*pb.PingResponse, error)
+	GatewayPing(msg *messages.Ping) (*pb.PingResponse, error)
 }
 
 // Gateway object used to implement endpoints and top-level comms functionality
@@ -119,7 +119,7 @@ type implementationFunctions struct {
 	// Gateway -> Gateway ping which checks if the pinged gateway is open
 	// for arbitrary communication. Receiver returns it's own gateway ID
 	// to the sender
-	GatewayPing func(*messages.AuthenticatedMessage) (*pb.PingResponse, error)
+	GatewayPing func(ping *messages.Ping) (*pb.PingResponse, error)
 }
 
 // Implementation allows users of the client library to set the
@@ -169,11 +169,11 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return nil
 			},
-			ReportGatewayPings: func(*messages.AuthenticatedMessage) (*messages.Ack, error) {
+			ReportGatewayPings: func(msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
 				warn(um)
 				return nil, nil
 			},
-			GatewayPing: func(*messages.AuthenticatedMessage) (*pb.PingResponse, error) {
+			GatewayPing: func(msg *messages.Ping) (*pb.PingResponse, error) {
 				warn(um)
 				return nil, nil
 			},
@@ -231,6 +231,6 @@ func (s *Implementation) ReportGatewayPings(msg *messages.AuthenticatedMessage) 
 // Gateway -> Gateway ping which checks if the pinged gateway is open
 // for arbitrary communication. Receiver returns it's own gateway ID
 // to the sender
-func (s *Implementation) GatewayPing(msg *messages.AuthenticatedMessage) (*pb.PingResponse, error) {
+func (s *Implementation) GatewayPing(msg *messages.Ping) (*pb.PingResponse, error) {
 	return s.Functions.GatewayPing(msg)
 }

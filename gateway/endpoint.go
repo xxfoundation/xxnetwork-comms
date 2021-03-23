@@ -112,7 +112,8 @@ func (g *Comms) RequestMessages(ctx context.Context, msg *pb.GetMessages) (*pb.G
 // Gateway -> Gateway ping which checks if the pinged gateway is open
 // for arbitrary communication. Receiver returns it's own gateway ID
 // to the sender
-func (g *Comms) GatewayPing(ctx context.Context, msg *messages.AuthenticatedMessage) (*pb.PingResponse, error) {
-	return g.handler.GatewayPing(msg)
-
+func (g *Comms) GatewayPing(ctx context.Context, msg *messages.Ping) (*pb.PingResponse, error) {
+	return &pb.PingResponse{
+		GatewayId: g.Id.Bytes(),
+	}, nil
 }

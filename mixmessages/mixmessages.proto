@@ -227,7 +227,7 @@ service Gateway {
     // Gateway -> Gateway ping which checks if the pinged gateway is open
     // for arbitrary communication. Receiver returns it's own gateway ID
     // to the sender
-    rpc GatewayPing(messages.AuthenticatedMessage) returns (PingResponse) {
+    rpc GatewayPing(messages.Ping) returns (PingResponse) {
     }
 
 }
