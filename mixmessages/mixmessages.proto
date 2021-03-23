@@ -92,6 +92,11 @@ service Node {
     rpc ShareFinalKey (messages.AuthenticatedMessage) returns (messages.Ack) {
     }
 
+    // Gateway -> Server comm which reports the results of the gateway pinging
+    // all other gateways in the round
+    rpc ReportGatewayPings(messages.AuthenticatedMessage) returns (messages.Ack) {}
+
+
 }
 
 // RoundInfo contains the # of precomputations ready for messages, among other
@@ -154,6 +159,22 @@ message ServerPollResponse {
     repeated RoundInfo Updates = 4; //Empty if no update needed
     RoundInfo BatchRequest = 5; //Empty if no update needed
     CompletedBatch Batch = 6; //Empty if no update needed
+    GatewayPingRequest PingRequest = 7;
+}
+
+// Information for a gateway to initiate
+// gateway <-> gateway pings on a round
+// Related to ReportGatewayPings
+message GatewayPingRequest {
+    bytes RoundId = 1;
+    repeated bytes GatewayIds = 2;
+}
+
+// Returned results of a gateway ping request
+message ReportedGatewayPings {
+    bytes RoundId = 1;
+    repeated bytes GatewayIds = 2;
+    repeated bytes FailedGateways = 3; // Empty if all successful, or filled with failed gateway IDs
 }
 
 // Used as part of Share phase for generation
@@ -202,6 +223,18 @@ service Gateway {
     // Has RoundMessages underlying type
     rpc ShareMessages(messages.AuthenticatedMessage) returns (messages.Ack) {
     }
+
+    // Gateway -> Gateway ping which checks if the pinged gateway is open
+    // for arbitrary communication. Receiver returns it's own gateway ID
+    // to the sender
+    rpc GatewayPing(messages.AuthenticatedMessage) returns (PingResponse) {
+    }
+
+}
+
+// Response of a GatewayPing, reports it's own ID back to the sender
+message PingResponse {
+    bytes GatewayId = 1;
 }
 
 // Client -> Gateway request for information about historical rounds

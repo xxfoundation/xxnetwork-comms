@@ -108,3 +108,11 @@ func (g *Comms) RequestHistoricalRounds(ctx context.Context, msg *pb.HistoricalR
 func (g *Comms) RequestMessages(ctx context.Context, msg *pb.GetMessages) (*pb.GetMessagesResponse, error) {
 	return g.handler.RequestMessages(msg)
 }
+
+// Gateway -> Gateway ping which checks if the pinged gateway is open
+// for arbitrary communication. Receiver returns it's own gateway ID
+// to the sender
+func (g *Comms) GatewayPing(ctx context.Context, msg *messages.AuthenticatedMessage) (*pb.PingResponse, error) {
+	return g.handler.GatewayPing(msg)
+
+}

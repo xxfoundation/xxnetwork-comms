@@ -126,6 +126,10 @@ type Handler interface {
 
 	// Server -> Server sending multi-party round DH key
 	ShareFinalKey(sharedPiece *mixmessages.SharePiece, auth *connect.Auth) error
+
+	// Gateway -> Server comm which reports the results of the gateway pinging
+	// all other gateways in the round
+	ReportGatewayPings(report *mixmessages.ReportedGatewayPings, auth *connect.Auth) error
 }
 
 type implementationFunctions struct {
@@ -183,6 +187,10 @@ type implementationFunctions struct {
 
 	// Server -> Server sending multi-party round DH key
 	ShareFinalKey func(sharedPiece *mixmessages.SharePiece, auth *connect.Auth) error
+
+	// Gateway -> Server comm which reports the results of the gateway pinging
+	// all other gateways in the round
+	ReportGatewayPings func(report *mixmessages.ReportedGatewayPings, auth *connect.Auth) error
 }
 
 // Implementation allows users of the client library to set the
@@ -284,6 +292,12 @@ func NewImplementation() *Implementation {
 				return nil
 			},
 			ShareFinalKey: func(sharedPiece *mixmessages.SharePiece, auth *connect.Auth) error {
+				warn(um)
+				return nil
+			},
+			// Gateway -> Server comm which reports the results of the gateway pinging
+			// all other gateways in the round
+			ReportGatewayPings: func(report *mixmessages.ReportedGatewayPings, auth *connect.Auth) error {
 				warn(um)
 				return nil
 			},
@@ -389,4 +403,8 @@ func (s *Implementation) SharePhaseRound(sharedPiece *mixmessages.SharePiece, au
 // Server -> Server sending multi-party round DH final key
 func (s *Implementation) ShareFinalKey(sharedPiece *mixmessages.SharePiece, auth *connect.Auth) error {
 	return s.Functions.ShareFinalKey(sharedPiece, auth)
+}
+
+func (s *Implementation) ReportGatewayPings(report *mixmessages.ReportedGatewayPings, auth *connect.Auth) error {
+	return s.Functions.ReportGatewayPings(report, auth)
 }

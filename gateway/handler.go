@@ -40,6 +40,13 @@ type Handler interface {
 	RequestMessages(msg *pb.GetMessages) (*pb.GetMessagesResponse, error)
 	// Gateway -> Gateway message sharing within a team
 	ShareMessages(msg *pb.RoundMessages, auth *connect.Auth) error
+	// Gateway -> Server comm which reports the results of the gateway pinging
+	// all other gateways in the round
+	ReportGatewayPings(msg *messages.AuthenticatedMessage) (*messages.Ack, error)
+	// Gateway -> Gateway ping which checks if the pinged gateway is open
+	// for arbitrary communication. Receiver returns it's own gateway ID
+	// to the sender
+	GatewayPing(msg *messages.AuthenticatedMessage) (*pb.PingResponse, error)
 }
 
 // Gateway object used to implement endpoints and top-level comms functionality
@@ -105,6 +112,14 @@ type implementationFunctions struct {
 	RequestMessages func(msg *pb.GetMessages) (*pb.GetMessagesResponse, error)
 	// Gateway -> Gateway message sharing within a team
 	ShareMessages func(msg *pb.RoundMessages, auth *connect.Auth) error
+	// Gateway -> Server comm which reports the results of the gateway pinging
+	// all other gateways in the round
+	ReportGatewayPings func(*messages.AuthenticatedMessage) (*messages.Ack, error)
+
+	// Gateway -> Gateway ping which checks if the pinged gateway is open
+	// for arbitrary communication. Receiver returns it's own gateway ID
+	// to the sender
+	GatewayPing func(*messages.AuthenticatedMessage) (*pb.PingResponse, error)
 }
 
 // Implementation allows users of the client library to set the
@@ -154,6 +169,14 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return nil
 			},
+			ReportGatewayPings: func(*messages.AuthenticatedMessage) (*messages.Ack, error) {
+				warn(um)
+				return nil, nil
+			},
+			GatewayPing: func(*messages.AuthenticatedMessage) (*pb.PingResponse, error) {
+				warn(um)
+				return nil, nil
+			},
 		},
 	}
 }
@@ -197,4 +220,17 @@ func (s *Implementation) RequestMessages(msg *pb.GetMessages) (*pb.GetMessagesRe
 // Gateway -> Gateway message sharing within a team
 func (s *Implementation) ShareMessages(msg *pb.RoundMessages, auth *connect.Auth) error {
 	return s.Functions.ShareMessages(msg, auth)
+}
+
+// Gateway -> Server comm which reports the results of the gateway pinging
+// all other gateways in the round
+func (s *Implementation) ReportGatewayPings(msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
+	return s.Functions.ReportGatewayPings(msg)
+}
+
+// Gateway -> Gateway ping which checks if the pinged gateway is open
+// for arbitrary communication. Receiver returns it's own gateway ID
+// to the sender
+func (s *Implementation) GatewayPing(msg *messages.AuthenticatedMessage) (*pb.PingResponse, error) {
+	return s.Functions.GatewayPing(msg)
 }

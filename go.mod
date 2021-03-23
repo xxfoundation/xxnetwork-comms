@@ -4,8 +4,7 @@ go 1.13
 
 require (
 	github.com/golang-collections/collections v0.0.0-20130729185459-604e922904d3
-	github.com/golang/protobuf v1.4.3
-	github.com/google/go-cmp v0.5.2 // indirect
+	github.com/golang/protobuf v1.5.1
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/jwalterweatherman v1.1.0
 	gitlab.com/elixxir/crypto v0.0.7-0.20210319231554-b73b6e62ddbc
@@ -19,7 +18,7 @@ require (
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/genproto v0.0.0-20201030142918-24207fddd1c3 // indirect
 	google.golang.org/grpc v1.33.1
-	google.golang.org/protobuf v1.25.0
+	google.golang.org/protobuf v1.26.0
 )
 
 replace google.golang.org/grpc => github.com/grpc/grpc-go v1.27.1

@@ -366,3 +366,22 @@ func (s *Comms) ShareFinalKey(ctx context.Context, msg *messages.AuthenticatedMe
 	err = s.handler.ShareFinalKey(sharePiece, authState)
 	return &messages.Ack{}, err
 }
+
+// Gateway -> Server comm which reports the results of the gateway pinging
+// all other gateways in the round
+func (s *Comms) ReportGatewayPings(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
+	// Verify the message authentication
+	authState, err := s.AuthenticatedReceiver(msg)
+	if err != nil {
+		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
+	}
+
+	//Marshall the any message to the message type needed
+	reportedPings := &pb.ReportedGatewayPings{}
+	err = ptypes.UnmarshalAny(msg.Message, reportedPings)
+	if err != nil {
+		return nil, err
+	}
+
+	return nil, s.handler.ReportGatewayPings(reportedPings, authState)
+}
