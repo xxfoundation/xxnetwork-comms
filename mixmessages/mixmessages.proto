@@ -171,10 +171,9 @@ message GatewayPingRequest {
 }
 
 // Returned results of a gateway ping request
-message ReportedGatewayPings {
+message GatewayPingReport {
     uint64 RoundId = 1;
-    repeated bytes GatewayIds = 2;
-    repeated bytes FailedGateways = 3; // Empty if all successful, or filled with failed gateway IDs
+    repeated bytes FailedGateways = 2; // Empty if all successful, or filled with failed gateway IDs
 }
 
 // Used as part of Share phase for generation

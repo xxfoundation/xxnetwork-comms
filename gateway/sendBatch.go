@@ -174,14 +174,14 @@ func (g *Comms) SendGatewayPing(host *connect.Host, ping *messages.Ping) (*pb.Pi
 
 // Gateway -> Server comm which reports the results of the gateway pinging
 // all other gateways in the round
-func (g *Comms) ReportGatewayPings(host *connect.Host) (*messages.Ack, error) {
+func (g *Comms) ReportGatewayPings(host *connect.Host, report *pb.GatewayPingReport) (*messages.Ack, error) {
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
 		//Pack message into an authenticated message
-		authMsg, err := g.PackAuthenticatedMessage(&messages.Ping{}, host, false)
+		authMsg, err := g.PackAuthenticatedMessage(report, host, false)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}

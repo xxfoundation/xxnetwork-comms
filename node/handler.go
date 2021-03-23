@@ -129,7 +129,7 @@ type Handler interface {
 
 	// Gateway -> Server comm which reports the results of the gateway pinging
 	// all other gateways in the round
-	ReportGatewayPings(report *mixmessages.ReportedGatewayPings, auth *connect.Auth) error
+	ReportGatewayPings(report *mixmessages.GatewayPingReport, auth *connect.Auth) error
 }
 
 type implementationFunctions struct {
@@ -190,7 +190,7 @@ type implementationFunctions struct {
 
 	// Gateway -> Server comm which reports the results of the gateway pinging
 	// all other gateways in the round
-	ReportGatewayPings func(report *mixmessages.ReportedGatewayPings, auth *connect.Auth) error
+	ReportGatewayPings func(report *mixmessages.GatewayPingReport, auth *connect.Auth) error
 }
 
 // Implementation allows users of the client library to set the
@@ -297,7 +297,7 @@ func NewImplementation() *Implementation {
 			},
 			// Gateway -> Server comm which reports the results of the gateway pinging
 			// all other gateways in the round
-			ReportGatewayPings: func(report *mixmessages.ReportedGatewayPings, auth *connect.Auth) error {
+			ReportGatewayPings: func(report *mixmessages.GatewayPingReport, auth *connect.Auth) error {
 				warn(um)
 				return nil
 			},
@@ -405,6 +405,6 @@ func (s *Implementation) ShareFinalKey(sharedPiece *mixmessages.SharePiece, auth
 	return s.Functions.ShareFinalKey(sharedPiece, auth)
 }
 
-func (s *Implementation) ReportGatewayPings(report *mixmessages.ReportedGatewayPings, auth *connect.Auth) error {
+func (s *Implementation) ReportGatewayPings(report *mixmessages.GatewayPingReport, auth *connect.Auth) error {
 	return s.Functions.ReportGatewayPings(report, auth)
 }
