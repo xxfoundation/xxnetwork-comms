@@ -113,7 +113,5 @@ func (g *Comms) RequestMessages(ctx context.Context, msg *pb.GetMessages) (*pb.G
 // for arbitrary communication. Receiver returns it's own gateway ID
 // to the sender
 func (g *Comms) GatewayPing(ctx context.Context, msg *messages.Ping) (*pb.PingResponse, error) {
-	return &pb.PingResponse{
-		GatewayId: g.Id.Bytes(),
-	}, nil
+	return g.handler.GatewayPing(msg)
 }
