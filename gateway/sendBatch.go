@@ -153,11 +153,11 @@ func (g *Comms) SendGatewayPing(host *connect.Host, ping *messages.Ping) (*pb.Pi
 		defer cancel()
 
 		// Send the message
-		_, err := pb.NewGatewayClient(conn).GatewayPing(ctx, ping)
+		resultMsg, err := pb.NewGatewayClient(conn).GatewayPing(ctx, ping)
 		if err != nil {
 			err = errors.New(err.Error())
 		}
-		return nil, err
+		return ptypes.MarshalAny(resultMsg)
 	}
 
 	// Execute the Send function
@@ -174,7 +174,7 @@ func (g *Comms) SendGatewayPing(host *connect.Host, ping *messages.Ping) (*pb.Pi
 
 // Gateway -> Server comm which reports the results of the gateway pinging
 // all other gateways in the round
-func (g *Comms) ReportGatewayPings(host *connect.Host, report *pb.GatewayPingReport) (*messages.Ack, error) {
+func (g *Comms) ReportGatewayPings(host *connect.Host, report *pb.GatewayPingReport) error {
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
@@ -187,22 +187,19 @@ func (g *Comms) ReportGatewayPings(host *connect.Host, report *pb.GatewayPingRep
 		}
 
 		// Send the message
-		resultMsg, err := pb.NewNodeClient(conn).ReportGatewayPings(ctx,
+		_, err = pb.NewNodeClient(conn).ReportGatewayPings(ctx,
 			authMsg)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
-		return ptypes.MarshalAny(resultMsg)
-	}
-
-	// Execute the Send function
-	resultMsg, err := g.Send(host, f)
-	if err != nil {
 		return nil, err
 	}
 
-	// Marshall the result
-	result := &messages.Ack{}
-	return result, ptypes.UnmarshalAny(resultMsg, result)
+	// Execute the Send function
+	_, err := g.Send(host, f)
+	return err
+
+
+
 
 }

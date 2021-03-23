@@ -12,6 +12,7 @@ import (
 	"gitlab.com/elixxir/comms/node"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/gossip"
+	"gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/primitives/id"
 	"testing"
 )
@@ -129,5 +130,58 @@ func TestComms_SendShareMessages(t *testing.T) {
 	err = gateway.SendShareMessages(host, &pb.RoundMessages{})
 	if err != nil {
 		t.Errorf("ShareMessages: Error received: %s", err)
+	}
+}
+
+// Smoke test SendGatewayPing
+func TestComms_SendGatewayPing(t *testing.T) {
+	GatewayAddress := getNextGatewayAddress()
+	GatewayAddress2 := getNextGatewayAddress()
+	testID := id.NewIdFromString("test", id.Gateway, t)
+	testID2 := id.NewIdFromString("test2", id.Gateway, t)
+	gateway := StartGateway(testID, GatewayAddress, NewImplementation(), nil,
+		nil, gossip.DefaultManagerFlags())
+	gateway2 := StartGateway(testID2, GatewayAddress2, NewImplementation(), nil, nil, gossip.DefaultManagerFlags())
+	defer gateway.Shutdown()
+	defer gateway2.Shutdown()
+	manager := connect.NewManagerTesting(t)
+
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testID, GatewayAddress2, nil, params)
+	if err != nil {
+		t.Errorf("Unable to call NewHost: %+v", err)
+	}
+
+	_, err = gateway.SendGatewayPing(host, &messages.Ping{})
+	if err != nil {
+		t.Errorf("SendGatewayPing: Error received: %s", err)
+	}
+}
+
+// Smoke test ReportGatewayPings
+func TestComms_ReportGatewayPings(t *testing.T) {
+	GatewayAddress := getNextGatewayAddress()
+	ServerAddress := getNextServerAddress()
+	testID := id.NewIdFromString("test", id.Gateway, t)
+	nodeID := id.NewIdFromString("test", id.Node, t)
+	gateway := StartGateway(testID, GatewayAddress, NewImplementation(), nil,
+		nil, gossip.DefaultManagerFlags())
+	server := node.StartNode(nodeID, ServerAddress, 0, node.NewImplementation(),
+		nil, nil)
+	defer gateway.Shutdown()
+	defer server.Shutdown()
+	manager := connect.NewManagerTesting(t)
+
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testID, ServerAddress, nil, params)
+	if err != nil {
+		t.Errorf("Unable to call NewHost: %+v", err)
+	}
+
+	err = gateway.ReportGatewayPings(host, &pb.GatewayPingReport{})
+	if err != nil {
+		t.Errorf("ReportGatewayPings: Error received: %s", err)
 	}
 }

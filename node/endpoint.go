@@ -378,10 +378,11 @@ func (s *Comms) ReportGatewayPings(ctx context.Context, msg *messages.Authentica
 
 	//Marshall the any message to the message type needed
 	reportedPings := &pb.GatewayPingReport{}
+
 	err = ptypes.UnmarshalAny(msg.Message, reportedPings)
 	if err != nil {
 		return nil, err
 	}
 
-	return nil, s.handler.ReportGatewayPings(reportedPings, authState)
+	return &messages.Ack{}, s.handler.ReportGatewayPings(reportedPings, authState)
 }

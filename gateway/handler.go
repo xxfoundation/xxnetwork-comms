@@ -165,7 +165,7 @@ func NewImplementation() *Implementation {
 			},
 			GatewayPing: func(msg *messages.Ping) (*pb.PingResponse, error) {
 				warn(um)
-				return nil, nil
+				return &pb.PingResponse{}, nil
 			},
 		},
 	}
