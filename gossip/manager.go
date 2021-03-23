@@ -10,6 +10,7 @@
 package gossip
 
 import (
+	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/crypto/csprng"
@@ -83,7 +84,11 @@ func (m *Manager) NewGossip(tag string, flags ProtocolFlags,
 		verify:       verifier,
 		IsDefunct:    false,
 		crand:        csprng.NewSystemRNG(),
+		sendWorkers:  make(chan sendInstructions, 100*flags.NumParallelSends),
 	}
+
+	//create the runners
+	launchSendWorkers(flags.NumParallelSends, tmp.sendWorkers)
 
 	m.protocols[tag] = tmp
 
@@ -144,4 +149,30 @@ func (m *Manager) bufferMonitor() chan bool {
 	}()
 
 	return killChan
+}
+
+
+//launches numWorkers routines to handle sending of gossips for this protocol
+func launchSendWorkers(numWorkers uint8, reciever chan sendInstructions){
+	for i:=uint8(0);i<numWorkers;i++{
+		go func(){
+			for {
+				//get a gossip send
+				instructions := <-reciever
+				// do the send
+				err := instructions.sendFunc(instructions.peer)
+				//handle errors if they occur
+				if err!=nil{
+					select{
+					case instructions.errChannel<-errors.WithMessagef(err,
+						"Failed to send to ID %s", instructions.peer):
+					default:
+						jww.WARN.Println("Could not transmit gossip error")
+					}
+				}
+				//signal the wait group
+				instructions.wait.Done()
+			}
+		}()
+	}
 }
