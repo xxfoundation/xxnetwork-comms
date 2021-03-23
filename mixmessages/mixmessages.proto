@@ -166,13 +166,13 @@ message ServerPollResponse {
 // gateway <-> gateway pings on a round
 // Related to ReportGatewayPings
 message GatewayPingRequest {
-    bytes RoundId = 1;
+    uint64 RoundId = 1;
     repeated bytes GatewayIds = 2;
 }
 
 // Returned results of a gateway ping request
 message ReportedGatewayPings {
-    bytes RoundId = 1;
+    uint64 RoundId = 1;
     repeated bytes GatewayIds = 2;
     repeated bytes FailedGateways = 3; // Empty if all successful, or filled with failed gateway IDs
 }
