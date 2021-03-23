@@ -10,7 +10,6 @@
 package connect
 
 import (
-	"encoding/base64"
 	"fmt"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
@@ -109,9 +108,6 @@ func NewHost(id *id.ID, address string, cert []byte, params HostParams) (host *H
 			params.CoolOffTimeout, nil)
 	}
 
-	jww.INFO.Printf("New Host Created: %s", host)
-	jww.TRACE.Printf("New Host Certificate for %v: %s...", id, cert)
-
 	if host.maxRetries == 0 {
 		host.maxRetries = math.MaxUint32
 	}
@@ -120,6 +116,10 @@ func NewHost(id *id.ID, address string, cert []byte, params HostParams) (host *H
 
 	// Configure the host credentials
 	err = host.setCredentials()
+
+	//print logs
+	jww.INFO.Printf("New Host Created: %s", host)
+	jww.TRACE.Printf("New Host Certificate for %v: %s...", id, cert)
 	return
 }
 
@@ -312,19 +312,20 @@ func (h *Host) connectHelper() (err error) {
 
 	// Attempt to establish a new connection
 	var numRetries uint32
+	//todo-remove this retry block when grpc is updated
 	for numRetries = 0; numRetries < h.maxRetries && !h.isAlive(); numRetries++ {
 		h.disconnect()
 
-		jww.INFO.Printf("Connecting to %+v. Attempt number %+v of %+v",
+		jww.DEBUG.Printf("Connecting to %+v Attempt number %+v of %+v",
 			h.GetAddress(), numRetries, h.maxRetries)
 
 		// If timeout is enabled, the max wait time becomes
 		// ~14 seconds (with maxRetries=100)
-		backoffTime := 2 * (numRetries/16 + 1)
-		if backoffTime > 15 {
-			backoffTime = 15
+		backoffTime := 2000 * (numRetries/16 + 1)
+		if backoffTime > 15000 {
+			backoffTime = 15000
 		}
-		ctx, cancel := ConnectionContext(time.Duration(backoffTime) * time.Second)
+		ctx, cancel := ConnectionContext(time.Duration(backoffTime) * time.Millisecond)
 
 		// Create the connection
 		h.connection, err = grpc.DialContext(ctx, h.GetAddress(),
@@ -332,8 +333,8 @@ func (h *Host) connectHelper() (err error) {
 			grpc.WithBlock(),
 			grpc.WithKeepaliveParams(KaClientOpts))
 		if err != nil {
-			jww.ERROR.Printf("Attempt number %+v to connect to %s failed: %+v\n",
-				numRetries, h.GetAddress(), errors.New(err.Error()))
+			jww.DEBUG.Printf("Attempt number %+v to connect to %s failed\n",
+				numRetries, h.GetAddress())
 		}
 		cancel()
 	}
@@ -392,38 +393,10 @@ func (h *Host) String() string {
 	h.sendMux.RLock()
 	defer h.sendMux.RUnlock()
 	addr := h.GetAddress()
-	actualConnection := h.connection
-	creds := h.credentials
 
-	var state connectivity.State
-	if actualConnection != nil {
-		state = actualConnection.GetState()
-	}
-
-	serverName := "<nil>"
-	protocolVersion := "<nil>"
-	securityVersion := "<nil>"
-	securityProtocol := "<nil>"
-	if creds != nil {
-		serverName = creds.Info().ServerName
-		securityVersion = creds.Info().SecurityVersion
-		protocolVersion = creds.Info().ProtocolVersion
-		securityProtocol = creds.Info().SecurityProtocol
-	}
-
-	transmitStr := base64.StdEncoding.EncodeToString(
-		h.transmissionToken.GetBytes())
-	receptStr := base64.StdEncoding.EncodeToString(
-		h.receptionToken.GetBytes())
 	return fmt.Sprintf(
-		"ID: %v\tAddr: %v\tTransmission Live: %s"+
-			"\tReception Live: %s \tEnableAuth: %v"+
-			"\tMaxRetries: %v\tConnState: %v"+
-			"\tTLS ServerName: %v\tTLS ProtocolVersion: %v\t"+
-			"TLS SecurityVersion: %v\tTLS SecurityProtocol: %v",
-		h.id, addr, transmitStr, receptStr, h.enableAuth, h.maxRetries,
-		state, serverName, protocolVersion, securityVersion,
-		securityProtocol)
+		"ID: %v\tAddr: %v",
+		h.id, addr)
 }
 
 // Stringer interface for connection

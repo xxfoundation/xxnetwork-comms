@@ -161,9 +161,9 @@ func (p *Protocol) receive(msg *GossipMsg) error {
 	if numSends < p.flags.MaximumReSends {
 		// Since gossip propagates the message across a potentially large message, we don't want this to block
 		go func() {
-			_, errs := p.Gossip(msg)
+			numPeers, errs := p.Gossip(msg)
 			if len(errs) != 0 {
-				jww.ERROR.Print(errors.Errorf("Failed to gossip message: %+v", errs))
+				jww.TRACE.Print(errors.Errorf("Failed to gossip message to %d of %d peers", len(errs), numPeers))
 			}
 		}()
 	}

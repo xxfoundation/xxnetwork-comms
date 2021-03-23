@@ -9,6 +9,7 @@ import (
 
 const MaxRetries = 3
 const inCoolDownErr = "Host is in cool down. Cannot connect."
+const lastTryErr = "Last try to connect to"
 
 // Sets up or recovers the Host's connection
 // Then runs the given Send function
@@ -26,7 +27,8 @@ func (c *ProtoComms) transmit(host *Host, f func(conn *grpc.ClientConn) (interfa
 		if !connected {
 			connectionCount, err = c.connect(host, connectionCount)
 			if err != nil {
-				if strings.Contains(err.Error(), inCoolDownErr) {
+				if strings.Contains(err.Error(), inCoolDownErr) ||
+					strings.Contains(err.Error(), lastTryErr) {
 					return nil, err
 				}
 				jww.WARN.Printf("Failed to connect to Host on attempt "+
