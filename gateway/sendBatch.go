@@ -171,3 +171,38 @@ func (g *Comms) SendGatewayPing(host *connect.Host, ping *messages.Ping) (*pb.Pi
 	result := &pb.PingResponse{}
 	return result, ptypes.UnmarshalAny(resultMsg, result)
 }
+
+// Gateway -> Server comm which reports the results of the gateway pinging
+// all other gateways in the round
+func (g *Comms) ReportGatewayPings(host *connect.Host) (*messages.Ack, error) {
+	// Create the Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := connect.MessagingContext()
+		defer cancel()
+		//Pack message into an authenticated message
+		authMsg, err := g.PackAuthenticatedMessage(&messages.Ping{}, host, false)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+
+		// Send the message
+		resultMsg, err := pb.NewNodeClient(conn).ReportGatewayPings(ctx,
+			authMsg)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+		return ptypes.MarshalAny(resultMsg)
+	}
+
+	// Execute the Send function
+	resultMsg, err := g.Send(host, f)
+	if err != nil {
+		return nil, err
+	}
+
+	// Marshall the result
+	result := &messages.Ack{}
+	return result, ptypes.UnmarshalAny(resultMsg, result)
+
+}
