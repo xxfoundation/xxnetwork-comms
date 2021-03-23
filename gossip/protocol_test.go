@@ -200,7 +200,7 @@ func setup(t *testing.T) *Protocol {
 	}
 
 	flags := DefaultProtocolFlags()
-	p :=  &Protocol{
+	p := &Protocol{
 		comms:            c,
 		fingerprints:     map[Fingerprint]*uint64{},
 		fingerprintsLock: sync.RWMutex{},
@@ -210,7 +210,7 @@ func setup(t *testing.T) *Protocol {
 		receiver:         r,
 		verify:           v,
 		IsDefunct:        false,
-		sendWorkers: 	  make(chan sendInstructions, 100*flags.NumParallelSends),
+		sendWorkers:      make(chan sendInstructions, 100*flags.NumParallelSends),
 	}
 
 	launchSendWorkers(flags.NumParallelSends, p.sendWorkers)
@@ -478,9 +478,10 @@ func TestGossipNodes(t *testing.T) {
 				}
 			}
 		}
-
+		protoFlags := DefaultProtocolFlags()
+		protoFlags.NumParallelSends = 5
 		// Initialize a test gossip protocol on all the servers
-		managers[i].NewGossip("test", DefaultProtocolFlags(), func(msg *GossipMsg) error {
+		managers[i].NewGossip("test", protoFlags, func(msg *GossipMsg) error {
 			// receive func
 			atomic.AddUint64(&numReceived, 1)
 			return nil
