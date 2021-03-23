@@ -142,3 +142,32 @@ func (g *Comms) SendShareMessages(host *connect.Host, messages *pb.RoundMessages
 	_, err := g.Send(host, f)
 	return err
 }
+
+// Gateway -> Gateway ping to check if recipient is open to the internet
+func (g *Comms) SendGatewayPing(host *connect.Host, ping *messages.Ping) (*pb.PingResponse, error) {
+
+	// Create the Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := connect.MessagingContext()
+		defer cancel()
+
+		// Send the message
+		_, err := pb.NewGatewayClient(conn).GatewayPing(ctx, ping)
+		if err != nil {
+			err = errors.New(err.Error())
+		}
+		return nil, err
+	}
+
+	// Execute the Send function
+	jww.TRACE.Printf("Sending Gateway Ping message: %+v", ping)
+	resultMsg, err := g.Send(host, f)
+	if err != nil {
+		return nil, err
+	}
+
+	// Marshall the result
+	result := &pb.PingResponse{}
+	return result, ptypes.UnmarshalAny(resultMsg, result)
+}
