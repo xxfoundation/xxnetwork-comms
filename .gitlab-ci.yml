@@ -1,11 +1,5 @@
 # From: https://about.gitlab.com/2017/09/21/how-to-create-ci-cd-pipeline-with-autodeploy-to-kubernetes-using-gitlab-and-helm/
 
-variables:
-  REPO_DIR: gitlab.com/xx_network
-  REPO_NAME: comms
-  DOCKER_IMAGE: elixxirlabs/cuda-go:latest
-  MIN_CODE_COVERAGE: "50.0"
-
 before_script:
   - go version || echo "Go executable not found."
   - echo $CI_BUILD_REF
@@ -16,10 +10,10 @@ before_script:
   - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
   - mkdir -p ~/.ssh
   - chmod 700 ~/.ssh
-  - ssh-keyscan -t rsa gitlab.com > ~/.ssh/known_hosts
-  - git config --global url."git@gitlab.com:".insteadOf "https://gitlab.com/"
+  - ssh-keyscan -t rsa $GITLAB_SERVER > ~/.ssh/known_hosts
+  - git config --global url."git@$GITLAB_SERVER:".insteadOf "https://gitlab.com/"
   - export PATH=$HOME/go/bin:$PATH
-  - export GOPRIVATE="*gitlab.com/xx_network/*"
+  - export GOPRIVATE=gitlab.com/elixxir/*,gitlab.com/xx_network/*
 
 stages:
   - build
@@ -55,10 +49,9 @@ build:
 
 trigger_integration:
   stage: trigger_integration
-  script:
-    # Server
-    - "curl -X POST -F token=2a4419808282d0a47c55eee8b9904e -F ref=master https://gitlab.com/api/v4/projects/5014439/trigger/pipeline"
-    # Client
-    - "curl -X POST -F token=602ad7669e7d6daa61b210a0c4312b -F ref=master https://gitlab.com/api/v4/projects/5454785/trigger/pipeline"
+  trigger:
+    project: elixxir/integration
+    branch: $CI_COMMIT_REF_NAME
   only:
+    - release
     - master
