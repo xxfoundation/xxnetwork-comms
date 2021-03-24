@@ -9,7 +9,6 @@ package dataStructures
 
 import (
 	"container/list"
-	"fmt"
 	"github.com/golang-collections/collections/set"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/testutils"
@@ -119,7 +118,7 @@ func TestWaitingRounds_getFurthest(t *testing.T) {
 	}
 }
 
-// Happy path of WaitingRounds.getFurthest() with half the rounds excluded
+// Happy path of WaitingRounds.getFurthest() with half the rounds excluded.
 func TestWaitingRounds_getFurthest_Exclude(t *testing.T) {
 	// Generate rounds
 	expectedRounds, testRounds := createTestRoundInfos(25, t)
@@ -153,6 +152,32 @@ func TestWaitingRounds_getFurthest_Exclude(t *testing.T) {
 	}
 }
 
+// Happy path.
+func TestWaitingRounds_getClosest(t *testing.T) {
+	// Generate rounds
+	expectedRounds, testRounds := createTestRoundInfos(25, t)
+
+	// Add rounds to list
+	testWR := NewWaitingRounds()
+	for _, round := range testRounds {
+		testWR.Insert(round)
+	}
+
+	for i := 0; i < len(expectedRounds); i++ {
+		if !reflect.DeepEqual(expectedRounds[i], testWR.getClosest(nil, 0)) {
+			t.Errorf("getClosest() did not return the expected round."+
+				"\nexpected: %+v\nrecieved: %+v",
+				expectedRounds[i].info, testWR.getClosest(nil, 0).info)
+		}
+		testWR.remove(expectedRounds[i])
+	}
+
+	if testWR.getClosest(nil, 0) != nil {
+		t.Errorf("getFurthest() did not return nil on empty list: %+v",
+			testWR.rounds)
+	}
+}
+
 // Happy path of WaitingRounds.GetUpcomingRealtime() when the list is not empty
 // and no waiting occurs.
 func TestWaitingRounds_GetUpcomingRealtime_NoWait(t *testing.T) {
@@ -168,7 +193,7 @@ func TestWaitingRounds_GetUpcomingRealtime_NoWait(t *testing.T) {
 		testWR.Insert(round)
 	}
 
-	for i := len(expectedRounds) - 1; i >= 0; i-- {
+	for i := 0; i < len(expectedRounds); i++ {
 		furthestRound, err := testWR.GetUpcomingRealtime(300*time.Millisecond, set.New(), 0)
 		if err != nil {
 			t.Errorf("GetUpcomingRealtime() returned an unexpected error."+
@@ -176,7 +201,7 @@ func TestWaitingRounds_GetUpcomingRealtime_NoWait(t *testing.T) {
 		}
 		if expectedRounds[i].info != furthestRound {
 			t.Errorf("GetUpcomingRealtime() did not return the expected round (%d)."+
-				"\nexpected: %v\nrecieved: %v", i, expectedRounds[i], furthestRound)
+				"\nexpected: %+v\nrecieved: %+v", i, expectedRounds[i].info, furthestRound)
 		}
 		testWR.remove(expectedRounds[i])
 	}
@@ -296,7 +321,6 @@ func createTestRoundInfos(num int, t *testing.T) ([]*Round, []*Round) {
 		if i%2 == 1 {
 			rounds[i].info.State = uint32(states.QUEUED)
 			expectedRounds = append(expectedRounds, rounds[i])
-			fmt.Printf("id #%d: %d\n", i, rounds[i].info.ID)
 		} else if rounds[i].info.State == uint32(states.QUEUED) {
 			rounds[i].info.State = uint32(states.REALTIME)
 		}
