@@ -25,6 +25,7 @@ func newMetric() *Metric {
 	}
 }
 
+// Getter for errorCounter
 func (m *Metric) GetErrorCounter() uint64 {
 	return atomic.LoadUint64(m.errorCounter)
 }
