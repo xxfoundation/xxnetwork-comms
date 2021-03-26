@@ -41,6 +41,23 @@ func TestMetric_deepCopy(t *testing.T) {
 	}
 }
 
+// unit test of GetErrorCounter
+func TestMetric_GetErrorCounter(t *testing.T) {
+	expectedCount := 25
+	metric := newMetric()
+
+	for i := 0; i < expectedCount; i++ {
+		metric.incrementErrors()
+	}
+
+	receivedCount := metric.GetErrorCounter()
+	if receivedCount != uint64(expectedCount) {
+		t.Errorf("GetErrorCounter did not pull expected value."+
+			"\n\tExpected value: %v"+
+			"\n\tReceived value: %v", expectedCount, receivedCount)
+	}
+}
+
 // Unit test for incrementErrors
 func TestMetric_IncrementErrors(t *testing.T) {
 	expectedCount := 25

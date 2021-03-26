@@ -25,6 +25,10 @@ func newMetric() *Metric {
 	}
 }
 
+func (m *Metric) GetErrorCounter() uint64 {
+	return atomic.LoadUint64(m.errorCounter)
+}
+
 // Returns a copy of Metric and resets internal state
 func (m *Metric) get() *Metric {
 	metricCopy := m.deepCopy()
