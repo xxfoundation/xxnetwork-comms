@@ -57,11 +57,11 @@ func Marshal(msg *GossipMsg) []byte {
 
 // Gossip-related configuration flag
 type ProtocolFlags struct {
-	FanOut                  uint8  // Default = 0
-	MaxRecordedFingerprints uint64 // Default = 10000000
-	MaximumReSends          uint64 // Default = 3
-	NumParallelSends        uint8  // Default = 5
-	MaxGossipAge            uint8  // Default = 10
+	FanOut                  uint8         // Default = 0
+	MaxRecordedFingerprints uint64        // Default = 10000000
+	MaximumReSends          uint64        // Default = 3
+	NumParallelSends        uint8         // Default = 5
+	MaxGossipAge            time.Duration // Default = 10 * time.Second
 }
 
 // Returns a ProtocolFlags object with all flags set to their defaults
@@ -71,7 +71,7 @@ func DefaultProtocolFlags() ProtocolFlags {
 		MaxRecordedFingerprints: 10000000,
 		MaximumReSends:          3,
 		NumParallelSends:        30,
-		MaxGossipAge:            5,
+		MaxGossipAge:            10 * time.Second,
 	}
 }
 
@@ -155,20 +155,13 @@ func (p *Protocol) receive(msg *GossipMsg) error {
 		}
 	}
 
-	if msg.Timestamp != 0 &&
-		time.Since(time.Unix(0, msg.Timestamp)) > time.Second*time.Duration(p.flags.MaxGossipAge) {
-		return nil
-	} else if msg.Timestamp == 0 {
-		msg.Timestamp = time.Now().UnixNano()
-	}
-
 	// Increment the number of sends for this fingerprint
 	numSends := uint64(0)
 	if ok {
 		numSends = atomic.AddUint64(numSendsPrt, 1)
 	}
 
-	if numSends < p.flags.MaximumReSends {
+	if numSends < p.flags.MaximumReSends && time.Since(time.Unix(0, msg.Timestamp)) < p.flags.MaxGossipAge {
 		// Since gossip propagates the message across a potentially large message, we don't want this to block
 		go func() {
 			numPeers, errs := p.Gossip(msg)
@@ -228,6 +221,10 @@ func (p *Protocol) RemoveGossipPeer(id *id.ID) error {
 
 // Builds and sends a GossipMsg
 func (p *Protocol) Gossip(msg *GossipMsg) (int, []error) {
+	// Set the timestamp if this is the original node
+	if msg.Timestamp == 0 {
+		msg.Timestamp = time.Now().UnixNano()
+	}
 	// Internal helper to send the input gossip msg to a given id
 	sendFunc := func(id *id.ID) error {
 		h, ok := p.comms.GetHost(id)
