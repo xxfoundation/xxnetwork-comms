@@ -24,6 +24,7 @@ import (
 	"math"
 	"sync"
 	"sync/atomic"
+	"time"
 )
 
 // Defines the type of Gossip message fingerprints
@@ -60,6 +61,7 @@ type ProtocolFlags struct {
 	MaxRecordedFingerprints uint64 // Default = 10000000
 	MaximumReSends          uint64 // Default = 3
 	NumParallelSends        uint8  // Default = 5
+	MaxGossipAge            uint8  // Default = 10
 }
 
 // Returns a ProtocolFlags object with all flags set to their defaults
@@ -69,6 +71,7 @@ func DefaultProtocolFlags() ProtocolFlags {
 		MaxRecordedFingerprints: 10000000,
 		MaximumReSends:          3,
 		NumParallelSends:        30,
+		MaxGossipAge:            5,
 	}
 }
 
@@ -150,6 +153,13 @@ func (p *Protocol) receive(msg *GossipMsg) error {
 		} else {
 			p.fingerprintsLock.Unlock()
 		}
+	}
+
+	if msg.Timestamp != 0 &&
+		time.Since(time.Unix(0, msg.Timestamp)) > time.Second*time.Duration(p.flags.MaxGossipAge) {
+		return nil
+	} else if msg.Timestamp == 0 {
+		msg.Timestamp = time.Now().UnixNano()
 	}
 
 	// Increment the number of sends for this fingerprint
