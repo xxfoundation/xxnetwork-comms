@@ -166,6 +166,35 @@ func TestProtocol_receive(t *testing.T) {
 	}
 }
 
+// Happy path test for receive method
+func TestProtocol_receive_oldMessage(t *testing.T) {
+	p := setup(t)
+	r := func(msg *GossipMsg) error {
+		return nil
+	}
+	p.receiver = r
+
+	message1 := &GossipMsg{
+		Tag:       "Message1",
+		Origin:    []byte("origin"),
+		Payload:   []byte("payload"),
+		Signature: []byte("signature"),
+		Timestamp: time.Now().Add(-time.Second * 10).UnixNano(),
+	}
+
+	err := p.receive(message1)
+	if err != nil {
+		t.Errorf("Failed to receive message1: %+v", err)
+	}
+	if len(p.fingerprints) != 1 {
+		t.Errorf("Did not add message1 fingerprint to array")
+	}
+	fingerprint := GetFingerprint(message1)
+	if atomic.LoadUint64(p.fingerprints[fingerprint]) != 0 {
+		t.Error("Should not have gossiped old message")
+	}
+}
+
 // Basic unit test for Defunct function on a protocol
 func TestProtocol_Defunct(t *testing.T) {
 	p := Protocol{

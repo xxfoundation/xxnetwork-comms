@@ -26,4 +26,5 @@ message GossipMsg {
     bytes  Origin = 2;
     bytes  Payload = 3;
     bytes  Signature = 4;
+    int64 timestamp = 5;
 }

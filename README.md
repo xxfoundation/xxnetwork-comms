@@ -16,5 +16,5 @@ protoc -I messages/ messages/messages.proto --go_out=plugins=grpc:messages
 ```
 protoc -I interconnect/ interconnect/interconnect.proto -I /path/to/gitlab.com/ --go_out=plugins=grpc:interconnect
 protoc -I messages/ messages/messages.proto --go_out=plugins=grpc:messages
-protoc -I gossip/ gossip/messages.proto --go_out=plugins=grpc:gossip
+protoc -I gossip/ gossip/gossip.proto --go_out=plugins=grpc:gossip
 ```
