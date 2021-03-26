@@ -14,14 +14,14 @@ import "sync/atomic"
 type Metric struct {
 	// Active count of non-excluded errors
 	// (ie errors we deem important)
-	errorCounter *uint64
+	ErrCounter *uint64
 }
 
 // Constructor for a Metric object
 func newMetric() *Metric {
 	errCounter := uint64(0)
 	return &Metric{
-		errorCounter: &errCounter,
+		ErrCounter: &errCounter,
 	}
 }
 
@@ -33,19 +33,19 @@ func (m *Metric) GetErrorCounter() uint64 {
 // Returns a copy of Metric and resets internal state
 func (m *Metric) get() *Metric {
 	metricCopy := m.deepCopy()
-	atomic.StoreUint64(m.errorCounter, 0)
+	atomic.StoreUint64(m.ErrCounter, 0)
 	return metricCopy
 }
 
 // Increments the error counter in a thread-safe manner
 func (m *Metric) incrementErrors() {
-	atomic.AddUint64(m.errorCounter, 1)
+	atomic.AddUint64(m.ErrCounter, 1)
 }
 
 // deepCopy creates a copy of Metric.
 func (m *Metric) deepCopy() *Metric {
-	newErrCounter := atomic.LoadUint64(m.errorCounter)
+	newErrCounter := atomic.LoadUint64(m.ErrCounter)
 	return &Metric{
-		errorCounter: &newErrCounter,
+		ErrCounter: &newErrCounter,
 	}
 }

@@ -18,7 +18,7 @@ func TestNewMetric(t *testing.T) {
 
 	expectedErrCnt := uint64(0)
 	expectedMetric := &Metric{
-		errorCounter: &expectedErrCnt,
+		ErrCounter: &expectedErrCnt,
 	}
 
 	if !reflect.DeepEqual(expectedMetric, metric) {
@@ -67,11 +67,11 @@ func TestMetric_IncrementErrors(t *testing.T) {
 		metric.incrementErrors()
 	}
 
-	if *metric.errorCounter != uint64(expectedCount) {
+	if *metric.ErrCounter != uint64(expectedCount) {
 		t.Errorf("incrementErrors did not "+
 			"result in expected error count."+
 			"\n\tExpected: %v"+
-			"\n\tReceived: %v", expectedCount, *metric.errorCounter)
+			"\n\tReceived: %v", expectedCount, *metric.ErrCounter)
 	}
 }
 
@@ -86,14 +86,14 @@ func TestMetric_Get(t *testing.T) {
 
 	// Check that the metricCopy has the expected error count
 	metricCopy := metric.get()
-	if *metricCopy.errorCounter != uint64(expectedCount) {
+	if *metricCopy.ErrCounter != uint64(expectedCount) {
 		t.Errorf("get() did not pull expected state."+
 			"\n\tExpected: %v"+
-			"\n\tReceived: %v", expectedCount, *metricCopy.errorCounter)
+			"\n\tReceived: %v", expectedCount, *metricCopy.ErrCounter)
 	}
 
 	// Check that the original metric's state has been reset
-	if *metric.errorCounter != uint64(0) {
+	if *metric.ErrCounter != uint64(0) {
 		t.Errorf("get call should reset state for metric")
 	}
 }
