@@ -58,7 +58,7 @@ func TestManager_NewGossip_WithBuffer(t *testing.T) {
 		Messages:  []*GossipMsg{{Tag: "testmsg"}},
 	}
 
-	//originalBufferLen := len(m.buffer)
+	// originalBufferLen := len(m.buffer)
 
 	var received bool
 	r := func(msg *GossipMsg) error {

@@ -179,7 +179,7 @@ func (p *Protocol) receive(msg *GossipMsg) error {
 	// Check fingerprint of the message against our record
 	fingerprint := GetFingerprint(msg)
 	numSendsPrt, ok := p.checkFingerprint(fingerprint)
-	//if there is no record of receiving the fingerprint, process it as new
+	// if there is no record of receiving the fingerprint, process it as new
 	if !ok {
 		err = p.verify(msg, nil)
 		if err != nil {
@@ -266,7 +266,7 @@ func (p *Protocol) Gossip(msg *GossipMsg) (int, []error) {
 		msg.Timestamp = time.Now().UnixNano()
 	}
 
-	//set the fingerprint so it is not received multiple times
+	// set the fingerprint so it is not received multiple times
 	p.setFingerprintUnsafe(GetFingerprint(msg))
 
 	// Internal helper to send the input gossip msg to a given id
@@ -300,7 +300,7 @@ func (p *Protocol) Gossip(msg *GossipMsg) (int, []error) {
 	errCh := make(chan error, len(peers))
 	wg := sync.WaitGroup{}
 	wg.Add(len(peers))
-	//send signals to the worker threads to do the sends
+	// send signals to the worker threads to do the sends
 	for _, peer := range peers {
 		p.sendWorkers <- sendInstructions{
 			sendFunc:   sendFunc,
@@ -310,14 +310,14 @@ func (p *Protocol) Gossip(msg *GossipMsg) (int, []error) {
 		}
 	}
 
-	//wait for sends to complete
+	// wait for sends to complete
 	wg.Wait()
 
-	//get any errors
+	// get any errors
 	done := false
 	var errs []error
 	for !done {
-		//pull from the channel until errors are exhausted
+		// pull from the channel until errors are exhausted
 		select {
 		case newErr := <-errCh:
 			errs = append(errs, newErr)

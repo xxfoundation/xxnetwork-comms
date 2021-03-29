@@ -87,7 +87,7 @@ func (m *Manager) NewGossip(tag string, flags ProtocolFlags,
 		sendWorkers:  make(chan sendInstructions, 100*flags.NumParallelSends),
 	}
 
-	//create the runners
+	// create the runners
 	launchSendWorkers(flags.NumParallelSends, protocol.sendWorkers)
 
 	m.protocols[tag] = protocol
@@ -103,7 +103,7 @@ func (m *Manager) NewGossip(tag string, flags ProtocolFlags,
 		delete(m.buffer, tag)
 	}
 
-	//create the long running thread which cleans the fingerprint list
+	// create the long running thread which cleans the fingerprint list
 	go func() {
 		ticker := time.NewTicker(2 * flags.MaxGossipAge)
 		for {
@@ -161,16 +161,16 @@ func (m *Manager) bufferMonitor() chan bool {
 	return killChan
 }
 
-//launches numWorkers routines to handle sending of gossips for this protocol
-func launchSendWorkers(numWorkers uint8, reciever chan sendInstructions) {
+// launches numWorkers routines to handle sending of gossips for this protocol
+func launchSendWorkers(numWorkers uint8, receiver chan sendInstructions) {
 	for i := uint8(0); i < numWorkers; i++ {
 		go func() {
 			for {
-				//get a gossip send
-				instructions := <-reciever
+				// get a gossip send
+				instructions := <-receiver
 				// do the send
 				err := instructions.sendFunc(instructions.peer)
-				//handle errors if they occur
+				// handle errors if they occur
 				if err != nil {
 					select {
 					case instructions.errChannel <- errors.WithMessagef(err,
@@ -179,7 +179,7 @@ func launchSendWorkers(numWorkers uint8, reciever chan sendInstructions) {
 						jww.WARN.Println("Could not transmit gossip error")
 					}
 				}
-				//signal the wait group
+				// signal the wait group
 				instructions.wait.Done()
 			}
 		}()
