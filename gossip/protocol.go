@@ -62,6 +62,7 @@ type ProtocolFlags struct {
 	MaximumReSends          uint64        // Default = 3
 	NumParallelSends        uint8         // Default = 5
 	MaxGossipAge            time.Duration // Default = 10 * time.Second
+	SelfGossip              bool          // Default = false
 }
 
 // Returns a ProtocolFlags object with all flags set to their defaults
@@ -72,6 +73,7 @@ func DefaultProtocolFlags() ProtocolFlags {
 		MaximumReSends:          3,
 		NumParallelSends:        30,
 		MaxGossipAge:            10 * time.Second,
+		SelfGossip:              false,
 	}
 }
 
@@ -268,7 +270,9 @@ func (p *Protocol) Gossip(msg *GossipMsg) (int, []error) {
 		msg.Timestamp = time.Now().UnixNano()
 
 		// set the fingerprint so it is not received multiple times
-		p.setFingerprintUnsafe(GetFingerprint(msg))
+		if !p.flags.SelfGossip {
+			p.setFingerprintUnsafe(GetFingerprint(msg))
+		}
 	}
 
 	// Internal helper to send the input gossip msg to a given id
