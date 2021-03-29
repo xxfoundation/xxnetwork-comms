@@ -75,7 +75,7 @@ func (m *Manager) NewGossip(tag string, flags ProtocolFlags,
 	m.protocolLock.Lock()
 	defer m.protocolLock.Unlock()
 
-	tmp := &Protocol{
+	protocol := &Protocol{
 		fingerprints: map[Fingerprint]*uint64{},
 		comms:        m.comms,
 		peers:        peers,
@@ -88,20 +88,30 @@ func (m *Manager) NewGossip(tag string, flags ProtocolFlags,
 	}
 
 	//create the runners
-	launchSendWorkers(flags.NumParallelSends, tmp.sendWorkers)
+	launchSendWorkers(flags.NumParallelSends, protocol.sendWorkers)
 
-	m.protocols[tag] = tmp
+	m.protocols[tag] = protocol
 
 	m.bufferLock.Lock()
 	if record, ok := m.buffer[tag]; ok {
 		for _, msg := range record.Messages {
-			err := tmp.receive(msg)
+			err := protocol.receive(msg)
 			if err != nil {
 				jww.WARN.Printf("Failed to receive message: %+v", msg)
 			}
 		}
 		delete(m.buffer, tag)
 	}
+
+	//create the long running thread which cleans the fingerprint list
+	go func() {
+		ticker := time.NewTicker(2 * flags.MaxGossipAge)
+		for {
+			<-ticker.C
+			protocol.swapFingerprint()
+		}
+	}()
+
 	m.bufferLock.Unlock()
 }
 
@@ -151,20 +161,19 @@ func (m *Manager) bufferMonitor() chan bool {
 	return killChan
 }
 
-
 //launches numWorkers routines to handle sending of gossips for this protocol
-func launchSendWorkers(numWorkers uint8, reciever chan sendInstructions){
-	for i:=uint8(0);i<numWorkers;i++{
-		go func(){
+func launchSendWorkers(numWorkers uint8, reciever chan sendInstructions) {
+	for i := uint8(0); i < numWorkers; i++ {
+		go func() {
 			for {
 				//get a gossip send
 				instructions := <-reciever
 				// do the send
 				err := instructions.sendFunc(instructions.peer)
 				//handle errors if they occur
-				if err!=nil{
-					select{
-					case instructions.errChannel<-errors.WithMessagef(err,
+				if err != nil {
+					select {
+					case instructions.errChannel <- errors.WithMessagef(err,
 						"Failed to send to ID %s", instructions.peer):
 					default:
 						jww.WARN.Println("Could not transmit gossip error")

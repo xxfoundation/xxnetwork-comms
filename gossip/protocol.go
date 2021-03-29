@@ -82,6 +82,7 @@ type Protocol struct {
 	// Thread-safe record of all Gossip messages for this Protocol
 	// NOTE: Must avoid unlimited growth
 	fingerprints     map[Fingerprint]*uint64
+	oldFingerprints  map[Fingerprint]*uint64
 	fingerprintsLock sync.RWMutex
 
 	// Thread-safe list of peers for the Protocol
@@ -122,6 +123,54 @@ func (p *Protocol) Defunct() {
 	p.defunctLock.Unlock()
 }
 
+// check if a fingerprint has been received before
+func (p *Protocol) checkFingerprint(fp Fingerprint) (numSends *uint64, newFp bool) {
+	p.fingerprintsLock.RLock()
+	defer p.fingerprintsLock.RUnlock()
+	numSends, old := p.fingerprints[fp]
+	if !old {
+		numSends, old = p.oldFingerprints[fp]
+	}
+	newFp = !old
+	return
+}
+
+// Set a fingerprint as received.
+func (p *Protocol) setFingerprint(fp Fingerprint) (numSends *uint64, receive bool) {
+	p.fingerprintsLock.Lock()
+	defer p.fingerprintsLock.Lock()
+	// first redo the check if the fingerprint exists to ensure it was not added
+	// between the previous check and taking the lock
+	numSends, old := p.fingerprints[fp]
+	if !old {
+		numSends, old = p.oldFingerprints[fp]
+	}
+	receive = old
+	if receive {
+		numSendsLocal := uint64(0)
+		p.fingerprints[fp] = &numSendsLocal
+	}
+	return
+}
+
+// Set a fingerprint as received without race conditions checks.
+func (p *Protocol) setFingerprintUnsafe(fp Fingerprint) {
+	p.fingerprintsLock.Lock()
+	defer p.fingerprintsLock.Lock()
+	numSendsLocal := uint64(0)
+	p.fingerprints[fp] = &numSendsLocal
+	return
+}
+
+// Deletes the old fingerprint buffer and stores the current buffer as the
+// old one
+func (p *Protocol) swapFingerprint() {
+	p.fingerprintsLock.Lock()
+	defer p.fingerprintsLock.Lock()
+	p.oldFingerprints = p.fingerprints
+	p.fingerprints = make(map[Fingerprint]*uint64)
+}
+
 // Receive a Gossip Message and check fingerprints map
 // (if unique calls GossipSignatureVerify -> Receiver)
 func (p *Protocol) receive(msg *GossipMsg) error {
@@ -129,29 +178,20 @@ func (p *Protocol) receive(msg *GossipMsg) error {
 
 	// Check fingerprint of the message against our record
 	fingerprint := GetFingerprint(msg)
-	p.fingerprintsLock.RLock()
-	numSendsPrt, ok := p.fingerprints[fingerprint]
-	p.fingerprintsLock.RUnlock()
+	numSendsPrt, ok := p.checkFingerprint(fingerprint)
 	//if there is no record of receiving the fingerprint, process it as new
 	if !ok {
 		err = p.verify(msg, nil)
 		if err != nil {
 			return errors.WithMessage(err, "Failed to verify gossip message")
 		}
-		p.fingerprintsLock.Lock()
-		// redo the check if the fingerprint exists to ensure it was not added
-		// between the previous check and taking the lock
-		numSendsPrt, ok = p.fingerprints[fingerprint]
+
+		numSendsPrt, ok = p.setFingerprint(fingerprint)
 		if !ok {
-			numSendsLocal := uint64(0)
-			p.fingerprints[fingerprint] = &numSendsLocal
-			p.fingerprintsLock.Unlock()
 			err = p.receiver(msg)
 			if err != nil {
 				return errors.WithMessage(err, "Failed to receive gossip message")
 			}
-		} else {
-			p.fingerprintsLock.Unlock()
 		}
 	}
 
@@ -225,6 +265,10 @@ func (p *Protocol) Gossip(msg *GossipMsg) (int, []error) {
 	if msg.Timestamp == 0 {
 		msg.Timestamp = time.Now().UnixNano()
 	}
+
+	//set the fingerprint so it is not received multiple times
+	p.setFingerprintUnsafe(GetFingerprint(msg))
+
 	// Internal helper to send the input gossip msg to a given id
 	sendFunc := func(id *id.ID) error {
 		h, ok := p.comms.GetHost(id)
