@@ -24,9 +24,9 @@ import (
 	"time"
 )
 
-//====================================================================================================================//
+// ====================================================================================================================//
 // Basic unit tests of protocol methods
-//====================================================================================================================//
+// ====================================================================================================================//
 
 // Test functionality of AddGossipPeer
 func TestProtocol_AddGossipPeer(t *testing.T) {
@@ -146,7 +146,7 @@ func TestProtocol_receive(t *testing.T) {
 		t.Errorf("Failed to receive message1: %+v", err)
 	}
 	if len(p.fingerprints) != 1 {
-		t.Errorf("Did not add message1 fingerprint to array")
+		t.Errorf("Did not add message1 fingerprint to array: %d", len(p.fingerprints))
 	}
 
 	err = p.receive(message2)
@@ -179,7 +179,7 @@ func TestProtocol_receive_oldMessage(t *testing.T) {
 		Origin:    []byte("origin"),
 		Payload:   []byte("payload"),
 		Signature: []byte("signature"),
-		Timestamp: time.Now().Add(-time.Second * 10).UnixNano(),
+		Timestamp: time.Now().Add(-time.Minute * 11).UnixNano(),
 	}
 
 	err := p.receive(message1)
@@ -232,6 +232,7 @@ func setup(t *testing.T) *Protocol {
 	p := &Protocol{
 		comms:            c,
 		fingerprints:     map[Fingerprint]*uint64{},
+		oldFingerprints:  map[Fingerprint]*uint64{},
 		fingerprintsLock: sync.RWMutex{},
 		peers:            []*id.ID{},
 		peersLock:        sync.RWMutex{},
@@ -284,9 +285,9 @@ func TestGetFingerprint(t *testing.T) {
 	}
 }
 
-//====================================================================================================================//
+// ====================================================================================================================//
 // Testing Reader of getPeers()
-//====================================================================================================================//
+// ====================================================================================================================//
 type ErrReader struct{}
 
 func (r *ErrReader) Read(p []byte) (n int, err error) {
@@ -309,9 +310,9 @@ func testGetPeersReader(p *Protocol, t *testing.T) {
 	}
 }
 
-//====================================================================================================================//
+// ====================================================================================================================//
 // Testing Result of getPeers()
-//====================================================================================================================//
+// ====================================================================================================================//
 
 // Generates a byte slice of the specified length containing random numbers.
 func newRandomBytes(length int, t *testing.T) []byte {
@@ -473,7 +474,7 @@ func TestGossipNodes(t *testing.T) {
 		pc, listen, err := connect.StartCommServer(node, "0.0.0.0:"+port, certPEM, keyPEM)
 		listeners = append(listeners, listen)
 
-		// Do i need to add other hosts before calling NewManager?
+		// Do I need to add other hosts before calling NewManager?
 		if err != nil {
 			// Not startin' a node? that's a paddlin'
 			t.Fatalf("error starting node %v on port %v w/ err %v", i, port, err)
@@ -494,6 +495,7 @@ func TestGossipNodes(t *testing.T) {
 
 	// Have each node add all other nodes as peers
 	for i := 0; i < numNodes; i++ {
+
 		peers := make([]*id.ID, 0, numNodes)
 		for j := 0; j < numNodes; j++ {
 			if i != j {
@@ -509,6 +511,7 @@ func TestGossipNodes(t *testing.T) {
 		}
 		protoFlags := DefaultProtocolFlags()
 		protoFlags.NumParallelSends = 5
+		protoFlags.MaxGossipAge = 30 * time.Second
 		// Initialize a test gossip protocol on all the servers
 		managers[i].NewGossip("test", protoFlags, func(msg *GossipMsg) error {
 			// receive func
@@ -516,7 +519,6 @@ func TestGossipNodes(t *testing.T) {
 			return nil
 		}, func(msg *GossipMsg, something []byte) error {
 			// check sig func
-			//panic(fmt.Sprintf("sig: %q", sig))
 			if !bytes.Equal(validSig, msg.Signature) {
 				return errors.New("verification error")
 			}
@@ -538,7 +540,7 @@ func TestGossipNodes(t *testing.T) {
 		nodeIndex := numSent % numNodes
 		protocol, ok := managers[nodeIndex].Get("test")
 		if !ok {
-			t.Fatalf("manager %v should have had a test protocol", nodeIndex)
+			t.Fatalf("manager %d should have had a test protocol", nodeIndex)
 		}
 		payload := make([]byte, 8)
 		binary.BigEndian.PutUint64(payload, uint64(numSent))
@@ -558,7 +560,7 @@ func TestGossipNodes(t *testing.T) {
 	// wait for the received messages to get counted
 	time.Sleep(1 * time.Second)
 	numReceivedAfterABit := atomic.LoadUint64(&numReceived)
-	if numReceivedAfterABit != uint64(numNodes*numToSend) {
-		t.Errorf("Received %v messages. Expected %v messages", numReceivedAfterABit, numNodes*numToSend)
+	if numReceivedAfterABit != uint64((numNodes-1)*numToSend) {
+		t.Errorf("Received %d messages. Expected %d messages", numReceivedAfterABit, (numNodes-1)*numToSend)
 	}
 }
