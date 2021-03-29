@@ -76,15 +76,16 @@ func (m *Manager) NewGossip(tag string, flags ProtocolFlags,
 	defer m.protocolLock.Unlock()
 
 	protocol := &Protocol{
-		fingerprints: map[Fingerprint]*uint64{},
-		comms:        m.comms,
-		peers:        peers,
-		flags:        flags,
-		receiver:     receiver,
-		verify:       verifier,
-		IsDefunct:    false,
-		crand:        csprng.NewSystemRNG(),
-		sendWorkers:  make(chan sendInstructions, 100*flags.NumParallelSends),
+		fingerprints:    map[Fingerprint]*uint64{},
+		oldFingerprints: map[Fingerprint]*uint64{},
+		comms:           m.comms,
+		peers:           peers,
+		flags:           flags,
+		receiver:        receiver,
+		verify:          verifier,
+		IsDefunct:       false,
+		crand:           csprng.NewSystemRNG(),
+		sendWorkers:     make(chan sendInstructions, 100*flags.NumParallelSends),
 	}
 
 	// create the runners

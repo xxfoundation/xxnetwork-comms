@@ -127,28 +127,28 @@ func (p *Protocol) Defunct() {
 func (p *Protocol) checkFingerprint(fp Fingerprint) (numSends *uint64, newFp bool) {
 	p.fingerprintsLock.RLock()
 	defer p.fingerprintsLock.RUnlock()
-	numSends, old := p.fingerprints[fp]
-	if !old {
-		numSends, old = p.oldFingerprints[fp]
+	numSends, newFp = p.fingerprints[fp]
+	if !newFp {
+		numSends, newFp = p.oldFingerprints[fp]
 	}
-	newFp = !old
 	return
 }
 
 // Set a fingerprint as received.
 func (p *Protocol) setFingerprint(fp Fingerprint) (numSends *uint64, receive bool) {
 	p.fingerprintsLock.Lock()
-	defer p.fingerprintsLock.Lock()
+	defer p.fingerprintsLock.Unlock()
 	// first redo the check if the fingerprint exists to ensure it was not added
 	// between the previous check and taking the lock
 	numSends, old := p.fingerprints[fp]
 	if !old {
 		numSends, old = p.oldFingerprints[fp]
 	}
-	receive = old
+	receive = !old
 	if receive {
 		numSendsLocal := uint64(0)
 		p.fingerprints[fp] = &numSendsLocal
+		numSends = &numSendsLocal
 	}
 	return
 }
@@ -156,17 +156,16 @@ func (p *Protocol) setFingerprint(fp Fingerprint) (numSends *uint64, receive boo
 // Set a fingerprint as received without race conditions checks.
 func (p *Protocol) setFingerprintUnsafe(fp Fingerprint) {
 	p.fingerprintsLock.Lock()
-	defer p.fingerprintsLock.Lock()
+	defer p.fingerprintsLock.Unlock()
 	numSendsLocal := uint64(0)
 	p.fingerprints[fp] = &numSendsLocal
-	return
 }
 
 // Deletes the old fingerprint buffer and stores the current buffer as the
 // old one
 func (p *Protocol) swapFingerprint() {
 	p.fingerprintsLock.Lock()
-	defer p.fingerprintsLock.Lock()
+	defer p.fingerprintsLock.Unlock()
 	p.oldFingerprints = p.fingerprints
 	p.fingerprints = make(map[Fingerprint]*uint64)
 }
@@ -187,7 +186,7 @@ func (p *Protocol) receive(msg *GossipMsg) error {
 		}
 
 		numSendsPrt, ok = p.setFingerprint(fingerprint)
-		if !ok {
+		if ok {
 			err = p.receiver(msg)
 			if err != nil {
 				return errors.WithMessage(err, "Failed to receive gossip message")
@@ -195,13 +194,16 @@ func (p *Protocol) receive(msg *GossipMsg) error {
 		}
 	}
 
-	// Increment the number of sends for this fingerprint
-	numSends := uint64(0)
-	if ok {
-		numSends = atomic.AddUint64(numSendsPrt, 1)
+	// If the gossip is too old, then don't re-gossip it
+	if time.Since(time.Unix(0, msg.Timestamp)) > p.flags.MaxGossipAge {
+		return nil
 	}
 
-	if numSends < p.flags.MaximumReSends && time.Since(time.Unix(0, msg.Timestamp)) < p.flags.MaxGossipAge {
+	// Increment the number of sends for this fingerprint
+	numSends := uint64(0)
+	numSends = atomic.AddUint64(numSendsPrt, 1)
+
+	if numSends <= p.flags.MaximumReSends {
 		// Since gossip propagates the message across a potentially large message, we don't want this to block
 		go func() {
 			numPeers, errs := p.Gossip(msg)
@@ -264,10 +266,10 @@ func (p *Protocol) Gossip(msg *GossipMsg) (int, []error) {
 	// Set the timestamp if this is the original node
 	if msg.Timestamp == 0 {
 		msg.Timestamp = time.Now().UnixNano()
-	}
 
-	// set the fingerprint so it is not received multiple times
-	p.setFingerprintUnsafe(GetFingerprint(msg))
+		// set the fingerprint so it is not received multiple times
+		p.setFingerprintUnsafe(GetFingerprint(msg))
+	}
 
 	// Internal helper to send the input gossip msg to a given id
 	sendFunc := func(id *id.ID) error {

@@ -23,9 +23,9 @@ func TestManager_Endpoint_toProtocol(t *testing.T) {
 
 	m := NewManager(pc, DefaultManagerFlags())
 
-	var received bool
+	received := make(chan bool)
 	r := func(msg *GossipMsg) error {
-		received = true
+		received <- true
 		return nil
 	}
 	v := func(*GossipMsg, []byte) error {
@@ -44,9 +44,10 @@ func TestManager_Endpoint_toProtocol(t *testing.T) {
 		t.Errorf("Failed to send: %+v", err)
 	}
 
-	time.Sleep(5 * time.Millisecond)
+	select {
+	case <-received:
 
-	if !received {
+	case <-time.NewTimer(5 * time.Millisecond).C:
 		t.Errorf("Didn't receive message in protocol")
 	}
 }
