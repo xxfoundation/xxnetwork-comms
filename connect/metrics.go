@@ -11,6 +11,7 @@ package connect
 
 import (
 	"sync/atomic"
+	"testing"
 )
 
 type Metric struct {
@@ -22,6 +23,22 @@ type Metric struct {
 // Constructor for a Metric object
 func newMetric() *Metric {
 	errCounter := uint64(0)
+	return &Metric{
+		errCounter: &errCounter,
+	}
+}
+
+// Creates a metrics object with specified values. Used for testing
+// purposes only
+func NewMetricTesting(errCounter uint64, face interface{}) *Metric  {
+	// Ensure that this function is only run in testing environments
+	switch face.(type) {
+	case *testing.T, *testing.M, *testing.B:
+	break
+	default:
+	panic("SetMetricsTesting() can only be used for testing.")
+	}
+
 	return &Metric{
 		errCounter: &errCounter,
 	}
