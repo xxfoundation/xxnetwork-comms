@@ -215,7 +215,7 @@ func (h *Host) SetMetricsTesting(m *Metric, face interface{}) {
 		panic("SetMetricsTesting() can only be used for testing.")
 	}
 
-	h.metrics.errCounter = m
+	h.metrics = m
 
 }
 
