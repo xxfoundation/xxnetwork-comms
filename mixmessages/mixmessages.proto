@@ -320,6 +320,7 @@ message BatchSenders {
 message Recipients {
     repeated bytes RecipientIds = 1;
     uint64 RoundID = 2;
+    uint64 RoundTS = 3;
 }
 
 
