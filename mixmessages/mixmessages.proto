@@ -94,6 +94,14 @@ service Node {
 
 }
 
+message TestMessage {
+    // Protobuff does not handle repeated repeated bytes TwoDimensional = 1;
+    // This is the work around
+
+    repeated bytes Data = 2;
+}
+
+
 // RoundInfo contains the # of precomputations ready for messages, among other
 // information
 message RoundBufferInfo {
