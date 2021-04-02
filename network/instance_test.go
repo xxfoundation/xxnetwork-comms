@@ -374,7 +374,8 @@ func TestInstance_GetLastRoundID(t *testing.T) {
 		roundData: ds.NewData(),
 	}
 
-	ri := &mixmessages.RoundInfo{ID: uint64(1)}
+	expectedLastRound := 23
+	ri := &mixmessages.RoundInfo{ID: uint64(expectedLastRound)}
 	pubKey, err := testutils.LoadPublicKeyTesting(t)
 	if err != nil {
 		t.Errorf("Failed to load public key: %v", err)
@@ -383,7 +384,12 @@ func TestInstance_GetLastRoundID(t *testing.T) {
 	rnd := ds.NewRound(ri, pubKey)
 
 	_ = i.roundData.UpsertRound(rnd)
-	i.GetLastRoundID()
+	lastRound := i.GetLastRoundID()
+	if id.Round(expectedLastRound-1) != lastRound {
+		t.Errorf("GetLastRoundID did not return expected value."+
+			"\n\tExpected: %d"+
+			"\n\tRecieved: %d", expectedLastRound-1, lastRound)
+	}
 }
 
 func TestInstance_GetLastUpdateID(t *testing.T) {
@@ -391,7 +397,8 @@ func TestInstance_GetLastUpdateID(t *testing.T) {
 		roundUpdates: ds.NewUpdates(),
 	}
 
-	ri := &mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(1)}
+	expectedUpdateId := 5
+	ri := &mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(expectedUpdateId)}
 	pubKey, err := testutils.LoadPublicKeyTesting(t)
 	if err != nil {
 		t.Errorf("Failed to load public key: %v", err)
@@ -400,7 +407,13 @@ func TestInstance_GetLastUpdateID(t *testing.T) {
 	rnd := ds.NewRound(ri, pubKey)
 
 	_ = i.roundUpdates.AddRound(rnd)
-	i.GetLastUpdateID()
+	lastUpdateId := i.GetLastUpdateID()
+
+	if lastUpdateId != expectedUpdateId {
+		t.Errorf("Last update Id returned unexpected result."+
+			"\n\tExpected: %d"+
+			"\n\tReceived: %d", expectedUpdateId, lastUpdateId)
+	}
 }
 
 func TestInstance_GetOldestRoundID(t *testing.T) {
