@@ -14,6 +14,7 @@ import (
 	"gitlab.com/elixxir/comms/testutils"
 	"gitlab.com/elixxir/primitives/current"
 	"gitlab.com/elixxir/primitives/states"
+	"gitlab.com/xx_network/primitives/netTime"
 	"math/rand"
 	"reflect"
 	"sync"
@@ -302,7 +303,7 @@ func TestWaitingRounds_GetSlice(t *testing.T) {
 func createTestRoundInfos(num int, t *testing.T) ([]*Round, []*Round) {
 	rounds := make([]*Round, num)
 	var expectedRounds []*Round
-	startTime := time.Now().Add(5 * time.Second)
+	startTime := netTime.Now().Add(5 * time.Second)
 	randomRounds := make([]*Round, num)
 	pubKey, err := testutils.LoadPublicKeyTesting(t)
 	if err != nil {
