@@ -34,11 +34,9 @@ func Test_TestMessages(t *testing.T) {
 
 
 	// Print
-	t.Logf("message length: %d", len(anyOneKbMsg.Value))
-	t.Logf("message length: %d", len(anyTwoKbMsg.Value))
-	t.Logf("message length: %d", len(anyNilMsg.Value))
-
-
+	t.Logf("message length for one Kb msg: %d", len(anyOneKbMsg.Value))
+	t.Logf("message length for two Kb msg: %d", len(anyTwoKbMsg.Value))
+	t.Logf("message length for nil msg: %d", len(anyNilMsg.Value))
 }
 
 func populateMessages(len int, t *testing.T,
