@@ -270,6 +270,12 @@ message GatewayPoll {
     int64 EndTimestamp = 5;
 
     bytes ClientVersion = 6;
+
+    // Determines whether client gets filtered network
+    // updates or all updates.
+    // If true, filtered updates relevant to client (FAILED, COMPLETED, QUEUED)
+    // If false, all updates from the network
+    bool FastPolling = 7;
 }
 
 // Unified Client->Gateway polling response
