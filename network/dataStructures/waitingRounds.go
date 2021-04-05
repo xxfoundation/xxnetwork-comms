@@ -12,6 +12,7 @@ import (
 	"github.com/pkg/errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/primitives/states"
+	"gitlab.com/xx_network/primitives/netTime"
 	"sync"
 	"time"
 )
@@ -108,7 +109,7 @@ func (wr *WaitingRounds) getFurthest(exclude *set.Set, cutoffDelta time.Duration
 	wr.mux.RLock()
 	defer wr.mux.RUnlock()
 
-	earliestStart := time.Now().Add(cutoffDelta)
+	earliestStart := netTime.Now().Add(cutoffDelta)
 
 	// Return nil for an empty list
 	if wr.Len() == 0 {
@@ -137,7 +138,7 @@ func (wr *WaitingRounds) getClosest(exclude *set.Set, minRoundAge time.Duration)
 	wr.mux.RLock()
 	defer wr.mux.RUnlock()
 
-	earliestStart := time.Now().Add(minRoundAge)
+	earliestStart := netTime.Now().Add(minRoundAge)
 
 	// Return nil for an empty list
 	if wr.Len() == 0 {
@@ -173,7 +174,7 @@ func (wr *WaitingRounds) GetSlice() []*pb.RoundInfo {
 	wr.mux.RLock()
 	defer wr.mux.RUnlock()
 
-	now := uint64(time.Now().Nanosecond())
+	now := uint64(netTime.Now().Nanosecond())
 	var roundInfos []*pb.RoundInfo
 	iter := 0
 	for e, i := wr.rounds.Front(), 0; e != nil; e, i = e.Next(), i+1 {
