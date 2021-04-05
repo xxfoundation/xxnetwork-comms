@@ -39,7 +39,7 @@ func TestFilteredUpdates_RoundUpdate(t *testing.T) {
 	}
 	testFilter := NewFilteredUpdates(&pc)
 	pub := testkeys.LoadFromPath(testkeys.GetNodeCertPath())
-	err = testFilter.roundUpdate(validMsg)
+	err = testFilter.RoundUpdate(validMsg)
 	if err == nil {
 		t.Error("Should have failed to get perm host")
 	}
@@ -48,7 +48,7 @@ func TestFilteredUpdates_RoundUpdate(t *testing.T) {
 	if err != nil {
 		t.Errorf("failed to add bad host: %+v", err)
 	}
-	err = testFilter.roundUpdate(validMsg)
+	err = testFilter.RoundUpdate(validMsg)
 	// Fixme
 	/*	if err == nil {
 		t.Error("Should have failed to verify")
@@ -67,7 +67,7 @@ func TestFilteredUpdates_RoundUpdate(t *testing.T) {
 		BatchSize: 8,
 	}
 
-	err = testFilter.roundUpdate(invalidMsg)
+	err = testFilter.RoundUpdate(invalidMsg)
 	if err != nil {
 		t.Errorf("Failed to update round: %v", err)
 	}

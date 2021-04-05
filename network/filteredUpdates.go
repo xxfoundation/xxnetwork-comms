@@ -47,7 +47,7 @@ func (fu *FilteredUpdates) GetLastUpdateID() int {
 func (fu *FilteredUpdates) RoundUpdates(rounds []*pb.RoundInfo) error {
 	// Process all rounds passed in
 	for _, round := range rounds {
-		err := fu.roundUpdate(round)
+		err := fu.RoundUpdate(round)
 		if err != nil {
 			return err
 		}
@@ -56,7 +56,7 @@ func (fu *FilteredUpdates) RoundUpdates(rounds []*pb.RoundInfo) error {
 }
 
 // Add a round to the updates filter
-func (fu *FilteredUpdates) roundUpdate(info *pb.RoundInfo) error {
+func (fu *FilteredUpdates) RoundUpdate(info *pb.RoundInfo) error {
 	switch states.Round(info.State) {
 	// Only add to filter states client cares about
 	case states.COMPLETED, states.FAILED, states.QUEUED:
