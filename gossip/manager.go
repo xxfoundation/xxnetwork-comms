@@ -163,8 +163,8 @@ func (m *Manager) bufferMonitor() chan bool {
 }
 
 // launches numWorkers routines to handle sending of gossips for this protocol
-func launchSendWorkers(numWorkers uint8, receiver chan sendInstructions) {
-	for i := uint8(0); i < numWorkers; i++ {
+func launchSendWorkers(numWorkers uint32, receiver chan sendInstructions) {
+	for i := uint32(0); i < numWorkers; i++ {
 		go func() {
 			for {
 				// get a gossip send
