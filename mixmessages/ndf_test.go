@@ -12,7 +12,6 @@ import (
 	"crypto"
 	"crypto/rand"
 	"encoding/base64"
-	"github.com/katzenpost/core/crypto/eddsa"
 	"gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/comms/signature"
 	"gitlab.com/xx_network/crypto/signature/rsa"
@@ -24,7 +23,7 @@ import (
 // If this ever fails, check for modifications in the source library
 //  as well as for this message type
 var _ = signature.GenericRsaSignable(&NDF{})
-var _ = signature.GenericEccSignable(&NDF{})
+
 // ------------------------------------ Get tests ------------------------------------------
 
 // Happy path
@@ -165,67 +164,6 @@ func TestNdf_SignVerify_Error(t *testing.T) {
 
 	// Verify signature
 	err = signature.Verify(testNdf, pubKey)
-	// Verify signature
-	if err == nil {
-		t.Error("Expected error path: Should not have verified!")
-	}
-
-}
-
-// Happy path
-func TestNDF_SignVerifyEddsa(t *testing.T) {
-	// Create ndf object
-	ourNdf := []byte("testNdf")
-	testNdf := &NDF{
-		Ndf: ourNdf,
-	}
-	// Generate keys
-	privateKey, err := eddsa.NewKeypair(rand.Reader)
-	if err != nil {
-		t.Fatalf("Failed to generate key: %+v", err)
-	}
-	pubKey := privateKey.PublicKey()
-
-	// Sign message
-	err = signature.SignEddsa(testNdf, privateKey)
-	if err != nil {
-		t.Errorf("Unable to sign message: %+v", err)
-	}
-
-	// Verify signature
-	err = signature.VerifyEddsa(testNdf, pubKey)
-	if err != nil {
-		t.Errorf("Expected happy path! Failed to verify: %+v", err)
-	}
-
-}
-
-// Error path: Change internals of message between signing and verifying
-func TestNdf_SignVerifyEddsa_Error(t *testing.T) {
-	// Create ndf object
-	ourNdf := []byte("testNdf")
-	testNdf := &NDF{
-		Ndf: ourNdf,
-	}
-
-	// Generate keys
-	privateKey, err := eddsa.NewKeypair(rand.Reader)
-	if err != nil {
-		t.Errorf("Failed to generate key: %+v", err)
-	}
-	pubKey := privateKey.PublicKey()
-
-	// Sign message
-	err = signature.SignEddsa(testNdf, privateKey)
-	if err != nil {
-		t.Errorf("Unable to sign message: %+v", err)
-	}
-
-	// Reset ndf value so verify()'s signature won't match
-	testNdf.Ndf = []byte("invalidChange")
-
-	// Verify signature
-	err = signature.VerifyEddsa(testNdf, pubKey)
 	// Verify signature
 	if err == nil {
 		t.Error("Expected error path: Should not have verified!")

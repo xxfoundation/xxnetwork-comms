@@ -31,6 +31,16 @@ func (m *RoundInfo) GetSig() *messages.RSASignature {
 	return m.Signature
 }
 
+func (m *RoundInfo) GetEccSig() *messages.ECCSignature {
+	if m.EccSignature != nil {
+		return m.EccSignature
+	}
+
+	m.EccSignature = new(messages.ECCSignature)
+
+	return m.EccSignature
+}
+
 // Digest hashes the contents of the message in a repeatable manner
 // using the provided cryptographic hash. It includes the nonce in the hash
 func (m *RoundInfo) Digest(nonce []byte, h hash.Hash) []byte {

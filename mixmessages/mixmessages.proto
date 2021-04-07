@@ -375,7 +375,6 @@ message NDFHash {
 message NDF{
     bytes Ndf = 1;
     messages.RSASignature Signature = 2;
-    messages.ECCSignature EccSignature = 3;
 }
 
 // NodeRegistration contains information to register a node.
@@ -585,6 +584,7 @@ message RoundInfo {
     uint32 ResourceQueueTimeoutMillis = 9; // Timeout for resource queue on nodes
     messages.RSASignature Signature = 10;
     uint32 AddressSpaceSize = 11;
+    messages.ECCSignature EccSignature = 12;
 }
 
 // RoundError will be used to describe a round error
