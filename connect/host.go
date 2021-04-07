@@ -204,6 +204,21 @@ func (h *Host) isExcludedMetricError(err string) bool {
 	return false
 }
 
+// Sets the host metrics to an arbitrary value. Used for testing
+// purposes only
+func (h *Host) SetMetricsTesting(m *Metric, face interface{}) {
+	// Ensure that this function is only run in testing environments
+	switch face.(type) {
+	case *testing.T, *testing.M, *testing.B:
+		break
+	default:
+		panic("SetMetricsTesting() can only be used for testing.")
+	}
+
+	h.metrics = m
+
+}
+
 // Disconnect closes a the Host connection under the write lock
 func (h *Host) Disconnect() {
 	h.sendMux.Lock()

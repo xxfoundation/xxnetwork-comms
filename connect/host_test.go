@@ -202,14 +202,14 @@ func TestHost_GetMetrics(t *testing.T) {
 
 	// Check that the metricCopy has the expected error count
 	metricCopy := host.GetMetrics()
-	if *metricCopy.ErrCounter != uint64(expectedCount) {
+	if *metricCopy.errCounter != uint64(expectedCount) {
 		t.Errorf("GetMetric() did not pull expected state."+
 			"\n\tExpected: %v"+
-			"\n\tReceived: %v", expectedCount, *metricCopy.ErrCounter)
+			"\n\tReceived: %v", expectedCount, *metricCopy.errCounter)
 	}
 
 	// Check that the original metric's state has been reset
-	if *host.metrics.ErrCounter != uint64(0) {
+	if *host.metrics.errCounter != uint64(0) {
 		t.Errorf("get call should reset state for metric")
 	}
 
