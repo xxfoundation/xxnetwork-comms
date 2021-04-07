@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"gitlab.com/elixxir/crypto/hash"
 	"gitlab.com/xx_network/comms/signature"
+	"gitlab.com/xx_network/primitives/netTime"
 	"math/rand"
 	"reflect"
 	"strings"
 	"testing"
-	"time"
 )
 
 var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
@@ -34,7 +34,7 @@ func checkdigest(t *testing.T, gs signature.GenericSignable) {
 	oldDigest := gs.Digest([]byte{}, h)
 
 	// Setup RNG to fill fields with
-	now := time.Now()
+	now := netTime.Now()
 	rand.Seed(now.Unix())
 
 	// For every value in the passed in struct
