@@ -24,6 +24,7 @@ import (
 	"math"
 	"sync"
 	"sync/atomic"
+	"time"
 )
 
 // Defines the type of Gossip message fingerprints
@@ -56,9 +57,12 @@ func Marshal(msg *GossipMsg) []byte {
 
 // Gossip-related configuration flag
 type ProtocolFlags struct {
-	FanOut                  uint8  // Default = 0
-	MaxRecordedFingerprints uint64 // Default = 10000000
-	MaximumReSends          uint64 // Default = 3
+	FanOut                  uint8         // Default = 0
+	MaxRecordedFingerprints uint64        // Default = 10000000
+	MaximumReSends          uint64        // Default = 3
+	NumParallelSends        uint32         // Default = 5
+	MaxGossipAge            time.Duration // Default = 10 * time.Second
+	SelfGossip              bool          // Default = false
 }
 
 // Returns a ProtocolFlags object with all flags set to their defaults
@@ -67,6 +71,9 @@ func DefaultProtocolFlags() ProtocolFlags {
 		FanOut:                  0,
 		MaxRecordedFingerprints: 10000000,
 		MaximumReSends:          3,
+		NumParallelSends:        500,
+		MaxGossipAge:            10 * time.Second,
+		SelfGossip:              false,
 	}
 }
 
@@ -77,6 +84,7 @@ type Protocol struct {
 	// Thread-safe record of all Gossip messages for this Protocol
 	// NOTE: Must avoid unlimited growth
 	fingerprints     map[Fingerprint]*uint64
+	oldFingerprints  map[Fingerprint]*uint64
 	fingerprintsLock sync.RWMutex
 
 	// Thread-safe list of peers for the Protocol
@@ -98,6 +106,16 @@ type Protocol struct {
 
 	// Random Reader
 	crand io.Reader
+
+	// worker pool channel for sending
+	sendWorkers chan sendInstructions
+}
+
+type sendInstructions struct {
+	sendFunc   func(id *id.ID) error
+	peer       *id.ID
+	errChannel chan error
+	wait       *sync.WaitGroup
 }
 
 // Marks a Protocol as Defunct such that it will ignore new messages
@@ -107,6 +125,53 @@ func (p *Protocol) Defunct() {
 	p.defunctLock.Unlock()
 }
 
+// check if a fingerprint has been received before
+func (p *Protocol) checkFingerprint(fp Fingerprint) (numSends *uint64, newFp bool) {
+	p.fingerprintsLock.RLock()
+	defer p.fingerprintsLock.RUnlock()
+	numSends, newFp = p.fingerprints[fp]
+	if !newFp {
+		numSends, newFp = p.oldFingerprints[fp]
+	}
+	return
+}
+
+// Set a fingerprint as received.
+func (p *Protocol) setFingerprint(fp Fingerprint) (numSends *uint64, receive bool) {
+	p.fingerprintsLock.Lock()
+	defer p.fingerprintsLock.Unlock()
+	// first redo the check if the fingerprint exists to ensure it was not added
+	// between the previous check and taking the lock
+	numSends, old := p.fingerprints[fp]
+	if !old {
+		numSends, old = p.oldFingerprints[fp]
+	}
+	receive = !old
+	if receive {
+		numSendsLocal := uint64(0)
+		p.fingerprints[fp] = &numSendsLocal
+		numSends = &numSendsLocal
+	}
+	return
+}
+
+// Set a fingerprint as received without race conditions checks.
+func (p *Protocol) setFingerprintUnsafe(fp Fingerprint) {
+	p.fingerprintsLock.Lock()
+	defer p.fingerprintsLock.Unlock()
+	numSendsLocal := uint64(0)
+	p.fingerprints[fp] = &numSendsLocal
+}
+
+// Deletes the old fingerprint buffer and stores the current buffer as the
+// old one
+func (p *Protocol) swapFingerprint() {
+	p.fingerprintsLock.Lock()
+	defer p.fingerprintsLock.Unlock()
+	p.oldFingerprints = p.fingerprints
+	p.fingerprints = make(map[Fingerprint]*uint64)
+}
+
 // Receive a Gossip Message and check fingerprints map
 // (if unique calls GossipSignatureVerify -> Receiver)
 func (p *Protocol) receive(msg *GossipMsg) error {
@@ -114,39 +179,33 @@ func (p *Protocol) receive(msg *GossipMsg) error {
 
 	// Check fingerprint of the message against our record
 	fingerprint := GetFingerprint(msg)
-	p.fingerprintsLock.RLock()
-	numSendsPrt, ok := p.fingerprints[fingerprint]
-	p.fingerprintsLock.RUnlock()
-	//if there is no record of receiving the fingerprint, process it as new
+	numSendsPrt, ok := p.checkFingerprint(fingerprint)
+	// if there is no record of receiving the fingerprint, process it as new
 	if !ok {
 		err = p.verify(msg, nil)
 		if err != nil {
 			return errors.WithMessage(err, "Failed to verify gossip message")
 		}
-		p.fingerprintsLock.Lock()
-		// redo the check if the fingerprint exists to ensure it was not added
-		// between the previous check and taking the lock
-		numSendsPrt, ok = p.fingerprints[fingerprint]
-		if !ok {
-			numSendsLocal := uint64(0)
-			p.fingerprints[fingerprint] = &numSendsLocal
-			p.fingerprintsLock.Unlock()
+
+		numSendsPrt, ok = p.setFingerprint(fingerprint)
+		if ok {
 			err = p.receiver(msg)
 			if err != nil {
 				return errors.WithMessage(err, "Failed to receive gossip message")
 			}
-		} else {
-			p.fingerprintsLock.Unlock()
 		}
+	}
+
+	// If the gossip is too old, then don't re-gossip it
+	if time.Since(time.Unix(0, msg.Timestamp)) > p.flags.MaxGossipAge {
+		return nil
 	}
 
 	// Increment the number of sends for this fingerprint
 	numSends := uint64(0)
-	if ok {
-		numSends = atomic.AddUint64(numSendsPrt, 1)
-	}
+	numSends = atomic.AddUint64(numSendsPrt, 1)
 
-	if numSends < p.flags.MaximumReSends {
+	if numSends <= p.flags.MaximumReSends {
 		// Since gossip propagates the message across a potentially large message, we don't want this to block
 		go func() {
 			numPeers, errs := p.Gossip(msg)
@@ -206,6 +265,16 @@ func (p *Protocol) RemoveGossipPeer(id *id.ID) error {
 
 // Builds and sends a GossipMsg
 func (p *Protocol) Gossip(msg *GossipMsg) (int, []error) {
+	// Set the timestamp if this is the original node
+	if msg.Timestamp == 0 {
+		msg.Timestamp = time.Now().UnixNano()
+
+		// set the fingerprint so it is not received multiple times
+		if !p.flags.SelfGossip {
+			p.setFingerprintUnsafe(GetFingerprint(msg))
+		}
+	}
+
 	// Internal helper to send the input gossip msg to a given id
 	sendFunc := func(id *id.ID) error {
 		h, ok := p.comms.GetHost(id)
@@ -234,16 +303,36 @@ func (p *Protocol) Gossip(msg *GossipMsg) (int, []error) {
 	}
 
 	// Send message to each peer
-	errCount := 0
-	var errs []error
-	for _, p := range peers {
-		sendErr := sendFunc(p) // TODO: Should this happen in a gofunc?
-		if sendErr != nil {
-			errs = append(errs, errors.WithMessagef(sendErr, "Failed to send to ID %s", p))
-			errCount++
+	errCh := make(chan error, len(peers))
+	wg := sync.WaitGroup{}
+	wg.Add(len(peers))
+	// send signals to the worker threads to do the sends
+	for _, peer := range peers {
+		p.sendWorkers <- sendInstructions{
+			sendFunc:   sendFunc,
+			peer:       peer.DeepCopy(),
+			errChannel: errCh,
+			wait:       &wg,
 		}
 	}
-	if errCount > 0 {
+
+	// wait for sends to complete
+	wg.Wait()
+
+	// get any errors
+	done := false
+	var errs []error
+	for !done {
+		// pull from the channel until errors are exhausted
+		select {
+		case newErr := <-errCh:
+			errs = append(errs, newErr)
+		default:
+			done = true
+		}
+	}
+
+	if len(errs) > 0 {
 		return len(peers), errs
 	} else {
 		return len(peers), nil

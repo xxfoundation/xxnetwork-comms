@@ -54,11 +54,11 @@ func TestManager_NewGossip_WithBuffer(t *testing.T) {
 
 	m := NewManager(pc, DefaultManagerFlags())
 	m.buffer["test"] = &MessageRecord{
-		Timestamp: time.Time{},
+		Timestamp: time.Now(),
 		Messages:  []*GossipMsg{{Tag: "testmsg"}},
 	}
 
-	originalBufferLen := len(m.buffer)
+	// originalBufferLen := len(m.buffer)
 
 	var received bool
 	r := func(msg *GossipMsg) error {
@@ -78,8 +78,8 @@ func TestManager_NewGossip_WithBuffer(t *testing.T) {
 		t.Errorf("Did not receive message in buffer")
 	}
 
-	if originalBufferLen-len(m.buffer) != 1 {
-		t.Errorf("Did not clear buffer after reception")
+	if len(m.buffer) != 0 {
+		t.Errorf("Did not clear buffer after reception, length of %d", len(m.buffer))
 	}
 }
 
