@@ -8,7 +8,6 @@ package signature
 
 import (
 	"crypto/rand"
-	"errors"
 	"gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/crypto/signature/rsa"
 	"hash"
@@ -143,6 +142,11 @@ func TestSignVerify_Error(t *testing.T) {
 type TestSignable struct {
 	id        []byte
 	signature *messages.RSASignature
+	eccSig    *messages.ECCSignature
+}
+
+func (ts *TestSignable) GetMessage() []byte {
+	return ts.id
 }
 
 func (ts *TestSignable) Digest(nonce []byte, h hash.Hash) []byte {
@@ -163,13 +167,12 @@ func (ts *TestSignable) GetSig() *messages.RSASignature {
 
 }
 
-func (ts *TestSignable) SetSignature(signature, nonce []byte) error {
-	if signature == nil {
-		return errors.New("Cannot set signature to nil value")
+func (ts *TestSignable) GetEccSig() *messages.ECCSignature {
+	if ts.eccSig != nil {
+		return ts.eccSig
 	}
-	ts.signature = &messages.RSASignature{
-		Nonce:     nonce,
-		Signature: signature,
-	}
-	return nil
+
+	ts.eccSig = new(messages.ECCSignature)
+
+	return ts.eccSig
 }
