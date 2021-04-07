@@ -39,3 +39,13 @@ func (m *NDF) Digest(nonce []byte, h hash.Hash) []byte {
 	// Return the hash
 	return h.Sum(nil)
 }
+
+func (m *NDF) GetEccSig() *messages.ECCSignature {
+	if m.EccSignature != nil {
+		return m.EccSignature
+	}
+
+	m.EccSignature = new(messages.ECCSignature)
+
+	return m.EccSignature
+}

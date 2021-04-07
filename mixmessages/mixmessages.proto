@@ -375,6 +375,7 @@ message NDFHash {
 message NDF{
     bytes Ndf = 1;
     messages.RSASignature Signature = 2;
+    messages.ECCSignature EccSignature = 3;
 }
 
 // NodeRegistration contains information to register a node.

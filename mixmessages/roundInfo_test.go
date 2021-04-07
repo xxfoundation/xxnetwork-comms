@@ -23,7 +23,7 @@ import (
 // Ensure message type conforms to genericSignable interface
 // If this ever fails, check for modifications in the source library
 //  as well as for this message type
-var _ = signature.GenericSignable(&RoundInfo{})
+var _ = signature.GenericRsaSignable(&RoundInfo{})
 
 // -------------------------- Get tests --------------------------------------
 

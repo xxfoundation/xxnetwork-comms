@@ -22,7 +22,7 @@ func RandStringRunes(n int) string {
 	return string(b)
 }
 
-func checkdigest(t *testing.T, gs signature.GenericSignable) {
+func checkdigest(t *testing.T, gs signature.GenericRsaSignable) {
 	r := reflect.ValueOf(gs).Elem()
 
 	h, err := hash.NewCMixHash()
@@ -45,7 +45,7 @@ func checkdigest(t *testing.T, gs signature.GenericSignable) {
 		valField := r.Field(i)
 		typeField := r.Type().Field(i)
 
-		if typeField.Name == "Signature" || typeField.Name == "state" || typeField.Name == "sizeCache" || typeField.Name == "unknownFields" || strings.Contains(typeField.Name, "XXX") {
+		if typeField.Name == "EccSignature" || typeField.Name == "Signature" || typeField.Name == "state" || typeField.Name == "sizeCache" || typeField.Name == "unknownFields" || strings.Contains(typeField.Name, "XXX") {
 			fmt.Printf("Skipping field.\n")
 			continue
 		}
