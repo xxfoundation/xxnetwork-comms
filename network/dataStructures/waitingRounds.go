@@ -12,6 +12,7 @@ import (
 	"github.com/pkg/errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/primitives/states"
+	"gitlab.com/xx_network/primitives/netTime"
 	"sync"
 	"time"
 )
@@ -92,7 +93,7 @@ func getTime(round *Round) uint64 {
 // remove deletes the round from the list if it exists.
 func (wr *WaitingRounds) remove(newRound *Round) {
 	// Look for a node with a matching ID from the list
-	for e := wr.rounds.Back(); e != nil; e = e.Prev() {
+	for e := wr.rounds.Front(); e != nil; e = e.Next() {
 		extractedRound := e.Value.(*Round)
 		if extractedRound.info.ID == newRound.info.ID {
 			wr.rounds.Remove(e)
@@ -103,12 +104,12 @@ func (wr *WaitingRounds) remove(newRound *Round) {
 
 // getFurthest returns the round that will occur furthest in the future. If the
 // list is empty, then nil is returned. If the round is on the exclusion list,
-// then the following round is checked.
+// then the next round is checked.
 func (wr *WaitingRounds) getFurthest(exclude *set.Set, cutoffDelta time.Duration) *Round {
 	wr.mux.RLock()
 	defer wr.mux.RUnlock()
 
-	earliestStart := time.Now().Add(cutoffDelta)
+	earliestStart := netTime.Now().Add(cutoffDelta)
 
 	// Return nil for an empty list
 	if wr.Len() == 0 {
@@ -118,8 +119,37 @@ func (wr *WaitingRounds) getFurthest(exclude *set.Set, cutoffDelta time.Duration
 	// Return the last non-excluded round in the list
 	for e := wr.rounds.Back(); e != nil; e = e.Prev() {
 		r := e.Value.(*Round)
-		// Can't guarantee round object's pointers will
-		// be exact match of value in set
+		// Cannot guarantee that the round object's pointers will be exact match
+		// of value in set
+		RoundStartTime := time.Unix(0, int64(r.info.Timestamps[states.QUEUED]))
+		if RoundStartTime.After(earliestStart) && !isExcluded(exclude, r.info) {
+			return r
+		}
+	}
+
+	// If all the rounds in the list are excluded, then return nil
+	return nil
+}
+
+// getClosest returns the round that will occur soonest in the future. If the
+// list is empty, then nil is returned. If the round is on the exclusion list,
+// then the next round is checked.
+func (wr *WaitingRounds) getClosest(exclude *set.Set, minRoundAge time.Duration) *Round {
+	wr.mux.RLock()
+	defer wr.mux.RUnlock()
+
+	earliestStart := netTime.Now().Add(minRoundAge)
+
+	// Return nil for an empty list
+	if wr.Len() == 0 {
+		return nil
+	}
+
+	// Return the first non-excluded round in the list
+	for e := wr.rounds.Front(); e != nil; e = e.Next() {
+		r := e.Value.(*Round)
+		// Cannot guarantee that the round object's pointers will be exact match
+		// of value in set
 		RoundStartTime := time.Unix(0, int64(r.info.Timestamps[states.QUEUED]))
 		if RoundStartTime.After(earliestStart) && !isExcluded(exclude, r.info) {
 			return r
@@ -144,7 +174,7 @@ func (wr *WaitingRounds) GetSlice() []*pb.RoundInfo {
 	wr.mux.RLock()
 	defer wr.mux.RUnlock()
 
-	now := uint64(time.Now().Nanosecond())
+	now := uint64(netTime.Now().Nanosecond())
 	var roundInfos []*pb.RoundInfo
 	iter := 0
 	for e, i := wr.rounds.Front(), 0; e != nil; e, i = e.Next(), i+1 {
@@ -162,7 +192,8 @@ func (wr *WaitingRounds) GetSlice() []*pb.RoundInfo {
 // GetUpcomingRealtime returns the round that will occur furthest in the future.
 // If the list is empty, then it waits waits for a round to be added for the
 // specified duration. If no round is added, then an error is returned.
-func (wr *WaitingRounds) GetUpcomingRealtime(timeout time.Duration, exclude *set.Set, cutoffDelta time.Duration) (*pb.RoundInfo, error) {
+func (wr *WaitingRounds) GetUpcomingRealtime(timeout time.Duration,
+	exclude *set.Set, minRoundAge time.Duration) (*pb.RoundInfo, error) {
 
 	// Start timeout timer
 	timer := time.NewTimer(timeout)
@@ -178,7 +209,7 @@ func (wr *WaitingRounds) GetUpcomingRealtime(timeout time.Duration, exclude *set
 
 	// If rounds already exist in the list, then return the the correct round
 	// without waiting
-	round := wr.getFurthest(exclude, cutoffDelta)
+	round := wr.getClosest(exclude, minRoundAge)
 	if round != nil {
 		// Retrieve/validate and return the round info object
 		return round.Get(), nil
@@ -190,7 +221,7 @@ func (wr *WaitingRounds) GetUpcomingRealtime(timeout time.Duration, exclude *set
 		case <-timer.C:
 			return nil, timeOutError
 		case <-sig:
-			round := wr.getFurthest(exclude, cutoffDelta)
+			round := wr.getClosest(exclude, minRoundAge)
 			if round != nil {
 				// Retrieve/validate and return the round info object
 				return round.Get(), nil
