@@ -220,6 +220,7 @@ message HistoricalRoundsResponse{
 message GetMessages{
     bytes ClientID = 1;
     uint64 RoundID = 2;
+    bytes Target = 3;
 }
 
 // Gateway response to a GetMessages request
@@ -300,6 +301,7 @@ message GatewaySlot{
     Slot Message = 1;
     uint64 RoundID = 2;
     bytes MAC = 3;
+    bytes Target = 4;
 }
 
 // Gateway -> Client authentication response
@@ -413,6 +415,7 @@ message NonceRequest {
     messages.RSASignature ClientSignedByServer = 3;
     bytes ClientDHPubKey = 4;
     messages.RSASignature RequestSignature = 5;
+    bytes Target = 6;
 }
 
 // Nonce message to reply to client from server (going through gateway)
@@ -427,6 +430,7 @@ message RequestRegistrationConfirmation {
     bytes userID = 1;
     messages.RSASignature NonceSignedByClient = 2;
     string Error = 3;
+    bytes Target = 4;
 }
 
 // RegistrationConfirmation returning proof of registration
