@@ -34,7 +34,6 @@ func TestHost_GetCertificate(t *testing.T) {
 
 	host := Host{
 		certificate:  testCert,
-		maxRetries:   0,
 		connection:   nil,
 		credentials:  nil,
 		rsaPublicKey: nil,
@@ -148,4 +147,70 @@ func TestHost_IsOnline(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unable to close listening server: %+v", err)
 	}
+}
+
+// Full test of isExcludedMetricError
+func TestHost_IsExcludedError(t *testing.T) {
+	addr := "0.0.0.0:10234"
+
+	// Create the host
+	host, err := NewHost(id.NewIdFromString("test", id.Gateway, t), addr, nil,
+		GetDefaultHostParams())
+	if err != nil {
+		t.Errorf("Unable to create host: %+v", host)
+		return
+	}
+
+	excludedErr := "Invalid request"
+	nonExcludedErr := "Non-excluded error"
+	excludedErrors := []string{
+		excludedErr,
+		"451 Page Blocked",
+		"Could not validate"}
+
+	host.params.ExcludeMetricErrors = excludedErrors
+
+	// Check if excluded error is in list
+	if !host.isExcludedMetricError(excludedErr) {
+		t.Errorf("Excluded error expected to be in excluded error list."+
+			"\n\tExcluded error: %s"+
+			"\n\tError list: %v", excludedErr, excludedErrors)
+	}
+
+	// Check if non-excluded error is not in the list
+	if host.isExcludedMetricError(nonExcludedErr) {
+		t.Errorf("Non-excluded error found to be in excluded error list")
+	}
+}
+
+// Full test of GetMetric
+func TestHost_GetMetrics(t *testing.T) {
+	addr := "0.0.0.0:10234"
+
+	// Create the host
+	host, err := NewHost(id.NewIdFromString("test", id.Gateway, t), addr, nil,
+		GetDefaultHostParams())
+	if err != nil {
+		t.Errorf("Unable to create host: %+v", host)
+		return
+	}
+
+	expectedCount := 25
+	for i := 0; i < expectedCount; i++ {
+		host.metrics.incrementErrors()
+	}
+
+	// Check that the metricCopy has the expected error count
+	metricCopy := host.GetMetrics()
+	if *metricCopy.errCounter != uint64(expectedCount) {
+		t.Errorf("GetMetric() did not pull expected state."+
+			"\n\tExpected: %v"+
+			"\n\tReceived: %v", expectedCount, *metricCopy.errCounter)
+	}
+
+	// Check that the original metric's state has been reset
+	if *host.metrics.errCounter != uint64(0) {
+		t.Errorf("get call should reset state for metric")
+	}
+
 }

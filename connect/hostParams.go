@@ -24,6 +24,13 @@ type HostParams struct {
 
 	// Amount of time after a cool off is triggered before allowed to send again
 	CoolOffTimeout time.Duration
+
+	// If set, metric handling will be enabled on this host
+	EnableMetrics bool
+
+	// List of sending errors that are deemed unimportant
+	// Reception of these errors will not update the Metric's state
+	ExcludeMetricErrors []string
 }
 
 // Get default set of host params
@@ -34,5 +41,7 @@ func GetDefaultHostParams() HostParams {
 		EnableCoolOff:         false,
 		NumSendsBeforeCoolOff: 3,
 		CoolOffTimeout:        60 * time.Second,
+		EnableMetrics:         false,
+		ExcludeMetricErrors:   make([]string, 0),
 	}
 }

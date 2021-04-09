@@ -24,6 +24,7 @@ import (
 	"google.golang.org/grpc/keepalive"
 	"math"
 	"net"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -62,9 +63,6 @@ type Host struct {
 	// Live used for sending to this host
 	transmissionToken *token.Live
 
-	// Configure the maximum number of connection attempts
-	maxRetries uint32
-
 	// GRPC connection object
 	connection      *grpc.ClientConn
 	connectionCount uint64
@@ -75,18 +73,21 @@ type Host struct {
 	// RSA Public Key corresponding to the TLS Certificate
 	rsaPublicKey *rsa.PublicKey
 
-	// If set, reverse authentication will be established with this Host
-	enableAuth bool
-
 	// Indicates whether dynamic authentication was used for this Host
 	// This is useful for determining whether a Host's key was hardcoded
 	dynamicHost bool
+
+	// State tracking for host metric
+	metrics *Metric
 
 	// Send lock
 	sendMux sync.RWMutex
 
 	coolOffBucket *rateLimiting.Bucket
 	inCoolOff     bool
+
+	// Stored default values (should be non-mutated)
+	params HostParams
 }
 
 // Creates a new Host object
@@ -96,10 +97,10 @@ func NewHost(id *id.ID, address string, cert []byte, params HostParams) (host *H
 	host = &Host{
 		id:                id,
 		certificate:       cert,
-		enableAuth:        params.AuthEnabled,
 		transmissionToken: token.NewLive(),
 		receptionToken:    token.NewLive(),
-		maxRetries:        params.MaxRetries,
+		metrics:           newMetric(),
+		params:            params,
 	}
 
 	if params.EnableCoolOff {
@@ -108,8 +109,8 @@ func NewHost(id *id.ID, address string, cert []byte, params HostParams) (host *H
 			params.CoolOffTimeout, nil)
 	}
 
-	if host.maxRetries == 0 {
-		host.maxRetries = math.MaxUint32
+	if host.params.MaxRetries == 0 {
+		host.params.MaxRetries = math.MaxUint32
 	}
 
 	host.UpdateAddress(address)
@@ -185,6 +186,39 @@ func (h *Host) UpdateAddress(address string) {
 	h.addressAtomic.Store(address)
 }
 
+// GetMetrics returns a deep copy of Host's Metric
+// This resets the state of metrics
+func (h *Host) GetMetrics() *Metric {
+	return h.metrics.get()
+}
+
+// isExcludedMetricError determines if err is within the list
+// of excludeMetricErrors.  Returns true if it's an excluded error,
+// false if it is not
+func (h *Host) isExcludedMetricError(err string) bool {
+	for _, excludedErr := range h.params.ExcludeMetricErrors {
+		if strings.Contains(excludedErr, err) {
+			return true
+		}
+	}
+	return false
+}
+
+// Sets the host metrics to an arbitrary value. Used for testing
+// purposes only
+func (h *Host) SetMetricsTesting(m *Metric, face interface{}) {
+	// Ensure that this function is only run in testing environments
+	switch face.(type) {
+	case *testing.T, *testing.M, *testing.B:
+		break
+	default:
+		panic("SetMetricsTesting() can only be used for testing.")
+	}
+
+	h.metrics = m
+
+}
+
 // Disconnect closes a the Host connection under the write lock
 func (h *Host) Disconnect() {
 	h.sendMux.Lock()
@@ -241,6 +275,14 @@ func (h *Host) transmit(f func(conn *grpc.ClientConn) (interface{},
 
 	a, err := f(h.connection)
 
+	if h.params.EnableMetrics && err != nil {
+		// Checks if the received error is a among excluded errors
+		// If it is not an excluded error, update host's metrics
+		if !h.isExcludedMetricError(err.Error()) {
+			h.metrics.incrementErrors()
+		}
+	}
+
 	return a, err
 }
 
@@ -261,7 +303,7 @@ func (h *Host) connect() error {
 // the remote.  This is used exclusively under the lock in protocoms.transmit so
 // no lock is needed
 func (h *Host) authenticationRequired() bool {
-	return h.enableAuth && !h.transmissionToken.Has()
+	return h.params.AuthEnabled && !h.transmissionToken.Has()
 }
 
 // isAlive returns true if the connection is non-nil and alive
@@ -313,11 +355,11 @@ func (h *Host) connectHelper() (err error) {
 	// Attempt to establish a new connection
 	var numRetries uint32
 	//todo-remove this retry block when grpc is updated
-	for numRetries = 0; numRetries < h.maxRetries && !h.isAlive(); numRetries++ {
+	for numRetries = 0; numRetries < h.params.MaxRetries && !h.isAlive(); numRetries++ {
 		h.disconnect()
 
 		jww.DEBUG.Printf("Connecting to %+v Attempt number %+v of %+v",
-			h.GetAddress(), numRetries, h.maxRetries)
+			h.GetAddress(), numRetries, h.params.MaxRetries)
 
 		// If timeout is enabled, the max wait time becomes
 		// ~14 seconds (with maxRetries=100)
