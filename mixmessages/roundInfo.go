@@ -119,3 +119,20 @@ func (m *RoundInfo) GetRoundState() states.Round {
 func (m *RoundInfo) GetRoundId() id.Round {
 	return id.Round(m.ID)
 }
+
+func (m *RoundInfo) DeepCopy() *RoundInfo {
+	return &RoundInfo{
+		ID:                         m.ID,
+		UpdateID:                   m.UpdateID,
+		State:                      m.State,
+		BatchSize:                  m.BatchSize,
+		Topology:                   m.Topology,
+		Timestamps:                 m.Timestamps,
+		Errors:                     m.Errors,
+		ClientErrors:               m.ClientErrors,
+		ResourceQueueTimeoutMillis: m.ResourceQueueTimeoutMillis,
+		Signature:                  m.Signature,
+		AddressSpaceSize:           m.AddressSpaceSize,
+		EccSignature:               m.EccSignature,
+	}
+}
