@@ -11,7 +11,9 @@ package network
 
 import (
 	"bytes"
+	"crypto/rand"
 	"fmt"
+	"github.com/katzenpost/core/crypto/eddsa"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
@@ -45,6 +47,11 @@ type Instance struct {
 
 	// Network Health
 	networkHealth chan Heartbeat
+
+	// Determines whether verification for round info will be done
+	// using the RSA key or the EC key.
+	// Set to true, they shall use elliptic, set to false they shall use RSA
+	useElliptic bool
 
 	// Waiting Rounds
 	waitingRounds *ds.WaitingRounds
@@ -123,8 +130,10 @@ func (i *Instance) GetFullNdf() *SecuredNdf {
 
 // Initializer for instance structs from base comms and NDF, you can put in nil for
 // ERS if you don't want to use it
-func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition,
-	ers ds.ExternalRoundStorage, validationLevel ValidationType) (*Instance, error) {
+// useElliptic determines whether client will verify signatures using the RSA key
+// or the elliptic curve key.
+func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition, ers ds.ExternalRoundStorage,
+	validationLevel ValidationType, useElliptic bool) (*Instance, error) {
 	var partialNdf *SecuredNdf
 	var fullNdf *SecuredNdf
 	var err error
@@ -157,6 +166,7 @@ func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition,
 		e2eGroup:     ds.NewGroup(),
 
 		ipOverride: ds.NewIpOverrideList(),
+		useElliptic: useElliptic,
 	}
 
 	cmix := ""
@@ -210,7 +220,7 @@ func NewInstanceTesting(c *connect.ProtoComms, partial, full *ndf.NetworkDefinit
 	default:
 		jww.FATAL.Panicf("NewInstanceTesting is restricted to testing only. Got %T", i)
 	}
-	instance, err := NewInstance(c, partial, full, nil, 0)
+	instance, err := NewInstance(c, partial, full, nil, 0, false)
 	if err != nil {
 		return nil, errors.Errorf("Unable to create instance: %+v", err)
 	}
@@ -468,7 +478,26 @@ func (i *Instance) RoundUpdate(info *pb.RoundInfo) error {
 			"for round info verification")
 	}
 
-	rnd := ds.NewRound(info, perm.GetPubKey())
+	var ecPublicKey *eddsa.PublicKey
+	if i.useElliptic {
+		// Pull the key from the ndf
+
+		ecPublicKeyNdf := i.GetPartialNdf().Get().Registration.EllipticPubKey
+
+		// Generate a key to unmarshal
+		ecKey, err := eddsa.NewKeypair(rand.Reader)
+		if err != nil {
+			return errors.WithMessage(err, fmt.Sprintf("Could not generate an EC key"))
+		}
+
+		// Unmarshal the key
+		ecPublicKey := ecKey.PublicKey()
+		if err = ecPublicKey.FromString(ecPublicKeyNdf); err != nil {
+			return errors.WithMessage(err, fmt.Sprint("Could not parse public key string"))
+		}
+	}
+
+	rnd := ds.NewRound(info, perm.GetPubKey(), ecPublicKey)
 	if i.validationLevel == Strict {
 		err := signature.Verify(info, perm.GetPubKey())
 		if err != nil {

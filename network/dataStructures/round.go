@@ -7,6 +7,7 @@
 package dataStructures
 
 import (
+	"github.com/katzenpost/core/crypto/eddsa"
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/signature"
@@ -20,16 +21,18 @@ import (
 type Round struct {
 	info            *pb.RoundInfo
 	needsValidation *uint32
-	pubkey          *rsa.PublicKey
+	rsaPubKey       *rsa.PublicKey
+	ecPubKey        *eddsa.PublicKey
 }
 
 // Constructor of a Round object.
-func NewRound(ri *pb.RoundInfo, pubkey *rsa.PublicKey) *Round {
+func NewRound(ri *pb.RoundInfo, pubkey *rsa.PublicKey, ecPubKey *eddsa.PublicKey) *Round {
 	validationDefault := uint32(0)
 	return &Round{
 		info:            ri,
 		needsValidation: &validationDefault,
-		pubkey:          pubkey,
+		rsaPubKey:       pubkey,
+		ecPubKey:        ecPubKey,
 	}
 }
 
@@ -41,7 +44,7 @@ func NewVerifiedRound(ri *pb.RoundInfo, pubkey *rsa.PublicKey) *Round {
 	return &Round{
 		info:            ri,
 		needsValidation: &validationDefault,
-		pubkey:          pubkey,
+		rsaPubKey:       pubkey,
 	}
 }
 
@@ -50,12 +53,22 @@ func NewVerifiedRound(ri *pb.RoundInfo, pubkey *rsa.PublicKey) *Round {
 // Later calls will not need validation
 func (r *Round) Get() *pb.RoundInfo {
 	if atomic.LoadUint32(r.needsValidation) == 0 {
-		// Check the sig, panic if failure
-		err := signature.Verify(r.info, r.pubkey)
-		if err != nil {
-			jww.FATAL.Panicf("Could not validate "+
-				"the roundInfo signature: %+v: %v", r.info, err)
+		if r.rsaPubKey != nil {
+			// Check the sig, panic if failure
+			err := signature.Verify(r.info, r.rsaPubKey)
+			if err != nil {
+				jww.FATAL.Panicf("Could not validate "+
+					"the roundInfo signature: %+v: %v", r.info, err)
+			}
 		}
+
+		if r.ecPubKey != nil {
+			// Check the sig, panic if failure
+			err := signature.VerifyEddsa(r.info, r.ecPubKey)
+			if err != nil {
+				jww.FATAL.Panicf("Could not validate "+
+					"the roundInfo signature: %+v: %v", r.info, err)
+			}		}
 
 		atomic.StoreUint32(r.needsValidation, 1)
 	}

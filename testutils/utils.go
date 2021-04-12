@@ -8,6 +8,8 @@
 package testutils
 
 import (
+	"crypto/rand"
+	"github.com/katzenpost/core/crypto/eddsa"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
@@ -26,7 +28,7 @@ func LoadPublicKeyTesting(i interface{}) (*rsa.PublicKey, error) {
 	case *testing.B:
 		break
 	default:
-		jww.FATAL.Panicf("SignRoundInfo is restricted to testing only. Got %T", i)
+		jww.FATAL.Panicf("SignRoundInfoRsa is restricted to testing only. Got %T", i)
 	}
 
 	privKey, err := LoadPrivateKeyTesting(i)
@@ -46,7 +48,7 @@ func LoadPrivateKeyTesting(i interface{}) (*rsa.PrivateKey, error) {
 	case *testing.B:
 		break
 	default:
-		jww.FATAL.Panicf("SignRoundInfo is restricted to testing only. Got %T", i)
+		jww.FATAL.Panicf("SignRoundInfoRsa is restricted to testing only. Got %T", i)
 	}
 
 	keyPath := testkeys.GetNodeKeyPath()
@@ -61,8 +63,19 @@ func LoadPrivateKeyTesting(i interface{}) (*rsa.PrivateKey, error) {
 
 }
 
+func LoadEllipticPublicKey() (*eddsa.PrivateKey, error) {
+
+	ecKey, err := eddsa.NewKeypair(rand.Reader)
+	if err != nil {
+		return nil, errors.Errorf("Failed to generate new keypair: %v", err)
+	}
+
+	return ecKey, nil
+
+}
+
 // Utility function which signs a round info message
-func SignRoundInfo(ri *pb.RoundInfo, i interface{}) error {
+func SignRoundInfoRsa(ri *pb.RoundInfo, i interface{}) error {
 	switch i.(type) {
 	case *testing.T:
 		break
@@ -71,7 +84,7 @@ func SignRoundInfo(ri *pb.RoundInfo, i interface{}) error {
 	case *testing.B:
 		break
 	default:
-		jww.FATAL.Panicf("SignRoundInfo is restricted to testing only. Got %T", i)
+		jww.FATAL.Panicf("SignRoundInfoRsa is restricted to testing only. Got %T", i)
 	}
 
 	keyPath := testkeys.GetNodeKeyPath()
@@ -87,4 +100,23 @@ func SignRoundInfo(ri *pb.RoundInfo, i interface{}) error {
 		return errors.Errorf("Could not sign round info: %+v", err)
 	}
 	return nil
+}
+
+func SignRoundInfoEddsa(ri *pb.RoundInfo,key *eddsa.PrivateKey, i interface{}) error {
+	switch i.(type) {
+	case *testing.T:
+		break
+	case *testing.M:
+		break
+	case *testing.B:
+		break
+	default:
+		jww.FATAL.Panicf("SignRoundInfoEddsa is restricted to testing only. Got %T", i)
+	}
+	err := signature.SignEddsa(ri, key)
+	if err != nil {
+		return errors.Errorf("Could not sign round info: %+v", err)
+	}
+	return nil
+
 }

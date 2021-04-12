@@ -25,7 +25,9 @@ func TestUpdates_AddRound(t *testing.T) {
 		t.Errorf("Failed to load public key: %v", err)
 		t.FailNow()
 	}
-	rnd := NewRound(ri, pubKey)
+	ecKey, _ := testutils.LoadEllipticPublicKey()
+
+	rnd := NewRound(ri, pubKey, ecKey.PublicKey())
 	err = u.AddRound(rnd)
 	if err != nil {
 		t.Errorf("Failed to add round: %+v", err)
@@ -40,7 +42,7 @@ func TestUpdates_GetUpdate(t *testing.T) {
 		ID:       0,
 		UpdateID: uint64(updateID),
 	}
-	if err := testutils.SignRoundInfo(ri, t); err != nil {
+	if err := testutils.SignRoundInfoRsa(ri, t); err != nil {
 		t.Errorf("Failed to sign mock round info: %v", err)
 	}
 	pubKey, err := testutils.LoadPublicKeyTesting(t)
@@ -48,7 +50,13 @@ func TestUpdates_GetUpdate(t *testing.T) {
 		t.Errorf("Failed to load public key: %v", err)
 		t.FailNow()
 	}
-	rnd := NewRound(ri, pubKey)
+
+	ecKey, _ := testutils.LoadEllipticPublicKey()
+	if err := testutils.SignRoundInfoEddsa(ri, ecKey, t); err != nil {
+		t.Errorf("Failed to sign mock round info: %v", err)
+	}
+
+	rnd := NewRound(ri, pubKey, ecKey.PublicKey())
 	_ = u.AddRound(rnd)
 	_, err = u.GetUpdate(updateID)
 	if err != nil {
@@ -64,7 +72,7 @@ func TestUpdates_GetUpdates(t *testing.T) {
 		ID:       0,
 		UpdateID: uint64(updateID),
 	}
-	if err := testutils.SignRoundInfo(roundInfoOne, t); err != nil {
+	if err := testutils.SignRoundInfoRsa(roundInfoOne, t); err != nil {
 		t.Errorf("Failed to sign mock round info: %v", err)
 	}
 	pubKey, err := testutils.LoadPublicKeyTesting(t)
@@ -72,18 +80,20 @@ func TestUpdates_GetUpdates(t *testing.T) {
 		t.Errorf("Failed to load public key: %v", err)
 		t.FailNow()
 	}
-	roundOne := NewRound(roundInfoOne, pubKey)
+	ecKey, _ := testutils.LoadEllipticPublicKey()
+
+	roundOne := NewRound(roundInfoOne, pubKey, ecKey.PublicKey())
 
 	// Construct a second eound
 	roundInfoTwo := &mixmessages.RoundInfo{
 		ID:       0,
 		UpdateID: uint64(updateID + 1),
 	}
-	if err := testutils.SignRoundInfo(roundInfoTwo, t); err != nil {
+	if err := testutils.SignRoundInfoRsa(roundInfoTwo, t); err != nil {
 		t.Errorf("Failed to sign mock round info: %v", err)
 	}
 
-	roundTwo := NewRound(roundInfoTwo, pubKey)
+	roundTwo := NewRound(roundInfoTwo, pubKey, ecKey.PublicKey())
 
 	_ = u.AddRound(roundOne)
 	// Add second round twice (shouldn't duplicate)
