@@ -54,12 +54,12 @@ func Sign(signable GenericRsaSignable, privKey *rsa.PrivateKey) error {
 	signature, err := rsa.Sign(rand, privKey, sha, data, nil)
 
 	// Print results of signing
-	jww.TRACE.Printf("signature.Sign nonce: 0x%x", newNonce)
-	jww.TRACE.Printf("signature.Sign sig for nonce 0x%x 0x%x", newNonce[:8], signature)
-	jww.TRACE.Printf("signature.Sign digest for nonce 0x%x 0x%x", newNonce[:8], data)
-	jww.TRACE.Printf("signature.Sign data for nonce 0x%x: [%x]", newNonce[:8], data)
-	jww.TRACE.Printf("signature.Sign privKey for nonce 0x%x: N: 0x%v;; E: 0x%x;; D: 0x%v", newNonce[:8], privKey.N.Text(16), privKey.E, privKey.D.Text(16))
-	jww.TRACE.Printf("signature.Sign pubKey for nonce 0x%x: E: 0x%x;; V: 0x%v", newNonce[:8], privKey.PublicKey.E, privKey.PublicKey.N.Text(16))
+	jww.TRACE.Printf("RSA signature.Sign nonce: 0x%x", newNonce)
+	jww.TRACE.Printf("RSA signature.Sign sig for nonce 0x%x 0x%x", newNonce[:8], signature)
+	jww.TRACE.Printf("RSA signature.Sign digest for nonce 0x%x 0x%x", newNonce[:8], data)
+	jww.TRACE.Printf("RSA signature.Sign data for nonce 0x%x: [%x]", newNonce[:8], data)
+	jww.TRACE.Printf("RSA signature.Sign privKey for nonce 0x%x: N: 0x%v;; E: 0x%x;; D: 0x%v", newNonce[:8], privKey.N.Text(16), privKey.E, privKey.D.Text(16))
+	jww.TRACE.Printf("RSA signature.Sign pubKey for nonce 0x%x: E: 0x%x;; V: 0x%v", newNonce[:8], privKey.PublicKey.E, privKey.PublicKey.N.Text(16))
 
 	if err != nil {
 		return errors.Errorf("Unable to sign message: %+v", err)

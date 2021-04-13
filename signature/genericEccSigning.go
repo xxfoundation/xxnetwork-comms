@@ -53,12 +53,12 @@ func SignEddsa(signable GenericEccSignable, privKey *eddsa.PrivateKey) error {
 	signature := privKey.Sign(data)
 
 	// Print results of signing
-	jww.TRACE.Printf("signature.Sign nonce: 0x%x", newNonce)
-	jww.TRACE.Printf("signature.Sign sig for nonce 0x%x 0x%x", newNonce[:8], signature)
-	jww.TRACE.Printf("signature.Sign digest for nonce 0x%x 0x%x", newNonce[:8], data)
-	jww.TRACE.Printf("signature.Sign data for nonce 0x%x: [%x]", newNonce[:8], data)
-	jww.TRACE.Printf("signature.Sign privKey for nonce 0x%x: Type: %s;; Bytes: %x;; Identity: %s", newNonce[:8], privKey.KeyType(), privKey.Bytes(), privKey.Identity())
-	jww.TRACE.Printf("signature.Sign pubKey for nonce 0x%x: pubKey: %s;", newNonce[:8], privKey.PublicKey().String())
+	jww.TRACE.Printf("ECC signature.Sign nonce: 0x%x", newNonce)
+	jww.TRACE.Printf("ECC signature.Sign sig for nonce 0x%x 0x%x", newNonce[:8], signature)
+	jww.TRACE.Printf("ECC signature.Sign digest for nonce 0x%x 0x%x", newNonce[:8], data)
+	jww.TRACE.Printf("ECC signature.Sign data for nonce 0x%x: [%x]", newNonce[:8], data)
+	jww.TRACE.Printf("ECC signature.Sign privKey for nonce 0x%x: Type: %s;; Bytes: %x;; Identity: %s", newNonce[:8], privKey.KeyType(), privKey.Bytes(), privKey.Identity())
+	jww.TRACE.Printf("ECC signature.Sign pubKey for nonce 0x%x: pubKey: %s;", newNonce[:8], privKey.PublicKey().String())
 
 	// Modify the signature for the new values
 	// NOTE: This is the only way to change the internal of the interface object.
