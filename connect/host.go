@@ -80,9 +80,11 @@ type Host struct {
 	// State tracking for host metric
 	metrics *Metric
 
-	// Send lock
-	sendMux sync.RWMutex
-	transmitMux sync.RWMutex
+	// lock which ensures only a single thread is connecting at a time and
+	// that connections do not interrupt sends
+	connectionMux sync.RWMutex
+	// lock which ensures transmissions are not interrupted by disconnections
+	transmitMux   sync.RWMutex
 
 	coolOffBucket *rateLimiting.Bucket
 	inCoolOff     bool
@@ -159,8 +161,8 @@ func (h *Host) GetPubKey() *rsa.PublicKey {
 // Connected checks if the given Host's connection is alive
 // the uint is the connection count, it increments every time a reconnect occurs
 func (h *Host) Connected() (bool, uint64) {
-	h.sendMux.RLock()
-	defer h.sendMux.RUnlock()
+	h.connectionMux.RLock()
+	defer h.connectionMux.RUnlock()
 
 	return h.isAlive() && !h.authenticationRequired(), h.connectionCount
 }
@@ -231,8 +233,8 @@ func (h *Host) Disconnect() {
 // ConditionalDisconnect closes a the Host connection under the write lock only
 // if the connection count has not increased
 func (h *Host) conditionalDisconnect(count uint64) {
-	h.sendMux.Lock()
-	defer h.sendMux.Unlock()
+	h.connectionMux.Lock()
+	defer h.connectionMux.Unlock()
 
 	if count == h.connectionCount {
 		h.disconnect()
@@ -266,8 +268,8 @@ func (h *Host) IsOnline() bool {
 func (h *Host) transmit(f func(conn *grpc.ClientConn) (interface{},
 	error)) (interface{}, error) {
 
-	h.sendMux.RLock()
-	defer h.sendMux.RUnlock()
+	h.connectionMux.RLock()
+	defer h.connectionMux.RUnlock()
 
 	// Check if connection is down
 	if h.connection == nil {
@@ -433,8 +435,8 @@ func (h *Host) setCredentials() error {
 
 // Stringer interface for connection
 func (h *Host) String() string {
-	h.sendMux.RLock()
-	defer h.sendMux.RUnlock()
+	h.connectionMux.RLock()
+	defer h.connectionMux.RUnlock()
 	addr := h.GetAddress()
 
 	return fmt.Sprintf(

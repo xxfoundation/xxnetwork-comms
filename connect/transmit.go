@@ -63,8 +63,8 @@ func (c *ProtoComms) transmit(host *Host, f func(conn *grpc.ClientConn) (interfa
 }
 
 func (c *ProtoComms) connect(host *Host, count uint64) (uint64, error) {
-	host.sendMux.Lock()
-	defer host.sendMux.Unlock()
+	host.connectionMux.Lock()
+	defer host.connectionMux.Unlock()
 
 	if host.coolOffBucket != nil {
 		if host.inCoolOff {
