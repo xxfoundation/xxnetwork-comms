@@ -16,7 +16,7 @@ import (
 // Smoke test for constructor
 func TestNewRound(t *testing.T) {
 	pubKey, _ := testutils.LoadPublicKeyTesting(t)
-	ecKey, _ := testutils.LoadEllipticPublicKey()
+	ecKey, _ := testutils.LoadEllipticPublicKey(t)
 
 	ri := &mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(1)}
 
@@ -63,7 +63,7 @@ func TestNewRound_Get(t *testing.T) {
 	ri := &mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(1)}
 	// Mock signature of roundInfo as it will be verified in codepath
 	testutils.SignRoundInfoRsa(ri, t)
-	ecPubKey, _ := testutils.LoadEllipticPublicKey()
+	ecPubKey, _ := testutils.LoadEllipticPublicKey(t)
 	testutils.SignRoundInfoEddsa(ri, ecPubKey, t)
 
 	rnd := NewRound(ri, pubKey, ecPubKey.PublicKey())

@@ -63,7 +63,17 @@ func LoadPrivateKeyTesting(i interface{}) (*rsa.PrivateKey, error) {
 
 }
 
-func LoadEllipticPublicKey() (*eddsa.PrivateKey, error) {
+func LoadEllipticPublicKey(i interface{}) (*eddsa.PrivateKey, error) {
+	switch i.(type) {
+	case *testing.T:
+		break
+	case *testing.M:
+		break
+	case *testing.B:
+		break
+	default:
+		jww.FATAL.Panicf("SignRoundInfoRsa is restricted to testing only. Got %T", i)
+	}
 
 	ecKey, err := eddsa.NewKeypair(rand.Reader)
 	if err != nil {

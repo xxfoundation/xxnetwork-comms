@@ -11,7 +11,6 @@ package network
 
 import (
 	"bytes"
-	"crypto/rand"
 	"fmt"
 	"github.com/katzenpost/core/crypto/eddsa"
 	"github.com/pkg/errors"
@@ -22,6 +21,7 @@ import (
 	"gitlab.com/elixxir/primitives/states"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/signature"
+	"gitlab.com/xx_network/crypto/signature/ec"
 	"gitlab.com/xx_network/primitives/id"
 	"gitlab.com/xx_network/primitives/ndf"
 	"testing"
@@ -479,22 +479,14 @@ func (i *Instance) RoundUpdate(info *pb.RoundInfo) error {
 	}
 
 	var ecPublicKey *eddsa.PublicKey
+	var err error
 	if i.useElliptic {
 		// Pull the key from the ndf
-
-		ecPublicKeyNdf := i.GetPartialNdf().Get().Registration.EllipticPubKey
-
-		// Generate a key to unmarshal
-		ecKey, err := eddsa.NewKeypair(rand.Reader)
+		ecPublicKey, err = ec.LoadPublicKeyFromString(i.GetEllipticPublicKey())
 		if err != nil {
-			return errors.WithMessage(err, fmt.Sprintf("Could not generate an EC key"))
+			return errors.WithMessage(err, fmt.Sprintf("Could not load elliptic key from ndf"))
 		}
 
-		// Unmarshal the key
-		ecPublicKey := ecKey.PublicKey()
-		if err = ecPublicKey.FromString(ecPublicKeyNdf); err != nil {
-			return errors.WithMessage(err, fmt.Sprint("Could not parse public key string"))
-		}
 	}
 
 	rnd := ds.NewRound(info, perm.GetPubKey(), ecPublicKey)
@@ -506,7 +498,7 @@ func (i *Instance) RoundUpdate(info *pb.RoundInfo) error {
 		}
 	}
 
-	err := i.roundUpdates.AddRound(rnd)
+	err = i.roundUpdates.AddRound(rnd)
 	if err != nil {
 		return err
 	}

@@ -7,7 +7,7 @@ require (
 	github.com/badoux/checkmail v1.2.1 // indirect
 	github.com/golang-collections/collections v0.0.0-20130729185459-604e922904d3
 	github.com/golang/protobuf v1.4.2
-	github.com/katzenpost/core v0.0.13
+	github.com/katzenpost/core v0.0.14
 	github.com/nyaruka/phonenumbers v1.0.60 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/jwalterweatherman v1.1.0
@@ -15,7 +15,7 @@ require (
 	gitlab.com/elixxir/crypto v0.0.6
 	gitlab.com/elixxir/primitives v0.0.3-0.20201116174806-97f190989704
 	gitlab.com/xx_network/comms v0.0.4-0.20210407173545-dafd47029306
-	gitlab.com/xx_network/crypto v0.0.5-0.20201124194022-366c10b1bce0
+	gitlab.com/xx_network/crypto v0.0.5-0.20210413184628-dbc1dd97ed5e
 	gitlab.com/xx_network/primitives v0.0.4-0.20210412170941-7ef69bce5a5c
 	gitlab.com/xx_network/ring v0.0.2
 	golang.org/x/lint v0.0.0-20190313153728-d0100b6bd8b3 // indirect

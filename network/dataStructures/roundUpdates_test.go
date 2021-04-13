@@ -26,7 +26,7 @@ func TestUpdates_AddRound(t *testing.T) {
 		t.Errorf("Failed to load public key: %v", err)
 		t.FailNow()
 	}
-	ecKey, _ := testutils.LoadEllipticPublicKey()
+	ecKey, _ := testutils.LoadEllipticPublicKey(t)
 
 	rnd := NewRound(ri, pubKey, ecKey.PublicKey())
 	err = u.AddRound(rnd)
@@ -53,7 +53,7 @@ func TestUpdates_GetUpdate(t *testing.T) {
 		t.FailNow()
 	}
 
-	ecKey, _ := testutils.LoadEllipticPublicKey()
+	ecKey, _ := testutils.LoadEllipticPublicKey(t)
 	if err := testutils.SignRoundInfoEddsa(ri, ecKey, t); err != nil {
 		t.Errorf("Failed to sign mock round info: %v", err)
 	}
@@ -75,7 +75,7 @@ func TestUpdates_GetUpdates(t *testing.T) {
 		t.Errorf("Failed to load public key: %v", err)
 		t.FailNow()
 	}
-	ecKey, _ := testutils.LoadEllipticPublicKey()
+	ecKey, _ := testutils.LoadEllipticPublicKey(t)
 
 	updateID := 3
 	// Construct a mock round object
