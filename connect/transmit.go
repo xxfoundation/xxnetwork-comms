@@ -27,6 +27,9 @@ func (c *ProtoComms) transmit(host *Host, f func(conn *grpc.ClientConn) (interfa
 		return nil, errors.New("Host address is blank, host might be receive only.")
 	}
 
+	host.transmitMux.RLock()
+	defer host.transmitMux.RUnlock()
+
 	for numRetries := 0; numRetries < MaxRetries; numRetries++ {
 		err = nil
 		//reconnect if necessary

@@ -82,6 +82,7 @@ type Host struct {
 
 	// Send lock
 	sendMux sync.RWMutex
+	transmitMux sync.RWMutex
 
 	coolOffBucket *rateLimiting.Bucket
 	inCoolOff     bool
@@ -221,8 +222,8 @@ func (h *Host) SetMetricsTesting(m *Metric, face interface{}) {
 
 // Disconnect closes a the Host connection under the write lock
 func (h *Host) Disconnect() {
-	h.sendMux.Lock()
-	defer h.sendMux.Unlock()
+	h.transmitMux.Lock()
+	defer h.transmitMux.Unlock()
 
 	h.disconnect()
 }
