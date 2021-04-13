@@ -772,6 +772,78 @@ func TestInstance_GetPermissioningCert_NilCase(t *testing.T) {
 	nilNdfInstance.GetPermissioningCert()
 }
 
+// Happy path: Tests GetEllipticPublicKey with the full ndf set, the partial ndf set
+// and no ndf set
+func TestInstance_GetEllipticPublicKey(t *testing.T) {
+
+	// Create populated ndf (secured) and empty ndf
+	secured, _ := NewSecuredNdf(testutils.NDF)
+	// Create an instance object, setting full to be populated
+	// and partial to be empty
+	fullNdfInstance := Instance{
+		full: secured,
+	}
+
+	// Expected cert gotten from testutils.NDF
+	expectedKey := "MqaJJ3GjFisNRM6LRedRnooi14gepMaQxyWctXVU/w4="
+
+	// GetEllipticPublicKey from the instance and compare with the expected value
+	receivedKey := fullNdfInstance.GetEllipticPublicKey()
+	if expectedKey != receivedKey {
+		t.Errorf("GetEllipticPublicKey did not get expected value!"+
+			"\n\tExpected: %+v"+
+			"\n\tReceived: %+v", expectedKey, receivedKey)
+	}
+
+	// Create an instance object, setting partial to be populated
+	// and full to be empty
+	partialNdfInstance := Instance{
+		partial: secured,
+	}
+
+	// GetEllipticPublicKey from the instance and compare with the expected value
+	receivedKey = partialNdfInstance.GetEllipticPublicKey()
+	if expectedKey != receivedKey {
+		t.Errorf("GetEllipticPublicKey did not get expected value!"+
+			"\n\tExpected: %+v"+
+			"\n\tReceived: %+v", expectedKey, receivedKey)
+	}
+
+	// Create an instance object, setting no ndf
+	noNdfInstance := Instance{}
+
+	// GetEllipticPublicKey, should be an empty string as no ndf's are set
+	receivedKey = noNdfInstance.GetEllipticPublicKey()
+	if receivedKey != "" {
+		t.Errorf("GetEllipticPublicKey did not get expected value!"+
+			"No ndf set, cert should be an empty string. "+
+			"\n\tReceived: %+v", receivedKey)
+	}
+
+}
+
+// Error path: nil ndf is in the instance should cause a seg fault
+func TestInstance_GetEllipticPublicKey_NilCase(t *testing.T) {
+	// Handle expected seg fault here
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("Expected error case, should seg fault when a nil ndf is passed through")
+		}
+	}()
+
+	// Create a nil ndf
+	nilNdf, _ := NewSecuredNdf(nil)
+
+	// Create an instance object with this nil ndf
+	nilNdfInstance := Instance{
+		full:    nilNdf,
+		partial: nilNdf,
+	}
+
+	// Attempt to call getter, should seg fault
+	nilNdfInstance.GetEllipticPublicKey()
+}
+
 // GetPermissioningId should fetch the value of id.PERMISSIONING in primitives
 func TestInstance_GetPermissioningId(t *testing.T) {
 	// Create an instance object,

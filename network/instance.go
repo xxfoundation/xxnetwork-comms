@@ -631,6 +631,25 @@ func (i *Instance) GetPermissioningCert() string {
 
 }
 
+// GetEllipticPublicKey gets the permissioning's elliptic public key
+// from one of the NDFs
+// It first checks the full ndf and returns if that has the key
+// If not it checks the partial ndf and returns if it has it
+// Otherwise it returns an empty string
+func (i *Instance) GetEllipticPublicKey() string {
+	// Check if the full ndf has the information
+	if i.GetFullNdf() != nil {
+		return i.GetFullNdf().Get().Registration.EllipticPubKey
+	} else if i.GetPartialNdf() != nil {
+		// Else check if the partial ndf has the information
+		return i.GetPartialNdf().Get().Registration.EllipticPubKey
+	}
+
+	// If neither do, return an empty string
+	return ""
+
+}
+
 // GetPermissioningId gets the permissioning ID from primitives
 func (i *Instance) GetPermissioningId() *id.ID {
 	return &id.Permissioning
