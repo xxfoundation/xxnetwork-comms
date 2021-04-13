@@ -24,6 +24,7 @@ import (
 	"google.golang.org/grpc/keepalive"
 	"math"
 	"net"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -62,9 +63,6 @@ type Host struct {
 	// Live used for sending to this host
 	transmissionToken *token.Live
 
-	// Configure the maximum number of connection attempts
-	maxRetries uint32
-
 	// GRPC connection object
 	connection      *grpc.ClientConn
 	connectionCount uint64
@@ -75,18 +73,24 @@ type Host struct {
 	// RSA Public Key corresponding to the TLS Certificate
 	rsaPublicKey *rsa.PublicKey
 
-	// If set, reverse authentication will be established with this Host
-	enableAuth bool
-
 	// Indicates whether dynamic authentication was used for this Host
 	// This is useful for determining whether a Host's key was hardcoded
 	dynamicHost bool
 
-	// Send lock
-	sendMux sync.RWMutex
+	// State tracking for host metric
+	metrics *Metric
+
+	// lock which ensures only a single thread is connecting at a time and
+	// that connections do not interrupt sends
+	connectionMux sync.RWMutex
+	// lock which ensures transmissions are not interrupted by disconnections
+	transmitMux   sync.RWMutex
 
 	coolOffBucket *rateLimiting.Bucket
 	inCoolOff     bool
+
+	// Stored default values (should be non-mutated)
+	params HostParams
 }
 
 // Creates a new Host object
@@ -96,10 +100,10 @@ func NewHost(id *id.ID, address string, cert []byte, params HostParams) (host *H
 	host = &Host{
 		id:                id,
 		certificate:       cert,
-		enableAuth:        params.AuthEnabled,
 		transmissionToken: token.NewLive(),
 		receptionToken:    token.NewLive(),
-		maxRetries:        params.MaxRetries,
+		metrics:           newMetric(),
+		params:            params,
 	}
 
 	if params.EnableCoolOff {
@@ -108,8 +112,8 @@ func NewHost(id *id.ID, address string, cert []byte, params HostParams) (host *H
 			params.CoolOffTimeout, nil)
 	}
 
-	if host.maxRetries == 0 {
-		host.maxRetries = math.MaxUint32
+	if host.params.MaxRetries == 0 {
+		host.params.MaxRetries = math.MaxUint32
 	}
 
 	host.UpdateAddress(address)
@@ -157,8 +161,8 @@ func (h *Host) GetPubKey() *rsa.PublicKey {
 // Connected checks if the given Host's connection is alive
 // the uint is the connection count, it increments every time a reconnect occurs
 func (h *Host) Connected() (bool, uint64) {
-	h.sendMux.RLock()
-	defer h.sendMux.RUnlock()
+	h.connectionMux.RLock()
+	defer h.connectionMux.RUnlock()
 
 	return h.isAlive() && !h.authenticationRequired(), h.connectionCount
 }
@@ -185,10 +189,43 @@ func (h *Host) UpdateAddress(address string) {
 	h.addressAtomic.Store(address)
 }
 
+// GetMetrics returns a deep copy of Host's Metric
+// This resets the state of metrics
+func (h *Host) GetMetrics() *Metric {
+	return h.metrics.get()
+}
+
+// isExcludedMetricError determines if err is within the list
+// of excludeMetricErrors.  Returns true if it's an excluded error,
+// false if it is not
+func (h *Host) isExcludedMetricError(err string) bool {
+	for _, excludedErr := range h.params.ExcludeMetricErrors {
+		if strings.Contains(excludedErr, err) {
+			return true
+		}
+	}
+	return false
+}
+
+// Sets the host metrics to an arbitrary value. Used for testing
+// purposes only
+func (h *Host) SetMetricsTesting(m *Metric, face interface{}) {
+	// Ensure that this function is only run in testing environments
+	switch face.(type) {
+	case *testing.T, *testing.M, *testing.B:
+		break
+	default:
+		panic("SetMetricsTesting() can only be used for testing.")
+	}
+
+	h.metrics = m
+
+}
+
 // Disconnect closes a the Host connection under the write lock
 func (h *Host) Disconnect() {
-	h.sendMux.Lock()
-	defer h.sendMux.Unlock()
+	h.transmitMux.Lock()
+	defer h.transmitMux.Unlock()
 
 	h.disconnect()
 }
@@ -196,8 +233,8 @@ func (h *Host) Disconnect() {
 // ConditionalDisconnect closes a the Host connection under the write lock only
 // if the connection count has not increased
 func (h *Host) conditionalDisconnect(count uint64) {
-	h.sendMux.Lock()
-	defer h.sendMux.Unlock()
+	h.connectionMux.Lock()
+	defer h.connectionMux.Unlock()
 
 	if count == h.connectionCount {
 		h.disconnect()
@@ -231,8 +268,8 @@ func (h *Host) IsOnline() bool {
 func (h *Host) transmit(f func(conn *grpc.ClientConn) (interface{},
 	error)) (interface{}, error) {
 
-	h.sendMux.RLock()
-	defer h.sendMux.RUnlock()
+	h.connectionMux.RLock()
+	defer h.connectionMux.RUnlock()
 
 	// Check if connection is down
 	if h.connection == nil {
@@ -240,6 +277,14 @@ func (h *Host) transmit(f func(conn *grpc.ClientConn) (interface{},
 	}
 
 	a, err := f(h.connection)
+
+	if h.params.EnableMetrics && err != nil {
+		// Checks if the received error is a among excluded errors
+		// If it is not an excluded error, update host's metrics
+		if !h.isExcludedMetricError(err.Error()) {
+			h.metrics.incrementErrors()
+		}
+	}
 
 	return a, err
 }
@@ -261,7 +306,7 @@ func (h *Host) connect() error {
 // the remote.  This is used exclusively under the lock in protocoms.transmit so
 // no lock is needed
 func (h *Host) authenticationRequired() bool {
-	return h.enableAuth && !h.transmissionToken.Has()
+	return h.params.AuthEnabled && !h.transmissionToken.Has()
 }
 
 // isAlive returns true if the connection is non-nil and alive
@@ -313,11 +358,11 @@ func (h *Host) connectHelper() (err error) {
 	// Attempt to establish a new connection
 	var numRetries uint32
 	//todo-remove this retry block when grpc is updated
-	for numRetries = 0; numRetries < h.maxRetries && !h.isAlive(); numRetries++ {
+	for numRetries = 0; numRetries < h.params.MaxRetries && !h.isAlive(); numRetries++ {
 		h.disconnect()
 
 		jww.DEBUG.Printf("Connecting to %+v Attempt number %+v of %+v",
-			h.GetAddress(), numRetries, h.maxRetries)
+			h.GetAddress(), numRetries, h.params.MaxRetries)
 
 		// If timeout is enabled, the max wait time becomes
 		// ~14 seconds (with maxRetries=100)
@@ -390,8 +435,8 @@ func (h *Host) setCredentials() error {
 
 // Stringer interface for connection
 func (h *Host) String() string {
-	h.sendMux.RLock()
-	defer h.sendMux.RUnlock()
+	h.connectionMux.RLock()
+	defer h.connectionMux.RUnlock()
 	addr := h.GetAddress()
 
 	return fmt.Sprintf(

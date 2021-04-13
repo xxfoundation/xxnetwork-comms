@@ -1,3 +1,10 @@
+///////////////////////////////////////////////////////////////////////////////
+// Copyright © 2020 xx network SEZC                                          //
+//                                                                           //
+// Use of this source code is governed by a license that can be found in the //
+// LICENSE file                                                              //
+///////////////////////////////////////////////////////////////////////////////
+
 package connect
 
 import (
@@ -19,6 +26,9 @@ func (c *ProtoComms) transmit(host *Host, f func(conn *grpc.ClientConn) (interfa
 	if host.GetAddress() == "" {
 		return nil, errors.New("Host address is blank, host might be receive only.")
 	}
+
+	host.transmitMux.RLock()
+	defer host.transmitMux.RUnlock()
 
 	for numRetries := 0; numRetries < MaxRetries; numRetries++ {
 		err = nil
@@ -53,8 +63,8 @@ func (c *ProtoComms) transmit(host *Host, f func(conn *grpc.ClientConn) (interfa
 }
 
 func (c *ProtoComms) connect(host *Host, count uint64) (uint64, error) {
-	host.sendMux.Lock()
-	defer host.sendMux.Unlock()
+	host.connectionMux.Lock()
+	defer host.connectionMux.Unlock()
 
 	if host.coolOffBucket != nil {
 		if host.inCoolOff {
