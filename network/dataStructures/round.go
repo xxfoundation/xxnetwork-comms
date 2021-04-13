@@ -68,7 +68,8 @@ func (r *Round) Get() *pb.RoundInfo {
 			if err != nil {
 				jww.FATAL.Panicf("Could not validate "+
 					"the roundInfo signature: %+v: %v", r.info, err)
-			}		}
+			}
+		}
 
 		atomic.StoreUint32(r.needsValidation, 1)
 	}

@@ -102,7 +102,7 @@ func SignRoundInfoRsa(ri *pb.RoundInfo, i interface{}) error {
 	return nil
 }
 
-func SignRoundInfoEddsa(ri *pb.RoundInfo,key *eddsa.PrivateKey, i interface{}) error {
+func SignRoundInfoEddsa(ri *pb.RoundInfo, key *eddsa.PrivateKey, i interface{}) error {
 	switch i.(type) {
 	case *testing.T:
 		break

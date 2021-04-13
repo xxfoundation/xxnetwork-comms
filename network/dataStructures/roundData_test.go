@@ -104,7 +104,7 @@ func TestData_ComparisonFunc(t *testing.T) {
 		t.Errorf("Failed to load public key: %v", err)
 		t.FailNow()
 	}
-	roundOne := NewRound(roundInfoOne, pubKey, nil )
+	roundOne := NewRound(roundInfoOne, pubKey, nil)
 	_ = d.UpsertRound(roundOne)
 
 	// Construct a mock round object

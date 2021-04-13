@@ -13,6 +13,7 @@ import (
 	"testing"
 )
 
+// Unit test
 func TestUpdates_AddRound(t *testing.T) {
 	u := NewUpdates()
 	// Construct a mock round object
@@ -34,6 +35,7 @@ func TestUpdates_AddRound(t *testing.T) {
 	}
 }
 
+// Unit test
 func TestUpdates_GetUpdate(t *testing.T) {
 	u := NewUpdates()
 	updateID := 3
@@ -64,23 +66,31 @@ func TestUpdates_GetUpdate(t *testing.T) {
 	}
 }
 
+// Unit test
 func TestUpdates_GetUpdates(t *testing.T) {
 	u := NewUpdates()
-	updateID := 3
-	// Construct a mock round object
-	roundInfoOne := &mixmessages.RoundInfo{
-		ID:       0,
-		UpdateID: uint64(updateID),
-	}
-	if err := testutils.SignRoundInfoRsa(roundInfoOne, t); err != nil {
-		t.Errorf("Failed to sign mock round info: %v", err)
-	}
+
 	pubKey, err := testutils.LoadPublicKeyTesting(t)
 	if err != nil {
 		t.Errorf("Failed to load public key: %v", err)
 		t.FailNow()
 	}
 	ecKey, _ := testutils.LoadEllipticPublicKey()
+
+	updateID := 3
+	// Construct a mock round object
+	roundInfoOne := &mixmessages.RoundInfo{
+		ID:       0,
+		UpdateID: uint64(updateID),
+	}
+
+	// Sign the round on the keys
+	if err := testutils.SignRoundInfoRsa(roundInfoOne, t); err != nil {
+		t.Errorf("Failed to sign mock round info: %v", err)
+	}
+	if err := testutils.SignRoundInfoEddsa(roundInfoOne, ecKey, t); err != nil {
+		t.Errorf("Failed to sign mock round info: %v", err)
+	}
 
 	roundOne := NewRound(roundInfoOne, pubKey, ecKey.PublicKey())
 
@@ -90,6 +100,9 @@ func TestUpdates_GetUpdates(t *testing.T) {
 		UpdateID: uint64(updateID + 1),
 	}
 	if err := testutils.SignRoundInfoRsa(roundInfoTwo, t); err != nil {
+		t.Errorf("Failed to sign mock round info: %v", err)
+	}
+	if err := testutils.SignRoundInfoEddsa(roundInfoTwo, ecKey, t); err != nil {
 		t.Errorf("Failed to sign mock round info: %v", err)
 	}
 

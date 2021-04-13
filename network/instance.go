@@ -165,7 +165,7 @@ func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition, er
 		cmixGroup:    ds.NewGroup(),
 		e2eGroup:     ds.NewGroup(),
 
-		ipOverride: ds.NewIpOverrideList(),
+		ipOverride:  ds.NewIpOverrideList(),
 		useElliptic: useElliptic,
 	}
 

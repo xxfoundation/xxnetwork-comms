@@ -81,13 +81,6 @@ func (m *RoundInfo) Digest(nonce []byte, h hash.Hash) []byte {
 		h.Write(data)
 	}
 
-	// Hash the
-	for _, roundErr := range m.Errors {
-		sha := crypto.SHA256.New()
-		data := roundErr.Digest(nonce, sha)
-		h.Write(data)
-	}
-
 	// Hash nonce
 	h.Write(nonce)
 

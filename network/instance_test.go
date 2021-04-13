@@ -237,7 +237,7 @@ func TestInstance_GetRoundUpdates(t *testing.T) {
 	testutils.SignRoundInfoRsa(roundInfoOne, t)
 	roundInfoTwo := &mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(2)}
 	testutils.SignRoundInfoRsa(roundInfoTwo, t)
-	roundOne := ds.NewRound(roundInfoOne, pubKey, nil )
+	roundOne := ds.NewRound(roundInfoOne, pubKey, nil)
 	roundTwo := ds.NewRound(roundInfoTwo, pubKey, nil)
 
 	_ = i.roundUpdates.AddRound(roundOne)

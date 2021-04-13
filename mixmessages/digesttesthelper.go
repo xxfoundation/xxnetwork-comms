@@ -45,7 +45,7 @@ func checkdigest(t *testing.T, gs signature.GenericRsaSignable) {
 		valField := r.Field(i)
 		typeField := r.Type().Field(i)
 
-		if typeField.Name == "EccSignature" || typeField.Name == "Signature" || typeField.Name == "state" || typeField.Name == "sizeCache" || typeField.Name == "unknownFields" || strings.Contains(typeField.Name, "XXX") {
+		if typeField.Name == "EccSignature" || typeField.Name == "Signature" || typeField.Name == "Errors" || typeField.Name == "state" || typeField.Name == "sizeCache" || typeField.Name == "unknownFields" || strings.Contains(typeField.Name, "XXX") {
 			fmt.Printf("Skipping field.\n")
 			continue
 		}
@@ -77,24 +77,6 @@ func checkdigest(t *testing.T, gs signature.GenericRsaSignable) {
 		case []uint64:
 			arr := []uint64{rand.Uint64(), rand.Uint64(), rand.Uint64()}
 			v := reflect.ValueOf(arr)
-			valField.Set(v)
-
-		case []*RoundError:
-			randNodeId := make([]byte, 33)
-			rand.Read(randNodeId)
-			rea := []*RoundError{
-				{
-					Id:     rand.Uint64(),
-					NodeId: randNodeId,
-					Error:  RandStringRunes(4),
-				},
-				{
-					Id:     rand.Uint64(),
-					NodeId: randNodeId,
-					Error:  RandStringRunes(4),
-				},
-			}
-			v := reflect.ValueOf(rea)
 			valField.Set(v)
 
 		case []*ClientError:

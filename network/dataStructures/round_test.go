@@ -28,7 +28,7 @@ func TestNewRound(t *testing.T) {
 			"\n\tExpected round info: %v"+
 			"\n\tReceived round info: %v"+
 			"\n\tExpected rsa public key: %v"+
-			"\n\tReceived rsa public key: %v" +
+			"\n\tReceived rsa public key: %v"+
 			"\n\tExpected EC public key: %v"+
 			"\n\tReceived EC public key: %v",
 			ri, rnd.info, pubKey, rnd.rsaPubKey, ecKey, rnd.ecPubKey)
