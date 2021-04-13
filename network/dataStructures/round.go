@@ -26,12 +26,12 @@ type Round struct {
 }
 
 // Constructor of a Round object.
-func NewRound(ri *pb.RoundInfo, pubkey *rsa.PublicKey, ecPubKey *eddsa.PublicKey) *Round {
+func NewRound(ri *pb.RoundInfo, rsaPubKey *rsa.PublicKey, ecPubKey *eddsa.PublicKey) *Round {
 	validationDefault := uint32(0)
 	return &Round{
 		info:            ri,
 		needsValidation: &validationDefault,
-		rsaPubKey:       pubkey,
+		rsaPubKey:       rsaPubKey,
 		ecPubKey:        ecPubKey,
 	}
 }

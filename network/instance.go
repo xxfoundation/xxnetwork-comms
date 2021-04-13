@@ -12,7 +12,6 @@ package network
 import (
 	"bytes"
 	"fmt"
-	"github.com/katzenpost/core/crypto/eddsa"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
@@ -478,18 +477,19 @@ func (i *Instance) RoundUpdate(info *pb.RoundInfo) error {
 			"for round info verification")
 	}
 
-	var ecPublicKey *eddsa.PublicKey
-	var err error
+	var rnd *ds.Round
 	if i.useElliptic {
-		// Pull the key from the ndf
-		ecPublicKey, err = ec.LoadPublicKeyFromString(i.GetEllipticPublicKey())
+		// Use the elliptic key only
+		ecPublicKey, err := ec.LoadPublicKeyFromString(i.GetEllipticPublicKey())
 		if err != nil {
 			return errors.WithMessage(err, fmt.Sprintf("Could not load elliptic key from ndf"))
 		}
-
+		rnd = ds.NewRound(info, nil, ecPublicKey)
+	} else {
+		// Use the rsa key only
+		rnd = ds.NewRound(info, perm.GetPubKey(), nil)
 	}
 
-	rnd := ds.NewRound(info, perm.GetPubKey(), ecPublicKey)
 	if i.validationLevel == Strict {
 		err := signature.Verify(info, perm.GetPubKey())
 		if err != nil {
@@ -498,7 +498,7 @@ func (i *Instance) RoundUpdate(info *pb.RoundInfo) error {
 		}
 	}
 
-	err = i.roundUpdates.AddRound(rnd)
+	err := i.roundUpdates.AddRound(rnd)
 	if err != nil {
 		return err
 	}
