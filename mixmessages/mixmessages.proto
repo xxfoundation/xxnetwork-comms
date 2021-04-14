@@ -484,8 +484,18 @@ service NotificationBot {
 }
 
 // Registration token to be associated with the client
-message NotificationToken {
+message NotificationRegisterRequest {
     bytes Token = 1;
+    bytes IntermediaryId = 2;
+    bytes TransmissionRsa = 3;
+    bytes TransmissionSalt = 4;
+    bytes TransmissionRsaSig = 5;
+    bytes IIDTransmissionRsaSig = 6;
+}
+
+message NotificationUnregisterRequest {
+    bytes IntermediaryId = 1;
+    bytes IIDTransmissionRsaSig = 2;
 }
 
 // The list of user IDS for notification polling

@@ -44,13 +44,13 @@ func (nb *Comms) RegisterForNotifications(ctx context.Context, msg *messages.Aut
 		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
 	}
 
-	notificationToken := &pb.NotificationToken{}
-	err = ptypes.UnmarshalAny(msg.Message, notificationToken)
+	req := &pb.NotificationRegisterRequest{}
+	err = ptypes.UnmarshalAny(msg.Message, req)
 	if err != nil {
 		return nil, err
 	}
 
-	err = nb.handler.RegisterForNotifications(notificationToken.Token, authState)
+	err = nb.handler.RegisterForNotifications(req, authState)
 	// Obtain the error message, if any
 	if err != nil {
 		err = errors.New(err.Error())
@@ -68,7 +68,13 @@ func (nb *Comms) UnregisterForNotifications(ctx context.Context, msg *messages.A
 		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
 	}
 
-	err = nb.handler.UnregisterForNotifications(authState)
+	req := &pb.NotificationUnregisterRequest{}
+	err = ptypes.UnmarshalAny(msg.Message, req)
+	if err != nil {
+		return nil, err
+	}
+
+	err = nb.handler.UnregisterForNotifications(req, authState)
 	// Obtain the error message, if any
 	if err != nil {
 		err = errors.New(err.Error())
