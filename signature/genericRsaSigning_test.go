@@ -103,7 +103,7 @@ func TestSignVerify(t *testing.T) {
 		t.Errorf("Failed to sign: +%v", err)
 	}
 	// Verify the signature
-	err = Verify(testSig, pubKey)
+	err = VerifyRsa(testSig, pubKey)
 	if err != nil {
 		t.Errorf("Expected happy path! Verification resulted in: %+v", err)
 	}
@@ -128,11 +128,11 @@ func TestSignVerify_Error(t *testing.T) {
 	// Modify object post-signing
 	testSig.id = []byte("i will fail")
 	// Attempt to verify modified object
-	err = Verify(testSig, pubKey)
+	err = VerifyRsa(testSig, pubKey)
 	if err != nil {
 		return
 	}
-	t.Errorf("Expected error path: Verify should not return true")
+	t.Errorf("Expected error path: VerifyRsa should not return true")
 
 }
 

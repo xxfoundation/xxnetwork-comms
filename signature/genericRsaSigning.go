@@ -80,9 +80,9 @@ func SignRsa(signable GenericRsaSignable, privKey *rsa.PrivateKey) error {
 	return nil
 }
 
-// Verify takes the signature from the verifiable message
+// VerifyRsa takes the signature from the verifiable message
 // and verifies it on the public key. If
-func Verify(verifiable GenericRsaSignable, pubKey *rsa.PublicKey) error {
+func VerifyRsa(verifiable GenericRsaSignable, pubKey *rsa.PublicKey) error {
 	// Take the signature from the object
 	sigMsg := verifiable.GetSig()
 	nonce := sigMsg.Nonce
