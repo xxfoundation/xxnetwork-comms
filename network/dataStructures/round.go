@@ -60,9 +60,7 @@ func (r *Round) Get() *pb.RoundInfo {
 				jww.FATAL.Panicf("Could not validate "+
 					"the roundInfo signature: %+v: %v", r.info, err)
 			}
-		}
-
-		if r.ecPubKey != nil {
+		} else {
 			// Check the sig, panic if failure
 			err := signature.VerifyEddsa(r.info, r.ecPubKey)
 			if err != nil {

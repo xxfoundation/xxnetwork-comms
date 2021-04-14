@@ -12,6 +12,7 @@ package network
 import (
 	"bytes"
 	"fmt"
+	"github.com/katzenpost/core/crypto/eddsa"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
@@ -51,7 +52,7 @@ type Instance struct {
 	// using the RSA key or the EC key.
 	// Set to true, they shall use elliptic, set to false they shall use RSA
 	useElliptic bool
-
+	ecPublicKey *eddsa.PublicKey
 	// Waiting Rounds
 	waitingRounds *ds.WaitingRounds
 
@@ -168,6 +169,24 @@ func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition, er
 		useElliptic: useElliptic,
 	}
 
+	i.ecPublicKey, err = ec.LoadPublicKeyFromString(i.GetEllipticPublicKey())
+	if err != nil {
+		return nil, errors.WithMessage(err, fmt.Sprintf("Could not load elliptic key from ndf"))
+	}
+
+	var ecPublicKey *eddsa.PublicKey
+	if full != nil && full.Registration.EllipticPubKey != "" {
+		ecPublicKey, err = ec.LoadPublicKeyFromString(i.GetEllipticPublicKey())
+		if err != nil {
+			return nil, errors.WithMessage(err, fmt.Sprintf("Could not load elliptic key from ndf"))
+		}
+	} else if partial.Registration.EllipticPubKey != "" {
+		ecPublicKey, err = ec.LoadPublicKeyFromString(i.GetEllipticPublicKey())
+		if err != nil {
+			return nil, errors.WithMessage(err, fmt.Sprintf("Could not load elliptic key from ndf"))
+		}
+	}
+
 	cmix := ""
 	if full != nil && full.CMIX.Prime != "" {
 		cmix, _ = full.CMIX.String()
@@ -194,6 +213,12 @@ func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition, er
 		if err != nil {
 			jww.WARN.Printf("Error updating e2e group: %+v", err)
 		}
+	}
+
+	if ecPublicKey != nil {
+		i.ecPublicKey = ecPublicKey
+	} else {
+		jww.DEBUG.Printf("Elliptic public key was not set, could not be found in NDF")
 	}
 
 	i.waitingRounds = ds.NewWaitingRounds()
@@ -480,11 +505,7 @@ func (i *Instance) RoundUpdate(info *pb.RoundInfo) error {
 	var rnd *ds.Round
 	if i.useElliptic {
 		// Use the elliptic key only
-		ecPublicKey, err := ec.LoadPublicKeyFromString(i.GetEllipticPublicKey())
-		if err != nil {
-			return errors.WithMessage(err, fmt.Sprintf("Could not load elliptic key from ndf"))
-		}
-		rnd = ds.NewRound(info, nil, ecPublicKey)
+		rnd = ds.NewRound(info, nil, i.ecPublicKey)
 	} else {
 		// Use the rsa key only
 		rnd = ds.NewRound(info, perm.GetPubKey(), nil)
