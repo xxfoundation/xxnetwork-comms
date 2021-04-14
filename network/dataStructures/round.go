@@ -55,7 +55,7 @@ func (r *Round) Get() *pb.RoundInfo {
 	if atomic.LoadUint32(r.needsValidation) == 0 {
 		if r.rsaPubKey != nil {
 			// Check the sig, panic if failure
-			err := signature.Verify(r.info, r.rsaPubKey)
+			err := signature.VerifyRsa(r.info, r.rsaPubKey)
 			if err != nil {
 				jww.FATAL.Panicf("Could not validate "+
 					"the roundInfo signature: %+v: %v", r.info, err)

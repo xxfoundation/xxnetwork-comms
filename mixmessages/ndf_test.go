@@ -126,13 +126,13 @@ func TestNdf_SignVerify(t *testing.T) {
 	pubKey := privateKey.GetPublic()
 
 	// Sign message
-	err = signature.Sign(testNdf, privateKey)
+	err = signature.SignRsa(testNdf, privateKey)
 	if err != nil {
 		t.Errorf("Unable to sign message: %+v", err)
 	}
 
 	// Verify signature
-	err = signature.Verify(testNdf, pubKey)
+	err = signature.VerifyRsa(testNdf, pubKey)
 	if err != nil {
 		t.Errorf("Expected happy path! Failed to verify: %+v", err)
 	}
@@ -154,7 +154,7 @@ func TestNdf_SignVerify_Error(t *testing.T) {
 	pubKey := privateKey.GetPublic()
 
 	// Sign message
-	err = signature.Sign(testNdf, privateKey)
+	err = signature.SignRsa(testNdf, privateKey)
 	if err != nil {
 		t.Errorf("Unable to sign message: %+v", err)
 	}
@@ -163,7 +163,7 @@ func TestNdf_SignVerify_Error(t *testing.T) {
 	testNdf.Ndf = []byte("invalidChange")
 
 	// Verify signature
-	err = signature.Verify(testNdf, pubKey)
+	err = signature.VerifyRsa(testNdf, pubKey)
 	// Verify signature
 	if err == nil {
 		t.Error("Expected error path: Should not have verified!")

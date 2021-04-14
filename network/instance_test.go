@@ -267,7 +267,10 @@ func setupComm(t *testing.T) (*Instance, *mixmessages.NDF) {
 		t.Errorf("Could not generate serialized ndf: %s", err)
 	}
 
-	err = signature.Sign(f, privKey)
+	err = signature.SignRsa(f, privKey)
+	if err != nil {
+		t.Fatalf("Failed to sign round info: %v", err)
+	}
 	testManager := connect.NewManagerTesting(t)
 	pc := &connect.ProtoComms{
 		Id:      id.NewIdFromString("User", id.User, t),
@@ -297,7 +300,10 @@ func TestInstance_RoundUpdate(t *testing.T) {
 		t.Errorf("Failed to load private key: %v", err)
 		t.FailNow()
 	}
-	err = signature.Sign(msg, privKey)
+	err = signature.SignRsa(msg, privKey)
+	if err != nil {
+		t.Fatalf("Failed to sign round info: %v", err)
+	}
 	testManager := connect.NewManagerTesting(t)
 	pc := connect.ProtoComms{
 		Manager: testManager,
@@ -935,8 +941,10 @@ func TestInstance_NodeEventModel(t *testing.T) {
 		t.Errorf("Failed to load private key: %v", err)
 		t.FailNow()
 	}
-	err = signature.Sign(f, privKey)
-
+	err = signature.SignRsa(f, privKey)
+	if err != nil {
+		t.Fatalf("Failed to sign round info: %v", err)
+	}
 	// Set up channels that reduce counter by the number of items they receive
 	go func() {
 		for range removeNode {
@@ -1074,8 +1082,10 @@ func createBadNdf(t *testing.T) *mixmessages.NDF {
 		t.FailNow()
 	}
 
-	err = signature.Sign(f, privKey)
-
+	err = signature.SignRsa(f, privKey)
+	if err != nil {
+		t.Fatalf("Failed to sign ndf: %v", err)
+	}
 	return f
 }
 
@@ -1099,9 +1109,9 @@ func TestInstance_RoundUpdateAddsToERS(t *testing.T) {
 	if err != nil {
 		t.Errorf("Could not generate serialized ndf: %s", err)
 	}
-	err = signature.Sign(f, privKey)
+	err = signature.SignRsa(f, privKey)
 	if err != nil {
-		t.Errorf("Could not generate serialized ndf: %s", err)
+		t.Fatalf("Failed to sign ndf: %v", err)
 	}
 
 	// Build the Instance object with an ERS memory map
@@ -1126,7 +1136,7 @@ func TestInstance_RoundUpdateAddsToERS(t *testing.T) {
 		ID:       2,
 		UpdateID: 4,
 	}
-	err = signature.Sign(r, privKey)
+	err = signature.SignRsa(r, privKey)
 	if err != nil {
 		t.Errorf(err.Error())
 	}

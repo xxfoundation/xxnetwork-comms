@@ -491,7 +491,7 @@ func (i *Instance) RoundUpdate(info *pb.RoundInfo) error {
 	}
 
 	if i.validationLevel == Strict {
-		err := signature.Verify(info, perm.GetPubKey())
+		err := signature.VerifyRsa(info, perm.GetPubKey())
 		if err != nil {
 			return errors.WithMessage(err, fmt.Sprintf("Could not validate "+
 				"the roundInfo signature: %+v", info))

@@ -164,13 +164,13 @@ func TestRoundInfo_SignVerify(t *testing.T) {
 	pubKey := privateKey.GetPublic()
 
 	// Ensure message type conforms to genericSignable interface
-	err = signature.Sign(testRoundInfo, privateKey)
+	err = signature.SignRsa(testRoundInfo, privateKey)
 	if err != nil {
 		t.Errorf("Unable to sign message: %+v", err)
 	}
 
 	// Verify signature
-	err = signature.Verify(testRoundInfo, pubKey)
+	err = signature.VerifyRsa(testRoundInfo, pubKey)
 	if err != nil {
 		t.Errorf("Expected happy path! Failed to verify: %+v", err)
 	}
@@ -197,7 +197,7 @@ func TestRoundInfo_SignVerify_Error(t *testing.T) {
 	pubKey := privateKey.GetPublic()
 
 	// Ensure message type conforms to genericSignable interface
-	err = signature.Sign(testRoundInfo, privateKey)
+	err = signature.SignRsa(testRoundInfo, privateKey)
 	if err != nil {
 		t.Errorf("Unable to sign message: %+v", err)
 	}
@@ -205,7 +205,7 @@ func TestRoundInfo_SignVerify_Error(t *testing.T) {
 	// Reset Topology value so verify()'s signature won't match
 	testRoundInfo.Topology = [][]byte{[]byte("I"), []byte("am"), []byte("totally"), []byte("failing right now")}
 	// Verify signature
-	err = signature.Verify(testRoundInfo, pubKey)
+	err = signature.VerifyRsa(testRoundInfo, pubKey)
 	if err != nil {
 		return
 	}

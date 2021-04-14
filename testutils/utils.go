@@ -105,7 +105,7 @@ func SignRoundInfoRsa(ri *pb.RoundInfo, i interface{}) error {
 		return errors.Errorf("Could not load public key: %v", err)
 	}
 
-	err = signature.Sign(ri, privKey)
+	err = signature.SignRsa(ri, privKey)
 	if err != nil {
 		return errors.Errorf("Could not sign round info: %+v", err)
 	}
