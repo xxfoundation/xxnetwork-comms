@@ -9,7 +9,7 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0
 	github.com/zeebo/blake3 v0.1.1 // indirect
 	gitlab.com/xx_network/crypto v0.0.4
-	gitlab.com/xx_network/primitives v0.0.4-0.20210406200245-e5a84aeae64d
+	gitlab.com/xx_network/primitives v0.0.4-0.20210412170941-7ef69bce5a5c
 	golang.org/x/net v0.0.0-20200707034311-ab3426394381
 	golang.org/x/sys v0.0.0-20210319071255-635bc2c9138d // indirect
 	google.golang.org/grpc v1.31.0
