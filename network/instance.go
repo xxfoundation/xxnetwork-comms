@@ -169,11 +169,6 @@ func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition, er
 		useElliptic: useElliptic,
 	}
 
-	i.ecPublicKey, err = ec.LoadPublicKeyFromString(i.GetEllipticPublicKey())
-	if err != nil {
-		return nil, errors.WithMessage(err, fmt.Sprintf("Could not load elliptic key from ndf"))
-	}
-
 	var ecPublicKey *eddsa.PublicKey
 	if full != nil && full.Registration.EllipticPubKey != "" {
 		ecPublicKey, err = ec.LoadPublicKeyFromString(i.GetEllipticPublicKey())
@@ -186,6 +181,14 @@ func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition, er
 			return nil, errors.WithMessage(err, fmt.Sprintf("Could not load elliptic key from ndf"))
 		}
 	}
+
+
+	if ecPublicKey != nil {
+		i.ecPublicKey = ecPublicKey
+	} else {
+		jww.DEBUG.Printf("Elliptic public key was not set, could not be found in NDF")
+	}
+
 
 	cmix := ""
 	if full != nil && full.CMIX.Prime != "" {
@@ -213,12 +216,6 @@ func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition, er
 		if err != nil {
 			jww.WARN.Printf("Error updating e2e group: %+v", err)
 		}
-	}
-
-	if ecPublicKey != nil {
-		i.ecPublicKey = ecPublicKey
-	} else {
-		jww.DEBUG.Printf("Elliptic public key was not set, could not be found in NDF")
 	}
 
 	i.waitingRounds = ds.NewWaitingRounds()
