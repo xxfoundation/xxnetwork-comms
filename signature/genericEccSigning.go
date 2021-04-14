@@ -89,6 +89,13 @@ func VerifyEddsa(verifiable GenericEccSignable, pubKey *eddsa.PublicKey) error {
 	// Generate the serialized data
 	data := verifiable.Digest(nonce, h)
 
+	jww.TRACE.Printf("ECC signature.Verify nonce: 0x%x", nonce)
+	jww.TRACE.Printf("ECC signature.Verify sig for nonce 0x%x: 0x%x", nonce[:8], sig)
+	jww.TRACE.Printf("ECC signature.Verify digest for nonce 0x%x, 0x%x", nonce[:8], data)
+	jww.TRACE.Printf("ECC signature.Verify data for nonce 0x%x: [%x]", nonce[:8], data)
+	jww.TRACE.Printf("ECC signature.Sign pubKey for nonce 0x%x: pubKey: %s;", nonce[:8], pubKey.String())
+
+
 	if !pubKey.Verify(sig, data) {
 		return errors.New("failed to verify EDDSA signature")
 	}

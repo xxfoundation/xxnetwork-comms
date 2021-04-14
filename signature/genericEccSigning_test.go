@@ -82,6 +82,6 @@ func TestSignVerifyEddsa_Error(t *testing.T) {
 	if err != nil {
 		return
 	}
-	t.Errorf("Expected error path: Verify should not return true")
+	t.Errorf("Expected error path: VerifyEddsa should not return true")
 
 }

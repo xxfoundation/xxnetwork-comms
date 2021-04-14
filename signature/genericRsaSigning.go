@@ -30,9 +30,9 @@ type GenericRsaSignable interface {
 	Digest(nonce []byte, h hash.Hash) []byte
 }
 
-// Sign takes a GenericRsaSignable object, marshals the data intended to be signed.
+// SignRsa takes a GenericRsaSignable object, marshals the data intended to be signed.
 // It hashes that data and sets it as the signature of that object
-func Sign(signable GenericRsaSignable, privKey *rsa.PrivateKey) error {
+func SignRsa(signable GenericRsaSignable, privKey *rsa.PrivateKey) error {
 	// Create rand for signing and nonce generation
 	rand := csprng.NewSystemRNG()
 
@@ -50,7 +50,7 @@ func Sign(signable GenericRsaSignable, privKey *rsa.PrivateKey) error {
 	// Generate the serialized data
 	data := signable.Digest(newNonce, h)
 
-	// Sign the message
+	// SignRsa the message
 	signature, err := rsa.Sign(rand, privKey, sha, data, nil)
 
 	// Print results of signing
@@ -98,11 +98,11 @@ func Verify(verifiable GenericRsaSignable, pubKey *rsa.PublicKey) error {
 	// Verify the signature using our implementation
 	err := rsa.Verify(pubKey, sha, data, sig, nil)
 
-	jww.TRACE.Printf("signature.Verify nonce: 0x%x", nonce)
-	jww.TRACE.Printf("signature.Verify sig for nonce 0x%x: 0x%x", nonce[:8], sig)
-	jww.TRACE.Printf("signature.Verify digest for nonce 0x%x, 0x%x", nonce[:8], data)
-	jww.TRACE.Printf("signature.Verify data for nonce 0x%x: [%x]", nonce[:8], data)
-	jww.TRACE.Printf("signature.Verify pubKey for nonce 0x%x: E: 0x%x;; V: 0x%v", nonce[:8], pubKey.E, pubKey.N.Text(16))
+	jww.TRACE.Printf("RSA signature.Verify nonce: 0x%x", nonce)
+	jww.TRACE.Printf("RSA signature.Verify sig for nonce 0x%x: 0x%x", nonce[:8], sig)
+	jww.TRACE.Printf("RSA signature.Verify digest for nonce 0x%x, 0x%x", nonce[:8], data)
+	jww.TRACE.Printf("RSA signature.Verify data for nonce 0x%x: [%x]", nonce[:8], data)
+	jww.TRACE.Printf("RSA signature.Verify pubKey for nonce 0x%x: E: 0x%x;; V: 0x%v", nonce[:8], pubKey.E, pubKey.N.Text(16))
 
 	return err
 }

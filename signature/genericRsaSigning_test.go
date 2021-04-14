@@ -37,7 +37,7 @@ func TestSign(t *testing.T) {
 	pubKey := privKey.GetPublic()
 
 	// Sign message
-	err = Sign(testSig, privKey)
+	err = SignRsa(testSig, privKey)
 	if err != nil {
 		t.Errorf("Failed to sign message: %+v", err)
 		t.FailNow()
@@ -66,7 +66,7 @@ func TestSign_Error(t *testing.T) {
 	pubKey := privKey.GetPublic()
 
 	// Sign object and fetch signature
-	err = Sign(testSig, privKey)
+	err = SignRsa(testSig, privKey)
 	if err != nil {
 		t.Errorf("Failed to sign: %+v", err)
 	}
@@ -98,7 +98,7 @@ func TestSignVerify(t *testing.T) {
 	pubKey := privKey.GetPublic()
 
 	// Sign object
-	err = Sign(testSig, privKey)
+	err = SignRsa(testSig, privKey)
 	if err != nil {
 		t.Errorf("Failed to sign: +%v", err)
 	}
@@ -123,7 +123,7 @@ func TestSignVerify_Error(t *testing.T) {
 	pubKey := privKey.GetPublic()
 
 	// Sign object
-	Sign(testSig, privKey)
+	SignRsa(testSig, privKey)
 
 	// Modify object post-signing
 	testSig.id = []byte("i will fail")
