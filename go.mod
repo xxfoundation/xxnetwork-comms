@@ -4,25 +4,20 @@ go 1.13
 
 require (
 	github.com/golang-collections/collections v0.0.0-20130729185459-604e922904d3
-	github.com/golang/protobuf v1.4.3
-	github.com/google/go-cmp v0.5.2 // indirect
+	github.com/golang/protobuf v1.4.2
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/jwalterweatherman v1.1.0
-	github.com/zeebo/blake3 v0.1.0 // indirect
-	github.com/zeebo/pcg v1.0.0 // indirect
-	gitlab.com/elixxir/crypto v0.0.7-0.20210210215733-951b4e717763
-	gitlab.com/elixxir/primitives v0.0.3-0.20210210215643-bf48247248e5
-	gitlab.com/xx_network/comms v0.0.4-0.20210210215624-622913c0a215
-	gitlab.com/xx_network/crypto v0.0.5-0.20210210215543-446333e9022e
-	gitlab.com/xx_network/primitives v0.0.4-0.20210210215152-e4534abf3ae5
+	gitlab.com/elixxir/crypto v0.0.7-0.20210412231025-6f75c577f803
+	gitlab.com/elixxir/primitives v0.0.3-0.20210409190923-7bf3cd8d97e7
+	gitlab.com/xx_network/comms v0.0.4-0.20210409202820-eb3dca6571d3
+	gitlab.com/xx_network/crypto v0.0.5-0.20210405224157-2b1f387b42c1
+	gitlab.com/xx_network/primitives v0.0.4-0.20210402222416-37c1c4d3fac4
 	gitlab.com/xx_network/ring v0.0.2
 	golang.org/x/net v0.0.0-20201029221708-28c70e62bb1d
-	golang.org/x/sys v0.0.0-20201029080932-201ba4db2418 // indirect
 	golang.org/x/text v0.3.4 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
-	google.golang.org/genproto v0.0.0-20201030142918-24207fddd1c3 // indirect
-	google.golang.org/grpc v1.33.1
-	google.golang.org/protobuf v1.25.0
+	google.golang.org/grpc v1.31.0
+	google.golang.org/protobuf v1.26.0-rc.1 // indirect
 )
 
 replace google.golang.org/grpc => github.com/grpc/grpc-go v1.27.1

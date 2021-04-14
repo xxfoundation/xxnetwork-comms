@@ -38,7 +38,7 @@ func (c *Comms) SendPutMessage(host *connect.Host, message *pb.GatewaySlot) (*pb
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Put message: %+v", message)
+	jww.TRACE.Printf("Sending Put message: %+v", message)
 	resultMsg, err := c.Send(host, f)
 	if err != nil {
 		return nil, err
@@ -70,7 +70,7 @@ func (c *Comms) SendRequestNonceMessage(host *connect.Host,
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Request Nonce message: %+v", message)
+	jww.TRACE.Printf("Sending Request Nonce message: %+v", message)
 	resultMsg, err := c.Send(host, f)
 	if err != nil {
 		return nil, err
@@ -100,7 +100,7 @@ func (c *Comms) SendConfirmNonceMessage(host *connect.Host,
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Confirm Nonce message: %+v", message)
+	jww.TRACE.Printf("Sending Confirm Nonce message: %+v", message)
 	resultMsg, err := c.Send(host, f)
 	if err != nil {
 		return nil, err
@@ -129,7 +129,7 @@ func (c *Comms) SendPoll(host *connect.Host,
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Poll message: %+v", message)
+	jww.TRACE.Printf("Sending Poll message: %+v", message)
 	resultMsg, err := c.Send(host, f)
 	if err != nil {
 		return nil, err
@@ -158,7 +158,7 @@ func (c *Comms) RequestHistoricalRounds(host *connect.Host,
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Poll message: %+v", message)
+	jww.TRACE.Printf("Requesting Historical Rounds: %+v", message)
 	resultMsg, err := c.Send(host, f)
 	if err != nil {
 		return nil, err
@@ -187,7 +187,7 @@ func (c *Comms) RequestMessages(host *connect.Host,
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Poll message: %+v", message)
+	jww.TRACE.Printf("Requesing Messages: %+v", message)
 	resultMsg, err := c.Send(host, f)
 	if err != nil {
 		return nil, err

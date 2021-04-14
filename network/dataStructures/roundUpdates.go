@@ -31,8 +31,8 @@ func NewUpdates() *Updates {
 }
 
 // Add a round to the ring buffer
-func (u *Updates) AddRound(info *pb.RoundInfo) error {
-	return u.updates.UpsertById(int(info.UpdateID), info)
+func (u *Updates) AddRound(rnd *Round) error {
+	return u.updates.UpsertById(int(rnd.info.UpdateID), rnd)
 }
 
 // Get a given update ID from the ring buffer
@@ -40,9 +40,16 @@ func (u *Updates) GetUpdate(id int) (*pb.RoundInfo, error) {
 
 	val, err := u.updates.GetById(id)
 	if err != nil {
-		return nil, errors.Wrapf(err, "Failed to get update with id %d", id)
+		return nil, errors.Wrapf(err, "Failed to get round by update " +
+			"ID with id %d", id)
 	}
-	return val.(*pb.RoundInfo), nil
+
+	if val == nil {
+		return nil, errors.Errorf("Failed to get round by update ID  " +
+			"with id %d, got nil round", id)
+	}
+
+	return val.(*Round).Get(), nil
 }
 
 //gets all updates after a given ID
@@ -58,7 +65,9 @@ func (u *Updates) GetUpdates(id int) []*pb.RoundInfo {
 	addCount := 0
 	for _, face := range interfaceList {
 		if face != nil {
-			infoList[addCount] = face.(*pb.RoundInfo)
+			rnd := face.(*Round)
+			// Retrieve and validate the round info object
+			infoList[addCount] = rnd.Get()
 			addCount++
 		}
 

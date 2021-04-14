@@ -220,6 +220,7 @@ message HistoricalRoundsResponse{
 message GetMessages{
     bytes ClientID = 1;
     uint64 RoundID = 2;
+    bytes Target = 3;
 }
 
 // Gateway response to a GetMessages request
@@ -268,6 +269,8 @@ message GatewayPoll {
     // Define range for ClientBloomFilter searches
     int64 StartTimestamp = 4;
     int64 EndTimestamp = 5;
+
+    bytes ClientVersion = 6;
 }
 
 // Unified Client->Gateway polling response
@@ -276,6 +279,7 @@ message GatewayPollResponse {
     repeated RoundInfo Updates = 2; // Empty if no update needed
     bytes KnownRounds = 3; // Rounds gateway knows about
     ClientBlooms Filters = 4; // Set of ClientBloomFilters requested by Client
+    uint64 EarliestRound = 5; // The earliest round the gateway still has info for
 }
 
 // Holds a set of ClientBloom and their associated metadata
@@ -297,6 +301,7 @@ message GatewaySlot{
     Slot Message = 1;
     uint64 RoundID = 2;
     bytes MAC = 3;
+    bytes Target = 4;
 }
 
 // Gateway -> Client authentication response
@@ -315,6 +320,7 @@ message BatchSenders {
 message Recipients {
     repeated bytes RecipientIds = 1;
     uint64 RoundID = 2;
+    uint64 RoundTS = 3;
 }
 
 
@@ -324,10 +330,6 @@ message Recipients {
 service Registration {
     // Client uses this to register its user with the system
     rpc RegisterUser (UserRegistration) returns (UserRegistrationConfirmation) {
-    }
-
-    // Client uses this to check if the version needs to be updated
-    rpc GetCurrentClientVersion (messages.Ping) returns (ClientVersion) {
     }
 
     // Node registration for the permissioning server
@@ -413,9 +415,10 @@ message NonceRequest {
     messages.RSASignature ClientSignedByServer = 3;
     bytes ClientDHPubKey = 4;
     messages.RSASignature RequestSignature = 5;
+    bytes Target = 6;
 }
 
-// Nonce message to reply to client from server
+// Nonce message to reply to client from server (going through gateway)
 message Nonce {
     bytes Nonce = 1;
     bytes DHPubKey = 2;
@@ -427,6 +430,7 @@ message RequestRegistrationConfirmation {
     bytes userID = 1;
     messages.RSASignature NonceSignedByClient = 2;
     string Error = 3;
+    bytes Target = 4;
 }
 
 // RegistrationConfirmation returning proof of registration
@@ -567,22 +571,6 @@ message FactRemovalRequest {
 }
 
 // CONNECTIVITY CHECKER --------------------------------------------------------
-
-service ConnectivityChecker {
-    rpc CheckConnectivity (Address) returns (ConnectivityResponse) {
-    }
-}
-
-message Address {
-    string IP = 1;
-    string Port = 2;
-}
-
-message ConnectivityResponse {
-    string CallerAddr = 1;
-    bool CallerAvailable = 2;
-    bool OtherAvailable = 3;
-}
 
 // For sending permission address Server -> Gateway
 message StrAddress {

@@ -36,7 +36,7 @@ func (s *Comms) SendNodeRegistration(host *connect.Host,
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Node Registration message: %+v", message)
+	jww.TRACE.Printf("Sending Node Registration message: %+v", message)
 	_, err := s.Send(host, f)
 	return err
 }
@@ -95,7 +95,7 @@ func (s *Comms) SendRegistrationCheck(host *connect.Host,
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Node Registration Check message: %+v", message)
+	jww.TRACE.Printf("Sending Node Registration Check message: %+v", message)
 	resultMsg, err := s.Send(host, f)
 	if err != nil {
 		return nil, err
