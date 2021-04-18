@@ -182,10 +182,6 @@ service Gateway {
     rpc ConfirmNonce (RequestRegistrationConfirmation) returns (RegistrationConfirmation) {
     }
 
-    // Notifications->Gateway request for users with pending notifications
-    rpc PollForNotifications (messages.AuthenticatedMessage) returns (UserIdList) {
-    }
-
     // Client -> Gateway unified polling
     rpc Poll (GatewayPoll) returns (GatewayPollResponse) {
     }
@@ -481,6 +477,10 @@ service NotificationBot {
     // Register clients from push notifications
     rpc RegisterForNotifications (messages.AuthenticatedMessage) returns (messages.Ack) {
     }
+
+    // Gateway -> Notifications notification data
+    rpc ReceiveNotificationBatch(messages.AuthenticatedMessage) returns (messages.Ack) {
+    }
 }
 
 // Registration token to be associated with the client
@@ -501,6 +501,19 @@ message NotificationUnregisterRequest {
 // The list of user IDS for notification polling
 message UserIdList {
     repeated bytes IDs = 1;
+}
+
+// Notification data transmitted to the notification bot from gateway
+message NotificationBatch {
+    uint64 roundID = 1;
+    repeated NotificationData notifications = 2;
+}
+
+// Data for a single notification
+message NotificationData {
+    int64 ephemeralID = 1;
+    bytes identityFP = 2;
+    bytes messageHash = 3;
 }
 
 // UDB MESSAGE SERVICE ---------------------------------------------------------
