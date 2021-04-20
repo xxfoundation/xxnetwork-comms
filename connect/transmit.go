@@ -1,3 +1,10 @@
+///////////////////////////////////////////////////////////////////////////////
+// Copyright © 2020 xx network SEZC                                          //
+//                                                                           //
+// Use of this source code is governed by a license that can be found in the //
+// LICENSE file                                                              //
+///////////////////////////////////////////////////////////////////////////////
+
 package connect
 
 import (
@@ -9,6 +16,7 @@ import (
 
 const MaxRetries = 3
 const inCoolDownErr = "Host is in cool down. Cannot connect."
+const lastTryErr = "Last try to connect to"
 
 // Sets up or recovers the Host's connection
 // Then runs the given Send function
@@ -19,6 +27,9 @@ func (c *ProtoComms) transmit(host *Host, f func(conn *grpc.ClientConn) (interfa
 		return nil, errors.New("Host address is blank, host might be receive only.")
 	}
 
+	host.transmitMux.RLock()
+	defer host.transmitMux.RUnlock()
+
 	for numRetries := 0; numRetries < MaxRetries; numRetries++ {
 		err = nil
 		//reconnect if necessary
@@ -26,7 +37,8 @@ func (c *ProtoComms) transmit(host *Host, f func(conn *grpc.ClientConn) (interfa
 		if !connected {
 			connectionCount, err = c.connect(host, connectionCount)
 			if err != nil {
-				if strings.Contains(err.Error(), inCoolDownErr) {
+				if strings.Contains(err.Error(), inCoolDownErr) ||
+					strings.Contains(err.Error(), lastTryErr) {
 					return nil, err
 				}
 				jww.WARN.Printf("Failed to connect to Host on attempt "+
@@ -51,8 +63,8 @@ func (c *ProtoComms) transmit(host *Host, f func(conn *grpc.ClientConn) (interfa
 }
 
 func (c *ProtoComms) connect(host *Host, count uint64) (uint64, error) {
-	host.sendMux.Lock()
-	defer host.sendMux.Unlock()
+	host.connectionMux.Lock()
+	defer host.connectionMux.Unlock()
 
 	if host.coolOffBucket != nil {
 		if host.inCoolOff {
