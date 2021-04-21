@@ -66,7 +66,7 @@ type Handler interface {
 		ClientReceptionSignedByServer string) (signature []byte, receptionSignature []byte, err error)
 	RegisterNode(salt []byte, serverAddr, serverTlsCert, gatewayAddr,
 		gatewayTlsCert, registrationCode string) error
-	PollNdf(ndfHash []byte) ([]byte, error)
+	PollNdf(ndfHash []byte) (*pb.NDF, error)
 	Poll(msg *pb.PermissioningPoll, auth *connect.Auth) (*pb.
 		PermissionPollResponse, error)
 	CheckRegistration(msg *pb.RegisteredNodeCheck) (*pb.RegisteredNodeConfirmation, error)
@@ -77,7 +77,7 @@ type implementationFunctions struct {
 		ClientReceptionSignedByServer string) (signature, receptionSignature []byte, err error)
 	RegisterNode func(salt []byte, serverAddr, serverTlsCert, gatewayAddr,
 		gatewayTlsCert, registrationCode string) error
-	PollNdf           func(ndfHash []byte) ([]byte, error)
+	PollNdf           func(ndfHash []byte) (*pb.NDF, error)
 	Poll              func(msg *pb.PermissioningPoll, auth *connect.Auth) (*pb.PermissionPollResponse, error)
 	CheckRegistration func(msg *pb.RegisteredNodeCheck) (*pb.RegisteredNodeConfirmation, error)
 }
@@ -109,7 +109,7 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return nil
 			},
-			PollNdf: func(ndfHash []byte) ([]byte, error) {
+			PollNdf: func(ndfHash []byte) (*pb.NDF, error) {
 				warn(um)
 				return nil, nil
 			},
@@ -139,7 +139,7 @@ func (s *Implementation) RegisterNode(salt []byte, serverAddr, serverTlsCert, ga
 		gatewayTlsCert, registrationCode)
 }
 
-func (s *Implementation) PollNdf(ndfHash []byte) ([]byte, error) {
+func (s *Implementation) PollNdf(ndfHash []byte) (*pb.NDF, error) {
 	return s.Functions.PollNdf(ndfHash)
 }
 
