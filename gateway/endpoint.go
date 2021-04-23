@@ -76,24 +76,6 @@ func (g *Comms) ShareMessages(ctx context.Context, msg *messages.AuthenticatedMe
 	return &messages.Ack{}, g.handler.ShareMessages(roundMessages, authState)
 }
 
-// Ping gateway to ask for users to notify
-func (g *Comms) PollForNotifications(ctx context.Context, msg *messages.AuthenticatedMessage) (*pb.UserIdList, error) {
-
-	authState, err := g.AuthenticatedReceiver(msg)
-	if err != nil {
-		return nil, errors.Errorf("Unable to handle reception of AuthenticatedMessage: %+v", err)
-	}
-
-	ids, err := g.handler.PollForNotifications(authState)
-	returnMsg := &pb.UserIdList{}
-	if err == nil {
-		for i, userID := range ids {
-			returnMsg.IDs[i] = userID.Marshal()
-		}
-	}
-	return returnMsg, err
-}
-
 // Client -> Gateway unified polling
 func (g *Comms) Poll(ctx context.Context, msg *pb.GatewayPoll) (*pb.GatewayPollResponse, error) {
 	return g.handler.Poll(msg)
