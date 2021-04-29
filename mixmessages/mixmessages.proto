@@ -485,7 +485,7 @@ service NotificationBot {
 
 // Registration token to be associated with the client
 message NotificationRegisterRequest {
-    bytes Token = 1;
+    string Token = 1;
     bytes IntermediaryId = 2;
     bytes TransmissionRsa = 3;
     bytes TransmissionSalt = 4;
