@@ -57,8 +57,8 @@ func SignEddsa(signable GenericEccSignable, privKey *ec.PrivateKey) error {
 	jww.TRACE.Printf("ECC signature.Sign sig for nonce 0x%x 0x%x", newNonce[:8], signature)
 	jww.TRACE.Printf("ECC signature.Sign digest for nonce 0x%x 0x%x", newNonce[:8], data)
 	jww.TRACE.Printf("ECC signature.Sign data for nonce 0x%x: [%x]", newNonce[:8], data)
-	jww.TRACE.Printf("ECC signature.Sign privKey for nonce 0x%x: Type: %s;; String: %x;;", newNonce[:8], privKey.KeyType(), privKey.MarshalText())
-	jww.TRACE.Printf("ECC signature.Sign pubKey for nonce 0x%x: pubKey: %s;", newNonce[:8], privKey.GetPublic().MarshalText())
+	jww.TRACE.Printf("ECC signature.Sign privKey for nonce 0x%x: Type: %s;; String: %x;;", newNonce[:8], privKey.KeyType(), privKey.String())
+	jww.TRACE.Printf("ECC signature.Sign pubKey for nonce 0x%x: pubKey: %s;", newNonce[:8], privKey.GetPublic().String())
 
 	// Modify the signature for the new values
 	// NOTE: This is the only way to change the internal of the interface object.
@@ -93,7 +93,7 @@ func VerifyEddsa(verifiable GenericEccSignable, pubKey *ec.PublicKey) error {
 	jww.TRACE.Printf("ECC signature.Verify sig for nonce 0x%x: 0x%x", nonce[:8], sig)
 	jww.TRACE.Printf("ECC signature.Verify digest for nonce 0x%x, 0x%x", nonce[:8], data)
 	jww.TRACE.Printf("ECC signature.Verify data for nonce 0x%x: [%x]", nonce[:8], data)
-	jww.TRACE.Printf("ECC signature.Sign pubKey for nonce 0x%x: pubKey: %s;", nonce[:8], pubKey.MarshalText())
+	jww.TRACE.Printf("ECC signature.Sign pubKey for nonce 0x%x: pubKey: %s;", nonce[:8], pubKey.String())
 
 	if !ec.Verify(pubKey, data, sig) {
 		return errors.New("failed to verify EDDSA signature")

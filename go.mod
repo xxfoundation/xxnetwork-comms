@@ -7,7 +7,7 @@ require (
 	github.com/katzenpost/core v0.0.14 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/jwalterweatherman v1.1.0
-	gitlab.com/xx_network/crypto v0.0.5-0.20210430174827-c5371a475fa3
+	gitlab.com/xx_network/crypto v0.0.5-0.20210430180000-985aa4140eb2
 	gitlab.com/xx_network/primitives v0.0.4-0.20210412170941-7ef69bce5a5c
 	golang.org/x/net v0.0.0-20200707034311-ab3426394381
 	google.golang.org/grpc v1.31.0
