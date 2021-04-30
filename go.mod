@@ -6,14 +6,13 @@ require (
 	github.com/aws/aws-lambda-go v1.8.1 // indirect
 	github.com/golang-collections/collections v0.0.0-20130729185459-604e922904d3
 	github.com/golang/protobuf v1.4.2
-	github.com/katzenpost/core v0.0.14
 	github.com/nyaruka/phonenumbers v1.0.60 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/jwalterweatherman v1.1.0
 	gitlab.com/elixxir/crypto v0.0.6
 	gitlab.com/elixxir/primitives v0.0.3-0.20210409190923-7bf3cd8d97e7
-	gitlab.com/xx_network/comms v0.0.4-0.20210414225551-37262e764468
-	gitlab.com/xx_network/crypto v0.0.5-0.20210413200952-56bd15ec9d99
+	gitlab.com/xx_network/comms v0.0.4-0.20210430033032-d30d75c1530f
+	gitlab.com/xx_network/crypto v0.0.5-0.20210430032852-de40a2ed3ac9
 	gitlab.com/xx_network/primitives v0.0.4-0.20210412170941-7ef69bce5a5c
 	gitlab.com/xx_network/ring v0.0.2
 	golang.org/x/lint v0.0.0-20190313153728-d0100b6bd8b3 // indirect

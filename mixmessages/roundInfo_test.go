@@ -12,10 +12,10 @@ import (
 	"crypto"
 	"crypto/rand"
 	"encoding/base64"
-	"github.com/katzenpost/core/crypto/eddsa"
 	"gitlab.com/elixxir/primitives/states"
 	"gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/comms/signature"
+	"gitlab.com/xx_network/crypto/signature/ec"
 	"gitlab.com/xx_network/crypto/signature/rsa"
 	"reflect"
 	"testing"
@@ -226,11 +226,11 @@ func TestNDF_SignVerifyEddsa(t *testing.T) {
 		BatchSize: testBatch,
 	}
 	// Generate keys
-	privateKey, err := eddsa.NewKeypair(rand.Reader)
+	privateKey, err := ec.NewKeyPair(rand.Reader)
 	if err != nil {
 		t.Fatalf("Failed to generate key: %+v", err)
 	}
-	pubKey := privateKey.PublicKey()
+	pubKey := privateKey.GetPublic()
 
 	// Sign message
 	err = signature.SignEddsa(testRoundInfo, privateKey)
@@ -258,11 +258,11 @@ func TestNdf_SignVerifyEddsa_Error(t *testing.T) {
 		BatchSize: testBatch,
 	}
 	// Generate keys
-	privateKey, err := eddsa.NewKeypair(rand.Reader)
+	privateKey, err := ec.NewKeyPair(rand.Reader)
 	if err != nil {
 		t.Errorf("Failed to generate key: %+v", err)
 	}
-	pubKey := privateKey.PublicKey()
+	pubKey := privateKey.GetPublic()
 
 	// Sign message
 	err = signature.SignEddsa(testRoundInfo, privateKey)

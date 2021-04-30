@@ -28,7 +28,7 @@ func TestUpdates_AddRound(t *testing.T) {
 	}
 	ecKey, _ := testutils.LoadEllipticPublicKey(t)
 
-	rnd := NewRound(ri, pubKey, ecKey.PublicKey())
+	rnd := NewRound(ri, pubKey, ecKey.GetPublic())
 	err = u.AddRound(rnd)
 	if err != nil {
 		t.Errorf("Failed to add round: %+v", err)
@@ -58,7 +58,7 @@ func TestUpdates_GetUpdate(t *testing.T) {
 		t.Errorf("Failed to sign mock round info: %v", err)
 	}
 
-	rnd := NewRound(ri, pubKey, ecKey.PublicKey())
+	rnd := NewRound(ri, pubKey, ecKey.GetPublic())
 	_ = u.AddRound(rnd)
 	_, err = u.GetUpdate(updateID)
 	if err != nil {
@@ -92,7 +92,7 @@ func TestUpdates_GetUpdates(t *testing.T) {
 		t.Errorf("Failed to sign mock round info: %v", err)
 	}
 
-	roundOne := NewRound(roundInfoOne, pubKey, ecKey.PublicKey())
+	roundOne := NewRound(roundInfoOne, pubKey, ecKey.GetPublic())
 
 	// Construct a second eound
 	roundInfoTwo := &mixmessages.RoundInfo{
@@ -106,7 +106,7 @@ func TestUpdates_GetUpdates(t *testing.T) {
 		t.Errorf("Failed to sign mock round info: %v", err)
 	}
 
-	roundTwo := NewRound(roundInfoTwo, pubKey, ecKey.PublicKey())
+	roundTwo := NewRound(roundInfoTwo, pubKey, ecKey.GetPublic())
 
 	_ = u.AddRound(roundOne)
 	// Add second round twice (shouldn't duplicate)

@@ -12,7 +12,6 @@ package network
 import (
 	"bytes"
 	"fmt"
-	"github.com/katzenpost/core/crypto/eddsa"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
@@ -52,7 +51,7 @@ type Instance struct {
 	// using the RSA key or the EC key.
 	// Set to true, they shall use elliptic, set to false they shall use RSA
 	useElliptic bool
-	ecPublicKey *eddsa.PublicKey
+	ecPublicKey *ec.PublicKey
 	// Waiting Rounds
 	waitingRounds *ds.WaitingRounds
 
@@ -169,14 +168,14 @@ func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition, er
 		useElliptic: useElliptic,
 	}
 
-	var ecPublicKey *eddsa.PublicKey
+	var ecPublicKey *ec.PublicKey
 	if full != nil && full.Registration.EllipticPubKey != "" {
-		ecPublicKey, err = ec.LoadPublicKeyFromString(i.GetEllipticPublicKey())
+		ecPublicKey, err = ec.LoadPublicKey(i.GetEllipticPublicKey())
 		if err != nil {
 			return nil, errors.WithMessage(err, fmt.Sprintf("Could not load elliptic key from ndf"))
 		}
 	} else if partial.Registration.EllipticPubKey != "" {
-		ecPublicKey, err = ec.LoadPublicKeyFromString(i.GetEllipticPublicKey())
+		ecPublicKey, err = ec.LoadPublicKey(i.GetEllipticPublicKey())
 		if err != nil {
 			return nil, errors.WithMessage(err, fmt.Sprintf("Could not load elliptic key from ndf"))
 		}

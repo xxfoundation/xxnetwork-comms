@@ -20,10 +20,10 @@ func TestNewRound(t *testing.T) {
 
 	ri := &mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(1)}
 
-	rnd := NewRound(ri, pubKey, ecKey.PublicKey())
+	rnd := NewRound(ri, pubKey, ecKey.GetPublic())
 
 	// Check that values in object match inputted values
-	if rnd.info != ri || rnd.rsaPubKey != pubKey || rnd.ecPubKey != ecKey.PublicKey() {
+	if rnd.info != ri || rnd.rsaPubKey != pubKey || rnd.ecPubKey != ecKey.GetPublic() {
 		t.Errorf("Initial round values from constructor are not expected."+
 			"\n\tExpected round info: %v"+
 			"\n\tReceived round info: %v"+
@@ -66,7 +66,7 @@ func TestNewRound_Get(t *testing.T) {
 	ecPubKey, _ := testutils.LoadEllipticPublicKey(t)
 	testutils.SignRoundInfoEddsa(ri, ecPubKey, t)
 
-	rnd := NewRound(ri, pubKey, ecPubKey.PublicKey())
+	rnd := NewRound(ri, pubKey, ecPubKey.GetPublic())
 
 	// Check the initial value of the atomic value (lazily)
 	if *rnd.needsValidation != 0 {

@@ -7,10 +7,10 @@
 package dataStructures
 
 import (
-	"github.com/katzenpost/core/crypto/eddsa"
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/signature"
+	"gitlab.com/xx_network/crypto/signature/ec"
 	"gitlab.com/xx_network/crypto/signature/rsa"
 	"sync/atomic"
 )
@@ -22,11 +22,11 @@ type Round struct {
 	info            *pb.RoundInfo
 	needsValidation *uint32
 	rsaPubKey       *rsa.PublicKey
-	ecPubKey        *eddsa.PublicKey
+	ecPubKey        *ec.PublicKey
 }
 
 // Constructor of a Round object.
-func NewRound(ri *pb.RoundInfo, rsaPubKey *rsa.PublicKey, ecPubKey *eddsa.PublicKey) *Round {
+func NewRound(ri *pb.RoundInfo, rsaPubKey *rsa.PublicKey, ecPubKey *ec.PublicKey) *Round {
 	validationDefault := uint32(0)
 	return &Round{
 		info:            ri,
