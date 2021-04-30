@@ -4,7 +4,6 @@ go 1.13
 
 require (
 	github.com/golang/protobuf v1.4.2
-	github.com/katzenpost/core v0.0.14 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/jwalterweatherman v1.1.0
 	gitlab.com/xx_network/crypto v0.0.5-0.20210430180000-985aa4140eb2
