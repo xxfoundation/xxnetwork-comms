@@ -8,11 +8,11 @@ package signature
 
 import (
 	"crypto"
-	"github.com/katzenpost/core/crypto/eddsa"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/crypto/csprng"
+	"gitlab.com/xx_network/crypto/signature/ec"
 	"hash"
 )
 
@@ -30,7 +30,7 @@ type GenericEccSignable interface {
 
 // SignEddsa takes a GenericEccSignable object, marshals the data
 // intended to be signed with a nonce.
-func SignEddsa(signable GenericEccSignable, privKey *eddsa.PrivateKey) error {
+func SignEddsa(signable GenericEccSignable, privKey *ec.PrivateKey) error {
 	// Create rand for signing and nonce generation
 	rand := csprng.NewSystemRNG()
 
@@ -50,15 +50,15 @@ func SignEddsa(signable GenericEccSignable, privKey *eddsa.PrivateKey) error {
 	data := signable.Digest(newNonce, h)
 
 	// Sign the message
-	signature := privKey.Sign(data)
+	signature := ec.Sign(privKey, data)
 
 	// Print results of signing
 	jww.TRACE.Printf("ECC signature.Sign nonce: 0x%x", newNonce)
 	jww.TRACE.Printf("ECC signature.Sign sig for nonce 0x%x 0x%x", newNonce[:8], signature)
 	jww.TRACE.Printf("ECC signature.Sign digest for nonce 0x%x 0x%x", newNonce[:8], data)
 	jww.TRACE.Printf("ECC signature.Sign data for nonce 0x%x: [%x]", newNonce[:8], data)
-	jww.TRACE.Printf("ECC signature.Sign privKey for nonce 0x%x: Type: %s;; Bytes: %x;; Identity: %s", newNonce[:8], privKey.KeyType(), privKey.Bytes(), privKey.Identity())
-	jww.TRACE.Printf("ECC signature.Sign pubKey for nonce 0x%x: pubKey: %s;", newNonce[:8], privKey.PublicKey().String())
+	jww.TRACE.Printf("ECC signature.Sign privKey for nonce 0x%x: Type: %s;; String: %x;;", newNonce[:8], privKey.KeyType(), privKey.MarshalText())
+	jww.TRACE.Printf("ECC signature.Sign pubKey for nonce 0x%x: pubKey: %s;", newNonce[:8], privKey.GetPublic().MarshalText())
 
 	// Modify the signature for the new values
 	// NOTE: This is the only way to change the internal of the interface object.
@@ -76,11 +76,11 @@ func SignEddsa(signable GenericEccSignable, privKey *eddsa.PrivateKey) error {
 
 // VerifyEddsa takes the signature from the verifiable message
 // and verifies it on the public key. If
-func VerifyEddsa(verifiable GenericEccSignable, pubKey *eddsa.PublicKey) error {
+func VerifyEddsa(verifiable GenericEccSignable, pubKey *ec.PublicKey) error {
 	sigMsg := verifiable.GetEccSig()
 	nonce := sigMsg.Nonce
-
 	sig := sigMsg.Signature
+
 	// Prepare to hash the data
 	// fixme: change hash be faster for this interface?
 	sha := crypto.SHA256
@@ -93,10 +93,9 @@ func VerifyEddsa(verifiable GenericEccSignable, pubKey *eddsa.PublicKey) error {
 	jww.TRACE.Printf("ECC signature.Verify sig for nonce 0x%x: 0x%x", nonce[:8], sig)
 	jww.TRACE.Printf("ECC signature.Verify digest for nonce 0x%x, 0x%x", nonce[:8], data)
 	jww.TRACE.Printf("ECC signature.Verify data for nonce 0x%x: [%x]", nonce[:8], data)
-	jww.TRACE.Printf("ECC signature.Sign pubKey for nonce 0x%x: pubKey: %s;", nonce[:8], pubKey.String())
+	jww.TRACE.Printf("ECC signature.Sign pubKey for nonce 0x%x: pubKey: %s;", nonce[:8], pubKey.MarshalText())
 
-
-	if !pubKey.Verify(sig, data) {
+	if !ec.Verify(pubKey, data, sig) {
 		return errors.New("failed to verify EDDSA signature")
 	}
 

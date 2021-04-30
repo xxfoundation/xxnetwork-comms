@@ -8,7 +8,7 @@ package signature
 
 import (
 	"crypto/rand"
-	"github.com/katzenpost/core/crypto/eddsa"
+	"gitlab.com/xx_network/crypto/signature/ec"
 	"testing"
 )
 
@@ -18,7 +18,7 @@ func TestSignEddsa(t *testing.T) {
 	testSig := InitTestSignable()
 
 	// Generate keys
-	privKey, err := eddsa.NewKeypair(rand.Reader)
+	privKey, err := ec.NewKeyPair(rand.Reader)
 	if err != nil {
 		t.Errorf("Failed to generate private key: %+v", err)
 	}
@@ -37,11 +37,11 @@ func TestSignVerifyEddsa(t *testing.T) {
 	testSig := InitTestSignable()
 
 	// Generate keys
-	privKey, err := eddsa.NewKeypair(rand.Reader)
+	privKey, err := ec.NewKeyPair(rand.Reader)
 	if err != nil {
 		t.Errorf("Failed to generate private key: %+v", err)
 	}
-	pubKey := privKey.PublicKey()
+	pubKey := privKey.GetPublic()
 
 	// Sign object
 	err = SignEddsa(testSig, privKey)
@@ -62,11 +62,11 @@ func TestSignVerifyEddsa_Error(t *testing.T) {
 	testSig := InitTestSignable()
 
 	// Generate keys
-	privKey, err := eddsa.NewKeypair(rand.Reader)
+	privKey, err := ec.NewKeyPair(rand.Reader)
 	if err != nil {
 		t.Errorf("Failed to generate private key: %+v", err)
 	}
-	pubKey := privKey.PublicKey()
+	pubKey := privKey.GetPublic()
 
 	// Sign object
 	err = SignEddsa(testSig, privKey)

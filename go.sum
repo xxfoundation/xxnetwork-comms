@@ -44,6 +44,8 @@ github.com/katzenpost/chacha20 v0.0.0-20190907175341-fad9676fa4d8/go.mod h1:d9kx
 github.com/katzenpost/chacha20 v0.0.0-20190910113340-7ce890d6a556/go.mod h1:d9kxwmGOcutgP6bQwr2xaLInaW5yJsxsoPRyUIG0J/E=
 github.com/katzenpost/core v0.0.13 h1:zI1m0nwYhy1q2W4qa+AyczMyg7FUVCOht6UzVbXwa+k=
 github.com/katzenpost/core v0.0.13/go.mod h1:RjyD4DLQr+P5FnP6iiZUTgvalZwT7NyawXwYzn32eYQ=
+github.com/katzenpost/core v0.0.14 h1:8n30pGlm6cXa1PjU+HBv8nARFh67UmX/eYkHnbcBfgs=
+github.com/katzenpost/core v0.0.14/go.mod h1:RjyD4DLQr+P5FnP6iiZUTgvalZwT7NyawXwYzn32eYQ=
 github.com/katzenpost/newhope v0.0.0-20190907181500-0c77ddcb510f/go.mod h1:xA8+73aJ0TU2W701F6Ac7LL8jiUuv6me5pO+/nIuaCM=
 github.com/katzenpost/noise v0.0.2/go.mod h1:L6ioEZo4vpnAgdh4x8qenV7T0/k8mltat1EjxQO0TNA=
 github.com/kr/pretty v0.2.1/go.mod h1:ipq/a2n7PKx3OHsz4KJII5eveXtPO4qwEXGdVfWzfnI=
@@ -131,6 +133,10 @@ gitlab.com/xx_network/crypto v0.0.5-0.20210401160648-4f06cace9123 h1:i2PajAamYla
 gitlab.com/xx_network/crypto v0.0.5-0.20210401160648-4f06cace9123/go.mod h1:CWV349I9Nv1zPCIY/f8Ej6yWs7NG0HLTWnm+Jlz7jKc=
 gitlab.com/xx_network/crypto v0.0.5-0.20210405224157-2b1f387b42c1 h1:4Hrphjtqn3vO8LI872YwVKy5dCFJdD5u0dE4O2QCZqU=
 gitlab.com/xx_network/crypto v0.0.5-0.20210405224157-2b1f387b42c1/go.mod h1:CUhRpioyLaKIylg+LIyZX1rhOmFaEXQQ6esNycx9dcA=
+gitlab.com/xx_network/crypto v0.0.5-0.20210430022225-a071d83bec4d h1:luIR3YWtJZmezgL8k3AX0juComsIXEv0dPP6wIvoXEI=
+gitlab.com/xx_network/crypto v0.0.5-0.20210430022225-a071d83bec4d/go.mod h1:Rz97srKNbUOnMk+gKyRnJYIVIA6bGBj+BB5Of6Pfyng=
+gitlab.com/xx_network/crypto v0.0.5-0.20210430024055-946be28d5a0d h1:WWGL5qCSse+lrxkn6WQUVd0rfrEAusUS2a5vrDK7W10=
+gitlab.com/xx_network/crypto v0.0.5-0.20210430024055-946be28d5a0d/go.mod h1:Rz97srKNbUOnMk+gKyRnJYIVIA6bGBj+BB5Of6Pfyng=
 gitlab.com/xx_network/primitives v0.0.0-20200803231956-9b192c57ea7c/go.mod h1:wtdCMr7DPePz9qwctNoAUzZtbOSHSedcK++3Df3psjA=
 gitlab.com/xx_network/primitives v0.0.0-20200804183002-f99f7a7284da/go.mod h1:OK9xevzWCaPO7b1wiluVJGk7R5ZsuC7pHY5hteZFQug=
 gitlab.com/xx_network/primitives v0.0.2/go.mod h1:cs0QlFpdMDI6lAo61lDRH2JZz+3aVkHy+QogOB6F/qc=
