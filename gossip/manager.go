@@ -162,6 +162,9 @@ func (m *Manager) bufferMonitor() chan bool {
 	return killChan
 }
 
+const WorkerTimeout = 3 * time.Second
+
+// launches numWorkers routines to handle sending of gossips for this protocol
 // launches numWorkers routines to handle sending of gossips for this protocol
 func launchSendWorkers(numWorkers uint32, receiver chan sendInstructions) {
 	for i := uint32(0); i < numWorkers; i++ {
@@ -170,7 +173,28 @@ func launchSendWorkers(numWorkers uint32, receiver chan sendInstructions) {
 				// get a gossip send
 				instructions := <-receiver
 				// do the send
-				err := instructions.sendFunc(instructions.peer)
+				errChan := make(chan error)
+
+				go func() {
+					err := instructions.sendFunc(instructions.peer)
+					select {
+					case errChan <- err:
+					default:
+						jww.WARN.Printf("Failed to send error report to "+
+							"source for send to %s: %+v", instructions.peer, err)
+					}
+				}()
+
+				var err error
+
+				select {
+				case err = <-errChan:
+				case <-time.After(WorkerTimeout):
+					jww.WARN.Printf("Send to peer %s failed after %s\n"+
+						"\t ",
+						instructions.peer, WorkerTimeout)
+				}
+
 				// handle errors if they occur
 				if err != nil {
 					select {
