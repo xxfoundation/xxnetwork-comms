@@ -90,9 +90,7 @@ func (r *Comms) RegisterNode(ctx context.Context, msg *pb.NodeRegistration) (
 
 // Handles incoming requests for the NDF
 func (r *Comms) PollNdf(ctx context.Context, ndfHash *pb.NDFHash) (*pb.NDF, error) {
-	newNDF, err := r.handler.PollNdf(ndfHash.Hash)
-	//Return the new ndf
-	return &pb.NDF{Ndf: newNDF}, err
+	return r.handler.PollNdf(ndfHash.Hash)
 }
 
 // Server -> Permissioning unified polling

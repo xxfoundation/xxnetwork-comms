@@ -23,9 +23,11 @@ import (
 // Handler interface for the Notification Bot
 type Handler interface {
 	// RegisterForNotifications event handler which registers a client with the notification bot
-	RegisterForNotifications(clientToken []byte, auth *connect.Auth) error
+	RegisterForNotifications(msg *pb.NotificationRegisterRequest, auth *connect.Auth) error
 	// UnregisterForNotifications event handler which unregisters a client with the notification bot
-	UnregisterForNotifications(auth *connect.Auth) error
+	UnregisterForNotifications(msg *pb.NotificationUnregisterRequest, auth *connect.Auth) error
+	// ReceiveNotificationBatch receives the batch of notification data from gateway.
+	ReceiveNotificationBatch(notifBatch *pb.NotificationBatch, auth *connect.Auth) error
 }
 
 // NotificationBot object used to implement
@@ -71,9 +73,9 @@ func StartNotificationBot(id *id.ID, localServer string, handler Handler,
 
 // Handler implementation for the NotificationBot
 type implementationFunctions struct {
-	RegisterForNotifications   func(clientToken []byte, auth *connect.Auth) error
-	UnregisterForNotifications func(auth *connect.Auth) error
-	PollForNotifications       func(auth *connect.Auth) ([]*id.ID, error)
+	RegisterForNotifications   func(request *pb.NotificationRegisterRequest, auth *connect.Auth) error
+	UnregisterForNotifications func(request *pb.NotificationUnregisterRequest, auth *connect.Auth) error
+	ReceiveNotificationBatch   func(notifBatch *pb.NotificationBatch, auth *connect.Auth) error
 }
 
 // Implementation allows users of the client library to set the
@@ -93,11 +95,15 @@ func NewImplementation() *Implementation {
 	return &Implementation{
 		Functions: implementationFunctions{
 
-			RegisterForNotifications: func(clientToken []byte, auth *connect.Auth) error {
+			RegisterForNotifications: func(request *pb.NotificationRegisterRequest, auth *connect.Auth) error {
 				warn(um)
 				return nil
 			},
-			UnregisterForNotifications: func(auth *connect.Auth) error {
+			UnregisterForNotifications: func(request *pb.NotificationUnregisterRequest, auth *connect.Auth) error {
+				warn(um)
+				return nil
+			},
+			ReceiveNotificationBatch: func(notifBatch *pb.NotificationBatch, auth *connect.Auth) error {
 				warn(um)
 				return nil
 			},
@@ -106,11 +112,17 @@ func NewImplementation() *Implementation {
 }
 
 // RegisterForNotifications event handler which registers a client with the notification bot
-func (s *Implementation) RegisterForNotifications(clientToken []byte, auth *connect.Auth) error {
-	return s.Functions.RegisterForNotifications(clientToken, auth)
+func (s *Implementation) RegisterForNotifications(request *pb.NotificationRegisterRequest, auth *connect.Auth) error {
+	return s.Functions.RegisterForNotifications(request, auth)
 }
 
 // UnregisterForNotifications event handler which unregisters a client with the notification bot
-func (s *Implementation) UnregisterForNotifications(auth *connect.Auth) error {
-	return s.Functions.UnregisterForNotifications(auth)
+func (s *Implementation) UnregisterForNotifications(request *pb.NotificationUnregisterRequest, auth *connect.Auth) error {
+	return s.Functions.UnregisterForNotifications(request, auth)
+}
+
+// ReceiveNotificationBatch receives the batch of notification data from gateway.
+func (s *Implementation) ReceiveNotificationBatch(notifBatch *pb.NotificationBatch,
+	auth *connect.Auth) error {
+	return s.Functions.ReceiveNotificationBatch(notifBatch, auth)
 }
