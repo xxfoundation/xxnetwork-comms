@@ -29,14 +29,9 @@ func (c *Comms) RegisterForNotifications(host *connect.Host,
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
 
-		authMsg, err := c.PackAuthenticatedMessage(message, host, false)
-		if err != nil {
-			return nil, errors.New(err.Error())
-		}
-
 		// Send the message
 		resultMsg, err := pb.NewNotificationBotClient(conn).RegisterForNotifications(ctx,
-			authMsg)
+			message)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
@@ -64,14 +59,9 @@ func (c *Comms) UnregisterForNotifications(host *connect.Host, message *pb.Notif
 		ctx, cancel := connect.MessagingContext()
 		defer cancel()
 
-		authMsg, err := c.PackAuthenticatedMessage(message, host, false)
-		if err != nil {
-			return nil, errors.New(err.Error())
-		}
-
 		// Send the message
 		resultMsg, err := pb.NewNotificationBotClient(conn).UnregisterForNotifications(ctx,
-			authMsg)
+			message)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
