@@ -396,8 +396,17 @@ message UserRegistrationConfirmation {
     // RegistrationServer-Signed Client Public Key
     messages.RSASignature ClientSignedByServer = 1;
     messages.RSASignature ClientReceptionSignedByServer = 2;
-    string Error = 3;
+    Timestamp  SignedTimestamp = 3;
+    string Error = 4;
 }
+
+// Message containing timestamp in which a user registered
+// as well as its permissioning-signed signature
+message Timestamp {
+    messages.RSASignature SignedTimestamp = 1;
+    bytes Timestamp = 2;
+}
+
 
 // ClientVersion contains a version string for the client
 message ClientVersion {
