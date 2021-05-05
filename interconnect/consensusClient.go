@@ -26,7 +26,7 @@ func (c *CMixServer) GetNdf(host *connect.Host,
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
-		ctx, cancel := connect.MessagingContext(host.GetSendTimeout())
+		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 		//Format to authenticated message type
 		// Send the message

@@ -17,8 +17,8 @@ import (
 	"time"
 )
 
-// MessagingContext builds a context for connections and message sending with the given timeout
-func MessagingContext(waitingPeriod time.Duration) (context.Context, context.CancelFunc) {
+// newContext builds a context for connections and message sending with the given timeout
+func newContext(waitingPeriod time.Duration) (context.Context, context.CancelFunc) {
 	jww.DEBUG.Printf("Timing out in: %s", waitingPeriod)
 	ctx, cancel := context.WithTimeout(context.Background(),
 		waitingPeriod)

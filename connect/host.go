@@ -10,6 +10,7 @@
 package connect
 
 import (
+	"context"
 	"fmt"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
@@ -167,9 +168,9 @@ func (h *Host) Connected() (bool, uint64) {
 	return h.isAlive() && !h.authenticationRequired(), h.connectionCount
 }
 
-// GetSendTimeout returns the timeout for message sending
-func (h *Host) GetSendTimeout() time.Duration {
-	return h.params.SendTimeout
+// GetMessagingContext returns a context object for message sending configured according to HostParams
+func (h *Host) GetMessagingContext() (context.Context, context.CancelFunc) {
+	return newContext(h.params.SendTimeout)
 }
 
 // GetId returns the id of the host
@@ -375,7 +376,7 @@ func (h *Host) connectHelper() (err error) {
 		if backoffTime > 15000 {
 			backoffTime = 15000
 		}
-		ctx, cancel := MessagingContext(time.Duration(backoffTime) * time.Millisecond)
+		ctx, cancel := newContext(time.Duration(backoffTime) * time.Millisecond)
 
 		// Create the connection
 		h.connection, err = grpc.DialContext(ctx, h.GetAddress(),
