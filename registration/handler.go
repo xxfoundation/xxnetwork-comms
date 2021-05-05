@@ -62,8 +62,7 @@ func StartRegistrationServer(id *id.ID, localServer string, handler Handler,
 }
 
 type Handler interface {
-	RegisterUser(registrationCode, ClientReceptionRSAPubKey string,
-		ClientReceptionSignedByServer string) (signature []byte, receptionSignature []byte, err error)
+	RegisterUser(msg *pb.UserRegistration) (confirmation *pb.UserRegistrationConfirmation, err error)
 	RegisterNode(salt []byte, serverAddr, serverTlsCert, gatewayAddr,
 		gatewayTlsCert, registrationCode string) error
 	PollNdf(ndfHash []byte) (*pb.NDF, error)
@@ -73,8 +72,7 @@ type Handler interface {
 }
 
 type implementationFunctions struct {
-	RegisterUser func(registrationCode, ClientReceptionRSAPubKey string,
-		ClientReceptionSignedByServer string) (signature, receptionSignature []byte, err error)
+	RegisterUser func(msg *pb.UserRegistration) (confirmation *pb.UserRegistrationConfirmation, err error)
 	RegisterNode func(salt []byte, serverAddr, serverTlsCert, gatewayAddr,
 		gatewayTlsCert, registrationCode string) error
 	PollNdf           func(ndfHash []byte) (*pb.NDF, error)
@@ -99,10 +97,9 @@ func NewImplementation() *Implementation {
 	return &Implementation{
 		Functions: implementationFunctions{
 
-			RegisterUser: func(registrationCode,
-				pubKey, reptPubKey string) (signature, receptionSignature []byte, err error) {
+			RegisterUser: func(msg *pb.UserRegistration) (confirmation *pb.UserRegistrationConfirmation, err error) {
 				warn(um)
-				return nil, nil, nil
+				return &pb.UserRegistrationConfirmation{}, nil
 			},
 			RegisterNode: func(salt []byte, serverAddr, serverTlsCert, gatewayAddr,
 				gatewayTlsCert, registrationCode string) error {
@@ -128,9 +125,8 @@ func NewImplementation() *Implementation {
 }
 
 // Registers a user and returns a signed public key
-func (s *Implementation) RegisterUser(registrationCode,
-	pubKey, reptPubKey string) (signature, receptionSignature []byte, err error) {
-	return s.Functions.RegisterUser(registrationCode, pubKey, reptPubKey)
+func (s *Implementation) RegisterUser(msg *pb.UserRegistration) (confirmation *pb.UserRegistrationConfirmation, err error) {
+	return s.Functions.RegisterUser(msg)
 }
 
 func (s *Implementation) RegisterNode(salt []byte, serverAddr, serverTlsCert, gatewayAddr,
