@@ -19,14 +19,14 @@ import (
 	"google.golang.org/grpc"
 )
 
-//  CMixServer -> consensus node Send Function
-func (s *CMixServer) GetNdf(host *connect.Host,
+// CMixServer -> consensus node Send Function
+func (c *CMixServer) GetNdf(host *connect.Host,
 	message *messages.Ping) (*NDF, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
-		ctx, cancel := connect.MessagingContext()
+		ctx, cancel := connect.MessagingContext(host.GetSendTimeout())
 		defer cancel()
 		//Format to authenticated message type
 		// Send the message
@@ -40,7 +40,7 @@ func (s *CMixServer) GetNdf(host *connect.Host,
 
 	// Execute the Send function
 	jww.DEBUG.Printf("Sending Post Phase message: %+v", message)
-	resultMsg, err := s.Send(host, f)
+	resultMsg, err := c.Send(host, f)
 	if err != nil {
 		return nil, err
 	}

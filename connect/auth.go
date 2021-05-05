@@ -44,7 +44,7 @@ func (c *ProtoComms) clientHandshake(host *Host) (err error) {
 
 	// Set up the context
 	client := pb.NewGenericClient(host.connection)
-	ctx, cancel := MessagingContext()
+	ctx, cancel := MessagingContext(host.GetSendTimeout())
 	defer cancel()
 
 	// Send the token request message
@@ -75,7 +75,7 @@ func (c *ProtoComms) clientHandshake(host *Host) (err error) {
 	}
 
 	// Set up the context
-	ctx, cancel = MessagingContext()
+	ctx, cancel = MessagingContext(host.GetSendTimeout())
 	defer cancel()
 
 	// Send the authenticate token message
