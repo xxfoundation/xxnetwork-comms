@@ -24,7 +24,7 @@ func (nb *Comms) PollNdf(host *connect.Host, ndfHash []byte) (*pb.NDF, error) {
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
-		ctx, cancel := connect.MessagingContext()
+		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 
 		// We use an empty NDF Hash to request an NDF

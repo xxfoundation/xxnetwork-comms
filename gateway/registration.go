@@ -26,7 +26,7 @@ func (g *Comms) SendRequestNonceMessage(host *connect.Host,
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
-		ctx, cancel := connect.MessagingContext()
+		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 		//Pack the message for server
 		authMsg, err := g.PackAuthenticatedMessage(message, host, false)
@@ -61,7 +61,7 @@ func (g *Comms) SendConfirmNonceMessage(host *connect.Host,
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
-		ctx, cancel := connect.MessagingContext()
+		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 		//Pack the message for server
 		authMsg, err := g.PackAuthenticatedMessage(message, host, false)
@@ -95,7 +95,7 @@ func (g *Comms) SendPoll(host *connect.Host,
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
-		ctx, cancel := connect.MessagingContext()
+		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 		//Pack the message for server
 		authMsg, err := g.PackAuthenticatedMessage(message, host, false)
