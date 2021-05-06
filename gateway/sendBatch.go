@@ -26,7 +26,7 @@ func (g *Comms) PostNewBatch(host *connect.Host, messages *pb.Batch) error {
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
-		ctx, cancel := connect.MessagingContext()
+		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 		authMsg, err := g.PackAuthenticatedMessage(messages, host, false)
 		if err != nil {
@@ -55,7 +55,7 @@ func (g *Comms) GetRoundBufferInfo(host *connect.Host) (*pb.RoundBufferInfo, err
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
-		ctx, cancel := connect.MessagingContext()
+		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 		//Pack message into an authenticated message
 		authMsg, err := g.PackAuthenticatedMessage(&messages.Ping{}, host, false)
@@ -89,7 +89,7 @@ func (g *Comms) GetCompletedBatch(host *connect.Host) (*pb.Batch, error) {
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
-		ctx, cancel := connect.MessagingContext()
+		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 		//Pack message into an authenticated message
 		authMsg, err := g.PackAuthenticatedMessage(&messages.Ping{}, host, false)
@@ -123,7 +123,7 @@ func (g *Comms) SendShareMessages(host *connect.Host, messages *pb.RoundMessages
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
-		ctx, cancel := connect.MessagingContext()
+		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 		authMsg, err := g.PackAuthenticatedMessage(messages, host, false)
 		if err != nil {

@@ -52,7 +52,7 @@ func TestSendGetUpdatedNDF(t *testing.T) {
 	clientId := id.NewIdFromString("client", id.Generic, t)
 
 	rg := registration.StartRegistrationServer(testId, GatewayAddress,
-		registration.NewImplementation(), nil, nil)
+		&MockRegistration{}, nil, nil)
 	defer rg.Shutdown()
 	c, err := NewClientComms(clientId, nil, nil, nil)
 	if err != nil {
@@ -68,9 +68,8 @@ func TestSendGetUpdatedNDF(t *testing.T) {
 	}
 
 	_, err = c.RequestNdf(host, &pb.NDFHash{})
-
 	if err != nil {
-		t.Errorf("RequestNdf: Error received: %s", err)
+		t.Errorf("RequestNdf: Error received: %+v", err)
 	}
 }
 

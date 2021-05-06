@@ -18,7 +18,7 @@ func (g *Comms) SendGetPermissioningAddress(host *connect.Host) (string, error) 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
-		ctx, cancel := connect.MessagingContext()
+		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 
 		// Send the message

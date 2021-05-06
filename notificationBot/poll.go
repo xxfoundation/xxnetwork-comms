@@ -5,9 +5,9 @@
 // LICENSE file                                                              //
 ///////////////////////////////////////////////////////////////////////////////
 
-// Contains send functions used for polling
+// Contains notificationBot -> all servers functionality
 
-package udb
+package notificationBot
 
 import (
 	"github.com/golang/protobuf/ptypes"
@@ -19,18 +19,20 @@ import (
 	"google.golang.org/grpc"
 )
 
-// RequestNdf is used by User Discovery to Request a NDF from permissioning
-func (u *Comms) RequestNdf(host *connect.Host) (*pb.NDF, error) {
-
+// PollNdf gets the NDF from the permissioning server
+func (nb *Comms) PollNdf(host *connect.Host, ndfHash []byte) (*pb.NDF, error) {
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
 		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 
+		// We use an empty NDF Hash to request an NDF
+		ndfRequest := &pb.NDFHash{Hash: ndfHash}
+
 		// Send the message
-		resultMsg, err := pb.NewRegistrationClient(
-			conn).PollNdf(ctx, &pb.NDFHash{Hash: make([]byte, 0)})
+		clientConn := pb.NewRegistrationClient(conn)
+		resultMsg, err := clientConn.PollNdf(ctx, ndfRequest)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
@@ -39,11 +41,12 @@ func (u *Comms) RequestNdf(host *connect.Host) (*pb.NDF, error) {
 
 	// Execute the Send function
 	jww.TRACE.Printf("Sending Request Ndf message...")
-	resultMsg, err := u.Send(host, f)
+	resultMsg, err := nb.Send(host, f)
 	if err != nil {
 		return nil, err
 	}
 
 	result := &pb.NDF{}
-	return result, ptypes.UnmarshalAny(resultMsg, result)
+	err = ptypes.UnmarshalAny(resultMsg, result)
+	return result, err
 }
