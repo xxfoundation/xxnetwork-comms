@@ -385,6 +385,7 @@ message NodeRegistration {
 }
 
 // UserRegistration message to initialize registration process
+// Client -> Permissioning
 message UserRegistration {
     string RegistrationCode = 1;
     string ClientRSAPubKey = 2;
@@ -392,19 +393,13 @@ message UserRegistration {
 }
 
 // UserRegistrationConfirmation to confirm registration with users
+// Permissioning -> Client (Response to UserRegistration)
 message UserRegistrationConfirmation {
     // RegistrationServer-Signed Client Public Key
     messages.RSASignature ClientSignedByServer = 1;
     messages.RSASignature ClientReceptionSignedByServer = 2;
-    Timestamp  SignedTimestamp = 3;
+    int64 Timestamp = 3;
     string Error = 4;
-}
-
-// Message containing timestamp in which a user registered
-// as well as its permissioning-signed signature
-message Timestamp {
-    messages.RSASignature SignedTimestamp = 1;
-    uint64 Timestamp = 2;
 }
 
 
@@ -418,9 +413,10 @@ message NonceRequest {
     bytes Salt = 1;
     string ClientRSAPubKey = 2;
     messages.RSASignature ClientSignedByServer = 3;
-    bytes ClientDHPubKey = 4;
-    messages.RSASignature RequestSignature = 5;
-    bytes Target = 6;
+    int64 TimeStamp = 4;
+    bytes ClientDHPubKey = 5;
+    messages.RSASignature RequestSignature = 6;
+    bytes Target = 7;
 }
 
 // Nonce message to reply to client from server (going through gateway)
@@ -549,10 +545,11 @@ service UDB {
 message UDBUserRegistration {
     bytes PermissioningSignature = 1;
     string RSAPublicPem = 2;
-    Identity IdentityRegistration = 3;
-    bytes IdentitySignature = 4; // (RSAPublicSign(Data.Digest()))
-    FactRegisterRequest frs = 5;
-    bytes UID = 6;
+    int64 Timestamp = 3;
+    Identity IdentityRegistration = 4;
+    bytes IdentitySignature = 5; // (RSAPublicSign(Data.Digest()))
+    FactRegisterRequest frs = 6;
+    bytes UID = 7;
 }
 
 // Identity describes a user and their cryptographic info
