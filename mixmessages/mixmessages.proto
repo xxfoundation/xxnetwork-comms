@@ -404,7 +404,7 @@ message UserRegistrationConfirmation {
 // as well as its permissioning-signed signature
 message Timestamp {
     messages.RSASignature SignedTimestamp = 1;
-    bytes Timestamp = 2;
+    uint64 Timestamp = 2;
 }
 
 
