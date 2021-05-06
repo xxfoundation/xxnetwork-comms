@@ -10,5 +10,4 @@ require (
 	gitlab.com/xx_network/primitives v0.0.4-0.20210412170941-7ef69bce5a5c
 	golang.org/x/net v0.0.0-20200707034311-ab3426394381
 	google.golang.org/grpc v1.31.0
-	google.golang.org/protobuf v1.26.0-rc.1 // indirect
 )

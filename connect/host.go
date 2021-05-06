@@ -10,6 +10,7 @@
 package connect
 
 import (
+	"context"
 	"fmt"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
@@ -40,7 +41,7 @@ var KaClientOpts = keepalive.ClientParameters{
 	Time: infinityTime,
 	// 60s after ping before closing
 	Timeout: 60 * time.Second,
-	// For all connections, streaming and nonstreaming
+	// For all connections, with and without streaming
 	PermitWithoutStream: true,
 }
 
@@ -84,7 +85,7 @@ type Host struct {
 	// that connections do not interrupt sends
 	connectionMux sync.RWMutex
 	// lock which ensures transmissions are not interrupted by disconnections
-	transmitMux   sync.RWMutex
+	transmitMux sync.RWMutex
 
 	coolOffBucket *rateLimiting.Bucket
 	inCoolOff     bool
@@ -165,6 +166,11 @@ func (h *Host) Connected() (bool, uint64) {
 	defer h.connectionMux.RUnlock()
 
 	return h.isAlive() && !h.authenticationRequired(), h.connectionCount
+}
+
+// GetMessagingContext returns a context object for message sending configured according to HostParams
+func (h *Host) GetMessagingContext() (context.Context, context.CancelFunc) {
+	return newContext(h.params.SendTimeout)
 }
 
 // GetId returns the id of the host
@@ -370,7 +376,7 @@ func (h *Host) connectHelper() (err error) {
 		if backoffTime > 15000 {
 			backoffTime = 15000
 		}
-		ctx, cancel := ConnectionContext(time.Duration(backoffTime) * time.Millisecond)
+		ctx, cancel := newContext(time.Duration(backoffTime) * time.Millisecond)
 
 		// Create the connection
 		h.connection, err = grpc.DialContext(ctx, h.GetAddress(),
