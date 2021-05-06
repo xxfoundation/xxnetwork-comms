@@ -16,7 +16,7 @@ func (c *Comms) SendDeleteMessage(host *connect.Host, message *pb.FactRemovalReq
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
-		ctx, cancel := connect.MessagingContext()
+		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 
 		// Pack our authenticated message
@@ -50,7 +50,7 @@ func (c *Comms) SendRegisterUser(host *connect.Host, message *pb.UDBUserRegistra
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
-		ctx, cancel := connect.MessagingContext()
+		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 
 		// Pack our authenticated message
@@ -84,7 +84,7 @@ func (c *Comms) SendRegisterFact(host *connect.Host, message *pb.FactRegisterReq
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
-		ctx, cancel := connect.MessagingContext()
+		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 
 		// Pack our authenticated message
@@ -118,7 +118,7 @@ func (c *Comms) SendConfirmFact(host *connect.Host, message *pb.FactConfirmReque
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
-		ctx, cancel := connect.MessagingContext()
+		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 
 		// Pack our authenticated message

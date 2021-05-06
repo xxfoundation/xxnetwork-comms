@@ -15,7 +15,7 @@ func (g *Comms) SendNotificationBatch(host *connect.Host, notifBatch *pb.Notific
 	// Create the send function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
-		ctx, cancel := connect.MessagingContext()
+		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 
 		// Pack data into authenticated message

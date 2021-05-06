@@ -25,7 +25,7 @@ func (s *Comms) SendRoundError(host *connect.Host, message *pb.RoundError) (*mes
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
-		ctx, cancel := connect.MessagingContext()
+		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 
 		//Format to authenticated message type
@@ -60,7 +60,7 @@ func (s *Comms) SendGetMeasure(host *connect.Host,
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
-		ctx, cancel := connect.MessagingContext()
+		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 		//Format to authenticated message type
 		authMsg, err := s.PackAuthenticatedMessage(message, host, false)
@@ -93,7 +93,7 @@ func (s *Comms) SendAskOnline(host *connect.Host) (*messages.Ack, error) {
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
-		ctx, cancel := connect.MessagingContext()
+		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 
 		// Send the message
@@ -123,7 +123,7 @@ func (s *Comms) SendFinishRealtime(host *connect.Host,
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
-		ctx, cancel := connect.MessagingContext()
+		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 
 		//Format to authenticated message type
@@ -159,7 +159,7 @@ func (s *Comms) SendNewRound(host *connect.Host,
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
-		ctx, cancel := connect.MessagingContext()
+		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 		//Format to authenticated message type
 		authMsg, err := s.PackAuthenticatedMessage(message, host, false)
@@ -194,7 +194,7 @@ func (s *Comms) SendPostPrecompResult(host *connect.Host,
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
-		ctx, cancel := connect.MessagingContext()
+		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 
 		//Pack the message as an authenticated message
@@ -237,7 +237,7 @@ func (s *Comms) RoundTripPing(host *connect.Host, rtPing *pb.RoundTripPing) (*me
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
-		ctx, cancel := connect.MessagingContext()
+		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 
 		//Pack the message as an authenticated message
@@ -273,7 +273,7 @@ func (s *Comms) SendStartSharePhase(host *connect.Host, ri *pb.RoundInfo) (*mess
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
-		ctx, cancel := connect.MessagingContext()
+		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 
 		//Pack the message as an authenticated message
@@ -310,7 +310,7 @@ func (s *Comms) SendSharePhase(host *connect.Host, sharedPiece *pb.SharePiece) (
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
-		ctx, cancel := connect.MessagingContext()
+		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 
 		//Pack the message as an authenticated message
@@ -347,7 +347,7 @@ func (s *Comms) SendFinalKey(host *connect.Host, sharedPiece *pb.SharePiece) (*m
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
-		ctx, cancel := connect.MessagingContext()
+		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 
 		//Pack the message as an authenticated message
