@@ -334,16 +334,16 @@ func (i *Instance) GetNodeAndGateway(ngid *id.ID) (NodeGateway, error) {
 	// depending on if the passed id is a node or gateway ID, look it up in the
 	// correct list
 	if ngid.GetType() == id.Node {
-		for i, n := range def.Get().Nodes {
+		for iter, n := range def.Get().Nodes {
 			if bytes.Compare(n.ID, idBytes) == 0 {
-				index = i
+				index = iter
 				break
 			}
 		}
 	} else if ngid.GetType() == id.Gateway {
-		for i, g := range def.Get().Gateways {
+		for iter, g := range def.Get().Gateways {
 			if bytes.Compare(g.ID, idBytes) == 0 {
-				index = i
+				index = iter
 				break
 			}
 		}

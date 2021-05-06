@@ -1159,3 +1159,57 @@ func TestInstance_RoundUpdateAddsToERS(t *testing.T) {
 		t.Errorf("Second returned round and original mismatched IDs")
 	}
 }
+
+// Happy path
+func TestInstance_GetNodeAndGateway(t *testing.T) {
+	// Get signing certificates
+	privKey, err := testutils.LoadPrivateKeyTesting(t)
+	if err != nil {
+		t.Errorf("Failed to load private key: %v", err)
+		t.FailNow()
+	}
+
+	// Create a basic testing NDF and sign it
+	f := &mixmessages.NDF{}
+	f.Ndf = []byte(testutils.ExampleJSON)
+	baseNDF := testutils.NDF
+	if err != nil {
+		t.Errorf("Could not generate serialized ndf: %s", err)
+	}
+	err = signature.SignRsa(f, privKey)
+	if err != nil {
+		t.Fatalf("Failed to sign ndf: %v", err)
+	}
+
+	// Build the Instance object with an ERS memory map
+	testManager := connect.NewManagerTesting(t)
+	pc := &connect.ProtoComms{
+		Manager: testManager,
+	}
+	var ers ds.ExternalRoundStorage = &ersMemMap{rounds: make(map[id.Round]*mixmessages.RoundInfo)}
+	i, err := NewInstance(pc, baseNDF, baseNDF, ers, 0, false)
+	if err != nil {
+		t.Error(nil)
+	}
+
+	expectedGateway := baseNDF.Gateways[0]
+	expectedNode := baseNDF.Nodes[0]
+	ngid, err := id.Unmarshal(expectedGateway.ID)
+	if err != nil {
+		t.Errorf("Could not parse gateway id in NDF: %v", err)
+	}
+	nodeGw, err := i.GetNodeAndGateway(ngid)
+	if err != nil {
+		t.Errorf("Failed to get nodeGateway: %v", err)
+	}
+
+	if !reflect.DeepEqual(nodeGw.Gateway, expectedGateway) {
+		t.Errorf("Unexpected value in gateway." +
+			"\n\tExpected: %v\n\tReceived: %v", expectedGateway, nodeGw.Gateway)
+	}
+
+	if !reflect.DeepEqual(nodeGw.Node, expectedNode) {
+		t.Errorf("Unexpected value in node." +
+			"\n\tExpected: %v\n\tReceived: %v", expectedNode, nodeGw.Node)
+	}
+}
