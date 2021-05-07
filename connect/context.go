@@ -10,7 +10,6 @@
 package connect
 
 import (
-	jww "github.com/spf13/jwalterweatherman"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc/peer"
 	"net"
@@ -19,7 +18,6 @@ import (
 
 // newContext builds a context for connections and message sending with the given timeout
 func newContext(waitingPeriod time.Duration) (context.Context, context.CancelFunc) {
-	jww.DEBUG.Printf("Timing out in: %s", waitingPeriod)
 	ctx, cancel := context.WithTimeout(context.Background(),
 		waitingPeriod)
 	return ctx, cancel
