@@ -64,7 +64,7 @@ func TestSecuredNdf_update(t *testing.T) {
 		t.Errorf("Could not generate serialized ndf: %s", err)
 	}
 
-	err = signature.Sign(&f, privKey)
+	err = signature.SignRsa(&f, privKey)
 
 	if err != nil {
 		t.Errorf("Could not sign serialized ndf: %s", err)

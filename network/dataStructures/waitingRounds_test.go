@@ -187,7 +187,7 @@ func TestWaitingRounds_GetUpcomingRealtime_NoWait(t *testing.T) {
 	testWR := NewWaitingRounds()
 
 	for i, round := range testRounds {
-		err := testutils.SignRoundInfo(round.info, t)
+		err := testutils.SignRoundInfoRsa(round.info, t)
 		if err != nil {
 			t.Errorf("Failed to sign round info #%d: %+v", i, err)
 		}
@@ -233,7 +233,7 @@ func TestWaitingRounds_GetUpcomingRealtime(t *testing.T) {
 	for i, round := range expectedRounds {
 		go func(round *Round) {
 			time.Sleep(30 * time.Millisecond)
-			err := testutils.SignRoundInfo(round.info, t)
+			err := testutils.SignRoundInfoRsa(round.info, t)
 			if err != nil {
 				t.Errorf("Failed to sign round info #%d: %+v", i, err)
 			}
@@ -266,7 +266,7 @@ func TestWaitingRounds_GetSlice(t *testing.T) {
 		Timestamps: []uint64{0, 0, 0, 0, 0},
 	}
 
-	err := testutils.SignRoundInfo(ri, t)
+	err := testutils.SignRoundInfoRsa(ri, t)
 	if err != nil {
 		t.Errorf("Failed to sign round info: %+v", err)
 	}
@@ -276,7 +276,7 @@ func TestWaitingRounds_GetSlice(t *testing.T) {
 		t.Errorf("Failed to load public key: %v", err)
 		t.FailNow()
 	}
-	rnd := NewRound(ri, pubKey)
+	rnd := NewRound(ri, pubKey, nil)
 
 	testRounds = append(testRounds, rnd)
 	for _, round := range testRounds {
@@ -316,7 +316,7 @@ func createTestRoundInfos(num int, t *testing.T) ([]*Round, []*Round) {
 			ID:         rand.Uint64(),
 			State:      uint32(rand.Int63n(int64(states.NUM_STATES) - 1)),
 			Timestamps: make([]uint64, current.NUM_STATES),
-		}, pubKey)
+		}, pubKey, nil)
 		rounds[i].info.Timestamps[states.QUEUED] = uint64(startTime.UnixNano())
 		startTime = startTime.Add(100 * time.Millisecond)
 		if i%2 == 1 {

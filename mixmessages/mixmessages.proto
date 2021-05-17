@@ -267,6 +267,12 @@ message GatewayPoll {
     int64 EndTimestamp = 5;
 
     bytes ClientVersion = 6;
+
+    // Determines whether client gets filtered network
+    // updates or all updates.
+    // If true, filtered updates relevant to client (FAILED, COMPLETED, QUEUED)
+    // If false, all updates from the network
+    bool FastPolling = 7;
 }
 
 // Unified Client->Gateway polling response
@@ -606,6 +612,7 @@ message RoundInfo {
     uint32 ResourceQueueTimeoutMillis = 9; // Timeout for resource queue on nodes
     messages.RSASignature Signature = 10;
     uint32 AddressSpaceSize = 11;
+    messages.ECCSignature EccSignature = 12;
 }
 
 // RoundError will be used to describe a round error

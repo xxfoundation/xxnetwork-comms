@@ -44,12 +44,12 @@ func (d *Data) UpsertRound(r *Round) error {
 func (d *Data) GetRound(id int) (*mixmessages.RoundInfo, error) {
 	val, err := d.rounds.GetById(id)
 	if err != nil {
-		return nil, errors.Wrapf(err, "Failed to get round by id with " +
+		return nil, errors.Wrapf(err, "Failed to get round by id with "+
 			"%d", id)
 	}
 
 	if val == nil {
-		return nil, errors.Errorf("Failed to get round by id with %d, " +
+		return nil, errors.Errorf("Failed to get round by id with %d, "+
 			"got nil round", id)
 	}
 
