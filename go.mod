@@ -7,11 +7,11 @@ require (
 	github.com/golang/protobuf v1.4.2
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/jwalterweatherman v1.1.0
-	gitlab.com/elixxir/crypto v0.0.7-0.20210413184512-e41c09223958
-	gitlab.com/elixxir/primitives v0.0.3-0.20210409190923-7bf3cd8d97e7
-	gitlab.com/xx_network/comms v0.0.4-0.20210409202820-eb3dca6571d3
-	gitlab.com/xx_network/crypto v0.0.5-0.20210405224157-2b1f387b42c1
-	gitlab.com/xx_network/primitives v0.0.4-0.20210402222416-37c1c4d3fac4
+	gitlab.com/elixxir/crypto v0.0.7-0.20210514185043-7398614e9e43
+	gitlab.com/elixxir/primitives v0.0.3-0.20210514174939-fbba435364ed
+	gitlab.com/xx_network/comms v0.0.4-0.20210507215532-38ed97bd9365
+	gitlab.com/xx_network/crypto v0.0.5-0.20210504210244-9ddabbad25fd
+	gitlab.com/xx_network/primitives v0.0.4-0.20210504205835-db68f11de78a
 	gitlab.com/xx_network/ring v0.0.2
 	golang.org/x/net v0.0.0-20201029221708-28c70e62bb1d
 	golang.org/x/text v0.3.4 // indirect

@@ -25,7 +25,7 @@ func (g *Comms) SendPutMessage(host *connect.Host,
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
-		ctx, cancel := connect.MessagingContext()
+		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 
 		// Send the message
@@ -56,7 +56,7 @@ func (g *Comms) SendRequestNonce(host *connect.Host,
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
-		ctx, cancel := connect.MessagingContext()
+		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 
 		// Send the message
@@ -87,7 +87,7 @@ func (g *Comms) SendConfirmNonce(host *connect.Host,
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
-		ctx, cancel := connect.MessagingContext()
+		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 
 		// Send the message
@@ -118,7 +118,7 @@ func (g *Comms) SendRequestMessages(host *connect.Host,
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
-		ctx, cancel := connect.MessagingContext()
+		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 
 		// Send the message

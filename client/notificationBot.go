@@ -26,7 +26,7 @@ func (c *Comms) RegisterForNotifications(host *connect.Host,
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
-		ctx, cancel := connect.MessagingContext()
+		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 
 		// Send the message
@@ -56,7 +56,7 @@ func (c *Comms) UnregisterForNotifications(host *connect.Host, message *pb.Notif
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
-		ctx, cancel := connect.MessagingContext()
+		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 
 		// Send the message
