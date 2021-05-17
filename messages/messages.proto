@@ -58,3 +58,9 @@ message RSASignature {
     bytes Nonce = 1;
     bytes Signature = 2;
 }
+
+// ECCSignature is a digital signature for the ECC algorithm
+message ECCSignature {
+    bytes Nonce = 1;
+    bytes Signature = 2;
+}
