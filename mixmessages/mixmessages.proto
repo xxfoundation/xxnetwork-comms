@@ -462,6 +462,7 @@ message PermissioningPoll {
 message ClientError {
     bytes ClientId = 1;
     string Error = 2;
+    bytes Source = 3; // ID of the node that created it
 }
 
 // Unified Server->Permissioning polling response
