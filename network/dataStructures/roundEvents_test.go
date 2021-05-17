@@ -100,7 +100,7 @@ func TestRoundEvents_TriggerRoundEvent(t *testing.T) {
 		State: uint32(states.PENDING),
 	}
 
-	if err := testutils.SignRoundInfo(ri, t); err != nil {
+	if err := testutils.SignRoundInfoRsa(ri, t); err != nil {
 		t.Errorf("Failed to sign mock round info: %v", err)
 	}
 
@@ -109,7 +109,7 @@ func TestRoundEvents_TriggerRoundEvent(t *testing.T) {
 		t.Errorf("Failed to load public key: %v", err)
 		t.FailNow()
 	}
-	rnd := NewRound(ri, pubKey)
+	rnd := NewRound(ri, pubKey, nil)
 	events.TriggerRoundEvent(rnd)
 
 	// wait for calling
@@ -144,7 +144,7 @@ func TestRoundEvents_AddRoundEventChan(t *testing.T) {
 		ID:    uint64(rid),
 		State: uint32(states.PENDING),
 	}
-	if err := testutils.SignRoundInfo(ri, t); err != nil {
+	if err := testutils.SignRoundInfoRsa(ri, t); err != nil {
 		t.Errorf("Failed to sign mock round info: %v", err)
 	}
 
@@ -153,7 +153,7 @@ func TestRoundEvents_AddRoundEventChan(t *testing.T) {
 		t.Errorf("Failed to load public key: %v", err)
 		t.FailNow()
 	}
-	rnd := NewRound(ri, pubKey)
+	rnd := NewRound(ri, pubKey, nil)
 	events.TriggerRoundEvent(rnd)
 
 	// wait for calling

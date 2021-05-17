@@ -22,7 +22,7 @@ import (
 // Ensure message type conforms to genericSignable interface
 // If this ever fails, check for modifications in the crypto library
 //  as well as for this message type
-var _ = signature.GenericSignable(&RoundError{})
+var _ = signature.GenericRsaSignable(&RoundError{})
 
 // -------------------------------- Get tests -----------------------------------------------------------
 
@@ -145,13 +145,13 @@ func TestRoundError_SignVerify(t *testing.T) {
 	pubKey := privateKey.GetPublic()
 
 	// Sign message
-	err = signature.Sign(testRoundErr, privateKey)
+	err = signature.SignRsa(testRoundErr, privateKey)
 	if err != nil {
 		t.Errorf("Unable to sign message: %+v", err)
 	}
 
 	// Verify signature
-	err = signature.Verify(testRoundErr, pubKey)
+	err = signature.VerifyRsa(testRoundErr, pubKey)
 	if err != nil {
 		t.Errorf("Expected happy path! Failed to verify: %+v", err)
 	}
@@ -178,7 +178,7 @@ func TestRoundError_SignVerify_Error(t *testing.T) {
 	pubKey := privateKey.GetPublic()
 
 	// Ensure message type conforms to genericSignable interface
-	err = signature.Sign(testRoundErr, privateKey)
+	err = signature.SignRsa(testRoundErr, privateKey)
 	if err != nil {
 		t.Errorf("Unable to sign message: %+v", err)
 	}
@@ -187,7 +187,7 @@ func TestRoundError_SignVerify_Error(t *testing.T) {
 	testRoundErr.Error = "invalidChange"
 
 	// Verify signature
-	err = signature.Verify(testRoundErr, pubKey)
+	err = signature.VerifyRsa(testRoundErr, pubKey)
 	if err == nil {
 		t.Error("Expected error path: Should not have verified!")
 
