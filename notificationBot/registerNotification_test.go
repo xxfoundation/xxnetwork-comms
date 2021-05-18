@@ -51,7 +51,7 @@ func TestRegisterForNotifications(t *testing.T) {
 	}
 
 	// Create message and pack it
-	msg := &mixmessages.NotificationToken{}
+	msg := &mixmessages.NotificationRegisterRequest{}
 	authMsg, err := notificationBot.PackAuthenticatedMessage(msg, host, false)
 	if err != nil {
 		t.Errorf("Failed to pack authenticated message: %+v", err)
@@ -91,7 +91,7 @@ func TestUnRegisterForNotifications(t *testing.T) {
 	}
 
 	// Create message and pack it
-	msg := &mixmessages.NotificationToken{}
+	msg := &mixmessages.NotificationUnregisterRequest{}
 	authMsg, err := notificationBot.PackAuthenticatedMessage(msg, host, false)
 	if err != nil {
 		t.Errorf("Failed to pack authenticated message: %+v", err)

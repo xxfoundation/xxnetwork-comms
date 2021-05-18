@@ -364,12 +364,15 @@ func (i *Instance) UpdateFullNdf(m *pb.NDF) error {
 		i.comm.RemoveHost(nid)
 
 		// Send events into Node Listener
-		if i.removeNode != nil && i.removeGateway != nil {
+		if i.removeNode != nil {
 			select {
 			case i.removeNode <- nid:
 			default:
 				jww.WARN.Printf("Unable to send RemoveNode event for id %s", nid.String())
 			}
+		}
+		// Send events into Gateway Listener
+		if i.removeGateway != nil {
 			gwId := nid.DeepCopy()
 			gwId.SetType(id.Gateway)
 			select {

@@ -182,10 +182,6 @@ service Gateway {
     rpc ConfirmNonce (RequestRegistrationConfirmation) returns (RegistrationConfirmation) {
     }
 
-    // Notifications->Gateway request for users with pending notifications
-    rpc PollForNotifications (messages.AuthenticatedMessage) returns (UserIdList) {
-    }
-
     // Client -> Gateway unified polling
     rpc Poll (GatewayPoll) returns (GatewayPollResponse) {
     }
@@ -220,6 +216,7 @@ message HistoricalRoundsResponse{
 message GetMessages{
     bytes ClientID = 1;
     uint64 RoundID = 2;
+    bytes Target = 3;
 }
 
 // Gateway response to a GetMessages request
@@ -300,6 +297,7 @@ message GatewaySlot{
     Slot Message = 1;
     uint64 RoundID = 2;
     bytes MAC = 3;
+    bytes Target = 4;
 }
 
 // Gateway -> Client authentication response
@@ -318,6 +316,7 @@ message BatchSenders {
 message Recipients {
     repeated bytes RecipientIds = 1;
     uint64 RoundID = 2;
+    uint64 RoundTS = 3;
 }
 
 
@@ -412,6 +411,7 @@ message NonceRequest {
     messages.RSASignature ClientSignedByServer = 3;
     bytes ClientDHPubKey = 4;
     messages.RSASignature RequestSignature = 5;
+    bytes Target = 6;
 }
 
 // Nonce message to reply to client from server (going through gateway)
@@ -426,6 +426,7 @@ message RequestRegistrationConfirmation {
     bytes userID = 1;
     messages.RSASignature NonceSignedByClient = 2;
     string Error = 3;
+    bytes Target = 4;
 }
 
 // RegistrationConfirmation returning proof of registration
@@ -476,16 +477,43 @@ service NotificationBot {
     // Register clients from push notifications
     rpc RegisterForNotifications (messages.AuthenticatedMessage) returns (messages.Ack) {
     }
+
+    // Gateway -> Notifications notification data
+    rpc ReceiveNotificationBatch(messages.AuthenticatedMessage) returns (messages.Ack) {
+    }
 }
 
 // Registration token to be associated with the client
-message NotificationToken {
-    bytes Token = 1;
+message NotificationRegisterRequest {
+    string Token = 1;
+    bytes IntermediaryId = 2;
+    bytes TransmissionRsa = 3;
+    bytes TransmissionSalt = 4;
+    bytes TransmissionRsaSig = 5;
+    bytes IIDTransmissionRsaSig = 6;
+}
+
+message NotificationUnregisterRequest {
+    bytes IntermediaryId = 1;
+    bytes IIDTransmissionRsaSig = 2;
 }
 
 // The list of user IDS for notification polling
 message UserIdList {
     repeated bytes IDs = 1;
+}
+
+// Notification data transmitted to the notification bot from gateway
+message NotificationBatch {
+    uint64 roundID = 1;
+    repeated NotificationData notifications = 2;
+}
+
+// Data for a single notification
+message NotificationData {
+    int64 ephemeralID = 1;
+    bytes identityFP = 2;
+    bytes messageHash = 3;
 }
 
 // UDB MESSAGE SERVICE ---------------------------------------------------------

@@ -5,45 +5,71 @@
 // LICENSE file                                                              //
 ///////////////////////////////////////////////////////////////////////////////
 
-// Contains gateway -> server registration functionality
+// Contains gateway -> gateway proxying functionality
 
 package gateway
 
 import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
-	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/connect"
 	"google.golang.org/grpc"
 )
 
-// Gateway -> Server Send Function
-func (g *Comms) SendRequestNonceMessage(host *connect.Host,
-	message *pb.NonceRequest) (*pb.Nonce, error) {
+// Gateway -> Gateway forward client PutMessage.
+func (g *Comms) SendPutMessage(host *connect.Host,
+	messages *pb.GatewaySlot) (*pb.GatewaySlotResponse, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
 		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
-		//Pack the message for server
-		authMsg, err := g.PackAuthenticatedMessage(message, host, false)
-		if err != nil {
-			return nil, errors.New(err.Error())
-		}
+
 		// Send the message
-		resultMsg, err := pb.NewNodeClient(conn).RequestNonce(ctx, authMsg)
+		resultMsg, err := pb.NewGatewayClient(conn).PutMessage(ctx, messages)
 		if err != nil {
-			return nil, errors.New(err.Error())
+			return nil, err
 		}
 
 		return ptypes.MarshalAny(resultMsg)
 	}
 
 	// Execute the Send function
-	jww.TRACE.Printf("Sending Request Nonce message: %+v", message)
+	jww.TRACE.Printf("Sending client PutMessage: %+v", messages)
+	resultMsg, err := g.Send(host, f)
+	if err != nil {
+		return nil, err
+	}
+
+	// Marshall the result
+	result := &pb.GatewaySlotResponse{}
+	return result, ptypes.UnmarshalAny(resultMsg, result)
+}
+
+// Gateway -> Gateway forward client RequestNonce.
+func (g *Comms) SendRequestNonce(host *connect.Host,
+	messages *pb.NonceRequest) (*pb.Nonce, error) {
+
+	// Create the Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := host.GetMessagingContext()
+		defer cancel()
+
+		// Send the message
+		resultMsg, err := pb.NewGatewayClient(conn).RequestNonce(ctx, messages)
+		if err != nil {
+			return nil, err
+		}
+
+		return ptypes.MarshalAny(resultMsg)
+	}
+
+	// Execute the Send function
+	jww.TRACE.Printf("Sending client RequestNonce: %+v", messages)
 	resultMsg, err := g.Send(host, f)
 	if err != nil {
 		return nil, err
@@ -54,30 +80,27 @@ func (g *Comms) SendRequestNonceMessage(host *connect.Host,
 	return result, ptypes.UnmarshalAny(resultMsg, result)
 }
 
-// Gateway -> Server Send Function
-func (g *Comms) SendConfirmNonceMessage(host *connect.Host,
-	message *pb.RequestRegistrationConfirmation) (*pb.RegistrationConfirmation, error) {
+// Gateway -> Gateway forward client ConfirmNonce.
+func (g *Comms) SendConfirmNonce(host *connect.Host,
+	messages *pb.RequestRegistrationConfirmation) (*pb.RegistrationConfirmation, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
 		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
-		//Pack the message for server
-		authMsg, err := g.PackAuthenticatedMessage(message, host, false)
-		if err != nil {
-			return nil, errors.New(err.Error())
-		}
+
 		// Send the message
-		resultMsg, err := pb.NewNodeClient(conn).ConfirmRegistration(ctx, authMsg)
+		resultMsg, err := pb.NewGatewayClient(conn).ConfirmNonce(ctx, messages)
 		if err != nil {
-			return nil, errors.New(err.Error())
+			return nil, err
 		}
+
 		return ptypes.MarshalAny(resultMsg)
 	}
 
 	// Execute the Send function
-	jww.TRACE.Printf("Sending Confirm Nonce message: %+v", message)
+	jww.TRACE.Printf("Sending client ConfirmNonce: %+v", messages)
 	resultMsg, err := g.Send(host, f)
 	if err != nil {
 		return nil, err
@@ -88,37 +111,33 @@ func (g *Comms) SendConfirmNonceMessage(host *connect.Host,
 	return result, ptypes.UnmarshalAny(resultMsg, result)
 }
 
-// Gateway -> Server Send Function
-func (g *Comms) SendPoll(host *connect.Host,
-	message *pb.ServerPoll) (*pb.ServerPollResponse, error) {
+// Gateway -> Gateway forward client RequestMessages.
+func (g *Comms) SendRequestMessages(host *connect.Host,
+	messages *pb.GetMessages) (*pb.GetMessagesResponse, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
 		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
-		//Pack the message for server
-		authMsg, err := g.PackAuthenticatedMessage(message, host, false)
-		if err != nil {
-			return nil, errors.New(err.Error())
-		}
 
 		// Send the message
-		resultMsg, err := pb.NewNodeClient(conn).Poll(ctx, authMsg)
+		resultMsg, err := pb.NewGatewayClient(conn).RequestMessages(ctx, messages)
 		if err != nil {
-			return nil, errors.New(err.Error())
+			return nil, err
 		}
+
 		return ptypes.MarshalAny(resultMsg)
 	}
 
 	// Execute the Send function
-	jww.TRACE.Printf("Sending Poll message...")
+	jww.TRACE.Printf("Sending client RequestMessages: %+v", messages)
 	resultMsg, err := g.Send(host, f)
 	if err != nil {
 		return nil, err
 	}
 
 	// Marshall the result
-	result := &pb.ServerPollResponse{}
+	result := &pb.GetMessagesResponse{}
 	return result, ptypes.UnmarshalAny(resultMsg, result)
 }

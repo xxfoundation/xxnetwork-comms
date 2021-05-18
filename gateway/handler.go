@@ -30,8 +30,6 @@ type Handler interface {
 	// Pass-through for Registration Nonce Confirmation
 	ConfirmNonce(message *pb.RequestRegistrationConfirmation) (*pb.
 		RegistrationConfirmation, error)
-	// Ping gateway to ask for users to notify
-	PollForNotifications(auth *connect.Auth) ([]*id.ID, error)
 	// Client -> Gateway unified polling
 	Poll(msg *pb.GatewayPoll) (*pb.GatewayPollResponse, error)
 	// Client -> Gateway historical round request
@@ -95,8 +93,6 @@ type implementationFunctions struct {
 	// Pass-through for Registration Nonce Confirmation
 	ConfirmNonce func(message *pb.RequestRegistrationConfirmation) (*pb.
 			RegistrationConfirmation, error)
-	// Ping gateway to ask for users to notify
-	PollForNotifications func(auth *connect.Auth) ([]*id.ID, error)
 	// Client -> Gateway unified polling
 	Poll func(msg *pb.GatewayPoll) (*pb.GatewayPollResponse, error)
 	// Client -> Gateway historical round request
@@ -134,10 +130,6 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return new(pb.RegistrationConfirmation), nil
 			},
-			PollForNotifications: func(auth *connect.Auth) ([]*id.ID, error) {
-				warn(um)
-				return nil, nil
-			},
 			Poll: func(msg *pb.GatewayPoll) (*pb.GatewayPollResponse, error) {
 				warn(um)
 				return &pb.GatewayPollResponse{}, nil
@@ -172,11 +164,6 @@ func (s *Implementation) RequestNonce(message *pb.NonceRequest) (
 // Pass-through for Registration Nonce Confirmation
 func (s *Implementation) ConfirmNonce(message *pb.RequestRegistrationConfirmation) (*pb.RegistrationConfirmation, error) {
 	return s.Functions.ConfirmNonce(message)
-}
-
-// Ping gateway to ask for users to notify
-func (s *Implementation) PollForNotifications(auth *connect.Auth) ([]*id.ID, error) {
-	return s.Functions.PollForNotifications(auth)
 }
 
 // Client -> Gateway unified polling

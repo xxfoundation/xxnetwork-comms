@@ -42,7 +42,7 @@ func TestRegisterForNotifications(t *testing.T) {
 	}
 
 	// Register client with notification bot
-	_, err = c.RegisterForNotifications(host, &pb.NotificationToken{})
+	_, err = c.RegisterForNotifications(host, &pb.NotificationRegisterRequest{})
 	if err != nil {
 		t.Errorf("RegistrationMessage: Error received: %s", err)
 	}
@@ -56,9 +56,9 @@ func TestUnregisterForNotifications(t *testing.T) {
 
 	// Start notification bot
 	nbAddress := getNextAddress()
-	notificationBot := notificationBot.StartNotificationBot(testId, nbAddress,
+	nb := notificationBot.StartNotificationBot(testId, nbAddress,
 		notificationBot.NewImplementation(), nil, nil)
-	defer notificationBot.Shutdown()
+	defer nb.Shutdown()
 
 	// Create client's comms object
 	c, err := NewClientComms(clientId, nil, nil, nil)
@@ -76,7 +76,7 @@ func TestUnregisterForNotifications(t *testing.T) {
 	}
 
 	// Unregister client with notification bot
-	_, err = c.UnregisterForNotifications(host)
+	_, err = c.UnregisterForNotifications(host, &pb.NotificationUnregisterRequest{})
 	if err != nil {
 		t.Errorf("RegistrationMessage: Error received: %s", err)
 	}
