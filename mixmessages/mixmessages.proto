@@ -391,6 +391,7 @@ message NodeRegistration {
 }
 
 // UserRegistration message to initialize registration process
+// Client -> Permissioning
 message UserRegistration {
     string RegistrationCode = 1;
     string ClientRSAPubKey = 2;
@@ -398,12 +399,15 @@ message UserRegistration {
 }
 
 // UserRegistrationConfirmation to confirm registration with users
+// Permissioning -> Client (Response to UserRegistration)
 message UserRegistrationConfirmation {
     // RegistrationServer-Signed Client Public Key
     messages.RSASignature ClientSignedByServer = 1;
     messages.RSASignature ClientReceptionSignedByServer = 2;
-    string Error = 3;
+    int64 Timestamp = 3;
+    string Error = 4;
 }
+
 
 // ClientVersion contains a version string for the client
 message ClientVersion {
@@ -415,9 +419,10 @@ message NonceRequest {
     bytes Salt = 1;
     string ClientRSAPubKey = 2;
     messages.RSASignature ClientSignedByServer = 3;
-    bytes ClientDHPubKey = 4;
-    messages.RSASignature RequestSignature = 5;
-    bytes Target = 6;
+    int64 TimeStamp = 4;
+    bytes ClientDHPubKey = 5;
+    messages.RSASignature RequestSignature = 6;
+    bytes Target = 7;
 }
 
 // Nonce message to reply to client from server (going through gateway)
@@ -497,7 +502,9 @@ message NotificationRegisterRequest {
     bytes TransmissionRsa = 3;
     bytes TransmissionSalt = 4;
     bytes TransmissionRsaSig = 5;
-    bytes IIDTransmissionRsaSig = 6;
+    // Timestamp in which user registered with the network (ie permissioning)
+    int64 RegistrationTimestamp = 6;
+    bytes IIDTransmissionRsaSig = 7;
 }
 
 message NotificationUnregisterRequest {
@@ -547,10 +554,11 @@ service UDB {
 message UDBUserRegistration {
     bytes PermissioningSignature = 1;
     string RSAPublicPem = 2;
-    Identity IdentityRegistration = 3;
-    bytes IdentitySignature = 4; // (RSAPublicSign(Data.Digest()))
-    FactRegisterRequest frs = 5;
-    bytes UID = 6;
+    int64 Timestamp = 3;
+    Identity IdentityRegistration = 4;
+    bytes IdentitySignature = 5; // (RSAPublicSign(Data.Digest()))
+    FactRegisterRequest frs = 6;
+    bytes UID = 7;
 }
 
 // Identity describes a user and their cryptographic info

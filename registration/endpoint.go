@@ -42,26 +42,16 @@ func (r *Comms) RequestToken(context.Context, *messages.Ping) (*messages.AssignT
 func (r *Comms) RegisterUser(ctx context.Context, msg *pb.UserRegistration) (
 	*pb.UserRegistrationConfirmation, error) {
 	// Obtain the signed key by passing to registration server
-	pubKey := msg.GetClientRSAPubKey()
-	reptPubKey := msg.GetClientReceptionRSAPubKey()
-	signature, receptionSignature, err := r.handler.RegisterUser(msg.GetRegistrationCode(), pubKey, reptPubKey)
+	confirmationMessage, err := r.handler.RegisterUser(msg)
 	// Obtain the error message, if any
 	errMsg := ""
 	if err != nil {
 		errMsg = err.Error()
 		err = errors.New(err.Error())
 	}
-
+	confirmationMessage.Error = errMsg
 	// Return the confirmation message
-	return &pb.UserRegistrationConfirmation{
-		ClientSignedByServer: &messages.RSASignature{
-			Signature: signature,
-		},
-		ClientReceptionSignedByServer: &messages.RSASignature{
-			Signature: receptionSignature,
-		},
-		Error: errMsg,
-	}, err
+	return confirmationMessage, err
 }
 
 // Handle a node registration event
