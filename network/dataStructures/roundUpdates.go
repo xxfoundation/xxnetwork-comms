@@ -40,12 +40,12 @@ func (u *Updates) GetUpdate(id int) (*pb.RoundInfo, error) {
 
 	val, err := u.updates.GetById(id)
 	if err != nil {
-		return nil, errors.Wrapf(err, "Failed to get round by update " +
+		return nil, errors.Wrapf(err, "Failed to get round by update "+
 			"ID with id %d", id)
 	}
 
 	if val == nil {
-		return nil, errors.Errorf("Failed to get round by update ID  " +
+		return nil, errors.Errorf("Failed to get round by update ID  "+
 			"with id %d, got nil round", id)
 	}
 

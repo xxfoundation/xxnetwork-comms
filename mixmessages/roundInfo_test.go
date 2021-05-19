@@ -15,6 +15,7 @@ import (
 	"gitlab.com/elixxir/primitives/states"
 	"gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/comms/signature"
+	"gitlab.com/xx_network/crypto/signature/ec"
 	"gitlab.com/xx_network/crypto/signature/rsa"
 	"reflect"
 	"testing"
@@ -23,7 +24,8 @@ import (
 // Ensure message type conforms to genericSignable interface
 // If this ever fails, check for modifications in the source library
 //  as well as for this message type
-var _ = signature.GenericSignable(&RoundInfo{})
+var _ = signature.GenericRsaSignable(&RoundInfo{})
+var _ = signature.GenericEccSignable(&RoundInfo{})
 
 // -------------------------- Get tests --------------------------------------
 
@@ -162,13 +164,13 @@ func TestRoundInfo_SignVerify(t *testing.T) {
 	pubKey := privateKey.GetPublic()
 
 	// Ensure message type conforms to genericSignable interface
-	err = signature.Sign(testRoundInfo, privateKey)
+	err = signature.SignRsa(testRoundInfo, privateKey)
 	if err != nil {
 		t.Errorf("Unable to sign message: %+v", err)
 	}
 
 	// Verify signature
-	err = signature.Verify(testRoundInfo, pubKey)
+	err = signature.VerifyRsa(testRoundInfo, pubKey)
 	if err != nil {
 		t.Errorf("Expected happy path! Failed to verify: %+v", err)
 	}
@@ -195,7 +197,7 @@ func TestRoundInfo_SignVerify_Error(t *testing.T) {
 	pubKey := privateKey.GetPublic()
 
 	// Ensure message type conforms to genericSignable interface
-	err = signature.Sign(testRoundInfo, privateKey)
+	err = signature.SignRsa(testRoundInfo, privateKey)
 	if err != nil {
 		t.Errorf("Unable to sign message: %+v", err)
 	}
@@ -203,12 +205,80 @@ func TestRoundInfo_SignVerify_Error(t *testing.T) {
 	// Reset Topology value so verify()'s signature won't match
 	testRoundInfo.Topology = [][]byte{[]byte("I"), []byte("am"), []byte("totally"), []byte("failing right now")}
 	// Verify signature
-	err = signature.Verify(testRoundInfo, pubKey)
+	err = signature.VerifyRsa(testRoundInfo, pubKey)
 	if err != nil {
 		return
 	}
 
 	t.Error("Expected error path: Should not have verified!")
+
+}
+
+// Happy path
+func TestNDF_SignVerifyEddsa(t *testing.T) {
+	// Create roundInfo object
+	testId := uint64(25)
+	testTopology := [][]byte{[]byte("test"), []byte("te"), []byte("st"), []byte("testtest")}
+	testBatch := uint32(23)
+	testRoundInfo := &RoundInfo{
+		ID:        testId,
+		Topology:  testTopology,
+		BatchSize: testBatch,
+	}
+	// Generate keys
+	privateKey, err := ec.NewKeyPair(rand.Reader)
+	if err != nil {
+		t.Fatalf("Failed to generate key: %+v", err)
+	}
+	pubKey := privateKey.GetPublic()
+
+	// Sign message
+	err = signature.SignEddsa(testRoundInfo, privateKey)
+	if err != nil {
+		t.Errorf("Unable to sign message: %+v", err)
+	}
+
+	// Verify signature
+	err = signature.VerifyEddsa(testRoundInfo, pubKey)
+	if err != nil {
+		t.Errorf("Expected happy path! Failed to verify: %+v", err)
+	}
+
+}
+
+// Error path: Change internals of message between signing and verifying
+func TestNdf_SignVerifyEddsa_Error(t *testing.T) {
+	// Create roundInfo object
+	testId := uint64(25)
+	testTopology := [][]byte{[]byte("test"), []byte("te"), []byte("st"), []byte("testtest")}
+	testBatch := uint32(23)
+	testRoundInfo := &RoundInfo{
+		ID:        testId,
+		Topology:  testTopology,
+		BatchSize: testBatch,
+	}
+	// Generate keys
+	privateKey, err := ec.NewKeyPair(rand.Reader)
+	if err != nil {
+		t.Errorf("Failed to generate key: %+v", err)
+	}
+	pubKey := privateKey.GetPublic()
+
+	// Sign message
+	err = signature.SignEddsa(testRoundInfo, privateKey)
+	if err != nil {
+		t.Errorf("Unable to sign message: %+v", err)
+	}
+
+	// Reset Topology value so verify()'s signature won't match
+	testRoundInfo.Topology = [][]byte{[]byte("I"), []byte("am"), []byte("totally"), []byte("failing right now")}
+
+	// Verify signature
+	err = signature.VerifyEddsa(testRoundInfo, pubKey)
+	// Verify signature
+	if err == nil {
+		t.Error("Expected error path: Should not have verified!")
+	}
 
 }
 
