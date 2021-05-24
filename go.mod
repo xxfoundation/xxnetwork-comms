@@ -8,8 +8,8 @@ require (
 	github.com/nyaruka/phonenumbers v1.0.60 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/jwalterweatherman v1.1.0
-	gitlab.com/elixxir/crypto v0.0.7-0.20210518184523-674e0e2a0f6d
-	gitlab.com/elixxir/primitives v0.0.3-0.20210518183904-7f91a38578ac
+	gitlab.com/elixxir/crypto v0.0.7-0.20210520231341-cc91d0be28ae
+	gitlab.com/elixxir/primitives v0.0.3-0.20210520220650-16cb34e6b7e3
 	gitlab.com/xx_network/comms v0.0.4-0.20210517205649-06ddfa8d2a75
 	gitlab.com/xx_network/crypto v0.0.5-0.20210517205543-4ae99cbb9063
 	gitlab.com/xx_network/primitives v0.0.4-0.20210517202253-c7b4bd0087ea

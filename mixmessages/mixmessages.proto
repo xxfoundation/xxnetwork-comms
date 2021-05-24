@@ -502,9 +502,9 @@ message NotificationRegisterRequest {
     bytes TransmissionRsa = 3;
     bytes TransmissionSalt = 4;
     bytes TransmissionRsaSig = 5;
+    bytes IIDTransmissionRsaSig = 6;
     // Timestamp in which user registered with the network (ie permissioning)
-    int64 RegistrationTimestamp = 6;
-    bytes IIDTransmissionRsaSig = 7;
+    int64 RegistrationTimestamp = 7;
 }
 
 message NotificationUnregisterRequest {
