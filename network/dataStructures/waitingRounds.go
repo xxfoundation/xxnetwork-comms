@@ -195,8 +195,8 @@ func (wr *WaitingRounds) GetUpcomingRealtime(timeout time.Duration,
 	sig := make(chan *pb.RoundInfo, 1)
 	go func() {
 		var round *Round
-		wr.c.L.Lock()
 		for atomic.LoadUint32(&exit) == 0 {
+			wr.c.L.Lock()
 			round = wr.getClosest(exclude, minRoundAge)
 			if round != nil {
 				break
