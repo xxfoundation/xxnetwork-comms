@@ -58,7 +58,7 @@ func TestRoundEvents_AddRoundEvent_Timeout(t *testing.T) {
 	events := NewRoundEvents()
 
 	called := false
-	timeout := time.Millisecond
+	timeout := 50 * time.Millisecond
 	events.AddRoundEvent(id.Round(1), func(ri *pb.RoundInfo, timedOut bool) {
 		called = true
 		if !timedOut {
