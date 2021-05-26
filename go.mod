@@ -8,11 +8,11 @@ require (
 	github.com/nyaruka/phonenumbers v1.0.60 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/jwalterweatherman v1.1.0
-	gitlab.com/elixxir/crypto v0.0.7-0.20210521205349-cb0c5cdd44e3
-	gitlab.com/elixxir/primitives v0.0.3-0.20210521205228-746e9ff840fb
-	gitlab.com/xx_network/comms v0.0.4-0.20210521205156-5dbbf700c6c7
-	gitlab.com/xx_network/crypto v0.0.5-0.20210521205053-9423260a7c0f
-	gitlab.com/xx_network/primitives v0.0.4-0.20210521183842-3b12812ac984
+	gitlab.com/elixxir/crypto v0.0.7-0.20210526002540-1fb51df5b4b2
+	gitlab.com/elixxir/primitives v0.0.3-0.20210526002350-b9c947fec050
+	gitlab.com/xx_network/comms v0.0.4-0.20210526002311-2b5a66af0eac
+	gitlab.com/xx_network/crypto v0.0.5-0.20210526002149-9c08ccb202be
+	gitlab.com/xx_network/primitives v0.0.4-0.20210525232109-3f99a04adcfd
 	gitlab.com/xx_network/ring v0.0.2
 	golang.org/x/net v0.0.0-20201029221708-28c70e62bb1d
 	golang.org/x/text v0.3.4 // indirect
