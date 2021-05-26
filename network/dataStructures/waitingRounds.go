@@ -69,9 +69,10 @@ func (wr *WaitingRounds) Insert(newRound *Round) {
 		if !inserted {
 			wr.rounds.PushFront(newRound)
 		}
-
-		wr.c.Broadcast()
-		wr.c.L.Unlock()
+		go func() {
+			wr.c.Broadcast()
+			wr.c.L.Unlock()
+		}()
 	} else {
 		wr.c.L.Lock()
 		wr.remove(newRound)
