@@ -13,7 +13,7 @@ require (
 	gitlab.com/xx_network/comms v0.0.4-0.20210526002311-2b5a66af0eac
 	gitlab.com/xx_network/crypto v0.0.5-0.20210526002149-9c08ccb202be
 	gitlab.com/xx_network/primitives v0.0.4-0.20210525232109-3f99a04adcfd
-	gitlab.com/xx_network/ring v0.0.3-0.20210525230516-6a1185d19af8
+	gitlab.com/xx_network/ring v0.0.3-0.20210527191221-ce3f170aabd5
 	golang.org/x/net v0.0.0-20201029221708-28c70e62bb1d
 	golang.org/x/text v0.3.4 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
