@@ -92,10 +92,16 @@ type Host struct {
 
 	// Stored default values (should be non-mutated)
 	params HostParams
+
+	// the amount of data, when streaming, that a sender can send before receiving an ACK
+	// keep at zero to use the default GRPC algorithm to determine
+	windowSize *int32
 }
 
 // Creates a new Host object
 func NewHost(id *id.ID, address string, cert []byte, params HostParams) (host *Host, err error) {
+
+	windowSize := int32(0)
 
 	// Initialize the Host object
 	host = &Host{
@@ -105,6 +111,7 @@ func NewHost(id *id.ID, address string, cert []byte, params HostParams) (host *H
 		receptionToken:    token.NewLive(),
 		metrics:           newMetric(),
 		params:            params,
+		windowSize:        &windowSize,
 	}
 
 	if params.EnableCoolOff {
@@ -152,6 +159,12 @@ func newDynamicHost(id *id.ID, publicKey []byte) (host *Host, err error) {
 // Simple getter for the dynamicHost value
 func (h *Host) IsDynamicHost() bool {
 	return h.dynamicHost
+}
+
+// the amount of data, when streaming, that a sender can send before receiving an ACK
+// keep at zero to use the default GRPC algorithm to determine
+func (h *Host) SetWindowSize(size int32) {
+	atomic.StoreInt32(h.windowSize, size)
 }
 
 // Simple getter for the public key
@@ -378,11 +391,21 @@ func (h *Host) connectHelper() (err error) {
 		}
 		ctx, cancel := newContext(time.Duration(backoffTime) * time.Millisecond)
 
+		dialOpts := []grpc.DialOption{
+			grpc.WithBlock(),
+			grpc.WithKeepaliveParams(KaClientOpts),
+			securityDial,
+		}
+
+		windowSize := atomic.LoadInt32(h.windowSize)
+		if windowSize != 0 {
+			dialOpts = append(dialOpts, grpc.WithInitialWindowSize(windowSize))
+		}
+
 		// Create the connection
 		h.connection, err = grpc.DialContext(ctx, h.GetAddress(),
-			securityDial,
-			grpc.WithBlock(),
-			grpc.WithKeepaliveParams(KaClientOpts))
+			dialOpts...)
+
 		if err != nil {
 			jww.DEBUG.Printf("Attempt number %+v to connect to %s failed\n",
 				numRetries, h.GetAddress())
