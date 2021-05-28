@@ -34,6 +34,9 @@ import (
 
 const infinityTime = time.Duration(math.MaxInt64)
 
+//4 MB
+const MaxWindowSize = 4 * 1024 * 1024
+
 // KaClientOpts are the keepalive options for clients
 // TODO: Set via configuration
 var KaClientOpts = keepalive.ClientParameters{
