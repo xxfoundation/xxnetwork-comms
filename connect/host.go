@@ -403,6 +403,7 @@ func (h *Host) connectHelper() (err error) {
 		windowSize := atomic.LoadInt32(h.windowSize)
 		if windowSize != 0 {
 			dialOpts = append(dialOpts, grpc.WithInitialWindowSize(windowSize))
+			dialOpts = append(dialOpts, grpc.WithInitialConnWindowSize(windowSize))
 		}
 
 		// Create the connection
