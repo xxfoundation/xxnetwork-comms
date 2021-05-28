@@ -79,6 +79,8 @@ gitlab.com/xx_network/crypto v0.0.5-0.20210430180000-985aa4140eb2 h1:qhItkF46g3x
 gitlab.com/xx_network/crypto v0.0.5-0.20210430180000-985aa4140eb2/go.mod h1:0P3R7CwDJQ3ljNxptBgpItaZH6i43aftqhrx/m27SbY=
 gitlab.com/xx_network/crypto v0.0.5-0.20210517205543-4ae99cbb9063 h1:BW6kQCHP5dySBWuaKjfU6gP+Wbw5Dnr8GTRzaEbF1zU=
 gitlab.com/xx_network/crypto v0.0.5-0.20210517205543-4ae99cbb9063/go.mod h1:AOUw4RJfBrKDXbe9nY/8bM3ID1czcooefUbVd82zrCY=
+gitlab.com/xx_network/crypto v0.0.5-0.20210526002149-9c08ccb202be h1:mOoKScRRcKB6tf5jJGT+43YbgnpCYnvdcMQg2byNzK8=
+gitlab.com/xx_network/crypto v0.0.5-0.20210526002149-9c08ccb202be/go.mod h1:bOto0zsMIJz0hrvcMcEff6YFI0+tP8cmfV/5B060B34=
 gitlab.com/xx_network/primitives v0.0.0-20200803231956-9b192c57ea7c/go.mod h1:wtdCMr7DPePz9qwctNoAUzZtbOSHSedcK++3Df3psjA=
 gitlab.com/xx_network/primitives v0.0.0-20200804183002-f99f7a7284da/go.mod h1:OK9xevzWCaPO7b1wiluVJGk7R5ZsuC7pHY5hteZFQug=
 gitlab.com/xx_network/primitives v0.0.2/go.mod h1:cs0QlFpdMDI6lAo61lDRH2JZz+3aVkHy+QogOB6F/qc=
@@ -88,6 +90,8 @@ gitlab.com/xx_network/primitives v0.0.4-0.20210412170941-7ef69bce5a5c h1:WpAkvPh
 gitlab.com/xx_network/primitives v0.0.4-0.20210412170941-7ef69bce5a5c/go.mod h1:9imZHvYwNFobxueSvVtHneZLk9wTK7HQTzxPm+zhFhE=
 gitlab.com/xx_network/primitives v0.0.4-0.20210517202253-c7b4bd0087ea h1:yiFyOC+qhTLO/AjCOuL7hNNkD4VdPnnSmeYXXQwmGYE=
 gitlab.com/xx_network/primitives v0.0.4-0.20210517202253-c7b4bd0087ea/go.mod h1:9imZHvYwNFobxueSvVtHneZLk9wTK7HQTzxPm+zhFhE=
+gitlab.com/xx_network/primitives v0.0.4-0.20210525232109-3f99a04adcfd h1:+vQkuM/o3TqS6bHqIyy36+aGn3TTrvvWFALol2TU13w=
+gitlab.com/xx_network/primitives v0.0.4-0.20210525232109-3f99a04adcfd/go.mod h1:9imZHvYwNFobxueSvVtHneZLk9wTK7HQTzxPm+zhFhE=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20200510223506-06a226fb4e37/go.mod h1:LzIPMQfyMNhhGPhUkYOs5KpL4U8rLKemX1yGLhDgUto=
 golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9/go.mod h1:LzIPMQfyMNhhGPhUkYOs5KpL4U8rLKemX1yGLhDgUto=
