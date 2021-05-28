@@ -739,7 +739,7 @@ func (i *Instance) updateConns(def *ndf.NetworkDefinition, isGateway, isNode boo
 				}
 
 				// 10k batch size * 8192 packet size * 2
-				host.SetWindowSize(8192 * 10000 * 2)
+				host.SetWindowSize(connect.MaxWindowSize)
 
 				// Send events into Node Listener
 				if i.addNode != nil {
