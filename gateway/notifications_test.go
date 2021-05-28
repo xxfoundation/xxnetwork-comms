@@ -53,7 +53,7 @@ func TestComms_SendNotificationBatch(t *testing.T) {
 				MessageHash: []byte("MessageHash"),
 			},
 		},
-		XXX_sizecache: 31,
+		// XXX_sizecache: 31,
 	}
 
 	// Send NotificationBatch to notification bot
