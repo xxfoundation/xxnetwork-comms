@@ -6,6 +6,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 syntax = "proto3";
+option go_package = "gitlab.com/xx_network/comms/gossip";
 
 package gossip;
 
