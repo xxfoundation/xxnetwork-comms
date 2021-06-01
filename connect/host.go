@@ -398,8 +398,6 @@ func (h *Host) connectHelper() (err error) {
 			grpc.WithBlock(),
 			grpc.WithKeepaliveParams(KaClientOpts),
 			securityDial,
-			grpc.WithReadBufferSize(0),
-			grpc.WithWriteBufferSize(0),
 		}
 
 		windowSize := atomic.LoadInt32(h.windowSize)
