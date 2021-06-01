@@ -5,6 +5,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 syntax = "proto3";
+option go_package = "gitlab.com/elixxir/comms/mixmessages";
 
 package mixmessages;
 
