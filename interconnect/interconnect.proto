@@ -6,6 +6,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 syntax = "proto3";
+option go_package = "gitlab.com/xx_network/comms/interconnect";
+
 import "gitlab.com/xx_network/comms/messages/messages.proto";
 
 package interconnect;
