@@ -398,16 +398,16 @@ func (h *Host) connectHelper() (err error) {
 			grpc.WithBlock(),
 			grpc.WithKeepaliveParams(KaClientOpts),
 			securityDial,
+			grpc.WithReadBufferSize(0),
+			grpc.WithWriteBufferSize(0),
 		}
 
 		windowSize := atomic.LoadInt32(h.windowSize)
 		if windowSize != 0 {
 			dialOpts = append(dialOpts, grpc.WithInitialWindowSize(windowSize))
 			dialOpts = append(dialOpts, grpc.WithInitialConnWindowSize(windowSize))
-		} else {
-			jww.WARN.Printf("WindowSize not set, this can " +
-				"cause network performance issues")
 		}
+
 		// Create the connection
 		h.connection, err = grpc.DialContext(ctx, h.GetAddress(),
 			dialOpts...)
