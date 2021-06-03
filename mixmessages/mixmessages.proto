@@ -37,7 +37,7 @@ service Node {
 
     // StreamPostPhase runs a cMix phase on another node
     // by using unary streaming of slots
-    rpc StreamPostPhase (stream Slot) returns (messages.Ack) {
+    rpc StreamPostPhase (stream Slots) returns (messages.Ack) {
     }
 
     // GetRoundBufferInfo returns the # of rounds ready for messages
@@ -235,6 +235,10 @@ message RoundMessages {
 // The message for clients to poll the gateway for Message IDs
 message IDList {
     repeated string IDs = 1;
+}
+
+message Slots {
+    repeated Slot Messages = 1;
 }
 
 // Represents a single encrypted message in a batch
