@@ -89,11 +89,15 @@ func TestPhase_StreamPostPhaseSendReceive(t *testing.T) {
 	// The server will send the slot messages and wait for ack
 	// and close on receiving it.
 	go func(slots []mixmessages.Slot) {
-		for i, slot := range slots {
-			err := streamClient.Send(&slot)
-			if err != nil {
-				t.Errorf("Unable to send slot %v %v", i, err)
-			}
+		msgSlots := mixmessages.Slots{
+			Messages: make([]*mixmessages.Slot, len(slots)),
+		}
+		for i, _ := range slots {
+			msgSlots.Messages[i] = &slots[i]
+		}
+		err := streamClient.Send(&msgSlots)
+		if err != nil {
+			t.Errorf("Unable to send %v", err)
 		}
 		ack, err := streamClient.CloseAndRecv()
 
@@ -180,9 +184,9 @@ func mockStreamPostPhase(server mixmessages.Node_StreamPostPhaseServer) error {
 	// Receive all slots and on EOF store all data
 	// into a global received batch variable then
 	// send ack back to client.
-	var slots []*mixmessages.Slot
+	var slots *mixmessages.Slots
 	for {
-		slot, err := server.Recv()
+		newSlots, err := server.Recv()
 		// If we are at end of receiving
 		// send ack and finish
 		if err == io.EOF {
@@ -194,7 +198,7 @@ func mockStreamPostPhase(server mixmessages.Node_StreamPostPhaseServer) error {
 			receivedBatch = mixmessages.Batch{
 				Round:     batchInfo.Round,
 				FromPhase: batchInfo.FromPhase,
-				Slots:     slots,
+				Slots:     slots.Messages,
 			}
 
 			err = server.SendAndClose(&ack)
@@ -207,8 +211,9 @@ func mockStreamPostPhase(server mixmessages.Node_StreamPostPhaseServer) error {
 			return err
 		}
 
-		// Store slot received into temporary buffer
-		slots = append(slots, slot)
+		if newSlots != nil {
+			slots = newSlots
+		}
 	}
 
 }
