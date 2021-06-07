@@ -175,6 +175,10 @@ service Gateway {
     rpc PutMessage (GatewaySlot) returns (GatewaySlotResponse) {
     }
 
+    // PutMessage on the cMix Gateway
+    rpc PutManyMessages (GatewaySlots) returns (GatewaySlotResponse) {
+    }
+
     // RequestNonce returns a Nonce to the user
     rpc RequestNonce (NonceRequest) returns (Nonce) {
     }
@@ -297,6 +301,14 @@ message ClientBloom {
     bytes Filter = 1;
     uint64 FirstRound = 2;
     uint32 RoundRange = 3;
+}
+
+// Client -> Gateway authentication message
+message GatewaySlots {
+    repeated GatewaySlot Messages = 1;
+    // Below should have same values as all elements in slice (this is assumed)
+    uint64 RoundID = 2;
+    bytes Target = 3;
 }
 
 // Client -> Gateway authentication message
