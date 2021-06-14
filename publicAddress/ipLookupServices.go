@@ -75,5 +75,5 @@ func MakeTestLookupService(ip string, i interface{}) ([]Service, *httptest.Serve
 		}
 	}))
 
-	return []Service{{ipv4Address, ts.URL}}, ts
+	return []Service{{ipv4Address, ts.URL}, {ipv4Address, ts.URL}}, ts
 }

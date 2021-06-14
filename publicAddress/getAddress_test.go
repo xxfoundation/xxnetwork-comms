@@ -148,6 +148,44 @@ func Test_getIpFromList_NoIpError(t *testing.T) {
 	}
 }
 
+// Tests that getIpMultiCheck retrieves the expected IP from a randomly selected
+// service.
+func Test_getIpMultiCheck(t *testing.T) {
+	// Create test servers
+	expectedIp := "0.0.0.0"
+	ts0 := newTestServer("invalid IP", t)
+	ts1 := newTestServer(expectedIp, t)
+	ts2 := newTestServer(expectedIp, t)
+	ts3 := newTestServer("0000:0000:0000:0000:0000:0000:0000:0000", t)
+	ts4 := newTestServer(expectedIp, t)
+	ts5 := newTestServer("1.1.1.1", t)
+	defer ts0.Close()
+	defer ts1.Close()
+	defer ts2.Close()
+	defer ts3.Close()
+	defer ts4.Close()
+	defer ts5.Close()
+
+	urls := []Service{
+		{ipv4Address, ts0.URL},
+		{ipv4Address, ts1.URL},
+		{ipv4Address, ts2.URL},
+		{ipv6Address, ts3.URL},
+		{ipv4Address, ts4.URL},
+		{ipv4Address, ts5.URL},
+	}
+
+	ip, err := getIpMultiCheck(urls, 50*time.Millisecond, 3)
+	if err != nil {
+		t.Errorf("getIpMultiCheck produced an error: %+v", err)
+	}
+
+	if expectedIp != ip {
+		t.Errorf("getIpMultiCheck did not return the expected IP address."+
+			"\nexpected: %s\nreceived: %s", expectedIp, ip)
+	}
+}
+
 // Tests that getIP gets the expected IP from the test server.
 func Test_getIP(t *testing.T) {
 	// Create test server
