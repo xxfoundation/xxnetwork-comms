@@ -21,8 +21,9 @@ import (
 )
 
 const (
-	DefaultPollTimeout = 30 * time.Second
+	DefaultPollTimeout = 65 * time.Second
 	connectionTimeout  = 2 * time.Second
+	defaultNumChecks   = 2
 )
 
 // Error messages.
@@ -45,7 +46,7 @@ func GetIP(lookupServices []Service, timeout time.Duration) (string, error) {
 
 	ipResultChan := make(chan resultChan)
 	go func() {
-		ip, err := getIpFromList(lookupServices, connectionTimeout)
+		ip, err := getIpMultiCheck(lookupServices, connectionTimeout, defaultNumChecks)
 		ipResultChan <- resultChan{ip, err}
 	}()
 
@@ -61,8 +62,16 @@ func GetIP(lookupServices []Service, timeout time.Duration) (string, error) {
 // randomly selected Service. Services are tried one by one until one return a
 // valid IPv4 address.
 func getIpFromList(urls []Service, timeout time.Duration) (string, error) {
+	return getIpMultiCheck(urls, timeout, 1)
+}
+
+// getIpMultiCheck returns the caller's public IP address that is provided from
+// multiple Services. Services are tried one by one until the given number of
+//  services return the same valid IPv4 address.
+func getIpMultiCheck(urls []Service, timeout time.Duration, checks int) (string, error) {
 	serviceList := shuffleStrings(urls)
 	var ipv6 bool
+	addresses := make(map[string]int)
 
 	for _, service := range serviceList {
 		// Skip services that return IPv6 addresses if the caller has an IPv6
@@ -72,7 +81,11 @@ func getIpFromList(urls []Service, timeout time.Duration) (string, error) {
 
 		ip, err := getIP(service.url, timeout)
 		if err == nil {
-			return ip, nil
+			addresses[ip]++
+			if addresses[ip] >= checks {
+				return ip, nil
+			}
+			continue
 		} else if strings.Contains(err.Error(), "IPv6") {
 			ipv6 = true
 		}
