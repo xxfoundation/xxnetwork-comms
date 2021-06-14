@@ -17,65 +17,67 @@ import (
 	"time"
 )
 
-// Happy path.
+// Tests that GetIP returns the expected IP from three different test servers.
 func TestGetIP(t *testing.T) {
 	// Create test servers
 	expectedIp := "0.0.0.0"
 	ts0 := newTestServer(expectedIp, t)
 	ts1 := newTestServer(expectedIp, t)
 	ts2 := newTestServer(expectedIp, t)
-	defer func() {
-		ts0.Close()
-		ts1.Close()
-		ts2.Close()
-	}()
+	defer ts0.Close()
+	defer ts1.Close()
+	defer ts2.Close()
 
 	lookupServices := []Service{
 		{ipv4Address, ts0.URL},
 		{ipv4Address, ts1.URL},
 		{ipv4Address, ts2.URL},
 	}
+
 	ip, err := GetIP(lookupServices, DefaultPollTimeout)
 	if err != nil {
-		t.Errorf("GetIP() produced an error: %+v", err)
+		t.Errorf("GetIP produced an error: %+v", err)
 	}
 
 	if expectedIp != ip {
-		t.Errorf("GetIP() did not return the expected IP address."+
+		t.Errorf("GetIP did not return the expected IP address."+
 			"\nexpected: %s\nreceived: %s", expectedIp, ip)
 	}
 }
 
-// Error path: returns an error when all servers report an IPv6 address.
+// Error path: tests that GetIP returns an error when all of the test servers
+// report an IPv6 address.
 func TestGetIP_IPv6Error(t *testing.T) {
 	// Create test servers
+	expectedErr := lookupServiceErr
 	expectedIp := "0000:0000:0000:0000:0000:0000:0000:0000"
 	ts0 := newTestServer(expectedIp, t)
 	ts1 := newTestServer(expectedIp, t)
 	ts2 := newTestServer(expectedIp, t)
-	defer func() {
-		ts0.Close()
-		ts1.Close()
-		ts2.Close()
-	}()
+	defer ts0.Close()
+	defer ts1.Close()
+	defer ts2.Close()
 
 	lookupServices := []Service{
 		{ipv6Address, ts0.URL},
 		{ipv6Address, ts1.URL},
 		{ipv6Address, ts2.URL},
 	}
+
 	_, err := GetIP(lookupServices, DefaultPollTimeout)
-	if err == nil {
-		t.Errorf("GetIP() did not error when all servers return IPv6 "+
-			"addresses: %+v", err)
+	if err == nil || err.Error() != expectedErr {
+		t.Errorf("GetIP did not return the expected error when all servers "+
+			"return IPv6 addresses.\nexpected: %s\nreceived: %+v",
+			expectedErr, err)
 	}
 }
 
-// Error path: functions returns a timeout error if servers take too long too
-// respond.
+// Error path: tests that GetIP returns a timeout error if servers take too long
+// to respond.
 func TestGetIP_TimeoutError(t *testing.T) {
 	// Create test servers
 	timeout := 50 * time.Millisecond
+	expectedErr := fmt.Sprintf(findIpTimeoutErr, timeout)
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		time.Sleep(2 * timeout)
 	}))
@@ -83,66 +85,70 @@ func TestGetIP_TimeoutError(t *testing.T) {
 
 	lookupServices := []Service{{ipv4Address, ts.URL}}
 	_, err := GetIP(lookupServices, timeout)
-	if err == nil || !strings.Contains(err.Error(), "timed out") {
-		t.Errorf("GetIP() did not timeout: %+v", err)
+	if err == nil || err.Error() != expectedErr {
+		t.Errorf("GetIP did failed to timeout when the server has not "+
+			"responded within the timeout period.\nexpected: %s\nreceived: %+v",
+			expectedErr, err)
 	}
 }
 
-// Happy path.
+// Tests that getIpFromList retrieves the expected IP from a randomly selected
+// service.
 func Test_getIpFromList(t *testing.T) {
 	// Create test servers
 	expectedIp := "0.0.0.0"
 	ts0 := newTestServer(expectedIp, t)
 	ts1 := newTestServer(expectedIp, t)
 	ts2 := newTestServer(expectedIp, t)
-	defer func() {
-		ts0.Close()
-		ts1.Close()
-		ts2.Close()
-	}()
+	defer ts0.Close()
+	defer ts1.Close()
+	defer ts2.Close()
 
 	urls := []Service{
 		{ipv4Address, ts0.URL},
 		{ipv4Address, ts1.URL},
 		{ipv4Address, ts2.URL},
 	}
+
 	ip, err := getIpFromList(urls, 50*time.Millisecond)
 	if err != nil {
-		t.Errorf("getIpFromList() produced an error: %+v", err)
+		t.Errorf("getIpFromList produced an error: %+v", err)
 	}
 
 	if expectedIp != ip {
-		t.Errorf("getIpFromList() did not return the expected IP address."+
+		t.Errorf("getIpFromList did not return the expected IP address."+
 			"\nexpected: %s\nreceived: %s", expectedIp, ip)
 	}
 }
 
-// Error path: none of the URLs return valid IPs.
+// Error path: tests that getIpFromList returns an error when none of the
+// servers return valid IPs.
 func Test_getIpFromList_NoIpError(t *testing.T) {
 	// Create test servers
+	expectedErr := lookupServiceErr
 	expectedIp := "invalid IP"
 	ts0 := newTestServer(expectedIp, t)
 	ts1 := newTestServer(expectedIp, t)
 	ts2 := newTestServer(expectedIp, t)
-	defer func() {
-		ts0.Close()
-		ts1.Close()
-		ts2.Close()
-	}()
+	defer ts0.Close()
+	defer ts1.Close()
+	defer ts2.Close()
 
 	urls := []Service{
 		{ipv4Address, ts0.URL},
 		{ipv4Address, ts1.URL},
 		{ipv4Address, ts2.URL},
 	}
+
 	_, err := getIpFromList(urls, 50*time.Millisecond)
-	if err == nil || !strings.Contains(err.Error(), "failed to get public IP address") {
-		t.Errorf("getIpFromList() failed to return an error when all servers "+
-			"should have returned invalid IP addresses: %+v", err)
+	if err == nil || err.Error() != expectedErr {
+		t.Errorf("getIpFromList failed to return an error when all servers "+
+			"should have returned invalid IP addresses."+
+			"\nexpected: %s\nreceived: %+v", expectedErr, err)
 	}
 }
 
-// Happy path.
+// Tests that getIP gets the expected IP from the test server.
 func Test_getIP(t *testing.T) {
 	// Create test server
 	expectedIp := "0.0.0.0"
@@ -151,48 +157,61 @@ func Test_getIP(t *testing.T) {
 
 	ip, err := getIP(ts.URL, 50*time.Millisecond)
 	if err != nil {
-		t.Errorf("getIP() produced an error: %+v", err)
+		t.Errorf("getIP produced an error: %+v", err)
 	}
 
 	if expectedIp != ip {
-		t.Errorf("getIP() did not return the expected IP address."+
+		t.Errorf("getIP did not return the expected IP address."+
 			"\nexpected: %s\nreceived: %s", expectedIp, ip)
 	}
 }
 
-// Error path: Get returns an error for an invalid URL.
+// Error path: tests that getIP returns an error for an invalid URL.
 func Test_getIP_GetError(t *testing.T) {
-	_, err := getIP("http://invalidurl", 50*time.Millisecond)
-	if err == nil || !strings.Contains(err.Error(), "Get") {
-		t.Errorf("getIP() did not produce an error for an invalid URL: %+v", err)
+	expectedErr := strings.Split(getServiceErr, "%")[0]
+
+	_, err := getIP("https://invalidURL", 50*time.Millisecond)
+	if err == nil || !strings.Contains(err.Error(), expectedErr) {
+		t.Errorf("getIP did not produce the expected error for an invalid URL."+
+			"\nexpected: %s\nreceived: %+v", expectedErr, err)
 	}
 }
 
-// Error path: the response does not contain a valid IP address.
+// Error path: tests that getIP returns an error when the response does not
+// contain a valid IP address.
 func Test_getIP_IpError(t *testing.T) {
+	response := "invalid IP"
+	expectedErr := fmt.Sprintf(responseParseErr, response)
+
 	// Create test server
-	ts := newTestServer("invalid IP", t)
+	ts := newTestServer(response, t)
 	defer ts.Close()
 
 	_, err := getIP(ts.URL, 50*time.Millisecond)
-	if err == nil || !strings.Contains(err.Error(), "response could not be parsed as an IP address") {
-		t.Errorf("getIP() did not produce an error for an invalid URL: %+v", err)
+	if err == nil || err.Error() != expectedErr {
+		t.Errorf("getIP did not produce the expected error for an invalid URL."+
+			"\nexpected: %s\nreceived: %+v", expectedErr, err)
 	}
 }
 
-// Error path: returns an error when the address returned is IPv6.
+// Error path: tests that getIP returns an error when the address retrieved from
+// the test server is an IPv6 address.
 func Test_getIP_IPv6Error(t *testing.T) {
 	// Create test server
-	ts := newTestServer("0000:0000:0000:0000:0000:0000:0000:0000", t)
+	ipv6Addr := "0000:0000:0000:0000:0000:0000:0000:0000"
+	expectedErr := fmt.Sprintf(receivedIPv6Err, ipv6Addr)
+	ts := newTestServer(ipv6Addr, t)
 	defer ts.Close()
 
 	_, err := getIP(ts.URL, 50*time.Millisecond)
-	if err == nil || !strings.Contains(err.Error(), "IPv6") {
-		t.Errorf("getIP() did not produce an error for an IPv6 address: %+v", err)
+	if err == nil || err.Error() != expectedErr {
+		t.Errorf("getIPdid not produce the expected error when it recieves a "+
+			"IPv6 address.\nexpected: %s\nreceived: %+v", expectedErr, err)
 	}
 }
 
-// Happy path.
+// Tests that shuffleStrings returns a list in a different order from the
+// original.
 func Test_shuffleStrings(t *testing.T) {
 	s := []Service{
 		{ipv4Address, "A"},
@@ -202,13 +221,45 @@ func Test_shuffleStrings(t *testing.T) {
 		{ipv4Address, "E"},
 		{ipv4Address, "F"},
 	}
+
 	shuffled := shuffleStrings(s)
 	if reflect.DeepEqual(s, shuffled) {
-		t.Errorf("shuffleStrings() failed to shuffle the list."+
+		t.Errorf("shuffleStringsfailed to shuffle the list."+
 			"\nlist:     %s\nshuffled: %s", s, shuffled)
 	}
 }
 
+// Tests that trunc returns the expected truncated string.
+func Test_trunc(t *testing.T) {
+	testValues := []struct {
+		str      string
+		limit    int
+		ellipses bool
+		expected string
+	}{
+		{"testString", 15, false, "testString"},
+		{"testString", 15, true, "testString"},
+		{"testString", 10, false, "testString"},
+		{"testString", 10, true, "testString"},
+		{"testString", 9, false, "testStrin"},
+		{"testString", 9, true, "testSt..."},
+		{"testString", 7, false, "testStr"},
+		{"testString", 7, true, "test..."},
+		{"testStrin�", 10, false, "testStrin�"},
+		{"testStrin�", 10, true, "testStr..."},
+		{"testStrin�", 11, false, "testStrin�"},
+	}
+
+	for i, val := range testValues {
+		truncated := trunc(val.str, val.limit, val.ellipses)
+		if truncated != val.expected {
+			t.Errorf("trunc did not return the expected truncated string (%d)."+
+				"\nexpected: %s\nreceived: %s", i, val.expected, truncated)
+		}
+	}
+}
+
+// newTestServer creates a test server that returns the response.
 func newTestServer(response string, t *testing.T) *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if _, err := fmt.Fprint(w, response); err != nil {

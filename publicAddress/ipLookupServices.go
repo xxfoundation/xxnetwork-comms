@@ -9,6 +9,7 @@ package publicAddress
 
 import (
 	"fmt"
+	jww "github.com/spf13/jwalterweatherman"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -65,12 +66,12 @@ func MakeTestLookupService(ip string, i interface{}) ([]Service, *httptest.Serve
 	case *testing.T, *testing.M, *testing.B, *testing.PB:
 		break
 	default:
-		panic("Provided interface is not for testing.")
+		jww.FATAL.Panicf("Provided interface is not for testing: %T", i)
 	}
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if _, err := fmt.Fprint(w, ip); err != nil {
-			panic(err)
+			jww.FATAL.Panicf("Failed to write to response writer: %+v", err)
 		}
 	}))
 
