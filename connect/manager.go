@@ -106,9 +106,16 @@ func (m *Manager) DisconnectAll() {
 // Implements Stringer for debug printing
 func (m *Manager) String() string {
 	var result bytes.Buffer
+	i := uint32(0)
+	result.WriteString(fmt.Sprintf("Host Manager Connections\n"))
 	for k, host := range m.connections {
-		result.WriteString(fmt.Sprintf("[%s]: %+v",
-			(&k).String(), host))
+		isConnected, _ := host.Connected()
+		if isConnected {
+			i++
+		}
+		result.WriteString(fmt.Sprintf("[%s] IsConnected: %t\n",
+			(&k).String(), isConnected))
 	}
+	result.WriteString(fmt.Sprintf("%d/%d Hosts connected", i, len(m.connections)))
 	return result.String()
 }
