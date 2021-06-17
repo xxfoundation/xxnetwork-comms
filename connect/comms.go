@@ -170,17 +170,6 @@ listen:
 			grpc.KeepaliveEnforcementPolicy(KaEnforcement))
 	}
 
-	// Intermittantly print manager connection information
-	go func() {
-		ticker := time.NewTicker(60 * time.Second)
-		for {
-			select {
-			case _ = <-ticker.C:
-				jww.INFO.Printf(pc.Manager.String())
-			}
-		}
-	}()
-
 	return pc, lis, nil
 }
 

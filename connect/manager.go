@@ -16,6 +16,7 @@ import (
 	"gitlab.com/xx_network/primitives/id"
 	"sync"
 	"testing"
+	"time"
 )
 
 // The Manager object provides thread-safe access
@@ -101,6 +102,19 @@ func (m *Manager) DisconnectAll() {
 	for _, host := range m.connections {
 		host.Disconnect()
 	}
+}
+
+// StartConnectionReport begins intermittently printing connection information
+func (m *Manager) StartConnectionReport() {
+	go func() {
+		ticker := time.NewTicker(60 * time.Second)
+		for {
+			select {
+			case _ = <-ticker.C:
+				jww.INFO.Printf(m.String())
+			}
+		}
+	}()
 }
 
 // Implements Stringer for debug printing
