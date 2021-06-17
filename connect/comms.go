@@ -26,8 +26,6 @@ import (
 	"time"
 )
 
-const infinityTime = time.Duration(math.MaxInt64)
-
 // MaxWindowSize 4 MB
 const MaxWindowSize = math.MaxInt32
 
@@ -40,16 +38,16 @@ var KaOpts = keepalive.ServerParameters{
 	MaxConnectionAge: 1 * time.Hour,
 	// w/ 1m grace shutdown
 	MaxConnectionAgeGrace: 1 * time.Minute,
-	// Never ping to keepalive
-	Time: infinityTime,
-	// Close connection 60 seconds after ping
+	// Send keepAlive every Time interval
+	Time: 5 * time.Second,
+	// Timeout after last successful keepAlive to close connection
 	Timeout: 60 * time.Second,
 }
 
 // KaEnforcement are keepalive enforcement options for servers
 var KaEnforcement = keepalive.EnforcementPolicy{
-	// Client should never send keep alive ping
-	MinTime: infinityTime,
+	// Send keepAlive every Time interval
+	MinTime: 5 * time.Second,
 	// Doing KA on non-streams is OK
 	PermitWithoutStream: true,
 }
