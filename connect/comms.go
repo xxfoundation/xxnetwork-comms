@@ -27,6 +27,7 @@ import (
 )
 
 // TODO: Set these via config
+const infinityTime = time.Duration(math.MaxInt64)
 
 // KaOpts are Keepalive options for servers
 var KaOpts = keepalive.ServerParameters{
