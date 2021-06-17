@@ -26,10 +26,13 @@ import (
 	"time"
 )
 
-// TODO: Set these via config
 const infinityTime = time.Duration(math.MaxInt64)
 
+// MaxWindowSize 4 MB
+const MaxWindowSize = math.MaxInt32
+
 // KaOpts are Keepalive options for servers
+// TODO: Set these via config
 var KaOpts = keepalive.ServerParameters{
 	// Idle for at most 60s
 	MaxConnectionIdle: 60 * time.Second,
