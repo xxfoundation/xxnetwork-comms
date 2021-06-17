@@ -8,6 +8,7 @@
 package connect
 
 import (
+	"google.golang.org/grpc/keepalive"
 	"time"
 )
 
@@ -34,6 +35,9 @@ type HostParams struct {
 	// List of sending errors that are deemed unimportant
 	// Reception of these errors will not update the Metric state
 	ExcludeMetricErrors []string
+
+	// KeepAlive Options for Host connections
+	KaClientOpts keepalive.ClientParameters
 }
 
 // GetDefaultHostParams Get default set of host params
@@ -47,5 +51,13 @@ func GetDefaultHostParams() HostParams {
 		SendTimeout:           2 * time.Minute,
 		EnableMetrics:         false,
 		ExcludeMetricErrors:   make([]string, 0),
+		KaClientOpts: keepalive.ClientParameters{
+			// Send keepAlive every Time interval
+			Time: 5 * time.Second,
+			// Timeout after last successful keepAlive to close connection
+			Timeout: 60 * time.Second,
+			// For all connections, with and without streaming
+			PermitWithoutStream: true,
+		},
 	}
 }
