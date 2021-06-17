@@ -47,7 +47,7 @@ var KaOpts = keepalive.ServerParameters{
 // KaEnforcement are keepalive enforcement options for servers
 var KaEnforcement = keepalive.EnforcementPolicy{
 	// Send keepAlive every Time interval
-	MinTime: 5 * time.Second,
+	MinTime: 3 * time.Second,
 	// Doing KA on non-streams is OK
 	PermitWithoutStream: true,
 }
