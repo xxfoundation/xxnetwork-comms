@@ -104,13 +104,15 @@ func (c *Comms) SendRegisterFact(host *connect.Host, message *pb.FactRegisterReq
 	}
 
 	// Execute the Send function
-	jww.TRACE.Printf("Sending Delete message: %+v", message)
-	_, err := c.Send(host, f)
+	jww.TRACE.Printf("Sending Register Fact message: %+v", message)
+	resultMsg, err := c.Send(host, f)
 	if err != nil {
 		return nil, err
 	}
 
-	return &pb.FactRegisterResponse{}, nil
+	result := &pb.FactRegisterResponse{}
+
+	return result, ptypes.UnmarshalAny(resultMsg, result)
 }
 
 // Client -> User Discovery Delete Fact Function
