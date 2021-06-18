@@ -122,6 +122,8 @@ func (m *Manager) String() string {
 	var result bytes.Buffer
 	i := uint32(0)
 	result.WriteString(fmt.Sprintf("Host Manager Connections\n"))
+
+	m.mux.RLock()
 	for k, host := range m.connections {
 		isConnected, _ := host.Connected()
 		if isConnected {
@@ -130,6 +132,7 @@ func (m *Manager) String() string {
 		result.WriteString(fmt.Sprintf("[%s] IsConnected: %t\n",
 			(&k).String(), isConnected))
 	}
+	m.mux.RUnlock()
 	result.WriteString(fmt.Sprintf("%d/%d Hosts connected", i, len(m.connections)))
 	return result.String()
 }
