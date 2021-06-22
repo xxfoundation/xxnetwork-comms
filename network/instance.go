@@ -733,10 +733,13 @@ func (i *Instance) updateConns(def *ndf.NetworkDefinition, isGateway, isNode boo
 						"hard coded ID. Invalid ID: %v", nid.Marshal())
 				}
 
-				_, err := i.comm.AddHost(nid, addr, []byte(node.TlsCertificate), connect.GetDefaultHostParams())
+				host, err := i.comm.AddHost(nid, addr, []byte(node.TlsCertificate), connect.GetDefaultHostParams())
 				if err != nil {
 					return errors.WithMessagef(err, "Could not add isNode host %s", nid)
 				}
+
+				// 10k batch size * 8192 packet size * 2
+				host.SetWindowSize(connect.MaxWindowSize)
 
 				// Send events into Node Listener
 				if i.addNode != nil {

@@ -35,8 +35,21 @@ func (g *Comms) RequestToken(context.Context, *messages.Ping) (*messages.AssignT
 func (g *Comms) PutMessage(ctx context.Context, msg *pb.GatewaySlot) (*pb.GatewaySlotResponse,
 	error) {
 
-	// Upload a message to the cMix Gateway at the peer's IP address
+	// Upload a message to the cMix Gateway
 	returnMsg, err := g.handler.PutMessage(msg)
+	if err != nil {
+		returnMsg = &pb.GatewaySlotResponse{}
+
+	}
+	return returnMsg, err
+}
+
+// Upload many messages to the cMix Gateway
+func (g *Comms) PutManyMessages(ctx context.Context, msgs *pb.GatewaySlots) (*pb.GatewaySlotResponse,
+	error) {
+
+	// Upload messages to the cMix Gateway
+	returnMsg, err := g.handler.PutManyMessages(msgs)
 	if err != nil {
 		returnMsg = &pb.GatewaySlotResponse{}
 
