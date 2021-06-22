@@ -442,7 +442,7 @@ func TestProtoComms_DisableAuth(t *testing.T) {
 }
 
 // newContextTesting constructs a context.Context object on
-// the local Unix default TCP port
+// the local Unix default domain (UDP) port
 func newContextTesting(t *testing.T) (context.Context, context.CancelFunc) {
 	protoCtx, cancel := newContext(time.Second)
 	timeout := 1 * time.Second
