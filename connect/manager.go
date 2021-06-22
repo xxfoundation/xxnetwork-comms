@@ -16,6 +16,7 @@ import (
 	"gitlab.com/xx_network/primitives/id"
 	"sync"
 	"testing"
+	"time"
 )
 
 // The Manager object provides thread-safe access
@@ -103,12 +104,35 @@ func (m *Manager) DisconnectAll() {
 	}
 }
 
+// StartConnectionReport begins intermittently printing connection information
+func (m *Manager) StartConnectionReport() {
+	go func() {
+		ticker := time.NewTicker(60 * time.Second)
+		for {
+			select {
+			case _ = <-ticker.C:
+				jww.INFO.Printf(m.String())
+			}
+		}
+	}()
+}
+
 // Implements Stringer for debug printing
 func (m *Manager) String() string {
 	var result bytes.Buffer
+	i := uint32(0)
+	result.WriteString(fmt.Sprintf("Host Manager Connections\n"))
+
+	m.mux.RLock()
 	for k, host := range m.connections {
-		result.WriteString(fmt.Sprintf("[%s]: %+v",
-			(&k).String(), host))
+		isConnected, _ := host.Connected()
+		if isConnected {
+			i++
+		}
+		result.WriteString(fmt.Sprintf("[%s] IsConnected: %t\n",
+			(&k).String(), isConnected))
 	}
+	m.mux.RUnlock()
+	result.WriteString(fmt.Sprintf("%d/%d Hosts connected", i, len(m.connections)))
 	return result.String()
 }

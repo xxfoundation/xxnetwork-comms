@@ -22,7 +22,6 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/credentials"
-	"google.golang.org/grpc/keepalive"
 	"math"
 	"net"
 	"strings"
@@ -31,22 +30,6 @@ import (
 	"testing"
 	"time"
 )
-
-const infinityTime = time.Duration(math.MaxInt64)
-
-//4 MB
-const MaxWindowSize = math.MaxInt32
-
-// KaClientOpts are the keepalive options for clients
-// TODO: Set via configuration
-var KaClientOpts = keepalive.ClientParameters{
-	// Never ping to keepalive
-	Time: infinityTime,
-	// 60s after ping before closing
-	Timeout: 60 * time.Second,
-	// For all connections, with and without streaming
-	PermitWithoutStream: true,
-}
 
 // Information used to describe a connection to a host
 type Host struct {
@@ -396,7 +379,7 @@ func (h *Host) connectHelper() (err error) {
 
 		dialOpts := []grpc.DialOption{
 			grpc.WithBlock(),
-			grpc.WithKeepaliveParams(KaClientOpts),
+			grpc.WithKeepaliveParams(h.params.KaClientOpts),
 			securityDial,
 		}
 
