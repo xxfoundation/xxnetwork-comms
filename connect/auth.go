@@ -269,7 +269,7 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage, ctx con
 		return &Auth{
 			IsAuthenticated: false,
 			Sender:          &Host{},
-			IpAddress: ipAddr,
+			IpAddress:       ipAddr,
 			Reason: fmt.Sprintf("Host {%v} cannot be "+
 				"unmarshaled: %s", msg.ID, err),
 		}, nil
@@ -281,7 +281,7 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage, ctx con
 		return &Auth{
 			IsAuthenticated: false,
 			Sender:          &Host{},
-			IpAddress: ipAddr,
+			IpAddress:       ipAddr,
 			Reason:          fmt.Sprintf("Host {%s} cannot be found", msgID),
 		}, nil
 	}
@@ -291,7 +291,7 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage, ctx con
 		return &Auth{
 			IsAuthenticated: false,
 			Sender:          host,
-			IpAddress: ipAddr,
+			IpAddress:       ipAddr,
 			Reason:          fmt.Sprintf("Token {%v} cannot be unmarshaled", msg.Token),
 		}, nil
 	}
@@ -302,7 +302,7 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage, ctx con
 		return &Auth{
 			IsAuthenticated: false,
 			Sender:          host,
-			IpAddress: ipAddr,
+			IpAddress:       ipAddr,
 			Reason: fmt.Sprintf("failed to authenticate token %v, "+
 				"no reception token for %s", remoteToken, host.id),
 		}, nil
@@ -313,7 +313,7 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage, ctx con
 		return &Auth{
 			IsAuthenticated: false,
 			Sender:          host,
-			IpAddress: ipAddr,
+			IpAddress:       ipAddr,
 			Reason: fmt.Sprintf("failed to authenticate token %v, "+
 				"does not match reception token %v for %s", remoteToken,
 				receptionToken, host.id),
@@ -324,7 +324,7 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage, ctx con
 	res := &Auth{
 		IsAuthenticated: true,
 		Sender:          host,
-		IpAddress: ipAddr,
+		IpAddress:       ipAddr,
 		Reason:          "authenticated",
 	}
 

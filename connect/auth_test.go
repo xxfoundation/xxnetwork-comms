@@ -99,6 +99,7 @@ func TestProtoComms_AuthenticatedReceiver(t *testing.T) {
 
 	// Construct a context object
 	ctx := newContextTesting(t)
+	defer ctx.Done()
 
 	// Try the authenticated received
 	auth, err := pc.AuthenticatedReceiver(msg, ctx)
@@ -152,9 +153,9 @@ func TestProtoComms_AuthenticatedReceiver_BadId(t *testing.T) {
 		Message:   nil,
 	}
 
-
 	// Construct a context object
 	ctx := newContextTesting(t)
+	defer ctx.Done()
 
 	// Try the authenticated received
 	a, _ := pc.AuthenticatedReceiver(msg, ctx)
@@ -440,9 +441,9 @@ func TestProtoComms_DisableAuth(t *testing.T) {
 
 // newContextTesting constructs a context.Context object on
 // the local Unix default TCP port
-func newContextTesting(t *testing.T)  context.Context {
+func newContextTesting(t *testing.T) context.Context {
 	protoCtx, _ := newContext(time.Second)
-	timeout := 1* time.Second
+	timeout := 1 * time.Second
 	conn, err := net.DialTimeout("udp", "0.0.0.0:53", timeout)
 	if err != nil {
 		t.Fatalf("Failed to get a conn object in setup: %v", err)
