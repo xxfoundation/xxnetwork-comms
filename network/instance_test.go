@@ -1204,12 +1204,12 @@ func TestInstance_GetNodeAndGateway(t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(nodeGw.Gateway, expectedGateway) {
-		t.Errorf("Unexpected value in gateway." +
+		t.Errorf("Unexpected value in gateway."+
 			"\n\tExpected: %v\n\tReceived: %v", expectedGateway, nodeGw.Gateway)
 	}
 
 	if !reflect.DeepEqual(nodeGw.Node, expectedNode) {
-		t.Errorf("Unexpected value in node." +
+		t.Errorf("Unexpected value in node."+
 			"\n\tExpected: %v\n\tReceived: %v", expectedNode, nodeGw.Node)
 	}
 }

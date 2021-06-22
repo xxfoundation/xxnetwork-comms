@@ -37,9 +37,9 @@ func (nb *Comms) RequestToken(context.Context, *messages.Ping) (*messages.Assign
 }
 
 // RegisterForNotifications event handler which registers a client with the notification bot
-func (nb *Comms) RegisterForNotifications(_ context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
+func (nb *Comms) RegisterForNotifications(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
 	// Check the authState of the message
-	authState, err := nb.AuthenticatedReceiver(msg)
+	authState, err := nb.AuthenticatedReceiver(msg, ctx)
 	if err != nil {
 		return nil, errors.Errorf("Failed to handle reception of AuthenticatedMessage: %+v", err)
 	}
@@ -57,9 +57,9 @@ func (nb *Comms) RegisterForNotifications(_ context.Context, msg *messages.Authe
 }
 
 // UnregisterForNotifications event handler which unregisters a client with the notification bot
-func (nb *Comms) UnregisterForNotifications(_ context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
+func (nb *Comms) UnregisterForNotifications(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
 	// Check the authState of the message
-	authState, err := nb.AuthenticatedReceiver(msg)
+	authState, err := nb.AuthenticatedReceiver(msg, ctx)
 	if err != nil {
 		return nil, errors.Errorf("Failed to handle reception of AuthenticatedMessage: %+v", err)
 	}
@@ -76,9 +76,9 @@ func (nb *Comms) UnregisterForNotifications(_ context.Context, msg *messages.Aut
 	return &messages.Ack{}, err
 }
 
-func (nb *Comms) ReceiveNotificationBatch(_ context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
+func (nb *Comms) ReceiveNotificationBatch(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
 	// Check the authState of the message
-	authState, err := nb.AuthenticatedReceiver(msg)
+	authState, err := nb.AuthenticatedReceiver(msg, ctx)
 	if err != nil {
 		return nil, errors.Errorf("Failed to handle reception of AuthenticatedMessage: %+v", err)
 	}

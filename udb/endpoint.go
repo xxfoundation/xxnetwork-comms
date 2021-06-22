@@ -41,7 +41,7 @@ func (u *Comms) RequestToken(context.Context, *messages.Ping) (*messages.AssignT
 
 func (u *Comms) RegisterUser(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
 	// Create an auth object
-	authState, err := u.AuthenticatedReceiver(msg)
+	authState, err := u.AuthenticatedReceiver(msg, ctx)
 	if err != nil {
 		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
 	}
@@ -58,7 +58,7 @@ func (u *Comms) RegisterUser(ctx context.Context, msg *messages.AuthenticatedMes
 
 func (u *Comms) RegisterFact(ctx context.Context, msg *messages.AuthenticatedMessage) (*pb.FactRegisterResponse, error) {
 	// Create an auth object
-	authState, err := u.AuthenticatedReceiver(msg)
+	authState, err := u.AuthenticatedReceiver(msg, ctx)
 	if err != nil {
 		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
 	}
@@ -75,7 +75,7 @@ func (u *Comms) RegisterFact(ctx context.Context, msg *messages.AuthenticatedMes
 
 func (u *Comms) ConfirmFact(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
 	// Create an auth object
-	authState, err := u.AuthenticatedReceiver(msg)
+	authState, err := u.AuthenticatedReceiver(msg, ctx)
 	if err != nil {
 		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
 	}
@@ -92,7 +92,7 @@ func (u *Comms) ConfirmFact(ctx context.Context, msg *messages.AuthenticatedMess
 
 func (u *Comms) RemoveFact(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
 	// Create an auth object
-	authState, err := u.AuthenticatedReceiver(msg)
+	authState, err := u.AuthenticatedReceiver(msg, ctx)
 	if err != nil {
 		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
 	}
