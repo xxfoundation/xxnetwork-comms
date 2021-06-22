@@ -442,8 +442,8 @@ func TestProtoComms_DisableAuth(t *testing.T) {
 // the local Unix default TCP port
 func newContextTesting(t *testing.T)  context.Context {
 	protoCtx, _ := newContext(time.Second)
-	timeout := 5 * time.Second
-	conn, err := net.DialTimeout("tcp", "0.0.0.0:631", timeout)
+	timeout := 1* time.Second
+	conn, err := net.DialTimeout("udp", "0.0.0.0:53", timeout)
 	if err != nil {
 		t.Fatalf("Failed to get a conn object in setup: %v", err)
 	}
