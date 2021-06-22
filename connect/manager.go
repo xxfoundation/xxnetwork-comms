@@ -107,7 +107,7 @@ func (m *Manager) DisconnectAll() {
 // StartConnectionReport begins intermittently printing connection information
 func (m *Manager) StartConnectionReport() {
 	go func() {
-		ticker := time.NewTicker(60 * time.Second)
+		ticker := time.NewTicker(5 * time.Minute)
 		for {
 			select {
 			case _ = <-ticker.C:
