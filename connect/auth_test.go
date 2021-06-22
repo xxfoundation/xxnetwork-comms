@@ -9,6 +9,7 @@ package connect
 
 import (
 	"bytes"
+	"context"
 	"github.com/golang/protobuf/ptypes"
 	token "gitlab.com/xx_network/comms/connect/token"
 	pb "gitlab.com/xx_network/comms/messages"
@@ -17,7 +18,10 @@ import (
 	"gitlab.com/xx_network/crypto/signature/rsa"
 	"gitlab.com/xx_network/crypto/xx"
 	"gitlab.com/xx_network/primitives/id"
+	"google.golang.org/grpc/peer"
+	"net"
 	"testing"
+	"time"
 )
 
 func TestSignVerify(t *testing.T) {
@@ -93,8 +97,11 @@ func TestProtoComms_AuthenticatedReceiver(t *testing.T) {
 		Message:   nil,
 	}
 
+	// Construct a context object
+	ctx := newContextTesting(t)
+
 	// Try the authenticated received
-	auth, err := pc.AuthenticatedReceiver(msg)
+	auth, err := pc.AuthenticatedReceiver(msg, ctx)
 	if err != nil {
 		t.Errorf("AuthenticatedReceiver() produced an error: %v", err)
 	}
@@ -145,8 +152,12 @@ func TestProtoComms_AuthenticatedReceiver_BadId(t *testing.T) {
 		Message:   nil,
 	}
 
+
+	// Construct a context object
+	ctx := newContextTesting(t)
+
 	// Try the authenticated received
-	a, _ := pc.AuthenticatedReceiver(msg)
+	a, _ := pc.AuthenticatedReceiver(msg, ctx)
 
 	if a.IsAuthenticated {
 		t.Errorf("Expected error path!"+
@@ -425,4 +436,20 @@ func TestProtoComms_DisableAuth(t *testing.T) {
 	if !comm.disableAuth {
 		t.Error("Auth was not disabled when DisableAuth was called")
 	}
+}
+
+// newContextTesting constructs a context.Context object on
+// the local Unix default TCP port
+func newContextTesting(t *testing.T)  context.Context {
+	protoCtx, _ := newContext(time.Second)
+	timeout := 5 * time.Second
+	conn, err := net.DialTimeout("tcp", "0.0.0.0:631", timeout)
+	if err != nil {
+		t.Fatalf("Failed to get a conn object in setup: %v", err)
+	}
+	p := &peer.Peer{
+		Addr: conn.RemoteAddr(),
+	}
+
+	return peer.NewContext(protoCtx, p)
 }

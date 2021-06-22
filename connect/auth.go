@@ -35,6 +35,8 @@ type Auth struct {
 	Sender *Host
 	// reason it isn't authenticated if authentication fails
 	Reason string
+	// The IP Address (excluding port) for the sending host
+	IpAddress string
 }
 
 // Perform the client handshake to establish reverse-authentication
@@ -253,13 +255,21 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) (err error) {
 
 // AuthenticatedReceiver handles reception of an AuthenticatedMessage,
 // checking if the host is authenticated & returning an Auth state
-func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) (*Auth, error) {
+func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage, ctx context.Context) (*Auth, error) {
+
+	// Retrieve the IP address
+	ipAddr, _, err := GetAddressFromContext(ctx)
+	if err != nil {
+		return &Auth{}, errors.Errorf("Failed to retrieve ip address from context: %v", err)
+	}
+
 	// Convert EntityID to ID
 	msgID, err := id.Unmarshal(msg.ID)
 	if err != nil {
 		return &Auth{
 			IsAuthenticated: false,
 			Sender:          &Host{},
+			IpAddress: ipAddr,
 			Reason: fmt.Sprintf("Host {%v} cannot be "+
 				"unmarshaled: %s", msg.ID, err),
 		}, nil
@@ -271,6 +281,7 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) (*Auth,
 		return &Auth{
 			IsAuthenticated: false,
 			Sender:          &Host{},
+			IpAddress: ipAddr,
 			Reason:          fmt.Sprintf("Host {%s} cannot be found", msgID),
 		}, nil
 	}
@@ -280,6 +291,7 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) (*Auth,
 		return &Auth{
 			IsAuthenticated: false,
 			Sender:          host,
+			IpAddress: ipAddr,
 			Reason:          fmt.Sprintf("Token {%v} cannot be unmarshaled", msg.Token),
 		}, nil
 	}
@@ -290,6 +302,7 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) (*Auth,
 		return &Auth{
 			IsAuthenticated: false,
 			Sender:          host,
+			IpAddress: ipAddr,
 			Reason: fmt.Sprintf("failed to authenticate token %v, "+
 				"no reception token for %s", remoteToken, host.id),
 		}, nil
@@ -300,6 +313,7 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) (*Auth,
 		return &Auth{
 			IsAuthenticated: false,
 			Sender:          host,
+			IpAddress: ipAddr,
 			Reason: fmt.Sprintf("failed to authenticate token %v, "+
 				"does not match reception token %v for %s", remoteToken,
 				receptionToken, host.id),
@@ -310,6 +324,7 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) (*Auth,
 	res := &Auth{
 		IsAuthenticated: true,
 		Sender:          host,
+		IpAddress: ipAddr,
 		Reason:          "authenticated",
 	}
 
