@@ -8,6 +8,7 @@
 package testutils
 
 import (
+	"context"
 	"crypto/rand"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
@@ -16,7 +17,10 @@ import (
 	"gitlab.com/xx_network/comms/signature"
 	"gitlab.com/xx_network/crypto/signature/ec"
 	"gitlab.com/xx_network/crypto/signature/rsa"
+	"google.golang.org/grpc/peer"
+	"net"
 	"testing"
+	"time"
 )
 
 const privKeyEncoded = `uVAt6d+y3XW699L3THlcoTA2utw2dhoqnX6821x6OcnOliwX84eajmp45IZ+STw0dUl8uJtZwDKDuHVX6ZpGzg==`
@@ -134,4 +138,32 @@ func SignRoundInfoEddsa(ri *pb.RoundInfo, key *ec.PrivateKey, i interface{}) err
 	}
 	return nil
 
+}
+
+// NewContextTesting constructs a context.Context object on
+// the local Unix default domain (UDP) port
+func NewContextTesting(i interface{}) (context.Context, context.CancelFunc) {
+	switch i.(type) {
+	case *testing.T:
+		break
+	case *testing.M:
+		break
+	case *testing.B:
+		break
+	default:
+		jww.FATAL.Panicf("SignRoundInfoEddsa is restricted to testing only. Got %T", i)
+	}
+
+	protoCtx, cancel := context.WithTimeout(context.Background(),
+		time.Second)
+	timeout := 1 * time.Second
+	conn, err := net.DialTimeout("udp", "0.0.0.0:53", timeout)
+	if err != nil {
+		jww.FATAL.Fatalf("Failed to get a conn object in setup: %v", err)
+	}
+	p := &peer.Peer{
+		Addr: conn.RemoteAddr(),
+	}
+
+	return peer.NewContext(protoCtx, p), cancel
 }

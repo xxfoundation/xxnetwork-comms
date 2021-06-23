@@ -86,7 +86,7 @@ func (r *Comms) PollNdf(ctx context.Context, ndfHash *pb.NDFHash) (*pb.NDF, erro
 // Server -> Permissioning unified polling
 func (r *Comms) Poll(ctx context.Context, msg *messages.AuthenticatedMessage) (*pb.PermissionPollResponse, error) {
 	// Create an auth object
-	authState, err := r.AuthenticatedReceiver(msg)
+	authState, err := r.AuthenticatedReceiver(msg, ctx)
 	if err != nil {
 		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
 	}

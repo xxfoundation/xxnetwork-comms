@@ -52,9 +52,9 @@ func (nb *Comms) UnregisterForNotifications(_ context.Context, msg *pb.Notificat
 	return &messages.Ack{}, err
 }
 
-func (nb *Comms) ReceiveNotificationBatch(_ context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
+func (nb *Comms) ReceiveNotificationBatch(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
 	// Check the authState of the message
-	authState, err := nb.AuthenticatedReceiver(msg)
+	authState, err := nb.AuthenticatedReceiver(msg, ctx)
 	if err != nil {
 		return nil, errors.Errorf("Failed to handle reception of AuthenticatedMessage: %+v", err)
 	}

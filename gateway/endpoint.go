@@ -74,7 +74,7 @@ func (g *Comms) ConfirmNonce(ctx context.Context,
 // Gateway -> Gateway message sharing within a team
 func (g *Comms) ShareMessages(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
 
-	authState, err := g.AuthenticatedReceiver(msg)
+	authState, err := g.AuthenticatedReceiver(msg, ctx)
 	if err != nil {
 		return nil, errors.Errorf("Unable to handle reception of AuthenticatedMessage: %+v", err)
 	}

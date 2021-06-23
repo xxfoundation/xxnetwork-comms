@@ -8,10 +8,10 @@
 package notificationBot
 
 import (
-	"context"
 	"gitlab.com/elixxir/comms/gateway"
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/testkeys"
+	"gitlab.com/elixxir/comms/testutils"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/gossip"
 	"gitlab.com/xx_network/primitives/id"
@@ -40,7 +40,9 @@ func TestRegisterForNotifications(t *testing.T) {
 		gossip.DefaultManagerFlags())
 	defer gw.Shutdown()
 
-	ctx, _ := context.WithCancel(context.Background())
+	ctx, cancel := testutils.NewContextTesting(t)
+	defer cancel()
+	defer ctx.Done()
 
 	//Init host and manager
 	manager := connect.NewManagerTesting(t)
@@ -76,7 +78,9 @@ func TestUnRegisterForNotifications(t *testing.T) {
 	notificationBot := StartNotificationBot(testId, notificationBotAddress,
 		NewImplementation(), certData, keyData)
 	defer notificationBot.Shutdown()
-	ctx, _ := context.WithCancel(context.Background())
+	ctx, cancel := testutils.NewContextTesting(t)
+	defer cancel()
+	defer ctx.Done()
 
 	//Init host and manager
 	manager := connect.NewManagerTesting(t)

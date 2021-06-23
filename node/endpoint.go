@@ -40,7 +40,7 @@ func (s *Comms) RequestToken(context.Context, *messages.Ping) (*messages.AssignT
 // Handle a NewRound event
 func (s *Comms) CreateNewRound(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
 	// Verify the message authentication
-	authState, err := s.AuthenticatedReceiver(msg)
+	authState, err := s.AuthenticatedReceiver(msg, ctx)
 	if err != nil {
 		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
 	}
@@ -59,7 +59,7 @@ func (s *Comms) CreateNewRound(ctx context.Context, msg *messages.AuthenticatedM
 // PostNewBatch polls the first node and sends a batch when it is ready
 func (s *Comms) PostNewBatch(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
 	// Verify the message authentication
-	authState, err := s.AuthenticatedReceiver(msg)
+	authState, err := s.AuthenticatedReceiver(msg, ctx)
 	if err != nil {
 		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
 	}
@@ -80,7 +80,7 @@ func (s *Comms) PostNewBatch(ctx context.Context, msg *messages.AuthenticatedMes
 func (s *Comms) PostPhase(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack,
 	error) {
 	// Verify the message authentication
-	authState, err := s.AuthenticatedReceiver(msg)
+	authState, err := s.AuthenticatedReceiver(msg, ctx)
 	if err != nil {
 		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
 	}
@@ -106,7 +106,7 @@ func (s *Comms) StreamPostPhase(server pb.Node_StreamPostPhaseServer) error {
 		return errors.Errorf("Unable to extract authentication info: %+v", err)
 	}
 
-	authState, err := s.AuthenticatedReceiver(authMsg)
+	authState, err := s.AuthenticatedReceiver(authMsg, server.Context())
 	if err != nil {
 		return errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
 	}
@@ -121,7 +121,7 @@ func (s *Comms) GetRoundBufferInfo(ctx context.Context,
 	*pb.RoundBufferInfo, error) {
 
 	// Verify the message authentication
-	authState, err := s.AuthenticatedReceiver(msg)
+	authState, err := s.AuthenticatedReceiver(msg, ctx)
 	if err != nil {
 		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
 	}
@@ -138,7 +138,7 @@ func (s *Comms) RequestNonce(ctx context.Context,
 	msg *messages.AuthenticatedMessage) (*pb.Nonce, error) {
 
 	// Verify the message authentication
-	authState, err := s.AuthenticatedReceiver(msg)
+	authState, err := s.AuthenticatedReceiver(msg, ctx)
 	if err != nil {
 		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
 	}
@@ -165,7 +165,7 @@ func (s *Comms) ConfirmRegistration(ctx context.Context,
 	msg *messages.AuthenticatedMessage) (*pb.RegistrationConfirmation, error) {
 
 	// Verify the message authentication
-	authState, err := s.AuthenticatedReceiver(msg)
+	authState, err := s.AuthenticatedReceiver(msg, ctx)
 	if err != nil {
 		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
 	}
@@ -186,7 +186,7 @@ func (s *Comms) PostPrecompResult(ctx context.Context,
 	msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
 
 	// Verify the message authentication
-	authState, err := s.AuthenticatedReceiver(msg)
+	authState, err := s.AuthenticatedReceiver(msg, ctx)
 	if err != nil {
 		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
 	}
@@ -207,7 +207,7 @@ func (s *Comms) PostPrecompResult(ctx context.Context,
 // FinishRealtime broadcasts to all nodes when the realtime is completed
 func (s *Comms) FinishRealtime(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
 	// Verify the message authentication
-	authState, err := s.AuthenticatedReceiver(msg)
+	authState, err := s.AuthenticatedReceiver(msg, ctx)
 	if err != nil {
 		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
 	}
@@ -229,7 +229,7 @@ func (s *Comms) FinishRealtime(ctx context.Context, msg *messages.AuthenticatedM
 func (s *Comms) GetCompletedBatch(ctx context.Context,
 	msg *messages.AuthenticatedMessage) (*pb.Batch, error) {
 
-	authState, err := s.AuthenticatedReceiver(msg)
+	authState, err := s.AuthenticatedReceiver(msg, ctx)
 	if err != nil {
 		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
 	}
@@ -238,7 +238,7 @@ func (s *Comms) GetCompletedBatch(ctx context.Context,
 
 func (s *Comms) GetMeasure(ctx context.Context, msg *messages.AuthenticatedMessage) (*pb.RoundMetrics, error) {
 	// Verify the message authentication
-	authState, err := s.AuthenticatedReceiver(msg)
+	authState, err := s.AuthenticatedReceiver(msg, ctx)
 	if err != nil {
 		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
 	}
@@ -256,7 +256,7 @@ func (s *Comms) GetMeasure(ctx context.Context, msg *messages.AuthenticatedMessa
 
 // Gateway -> Server unified polling
 func (s *Comms) Poll(ctx context.Context, msg *messages.AuthenticatedMessage) (*pb.ServerPollResponse, error) {
-	authState, err := s.AuthenticatedReceiver(msg)
+	authState, err := s.AuthenticatedReceiver(msg, ctx)
 	if err != nil {
 		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
 	}
@@ -271,7 +271,7 @@ func (s *Comms) Poll(ctx context.Context, msg *messages.AuthenticatedMessage) (*
 }
 
 func (s *Comms) RoundError(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
-	authState, err := s.AuthenticatedReceiver(msg)
+	authState, err := s.AuthenticatedReceiver(msg, ctx)
 	if err != nil {
 		return nil, errors.Errorf("Unable to handle reception of AuthenticatedMessage: %+v", err)
 	}
@@ -286,7 +286,7 @@ func (s *Comms) RoundError(ctx context.Context, msg *messages.AuthenticatedMessa
 
 func (s *Comms) SendRoundTripPing(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
 	// Verify the message authentication
-	authState, err := s.AuthenticatedReceiver(msg)
+	authState, err := s.AuthenticatedReceiver(msg, ctx)
 	if err != nil {
 		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
 	}
@@ -313,7 +313,7 @@ func (s *Comms) GetPermissioningAddress(context.Context, *messages.Ping) (*pb.St
 // Server -> Server initiating multi-party round DH key generation
 func (s *Comms) StartSharePhase(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
 	// Verify the message authentication
-	authState, err := s.AuthenticatedReceiver(msg)
+	authState, err := s.AuthenticatedReceiver(msg, ctx)
 	if err != nil {
 		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
 	}
@@ -332,7 +332,7 @@ func (s *Comms) StartSharePhase(ctx context.Context, msg *messages.Authenticated
 // Server -> Server passing state of multi-party round DH key generation
 func (s *Comms) SharePhaseRound(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
 	// Verify the message authentication
-	authState, err := s.AuthenticatedReceiver(msg)
+	authState, err := s.AuthenticatedReceiver(msg, ctx)
 	if err != nil {
 		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
 	}
@@ -351,7 +351,7 @@ func (s *Comms) SharePhaseRound(ctx context.Context, msg *messages.Authenticated
 // Server -> Server sending multi-party round DH final key
 func (s *Comms) ShareFinalKey(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
 	// Verify the message authentication
-	authState, err := s.AuthenticatedReceiver(msg)
+	authState, err := s.AuthenticatedReceiver(msg, ctx)
 	if err != nil {
 		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
 	}
