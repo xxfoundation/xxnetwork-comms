@@ -37,40 +37,16 @@ func (nb *Comms) RequestToken(context.Context, *messages.Ping) (*messages.Assign
 }
 
 // RegisterForNotifications event handler which registers a client with the notification bot
-func (nb *Comms) RegisterForNotifications(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
-	// Check the authState of the message
-	authState, err := nb.AuthenticatedReceiver(msg, ctx)
-	if err != nil {
-		return nil, errors.Errorf("Failed to handle reception of AuthenticatedMessage: %+v", err)
-	}
-
-	req := &pb.NotificationRegisterRequest{}
-	err = ptypes.UnmarshalAny(msg.Message, req)
-	if err != nil {
-		return nil, err
-	}
-
-	err = nb.handler.RegisterForNotifications(req, authState)
+func (nb *Comms) RegisterForNotifications(_ context.Context, msg *pb.NotificationRegisterRequest) (*messages.Ack, error) {
+	err := nb.handler.RegisterForNotifications(msg)
 
 	// Return the confirmation message
 	return &messages.Ack{}, err
 }
 
 // UnregisterForNotifications event handler which unregisters a client with the notification bot
-func (nb *Comms) UnregisterForNotifications(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
-	// Check the authState of the message
-	authState, err := nb.AuthenticatedReceiver(msg, ctx)
-	if err != nil {
-		return nil, errors.Errorf("Failed to handle reception of AuthenticatedMessage: %+v", err)
-	}
-
-	req := &pb.NotificationUnregisterRequest{}
-	err = ptypes.UnmarshalAny(msg.Message, req)
-	if err != nil {
-		return nil, err
-	}
-
-	err = nb.handler.UnregisterForNotifications(req, authState)
+func (nb *Comms) UnregisterForNotifications(_ context.Context, msg *pb.NotificationUnregisterRequest) (*messages.Ack, error) {
+	err := nb.handler.UnregisterForNotifications(msg)
 
 	// Return the confirmation message
 	return &messages.Ack{}, err

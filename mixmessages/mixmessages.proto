@@ -496,11 +496,11 @@ message PermissionPollResponse {
 // NotificationBot service definition
 service NotificationBot {
     // Unregister clients from push notifications
-    rpc UnregisterForNotifications (messages.AuthenticatedMessage) returns (messages.Ack) {
+    rpc UnregisterForNotifications (NotificationUnregisterRequest) returns (messages.Ack) {
     }
 
     // Register clients from push notifications
-    rpc RegisterForNotifications (messages.AuthenticatedMessage) returns (messages.Ack) {
+    rpc RegisterForNotifications (NotificationRegisterRequest) returns (messages.Ack) {
     }
 
     // Gateway -> Notifications notification data
