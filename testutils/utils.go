@@ -21,8 +21,6 @@ import (
 
 const privKeyEncoded = `uVAt6d+y3XW699L3THlcoTA2utw2dhoqnX6821x6OcnOliwX84eajmp45IZ+STw0dUl8uJtZwDKDuHVX6ZpGzg==`
 
-
-
 func LoadPublicKeyTesting(i interface{}) (*rsa.PublicKey, error) {
 	switch i.(type) {
 	case *testing.T:
