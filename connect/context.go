@@ -10,6 +10,7 @@
 package connect
 
 import (
+	"errors"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc/peer"
 	"net"
@@ -33,7 +34,10 @@ func StreamingContext() (context.Context, context.CancelFunc) {
 
 // GetAddressFromContext obtains address:port from the context of an incoming communication
 func GetAddressFromContext(ctx context.Context) (address string, port string, err error) {
-	info, _ := peer.FromContext(ctx)
+	info, ok := peer.FromContext(ctx)
+	if !ok {
+		return address, port, errors.New("Could not retrieve peer information from context")
+	}
 	address, port, err = net.SplitHostPort(info.Addr.String())
 	return
 }
