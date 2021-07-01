@@ -7,7 +7,7 @@
 
 // Contains callback interface for registration functionality
 
-package registration
+package authorizer
 
 import (
 	"context"

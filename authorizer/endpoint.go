@@ -7,7 +7,7 @@
 
 // Contains registration server gRPC endpoints
 
-package registration
+package authorizer
 
 import (
 	"context"
