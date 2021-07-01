@@ -5,14 +5,13 @@
 // LICENSE file                                                              //
 ///////////////////////////////////////////////////////////////////////////////
 
-// Contains registration server gRPC endpoints
+// Contains authorizer server gRPC endpoints
 
 package authorizer
 
 import (
 	"context"
 
-	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/messages"
@@ -38,5 +37,5 @@ func (r *Comms) RequestToken(context.Context, *messages.Ping) (*messages.AssignT
 
 // Authorizes a node to talk to permissioning
 func (r *Comms) Authorize(ctx context.Context, auth *pb.AuthorizerAuth) (ack *messages.Ack, err error) {
-	return &messages.Ack{}, errors.Errorf("Authorizer: Authorize unimplemented!")
+	return r.handler.Authorize(auth)
 }

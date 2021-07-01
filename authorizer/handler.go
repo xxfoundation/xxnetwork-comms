@@ -5,12 +5,11 @@
 // LICENSE file                                                              //
 ///////////////////////////////////////////////////////////////////////////////
 
-// Contains callback interface for registration functionality
+// Contains callback interface for authorizer functionality
 
 package authorizer
 
 import (
-	"context"
 	"runtime/debug"
 
 	"github.com/pkg/errors"
@@ -22,7 +21,7 @@ import (
 	"google.golang.org/grpc/reflection"
 )
 
-// Registration object used to implement
+// Authorizer object used to implement
 // endpoints and top-level comms functionality
 type Comms struct {
 	*connect.ProtoComms
@@ -56,7 +55,7 @@ func StartRegistrationServer(id *id.ID, localServer string, handler Handler,
 			err = errors.New(err.Error())
 			jww.FATAL.Panicf("Failed to serve: %+v", err)
 		}
-		jww.INFO.Printf("Shutting down registration server listener:"+
+		jww.INFO.Printf("Shutting down authorizer server listener:"+
 			" %s", lis)
 	}()
 
@@ -64,11 +63,11 @@ func StartRegistrationServer(id *id.ID, localServer string, handler Handler,
 }
 
 type Handler interface {
-	Authorize(ctx context.Context, auth *pb.AuthorizerAuth) (ack *messages.Ack, err error)
+	Authorize(auth *pb.AuthorizerAuth) (ack *messages.Ack, err error)
 }
 
 type implementationFunctions struct {
-	Authorize func(ctx context.Context, auth *pb.AuthorizerAuth) (ack *messages.Ack, err error)
+	Authorize func(auth *pb.AuthorizerAuth) (ack *messages.Ack, err error)
 }
 
 // Implementation allows users of the client library to set the
@@ -88,7 +87,7 @@ func NewImplementation() *Implementation {
 	return &Implementation{
 		Functions: implementationFunctions{
 
-			Authorize: func(ctx context.Context, auth *pb.AuthorizerAuth) (ack *messages.Ack, err error) {
+			Authorize: func(auth *pb.AuthorizerAuth) (ack *messages.Ack, err error) {
 				warn(um)
 				return &messages.Ack{}, nil
 			},
@@ -97,6 +96,6 @@ func NewImplementation() *Implementation {
 }
 
 // Authorizes a node to talk to permissioning
-func (s *Implementation) Authorize(ctx context.Context, auth *pb.AuthorizerAuth) (ack *messages.Ack, err error) {
-	return s.Functions.Authorize(ctx, auth)
+func (s *Implementation) Authorize(auth *pb.AuthorizerAuth) (ack *messages.Ack, err error) {
+	return s.Functions.Authorize(auth)
 }
