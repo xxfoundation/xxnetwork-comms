@@ -31,7 +31,7 @@ type Comms struct {
 // Starts a new server on the address:port specified by localServer
 // and a callback interface for server operations
 // with given path to public and private key for TLS connection
-func StartRegistrationServer(id *id.ID, localServer string, handler Handler,
+func StartAuthorizerServer(id *id.ID, localServer string, handler Handler,
 	certPEMblock, keyPEMblock []byte) *Comms {
 
 	pc, lis, err := connect.StartCommServer(id, localServer,
