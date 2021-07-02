@@ -37,5 +37,6 @@ func (r *Comms) RequestToken(context.Context, *messages.Ping) (*messages.AssignT
 
 // Authorizes a node to talk to permissioning
 func (r *Comms) Authorize(ctx context.Context, auth *pb.AuthorizerAuth) (ack *messages.Ack, err error) {
-	return r.handler.Authorize(auth)
+	returned_err := r.handler.Authorize(auth)
+	return &messages.Ack{Error: returned_err.Error()}, returned_err
 }

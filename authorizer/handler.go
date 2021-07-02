@@ -63,11 +63,11 @@ func StartAuthorizerServer(id *id.ID, localServer string, handler Handler,
 }
 
 type Handler interface {
-	Authorize(auth *pb.AuthorizerAuth) (ack *messages.Ack, err error)
+	Authorize(auth *pb.AuthorizerAuth) (err error)
 }
 
 type implementationFunctions struct {
-	Authorize func(auth *pb.AuthorizerAuth) (ack *messages.Ack, err error)
+	Authorize func(auth *pb.AuthorizerAuth) (err error)
 }
 
 // Implementation allows users of the client library to set the
@@ -87,15 +87,15 @@ func NewImplementation() *Implementation {
 	return &Implementation{
 		Functions: implementationFunctions{
 
-			Authorize: func(auth *pb.AuthorizerAuth) (ack *messages.Ack, err error) {
+			Authorize: func(auth *pb.AuthorizerAuth) (err error) {
 				warn(um)
-				return &messages.Ack{}, nil
+				return nil
 			},
 		},
 	}
 }
 
 // Authorizes a node to talk to permissioning
-func (s *Implementation) Authorize(auth *pb.AuthorizerAuth) (ack *messages.Ack, err error) {
+func (s *Implementation) Authorize(auth *pb.AuthorizerAuth) (err error) {
 	return s.Functions.Authorize(auth)
 }
