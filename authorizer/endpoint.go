@@ -14,6 +14,7 @@ import (
 
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
+	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/messages"
 )
 
@@ -37,7 +38,11 @@ func (r *Comms) RequestToken(context.Context, *messages.Ping) (*messages.AssignT
 
 // Authorizes a node to talk to permissioning
 func (r *Comms) Authorize(ctx context.Context, auth *pb.AuthorizerAuth) (ack *messages.Ack, err error) {
-	returned_err := r.handler.Authorize(auth)
+	address, _, err := connect.GetAddressFromContext(ctx)
+	if err != nil {
+		return &messages.Ack{Error: err.Error()}, err
+	}
+	returned_err := r.handler.Authorize(auth, address)
 	errString := ""
 	if err != nil {
 		errString = err.Error()

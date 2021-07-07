@@ -36,7 +36,7 @@ func TestTLS(t *testing.T) {
 	testId := id.NewIdFromString("test", id.Generic, t)
 
 	impl := NewImplementation()
-	impl.Functions.Authorize = func(auth *pb.AuthorizerAuth) (err error) {
+	impl.Functions.Authorize = func(auth *pb.AuthorizerAuth, ipAddr string) (err error) {
 		return errors.New("This function ran")
 	}
 
