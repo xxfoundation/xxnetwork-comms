@@ -644,3 +644,18 @@ message RoundError {
     string        Error = 3;
     messages.RSASignature  Signature = 4;
 }
+
+// AUTHORIZER SERVICE ----------------------------------------------------------
+
+service Authorizer{
+    rpc Authorize(AuthorizerAuth) returns (messages.Ack) {
+    }
+}
+
+message AuthorizerAuth{
+    bytes NodeID = 1;
+    bytes Salt = 2;
+    bytes PubkeyPem = 3;
+    int64 TimeStamp = 4;
+    bytes signature = 5;
+}
