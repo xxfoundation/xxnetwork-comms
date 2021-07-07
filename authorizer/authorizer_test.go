@@ -1,6 +1,7 @@
 package authorizer
 
 import (
+	"errors"
 	"fmt"
 	"sync"
 	"testing"
@@ -36,7 +37,7 @@ func TestTLS(t *testing.T) {
 
 	impl := NewImplementation()
 	impl.Functions.Authorize = func(auth *pb.AuthorizerAuth) (err error) {
-		return nil
+		return errors.New("This function ran")
 	}
 
 	rg := StartAuthorizerServer(testId, RegAddress,
@@ -56,7 +57,7 @@ func TestTLS(t *testing.T) {
 	}
 
 	_, err = c.SendAuthorizerAuth(host, &pb.AuthorizerAuth{})
-	if err != nil {
+	if err == nil && err.Error() != "This function ran" {
 		t.Errorf("RegistrationMessage: Error received: %s", err)
 	}
 }
