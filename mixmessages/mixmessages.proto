@@ -23,8 +23,8 @@ service Node {
     rpc CreateNewRound (messages.AuthenticatedMessage) returns (messages.Ack) {
     }
 
-    // PostNewBatch sends a batch to be processed in the server's realtime
-    rpc PostNewBatch (messages.AuthenticatedMessage) returns (messages.Ack) {
+    // UploadUnmixedBatch sends a batch to be processed in the server's realtime
+    rpc UploadUnmixedBatch (stream Slot) returns (messages.Ack) {
     }
 
     // FinishRealtime broadcasts when realtime is complete
@@ -124,7 +124,7 @@ message CompletedBatch {
     repeated Slot slots = 2;
 }
 
-// Used as part of header for streaming post phase
+// Used as part of header for streaming slots
 message BatchInfo {
     RoundInfo Round = 1;
     int32 FromPhase = 2;
