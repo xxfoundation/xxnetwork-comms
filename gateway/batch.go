@@ -23,22 +23,24 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
+// todo: write test
 // StreamUnmixedBatch streams the slots in the batch to the node
-func (g *Comms) StreamUnmixedBatch(host *connect.Host,
+func (g *Comms) StreamUnmixedBatch(host *connect.Host, 
 	batchInfo pb.BatchInfo, batch *pb.Batch) error {
 	// Retrieve the streaming service
 	streamingClient, cancel, err := g.getUnmixedBatchStreamClient(
 		host, batchInfo)
 	if err != nil {
-		return errors.Errorf("Error while retrieving steaming service: %v", err)
+		return errors.Errorf("Could not retrieve steaming service: %v", err)
 	}
 	defer cancel()
 
 	// Stream each slot
 	for i, slot := range batch.Slots {
 		if err = streamingClient.Send(slot); err != nil {
-			return errors.Errorf("Error while streaming batch for round %d (slot %d/%d): %v",
-				batch.Round.ID, i, len(batch.Slots), err)
+			return errors.Errorf("Could not stream " +
+				"slot (%d/%d) for round %d: %v",
+				i, len(batch.Slots), batch.Round.ID, err)
 		}
 	}
 
@@ -52,6 +54,8 @@ func (g *Comms) StreamUnmixedBatch(host *connect.Host,
 	if ack != nil && ack.Error != "" {
 		return errors.Errorf("Remote Server Error: %v", ack.Error)
 	}
+
+	return nil
 }
 
 // getUnmixedBatchStreamClient gets the streaming client
