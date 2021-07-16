@@ -9,7 +9,6 @@ package gateway
 
 import (
 	"fmt"
-	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/node"
 	"gitlab.com/elixxir/comms/testkeys"
 	"gitlab.com/xx_network/comms/connect"
@@ -70,7 +69,7 @@ func TestTLS(t *testing.T) {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
 
-	err = gateway.PostNewBatch(host, &mixmessages.Batch{})
+	_, err = gateway.GetRoundBufferInfo(host)
 	if err != nil {
 		t.Error(err)
 	}

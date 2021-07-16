@@ -75,7 +75,7 @@ type Handler interface {
 	// Server interface for starting New Rounds
 	CreateNewRound(message *mixmessages.RoundInfo, auth *connect.Auth) error
 	// Server interface for sending a new batch
-	PostNewBatch(message *mixmessages.Batch, auth *connect.Auth) error
+	UploadUnmixedBatch(server mixmessages.Node_UploadUnmixedBatchServer, auth *connect.Auth) error
 	// Server interface for broadcasting when realtime is complete
 	FinishRealtime(message *mixmessages.RoundInfo, auth *connect.Auth) error
 	// GetRoundBufferInfo returns # of available precomputations
@@ -132,7 +132,7 @@ type implementationFunctions struct {
 	// Server Interface for starting New Rounds
 	CreateNewRound func(message *mixmessages.RoundInfo, auth *connect.Auth) error
 	// Server interface for sending a new batch
-	PostNewBatch func(message *mixmessages.Batch, auth *connect.Auth) error
+	UploadUnmixedBatch func(stream mixmessages.Node_UploadUnmixedBatchServer, auth *connect.Auth) error
 	// Server interface for finishing the realtime phase
 	FinishRealtime func(message *mixmessages.RoundInfo, auth *connect.Auth) error
 	// GetRoundBufferInfo returns # of available precomputations completed
@@ -216,7 +216,7 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return nil
 			},
-			PostNewBatch: func(message *mixmessages.Batch, auth *connect.Auth) error {
+			UploadUnmixedBatch: func(stream mixmessages.Node_UploadUnmixedBatchServer, auth *connect.Auth) error {
 				warn(um)
 				return nil
 			},
@@ -296,8 +296,9 @@ func (s *Implementation) CreateNewRound(msg *mixmessages.RoundInfo, auth *connec
 	return s.Functions.CreateNewRound(msg, auth)
 }
 
-func (s *Implementation) PostNewBatch(msg *mixmessages.Batch, auth *connect.Auth) error {
-	return s.Functions.PostNewBatch(msg, auth)
+func (s *Implementation) UploadUnmixedBatch(stream mixmessages.Node_UploadUnmixedBatchServer,
+	auth *connect.Auth) error {
+	return s.Functions.UploadUnmixedBatch(stream, auth)
 }
 
 // Server Interface for the phase messages

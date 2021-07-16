@@ -56,26 +56,6 @@ func (s *Comms) CreateNewRound(ctx context.Context, msg *messages.AuthenticatedM
 	return &messages.Ack{}, s.handler.CreateNewRound(roundInfoMsg, authState)
 }
 
-// PostNewBatch polls the first node and sends a batch when it is ready
-func (s *Comms) PostNewBatch(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
-	// Verify the message authentication
-	authState, err := s.AuthenticatedReceiver(msg, ctx)
-	if err != nil {
-		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
-	}
-	// Unmarshall the any message to the message type needed
-	batchMsg := &pb.Batch{}
-	err = ptypes.UnmarshalAny(msg.Message, batchMsg)
-	if err != nil {
-		return nil, errors.New(err.Error())
-	}
-
-	// Call the server handler to post a new batch
-	err = s.handler.PostNewBatch(batchMsg, authState)
-
-	return &messages.Ack{}, err
-}
-
 // Handle a Phase event
 func (s *Comms) PostPhase(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack,
 	error) {
@@ -96,6 +76,23 @@ func (s *Comms) PostPhase(ctx context.Context, msg *messages.AuthenticatedMessag
 		return &messages.Ack{}, err
 	}
 	return &messages.Ack{}, err
+}
+
+// UploadUnmixedBatch is the handler for gateway sending a batch to its node
+func (s *Comms) UploadUnmixedBatch(server pb.Node_UploadUnmixedBatchServer) error {
+	// Extract the authentication info
+	authMsg, err := connect.UnpackAuthenticatedContext(server.Context())
+	if err != nil {
+		return errors.Errorf("Unable to extract authentication info: %+v", err)
+	}
+
+	authState, err := s.AuthenticatedReceiver(authMsg, server.Context())
+	if err != nil {
+		return errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
+	}
+
+	// Verify the message authentication
+	return s.handler.UploadUnmixedBatch(server, authState)
 }
 
 // Handle a phase event using a stream server
