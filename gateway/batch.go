@@ -23,10 +23,41 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-// GetUnmixedBatchStreamClient gets the streaming client
+// StreamUnmixedBatch streams the slots in the batch to the node
+func (g *Comms) StreamUnmixedBatch(host *connect.Host,
+	batchInfo pb.BatchInfo, batch *pb.Batch) error {
+	// Retrieve the streaming service
+	streamingClient, cancel, err := g.getUnmixedBatchStreamClient(
+		host, batchInfo)
+	if err != nil {
+		return errors.Errorf("Error while retrieving steaming service: %v", err)
+	}
+	defer cancel()
+
+	// Stream each slot
+	for i, slot := range batch.Slots {
+		if err = streamingClient.Send(slot); err != nil {
+			return errors.Errorf("Error while streaming batch for round %d (slot %d/%d): %v",
+				batch.Round.ID, i, len(batch.Slots), err)
+		}
+	}
+
+	// Receive ack and cancel client streaming context
+	ack, err := streamingClient.CloseAndRecv()
+	if err != nil {
+		return errors.Errorf("Could not receive final " +
+			"acknowledgement on streaming batch: %v", err)
+	}
+
+	if ack != nil && ack.Error != "" {
+		return errors.Errorf("Remote Server Error: %v", ack.Error)
+	}
+}
+
+// getUnmixedBatchStreamClient gets the streaming client
 // using a header and returns the stream and the cancel context
 // if there are no connection errors
-func (g *Comms) GetUnmixedBatchStreamClient(host *connect.Host,
+func (g *Comms) getUnmixedBatchStreamClient(host *connect.Host,
 	header pb.BatchInfo) (pb.Node_UploadUnmixedBatchClient, context.CancelFunc, error) {
 
 	ctx, cancel := g.getUnmixedBatchStreamContext(&header)
@@ -51,7 +82,7 @@ func (g *Comms) getUnmixedBatchStreamContext(batchInfo *pb.BatchInfo) (
 	encodedStr := base64.StdEncoding.EncodeToString([]byte(batchInfo.String()))
 
 	// Add batch information to streaming context
-	ctx = metadata.AppendToOutgoingContext(ctx, "batchinfo", encodedStr)
+	ctx = metadata.AppendToOutgoingContext(ctx, "unmixedbatchinfo", encodedStr)
 
 	return ctx, cancel
 }

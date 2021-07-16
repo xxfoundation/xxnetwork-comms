@@ -77,7 +77,7 @@ func TestPhase_StreamPostPhaseSendReceive(t *testing.T) {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
 
-	streamClient, cancel, err := gwStreamSender.GetUnmixedBatchStreamClient(
+	streamClient, cancel, err := gwStreamSender.getUnmixedBatchStreamClient(
 		host, batchInfo)
 
 	if err != nil {
