@@ -11,6 +11,10 @@ package mixmessages
 
 import jww "github.com/spf13/jwalterweatherman"
 
+// Headers for streaming
+const PostPhaseHeader = "batchinfo"
+const UnmixedBatchHeader = "unmixedbatchinfo"
+
 func DebugMode() {
 	jww.SetLogThreshold(jww.LevelDebug)
 	jww.SetStdoutThreshold(jww.LevelDebug)

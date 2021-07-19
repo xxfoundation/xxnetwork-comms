@@ -25,7 +25,7 @@ import (
 
 // todo: write test
 // StreamUnmixedBatch streams the slots in the batch to the node
-func (g *Comms) StreamUnmixedBatch(host *connect.Host, 
+func (g *Comms) StreamUnmixedBatch(host *connect.Host,
 	batchInfo pb.BatchInfo, batch *pb.Batch) error {
 	// Retrieve the streaming service
 	streamingClient, cancel, err := g.getUnmixedBatchStreamClient(
@@ -38,7 +38,7 @@ func (g *Comms) StreamUnmixedBatch(host *connect.Host,
 	// Stream each slot
 	for i, slot := range batch.Slots {
 		if err = streamingClient.Send(slot); err != nil {
-			return errors.Errorf("Could not stream " +
+			return errors.Errorf("Could not stream "+
 				"slot (%d/%d) for round %d: %v",
 				i, len(batch.Slots), batch.Round.ID, err)
 		}
@@ -47,7 +47,7 @@ func (g *Comms) StreamUnmixedBatch(host *connect.Host,
 	// Receive ack and cancel client streaming context
 	ack, err := streamingClient.CloseAndRecv()
 	if err != nil {
-		return errors.Errorf("Could not receive final " +
+		return errors.Errorf("Could not receive final "+
 			"acknowledgement on streaming batch: %v", err)
 	}
 
@@ -86,7 +86,7 @@ func (g *Comms) getUnmixedBatchStreamContext(batchInfo *pb.BatchInfo) (
 	encodedStr := base64.StdEncoding.EncodeToString([]byte(batchInfo.String()))
 
 	// Add batch information to streaming context
-	ctx = metadata.AppendToOutgoingContext(ctx, "unmixedbatchinfo", encodedStr)
+	ctx = metadata.AppendToOutgoingContext(ctx, pb.UnmixedBatchHeader, encodedStr)
 
 	return ctx, cancel
 }

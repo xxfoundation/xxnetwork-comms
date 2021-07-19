@@ -86,7 +86,7 @@ func (s *Comms) getPostPhaseStreamContext(batchInfo *pb.BatchInfo) (
 	encodedStr := base64.StdEncoding.EncodeToString([]byte(batchInfo.String()))
 
 	// Add batch information to streaming context
-	ctx = metadata.AppendToOutgoingContext(ctx, "batchinfo", encodedStr)
+	ctx = metadata.AppendToOutgoingContext(ctx, pb.PostPhaseHeader, encodedStr)
 
 	return ctx, cancel
 }
@@ -134,7 +134,7 @@ func GetPostPhaseStreamHeader(stream pb.Node_StreamPostPhaseServer) (*pb.BatchIn
 
 	// Unmarshall the header into a message
 
-	marshledBatch, err := base64.StdEncoding.DecodeString(md.Get("batchinfo")[0])
+	marshledBatch, err := base64.StdEncoding.DecodeString(md.Get(pb.PostPhaseHeader)[0])
 	if err != nil {
 		return nil, err
 	}

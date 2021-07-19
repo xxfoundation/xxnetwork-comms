@@ -19,8 +19,7 @@ func GetUnmixedBatchStreamHeader(stream pb.Node_UploadUnmixedBatchServer) (*pb.B
 	}
 
 	// Unmarshall the header into a message
-
-	marshledBatch, err := base64.StdEncoding.DecodeString(md.Get("batchinfo")[0])
+	marshledBatch, err := base64.StdEncoding.DecodeString(md.Get(pb.UnmixedBatchHeader)[0])
 	if err != nil {
 		return nil, err
 	}
