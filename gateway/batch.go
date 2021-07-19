@@ -23,7 +23,6 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-// todo: write test
 // StreamUnmixedBatch streams the slots in the batch to the node
 func (g *Comms) StreamUnmixedBatch(host *connect.Host,
 	batchInfo pb.BatchInfo, batch *pb.Batch) error {

@@ -22,6 +22,75 @@ import (
 	"testing"
 )
 
+// Happy path
+func TestComms_StreamUnmixedBatch(t *testing.T) {
+	keyPath := testkeys.GetNodeKeyPath()
+	keyData := testkeys.LoadFromPath(keyPath)
+	certPath := testkeys.GetNodeCertPath()
+	certData := testkeys.LoadFromPath(certPath)
+
+	// Init server receiver
+	servReceiverAddress := getNextServerAddress()
+	receiverImpl := node.NewImplementation()
+	receiverImpl.Functions.UploadUnmixedBatch = func(server mixmessages.Node_UploadUnmixedBatchServer, auth *connect.Auth) error {
+		return mockStreamPostPhase(server)
+	}
+
+	testID := id.NewIdFromString("test", id.Generic, t)
+	serverStreamReceiver := node.StartNode(testID, servReceiverAddress, 0, receiverImpl,
+		certData, keyData)
+
+	// Init sender
+	senderAddress := getNextServerAddress()
+	gwStreamSender := StartGateway(testID, senderAddress,
+		NewImplementation(), nil, nil, gossip.DefaultManagerFlags())
+
+	// Reset TLS-related global variables
+	defer serverStreamReceiver.Shutdown()
+	defer gwStreamSender.Shutdown()
+
+	// Create header
+	roundId := uint64(10)
+	roundInfo := mixmessages.RoundInfo{
+		ID: roundId,
+	}
+	fromPhase := int32(3)
+	batchSize := uint32(3)
+	batchInfo := mixmessages.BatchInfo{
+		Round:     &roundInfo,
+		FromPhase: fromPhase,
+		BatchSize: batchSize,
+	}
+
+	// Init host/manager
+	manager := connect.NewManagerTesting(t)
+	testId := id.NewIdFromString("test", id.Generic, t)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testId, servReceiverAddress, certData, params)
+	if err != nil {
+		t.Errorf("Unable to call NewHost: %+v", err)
+	}
+
+	mockBatch := &mixmessages.Batch{
+		Round:     &roundInfo,
+		FromPhase: fromPhase,
+	}
+
+	for i := uint32(0); i < batchSize; i++ {
+		mockBatch.Slots = append(mockBatch.Slots,
+			&mixmessages.Slot{
+				Index:    i,
+				PayloadA: []byte{byte(i)},
+			})
+	}
+
+	err = gwStreamSender.StreamUnmixedBatch(host, batchInfo, mockBatch)
+	if err != nil {
+		t.Fatalf("Error: %v", err)
+	}
+}
+
 // Creates a sender and receiver server for post phase
 // unary streaming test.  The test creates a header,
 // sends some slots and blocks until an ack is received
