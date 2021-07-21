@@ -110,7 +110,6 @@ type implementationFunctions struct {
 	// Server -> Gateway streaming mixed batch
 	DownloadMixedBatch func(server pb.Gateway_DownloadMixedBatchServer,
 		auth *connect.Auth) error
-
 }
 
 // Implementation allows users of the client library to set the

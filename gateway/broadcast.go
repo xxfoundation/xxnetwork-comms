@@ -82,4 +82,3 @@ func (g *Comms) GetRoundBufferInfo(host *connect.Host) (*pb.RoundBufferInfo, err
 	result := &pb.RoundBufferInfo{}
 	return result, ptypes.UnmarshalAny(resultMsg, result)
 }
-

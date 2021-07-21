@@ -62,7 +62,6 @@ func GetUnmixedBatchStreamHeader(stream pb.Node_UploadUnmixedBatchServer) (*pb.B
 	return batchInfo, nil
 }
 
-
 // ------------------------- DownloadMixedBatch Logic ---------------------------------------- //
 
 // DownloadMixedBatch streams the slots in the completed batch to the gateway

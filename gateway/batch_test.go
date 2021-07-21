@@ -326,4 +326,3 @@ func slotCmp(slotA, slotB mixmessages.Slot) bool {
 
 	return true
 }
-

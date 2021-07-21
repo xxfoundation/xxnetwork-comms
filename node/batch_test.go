@@ -26,7 +26,7 @@ func TestDownloadMixedBatch(t *testing.T) {
 	var receivedSlots []*mixmessages.Slot
 	var err error
 	receiverImpl.Functions.DownloadMixedBatch = func(server mixmessages.Gateway_DownloadMixedBatchServer, auth *connect.Auth) error {
-		receivedSlots, err =  mockStreamMixedBatch(server)
+		receivedSlots, err = mockStreamMixedBatch(server)
 		return err
 	}
 
@@ -67,7 +67,7 @@ func TestDownloadMixedBatch(t *testing.T) {
 	}
 
 	mockBatch := &mixmessages.CompletedBatch{
-		RoundID:     roundId,
+		RoundID: roundId,
 	}
 
 	for i := uint32(0); i < batchSize; i++ {
@@ -88,12 +88,11 @@ func TestDownloadMixedBatch(t *testing.T) {
 	}
 
 	if len(mockBatch.Slots) != len(receivedSlots) {
-		t.Fatalf("Did not receive expected amount of slots." +
-			"\n\tExpected: %d" +
+		t.Fatalf("Did not receive expected amount of slots."+
+			"\n\tExpected: %d"+
 			"\n\tReceived: %v", len(mockBatch.Slots), len(receivedSlots))
 	}
 }
-
 
 func mockStreamMixedBatch(server mixmessages.Gateway_DownloadMixedBatchServer) ([]*mixmessages.Slot,
 	error) {
