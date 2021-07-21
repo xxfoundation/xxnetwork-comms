@@ -151,12 +151,6 @@ message ServerPollResponse {
     NDF PartialNDF = 3; //Empty if no update needed
     repeated RoundInfo Updates = 4; //Empty if no update needed
     RoundInfo BatchRequest = 5; //Empty if no update needed
-    BatchReady Batch = 6; //Empty if no update needed
-}
-
-// Indicates what round a batch is ready on
-message BatchReady {
-    uint64 RoundID = 1;
 }
 
 // Used as part of Share phase for generation
