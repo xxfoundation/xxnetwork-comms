@@ -24,7 +24,7 @@ import (
 // --------------------------- UploadMixedBatch Logic ----------------------------------------//
 
 
-// StreamUnmixedBatch streams the slots in the batch to the node
+// UploadUnmixedBatch streams the slots in the batch to the node
 func (g *Comms) StreamUnmixedBatch(host *connect.Host,
 	batchInfo pb.BatchInfo, batch *pb.Batch) error {
 	// Retrieve the streaming service
