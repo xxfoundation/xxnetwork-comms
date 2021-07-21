@@ -23,8 +23,8 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-// StreamUnmixedBatch streams the slots in the batch to the node
-func (g *Comms) StreamUnmixedBatch(host *connect.Host,
+// UploadUnmixedBatch streams the slots in the batch to the node
+func (g *Comms) UploadUnmixedBatch(host *connect.Host,
 	batchInfo pb.BatchInfo, batch *pb.Batch) error {
 	// Retrieve the streaming service
 	streamingClient, cancel, err := g.getUnmixedBatchStreamClient(

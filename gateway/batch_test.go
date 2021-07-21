@@ -85,7 +85,7 @@ func TestComms_StreamUnmixedBatch(t *testing.T) {
 			})
 	}
 
-	err = gwStreamSender.StreamUnmixedBatch(host, batchInfo, mockBatch)
+	err = gwStreamSender.UploadUnmixedBatch(host, batchInfo, mockBatch)
 	if err != nil {
 		t.Fatalf("Error: %v", err)
 	}
