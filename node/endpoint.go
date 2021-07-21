@@ -184,6 +184,23 @@ func (s *Comms) PostPrecompResult(ctx context.Context,
 	return &messages.Ack{}, err
 }
 
+// StartDownloadMixedBatch sends a request for streaming a completed batch.
+func (s *Comms) StartDownloadMixedBatch(ctx context.Context, message *messages.AuthenticatedMessage) (*messages.Ack, error) {
+	// Verify the message authentication
+	authState, err := s.AuthenticatedReceiver(message, ctx)
+	if err != nil {
+		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
+	}
+
+	ready := &pb.BatchReady{}
+	err = ptypes.UnmarshalAny(message.Message, ready)
+	if err != nil {
+		return nil, err
+	}
+
+	return &messages.Ack{}, s.handler.StartDownloadMixedBatch(ready, authState)
+}
+
 // FinishRealtime broadcasts to all nodes when the realtime is completed
 func (s *Comms) FinishRealtime(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
 	// Verify the message authentication

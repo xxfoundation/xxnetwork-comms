@@ -66,6 +66,9 @@ service Node {
     rpc Poll (messages.AuthenticatedMessage) returns (ServerPollResponse) {
     }
 
+    rpc StartDownloadMixedBatch(messages.AuthenticatedMessage) returns (messages.Ack) {
+    }
+
     // Round trip ping comm
     rpc SendRoundTripPing (messages.AuthenticatedMessage) returns (messages.Ack) {
     }
@@ -151,6 +154,11 @@ message ServerPollResponse {
     NDF PartialNDF = 3; //Empty if no update needed
     repeated RoundInfo Updates = 4; //Empty if no update needed
     RoundInfo BatchRequest = 5; //Empty if no update needed
+    BatchReady Batch = 6;
+}
+
+message BatchReady {
+    uint64 RoundId = 1;
 }
 
 // Used as part of Share phase for generation
