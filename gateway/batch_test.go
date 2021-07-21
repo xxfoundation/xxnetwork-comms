@@ -33,7 +33,7 @@ func TestComms_StreamUnmixedBatch(t *testing.T) {
 	servReceiverAddress := getNextServerAddress()
 	receiverImpl := node.NewImplementation()
 	receiverImpl.Functions.UploadUnmixedBatch = func(server mixmessages.Node_UploadUnmixedBatchServer, auth *connect.Auth) error {
-		return mockStreamPostPhase(server)
+		return mockStreamUnmixedBatch(server)
 	}
 
 	testID := id.NewIdFromString("test", id.Generic, t)
@@ -107,7 +107,7 @@ func TestPhase_StreamPostPhaseSendReceive(t *testing.T) {
 	servReceiverAddress := getNextServerAddress()
 	receiverImpl := node.NewImplementation()
 	receiverImpl.Functions.UploadUnmixedBatch = func(server mixmessages.Node_UploadUnmixedBatchServer, auth *connect.Auth) error {
-		return mockStreamPostPhase(server)
+		return mockStreamUnmixedBatch(server)
 	}
 
 	testID := id.NewIdFromString("test", id.Generic, t)
@@ -239,7 +239,7 @@ func TestGetPostPhaseStream_ErrorsWhenContextCanceled(t *testing.T) {
 
 var receivedBatch mixmessages.Batch
 
-func mockStreamPostPhase(server mixmessages.Node_UploadUnmixedBatchServer) error {
+func mockStreamUnmixedBatch(server mixmessages.Node_UploadUnmixedBatchServer) error {
 	// Get header from stream
 	batchInfo, err := node.GetUnmixedBatchStreamHeader(server)
 	if err != nil {
@@ -327,35 +327,3 @@ func slotCmp(slotA, slotB mixmessages.Slot) bool {
 	return true
 }
 
-// Smoke test GetCompletedBatch
-func TestGetCompletedBatch(t *testing.T) {
-	GatewayAddress := getNextGatewayAddress()
-	ServerAddress := getNextServerAddress()
-	testID := id.NewIdFromString("test", id.Gateway, t)
-	nodeID := id.NewIdFromString("test", id.Node, t)
-	gateway := StartGateway(testID, GatewayAddress, NewImplementation(), nil,
-		nil, gossip.DefaultManagerFlags())
-	server := node.StartNode(nodeID, ServerAddress, 0, node.NewImplementation(),
-		nil, nil)
-	defer gateway.Shutdown()
-	defer server.Shutdown()
-	manager := connect.NewManagerTesting(t)
-
-	params := connect.GetDefaultHostParams()
-	params.AuthEnabled = false
-	host, err := manager.AddHost(testID, ServerAddress, nil, params)
-	if err != nil {
-		t.Errorf("Unable to call NewHost: %+v", err)
-	}
-
-	batch, err := gateway.GetCompletedBatch(host)
-	if err != nil {
-		t.Errorf("GetCompletedBatch: Error received: %s", err)
-	}
-	// The mock server doesn't have any batches ready,
-	// so it should return either a nil slice of slots,
-	// or a slice with no slots in it.
-	if len(batch.Slots) != 0 {
-		t.Errorf("GetCompletedBatch: Expected batch with no slots")
-	}
-}

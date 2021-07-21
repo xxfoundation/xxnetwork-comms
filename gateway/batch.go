@@ -12,16 +12,17 @@ package gateway
 import (
 	"context"
 	"encoding/base64"
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
+	"github.com/golang/protobuf/proto"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/connect"
-	"gitlab.com/xx_network/comms/messages"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 )
+
+// --------------------------- UploadMixedBatch Logic ----------------------------------------//
+
 
 // StreamUnmixedBatch streams the slots in the batch to the node
 func (g *Comms) StreamUnmixedBatch(host *connect.Host,
@@ -73,7 +74,7 @@ func (g *Comms) getUnmixedBatchStreamClient(host *connect.Host,
 	return streamClient, cancel, nil
 }
 
-// getUnmixedBatchStreamContext is given batchInfo PostPhase header
+// getUnmixedBatchStreamContext is given batchInfo header
 // and creates a streaming context, adds the header to the context
 // and returns the context with the header and a cancel func
 func (g *Comms) getUnmixedBatchStreamContext(batchInfo *pb.BatchInfo) (
@@ -123,36 +124,45 @@ func (g *Comms) getUnmixedBatchStream(host *connect.Host,
 	return result, nil
 }
 
-// Gateway -> Server Send Function
-func (g *Comms) GetCompletedBatch(host *connect.Host) (*pb.Batch, error) {
+// ------------------------- DownloadMixedBatch Logic ----------------------------------------//
 
-	// Create the Send Function
-	f := func(conn *grpc.ClientConn) (*any.Any, error) {
-		// Set up the context
-		ctx, cancel := host.GetMessagingContext()
-		defer cancel()
-		//Pack message into an authenticated message
-		authMsg, err := g.PackAuthenticatedMessage(&messages.Ping{}, host, false)
-		if err != nil {
-			return nil, errors.New(err.Error())
-		}
-
-		// Send the message
-		resultMsg, err := pb.NewNodeClient(conn).GetCompletedBatch(ctx,
-			authMsg)
-		if err != nil {
-			return nil, errors.New(err.Error())
-		}
-		return ptypes.MarshalAny(resultMsg)
+// DownloadMixedBatch is the handler for server sending a completed batch to its gateway
+func (g *Comms) DownloadMixedBatch(server pb.Gateway_DownloadMixedBatchServer) error {
+	// Extract the authentication info
+	authMsg, err := connect.UnpackAuthenticatedContext(server.Context())
+	if err != nil {
+		return errors.Errorf("Unable to extract authentication info: %+v", err)
 	}
 
-	// Execute the Send function
-	resultMsg, err := g.Send(host, f)
+	authState, err := g.AuthenticatedReceiver(authMsg, server.Context())
+	if err != nil {
+		return errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
+	}
+
+	// Verify the message authentication
+	return g.handler.DownloadMixedBatch(server, authState)
+}
+
+// GetMixedBatchStreamHeader gets the header in the metadata from
+// the server stream and returns it or an error if it fails.
+func GetMixedBatchStreamHeader(stream pb.Gateway_DownloadMixedBatchServer) (*pb.BatchInfo, error) {
+	// Obtain the headers from server metadata
+	md, ok := metadata.FromIncomingContext(stream.Context())
+	if !ok {
+		return nil, errors.New("unable to retrieve meta data / header")
+	}
+
+	// Unmarshall the header into a message
+	marshledBatch, err := base64.StdEncoding.DecodeString(md.Get(pb.MixedBatchHeader)[0])
+	if err != nil {
+		return nil, err
+	}
+	batchInfo := &pb.BatchInfo{}
+	err = proto.UnmarshalText(string(marshledBatch), batchInfo)
 	if err != nil {
 		return nil, err
 	}
 
-	// Marshall the result
-	result := &pb.Batch{}
-	return result, ptypes.UnmarshalAny(resultMsg, result)
+	return batchInfo, nil
 }
+

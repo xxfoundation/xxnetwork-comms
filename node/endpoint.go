@@ -78,23 +78,6 @@ func (s *Comms) PostPhase(ctx context.Context, msg *messages.AuthenticatedMessag
 	return &messages.Ack{}, err
 }
 
-// UploadUnmixedBatch is the handler for gateway sending a batch to its node
-func (s *Comms) UploadUnmixedBatch(server pb.Node_UploadUnmixedBatchServer) error {
-	// Extract the authentication info
-	authMsg, err := connect.UnpackAuthenticatedContext(server.Context())
-	if err != nil {
-		return errors.Errorf("Unable to extract authentication info: %+v", err)
-	}
-
-	authState, err := s.AuthenticatedReceiver(authMsg, server.Context())
-	if err != nil {
-		return errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
-	}
-
-	// Verify the message authentication
-	return s.handler.UploadUnmixedBatch(server, authState)
-}
-
 // Handle a phase event using a stream server
 func (s *Comms) StreamPostPhase(server pb.Node_StreamPostPhaseServer) error {
 	// Extract the authentication info
@@ -219,18 +202,6 @@ func (s *Comms) FinishRealtime(ctx context.Context, msg *messages.AuthenticatedM
 	err = s.handler.FinishRealtime(roundInfoMsg, authState)
 
 	return &messages.Ack{}, err
-}
-
-// GetCompletedBatch should return a completed batch that the calling gateway
-// hasn't gotten before
-func (s *Comms) GetCompletedBatch(ctx context.Context,
-	msg *messages.AuthenticatedMessage) (*pb.Batch, error) {
-
-	authState, err := s.AuthenticatedReceiver(msg, ctx)
-	if err != nil {
-		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
-	}
-	return s.handler.GetCompletedBatch(authState)
 }
 
 func (s *Comms) GetMeasure(ctx context.Context, msg *messages.AuthenticatedMessage) (*pb.RoundMetrics, error) {
