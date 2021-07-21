@@ -13,6 +13,7 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/pkg/errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
+	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/messages"
 	"golang.org/x/net/context"
 )
@@ -102,4 +103,21 @@ func (g *Comms) RequestHistoricalRounds(ctx context.Context, msg *pb.HistoricalR
 // Client -> Gateway message request
 func (g *Comms) RequestMessages(ctx context.Context, msg *pb.GetMessages) (*pb.GetMessagesResponse, error) {
 	return g.handler.RequestMessages(msg)
+}
+
+// DownloadMixedBatch is the handler for server sending a completed batch to its gateway
+func (g *Comms) DownloadMixedBatch(server pb.Gateway_DownloadMixedBatchServer) error {
+	// Extract the authentication info
+	authMsg, err := connect.UnpackAuthenticatedContext(server.Context())
+	if err != nil {
+		return errors.Errorf("Unable to extract authentication info: %+v", err)
+	}
+
+	authState, err := g.AuthenticatedReceiver(authMsg, server.Context())
+	if err != nil {
+		return errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
+	}
+
+	// Verify the message authentication
+	return g.handler.DownloadMixedBatch(server, authState)
 }

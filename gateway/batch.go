@@ -13,13 +13,10 @@ import (
 	"context"
 	"encoding/base64"
 	"github.com/golang/protobuf/proto"
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/connect"
-	"gitlab.com/xx_network/comms/messages"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 )
@@ -127,57 +124,6 @@ func (g *Comms) getUnmixedBatchStream(host *connect.Host,
 }
 
 // ------------------------- DownloadMixedBatch Logic ----------------------------------------//
-
-// StartDownloadMixedBatch sends a request for streaming a completed batch.
-func (g *Comms) StartDownloadMixedBatch(host *connect.Host, ready *pb.BatchReady) error {
-
-	// Create the Send Function
-	f := func(conn *grpc.ClientConn) (*any.Any, error) {
-		// Set up the context
-		ctx, cancel := host.GetMessagingContext()
-		defer cancel()
-		//Pack the message for server
-		authMsg, err := g.PackAuthenticatedMessage(ready, host, false)
-		if err != nil {
-			return nil, errors.New(err.Error())
-		}
-
-		// Send the message
-		resultMsg, err := pb.NewNodeClient(conn).StartDownloadMixedBatch(ctx, authMsg)
-		if err != nil {
-			return nil, errors.New(err.Error())
-		}
-		return ptypes.MarshalAny(resultMsg)
-	}
-
-	// Execute the Send function
-	jww.TRACE.Printf("Sending Poll message...")
-	resultMsg, err := g.Send(host, f)
-	if err != nil {
-		return err
-	}
-
-	// Marshall the result
-	result := &messages.Ack{}
-	return ptypes.UnmarshalAny(resultMsg, result)
-}
-
-// DownloadMixedBatch is the handler for server sending a completed batch to its gateway
-func (g *Comms) DownloadMixedBatch(server pb.Gateway_DownloadMixedBatchServer) error {
-	// Extract the authentication info
-	authMsg, err := connect.UnpackAuthenticatedContext(server.Context())
-	if err != nil {
-		return errors.Errorf("Unable to extract authentication info: %+v", err)
-	}
-
-	authState, err := g.AuthenticatedReceiver(authMsg, server.Context())
-	if err != nil {
-		return errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
-	}
-
-	// Verify the message authentication
-	return g.handler.DownloadMixedBatch(server, authState)
-}
 
 // GetMixedBatchStreamHeader gets the header in the metadata from
 // the server stream and returns it or an error if it fails.

@@ -71,3 +71,31 @@ func TestGetRoundBufferInfo(t *testing.T) {
 		t.Errorf("GetRoundBufferInfo: Unexpected buffer size.")
 	}
 }
+
+// Smoke Test StartDownloadMixedBatch
+func TestComms_StartDownloadMixedBatch(t *testing.T) {
+	GatewayAddress := getNextGatewayAddress()
+	ServerAddress := getNextServerAddress()
+	testID := id.NewIdFromString("test", id.Gateway, t)
+	nodeID := id.NewIdFromString("test", id.Node, t)
+	gateway := StartGateway(testID, GatewayAddress, NewImplementation(), nil,
+		nil, gossip.DefaultManagerFlags())
+	server := node.StartNode(nodeID, ServerAddress, 0, node.NewImplementation(),
+		nil, nil)
+	defer gateway.Shutdown()
+	defer server.Shutdown()
+	manager := connect.NewManagerTesting(t)
+
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testID, ServerAddress, nil, params)
+	if err != nil {
+		t.Errorf("Unable to call NewHost: %+v", err)
+	}
+
+	err = gateway.StartDownloadMixedBatch(host, &pb.BatchReady{RoundId: 4})
+	if err != nil {
+		t.Errorf("GetRoundBufferInfo: Error received: %s", err)
+	}
+
+}
