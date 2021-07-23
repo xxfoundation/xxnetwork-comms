@@ -125,21 +125,8 @@ func (g *Comms) getUnmixedBatchStream(host *connect.Host,
 
 // ------------------------- DownloadMixedBatch Logic ----------------------------------------//
 
-//func (g *Comms) DownloadMixedBatch(batchInfo *pb.BatchReady, host *connect.Host) error {
-//	jww.INFO.Printf("Requesting mixed batch for round: %d", batchInfo.RoundId)
-//	stream, err := g.downloadMixedBatch(batchInfo, host)
-//	if err != nil {
-//		return errors.Errorf("failed to request the download of a " +
-//			"mixed batch for round %d: %v", batchInfo.RoundId, err)
-//	}
-//
-//
-//
-//	return nil
-//}
-
 func (g *Comms) DownloadMixedBatch(ready *pb.BatchReady,
-	host *connect.Host) error {
+	host *connect.Host) ([]*pb.Slot, error) {
 	// Create the Stream Function
 	ctx, cancel := connect.StreamingContext()
 	defer cancel()
@@ -160,22 +147,21 @@ func (g *Comms) DownloadMixedBatch(ready *pb.BatchReady,
 
 	resultClient, err := g.ProtoComms.Stream(host, f)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	stream := resultClient.(pb.Node_DownloadMixedBatchClient)
 	jww.INFO.Printf("Receiving batch for round %d", ready.RoundId)
 	slots := make([]*pb.Slot, 0)
 
-	var slot *pb.Slot
+	slot, err := stream.Recv()
 	for ; err == nil; slot, err = stream.Recv() {
 		slots = append(slots, slot)
 	}
-
 	if err != io.EOF {
-		return errors.Errorf("Error receiving mixed batch via stream for round %d: %v",
+		return nil, errors.Errorf("Error receiving mixed batch via stream for round %d: %v",
 			ready.RoundId, err)
 	}
 
-	return nil
+	return slots, nil
 }
