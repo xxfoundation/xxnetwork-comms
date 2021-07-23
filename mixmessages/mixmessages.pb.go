@@ -5635,6 +5635,8 @@ type NodeClient interface {
 	GetMeasure(ctx context.Context, in *messages.AuthenticatedMessage, opts ...grpc.CallOption) (*RoundMetrics, error)
 	// Gateway -> Server unified polling
 	Poll(ctx context.Context, in *messages.AuthenticatedMessage, opts ...grpc.CallOption) (*ServerPollResponse, error)
+	// Streams a completed batch
+	// Server -> Gateway
 	DownloadMixedBatch(ctx context.Context, in *messages.AuthenticatedMessage, opts ...grpc.CallOption) (Node_DownloadMixedBatchClient, error)
 	// Round trip ping comm
 	SendRoundTripPing(ctx context.Context, in *messages.AuthenticatedMessage, opts ...grpc.CallOption) (*messages.Ack, error)
@@ -5931,6 +5933,8 @@ type NodeServer interface {
 	GetMeasure(context.Context, *messages.AuthenticatedMessage) (*RoundMetrics, error)
 	// Gateway -> Server unified polling
 	Poll(context.Context, *messages.AuthenticatedMessage) (*ServerPollResponse, error)
+	// Streams a completed batch
+	// Server -> Gateway
 	DownloadMixedBatch(*messages.AuthenticatedMessage, Node_DownloadMixedBatchServer) error
 	// Round trip ping comm
 	SendRoundTripPing(context.Context, *messages.AuthenticatedMessage) (*messages.Ack, error)
