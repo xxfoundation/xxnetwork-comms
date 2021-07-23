@@ -66,6 +66,8 @@ service Node {
     rpc Poll (messages.AuthenticatedMessage) returns (ServerPollResponse) {
     }
 
+    // Streams a completed batch
+    // Server -> Gateway
     rpc DownloadMixedBatch(messages.AuthenticatedMessage) returns (stream Slot) {
     }
 
@@ -175,11 +177,6 @@ message SharePiece {
 // GATEWAY MESSAGE SERVICE -----------------------------------------------------
 
 service Gateway {
-    // Streams a completed batch
-    // Server -> Gateway
-//    rpc DownloadMixedBatch (stream Slot) returns (messages.Ack) {
-//    }
-
 
     // PutMessage on the cMix Gateway
     rpc PutMessage (GatewaySlot) returns (GatewaySlotResponse) {
