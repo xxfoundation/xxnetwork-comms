@@ -18,6 +18,7 @@ import (
 	"gitlab.com/xx_network/comms/connect"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
+	"io"
 )
 
 // --------------------------- UploadMixedBatch Logic ----------------------------------------//
@@ -124,13 +125,25 @@ func (g *Comms) getUnmixedBatchStream(host *connect.Host,
 
 // ------------------------- DownloadMixedBatch Logic ----------------------------------------//
 
-func (g *Comms) DownloadMixedBatch(ready *pb.BatchReady, host *connect.Host) (pb.Node_DownloadMixedBatchClient, error) {
-	// Create the Stream Function
-	f := func(conn *grpc.ClientConn) (interface{}, error) {
+//func (g *Comms) DownloadMixedBatch(batchInfo *pb.BatchReady, host *connect.Host) error {
+//	jww.INFO.Printf("Requesting mixed batch for round: %d", batchInfo.RoundId)
+//	stream, err := g.downloadMixedBatch(batchInfo, host)
+//	if err != nil {
+//		return errors.Errorf("failed to request the download of a " +
+//			"mixed batch for round %d: %v", batchInfo.RoundId, err)
+//	}
+//
+//
+//
+//	return nil
+//}
 
-		// Set up the context
-		ctx, cancel := host.GetMessagingContext()
-		defer cancel()
+func (g *Comms) DownloadMixedBatch(ready *pb.BatchReady,
+	host *connect.Host) error {
+	// Create the Stream Function
+	ctx, cancel := connect.StreamingContext()
+	defer cancel()
+	f := func(conn *grpc.ClientConn) (interface{}, error) {
 		//Pack message into an authenticated message
 		authMsg, err := g.PackAuthenticatedMessage(ready, host, false)
 		if err != nil {
@@ -147,31 +160,22 @@ func (g *Comms) DownloadMixedBatch(ready *pb.BatchReady, host *connect.Host) (pb
 
 	resultClient, err := g.ProtoComms.Stream(host, f)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return resultClient.(pb.Node_DownloadMixedBatchClient), nil
-}
+	stream := resultClient.(pb.Node_DownloadMixedBatchClient)
+	jww.INFO.Printf("Receiving batch for round %d", ready.RoundId)
+	slots := make([]*pb.Slot, 0)
 
-// GetMixedBatchStreamHeader gets the header in the metadata from
-//// the server stream and returns it or an error if it fails.
-//func GetMixedBatchStreamHeader(stream pb.Gateway_DownloadMixedBatchServer) (*pb.BatchInfo, error) {
-//	// Obtain the headers from server metadata
-//	md, ok := metadata.FromIncomingContext(stream.Context())
-//	if !ok {
-//		return nil, errors.New("unable to retrieve meta data / header")
-//	}
-//
-//	// Unmarshall the header into a message
-//	marshledBatch, err := base64.StdEncoding.DecodeString(md.Get(pb.MixedBatchHeader)[0])
-//	if err != nil {
-//		return nil, err
-//	}
-//	batchInfo := &pb.BatchInfo{}
-//	err = proto.UnmarshalText(string(marshledBatch), batchInfo)
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	return batchInfo, nil
-//}
+	var slot *pb.Slot
+	for ; err == nil; slot, err = stream.Recv() {
+		slots = append(slots, slot)
+	}
+
+	if err != io.EOF {
+		return errors.Errorf("Error receiving mixed batch via stream for round %d: %v",
+			ready.RoundId, err)
+	}
+
+	return nil
+}

@@ -10,6 +10,8 @@ package gateway
 import (
 	"bytes"
 	"context"
+	"fmt"
+	"github.com/pkg/errors"
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/node"
 	"gitlab.com/elixxir/comms/testkeys"
@@ -22,14 +24,18 @@ import (
 	"testing"
 )
 
-// Smoke Test StartDownloadMixedBatch
-func TestComms_DownloadMixedBatch(t *testing.T) {
+func TestDownloadBatch(t *testing.T) {
+	keyPath := testkeys.GetNodeKeyPath()
+	keyData := testkeys.LoadFromPath(keyPath)
+	certPath := testkeys.GetNodeCertPath()
+	certData := testkeys.LoadFromPath(certPath)
+
 	GatewayAddress := getNextGatewayAddress()
 	ServerAddress := getNextServerAddress()
 	testID := id.NewIdFromString("test", id.Gateway, t)
 	nodeID := id.NewIdFromString("test", id.Node, t)
-	gateway := StartGateway(testID, GatewayAddress, NewImplementation(), nil,
-		nil, gossip.DefaultManagerFlags())
+	gateway := StartGateway(testID, GatewayAddress, NewImplementation(), certData,
+		keyData, gossip.DefaultManagerFlags())
 
 	batchSize := uint32(3)
 	slots := createSlots(batchSize)
@@ -41,30 +47,35 @@ func TestComms_DownloadMixedBatch(t *testing.T) {
 	}
 
 	server := node.StartNode(nodeID, ServerAddress, 0, node.NewImplementation(),
-		nil, nil)
+		certData, keyData)
 	defer gateway.Shutdown()
 	defer server.Shutdown()
 	manager := connect.NewManagerTesting(t)
 
 	params := connect.GetDefaultHostParams()
 	params.AuthEnabled = false
-	host, err := manager.AddHost(testID, ServerAddress, nil, params)
+	host, err := manager.AddHost(testID, ServerAddress, certData, params)
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
 
-	_, err = gateway.DownloadMixedBatch(&mixmessages.BatchReady{RoundId: 4}, host)
+	err = gateway.DownloadMixedBatch(&mixmessages.BatchReady{RoundId: 4}, host)
 	if err != nil {
-		t.Errorf("GetRoundBufferInfo: Error received: %s", err)
+		t.Errorf("DownloadMixedBatch: Error received: %s", err)
 	}
-
 }
+
 func mockStreamMixedBatch(server mixmessages.Node_DownloadMixedBatchServer,
 	slots []mixmessages.Slot, t *testing.T) error {
 	// Receive all slots and on EOF store all data
 	// into a global received batch variable then
 	// send ack back to client.
+	t.Logf("Sending slots")
+	fmt.Printf("sending slots\n")
 	for i, slot := range slots {
+		if server.Context().Err() == context.Canceled || server.Context().Err() == context.DeadlineExceeded {
+			return errors.Errorf("Context canceled bro")
+		}
 		err := server.Send(&slot)
 		if err != nil {
 			t.Errorf("Unable to send slot %v %v", i, err)
