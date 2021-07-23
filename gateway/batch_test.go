@@ -22,6 +22,58 @@ import (
 	"testing"
 )
 
+// Smoke Test StartDownloadMixedBatch
+func TestComms_DownloadMixedBatch(t *testing.T) {
+	GatewayAddress := getNextGatewayAddress()
+	ServerAddress := getNextServerAddress()
+	testID := id.NewIdFromString("test", id.Gateway, t)
+	nodeID := id.NewIdFromString("test", id.Node, t)
+	gateway := StartGateway(testID, GatewayAddress, NewImplementation(), nil,
+		nil, gossip.DefaultManagerFlags())
+
+	batchSize := uint32(3)
+	slots := createSlots(batchSize)
+
+	receiverImpl := node.NewImplementation()
+	receiverImpl.Functions.DownloadMixedBatch = func(stream mixmessages.Node_DownloadMixedBatchServer,
+		batchInfo *mixmessages.BatchReady, auth *connect.Auth) error {
+		return mockStreamMixedBatch(stream, slots, t)
+	}
+
+	server := node.StartNode(nodeID, ServerAddress, 0, node.NewImplementation(),
+		nil, nil)
+	defer gateway.Shutdown()
+	defer server.Shutdown()
+	manager := connect.NewManagerTesting(t)
+
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(testID, ServerAddress, nil, params)
+	if err != nil {
+		t.Errorf("Unable to call NewHost: %+v", err)
+	}
+
+	_, err = gateway.DownloadMixedBatch(&mixmessages.BatchReady{RoundId: 4}, host)
+	if err != nil {
+		t.Errorf("GetRoundBufferInfo: Error received: %s", err)
+	}
+
+}
+func mockStreamMixedBatch(server mixmessages.Node_DownloadMixedBatchServer,
+	slots []mixmessages.Slot, t *testing.T) error {
+	// Receive all slots and on EOF store all data
+	// into a global received batch variable then
+	// send ack back to client.
+	for i, slot := range slots {
+		err := server.Send(&slot)
+		if err != nil {
+			t.Errorf("Unable to send slot %v %v", i, err)
+		}
+	}
+
+	return nil
+}
+
 // Happy path
 func TestComms_StreamUnmixedBatch(t *testing.T) {
 	keyPath := testkeys.GetNodeKeyPath()

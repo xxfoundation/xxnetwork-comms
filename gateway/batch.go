@@ -12,7 +12,6 @@ package gateway
 import (
 	"context"
 	"encoding/base64"
-	"github.com/golang/protobuf/proto"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
@@ -125,25 +124,54 @@ func (g *Comms) getUnmixedBatchStream(host *connect.Host,
 
 // ------------------------- DownloadMixedBatch Logic ----------------------------------------//
 
-// GetMixedBatchStreamHeader gets the header in the metadata from
-// the server stream and returns it or an error if it fails.
-func GetMixedBatchStreamHeader(stream pb.Gateway_DownloadMixedBatchServer) (*pb.BatchInfo, error) {
-	// Obtain the headers from server metadata
-	md, ok := metadata.FromIncomingContext(stream.Context())
-	if !ok {
-		return nil, errors.New("unable to retrieve meta data / header")
+func (g *Comms) DownloadMixedBatch(ready *pb.BatchReady, host *connect.Host) (pb.Node_DownloadMixedBatchClient, error) {
+	// Create the Stream Function
+	f := func(conn *grpc.ClientConn) (interface{}, error) {
+
+		// Set up the context
+		ctx, cancel := host.GetMessagingContext()
+		defer cancel()
+		//Pack message into an authenticated message
+		authMsg, err := g.PackAuthenticatedMessage(ready, host, false)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+		// Send the message
+		clientStream, err := pb.NewNodeClient(conn).DownloadMixedBatch(ctx,
+			authMsg)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+		return clientStream, nil
 	}
 
-	// Unmarshall the header into a message
-	marshledBatch, err := base64.StdEncoding.DecodeString(md.Get(pb.MixedBatchHeader)[0])
+	resultClient, err := g.ProtoComms.Stream(host, f)
 	if err != nil {
 		return nil, err
 	}
-	batchInfo := &pb.BatchInfo{}
-	err = proto.UnmarshalText(string(marshledBatch), batchInfo)
-	if err != nil {
-		return nil, err
-	}
 
-	return batchInfo, nil
+	return resultClient.(pb.Node_DownloadMixedBatchClient), nil
 }
+
+// GetMixedBatchStreamHeader gets the header in the metadata from
+//// the server stream and returns it or an error if it fails.
+//func GetMixedBatchStreamHeader(stream pb.Gateway_DownloadMixedBatchServer) (*pb.BatchInfo, error) {
+//	// Obtain the headers from server metadata
+//	md, ok := metadata.FromIncomingContext(stream.Context())
+//	if !ok {
+//		return nil, errors.New("unable to retrieve meta data / header")
+//	}
+//
+//	// Unmarshall the header into a message
+//	marshledBatch, err := base64.StdEncoding.DecodeString(md.Get(pb.MixedBatchHeader)[0])
+//	if err != nil {
+//		return nil, err
+//	}
+//	batchInfo := &pb.BatchInfo{}
+//	err = proto.UnmarshalText(string(marshledBatch), batchInfo)
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	return batchInfo, nil
+//}

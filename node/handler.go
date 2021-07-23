@@ -77,7 +77,8 @@ type Handler interface {
 	// Server interface for sending a new batch
 	UploadUnmixedBatch(server mixmessages.Node_UploadUnmixedBatchServer, auth *connect.Auth) error
 	// Server interface for handling a mixed batch request
-	StartDownloadMixedBatch(ready *mixmessages.BatchReady, auth *connect.Auth) error
+	DownloadMixedBatch(stream mixmessages.Node_DownloadMixedBatchServer,
+		batchInfo *mixmessages.BatchReady, auth *connect.Auth) error
 	// Server interface for broadcasting when realtime is complete
 	FinishRealtime(message *mixmessages.RoundInfo, auth *connect.Auth) error
 	// GetRoundBufferInfo returns # of available precomputations
@@ -133,7 +134,8 @@ type implementationFunctions struct {
 	// Server interface for sending a new batch
 	UploadUnmixedBatch func(stream mixmessages.Node_UploadUnmixedBatchServer, auth *connect.Auth) error
 	// Server interface for gateway requesting a new batch
-	StartDownloadMixedBatch func(ready *mixmessages.BatchReady, auth *connect.Auth) error
+	DownloadMixedBatch func(stream mixmessages.Node_DownloadMixedBatchServer,
+		batchInfo *mixmessages.BatchReady, auth *connect.Auth) error
 
 	// Server interface for finishing the realtime phase
 	FinishRealtime func(message *mixmessages.RoundInfo, auth *connect.Auth) error
@@ -220,7 +222,8 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return nil
 			},
-			StartDownloadMixedBatch: func(ready *mixmessages.BatchReady, auth *connect.Auth) error {
+			DownloadMixedBatch: func(stream mixmessages.Node_DownloadMixedBatchServer,
+				batchInfo *mixmessages.BatchReady, auth *connect.Auth) error {
 				warn(um)
 				return nil
 			},
@@ -301,8 +304,9 @@ func (s *Implementation) UploadUnmixedBatch(stream mixmessages.Node_UploadUnmixe
 	return s.Functions.UploadUnmixedBatch(stream, auth)
 }
 
-func (s *Implementation) StartDownloadMixedBatch(ready *mixmessages.BatchReady, auth *connect.Auth) error {
-	return s.Functions.StartDownloadMixedBatch(ready, auth)
+func (s *Implementation) DownloadMixedBatch(stream mixmessages.Node_DownloadMixedBatchServer,
+	batchInfo *mixmessages.BatchReady, auth *connect.Auth) error {
+	return s.Functions.DownloadMixedBatch(stream, batchInfo, auth)
 }
 
 // Server Interface for the phase messages
