@@ -66,7 +66,7 @@ service Node {
     rpc Poll (messages.AuthenticatedMessage) returns (ServerPollResponse) {
     }
 
-    rpc StartDownloadMixedBatch(messages.AuthenticatedMessage) returns (messages.Ack) {
+    rpc DownloadMixedBatch(messages.AuthenticatedMessage) returns (stream Slot) {
     }
 
     // Round trip ping comm
@@ -177,8 +177,8 @@ message SharePiece {
 service Gateway {
     // Streams a completed batch
     // Server -> Gateway
-    rpc DownloadMixedBatch (stream Slot) returns (messages.Ack) {
-    }
+//    rpc DownloadMixedBatch (stream Slot) returns (messages.Ack) {
+//    }
 
 
     // PutMessage on the cMix Gateway
