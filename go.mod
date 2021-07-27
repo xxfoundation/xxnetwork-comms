@@ -6,8 +6,8 @@ require (
 	github.com/golang/protobuf v1.5.2
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/jwalterweatherman v1.1.0
-	gitlab.com/xx_network/crypto v0.0.5-0.20210715174114-f33d03bc10ec
-	gitlab.com/xx_network/primitives v0.0.4-0.20210715170345-a78092d7b48e
+	gitlab.com/xx_network/crypto v0.0.5-0.20210727192439-c1ce10d60b7e
+	gitlab.com/xx_network/primitives v0.0.4-0.20210727191551-5fe750830811
 	golang.org/x/net v0.0.0-20210525063256-abc453219eb5
 	google.golang.org/grpc v1.38.0
 	google.golang.org/protobuf v1.26.0
