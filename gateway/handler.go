@@ -40,8 +40,6 @@ type Handler interface {
 	RequestMessages(msg *pb.GetMessages) (*pb.GetMessagesResponse, error)
 	// Gateway -> Gateway message sharing within a team
 	ShareMessages(msg *pb.RoundMessages, auth *connect.Auth) error
-	// Server -> Gateway streaming mixed batch
-	DownloadMixedBatch(server pb.Gateway_DownloadMixedBatchServer, auth *connect.Auth) error
 }
 
 // Gateway object used to implement endpoints and top-level comms functionality
@@ -107,9 +105,6 @@ type implementationFunctions struct {
 	RequestMessages func(msg *pb.GetMessages) (*pb.GetMessagesResponse, error)
 	// Gateway -> Gateway message sharing within a team
 	ShareMessages func(msg *pb.RoundMessages, auth *connect.Auth) error
-	// Server -> Gateway streaming mixed batch
-	DownloadMixedBatch func(server pb.Gateway_DownloadMixedBatchServer,
-		auth *connect.Auth) error
 }
 
 // Implementation allows users of the client library to set the
@@ -159,11 +154,6 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return nil
 			},
-			DownloadMixedBatch: func(server pb.Gateway_DownloadMixedBatchServer,
-				auth *connect.Auth) error {
-				warn(um)
-				return nil
-			},
 		},
 	}
 }
@@ -207,10 +197,4 @@ func (s *Implementation) RequestMessages(msg *pb.GetMessages) (*pb.GetMessagesRe
 // Gateway -> Gateway message sharing within a team
 func (s *Implementation) ShareMessages(msg *pb.RoundMessages, auth *connect.Auth) error {
 	return s.Functions.ShareMessages(msg, auth)
-}
-
-// Server -> Gateway message streaming completed batch
-func (s *Implementation) DownloadMixedBatch(stream pb.Gateway_DownloadMixedBatchServer,
-	auth *connect.Auth) error {
-	return s.Functions.DownloadMixedBatch(stream, auth)
 }

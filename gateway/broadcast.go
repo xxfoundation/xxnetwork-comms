@@ -20,40 +20,6 @@ import (
 	"google.golang.org/grpc"
 )
 
-// StartDownloadMixedBatch sends a request for streaming a completed batch.
-func (g *Comms) StartDownloadMixedBatch(host *connect.Host, ready *pb.BatchReady) error {
-
-	// Create the Send Function
-	f := func(conn *grpc.ClientConn) (*any.Any, error) {
-		// Set up the context
-		ctx, cancel := host.GetMessagingContext()
-		defer cancel()
-		//Pack the message for server
-		authMsg, err := g.PackAuthenticatedMessage(ready, host, false)
-		if err != nil {
-			return nil, errors.New(err.Error())
-		}
-
-		// Send the message
-		resultMsg, err := pb.NewNodeClient(conn).StartDownloadMixedBatch(ctx, authMsg)
-		if err != nil {
-			return nil, errors.New(err.Error())
-		}
-		return ptypes.MarshalAny(resultMsg)
-	}
-
-	// Execute the Send function
-	jww.TRACE.Printf("Sending Poll message...")
-	resultMsg, err := g.Send(host, f)
-	if err != nil {
-		return err
-	}
-
-	// Marshall the result
-	result := &messages.Ack{}
-	return ptypes.UnmarshalAny(resultMsg, result)
-}
-
 // Gateway -> Gateway message sharing within a team
 func (g *Comms) SendShareMessages(host *connect.Host, messages *pb.RoundMessages) error {
 

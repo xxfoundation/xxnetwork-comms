@@ -22,6 +22,74 @@ import (
 	"testing"
 )
 
+func TestDownloadBatch(t *testing.T) {
+	keyPath := testkeys.GetNodeKeyPath()
+	keyData := testkeys.LoadFromPath(keyPath)
+	certPath := testkeys.GetNodeCertPath()
+	certData := testkeys.LoadFromPath(certPath)
+
+	GatewayAddress := getNextGatewayAddress()
+	ServerAddress := getNextServerAddress()
+	testID := id.NewIdFromString("test", id.Gateway, t)
+	nodeID := id.NewIdFromString("test", id.Node, t)
+	gateway := StartGateway(testID, GatewayAddress, NewImplementation(), certData,
+		keyData, gossip.DefaultManagerFlags())
+
+	batchSize := uint32(3)
+	slots := make([]*mixmessages.Slot, batchSize)
+	for i := uint32(0); i < batchSize; i++ {
+		slots[i] = &mixmessages.Slot{
+			Index:    i,
+			PayloadA: []byte{0x01},
+			SenderID: []byte{0x02},
+		}
+	}
+	receiverImpl := node.NewImplementation()
+	receiverImpl.Functions.DownloadMixedBatch = func(stream mixmessages.Node_DownloadMixedBatchServer,
+		batchInfo *mixmessages.BatchReady, auth *connect.Auth) error {
+		return mockStreamMixedBatch(stream, slots, t)
+	}
+
+	server := node.StartNode(nodeID, ServerAddress, 0, receiverImpl,
+		certData, keyData)
+	defer gateway.Shutdown()
+	defer server.Shutdown()
+	manager := connect.NewManagerTesting(t)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(nodeID, ServerAddress, certData, params)
+	if err != nil {
+		t.Errorf("Unable to call NewHost: %+v", err)
+	}
+
+	received, err := gateway.DownloadMixedBatch(&mixmessages.BatchReady{RoundId: 4}, host)
+	if err != nil {
+		t.Fatalf("DownloadMixedBatch: Error received: %v", err)
+	}
+
+	if len(slots) != len(received) {
+		t.Errorf("Did not receive expected number of slots."+
+			"\n\tExpected: %v"+
+			"\n\tReceived: %v", len(slots), len(received))
+	}
+
+}
+
+func mockStreamMixedBatch(server mixmessages.Node_DownloadMixedBatchServer,
+	slots []*mixmessages.Slot, t *testing.T) error {
+	// Receive all slots and on EOF store all data
+	// into a global received batch variable then
+	// send ack back to client.
+	for i, slot := range slots {
+		err := server.Send(slot)
+		if err != nil {
+			t.Errorf("Unable to send slot %v %v", i, err)
+		}
+	}
+
+	return nil
+}
+
 // Happy path
 func TestComms_StreamUnmixedBatch(t *testing.T) {
 	keyPath := testkeys.GetNodeKeyPath()
