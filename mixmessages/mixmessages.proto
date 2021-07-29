@@ -349,14 +349,17 @@ message Recipients {
 }
 
 
+// CLIENT REGISTRAR SERVICE ----------------------------------------------------
+service clientregistrar {
+    // Client uses this to register its user with the system
+    rpc RegisterUser (UserRegistration) returns (UserRegistrationConfirmation) {
+    }
+}
+
 // REGISTRATION MESSAGE SERVICE ------------------------------------------------
 
 // Registration service definition
 service Registration {
-    // Client uses this to register its user with the system
-    rpc RegisterUser (UserRegistration) returns (UserRegistrationConfirmation) {
-    }
-
     // Node registration for the permissioning server
     rpc RegisterNode (NodeRegistration) returns (messages.Ack) {
     }
@@ -414,7 +417,7 @@ message NodeRegistration {
 }
 
 // UserRegistration message to initialize registration process
-// Client -> Permissioning
+// Client -> ClientRegistrar
 message UserRegistration {
     string RegistrationCode = 1;
     string ClientRSAPubKey = 2;
@@ -422,7 +425,7 @@ message UserRegistration {
 }
 
 // UserRegistrationConfirmation to confirm registration with users
-// Permissioning -> Client (Response to UserRegistration)
+// ClientRegistrar -> Client (Response to UserRegistration)
 message UserRegistrationConfirmation {
     // RegistrationServer-Signed Client Public Key
     messages.RSASignature ClientSignedByServer = 1;
