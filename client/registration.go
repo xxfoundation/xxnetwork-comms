@@ -11,6 +11,9 @@ package client
 
 import (
 	"crypto/sha256"
+	"strings"
+	"time"
+
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
@@ -20,8 +23,6 @@ import (
 	"gitlab.com/xx_network/primitives/id"
 	"gitlab.com/xx_network/primitives/ndf"
 	"google.golang.org/grpc"
-	"strings"
-	"time"
 )
 
 // Client -> Registration Send Function
@@ -35,7 +36,7 @@ func (c *Comms) SendRegistrationMessage(host *connect.Host,
 		defer cancel()
 
 		// Send the message
-		resultMsg, err := pb.NewRegistrationClient(conn).RegisterUser(ctx,
+		resultMsg, err := pb.NewClientregistrarClient(conn).RegisterUser(ctx,
 			message)
 		if err != nil {
 			return nil, errors.New(err.Error())
