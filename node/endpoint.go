@@ -56,26 +56,6 @@ func (s *Comms) CreateNewRound(ctx context.Context, msg *messages.AuthenticatedM
 	return &messages.Ack{}, s.handler.CreateNewRound(roundInfoMsg, authState)
 }
 
-// PostNewBatch polls the first node and sends a batch when it is ready
-func (s *Comms) PostNewBatch(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
-	// Verify the message authentication
-	authState, err := s.AuthenticatedReceiver(msg, ctx)
-	if err != nil {
-		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
-	}
-	// Unmarshall the any message to the message type needed
-	batchMsg := &pb.Batch{}
-	err = ptypes.UnmarshalAny(msg.Message, batchMsg)
-	if err != nil {
-		return nil, errors.New(err.Error())
-	}
-
-	// Call the server handler to post a new batch
-	err = s.handler.PostNewBatch(batchMsg, authState)
-
-	return &messages.Ack{}, err
-}
-
 // Handle a Phase event
 func (s *Comms) PostPhase(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack,
 	error) {
@@ -222,18 +202,6 @@ func (s *Comms) FinishRealtime(ctx context.Context, msg *messages.AuthenticatedM
 	err = s.handler.FinishRealtime(roundInfoMsg, authState)
 
 	return &messages.Ack{}, err
-}
-
-// GetCompletedBatch should return a completed batch that the calling gateway
-// hasn't gotten before
-func (s *Comms) GetCompletedBatch(ctx context.Context,
-	msg *messages.AuthenticatedMessage) (*pb.Batch, error) {
-
-	authState, err := s.AuthenticatedReceiver(msg, ctx)
-	if err != nil {
-		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
-	}
-	return s.handler.GetCompletedBatch(authState)
 }
 
 func (s *Comms) GetMeasure(ctx context.Context, msg *messages.AuthenticatedMessage) (*pb.RoundMetrics, error) {
