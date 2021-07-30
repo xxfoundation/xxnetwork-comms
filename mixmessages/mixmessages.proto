@@ -24,6 +24,7 @@ service Node {
     }
 
     // UploadUnmixedBatch sends a batch to be processed in the server's realtime
+    // Gateway -> Server
     rpc UploadUnmixedBatch (stream Slot) returns (messages.Ack) {
     }
 
@@ -57,16 +58,17 @@ service Node {
     rpc PostPrecompResult (messages.AuthenticatedMessage) returns (messages.Ack) {
     }
 
-    // The gateway calls GetCompletedBatch to get any finished batch from a node
-    rpc GetCompletedBatch (messages.AuthenticatedMessage) returns (Batch) {
-    }
-
     //
     rpc GetMeasure (messages.AuthenticatedMessage) returns (RoundMetrics) {
     }
 
     // Gateway -> Server unified polling
     rpc Poll (messages.AuthenticatedMessage) returns (ServerPollResponse) {
+    }
+
+    // Streams a completed batch
+    // Server -> Gateway
+    rpc DownloadMixedBatch(messages.AuthenticatedMessage) returns (stream Slot) {
     }
 
     // Round trip ping comm
@@ -154,7 +156,11 @@ message ServerPollResponse {
     NDF PartialNDF = 3; //Empty if no update needed
     repeated RoundInfo Updates = 4; //Empty if no update needed
     RoundInfo BatchRequest = 5; //Empty if no update needed
-    CompletedBatch Batch = 6; //Empty if no update needed
+    BatchReady Batch = 6;
+}
+
+message BatchReady {
+    uint64 RoundId = 1;
 }
 
 // Used as part of Share phase for generation
@@ -171,6 +177,7 @@ message SharePiece {
 // GATEWAY MESSAGE SERVICE -----------------------------------------------------
 
 service Gateway {
+
     // PutMessage on the cMix Gateway
     rpc PutMessage (GatewaySlot) returns (GatewaySlotResponse) {
     }

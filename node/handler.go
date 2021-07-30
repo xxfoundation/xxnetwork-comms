@@ -76,6 +76,9 @@ type Handler interface {
 	CreateNewRound(message *mixmessages.RoundInfo, auth *connect.Auth) error
 	// Server interface for sending a new batch
 	UploadUnmixedBatch(server mixmessages.Node_UploadUnmixedBatchServer, auth *connect.Auth) error
+	// Server interface for handling a mixed batch request
+	DownloadMixedBatch(stream mixmessages.Node_DownloadMixedBatchServer,
+		batchInfo *mixmessages.BatchReady, auth *connect.Auth) error
 	// Server interface for broadcasting when realtime is complete
 	FinishRealtime(message *mixmessages.RoundInfo, auth *connect.Auth) error
 	// GetRoundBufferInfo returns # of available precomputations
@@ -97,9 +100,6 @@ type Handler interface {
 
 	// PostPrecompResult interface to finalize both payloads' precomps
 	PostPrecompResult(roundID uint64, slots []*mixmessages.Slot, auth *connect.Auth) error
-
-	// GetCompletedBatch: gateway uses completed batch from the server
-	GetCompletedBatch(auth *connect.Auth) (*mixmessages.Batch, error)
 
 	Poll(msg *mixmessages.ServerPoll, auth *connect.Auth) (*mixmessages.ServerPollResponse, error)
 
@@ -133,6 +133,10 @@ type implementationFunctions struct {
 	CreateNewRound func(message *mixmessages.RoundInfo, auth *connect.Auth) error
 	// Server interface for sending a new batch
 	UploadUnmixedBatch func(stream mixmessages.Node_UploadUnmixedBatchServer, auth *connect.Auth) error
+	// Server interface for gateway requesting a new batch
+	DownloadMixedBatch func(stream mixmessages.Node_DownloadMixedBatchServer,
+		batchInfo *mixmessages.BatchReady, auth *connect.Auth) error
+
 	// Server interface for finishing the realtime phase
 	FinishRealtime func(message *mixmessages.RoundInfo, auth *connect.Auth) error
 	// GetRoundBufferInfo returns # of available precomputations completed
@@ -155,8 +159,6 @@ type implementationFunctions struct {
 	// PostPrecompResult interface to finalize both payloads' precomputations
 	PostPrecompResult func(roundID uint64,
 		slots []*mixmessages.Slot, auth *connect.Auth) error
-
-	GetCompletedBatch func(auth *connect.Auth) (*mixmessages.Batch, error)
 
 	Poll func(msg *mixmessages.ServerPoll, auth *connect.Auth) (*mixmessages.ServerPollResponse, error)
 
@@ -220,6 +222,11 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return nil
 			},
+			DownloadMixedBatch: func(stream mixmessages.Node_DownloadMixedBatchServer,
+				batchInfo *mixmessages.BatchReady, auth *connect.Auth) error {
+				warn(um)
+				return nil
+			},
 			FinishRealtime: func(message *mixmessages.RoundInfo, auth *connect.Auth) error {
 				warn(um)
 				return nil
@@ -246,10 +253,6 @@ func NewImplementation() *Implementation {
 				slots []*mixmessages.Slot, auth *connect.Auth) error {
 				warn(um)
 				return nil
-			},
-			GetCompletedBatch: func(auth *connect.Auth) (batch *mixmessages.Batch, e error) {
-				warn(um)
-				return &mixmessages.Batch{}, nil
 			},
 			Poll: func(msg *mixmessages.ServerPoll, auth *connect.Auth) (*mixmessages.ServerPollResponse, error) {
 				warn(um)
@@ -301,6 +304,11 @@ func (s *Implementation) UploadUnmixedBatch(stream mixmessages.Node_UploadUnmixe
 	return s.Functions.UploadUnmixedBatch(stream, auth)
 }
 
+func (s *Implementation) DownloadMixedBatch(stream mixmessages.Node_DownloadMixedBatchServer,
+	batchInfo *mixmessages.BatchReady, auth *connect.Auth) error {
+	return s.Functions.DownloadMixedBatch(stream, batchInfo, auth)
+}
+
 // Server Interface for the phase messages
 func (s *Implementation) PostPhase(m *mixmessages.Batch, auth *connect.Auth) error {
 	return s.Functions.PostPhase(m, auth)
@@ -339,11 +347,6 @@ func (s *Implementation) FinishRealtime(message *mixmessages.RoundInfo, auth *co
 
 func (s *Implementation) GetMeasure(message *mixmessages.RoundInfo, auth *connect.Auth) (*mixmessages.RoundMetrics, error) {
 	return s.Functions.GetMeasure(message, auth)
-}
-
-// Implementation of the interface using the function in the struct
-func (s *Implementation) GetCompletedBatch(auth *connect.Auth) (*mixmessages.Batch, error) {
-	return s.Functions.GetCompletedBatch(auth)
 }
 
 func (s *Implementation) Poll(msg *mixmessages.ServerPoll, auth *connect.Auth) (*mixmessages.ServerPollResponse, error) {

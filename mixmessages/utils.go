@@ -14,6 +14,7 @@ import jww "github.com/spf13/jwalterweatherman"
 // Headers for streaming
 const PostPhaseHeader = "batchinfo"
 const UnmixedBatchHeader = "unmixedbatchinfo"
+const MixedBatchHeader = "mixedBatchInfo"
 
 func DebugMode() {
 	jww.SetLogThreshold(jww.LevelDebug)

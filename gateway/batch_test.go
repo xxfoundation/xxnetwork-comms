@@ -22,6 +22,74 @@ import (
 	"testing"
 )
 
+func TestDownloadBatch(t *testing.T) {
+	keyPath := testkeys.GetNodeKeyPath()
+	keyData := testkeys.LoadFromPath(keyPath)
+	certPath := testkeys.GetNodeCertPath()
+	certData := testkeys.LoadFromPath(certPath)
+
+	GatewayAddress := getNextGatewayAddress()
+	ServerAddress := getNextServerAddress()
+	testID := id.NewIdFromString("test", id.Gateway, t)
+	nodeID := id.NewIdFromString("test", id.Node, t)
+	gateway := StartGateway(testID, GatewayAddress, NewImplementation(), certData,
+		keyData, gossip.DefaultManagerFlags())
+
+	batchSize := uint32(3)
+	slots := make([]*mixmessages.Slot, batchSize)
+	for i := uint32(0); i < batchSize; i++ {
+		slots[i] = &mixmessages.Slot{
+			Index:    i,
+			PayloadA: []byte{0x01},
+			SenderID: []byte{0x02},
+		}
+	}
+	receiverImpl := node.NewImplementation()
+	receiverImpl.Functions.DownloadMixedBatch = func(stream mixmessages.Node_DownloadMixedBatchServer,
+		batchInfo *mixmessages.BatchReady, auth *connect.Auth) error {
+		return mockStreamMixedBatch(stream, slots, t)
+	}
+
+	server := node.StartNode(nodeID, ServerAddress, 0, receiverImpl,
+		certData, keyData)
+	defer gateway.Shutdown()
+	defer server.Shutdown()
+	manager := connect.NewManagerTesting(t)
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(nodeID, ServerAddress, certData, params)
+	if err != nil {
+		t.Errorf("Unable to call NewHost: %+v", err)
+	}
+
+	received, err := gateway.DownloadMixedBatch(&mixmessages.BatchReady{RoundId: 4}, host)
+	if err != nil {
+		t.Fatalf("DownloadMixedBatch: Error received: %v", err)
+	}
+
+	if len(slots) != len(received) {
+		t.Errorf("Did not receive expected number of slots."+
+			"\n\tExpected: %v"+
+			"\n\tReceived: %v", len(slots), len(received))
+	}
+
+}
+
+func mockStreamMixedBatch(server mixmessages.Node_DownloadMixedBatchServer,
+	slots []*mixmessages.Slot, t *testing.T) error {
+	// Receive all slots and on EOF store all data
+	// into a global received batch variable then
+	// send ack back to client.
+	for i, slot := range slots {
+		err := server.Send(slot)
+		if err != nil {
+			t.Errorf("Unable to send slot %v %v", i, err)
+		}
+	}
+
+	return nil
+}
+
 // Happy path
 func TestComms_StreamUnmixedBatch(t *testing.T) {
 	keyPath := testkeys.GetNodeKeyPath()
@@ -33,7 +101,7 @@ func TestComms_StreamUnmixedBatch(t *testing.T) {
 	servReceiverAddress := getNextServerAddress()
 	receiverImpl := node.NewImplementation()
 	receiverImpl.Functions.UploadUnmixedBatch = func(server mixmessages.Node_UploadUnmixedBatchServer, auth *connect.Auth) error {
-		return mockStreamPostPhase(server)
+		return mockStreamUnmixedBatch(server)
 	}
 
 	testID := id.NewIdFromString("test", id.Generic, t)
@@ -107,7 +175,7 @@ func TestPhase_StreamPostPhaseSendReceive(t *testing.T) {
 	servReceiverAddress := getNextServerAddress()
 	receiverImpl := node.NewImplementation()
 	receiverImpl.Functions.UploadUnmixedBatch = func(server mixmessages.Node_UploadUnmixedBatchServer, auth *connect.Auth) error {
-		return mockStreamPostPhase(server)
+		return mockStreamUnmixedBatch(server)
 	}
 
 	testID := id.NewIdFromString("test", id.Generic, t)
@@ -239,7 +307,7 @@ func TestGetPostPhaseStream_ErrorsWhenContextCanceled(t *testing.T) {
 
 var receivedBatch mixmessages.Batch
 
-func mockStreamPostPhase(server mixmessages.Node_UploadUnmixedBatchServer) error {
+func mockStreamUnmixedBatch(server mixmessages.Node_UploadUnmixedBatchServer) error {
 	// Get header from stream
 	batchInfo, err := node.GetUnmixedBatchStreamHeader(server)
 	if err != nil {
@@ -325,37 +393,4 @@ func slotCmp(slotA, slotB mixmessages.Slot) bool {
 	}
 
 	return true
-}
-
-// Smoke test GetCompletedBatch
-func TestGetCompletedBatch(t *testing.T) {
-	GatewayAddress := getNextGatewayAddress()
-	ServerAddress := getNextServerAddress()
-	testID := id.NewIdFromString("test", id.Gateway, t)
-	nodeID := id.NewIdFromString("test", id.Node, t)
-	gateway := StartGateway(testID, GatewayAddress, NewImplementation(), nil,
-		nil, gossip.DefaultManagerFlags())
-	server := node.StartNode(nodeID, ServerAddress, 0, node.NewImplementation(),
-		nil, nil)
-	defer gateway.Shutdown()
-	defer server.Shutdown()
-	manager := connect.NewManagerTesting(t)
-
-	params := connect.GetDefaultHostParams()
-	params.AuthEnabled = false
-	host, err := manager.AddHost(testID, ServerAddress, nil, params)
-	if err != nil {
-		t.Errorf("Unable to call NewHost: %+v", err)
-	}
-
-	batch, err := gateway.GetCompletedBatch(host)
-	if err != nil {
-		t.Errorf("GetCompletedBatch: Error received: %s", err)
-	}
-	// The mock server doesn't have any batches ready,
-	// so it should return either a nil slice of slots,
-	// or a slice with no slots in it.
-	if len(batch.Slots) != 0 {
-		t.Errorf("GetCompletedBatch: Expected batch with no slots")
-	}
 }
