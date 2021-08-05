@@ -40,9 +40,7 @@ func TestTLS(t *testing.T) {
 	certData := testkeys.LoadFromPath(certPath)
 	testId := id.NewIdFromString("test", id.Generic, t)
 
-	rg := StartRegistrationServer(testId, RegAddress,
-		NewImplementation(),
-		certData, keyData)
+	rg := StartRegistrationServer(testId, RegAddress, NewImplementation(), certData, keyData, nil)
 	// Well, client shouldn't have a server type because it's not a server
 	// It's a client
 	// So, we need some way to add a connection to the manager for the client
@@ -72,6 +70,5 @@ func TestBadCerts(t *testing.T) {
 	RegAddress := getNextServerAddress()
 	testId := id.NewIdFromString("test", id.Generic, t)
 
-	_ = StartRegistrationServer(testId, RegAddress, NewImplementation(),
-		[]byte("bad cert"), []byte("bad key"))
+	_ = StartRegistrationServer(testId, RegAddress, NewImplementation(), []byte("bad cert"), []byte("bad key"), nil)
 }
