@@ -114,8 +114,8 @@ func CreateCommClient(id *id.ID, pubKeyPem, privKeyPem,
 }
 
 // Creates a ProtoComms server-type object to be used in various initializers
-func StartCommServer(id *id.ID, localServer string, certPEMblock,
-	keyPEMblock []byte) (*ProtoComms, net.Listener, error) {
+func StartCommServer(id *id.ID, localServer string,
+	certPEMblock, keyPEMblock []byte, preloadedHosts []*Host) (*ProtoComms, net.Listener, error) {
 
 	// Build the ProtoComms object
 	pc := &ProtoComms{
@@ -123,6 +123,10 @@ func StartCommServer(id *id.ID, localServer string, certPEMblock,
 		ListeningAddr: localServer,
 		tokens:        token.NewMap(),
 		Manager:       newManager(),
+	}
+
+	for _, h := range preloadedHosts {
+		pc.Manager.addHost(h)
 	}
 
 listen:

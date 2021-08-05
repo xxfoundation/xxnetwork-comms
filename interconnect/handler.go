@@ -28,8 +28,7 @@ func StartCMixInterconnect(id *id.ID, port string, handler ServerHandler,
 
 	addr := net.JoinHostPort("localhost", port)
 
-	pc, lis, err := connect.StartCommServer(id, addr,
-		certPEMblock, keyPEMblock)
+	pc, lis, err := connect.StartCommServer(id, addr, certPEMblock, keyPEMblock, nil)
 	if err != nil {
 		jww.FATAL.Panicf("Unable to start comms server: %+v", err)
 	}
