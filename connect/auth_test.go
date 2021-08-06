@@ -14,9 +14,7 @@ import (
 	token "gitlab.com/xx_network/comms/connect/token"
 	pb "gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/comms/testkeys"
-	"gitlab.com/xx_network/crypto/csprng"
 	"gitlab.com/xx_network/crypto/signature/rsa"
-	"gitlab.com/xx_network/crypto/xx"
 	"gitlab.com/xx_network/primitives/id"
 	"google.golang.org/grpc/peer"
 	"net"
@@ -342,86 +340,6 @@ func TestProtoComms_ValidateToken_BadId(t *testing.T) {
 
 	t.Errorf("Expected error path!"+
 		"Should not be able to marshal a message with id: %v", badId)
-
-}
-
-// Dynamic authentication happy path (e.g. host not pre-added)
-func TestProtoComms_ValidateTokenDynamic(t *testing.T) {
-	// All of this is setup for UID ----
-	privKey, err := rsa.GenerateKey(csprng.NewSystemRNG(), rsa.DefaultRSABitLen)
-	if err != nil {
-		t.Errorf("Could not generate private key: %+v", err)
-	}
-	pubKey := privKey.GetPublic()
-
-	salt := []byte("0123456789ABCDEF0123456789ABCDEF")
-	uid, err := xx.NewID(pubKey, salt, id.User)
-	if err != nil {
-		t.Errorf("Could not generate user ID: %+v", err)
-	}
-	testId := uid.String()
-	// ------
-
-	// Now we set up the client comms object
-	comm := ProtoComms{
-		Id:            uid,
-		ListeningAddr: "",
-		tokens:        token.NewMap(),
-		Manager:       newManager(),
-	}
-	err = comm.setPrivateKey(rsa.CreatePrivateKeyPem(privKey))
-	if err != nil {
-		t.Errorf("Expected to set private key: %+v", err)
-	}
-
-	tokenBytes, err := comm.GenerateToken()
-	if err != nil || tokenBytes == nil {
-		t.Errorf("Unable to generate token: %+v", err)
-	}
-	tkn := token.Token{}
-	copy(tkn[:], tokenBytes)
-
-	// For this test we won't addHost to Manager, we'll just create a host
-	// so we can compare to the dynamic one later
-	host, err := newDynamicHost(uid, rsa.CreatePublicKeyPem(pubKey))
-	if err != nil {
-		t.Errorf("Unable to create host: %+v", err)
-	}
-	host.transmissionToken.Set(tkn)
-	tokenMsg := &pb.AssignToken{
-		Token: tokenBytes,
-	}
-
-	// Set up auth msg
-	msg, err := comm.PackAuthenticatedMessage(tokenMsg, host, true)
-	if err != nil {
-		t.Errorf("Expected no error packing authenticated message: %+v", err)
-	}
-	msg.Client = &pb.ClientID{
-		Salt:      salt,
-		PublicKey: string(rsa.CreatePublicKeyPem(pubKey)),
-	}
-
-	// Here's the method we're testing
-	err = comm.ValidateToken(msg)
-	if err != nil {
-		t.Errorf("Expected to validate token: %+v", err)
-	}
-
-	// Check the output values behaved as expected
-	host, ok := comm.GetHost(uid)
-	if !ok {
-		t.Errorf("Expected dynamic auth to add host %s!", testId)
-	}
-	if !host.IsDynamicHost() {
-		t.Errorf("Expected host to be dynamic!")
-	}
-
-	if !bytes.Equal(msg.Token, host.receptionToken.GetBytes()) {
-		t.Errorf("Message token doesn't match message's token! "+
-			"Expected: %+v"+
-			"\n\tReceived: %+v", host.receptionToken, msg.Token)
-	}
 
 }
 

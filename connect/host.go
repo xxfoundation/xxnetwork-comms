@@ -60,10 +60,6 @@ type Host struct {
 	// RSA Public Key corresponding to the TLS Certificate
 	rsaPublicKey *rsa.PublicKey
 
-	// Indicates whether dynamic authentication was used for this Host
-	// This is useful for determining whether a Host's key was hardcoded
-	dynamicHost bool
-
 	// State tracking for host metric
 	metrics *Metric
 
@@ -119,32 +115,6 @@ func NewHost(id *id.ID, address string, cert []byte, params HostParams) (host *H
 	jww.INFO.Printf("New Host Created: %s", host)
 	jww.TRACE.Printf("New Host Certificate for %v: %s...", id, cert)
 	return
-}
-
-// Creates a new dynamic-authenticated Host object
-func newDynamicHost(id *id.ID, publicKey []byte) (host *Host, err error) {
-
-	// Initialize the Host object
-	// IMPORTANT: This flag must be set to true for all dynamic Hosts
-	//            because the security properties for these Hosts differ
-	host = &Host{
-		id:                id,
-		dynamicHost:       true,
-		transmissionToken: token.NewLive(),
-		receptionToken:    token.NewLive(),
-	}
-
-	// Create the RSA Public Key object
-	host.rsaPublicKey, err = rsa.LoadPublicKeyFromPem(publicKey)
-	if err != nil {
-		err = errors.Errorf("Error extracting PublicKey: %+v", err)
-	}
-	return
-}
-
-// Simple getter for the dynamicHost value
-func (h *Host) IsDynamicHost() bool {
-	return h.dynamicHost
 }
 
 // the amount of data, when streaming, that a sender can send before receiving an ACK
@@ -475,17 +445,4 @@ func (h *Host) SetTestPublicKey(key *rsa.PublicKey, t interface{}) {
 		jww.FATAL.Panicf("SetTestPublicKey is restricted to testing only. Got %T", t)
 	}
 	h.rsaPublicKey = key
-}
-
-// Set host to dynamic (for testing use)
-func (h *Host) SetTestDynamic(t interface{}) {
-	switch t.(type) {
-	case *testing.T:
-		break
-	case *testing.M:
-		break
-	default:
-		jww.FATAL.Panicf("SetTestDynamic is restricted to testing only. Got %T", t)
-	}
-	h.dynamicHost = true
 }
