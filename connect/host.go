@@ -380,6 +380,7 @@ func (h *Host) connectHelper() (err error) {
 		dialOpts := []grpc.DialOption{
 			grpc.WithBlock(),
 			grpc.WithKeepaliveParams(h.params.KaClientOpts),
+			grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(math.MaxInt32)),
 			securityDial,
 		}
 
