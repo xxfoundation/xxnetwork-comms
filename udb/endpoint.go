@@ -56,53 +56,14 @@ func (u *Comms) RegisterUser(ctx context.Context, msg *messages.AuthenticatedMes
 	return u.handler.RegisterUser(registration, authState)
 }
 
-func (u *Comms) RegisterFact(ctx context.Context, msg *messages.AuthenticatedMessage) (*pb.FactRegisterResponse, error) {
-	// Create an auth object
-	authState, err := u.AuthenticatedReceiver(msg, ctx)
-	if err != nil {
-		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
-	}
-
-	// Unmarshall the any message to the message type needed
-	request := &pb.FactRegisterRequest{}
-	err = ptypes.UnmarshalAny(msg.Message, request)
-	if err != nil {
-		return nil, err
-	}
-
-	return u.handler.RegisterFact(request, authState)
+func (u *Comms) RegisterFact(ctx context.Context, msg *pb.FactRegisterRequest) (*pb.FactRegisterResponse, error) {
+	return u.handler.RegisterFact(msg)
 }
 
-func (u *Comms) ConfirmFact(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
-	// Create an auth object
-	authState, err := u.AuthenticatedReceiver(msg, ctx)
-	if err != nil {
-		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
-	}
-
-	// Unmarshall the any message to the message type needed
-	request := &pb.FactConfirmRequest{}
-	err = ptypes.UnmarshalAny(msg.Message, request)
-	if err != nil {
-		return nil, err
-	}
-
-	return u.handler.ConfirmFact(request, authState)
+func (u *Comms) ConfirmFact(ctx context.Context, msg *pb.FactConfirmRequest) (*messages.Ack, error) {
+	return u.handler.ConfirmFact(msg)
 }
 
-func (u *Comms) RemoveFact(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
-	// Create an auth object
-	authState, err := u.AuthenticatedReceiver(msg, ctx)
-	if err != nil {
-		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
-	}
-
-	// Unmarshall the any message to the message type needed
-	request := &pb.FactRemovalRequest{}
-	err = ptypes.UnmarshalAny(msg.Message, request)
-	if err != nil {
-		return nil, err
-	}
-
-	return u.handler.RemoveFact(request, authState)
+func (u *Comms) RemoveFact(ctx context.Context, msg *pb.FactRemovalRequest) (*messages.Ack, error) {
+	return u.handler.RemoveFact(msg)
 }

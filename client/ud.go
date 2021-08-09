@@ -19,14 +19,8 @@ func (c *Comms) SendDeleteMessage(host *connect.Host, message *pb.FactRemovalReq
 		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 
-		// Pack our authenticated message
-		authMsg, err := c.PackAuthenticatedMessage(message, host, false)
-		if err != nil {
-			return nil, errors.New(err.Error())
-		}
-
 		// Send the message
-		resultMsg, err := pb.NewUDBClient(conn).RemoveFact(ctx, authMsg)
+		resultMsg, err := pb.NewUDBClient(conn).RemoveFact(ctx, message)
 		if err != nil {
 			err = errors.New(err.Error())
 			return nil, errors.New(err.Error())
@@ -87,14 +81,8 @@ func (c *Comms) SendRegisterFact(host *connect.Host, message *pb.FactRegisterReq
 		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 
-		// Pack our authenticated message
-		authMsg, err := c.PackAuthenticatedMessage(message, host, false)
-		if err != nil {
-			return nil, errors.New(err.Error())
-		}
-
 		// Send the message
-		resultMsg, err := pb.NewUDBClient(conn).RegisterFact(ctx, authMsg)
+		resultMsg, err := pb.NewUDBClient(conn).RegisterFact(ctx, message)
 		if err != nil {
 			err = errors.New(err.Error())
 			return nil, errors.New(err.Error())
@@ -123,14 +111,8 @@ func (c *Comms) SendConfirmFact(host *connect.Host, message *pb.FactConfirmReque
 		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 
-		// Pack our authenticated message
-		authMsg, err := c.PackAuthenticatedMessage(message, host, false)
-		if err != nil {
-			return nil, errors.New(err.Error())
-		}
-
 		// Send the message
-		resultMsg, err := pb.NewUDBClient(conn).ConfirmFact(ctx, authMsg)
+		resultMsg, err := pb.NewUDBClient(conn).ConfirmFact(ctx, message)
 		if err != nil {
 			err = errors.New(err.Error())
 			return nil, errors.New(err.Error())
