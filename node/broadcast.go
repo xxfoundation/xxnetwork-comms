@@ -17,7 +17,9 @@ import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/messages"
+	"golang.org/x/net/context"
 	"google.golang.org/grpc"
+	"time"
 )
 
 // Server -> Server error function
@@ -93,7 +95,8 @@ func (s *Comms) SendAskOnline(host *connect.Host) (*messages.Ack, error) {
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
-		ctx, cancel := host.GetMessagingContext()
+		ctx, cancel := context.WithTimeout(context.Background(),
+			2*time.Second)
 		defer cancel()
 
 		// Send the message
