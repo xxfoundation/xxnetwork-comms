@@ -9,10 +9,9 @@ package registration
 
 import (
 	"fmt"
+	"gitlab.com/xx_network/primitives/id"
 	"sync"
 	"testing"
-
-	"gitlab.com/xx_network/primitives/id"
 )
 
 var serverPortLock sync.Mutex
@@ -36,6 +35,5 @@ func TestBadCerts(t *testing.T) {
 	RegAddress := getNextServerAddress()
 	testId := id.NewIdFromString("test", id.Generic, t)
 
-	_ = StartRegistrationServer(testId, RegAddress, NewImplementation(),
-		[]byte("bad cert"), []byte("bad key"))
+	_ = StartRegistrationServer(testId, RegAddress, NewImplementation(), []byte("bad cert"), []byte("bad key"), nil)
 }
