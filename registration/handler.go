@@ -31,10 +31,10 @@ type Comms struct {
 // and a callback interface for server operations
 // with given path to public and private key for TLS connection
 func StartRegistrationServer(id *id.ID, localServer string, handler Handler,
-	certPEMblock, keyPEMblock []byte) *Comms {
+	certPEMblock, keyPEMblock []byte, preloadedHosts []*connect.Host) *Comms {
 
 	pc, lis, err := connect.StartCommServer(id, localServer,
-		certPEMblock, keyPEMblock)
+		certPEMblock, keyPEMblock, preloadedHosts)
 	if err != nil {
 		jww.FATAL.Panicf("Unable to start comms server: %+v", err)
 	}

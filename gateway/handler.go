@@ -55,7 +55,7 @@ type Comms struct {
 func StartGateway(id *id.ID, localServer string, handler Handler,
 	certPem, keyPem []byte, gossipFlags gossip.ManagerFlags) *Comms {
 	pc, lis, err := connect.StartCommServer(id, localServer,
-		certPem, keyPem)
+		certPem, keyPem, nil)
 	if err != nil {
 		jww.FATAL.Panicf("Unable to start comms server: %+v", err)
 	}
