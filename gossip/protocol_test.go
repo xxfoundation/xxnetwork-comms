@@ -471,7 +471,7 @@ func TestGossipNodes(t *testing.T) {
 		node := id.NewIdFromUInt(uint64(i), id.Node, t)
 		nodes = append(nodes, node)
 		ports = append(ports, port)
-		pc, listen, err := connect.StartCommServer(node, "0.0.0.0:"+port, certPEM, keyPEM)
+		pc, listen, err := connect.StartCommServer(node, "0.0.0.0:"+port, certPEM, keyPEM, nil)
 		listeners = append(listeners, listen)
 
 		// Do I need to add other hosts before calling NewManager?
