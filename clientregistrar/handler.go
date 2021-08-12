@@ -35,7 +35,7 @@ func StartClientRegistrarServer(id *id.ID, localServer string, handler Handler,
 	certPEMblock, keyPEMblock []byte) *Comms {
 
 	pc, lis, err := connect.StartCommServer(id, localServer,
-		certPEMblock, keyPEMblock)
+		certPEMblock, keyPEMblock, nil)
 	if err != nil {
 		jww.FATAL.Panicf("Unable to start comms server: %+v", err)
 	}
