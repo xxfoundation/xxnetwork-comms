@@ -10,13 +10,13 @@ package client
 import (
 	"testing"
 
-	"gitlab.com/elixxir/comms/clientregistrar"
-	pb "gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/elixxir/comms/registration"
-	"gitlab.com/elixxir/comms/testutils"
-	"gitlab.com/xx_network/comms/connect"
-	"gitlab.com/xx_network/primitives/id"
-	"gitlab.com/xx_network/primitives/ndf"
+	"git.xx.network/elixxir/comms/clientregistrar"
+	pb "git.xx.network/elixxir/comms/mixmessages"
+	"git.xx.network/elixxir/comms/registration"
+	"git.xx.network/elixxir/comms/testutils"
+	"git.xx.network/xx_network/comms/connect"
+	"git.xx.network/xx_network/primitives/id"
+	"git.xx.network/xx_network/primitives/ndf"
 )
 
 // Smoke test SendRegistrationMessage

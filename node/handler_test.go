@@ -9,7 +9,7 @@
 package node
 
 import (
-	pb "gitlab.com/elixxir/comms/mixmessages"
+	pb "git.xx.network/elixxir/comms/mixmessages"
 )
 
 // Blank struct implementing Handler interface for testing purposes (Passing to StartNode)

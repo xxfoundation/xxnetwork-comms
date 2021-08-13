@@ -5,11 +5,11 @@ import (
 	"sync"
 	"testing"
 
-	"gitlab.com/elixxir/comms/client"
-	pb "gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/elixxir/comms/testkeys"
-	"gitlab.com/xx_network/comms/connect"
-	"gitlab.com/xx_network/primitives/id"
+	"git.xx.network/elixxir/comms/client"
+	pb "git.xx.network/elixxir/comms/mixmessages"
+	"git.xx.network/elixxir/comms/testkeys"
+	"git.xx.network/xx_network/comms/connect"
+	"git.xx.network/xx_network/primitives/id"
 )
 
 var serverPortLock sync.Mutex

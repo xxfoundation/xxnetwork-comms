@@ -10,10 +10,10 @@ package node
 import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/pkg/errors"
-	pb "gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/xx_network/comms/connect"
-	"gitlab.com/xx_network/comms/messages"
-	"gitlab.com/xx_network/primitives/id"
+	pb "git.xx.network/elixxir/comms/mixmessages"
+	"git.xx.network/xx_network/comms/connect"
+	"git.xx.network/xx_network/comms/messages"
+	"git.xx.network/xx_network/primitives/id"
 	"testing"
 )
 

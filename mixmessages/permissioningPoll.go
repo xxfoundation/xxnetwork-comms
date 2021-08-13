@@ -7,7 +7,7 @@
 
 package mixmessages
 
-import "gitlab.com/elixxir/primitives/current"
+import "git.xx.network/elixxir/primitives/current"
 
 // GetState gets the state of the node
 func (m *PermissioningPoll) GetCurrentActivityState() current.Activity {

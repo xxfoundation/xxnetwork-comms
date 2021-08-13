@@ -12,7 +12,7 @@ package publicAddress
 import (
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
-	"gitlab.com/elixxir/crypto/shuffle"
+	"git.xx.network/elixxir/crypto/shuffle"
 	"io/ioutil"
 	"net"
 	"net/http"

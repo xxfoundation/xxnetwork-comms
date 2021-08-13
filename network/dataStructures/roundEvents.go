@@ -9,9 +9,9 @@
 package dataStructures
 
 import (
-	pb "gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/elixxir/primitives/states"
-	"gitlab.com/xx_network/primitives/id"
+	pb "git.xx.network/elixxir/comms/mixmessages"
+	"git.xx.network/elixxir/primitives/states"
+	"git.xx.network/xx_network/primitives/id"
 	"sync"
 	"time"
 )

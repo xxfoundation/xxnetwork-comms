@@ -12,10 +12,10 @@ package client
 import (
 	"fmt"
 	"github.com/pkg/errors"
-	pb "gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/elixxir/comms/testutils"
-	"gitlab.com/xx_network/comms/connect"
-	"gitlab.com/xx_network/primitives/ndf"
+	pb "git.xx.network/elixxir/comms/mixmessages"
+	"git.xx.network/elixxir/comms/testutils"
+	"git.xx.network/xx_network/comms/connect"
+	"git.xx.network/xx_network/primitives/ndf"
 	"sync"
 )
 

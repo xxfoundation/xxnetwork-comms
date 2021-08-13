@@ -2,9 +2,9 @@ package network
 
 import (
 	jww "github.com/spf13/jwalterweatherman"
-	pb "gitlab.com/elixxir/comms/mixmessages"
-	ds "gitlab.com/elixxir/comms/network/dataStructures"
-	"gitlab.com/xx_network/primitives/id"
+	pb "git.xx.network/elixxir/comms/mixmessages"
+	ds "git.xx.network/elixxir/comms/network/dataStructures"
+	"git.xx.network/xx_network/primitives/id"
 	"testing"
 )
 

@@ -11,7 +11,7 @@
 package mixmessages
 
 import (
-	"gitlab.com/xx_network/comms/messages"
+	"git.xx.network/xx_network/comms/messages"
 	"hash"
 )
 

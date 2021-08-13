@@ -9,7 +9,7 @@ package testkeys
 
 import (
 	jww "github.com/spf13/jwalterweatherman"
-	"gitlab.com/xx_network/primitives/utils"
+	"git.xx.network/xx_network/primitives/utils"
 	"path/filepath"
 	"runtime"
 )

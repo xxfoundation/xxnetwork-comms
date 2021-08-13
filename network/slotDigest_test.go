@@ -2,7 +2,7 @@ package network
 
 import (
 	"encoding/binary"
-	"gitlab.com/elixxir/comms/mixmessages"
+	"git.xx.network/elixxir/comms/mixmessages"
 	"reflect"
 	"testing"
 )

@@ -11,9 +11,9 @@ package dataStructures
 
 import (
 	"github.com/pkg/errors"
-	"gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/xx_network/primitives/id"
-	"gitlab.com/xx_network/ring"
+	"git.xx.network/elixxir/comms/mixmessages"
+	"git.xx.network/xx_network/primitives/id"
+	"git.xx.network/xx_network/ring"
 )
 
 const RoundInfoBufLen = 1500

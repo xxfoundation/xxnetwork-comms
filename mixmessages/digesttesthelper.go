@@ -3,9 +3,9 @@ package mixmessages
 import (
 	"bytes"
 	"fmt"
-	"gitlab.com/elixxir/crypto/hash"
-	"gitlab.com/xx_network/comms/signature"
-	"gitlab.com/xx_network/primitives/netTime"
+	"git.xx.network/elixxir/crypto/hash"
+	"git.xx.network/xx_network/comms/signature"
+	"git.xx.network/xx_network/primitives/netTime"
 	"math/rand"
 	"reflect"
 	"strings"

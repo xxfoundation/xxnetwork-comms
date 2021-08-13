@@ -9,7 +9,7 @@ package registration
 
 import (
 	"fmt"
-	"gitlab.com/xx_network/primitives/id"
+	"git.xx.network/xx_network/primitives/id"
 	"sync"
 	"testing"
 )

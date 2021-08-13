@@ -1,8 +1,8 @@
 package dataStructures
 
 import (
-	pb "gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/xx_network/primitives/id"
+	pb "git.xx.network/elixxir/comms/mixmessages"
+	"git.xx.network/xx_network/primitives/id"
 )
 
 // The ExtendedRoundStorage (ERS) interface allows storing rounds inside of an external database for clients to pull

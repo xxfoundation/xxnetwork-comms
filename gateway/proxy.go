@@ -13,8 +13,8 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	jww "github.com/spf13/jwalterweatherman"
-	pb "gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/xx_network/comms/connect"
+	pb "git.xx.network/elixxir/comms/mixmessages"
+	"git.xx.network/xx_network/comms/connect"
 	"google.golang.org/grpc"
 )
 

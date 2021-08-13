@@ -8,9 +8,9 @@
 package dataStructures
 
 import (
-	"gitlab.com/elixxir/crypto/cyclic"
-	"gitlab.com/xx_network/crypto/large"
-	"gitlab.com/xx_network/primitives/ndf"
+	"git.xx.network/elixxir/crypto/cyclic"
+	"git.xx.network/xx_network/crypto/large"
+	"git.xx.network/xx_network/primitives/ndf"
 	"reflect"
 	"testing"
 )

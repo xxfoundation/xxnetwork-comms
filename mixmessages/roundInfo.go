@@ -13,9 +13,9 @@ package mixmessages
 import (
 	"crypto"
 	"encoding/binary"
-	"gitlab.com/elixxir/primitives/states"
-	"gitlab.com/xx_network/comms/messages"
-	"gitlab.com/xx_network/primitives/id"
+	"git.xx.network/elixxir/primitives/states"
+	"git.xx.network/xx_network/comms/messages"
+	"git.xx.network/xx_network/primitives/id"
 	"hash"
 )
 

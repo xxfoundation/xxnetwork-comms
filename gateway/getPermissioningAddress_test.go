@@ -1,10 +1,10 @@
 package gateway
 
 import (
-	"gitlab.com/elixxir/comms/node"
-	"gitlab.com/xx_network/comms/connect"
-	"gitlab.com/xx_network/comms/gossip"
-	"gitlab.com/xx_network/primitives/id"
+	"git.xx.network/elixxir/comms/node"
+	"git.xx.network/xx_network/comms/connect"
+	"git.xx.network/xx_network/comms/gossip"
+	"git.xx.network/xx_network/primitives/id"
 	"testing"
 )
 

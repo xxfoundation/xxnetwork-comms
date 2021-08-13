@@ -3,7 +3,7 @@ package mixmessages
 import (
 	"github.com/golang/protobuf/proto"
 	jww "github.com/spf13/jwalterweatherman"
-	"gitlab.com/elixxir/crypto/hash"
+	"git.xx.network/elixxir/crypto/hash"
 )
 
 // Function to digest Identity

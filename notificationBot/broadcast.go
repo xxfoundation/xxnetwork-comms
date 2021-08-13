@@ -10,8 +10,8 @@
 package notificationBot
 
 import (
-	pb "gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/xx_network/comms/connect"
+	pb "git.xx.network/elixxir/comms/mixmessages"
+	"git.xx.network/xx_network/comms/connect"
 )
 
 // NotificationBot -> Permissioning

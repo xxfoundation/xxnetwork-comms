@@ -12,10 +12,10 @@ package registration
 import (
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
-	pb "gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/xx_network/comms/connect"
-	"gitlab.com/xx_network/comms/messages"
-	"gitlab.com/xx_network/primitives/id"
+	pb "git.xx.network/elixxir/comms/mixmessages"
+	"git.xx.network/xx_network/comms/connect"
+	"git.xx.network/xx_network/comms/messages"
+	"git.xx.network/xx_network/primitives/id"
 	"google.golang.org/grpc/reflection"
 	"runtime/debug"
 )

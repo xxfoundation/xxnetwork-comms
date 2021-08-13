@@ -11,11 +11,11 @@ package network
 
 import (
 	"github.com/pkg/errors"
-	pb "gitlab.com/elixxir/comms/mixmessages"
-	ds "gitlab.com/elixxir/comms/network/dataStructures"
-	"gitlab.com/xx_network/comms/signature"
-	"gitlab.com/xx_network/crypto/signature/rsa"
-	"gitlab.com/xx_network/primitives/ndf"
+	pb "git.xx.network/elixxir/comms/mixmessages"
+	ds "git.xx.network/elixxir/comms/network/dataStructures"
+	"git.xx.network/xx_network/comms/signature"
+	"git.xx.network/xx_network/crypto/signature/rsa"
+	"git.xx.network/xx_network/primitives/ndf"
 )
 
 // wraps the ndf data structure, expoting all the functionality expect the

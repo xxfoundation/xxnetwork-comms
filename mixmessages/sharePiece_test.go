@@ -11,9 +11,9 @@ import (
 	"crypto"
 	"crypto/rand"
 	"encoding/base64"
-	"gitlab.com/xx_network/comms/messages"
-	"gitlab.com/xx_network/comms/signature"
-	"gitlab.com/xx_network/crypto/signature/rsa"
+	"git.xx.network/xx_network/comms/messages"
+	"git.xx.network/xx_network/comms/signature"
+	"git.xx.network/xx_network/crypto/signature/rsa"
 	"reflect"
 	"testing"
 )

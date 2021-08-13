@@ -8,8 +8,8 @@
 package dataStructures
 
 import (
-	"gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/elixxir/comms/testutils"
+	"git.xx.network/elixxir/comms/mixmessages"
+	"git.xx.network/elixxir/comms/testutils"
 	"reflect"
 	"testing"
 )

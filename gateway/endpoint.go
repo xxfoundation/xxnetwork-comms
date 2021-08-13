@@ -12,8 +12,8 @@ package gateway
 import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/pkg/errors"
-	pb "gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/xx_network/comms/messages"
+	pb "git.xx.network/elixxir/comms/mixmessages"
+	"git.xx.network/xx_network/comms/messages"
 	"golang.org/x/net/context"
 )
 

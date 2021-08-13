@@ -8,7 +8,7 @@ package network
 
 import (
 	"encoding/binary"
-	"gitlab.com/elixxir/comms/mixmessages"
+	"git.xx.network/elixxir/comms/mixmessages"
 )
 
 // GenerateSlotDigest serializes the gateway slot message for the

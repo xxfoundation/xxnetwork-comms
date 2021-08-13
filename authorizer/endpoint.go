@@ -13,9 +13,9 @@ import (
 	"context"
 
 	jww "github.com/spf13/jwalterweatherman"
-	pb "gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/xx_network/comms/connect"
-	"gitlab.com/xx_network/comms/messages"
+	pb "git.xx.network/elixxir/comms/mixmessages"
+	"git.xx.network/xx_network/comms/connect"
+	"git.xx.network/xx_network/comms/messages"
 )
 
 // Handles validation of reverse-authentication tokens

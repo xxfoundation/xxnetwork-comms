@@ -15,7 +15,7 @@ package mixmessages
 import (
 	context "context"
 	any "github.com/golang/protobuf/ptypes/any"
-	messages "gitlab.com/xx_network/comms/messages"
+	messages "git.xx.network/xx_network/comms/messages"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"

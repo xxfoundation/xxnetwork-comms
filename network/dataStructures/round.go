@@ -8,10 +8,10 @@ package dataStructures
 
 import (
 	jww "github.com/spf13/jwalterweatherman"
-	pb "gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/xx_network/comms/signature"
-	"gitlab.com/xx_network/crypto/signature/ec"
-	"gitlab.com/xx_network/crypto/signature/rsa"
+	pb "git.xx.network/elixxir/comms/mixmessages"
+	"git.xx.network/xx_network/comms/signature"
+	"git.xx.network/xx_network/crypto/signature/ec"
+	"git.xx.network/xx_network/crypto/signature/rsa"
 	"sync/atomic"
 )
 
