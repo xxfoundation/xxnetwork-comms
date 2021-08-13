@@ -96,24 +96,6 @@ func TestHost_UpdateAddress(t *testing.T) {
 	}
 }
 
-// Validate that dynamic host defaults to false and can be set to true
-func TestHost_IsDynamicHost(t *testing.T) {
-
-	host := Host{}
-
-	if host.IsDynamicHost() != false {
-		t.Errorf("Correct bool not returned. Expected false, got %v",
-			host.dynamicHost)
-	}
-
-	host.dynamicHost = true
-
-	if host.IsDynamicHost() != true {
-		t.Errorf("Correct bool not returned. Expected true, got %v",
-			host.dynamicHost)
-	}
-}
-
 // Full test
 func TestHost_IsOnline(t *testing.T) {
 	addr := "0.0.0.0:10234"
