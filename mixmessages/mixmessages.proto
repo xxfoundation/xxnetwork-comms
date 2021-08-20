@@ -619,6 +619,7 @@ message FactConfirmRequest {
 message FactRemovalRequest {
     bytes UID = 1;
     Fact RemovalData = 2;
+    bytes FactSig = 3;// (RSAPublicSign(Fact.Digest()))
 }
 
 // CONNECTIVITY CHECKER --------------------------------------------------------
