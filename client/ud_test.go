@@ -8,31 +8,6 @@ import (
 	"testing"
 )
 
-// Smoke test SendGetMessage
-func TestComms_SendDeleteMessage(t *testing.T) {
-	udAddr := getNextAddress()
-	ud := udb.StartServer(&id.UDB, udAddr, udb.NewImplementation(), nil, nil)
-	_ = ud.Id
-	defer ud.Shutdown()
-	c, err := NewClientComms(&id.DummyUser, nil, nil, nil)
-	if err != nil {
-		t.Error(err)
-	}
-	manager := connect.NewManagerTesting(t)
-
-	params := connect.GetDefaultHostParams()
-	params.AuthEnabled = false
-	host, err := manager.AddHost(&id.UDB, udAddr, nil, params)
-	if err != nil {
-		t.Errorf("Unable to call NewHost: %+v", err)
-	}
-
-	_, err = c.SendDeleteMessage(host, &pb.FactRemovalRequest{})
-	if err != nil {
-		t.Errorf("DeleteMessage: Error received: %s", err)
-	}
-}
-
 // Smoke test SendRegisterUser
 func TestComms_SendRegisterUser(t *testing.T) {
 	udAddr := getNextAddress()
@@ -103,6 +78,31 @@ func TestComms_SendConfirmFact(t *testing.T) {
 	}
 
 	_, err = c.SendConfirmFact(host, &pb.FactConfirmRequest{})
+	if err != nil {
+		t.Errorf("DeleteMessage: Error received: %s", err)
+	}
+}
+
+// Smoke test SendGetMessage
+func TestComms_SendRemoveFact(t *testing.T) {
+	udAddr := getNextAddress()
+	ud := udb.StartServer(&id.UDB, udAddr, udb.NewImplementation(), nil, nil)
+	_ = ud.Id
+	defer ud.Shutdown()
+	c, err := NewClientComms(&id.DummyUser, nil, nil, nil)
+	if err != nil {
+		t.Error(err)
+	}
+	manager := connect.NewManagerTesting(t)
+
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(&id.UDB, udAddr, nil, params)
+	if err != nil {
+		t.Errorf("Unable to call NewHost: %+v", err)
+	}
+
+	_, err = c.SendRemoveFact(host, &pb.FactRemovalRequest{})
 	if err != nil {
 		t.Errorf("DeleteMessage: Error received: %s", err)
 	}
