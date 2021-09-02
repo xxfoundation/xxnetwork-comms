@@ -41,6 +41,10 @@ func (u *Comms) RegisterUser(ctx context.Context, msg *pb.UDBUserRegistration) (
 	return u.handler.RegisterUser(msg)
 }
 
+func (u *Comms) RemoveUser(ctx context.Context, msg *pb.FactRemovalRequest) (*messages.Ack, error) {
+	return u.handler.RemoveUser(msg)
+}
+
 func (u *Comms) RegisterFact(ctx context.Context, msg *pb.FactRegisterRequest) (*pb.FactRegisterResponse, error) {
 	return u.handler.RegisterFact(msg)
 }

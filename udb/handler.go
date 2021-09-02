@@ -72,11 +72,16 @@ func StartServer(id *id.ID, localServer string, handler Handler,
 type Handler interface {
 	// RegisterUser handles registering a user into the database
 	RegisterUser(registration *pb.UDBUserRegistration) (*messages.Ack, error)
+	// RemoveUser deletes this user registration and blocks anyone from ever
+	// registering under that username again.
+	// The fact removal request must be for the username or it will not work.
+	RemoveUser(request *pb.FactRemovalRequest) (*messages.Ack, error)
 	// RegisterFact handles registering a fact into the database
 	RegisterFact(msg *pb.FactRegisterRequest) (*pb.FactRegisterResponse, error)
 	// ConfirmFact checks a Fact against the Fact database
 	ConfirmFact(msg *pb.FactConfirmRequest) (*messages.Ack, error)
-	// RemoveFact removes a Fact from the Fact database
+	// RemoveFact deletes a fact from its associated ID.
+	// You cannot RemoveFact on a username. Callers must RemoveUser and reregister.
 	RemoveFact(request *pb.FactRemovalRequest) (*messages.Ack, error)
 }
 
@@ -89,11 +94,16 @@ type implementationFunctions struct {
 
 	// RegisterUser handles registering a user into the database
 	RegisterUser func(registration *pb.UDBUserRegistration) (*messages.Ack, error)
+	// RemoveUser deletes this user registration and blocks anyone from ever
+	// registering under that username again.
+	// The fact removal request must be for the username or it will not work.
+	RemoveUser func(request *pb.FactRemovalRequest) (*messages.Ack, error)
 	// RegisterFact handles registering a fact into the database
 	RegisterFact func(request *pb.FactRegisterRequest) (*pb.FactRegisterResponse, error)
 	// ConfirmFact checks a Fact against the Fact database
 	ConfirmFact func(request *pb.FactConfirmRequest) (*messages.Ack, error)
-	// RemoveFact removes a Fact from the Fact database
+	// RemoveFact deletes a fact from its associated ID.
+	// You cannot RemoveFact on a username. Callers must RemoveUser and reregister.
 	RemoveFact func(request *pb.FactRemovalRequest) (*messages.Ack, error)
 }
 
@@ -120,6 +130,11 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return &messages.Ack{}, nil
 			},
+			// Stub for RemoveUser which returns a blank message and prints a warning
+			RemoveUser: func(request *pb.FactRemovalRequest) (*messages.Ack, error) {
+				warn(um)
+				return &messages.Ack{}, nil
+			},
 			// Stub for RegisterFact which returns a blank message and prints a warning
 			RegisterFact: func(request *pb.FactRegisterRequest) (*pb.FactRegisterResponse, error) {
 				warn(um)
@@ -142,6 +157,11 @@ func NewImplementation() *Implementation {
 // RegisterUser is called by the RegisterUser in endpoint.go. It calls the corresponding function in the interface.
 func (s *Implementation) RegisterUser(registration *pb.UDBUserRegistration) (*messages.Ack, error) {
 	return s.Functions.RegisterUser(registration)
+}
+
+// RemoveUser is called by the RemoveUser in endpoint.go. It calls the corresponding function in the interface.
+func (s *Implementation) RemoveUser(request *pb.FactRemovalRequest) (*messages.Ack, error) {
+	return s.Functions.RemoveUser(request)
 }
 
 // RegisterFact is called by the RegisterFact in endpoint.go. It calls the corresponding function in the interface.
