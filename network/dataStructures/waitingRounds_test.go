@@ -269,15 +269,12 @@ func TestWaitingRounds_GetUpcomingRealtime_GetFurthest(t *testing.T) {
 
 	// Populate the waiting rounds
 	for i, round := range expectedRounds {
-		localIndex := i
-		go func(round *Round, index int) {
-			time.Sleep(30 * time.Millisecond)
-			err := testutils.SignRoundInfoRsa(round.info, t)
-			if err != nil {
-				t.Errorf("Failed to sign round info #%d: %+v", localIndex, err)
-			}
-			testWR.Insert(round)
-		}(round, localIndex)
+		time.Sleep(30 * time.Millisecond)
+		err := testutils.SignRoundInfoRsa(round.info, t)
+		if err != nil {
+			t.Errorf("Failed to sign round info #%d: %+v", i, err)
+		}
+		testWR.Insert(round)
 	}
 
 	// Attempt to get the furthest round in the queue

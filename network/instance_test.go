@@ -919,7 +919,7 @@ func TestInstance_NodeEventModel(t *testing.T) {
 	timeout := 5
 	for {
 		counterVal := atomic.LoadUint32(&counter)
-		totalNodeGateways := uint32(len(newNdf.Nodes)+len(newNdf.Gateways))
+		totalNodeGateways := uint32(len(newNdf.Nodes) + len(newNdf.Gateways))
 		if counterVal == totalNodeGateways {
 			break
 		} else {
