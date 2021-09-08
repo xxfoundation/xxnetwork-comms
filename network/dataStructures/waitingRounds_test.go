@@ -254,6 +254,50 @@ func TestWaitingRounds_GetUpcomingRealtime(t *testing.T) {
 	}
 }
 
+// Tests that GetUpcomingRealtime pulls the furthest round when
+// the excluded set's length exceeds maxGetClosestTries.
+func TestWaitingRounds_GetUpcomingRealtime_GetFurthest(t *testing.T) {
+	// Generate rounds and WaitingRound
+	expectedRounds, _ := createTestRoundInfos(25, t)
+	testWR := NewWaitingRounds()
+
+	// Populate the set
+	testSet := set.New()
+	for i := 0; i < maxGetClosestTries; i++ {
+		testSet.Insert(expectedRounds[i])
+	}
+
+	// Populate the waiting rounds
+	for i, round := range expectedRounds {
+		localIndex := i
+		go func(round *Round, index int) {
+			time.Sleep(30 * time.Millisecond)
+			err := testutils.SignRoundInfoRsa(round.info, t)
+			if err != nil {
+				t.Errorf("Failed to sign round info #%d: %+v", localIndex, err)
+			}
+			testWR.Insert(round)
+		}(round, localIndex)
+	}
+
+	// Attempt to get the furthest round in the queue
+	furthestRound, err := testWR.GetUpcomingRealtime(5*time.Second, testSet, 0)
+	if err != nil {
+		t.Errorf("GetUpcomingRealtime() returned an unexpected error."+
+			"\n\terror: %v", err)
+	}
+
+	expectedFurthest := testWR.getFurthest(testSet, 0).Get()
+
+	if !reflect.DeepEqual(expectedFurthest, furthestRound) {
+		t.Fatalf("GetUpcomingRealtime should retrieve the furthest round"+
+			" in waiting rounds."+
+			"\n\tExpected: %v\n\tReceived: %v", expectedFurthest, furthestRound)
+
+	}
+
+}
+
 // Happy path of WaitingRounds.GetSlice().
 func TestWaitingRounds_GetSlice(t *testing.T) {
 	// Generate rounds and add to new list

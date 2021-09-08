@@ -20,6 +20,12 @@ import (
 
 var timeOutError = errors.New("Timed out getting round furthest in the future.")
 
+// maxGetClosestTries is the maximum amount of rounds pulled by
+// WaitingRounds.GetUpcomingRealtime. Exceeding this amount causes
+// WaitingRounds.GetUpcomingRealtime to switch from using
+// WaitingRounds.getClosest to using WaitingRounds.getFurthest
+const maxGetClosestTries = 2
+
 // WaitingRounds contains a list of all queued rounds ordered by which occurs
 // furthest in the future with the furthest in the the back.
 type WaitingRounds struct {
@@ -183,6 +189,13 @@ func (wr *WaitingRounds) GetSlice() []*pb.RoundInfo {
 // GetUpcomingRealtime returns the round that will occur furthest in the future.
 // If the list is empty, then it waits waits for a round to be added for the
 // specified duration. If no round is added, then an error is returned.
+//
+// The length of the excluded set indicates how many times the client has
+// called GetUpcomingRealtime trying to retrieve a round to send on.
+// GetUpcomingRealtime defaults to retrieving the closest non-excluded round
+// from WaitingRounds. If the length of the excluded set exceeds the maximum
+// attempts at pulling the closest round, GetUpcomingRealtime will retrieve
+// the furthest non-excluded round from WaitingRounds.
 func (wr *WaitingRounds) GetUpcomingRealtime(timeout time.Duration,
 	exclude *set.Set, minRoundAge time.Duration) (*pb.RoundInfo, error) {
 
@@ -198,9 +211,18 @@ func (wr *WaitingRounds) GetUpcomingRealtime(timeout time.Duration,
 		var round *Round
 		wr.c.L.Lock()
 		for atomic.LoadUint32(&exit) == 0 {
-			round = wr.getClosest(exclude, minRoundAge)
-			if round != nil {
-				break
+			if exclude.Len() < maxGetClosestTries {
+				// Use getClosest when excluded set's length is small
+				round = wr.getClosest(exclude, minRoundAge)
+				if round != nil {
+					break
+				}
+			} else {
+				// Use getFurthest when excluded set's length exceeds maxGetClosestTries
+				round = wr.getFurthest(exclude, minRoundAge)
+				if round != nil {
+					break
+				}
 			}
 			wr.c.Wait()
 		}
