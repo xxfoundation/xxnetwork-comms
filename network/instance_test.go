@@ -19,6 +19,7 @@ import (
 	"gitlab.com/xx_network/primitives/ndf"
 	"reflect"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 )
@@ -885,15 +886,15 @@ func TestInstance_NodeEventModel(t *testing.T) {
 	}
 
 	// Set up channels that count number of items they receive
-	counter := 0
+	counter := uint32(0)
 	go func() {
 		for range addNode {
-			counter += 1
+			atomic.AddUint32(&counter, 1)
 		}
 	}()
 	go func() {
 		for range addGateway {
-			counter += 1
+			atomic.AddUint32(&counter, 1)
 		}
 	}()
 
@@ -917,12 +918,14 @@ func TestInstance_NodeEventModel(t *testing.T) {
 	// Verify channels received the correct amount of information
 	timeout := 5
 	for {
-		if counter == len(newNdf.Nodes)+len(newNdf.Gateways) {
+		counterVal := atomic.LoadUint32(&counter)
+		totalNodeGateways := uint32(len(newNdf.Nodes)+len(newNdf.Gateways))
+		if counterVal == totalNodeGateways {
 			break
 		} else {
 			timeout -= 1
 			if timeout == 0 {
-				t.Errorf("Unable to properly add nodes and gateways! Got %d", counter)
+				t.Errorf("Unable to properly add nodes and gateways! Got %d", atomic.LoadUint32(&counter))
 				return
 			}
 		}
@@ -948,12 +951,12 @@ func TestInstance_NodeEventModel(t *testing.T) {
 	// Set up channels that reduce counter by the number of items they receive
 	go func() {
 		for range removeNode {
-			counter -= 1
+			atomic.AddUint32(&counter, ^uint32(0)) // decrement counter
 		}
 	}()
 	go func() {
 		for range removeGateway {
-			counter -= 1
+			atomic.AddUint32(&counter, ^uint32(0)) // decrement counter
 		}
 	}()
 
@@ -966,7 +969,7 @@ func TestInstance_NodeEventModel(t *testing.T) {
 	// Verify channels received the correct amount of information
 	timeout = 5
 	for {
-		if counter == 0 {
+		if atomic.LoadUint32(&counter) == 0 {
 			break
 		} else {
 			timeout -= 1
