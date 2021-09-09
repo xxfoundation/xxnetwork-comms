@@ -27,7 +27,7 @@ func TestComms_SendNotificationBatch(t *testing.T) {
 	nbID := &id.NotificationBot
 	impl := notificationBot.NewImplementation()
 	receiveChan := make(chan *pb.NotificationBatch)
-	impl.Functions.ReceiveNotificationBatch = func(notifBatch *pb.NotificationBatch, auth *connect.Auth) error {
+	impl.Functions.ReceiveNotificationBatch = func(notifBatch *pb.NotificationBatch) error {
 		go func() { receiveChan <- notifBatch }()
 		return nil
 	}

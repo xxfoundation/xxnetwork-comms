@@ -10,8 +10,6 @@
 package notificationBot
 
 import (
-	"github.com/golang/protobuf/ptypes"
-	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/messages"
@@ -52,21 +50,8 @@ func (nb *Comms) UnregisterForNotifications(_ context.Context, msg *pb.Notificat
 	return &messages.Ack{}, err
 }
 
-func (nb *Comms) ReceiveNotificationBatch(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
-	// Check the authState of the message
-	authState, err := nb.AuthenticatedReceiver(msg, ctx)
-	if err != nil {
-		return nil, errors.Errorf("Failed to handle reception of AuthenticatedMessage: %+v", err)
-	}
-
-	// Unmarshal notification data
-	notificationBatch := &pb.NotificationBatch{}
-	err = ptypes.UnmarshalAny(msg.Message, notificationBatch)
-	if err != nil {
-		return nil, err
-	}
-
-	err = nb.handler.ReceiveNotificationBatch(notificationBatch, authState)
+func (nb *Comms) ReceiveNotificationBatch(_ context.Context, msg *pb.NotificationBatch) (*messages.Ack, error) {
+	err := nb.handler.ReceiveNotificationBatch(msg)
 
 	return &messages.Ack{}, err
 }

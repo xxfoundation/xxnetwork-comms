@@ -27,7 +27,7 @@ type Handler interface {
 	// UnregisterForNotifications event handler which unregisters a client with the notification bot
 	UnregisterForNotifications(msg *pb.NotificationUnregisterRequest) error
 	// ReceiveNotificationBatch receives the batch of notification data from gateway.
-	ReceiveNotificationBatch(notifBatch *pb.NotificationBatch, auth *connect.Auth) error
+	ReceiveNotificationBatch(notifBatch *pb.NotificationBatch) error
 }
 
 // NotificationBot object used to implement
@@ -75,7 +75,7 @@ func StartNotificationBot(id *id.ID, localServer string, handler Handler,
 type implementationFunctions struct {
 	RegisterForNotifications   func(request *pb.NotificationRegisterRequest) error
 	UnregisterForNotifications func(request *pb.NotificationUnregisterRequest) error
-	ReceiveNotificationBatch   func(notifBatch *pb.NotificationBatch, auth *connect.Auth) error
+	ReceiveNotificationBatch   func(notifBatch *pb.NotificationBatch) error
 }
 
 // Implementation allows users of the client library to set the
@@ -103,7 +103,7 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return nil
 			},
-			ReceiveNotificationBatch: func(notifBatch *pb.NotificationBatch, auth *connect.Auth) error {
+			ReceiveNotificationBatch: func(notifBatch *pb.NotificationBatch) error {
 				warn(um)
 				return nil
 			},
@@ -122,7 +122,6 @@ func (s *Implementation) UnregisterForNotifications(request *pb.NotificationUnre
 }
 
 // ReceiveNotificationBatch receives the batch of notification data from gateway.
-func (s *Implementation) ReceiveNotificationBatch(notifBatch *pb.NotificationBatch,
-	auth *connect.Auth) error {
-	return s.Functions.ReceiveNotificationBatch(notifBatch, auth)
+func (s *Implementation) ReceiveNotificationBatch(notifBatch *pb.NotificationBatch) error {
+	return s.Functions.ReceiveNotificationBatch(notifBatch)
 }

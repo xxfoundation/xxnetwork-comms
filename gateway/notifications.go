@@ -18,14 +18,8 @@ func (g *Comms) SendNotificationBatch(host *connect.Host, notifBatch *pb.Notific
 		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 
-		// Pack data into authenticated message
-		authMsg, err := g.PackAuthenticatedMessage(notifBatch, host, false)
-		if err != nil {
-			return nil, err
-		}
-
 		// Send the message
-		_, err = pb.NewNotificationBotClient(conn).ReceiveNotificationBatch(ctx, authMsg)
+		_, err := pb.NewNotificationBotClient(conn).ReceiveNotificationBatch(ctx, notifBatch)
 		return nil, err
 	}
 

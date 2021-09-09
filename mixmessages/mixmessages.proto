@@ -514,7 +514,7 @@ service NotificationBot {
     }
 
     // Gateway -> Notifications notification data
-    rpc ReceiveNotificationBatch(messages.AuthenticatedMessage) returns (messages.Ack) {
+    rpc ReceiveNotificationBatch(NotificationBatch) returns (messages.Ack) {
     }
 }
 
