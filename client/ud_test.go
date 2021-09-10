@@ -107,3 +107,28 @@ func TestComms_SendRemoveFact(t *testing.T) {
 		t.Errorf("DeleteMessage: Error received: %s", err)
 	}
 }
+
+// Smoke test SendGetMessage
+func TestComms_SendRemoveUser(t *testing.T) {
+	udAddr := getNextAddress()
+	ud := udb.StartServer(&id.UDB, udAddr, udb.NewImplementation(), nil, nil)
+	_ = ud.Id
+	defer ud.Shutdown()
+	c, err := NewClientComms(&id.DummyUser, nil, nil, nil)
+	if err != nil {
+		t.Error(err)
+	}
+	manager := connect.NewManagerTesting(t)
+
+	params := connect.GetDefaultHostParams()
+	params.AuthEnabled = false
+	host, err := manager.AddHost(&id.UDB, udAddr, nil, params)
+	if err != nil {
+		t.Errorf("Unable to call NewHost: %+v", err)
+	}
+
+	_, err = c.SendRemoveUser(host, &pb.FactRemovalRequest{})
+	if err != nil {
+		t.Errorf("DeleteMessage: Error received: %s", err)
+	}
+}
