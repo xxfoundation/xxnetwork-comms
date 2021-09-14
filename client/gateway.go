@@ -190,11 +190,8 @@ func (c *Comms) SendPoll(host *connect.Host,
 		chunks = append(chunks, chunk)
 		receivedChunks++
 	}
-
-	jww.DEBUG.Printf("Received %d of %d chunks from streaming", receivedChunks, totalChunks)
-
 	if err != io.EOF { // EOF is an expected error after server-side has completed streaming
-		return nil, errors.Errorf("Error receiving polling response via stream: %v", err)
+		return nil, errors.Errorf("Failed to complete streaming, received %d of %d messages: %v", receivedChunks, totalChunks, err)
 	}
 
 	// Assemble the result

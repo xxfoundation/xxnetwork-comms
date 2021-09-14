@@ -53,13 +53,19 @@ func SplitResponseIntoChunks(message proto.Message) ([]*StreamChunk, error) {
 // the datum into the message type expected by the caller.
 // This functions acts as the inverse of SplitResponseIntoChunks.
 func AssembleChunksIntoResponse(chunks []*StreamChunk, response proto.Message) error {
-	data := make([]byte, 0, len(chunks)*ChunkSize)
+	// Get the length of the last chunk packet
+	lastChunkLen := len(chunks[len(chunks)-1].Datum)
+
+	// Calculate the total data of all chunks
+	totalData := ChunkSize * (len(chunks) - 1) + lastChunkLen
+
+	// Allocate a byte slice with that data
+	data := make([]byte, 0, totalData)
+
+	// Populate the data slice with the chunk data
 	for _, chunk := range chunks {
 		data = append(data, chunk.Datum...)
 	}
-
-	lastChunkLen := len(chunks[len(chunks)-1].Datum)
-	data = data[:ChunkSize*(len(chunks)-1)+lastChunkLen]
 
 	return proto.Unmarshal(data, response)
 }
