@@ -17,6 +17,8 @@ import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/connect"
 	"google.golang.org/grpc"
+	"io"
+	"strconv"
 )
 
 // Client -> Gateway Send Function
@@ -144,30 +146,60 @@ func (c *Comms) SendConfirmNonceMessage(host *connect.Host,
 // Client -> Gateway Send Function
 func (c *Comms) SendPoll(host *connect.Host,
 	message *pb.GatewayPoll) (*pb.GatewayPollResponse, error) {
-	// Create the Send Function
-	f := func(conn *grpc.ClientConn) (*any.Any, error) {
-		// Set up the context
-		ctx, cancel := host.GetMessagingContext()
-		defer cancel()
+	// Set up the context
+	ctx, cancel := connect.StreamingContext()
+	defer cancel()
+
+	// Create the Stream Function
+	f := func(conn *grpc.ClientConn) (interface{}, error) {
 
 		// Send the message
-		resultMsg, err := pb.NewGatewayClient(conn).Poll(ctx, message)
+		clientStream, err := pb.NewGatewayClient(conn).Poll(ctx, message)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
-		return ptypes.MarshalAny(resultMsg)
+		return clientStream, nil
 	}
 
 	// Execute the Send function
 	jww.TRACE.Printf("Sending Poll message: %+v", message)
-	resultMsg, err := c.Send(host, f)
+	resultClient, err := c.Stream(host, f)
 	if err != nil {
 		return nil, err
 	}
 
-	// Marshall the result
+	stream := resultClient.(pb.Gateway_PollClient)
+	jww.DEBUG.Printf("Receiving chunks for gateway poll")
+
+	// Get the total number of chunks from the header
+	md, err := stream.Header()
+	if err != nil {
+		return nil, errors.Errorf("Could not receive streaming header: %v", err)
+	}
+
+	totalChunks, err := strconv.Atoi(md.Get(pb.ChunkHeader)[0])
+	if err != nil {
+		return nil, errors.Errorf("Invalid header received: %v", err)
+	}
+
+	// Receive the chunks
+	chunks := make([]*pb.StreamChunk, 0, totalChunks)
+	chunk, err := stream.Recv()
+	receivedChunks := 0
+	for ; err == nil; chunk, err = stream.Recv() {
+		chunks = append(chunks, chunk)
+		receivedChunks++
+	}
+
+	jww.DEBUG.Printf("Received %d of %d chunks from streaming", receivedChunks, totalChunks)
+
+	if err != io.EOF { // EOF is an expected error after server-side has completed streaming
+		return nil, errors.Errorf("Error receiving polling response via stream: %v", err)
+	}
+
+	// Assemble the result
 	result := &pb.GatewayPollResponse{}
-	return result, ptypes.UnmarshalAny(resultMsg, result)
+	return result, pb.AssembleChunksIntoResponse(chunks, result)
 }
 
 // Client -> Gateway Send Function
