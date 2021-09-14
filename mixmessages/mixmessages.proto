@@ -212,7 +212,8 @@ service Gateway {
     }
 }
 
-// StreamChunk represents a part of a response.
+// StreamChunk represents a part of a response, to be streamed in chunks
+// for bandwidth efficiency.
 message StreamChunk {
     bytes Datum = 1;
 }

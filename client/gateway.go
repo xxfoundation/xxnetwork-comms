@@ -185,10 +185,15 @@ func (c *Comms) SendPoll(host *connect.Host,
 	// Receive the chunks
 	chunks := make([]*pb.StreamChunk, 0, totalChunks)
 	chunk, err := stream.Recv()
+	receivedChunks := 0
 	for ; err == nil; chunk, err = stream.Recv() {
 		chunks = append(chunks, chunk)
+		receivedChunks++
 	}
-	if err != io.EOF {
+
+	jww.DEBUG.Printf("Received %d of %d chunks from streaming", receivedChunks, totalChunks)
+
+	if err != io.EOF { // EOF is an expected error after server-side has completed streaming
 		return nil, errors.Errorf("Error receiving polling response via stream: %v", err)
 	}
 
