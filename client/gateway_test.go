@@ -92,7 +92,8 @@ func TestComms_SendPoll(t *testing.T) {
 	gatewayAddress := getNextAddress()
 	testID := id.NewIdFromString("test", id.Gateway, t)
 	gw := gateway.StartGateway(testID, gatewayAddress,
-		gateway.NewImplementation(), nil, nil, gossip.DefaultManagerFlags())
+		mockGatewayImpl{}, nil, nil, gossip.DefaultManagerFlags())
+
 	defer gw.Shutdown()
 	var c Comms
 	manager := connect.NewManagerTesting(t)
@@ -170,4 +171,43 @@ func TestComms_RequestHistoricalRounds(t *testing.T) {
 	if err != nil {
 		t.Errorf("SendPoll: Error received: %+v", err)
 	}
+}
+
+type mockGatewayImpl struct{}
+
+func (m mockGatewayImpl) PutMessage(message *pb.GatewaySlot) (*pb.GatewaySlotResponse, error) {
+	return nil, nil
+}
+
+func (m mockGatewayImpl) PutManyMessages(msgs *pb.GatewaySlots) (*pb.GatewaySlotResponse, error) {
+	return nil, nil
+}
+
+func (m mockGatewayImpl) RequestNonce(message *pb.NonceRequest) (*pb.Nonce, error) {
+	return nil, nil
+}
+
+func (m mockGatewayImpl) ConfirmNonce(message *pb.RequestRegistrationConfirmation) (*pb.RegistrationConfirmation, error) {
+	return nil, nil
+}
+
+func (m mockGatewayImpl) Poll(msg *pb.GatewayPoll) (*pb.GatewayPollResponse, error) {
+	return &pb.GatewayPollResponse{
+		PartialNDF:    &NdfToreturn,
+		KnownRounds:   []byte("test"),
+		Filters:       nil,
+		EarliestRound: 0,
+	}, nil
+}
+
+func (m mockGatewayImpl) RequestHistoricalRounds(msg *pb.HistoricalRounds) (*pb.HistoricalRoundsResponse, error) {
+	return nil, nil
+}
+
+func (m mockGatewayImpl) RequestMessages(msg *pb.GetMessages) (*pb.GetMessagesResponse, error) {
+	return nil, nil
+}
+
+func (m mockGatewayImpl) ShareMessages(msg *pb.RoundMessages, auth *connect.Auth) error {
+	return nil
 }

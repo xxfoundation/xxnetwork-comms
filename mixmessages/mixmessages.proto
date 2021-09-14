@@ -195,7 +195,7 @@ service Gateway {
     }
 
     // Client -> Gateway unified polling
-    rpc Poll (GatewayPoll) returns (GatewayPollResponse) {
+    rpc Poll (GatewayPoll) returns (stream StreamChunk) {
     }
 
     // Client -> Gateway historical round request
@@ -210,6 +210,11 @@ service Gateway {
     // Has RoundMessages underlying type
     rpc ShareMessages(messages.AuthenticatedMessage) returns (messages.Ack) {
     }
+}
+
+// StreamChunk represents a part of a response.
+message StreamChunk {
+    bytes Datum = 1;
 }
 
 // Client -> Gateway request for information about historical rounds
