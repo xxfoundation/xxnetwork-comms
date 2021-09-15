@@ -12,8 +12,8 @@ import (
 	"testing"
 )
 
-// Tests that each lookup Service returns a valid IPv4 address.
-// Note: keep this test disabled so we don't spam the servers.
+// // Tests that each lookup Service returns a valid IPv4 address.
+// // Note: keep this test disabled so we don't spam the servers.
 // func Test_lookupServices_ValidURLs(t *testing.T) {
 // 	var myLastIp string
 // 	var lastIpSet bool
@@ -58,7 +58,8 @@ func Test_lookupServices_Duplicate(t *testing.T) {
 	}
 }
 
-// Happy path.
+// Tests that MakeTestLookupService creates a test server that responds with the
+// expected IP address.
 func TestMakeTestLookupService(t *testing.T) {
 	expectedIp := "0.0.0.0"
 	list, ts := MakeTestLookupService(expectedIp, t)
@@ -75,9 +76,9 @@ func TestMakeTestLookupService(t *testing.T) {
 	}
 }
 
-// Error path: interface is not for testing.
-func TestMakeTestLookupService_InterfaceError(t *testing.T) {
-
+// Panic path: tests that MakeTestLookupService panics when the provided
+// interface is not for testing.
+func TestMakeTestLookupService_InterfaceTypePanic(t *testing.T) {
 	defer func() {
 		if r := recover(); r == nil {
 			t.Errorf("Failed to panic when provided interface is not for testing.")

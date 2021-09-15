@@ -28,7 +28,7 @@ func TestData_UpsertRound(t *testing.T) {
 		t.Errorf("Failed to load public key: %v", err)
 		t.FailNow()
 	}
-	rnd := NewRound(ri, pubKey)
+	rnd := NewRound(ri, pubKey, nil)
 	err = d.UpsertRound(rnd)
 	if err != nil {
 		t.Errorf("Failed to upsert round: %+v", err)
@@ -43,14 +43,14 @@ func TestData_GetRound(t *testing.T) {
 		ID:       0,
 		UpdateID: 0,
 	}
-	testutils.SignRoundInfo(ri, t)
+	testutils.SignRoundInfoRsa(ri, t)
 
 	pubKey, err := testutils.LoadPublicKeyTesting(t)
 	if err != nil {
 		t.Errorf("Failed to load public key: %v", err)
 		t.FailNow()
 	}
-	rnd := NewRound(ri, pubKey)
+	rnd := NewRound(ri, pubKey, nil)
 
 	_ = d.UpsertRound(rnd)
 	_, err = d.GetRound(0)
@@ -67,14 +67,14 @@ func TestData_GetWrappedRound(t *testing.T) {
 		ID:       0,
 		UpdateID: 0,
 	}
-	testutils.SignRoundInfo(ri, t)
+	testutils.SignRoundInfoRsa(ri, t)
 
 	pubKey, err := testutils.LoadPublicKeyTesting(t)
 	if err != nil {
 		t.Errorf("Failed to load public key: %v", err)
 		t.FailNow()
 	}
-	rnd := NewRound(ri, pubKey)
+	rnd := NewRound(ri, pubKey, nil)
 
 	_ = d.UpsertRound(rnd)
 	retrieved, err := d.GetWrappedRound(0)
@@ -97,14 +97,14 @@ func TestData_ComparisonFunc(t *testing.T) {
 		ID:       2,
 		UpdateID: 3,
 	}
-	testutils.SignRoundInfo(roundInfoOne, t)
+	testutils.SignRoundInfoRsa(roundInfoOne, t)
 
 	pubKey, err := testutils.LoadPublicKeyTesting(t)
 	if err != nil {
 		t.Errorf("Failed to load public key: %v", err)
 		t.FailNow()
 	}
-	roundOne := NewRound(roundInfoOne, pubKey)
+	roundOne := NewRound(roundInfoOne, pubKey, nil)
 	_ = d.UpsertRound(roundOne)
 
 	// Construct a mock round object
@@ -112,9 +112,9 @@ func TestData_ComparisonFunc(t *testing.T) {
 		ID:       2,
 		UpdateID: 4,
 	}
-	testutils.SignRoundInfo(roundInfoTwo, t)
+	testutils.SignRoundInfoRsa(roundInfoTwo, t)
 
-	roundTwo := NewRound(roundInfoTwo, pubKey)
+	roundTwo := NewRound(roundInfoTwo, pubKey, nil)
 	_ = d.UpsertRound(roundTwo)
 	r, err := d.GetRound(2)
 	if err != nil {

@@ -25,6 +25,8 @@ import (
 type Handler interface {
 	// Upload a message to the cMix Gateway
 	PutMessage(message *pb.GatewaySlot) (*pb.GatewaySlotResponse, error)
+	// Upload many messages to the cMix Gateway
+	PutManyMessages(msgs *pb.GatewaySlots) (*pb.GatewaySlotResponse, error)
 	// Pass-through for Registration Nonce Communication
 	RequestNonce(message *pb.NonceRequest) (*pb.Nonce, error)
 	// Pass-through for Registration Nonce Confirmation
@@ -53,7 +55,7 @@ type Comms struct {
 func StartGateway(id *id.ID, localServer string, handler Handler,
 	certPem, keyPem []byte, gossipFlags gossip.ManagerFlags) *Comms {
 	pc, lis, err := connect.StartCommServer(id, localServer,
-		certPem, keyPem)
+		certPem, keyPem, nil)
 	if err != nil {
 		jww.FATAL.Panicf("Unable to start comms server: %+v", err)
 	}
@@ -88,6 +90,8 @@ func StartGateway(id *id.ID, localServer string, handler Handler,
 type implementationFunctions struct {
 	// Upload a message to the cMix Gateway
 	PutMessage func(message *pb.GatewaySlot) (*pb.GatewaySlotResponse, error)
+	// Upload many messages to the cMix Gateway
+	PutManyMessages func(msgs *pb.GatewaySlots) (*pb.GatewaySlotResponse, error)
 	// Pass-through for Registration Nonce Communication
 	RequestNonce func(message *pb.NonceRequest) (*pb.Nonce, error)
 	// Pass-through for Registration Nonce Confirmation
@@ -122,6 +126,10 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return new(pb.GatewaySlotResponse), nil
 			},
+			PutManyMessages: func(msgs *pb.GatewaySlots) (*pb.GatewaySlotResponse, error) {
+				warn(um)
+				return &pb.GatewaySlotResponse{}, nil
+			},
 			RequestNonce: func(message *pb.NonceRequest) (*pb.Nonce, error) {
 				warn(um)
 				return new(pb.Nonce), nil
@@ -153,6 +161,11 @@ func NewImplementation() *Implementation {
 // Upload a message to the cMix Gateway
 func (s *Implementation) PutMessage(message *pb.GatewaySlot) (*pb.GatewaySlotResponse, error) {
 	return s.Functions.PutMessage(message)
+}
+
+// Upload many messages to the cMix Gateway
+func (s *Implementation) PutManyMessages(msgs *pb.GatewaySlots) (*pb.GatewaySlotResponse, error) {
+	return s.Functions.PutManyMessages(msgs)
 }
 
 // Pass-through for Registration Nonce Communication

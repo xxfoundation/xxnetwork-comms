@@ -61,9 +61,13 @@ Run the following command in the base project directory
 (assuming you've set gRPC up correctly per the main README):
 
 ```
-go get -u github.com/golang/protobuf/protoc-gen-go
-protoc -I vendor/ -I mixmessages/ mixmessages/mixmessages.proto --go_out=plugins=grpc:mixmessages
+go get -u github.com/golang/protobuf/protoc-gen-go@v1.22.0
+cd mixmessages
+protoc -I. -I/path/to/gitlab.com mixmessages.proto --go_opt=paths=source_relative --go_out=plugins=grpc:../mixmessages/
+cd ..
 ```
+
+Note that `/path/to/gitlab` must have `xx_network/comms` and `elixxir/comms` checked out into it.
 
 This enables interacting with your new messages like normal go `structs`.
 

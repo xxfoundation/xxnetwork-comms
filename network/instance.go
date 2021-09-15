@@ -20,6 +20,7 @@ import (
 	"gitlab.com/elixxir/primitives/states"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/signature"
+	"gitlab.com/xx_network/crypto/signature/ec"
 	"gitlab.com/xx_network/primitives/id"
 	"gitlab.com/xx_network/primitives/ndf"
 	"testing"
@@ -46,6 +47,11 @@ type Instance struct {
 	// Network Health
 	networkHealth chan Heartbeat
 
+	// Determines whether verification for round info will be done
+	// using the RSA key or the EC key.
+	// Set to true, they shall use elliptic, set to false they shall use RSA
+	useElliptic bool
+	ecPublicKey *ec.PublicKey
 	// Waiting Rounds
 	waitingRounds *ds.WaitingRounds
 
@@ -123,8 +129,10 @@ func (i *Instance) GetFullNdf() *SecuredNdf {
 
 // Initializer for instance structs from base comms and NDF, you can put in nil for
 // ERS if you don't want to use it
-func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition,
-	ers ds.ExternalRoundStorage, validationLevel ValidationType) (*Instance, error) {
+// useElliptic determines whether client will verify signatures using the RSA key
+// or the elliptic curve key.
+func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition, ers ds.ExternalRoundStorage,
+	validationLevel ValidationType, useElliptic bool) (*Instance, error) {
 	var partialNdf *SecuredNdf
 	var fullNdf *SecuredNdf
 	var err error
@@ -156,7 +164,27 @@ func NewInstance(c *connect.ProtoComms, partial, full *ndf.NetworkDefinition,
 		cmixGroup:    ds.NewGroup(),
 		e2eGroup:     ds.NewGroup(),
 
-		ipOverride: ds.NewIpOverrideList(),
+		ipOverride:  ds.NewIpOverrideList(),
+		useElliptic: useElliptic,
+	}
+
+	var ecPublicKey *ec.PublicKey
+	if full != nil && full.Registration.EllipticPubKey != "" {
+		ecPublicKey, err = ec.LoadPublicKey(i.GetEllipticPublicKey())
+		if err != nil {
+			return nil, errors.WithMessage(err, fmt.Sprintf("Could not load elliptic key from ndf"))
+		}
+	} else if partial.Registration.EllipticPubKey != "" {
+		ecPublicKey, err = ec.LoadPublicKey(i.GetEllipticPublicKey())
+		if err != nil {
+			return nil, errors.WithMessage(err, fmt.Sprintf("Could not load elliptic key from ndf"))
+		}
+	}
+
+	if ecPublicKey != nil {
+		i.ecPublicKey = ecPublicKey
+	} else {
+		jww.DEBUG.Printf("Elliptic public key was not set, could not be found in NDF")
 	}
 
 	cmix := ""
@@ -210,7 +238,7 @@ func NewInstanceTesting(c *connect.ProtoComms, partial, full *ndf.NetworkDefinit
 	default:
 		jww.FATAL.Panicf("NewInstanceTesting is restricted to testing only. Got %T", i)
 	}
-	instance, err := NewInstance(c, partial, full, nil, 0)
+	instance, err := NewInstance(c, partial, full, nil, 0, false)
 	if err != nil {
 		return nil, errors.Errorf("Unable to create instance: %+v", err)
 	}
@@ -304,16 +332,16 @@ func (i *Instance) GetNodeAndGateway(ngid *id.ID) (NodeGateway, error) {
 	// depending on if the passed id is a node or gateway ID, look it up in the
 	// correct list
 	if ngid.GetType() == id.Node {
-		for i, n := range def.Get().Nodes {
+		for iter, n := range def.Get().Nodes {
 			if bytes.Compare(n.ID, idBytes) == 0 {
-				index = i
+				index = iter
 				break
 			}
 		}
 	} else if ngid.GetType() == id.Gateway {
-		for i, g := range def.Get().Gateways {
+		for iter, g := range def.Get().Gateways {
 			if bytes.Compare(g.ID, idBytes) == 0 {
-				index = i
+				index = iter
 				break
 			}
 		}
@@ -468,9 +496,17 @@ func (i *Instance) RoundUpdate(info *pb.RoundInfo) error {
 			"for round info verification")
 	}
 
-	rnd := ds.NewRound(info, perm.GetPubKey())
+	var rnd *ds.Round
+	if i.useElliptic {
+		// Use the elliptic key only
+		rnd = ds.NewRound(info, nil, i.ecPublicKey)
+	} else {
+		// Use the rsa key only
+		rnd = ds.NewRound(info, perm.GetPubKey(), nil)
+	}
+
 	if i.validationLevel == Strict {
-		err := signature.Verify(info, perm.GetPubKey())
+		err := signature.VerifyRsa(info, perm.GetPubKey())
 		if err != nil {
 			return errors.WithMessage(err, fmt.Sprintf("Could not validate "+
 				"the roundInfo signature: %+v", info))
@@ -602,6 +638,25 @@ func (i *Instance) GetPermissioningCert() string {
 
 }
 
+// GetEllipticPublicKey gets the permissioning's elliptic public key
+// from one of the NDFs
+// It first checks the full ndf and returns if that has the key
+// If not it checks the partial ndf and returns if it has it
+// Otherwise it returns an empty string
+func (i *Instance) GetEllipticPublicKey() string {
+	// Check if the full ndf has the information
+	if i.GetFullNdf() != nil {
+		return i.GetFullNdf().Get().Registration.EllipticPubKey
+	} else if i.GetPartialNdf() != nil {
+		// Else check if the partial ndf has the information
+		return i.GetPartialNdf().Get().Registration.EllipticPubKey
+	}
+
+	// If neither do, return an empty string
+	return ""
+
+}
+
 // GetPermissioningId gets the permissioning ID from primitives
 func (i *Instance) GetPermissioningId() *id.ID {
 	return &id.Permissioning
@@ -678,10 +733,13 @@ func (i *Instance) updateConns(def *ndf.NetworkDefinition, isGateway, isNode boo
 						"hard coded ID. Invalid ID: %v", nid.Marshal())
 				}
 
-				_, err := i.comm.AddHost(nid, addr, []byte(node.TlsCertificate), connect.GetDefaultHostParams())
+				host, err := i.comm.AddHost(nid, addr, []byte(node.TlsCertificate), connect.GetDefaultHostParams())
 				if err != nil {
 					return errors.WithMessagef(err, "Could not add isNode host %s", nid)
 				}
+
+				// 10k batch size * 8192 packet size * 2
+				host.SetWindowSize(connect.MaxWindowSize)
 
 				// Send events into Node Listener
 				if i.addNode != nil {

@@ -14,17 +14,23 @@ import (
 	"gitlab.com/elixxir/primitives/states"
 	"gitlab.com/xx_network/primitives/netTime"
 	"sync"
+	"sync/atomic"
 	"time"
 )
 
 var timeOutError = errors.New("Timed out getting round furthest in the future.")
+
+// maxGetClosestTries is the maximum amount of rounds pulled by
+// WaitingRounds.GetUpcomingRealtime. Exceeding this amount causes
+// WaitingRounds.GetUpcomingRealtime to switch from using
+// WaitingRounds.getClosest to using WaitingRounds.getFurthest
+const maxGetClosestTries = 2
 
 // WaitingRounds contains a list of all queued rounds ordered by which occurs
 // furthest in the future with the furthest in the the back.
 type WaitingRounds struct {
 	rounds *list.List
 	c      *sync.Cond
-	mux    sync.RWMutex
 }
 
 // NewWaitingRounds generates a new WaitingRounds with an empty round list.
@@ -49,39 +55,34 @@ func (wr *WaitingRounds) Len() int {
 // not inserted. If the new round already exists in the list but is no longer
 // queued, then it is removed.
 func (wr *WaitingRounds) Insert(newRound *Round) {
-	wr.mux.Lock()
-	defer wr.mux.Unlock()
-
 	// If the round is queued, then add it to the list; otherwise, remove it
 	if newRound.info.GetState() == uint32(states.QUEUED) {
-
+		wr.c.L.Lock()
+		inserted := false
 		// Loop through every round, starting with the furthest in the future
 		for e := wr.rounds.Back(); e != nil; e = e.Prev() {
 			// If the new round is larger, than add it before
 			extractedRound := e.Value.(*Round)
 			if getTime(newRound) > getTime(extractedRound) {
 				wr.rounds.InsertAfter(newRound, e)
-
-				// Broadcast change to GetUpcomingRealtime()
-				wr.c.L.Lock()
-				wr.c.Broadcast()
-				wr.c.L.Unlock()
-
-				return
+				inserted = true
+				break
 			}
 		}
 
 		// If the round's realtime is the sooner than all other rounds, then add
 		// it to the beginning  of the list
-		wr.rounds.PushFront(newRound)
-
-		// Broadcast change to GetUpcomingRealtime()
-		wr.c.L.Lock()
-		wr.c.Broadcast()
-		wr.c.L.Unlock()
-
+		if !inserted {
+			wr.rounds.PushFront(newRound)
+		}
+		go func() {
+			wr.c.Broadcast()
+			wr.c.L.Unlock()
+		}()
 	} else {
+		wr.c.L.Lock()
 		wr.remove(newRound)
+		wr.c.L.Unlock()
 	}
 }
 
@@ -105,10 +106,8 @@ func (wr *WaitingRounds) remove(newRound *Round) {
 // getFurthest returns the round that will occur furthest in the future. If the
 // list is empty, then nil is returned. If the round is on the exclusion list,
 // then the next round is checked.
+// this is assumed to be called on an operation already under the cond's lock
 func (wr *WaitingRounds) getFurthest(exclude *set.Set, cutoffDelta time.Duration) *Round {
-	wr.mux.RLock()
-	defer wr.mux.RUnlock()
-
 	earliestStart := netTime.Now().Add(cutoffDelta)
 
 	// Return nil for an empty list
@@ -134,10 +133,8 @@ func (wr *WaitingRounds) getFurthest(exclude *set.Set, cutoffDelta time.Duration
 // getClosest returns the round that will occur soonest in the future. If the
 // list is empty, then nil is returned. If the round is on the exclusion list,
 // then the next round is checked.
+// this is assumed to be called on an operation already under the cond's lock
 func (wr *WaitingRounds) getClosest(exclude *set.Set, minRoundAge time.Duration) *Round {
-	wr.mux.RLock()
-	defer wr.mux.RUnlock()
-
 	earliestStart := netTime.Now().Add(minRoundAge)
 
 	// Return nil for an empty list
@@ -171,8 +168,8 @@ func isExcluded(exclude *set.Set, r *pb.RoundInfo) bool {
 // GetSlice returns a slice of all round infos in the list that have yet to
 // occur.
 func (wr *WaitingRounds) GetSlice() []*pb.RoundInfo {
-	wr.mux.RLock()
-	defer wr.mux.RUnlock()
+	wr.c.L.Lock()
+	defer wr.c.L.Unlock()
 
 	now := uint64(netTime.Now().Nanosecond())
 	var roundInfos []*pb.RoundInfo
@@ -192,40 +189,59 @@ func (wr *WaitingRounds) GetSlice() []*pb.RoundInfo {
 // GetUpcomingRealtime returns the round that will occur furthest in the future.
 // If the list is empty, then it waits waits for a round to be added for the
 // specified duration. If no round is added, then an error is returned.
+//
+// The length of the excluded set indicates how many times the client has
+// called GetUpcomingRealtime trying to retrieve a round to send on.
+// GetUpcomingRealtime defaults to retrieving the closest non-excluded round
+// from WaitingRounds. If the length of the excluded set exceeds the maximum
+// attempts at pulling the closest round, GetUpcomingRealtime will retrieve
+// the furthest non-excluded round from WaitingRounds.
 func (wr *WaitingRounds) GetUpcomingRealtime(timeout time.Duration,
 	exclude *set.Set, minRoundAge time.Duration) (*pb.RoundInfo, error) {
 
 	// Start timeout timer
 	timer := time.NewTimer(timeout)
 
+	exit := uint32(0)
+	defer atomic.StoreUint32(&exit, 1)
+
 	// Start waiting for rounds to be added
-	sig := make(chan struct{}, 1)
+	sig := make(chan *pb.RoundInfo, 1)
 	go func() {
+		var round *Round
 		wr.c.L.Lock()
-		wr.c.Wait()
+		for atomic.LoadUint32(&exit) == 0 {
+			if exclude.Len() < maxGetClosestTries {
+				// Use getClosest when excluded set's length is small
+				round = wr.getClosest(exclude, minRoundAge)
+				if round != nil {
+					break
+				}
+			} else {
+				// Use getFurthest when excluded set's length exceeds maxGetClosestTries
+				round = wr.getFurthest(exclude, minRoundAge)
+				if round != nil {
+					break
+				}
+			}
+			wr.c.Wait()
+		}
 		wr.c.L.Unlock()
-		sig <- struct{}{}
+		if round != nil {
+			sig <- round.Get()
+		}
 	}()
 
 	// If rounds already exist in the list, then return the the correct round
 	// without waiting
-	round := wr.getClosest(exclude, minRoundAge)
-	if round != nil {
-		// Retrieve/validate and return the round info object
-		return round.Get(), nil
-	}
 
 	// If the list is empty, then start waiting for rounds to be added.
 	for {
 		select {
 		case <-timer.C:
 			return nil, timeOutError
-		case <-sig:
-			round := wr.getClosest(exclude, minRoundAge)
-			if round != nil {
-				// Retrieve/validate and return the round info object
-				return round.Get(), nil
-			}
+		case round := <-sig:
+			return round, nil
 		}
 	}
 }

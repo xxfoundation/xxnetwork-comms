@@ -8,10 +8,10 @@
 package notificationBot
 
 import (
-	"context"
 	"gitlab.com/elixxir/comms/gateway"
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/testkeys"
+	"gitlab.com/elixxir/comms/testutils"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/gossip"
 	"gitlab.com/xx_network/primitives/id"
@@ -40,11 +40,13 @@ func TestRegisterForNotifications(t *testing.T) {
 		gossip.DefaultManagerFlags())
 	defer gw.Shutdown()
 
-	ctx, _ := context.WithCancel(context.Background())
+	ctx, cancel := testutils.NewContextTesting(t)
+	defer cancel()
+	defer ctx.Done()
 
 	//Init host and manager
 	manager := connect.NewManagerTesting(t)
-	host, err := manager.AddHost(testId, notificationBotAddress,
+	_, err := manager.AddHost(testId, notificationBotAddress,
 		certData, connect.GetDefaultHostParams())
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
@@ -52,13 +54,9 @@ func TestRegisterForNotifications(t *testing.T) {
 
 	// Create message and pack it
 	msg := &mixmessages.NotificationRegisterRequest{}
-	authMsg, err := notificationBot.PackAuthenticatedMessage(msg, host, false)
-	if err != nil {
-		t.Errorf("Failed to pack authenticated message: %+v", err)
-	}
 
 	// Run comm
-	_, err = notificationBot.RegisterForNotifications(ctx, authMsg)
+	_, err = notificationBot.RegisterForNotifications(ctx, msg)
 	if err != nil {
 		t.Errorf("Failed to unregister: %+v", err)
 	}
@@ -80,11 +78,13 @@ func TestUnRegisterForNotifications(t *testing.T) {
 	notificationBot := StartNotificationBot(testId, notificationBotAddress,
 		NewImplementation(), certData, keyData)
 	defer notificationBot.Shutdown()
-	ctx, _ := context.WithCancel(context.Background())
+	ctx, cancel := testutils.NewContextTesting(t)
+	defer cancel()
+	defer ctx.Done()
 
 	//Init host and manager
 	manager := connect.NewManagerTesting(t)
-	host, err := manager.AddHost(testId, notificationBotAddress,
+	_, err := manager.AddHost(testId, notificationBotAddress,
 		certData, connect.GetDefaultHostParams())
 	if err != nil {
 		t.Errorf("Unable to call NewHost: %+v", err)
@@ -92,13 +92,9 @@ func TestUnRegisterForNotifications(t *testing.T) {
 
 	// Create message and pack it
 	msg := &mixmessages.NotificationUnregisterRequest{}
-	authMsg, err := notificationBot.PackAuthenticatedMessage(msg, host, false)
-	if err != nil {
-		t.Errorf("Failed to pack authenticated message: %+v", err)
-	}
 
 	// Run comm
-	_, err = notificationBot.UnregisterForNotifications(ctx, authMsg)
+	_, err = notificationBot.UnregisterForNotifications(ctx, msg)
 	if err != nil {
 		t.Errorf("Failed to unregister: %+v", err)
 	}

@@ -49,6 +49,37 @@ func (g *Comms) SendPutMessage(host *connect.Host,
 	return result, ptypes.UnmarshalAny(resultMsg, result)
 }
 
+// Gateway -> Gateway forward client PutManyMessages.
+func (g *Comms) SendPutManyMessages(host *connect.Host,
+	messages *pb.GatewaySlots) (*pb.GatewaySlotResponse, error) {
+
+	// Create the Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := host.GetMessagingContext()
+		defer cancel()
+
+		// Send the message
+		resultMsg, err := pb.NewGatewayClient(conn).PutManyMessages(ctx, messages)
+		if err != nil {
+			return nil, err
+		}
+
+		return ptypes.MarshalAny(resultMsg)
+	}
+
+	// Execute the Send function
+	jww.TRACE.Printf("Sending client PutMessage: %+v", messages)
+	resultMsg, err := g.Send(host, f)
+	if err != nil {
+		return nil, err
+	}
+
+	// Marshall the result
+	result := &pb.GatewaySlotResponse{}
+	return result, ptypes.UnmarshalAny(resultMsg, result)
+}
+
 // Gateway -> Gateway forward client RequestNonce.
 func (g *Comms) SendRequestNonce(host *connect.Host,
 	messages *pb.NonceRequest) (*pb.Nonce, error) {

@@ -7,9 +7,11 @@
 
 // Contains callback interface for registration functionality
 
-package registration
+package clientregistrar
 
 import (
+	"runtime/debug"
+
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
@@ -17,7 +19,6 @@ import (
 	"gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/primitives/id"
 	"google.golang.org/grpc/reflection"
-	"runtime/debug"
 )
 
 // Registration object used to implement
@@ -30,27 +31,27 @@ type Comms struct {
 // Starts a new server on the address:port specified by localServer
 // and a callback interface for server operations
 // with given path to public and private key for TLS connection
-func StartRegistrationServer(id *id.ID, localServer string, handler Handler,
-	certPEMblock, keyPEMblock []byte, preloadedHosts []*connect.Host) *Comms {
+func StartClientRegistrarServer(id *id.ID, localServer string, handler Handler,
+	certPEMblock, keyPEMblock []byte) *Comms {
 
 	pc, lis, err := connect.StartCommServer(id, localServer,
-		certPEMblock, keyPEMblock, preloadedHosts)
+		certPEMblock, keyPEMblock, nil)
 	if err != nil {
 		jww.FATAL.Panicf("Unable to start comms server: %+v", err)
 	}
 
-	registrationServer := Comms{
+	clientRegistrarServer := Comms{
 		ProtoComms: pc,
 		handler:    handler,
 	}
 
 	go func() {
-		pb.RegisterRegistrationServer(registrationServer.LocalServer, &registrationServer)
-		messages.RegisterGenericServer(registrationServer.LocalServer, &registrationServer)
+		pb.RegisterClientregistrarServer(clientRegistrarServer.LocalServer, &clientRegistrarServer)
+		messages.RegisterGenericServer(clientRegistrarServer.LocalServer, &clientRegistrarServer)
 
 		// Register reflection service on gRPC server.
-		reflection.Register(registrationServer.LocalServer)
-		if err := registrationServer.LocalServer.Serve(lis); err != nil {
+		reflection.Register(clientRegistrarServer.LocalServer)
+		if err := clientRegistrarServer.LocalServer.Serve(lis); err != nil {
 			err = errors.New(err.Error())
 			jww.FATAL.Panicf("Failed to serve: %+v", err)
 		}
@@ -58,26 +59,15 @@ func StartRegistrationServer(id *id.ID, localServer string, handler Handler,
 			" %s", lis)
 	}()
 
-	return &registrationServer
+	return &clientRegistrarServer
 }
 
 type Handler interface {
 	RegisterUser(msg *pb.UserRegistration) (confirmation *pb.UserRegistrationConfirmation, err error)
-	RegisterNode(salt []byte, serverAddr, serverTlsCert, gatewayAddr,
-		gatewayTlsCert, registrationCode string) error
-	PollNdf(ndfHash []byte) (*pb.NDF, error)
-	Poll(msg *pb.PermissioningPoll, auth *connect.Auth) (*pb.
-		PermissionPollResponse, error)
-	CheckRegistration(msg *pb.RegisteredNodeCheck) (*pb.RegisteredNodeConfirmation, error)
 }
 
 type implementationFunctions struct {
 	RegisterUser func(msg *pb.UserRegistration) (confirmation *pb.UserRegistrationConfirmation, err error)
-	RegisterNode func(salt []byte, serverAddr, serverTlsCert, gatewayAddr,
-		gatewayTlsCert, registrationCode string) error
-	PollNdf           func(ndfHash []byte) (*pb.NDF, error)
-	Poll              func(msg *pb.PermissioningPoll, auth *connect.Auth) (*pb.PermissionPollResponse, error)
-	CheckRegistration func(msg *pb.RegisteredNodeCheck) (*pb.RegisteredNodeConfirmation, error)
 }
 
 // Implementation allows users of the client library to set the
@@ -101,25 +91,6 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return &pb.UserRegistrationConfirmation{}, nil
 			},
-			RegisterNode: func(salt []byte, serverAddr, serverTlsCert, gatewayAddr,
-				gatewayTlsCert, registrationCode string) error {
-				warn(um)
-				return nil
-			},
-			PollNdf: func(ndfHash []byte) (*pb.NDF, error) {
-				warn(um)
-				return nil, nil
-			},
-			Poll: func(msg *pb.PermissioningPoll, auth *connect.Auth) (*pb.PermissionPollResponse, error) {
-				warn(um)
-				return &pb.PermissionPollResponse{}, nil
-			},
-			CheckRegistration: func(msg *pb.RegisteredNodeCheck) (*pb.
-				RegisteredNodeConfirmation, error) {
-
-				warn(um)
-				return &pb.RegisteredNodeConfirmation{}, nil
-			},
 		},
 	}
 }
@@ -127,23 +98,4 @@ func NewImplementation() *Implementation {
 // Registers a user and returns a signed public key
 func (s *Implementation) RegisterUser(msg *pb.UserRegistration) (confirmation *pb.UserRegistrationConfirmation, err error) {
 	return s.Functions.RegisterUser(msg)
-}
-
-func (s *Implementation) RegisterNode(salt []byte, serverAddr, serverTlsCert, gatewayAddr,
-	gatewayTlsCert, registrationCode string) error {
-	return s.Functions.RegisterNode(salt, serverAddr, serverTlsCert, gatewayAddr,
-		gatewayTlsCert, registrationCode)
-}
-
-func (s *Implementation) PollNdf(ndfHash []byte) (*pb.NDF, error) {
-	return s.Functions.PollNdf(ndfHash)
-}
-
-func (s *Implementation) Poll(msg *pb.PermissioningPoll, auth *connect.Auth) (*pb.PermissionPollResponse, error) {
-	return s.Functions.Poll(msg, auth)
-}
-
-func (s *Implementation) CheckRegistration(msg *pb.RegisteredNodeCheck) (*pb.
-	RegisteredNodeConfirmation, error) {
-	return s.Functions.CheckRegistration(msg)
 }

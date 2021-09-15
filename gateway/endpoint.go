@@ -15,6 +15,8 @@ import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/messages"
 	"golang.org/x/net/context"
+	"google.golang.org/grpc/metadata"
+	"strconv"
 )
 
 // Handles validation of reverse-authentication tokens
@@ -35,8 +37,21 @@ func (g *Comms) RequestToken(context.Context, *messages.Ping) (*messages.AssignT
 func (g *Comms) PutMessage(ctx context.Context, msg *pb.GatewaySlot) (*pb.GatewaySlotResponse,
 	error) {
 
-	// Upload a message to the cMix Gateway at the peer's IP address
+	// Upload a message to the cMix Gateway
 	returnMsg, err := g.handler.PutMessage(msg)
+	if err != nil {
+		returnMsg = &pb.GatewaySlotResponse{}
+
+	}
+	return returnMsg, err
+}
+
+// Upload many messages to the cMix Gateway
+func (g *Comms) PutManyMessages(ctx context.Context, msgs *pb.GatewaySlots) (*pb.GatewaySlotResponse,
+	error) {
+
+	// Upload messages to the cMix Gateway
+	returnMsg, err := g.handler.PutManyMessages(msgs)
 	if err != nil {
 		returnMsg = &pb.GatewaySlotResponse{}
 
@@ -61,7 +76,7 @@ func (g *Comms) ConfirmNonce(ctx context.Context,
 // Gateway -> Gateway message sharing within a team
 func (g *Comms) ShareMessages(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
 
-	authState, err := g.AuthenticatedReceiver(msg)
+	authState, err := g.AuthenticatedReceiver(msg, ctx)
 	if err != nil {
 		return nil, errors.Errorf("Unable to handle reception of AuthenticatedMessage: %+v", err)
 	}
@@ -77,8 +92,39 @@ func (g *Comms) ShareMessages(ctx context.Context, msg *messages.AuthenticatedMe
 }
 
 // Client -> Gateway unified polling
-func (g *Comms) Poll(ctx context.Context, msg *pb.GatewayPoll) (*pb.GatewayPollResponse, error) {
-	return g.handler.Poll(msg)
+func (g *Comms) Poll(msg *pb.GatewayPoll, stream pb.Gateway_PollServer) error {
+	// Get response from higher level
+	response, err := g.handler.Poll(msg)
+	if err != nil {
+		return err
+	}
+
+	// Split response into streamable chunks
+	chunks, err := pb.SplitResponseIntoChunks(response)
+	if err != nil {
+		return err
+	}
+
+	// Send a header informing client-side of the total number of chunks
+	metadataMap := map[string]string{
+		pb.ChunkHeader: strconv.Itoa(len(chunks)),
+	}
+
+	md := metadata.New(metadataMap)
+	if err = stream.SendHeader(md); err != nil {
+		return errors.Errorf("Failed to send streaming header: %v", err)
+	}
+
+	// Stream each chunk individually
+	for i, chunk := range chunks {
+		err = stream.Send(chunk)
+		if err != nil {
+			return errors.Errorf("Failed to send chunk (%d/%d) for "+
+				"client polling: %v", i, len(chunks), err)
+		}
+	}
+
+	return nil
 }
 
 // Client -> Gateway historical round request

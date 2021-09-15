@@ -3,7 +3,7 @@
 variables:
   REPO_DIR: gitlab.com/elixxir
   REPO_NAME: comms
-  DOCKER_IMAGE: elixxirlabs/cuda-go:latest
+  DOCKER_IMAGE: elixxirlabs/cuda-go:go1.16-cuda11.1
   MIN_CODE_COVERAGE: "77"
 
 before_script:
@@ -16,10 +16,10 @@ before_script:
   - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
   - mkdir -p ~/.ssh
   - chmod 700 ~/.ssh
-  - ssh-keyscan -t rsa gitlab.com > ~/.ssh/known_hosts
-  - git config --global url."git@gitlab.com:".insteadOf "https://gitlab.com/"
+  - ssh-keyscan -t rsa $GITLAB_SERVER > ~/.ssh/known_hosts
+  - git config --global url."git@$GITLAB_SERVER:".insteadOf "https://gitlab.com/"
+  - git config --global url."git@$GITLAB_SERVER:".insteadOf "https://git.xx.network/"
   - export PATH=$HOME/go/bin:$PATH
-  - export GOPRIVATE="*gitlab.com/elixxir/*,*gitlab.com/xx_network/*"
 
 stages:
   - build
@@ -36,7 +36,7 @@ build:
     - mkdir -p testdata
     # Test coverage
     - go-acc --covermode atomic --output testdata/coverage.out ./... -- -v
-    - grep -v mixmessages\.pb\.go testdata/coverage.out | grep -v gateway\.go | grep -v -e testkeys | grep -v node\.go > testdata/coverage-real.out
+    - grep -v mixmessages\.pb\.go testdata/coverage.out | grep -v gateway\.go | grep -v -e testkeys | grep -v -e testutils | grep -v node\.go > testdata/coverage-real.out
     - go tool cover -func=testdata/coverage-real.out
     - go tool cover -html=testdata/coverage-real.out -o testdata/coverage.html
 

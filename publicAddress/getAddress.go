@@ -5,7 +5,7 @@
 // LICENSE file                                                              //
 ///////////////////////////////////////////////////////////////////////////////
 
-// package publicAddress contains a utility to retrieve the callers public IP
+// Package publicAddress contains a utility to retrieve the callers public IP
 // address.
 package publicAddress
 
@@ -21,42 +21,57 @@ import (
 )
 
 const (
-	DefaultPollTimeout = 30 * time.Second
+	DefaultPollTimeout = 65 * time.Second
 	connectionTimeout  = 2 * time.Second
+	defaultNumChecks   = 2
 )
 
-// GetIP returns the caller's public IP address. Multiple services are checked
-// until one returns an IPv4 address or the timeout occurs.
+// Error messages.
+const (
+	findIpTimeoutErr = "timed out looking for public IP address after %s"
+	lookupServiceErr = "all public IP lookup services failed to return valid IP address"
+	getServiceErr    = "failed to get service: %+v"
+	responseReadErr  = "failed to read response from %s: %+v"
+	responseParseErr = "response could not be parsed as valid IP address: %q"
+	receivedIPv6Err  = "received IPv6 address instead of IPv4: %s"
+)
+
+// GetIP returns the caller's public IPv4 address. Multiple services are checked
+// until one returns an IP address or the time out is reached.
 func GetIP(lookupServices []Service, timeout time.Duration) (string, error) {
-	ipResultChan := make(chan struct {
+	type resultChan struct {
 		ip  string
 		err error
-	})
-	go func() {
-		ip, err := getIpFromList(lookupServices, connectionTimeout)
-		ipResultChan <- struct {
-			ip  string
-			err error
-		}{ip: ip, err: err}
-	}()
+	}
 
-	timer := time.NewTimer(timeout)
+	ipResultChan := make(chan resultChan)
+	go func() {
+		ip, err := getIpMultiCheck(lookupServices, connectionTimeout, defaultNumChecks)
+		ipResultChan <- resultChan{ip, err}
+	}()
 
 	select {
 	case results := <-ipResultChan:
 		return results.ip, results.err
-	case <-timer.C:
-		return "", errors.Errorf("retreiving public IP address failed: timed "+
-			"out after %s.", timeout)
+	case <-time.NewTimer(timeout).C:
+		return "", errors.Errorf(findIpTimeoutErr, timeout)
 	}
 }
 
-// getIpFromList returns the caller's public IP address by making a request to a
-// randomly selected Service. If a Service fails to return a valid IPv4 address,
-// then the next Service in the list is used.
+// getIpFromList returns the caller's public IP address that is provided from a
+// randomly selected Service. Services are tried one by one until one return a
+// valid IPv4 address.
 func getIpFromList(urls []Service, timeout time.Duration) (string, error) {
+	return getIpMultiCheck(urls, timeout, 1)
+}
+
+// getIpMultiCheck returns the caller's public IP address that is provided from
+// multiple Services. Services are tried one by one until the given number of
+//  services return the same valid IPv4 address.
+func getIpMultiCheck(urls []Service, timeout time.Duration, checks int) (string, error) {
 	serviceList := shuffleStrings(urls)
 	var ipv6 bool
+	addresses := make(map[string]int)
 
 	for _, service := range serviceList {
 		// Skip services that return IPv6 addresses if the caller has an IPv6
@@ -66,31 +81,33 @@ func getIpFromList(urls []Service, timeout time.Duration) (string, error) {
 
 		ip, err := getIP(service.url, timeout)
 		if err == nil {
-			return ip, nil
+			addresses[ip]++
+			if addresses[ip] >= checks {
+				return ip, nil
+			}
+			continue
 		} else if strings.Contains(err.Error(), "IPv6") {
 			ipv6 = true
 		}
 
-		jww.ERROR.Printf("Failed to get public IP address: %+v", err)
+		jww.ERROR.Printf("Failed to get public IP address from %s: %v",
+			service.url, err)
 	}
 
-	return "", errors.New("failed to get public IP address because no lookup " +
-		"sources returned a valid IPv4 address")
+	return "", errors.New(lookupServiceErr)
 }
 
-// getIP requests the our public IP from the specified URL and returns it.
+// getIP requests the caller's public IP from the specified URL and returns it.
 // Only valid IPv4 addresses are returned. An error is returned for IPv6 or
-// invalid IP addresses.
+// invalid IP address.
 func getIP(url string, timeout time.Duration) (string, error) {
 	jww.INFO.Printf("Getting public IP address from %s", url)
 
 	// Issue a GET to the URL with the specified timeout
-	httpClient := http.Client{
-		Timeout: timeout,
-	}
+	httpClient := http.Client{Timeout: timeout}
 	resp, err := httpClient.Get(url)
 	if err != nil {
-		return "", err
+		return "", errors.Errorf(getServiceErr, err)
 	}
 
 	defer func() {
@@ -102,16 +119,15 @@ func getIP(url string, timeout time.Duration) (string, error) {
 	// Read the response
 	ip, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return "", errors.Errorf("Failed to read response from %s: %+v\n", url, err)
+		return "", errors.Errorf(responseReadErr, url, err)
 	}
 
 	// Ensure the response is a valid IPv4 address
 	parsedIp := net.ParseIP(strings.TrimSpace(string(ip)))
 	if parsedIp == nil {
-		return "", errors.Errorf("response could not be parsed as an IP "+
-			"address: \"%s\"", strings.ReplaceAll(string(ip[:128]), "\n", "\\n"))
+		return "", errors.Errorf(responseParseErr, trunc(string(ip), 128, true))
 	} else if strings.Contains(parsedIp.String(), ":") {
-		return "", errors.Errorf("received IPv6 address instead of IPv4: %s", ip)
+		return "", errors.Errorf(receivedIPv6Err, ip)
 	}
 
 	jww.INFO.Printf("Got public IP address: %s", parsedIp.String())
@@ -137,4 +153,25 @@ func shuffleStrings(s []Service) []Service {
 	}
 
 	return shuffled
+}
+
+// trunc truncates a string to the given number of runes. Strings are split by
+// character, not by byte. If ellipses is set, then an ellipses replaces the
+// last 3 characters in the substring. This function does not properly handle
+// adding ellipses at the end when the last rune is greater than one byte.
+func trunc(str string, limit int, ellipses bool) string {
+	var chars int
+	for i := range str {
+		if ellipses && chars+3 >= limit {
+			if i+3 == len(str) {
+				return str[:i+3]
+			}
+			return str[:i] + "..."
+		} else if chars >= limit {
+			return str[:i]
+		}
+		chars++
+	}
+
+	return str
 }

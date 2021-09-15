@@ -8,13 +8,15 @@
 package client
 
 import (
+	"testing"
+
+	"gitlab.com/elixxir/comms/clientregistrar"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/registration"
 	"gitlab.com/elixxir/comms/testutils"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/primitives/id"
 	"gitlab.com/xx_network/primitives/ndf"
-	"testing"
 )
 
 // Smoke test SendRegistrationMessage
@@ -23,7 +25,7 @@ func TestSendRegistrationMessage(t *testing.T) {
 	testId := id.NewIdFromString("test", id.Generic, t)
 	clientId := id.NewIdFromString("client", id.Generic, t)
 
-	rg := registration.StartRegistrationServer(testId, GatewayAddress,
+	rg := clientregistrar.StartClientRegistrarServer(testId, GatewayAddress,
 		registration.NewImplementation(), nil, nil)
 	defer rg.Shutdown()
 	c, err := NewClientComms(clientId, nil, nil, nil)
@@ -51,8 +53,7 @@ func TestSendGetUpdatedNDF(t *testing.T) {
 	testId := id.NewIdFromString("test", id.Generic, t)
 	clientId := id.NewIdFromString("client", id.Generic, t)
 
-	rg := registration.StartRegistrationServer(testId, GatewayAddress,
-		&MockRegistration{}, nil, nil)
+	rg := registration.StartRegistrationServer(testId, GatewayAddress, &MockRegistration{}, nil, nil, nil)
 	defer rg.Shutdown()
 	c, err := NewClientComms(clientId, nil, nil, nil)
 	if err != nil {
@@ -83,7 +84,7 @@ func TestProtoComms_PollNdf(t *testing.T) {
 		t.Errorf("Can't create client comms: %+v", err)
 	}
 
-	mockPermServer := registration.StartRegistrationServer(&id.Permissioning, RegistrationAddr, RegistrationHandler, nil, nil)
+	mockPermServer := registration.StartRegistrationServer(&id.Permissioning, RegistrationAddr, RegistrationHandler, nil, nil, nil)
 	defer mockPermServer.Shutdown()
 
 	newNdf := &ndf.NetworkDefinition{}
@@ -141,7 +142,7 @@ func TestProtoComms_PollNdfRepeatedly(t *testing.T) {
 		t.Errorf("Can't create client comms: %+v", err)
 	}
 	// Start up the mock reg server
-	mockPermServer := registration.StartRegistrationServer(&id.Permissioning, RegistrationAddrErr, RegistrationError, nil, nil)
+	mockPermServer := registration.StartRegistrationServer(&id.Permissioning, RegistrationAddrErr, RegistrationError, nil, nil, nil)
 	defer mockPermServer.Shutdown()
 
 	// Add the host to the comms object

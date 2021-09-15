@@ -31,6 +31,16 @@ func (m *RoundInfo) GetSig() *messages.RSASignature {
 	return m.Signature
 }
 
+func (m *RoundInfo) GetEccSig() *messages.ECCSignature {
+	if m.EccSignature != nil {
+		return m.EccSignature
+	}
+
+	m.EccSignature = new(messages.ECCSignature)
+
+	return m.EccSignature
+}
+
 // Digest hashes the contents of the message in a repeatable manner
 // using the provided cryptographic hash. It includes the nonce in the hash
 func (m *RoundInfo) Digest(nonce []byte, h hash.Hash) []byte {
@@ -71,13 +81,6 @@ func (m *RoundInfo) Digest(nonce []byte, h hash.Hash) []byte {
 		h.Write(data)
 	}
 
-	// Hash the
-	for _, roundErr := range m.Errors {
-		sha := crypto.SHA256.New()
-		data := roundErr.Digest(nonce, sha)
-		h.Write(data)
-	}
-
 	// Hash nonce
 	h.Write(nonce)
 
@@ -108,4 +111,21 @@ func (m *RoundInfo) GetRoundState() states.Round {
 
 func (m *RoundInfo) GetRoundId() id.Round {
 	return id.Round(m.ID)
+}
+
+func (m *RoundInfo) DeepCopy() *RoundInfo {
+	return &RoundInfo{
+		ID:                         m.ID,
+		UpdateID:                   m.UpdateID,
+		State:                      m.State,
+		BatchSize:                  m.BatchSize,
+		Topology:                   m.Topology,
+		Timestamps:                 m.Timestamps,
+		Errors:                     m.Errors,
+		ClientErrors:               m.ClientErrors,
+		ResourceQueueTimeoutMillis: m.ResourceQueueTimeoutMillis,
+		Signature:                  m.Signature,
+		AddressSpaceSize:           m.AddressSpaceSize,
+		EccSignature:               m.EccSignature,
+	}
 }

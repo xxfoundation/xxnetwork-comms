@@ -37,7 +37,7 @@ func NewSecuredNdf(definition *ndf.NetworkDefinition) (*SecuredNdf, error) {
 
 // unexported NDF update code
 func (sndf *SecuredNdf) update(m *pb.NDF, key *rsa.PublicKey) error {
-	err := signature.Verify(m, key)
+	err := signature.VerifyRsa(m, key)
 	if err != nil {
 		return errors.WithMessage(err, "Could not validate NDF")
 	}
