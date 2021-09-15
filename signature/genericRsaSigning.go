@@ -19,9 +19,9 @@ import (
 	"hash"
 )
 
-// Interface for our GenericSignable structure, to be used for protobuffs we want
-// to be able to cryptographically sign
-type GenericSignable interface {
+// Interface for our GenericRsaSignable structure, to be used for protobuffs we want
+// to be able to cryptographically sign using an RSA key
+type GenericRsaSignable interface {
 	// GetSig returns the RSA signature.
 	// IF none exists, it creates it, adds it to the object, then returns it.
 	GetSig() *messages.RSASignature
@@ -30,10 +30,9 @@ type GenericSignable interface {
 	Digest(nonce []byte, h hash.Hash) []byte
 }
 
-// Sign takes a genericSignable object, marshals the data intended to be signed.
+// SignRsa takes a GenericRsaSignable object, marshals the data intended to be signed.
 // It hashes that data and sets it as the signature of that object
-func Sign(signable GenericSignable, privKey *rsa.PrivateKey) error {
-
+func SignRsa(signable GenericRsaSignable, privKey *rsa.PrivateKey) error {
 	// Create rand for signing and nonce generation
 	rand := csprng.NewSystemRNG()
 
@@ -51,16 +50,16 @@ func Sign(signable GenericSignable, privKey *rsa.PrivateKey) error {
 	// Generate the serialized data
 	data := signable.Digest(newNonce, h)
 
-	// Sign the message
+	// SignRsa the message
 	signature, err := rsa.Sign(rand, privKey, sha, data, nil)
 
 	// Print results of signing
-	jww.TRACE.Printf("signature.Sign nonce: 0x%x", newNonce)
-	jww.TRACE.Printf("signature.Sign sig for nonce 0x%x 0x%x", newNonce[:8], signature)
-	jww.TRACE.Printf("signature.Sign digest for nonce 0x%x 0x%x", newNonce[:8], data)
-	jww.TRACE.Printf("signature.Sign data for nonce 0x%x: [%x]", newNonce[:8], data)
-	jww.TRACE.Printf("signature.Sign privKey for nonce 0x%x: N: 0x%v;; E: 0x%x;; D: 0x%v", newNonce[:8], privKey.N.Text(16), privKey.E, privKey.D.Text(16))
-	jww.TRACE.Printf("signature.Sign pubKey for nonce 0x%x: E: 0x%x;; V: 0x%v", newNonce[:8], privKey.PublicKey.E, privKey.PublicKey.N.Text(16))
+	jww.TRACE.Printf("RSA signature.Sign nonce: 0x%x", newNonce)
+	jww.TRACE.Printf("RSA signature.Sign sig for nonce 0x%x 0x%x", newNonce[:8], signature)
+	jww.TRACE.Printf("RSA signature.Sign digest for nonce 0x%x 0x%x", newNonce[:8], data)
+	jww.TRACE.Printf("RSA signature.Sign data for nonce 0x%x: [%x]", newNonce[:8], data)
+	jww.TRACE.Printf("RSA signature.Sign privKey for nonce 0x%x: N: 0x%v;; E: 0x%x;; D: 0x%v", newNonce[:8], privKey.N.Text(16), privKey.E, privKey.D.Text(16))
+	jww.TRACE.Printf("RSA signature.Sign pubKey for nonce 0x%x: E: 0x%x;; V: 0x%v", newNonce[:8], privKey.PublicKey.E, privKey.PublicKey.N.Text(16))
 
 	if err != nil {
 		return errors.Errorf("Unable to sign message: %+v", err)
@@ -81,12 +80,9 @@ func Sign(signable GenericSignable, privKey *rsa.PrivateKey) error {
 	return nil
 }
 
-// Verify takes the signature from the object and clears it out.
-// It then re-creates the signature and compares it to the original signature.
-// If the recreation matches the original signature it returns true,
-// else it returns false
-func Verify(verifiable GenericSignable, pubKey *rsa.PublicKey) error {
-
+// VerifyRsa takes the signature from the verifiable message
+// and verifies it on the public key. If
+func VerifyRsa(verifiable GenericRsaSignable, pubKey *rsa.PublicKey) error {
 	// Take the signature from the object
 	sigMsg := verifiable.GetSig()
 	nonce := sigMsg.Nonce
@@ -102,19 +98,11 @@ func Verify(verifiable GenericSignable, pubKey *rsa.PublicKey) error {
 	// Verify the signature using our implementation
 	err := rsa.Verify(pubKey, sha, data, sig, nil)
 
-	jww.TRACE.Printf("signature.Verify nonce: 0x%x", nonce)
-	jww.TRACE.Printf("signature.Verify sig for nonce 0x%x: 0x%x", nonce[:8], sig)
-	jww.TRACE.Printf("signature.Verify digest for nonce 0x%x, 0x%x", nonce[:8], data)
-	jww.TRACE.Printf("signature.Verify data for nonce 0x%x: [%x]", nonce[:8], data)
-	jww.TRACE.Printf("signature.Verify pubKey for nonce 0x%x: E: 0x%x;; V: 0x%v", nonce[:8], pubKey.E, pubKey.N.Text(16))
+	jww.TRACE.Printf("RSA signature.Verify nonce: 0x%x", nonce)
+	jww.TRACE.Printf("RSA signature.Verify sig for nonce 0x%x: 0x%x", nonce[:8], sig)
+	jww.TRACE.Printf("RSA signature.Verify digest for nonce 0x%x, 0x%x", nonce[:8], data)
+	jww.TRACE.Printf("RSA signature.Verify data for nonce 0x%x: [%x]", nonce[:8], data)
+	jww.TRACE.Printf("RSA signature.Verify pubKey for nonce 0x%x: E: 0x%x;; V: 0x%v", nonce[:8], pubKey.E, pubKey.N.Text(16))
 
-	// And check for an error
-	if err != nil {
-		// If there is an error, then signature is invalid
-		return err
-	}
-
-	// Otherwise it has been verified
-	return nil
-
+	return err
 }

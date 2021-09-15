@@ -9,15 +9,17 @@ package connect
 
 import (
 	"bytes"
+	"context"
 	"github.com/golang/protobuf/ptypes"
 	token "gitlab.com/xx_network/comms/connect/token"
 	pb "gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/comms/testkeys"
-	"gitlab.com/xx_network/crypto/csprng"
 	"gitlab.com/xx_network/crypto/signature/rsa"
-	"gitlab.com/xx_network/crypto/xx"
 	"gitlab.com/xx_network/primitives/id"
+	"google.golang.org/grpc/peer"
+	"net"
 	"testing"
+	"time"
 )
 
 func TestSignVerify(t *testing.T) {
@@ -93,8 +95,13 @@ func TestProtoComms_AuthenticatedReceiver(t *testing.T) {
 		Message:   nil,
 	}
 
+	// Construct a context object
+	ctx, cancel := newContextTesting(t)
+	defer ctx.Done()
+	defer cancel()
+
 	// Try the authenticated received
-	auth, err := pc.AuthenticatedReceiver(msg)
+	auth, err := pc.AuthenticatedReceiver(msg, ctx)
 	if err != nil {
 		t.Errorf("AuthenticatedReceiver() produced an error: %v", err)
 	}
@@ -145,8 +152,13 @@ func TestProtoComms_AuthenticatedReceiver_BadId(t *testing.T) {
 		Message:   nil,
 	}
 
+	// Construct a context object
+	ctx, cancel := newContextTesting(t)
+	defer ctx.Done()
+	defer cancel()
+
 	// Try the authenticated received
-	a, _ := pc.AuthenticatedReceiver(msg)
+	a, _ := pc.AuthenticatedReceiver(msg, ctx)
 
 	if a.IsAuthenticated {
 		t.Errorf("Expected error path!"+
@@ -331,86 +343,6 @@ func TestProtoComms_ValidateToken_BadId(t *testing.T) {
 
 }
 
-// Dynamic authentication happy path (e.g. host not pre-added)
-func TestProtoComms_ValidateTokenDynamic(t *testing.T) {
-	// All of this is setup for UID ----
-	privKey, err := rsa.GenerateKey(csprng.NewSystemRNG(), rsa.DefaultRSABitLen)
-	if err != nil {
-		t.Errorf("Could not generate private key: %+v", err)
-	}
-	pubKey := privKey.GetPublic()
-
-	salt := []byte("0123456789ABCDEF0123456789ABCDEF")
-	uid, err := xx.NewID(pubKey, salt, id.User)
-	if err != nil {
-		t.Errorf("Could not generate user ID: %+v", err)
-	}
-	testId := uid.String()
-	// ------
-
-	// Now we set up the client comms object
-	comm := ProtoComms{
-		Id:            uid,
-		ListeningAddr: "",
-		tokens:        token.NewMap(),
-		Manager:       newManager(),
-	}
-	err = comm.setPrivateKey(rsa.CreatePrivateKeyPem(privKey))
-	if err != nil {
-		t.Errorf("Expected to set private key: %+v", err)
-	}
-
-	tokenBytes, err := comm.GenerateToken()
-	if err != nil || tokenBytes == nil {
-		t.Errorf("Unable to generate token: %+v", err)
-	}
-	tkn := token.Token{}
-	copy(tkn[:], tokenBytes)
-
-	// For this test we won't addHost to Manager, we'll just create a host
-	// so we can compare to the dynamic one later
-	host, err := newDynamicHost(uid, rsa.CreatePublicKeyPem(pubKey))
-	if err != nil {
-		t.Errorf("Unable to create host: %+v", err)
-	}
-	host.transmissionToken.Set(tkn)
-	tokenMsg := &pb.AssignToken{
-		Token: tokenBytes,
-	}
-
-	// Set up auth msg
-	msg, err := comm.PackAuthenticatedMessage(tokenMsg, host, true)
-	if err != nil {
-		t.Errorf("Expected no error packing authenticated message: %+v", err)
-	}
-	msg.Client = &pb.ClientID{
-		Salt:      salt,
-		PublicKey: string(rsa.CreatePublicKeyPem(pubKey)),
-	}
-
-	// Here's the method we're testing
-	err = comm.ValidateToken(msg)
-	if err != nil {
-		t.Errorf("Expected to validate token: %+v", err)
-	}
-
-	// Check the output values behaved as expected
-	host, ok := comm.GetHost(uid)
-	if !ok {
-		t.Errorf("Expected dynamic auth to add host %s!", testId)
-	}
-	if !host.IsDynamicHost() {
-		t.Errorf("Expected host to be dynamic!")
-	}
-
-	if !bytes.Equal(msg.Token, host.receptionToken.GetBytes()) {
-		t.Errorf("Message token doesn't match message's token! "+
-			"Expected: %+v"+
-			"\n\tReceived: %+v", host.receptionToken, msg.Token)
-	}
-
-}
-
 func TestProtoComms_DisableAuth(t *testing.T) {
 	testId := id.NewIdFromString("test", id.Node, t)
 	comm := ProtoComms{
@@ -425,4 +357,20 @@ func TestProtoComms_DisableAuth(t *testing.T) {
 	if !comm.disableAuth {
 		t.Error("Auth was not disabled when DisableAuth was called")
 	}
+}
+
+// newContextTesting constructs a context.Context object on
+// the local Unix default domain (UDP) port
+func newContextTesting(t *testing.T) (context.Context, context.CancelFunc) {
+	protoCtx, cancel := newContext(time.Second)
+	timeout := 1 * time.Second
+	conn, err := net.DialTimeout("udp", "0.0.0.0:53", timeout)
+	if err != nil {
+		t.Fatalf("Failed to get a conn object in setup: %v", err)
+	}
+	p := &peer.Peer{
+		Addr: conn.RemoteAddr(),
+	}
+
+	return peer.NewContext(protoCtx, p), cancel
 }

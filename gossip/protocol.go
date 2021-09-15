@@ -60,7 +60,7 @@ type ProtocolFlags struct {
 	FanOut                  uint8         // Default = 0
 	MaxRecordedFingerprints uint64        // Default = 10000000
 	MaximumReSends          uint64        // Default = 3
-	NumParallelSends        uint32         // Default = 5
+	NumParallelSends        uint32        // Default = 5
 	MaxGossipAge            time.Duration // Default = 10 * time.Second
 	SelfGossip              bool          // Default = false
 }

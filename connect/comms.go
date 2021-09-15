@@ -26,9 +26,11 @@ import (
 	"time"
 )
 
-// TODO: Set these via config
+// MaxWindowSize 4 MB
+const MaxWindowSize = math.MaxInt32
 
 // KaOpts are Keepalive options for servers
+// TODO: Set these via config
 var KaOpts = keepalive.ServerParameters{
 	// Idle for at most 60s
 	MaxConnectionIdle: 60 * time.Second,
@@ -36,16 +38,16 @@ var KaOpts = keepalive.ServerParameters{
 	MaxConnectionAge: 1 * time.Hour,
 	// w/ 1m grace shutdown
 	MaxConnectionAgeGrace: 1 * time.Minute,
-	// Never ping to keepalive
-	Time: infinityTime,
-	// Close connection 60 seconds after ping
+	// Send keepAlive every Time interval
+	Time: 5 * time.Second,
+	// Timeout after last successful keepAlive to close connection
 	Timeout: 60 * time.Second,
 }
 
 // KaEnforcement are keepalive enforcement options for servers
 var KaEnforcement = keepalive.EnforcementPolicy{
-	// Client should never send keep alive ping
-	MinTime: infinityTime,
+	// Send keepAlive every Time interval
+	MinTime: 3 * time.Second,
 	// Doing KA on non-streams is OK
 	PermitWithoutStream: true,
 }
@@ -112,8 +114,8 @@ func CreateCommClient(id *id.ID, pubKeyPem, privKeyPem,
 }
 
 // Creates a ProtoComms server-type object to be used in various initializers
-func StartCommServer(id *id.ID, localServer string, certPEMblock,
-	keyPEMblock []byte) (*ProtoComms, net.Listener, error) {
+func StartCommServer(id *id.ID, localServer string,
+	certPEMblock, keyPEMblock []byte, preloadedHosts []*Host) (*ProtoComms, net.Listener, error) {
 
 	// Build the ProtoComms object
 	pc := &ProtoComms{
@@ -121,6 +123,10 @@ func StartCommServer(id *id.ID, localServer string, certPEMblock,
 		ListeningAddr: localServer,
 		tokens:        token.NewMap(),
 		Manager:       newManager(),
+	}
+
+	for _, h := range preloadedHosts {
+		pc.Manager.addHost(h)
 	}
 
 listen:

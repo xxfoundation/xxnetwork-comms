@@ -30,13 +30,13 @@ func newMetric() *Metric {
 
 // Creates a metrics object with specified values. Used for testing
 // purposes only
-func NewMetricTesting(errCounter uint64, face interface{}) *Metric  {
+func NewMetricTesting(errCounter uint64, face interface{}) *Metric {
 	// Ensure that this function is only run in testing environments
 	switch face.(type) {
 	case *testing.T, *testing.M, *testing.B:
-	break
+		break
 	default:
-	panic("SetMetricsTesting() can only be used for testing.")
+		panic("SetMetricsTesting() can only be used for testing.")
 	}
 
 	return &Metric{

@@ -22,7 +22,6 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/credentials"
-	"google.golang.org/grpc/keepalive"
 	"math"
 	"net"
 	"strings"
@@ -31,19 +30,6 @@ import (
 	"testing"
 	"time"
 )
-
-const infinityTime = time.Duration(math.MaxInt64)
-
-// KaClientOpts are the keepalive options for clients
-// TODO: Set via configuration
-var KaClientOpts = keepalive.ClientParameters{
-	// Never ping to keepalive
-	Time: infinityTime,
-	// 60s after ping before closing
-	Timeout: 60 * time.Second,
-	// For all connections, with and without streaming
-	PermitWithoutStream: true,
-}
 
 // Information used to describe a connection to a host
 type Host struct {
@@ -74,10 +60,6 @@ type Host struct {
 	// RSA Public Key corresponding to the TLS Certificate
 	rsaPublicKey *rsa.PublicKey
 
-	// Indicates whether dynamic authentication was used for this Host
-	// This is useful for determining whether a Host's key was hardcoded
-	dynamicHost bool
-
 	// State tracking for host metric
 	metrics *Metric
 
@@ -92,10 +74,16 @@ type Host struct {
 
 	// Stored default values (should be non-mutated)
 	params HostParams
+
+	// the amount of data, when streaming, that a sender can send before receiving an ACK
+	// keep at zero to use the default GRPC algorithm to determine
+	windowSize *int32
 }
 
 // Creates a new Host object
 func NewHost(id *id.ID, address string, cert []byte, params HostParams) (host *Host, err error) {
+
+	windowSize := int32(0)
 
 	// Initialize the Host object
 	host = &Host{
@@ -105,6 +93,7 @@ func NewHost(id *id.ID, address string, cert []byte, params HostParams) (host *H
 		receptionToken:    token.NewLive(),
 		metrics:           newMetric(),
 		params:            params,
+		windowSize:        &windowSize,
 	}
 
 	if params.EnableCoolOff {
@@ -128,30 +117,10 @@ func NewHost(id *id.ID, address string, cert []byte, params HostParams) (host *H
 	return
 }
 
-// Creates a new dynamic-authenticated Host object
-func newDynamicHost(id *id.ID, publicKey []byte) (host *Host, err error) {
-
-	// Initialize the Host object
-	// IMPORTANT: This flag must be set to true for all dynamic Hosts
-	//            because the security properties for these Hosts differ
-	host = &Host{
-		id:                id,
-		dynamicHost:       true,
-		transmissionToken: token.NewLive(),
-		receptionToken:    token.NewLive(),
-	}
-
-	// Create the RSA Public Key object
-	host.rsaPublicKey, err = rsa.LoadPublicKeyFromPem(publicKey)
-	if err != nil {
-		err = errors.Errorf("Error extracting PublicKey: %+v", err)
-	}
-	return
-}
-
-// Simple getter for the dynamicHost value
-func (h *Host) IsDynamicHost() bool {
-	return h.dynamicHost
+// the amount of data, when streaming, that a sender can send before receiving an ACK
+// keep at zero to use the default GRPC algorithm to determine
+func (h *Host) SetWindowSize(size int32) {
+	atomic.StoreInt32(h.windowSize, size)
 }
 
 // Simple getter for the public key
@@ -378,11 +347,23 @@ func (h *Host) connectHelper() (err error) {
 		}
 		ctx, cancel := newContext(time.Duration(backoffTime) * time.Millisecond)
 
+		dialOpts := []grpc.DialOption{
+			grpc.WithBlock(),
+			grpc.WithKeepaliveParams(h.params.KaClientOpts),
+			grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(math.MaxInt32)),
+			securityDial,
+		}
+
+		windowSize := atomic.LoadInt32(h.windowSize)
+		if windowSize != 0 {
+			dialOpts = append(dialOpts, grpc.WithInitialWindowSize(windowSize))
+			dialOpts = append(dialOpts, grpc.WithInitialConnWindowSize(windowSize))
+		}
+
 		// Create the connection
 		h.connection, err = grpc.DialContext(ctx, h.GetAddress(),
-			securityDial,
-			grpc.WithBlock(),
-			grpc.WithKeepaliveParams(KaClientOpts))
+			dialOpts...)
+
 		if err != nil {
 			jww.DEBUG.Printf("Attempt number %+v to connect to %s failed\n",
 				numRetries, h.GetAddress())
@@ -465,17 +446,4 @@ func (h *Host) SetTestPublicKey(key *rsa.PublicKey, t interface{}) {
 		jww.FATAL.Panicf("SetTestPublicKey is restricted to testing only. Got %T", t)
 	}
 	h.rsaPublicKey = key
-}
-
-// Set host to dynamic (for testing use)
-func (h *Host) SetTestDynamic(t interface{}) {
-	switch t.(type) {
-	case *testing.T:
-		break
-	case *testing.M:
-		break
-	default:
-		jww.FATAL.Panicf("SetTestDynamic is restricted to testing only. Got %T", t)
-	}
-	h.dynamicHost = true
 }

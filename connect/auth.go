@@ -10,7 +10,6 @@
 package connect
 
 import (
-	"bytes"
 	"context"
 	"crypto/rand"
 	"encoding/base64"
@@ -22,7 +21,6 @@ import (
 	"gitlab.com/xx_network/comms/connect/token"
 	pb "gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/crypto/signature/rsa"
-	"gitlab.com/xx_network/crypto/xx"
 	"gitlab.com/xx_network/primitives/id"
 	"google.golang.org/grpc/metadata"
 )
@@ -35,6 +33,8 @@ type Auth struct {
 	Sender *Host
 	// reason it isn't authenticated if authentication fails
 	Reason string
+	// The IP Address (excluding port) for the sending host
+	IpAddress string
 }
 
 // Perform the client handshake to establish reverse-authentication
@@ -162,63 +162,18 @@ func (c *ProtoComms) GenerateToken() ([]byte, error) {
 	return c.tokens.Generate().Marshal(), nil
 }
 
-// Performs the dynamic authentication process such that Hosts that were not
-// already added to the Manager can establish authentication
-func (c *ProtoComms) dynamicAuth(msg *pb.AuthenticatedMessage) (
-	host *Host, err error) {
-
-	// Verify the client is attempting a dynamic authentication
-	if msg.Client == nil || msg.Client.PublicKey == "" || msg.Client.Salt == nil {
-		return nil, errors.New("Invalid dynamic authentication attempt!")
-	}
-
-	// Process the public key
-	pubKey, err := rsa.LoadPublicKeyFromPem([]byte(msg.Client.PublicKey))
-	if err != nil {
-		return nil, errors.New(err.Error())
-	}
-
-	// Generate the user's ID from supplied Client information
-	uid, err := xx.NewID(pubKey, msg.Client.Salt, id.User)
-	if err != nil {
-		return nil, err
-	}
-
-	// Verify the ID provided correctly matches the generated ID
-	if !bytes.Equal(msg.ID, uid.Marshal()) {
-		return nil, errors.Errorf(
-			"Provided ID does not match. Expected: %s, Actual: %s",
-			uid.String(), msg.ID)
-	}
-
-	// Create and add the new host to the manager
-	host, err = newDynamicHost(uid, []byte(msg.Client.PublicKey))
-	if err != nil {
-		return
-	}
-	c.addHost(host)
-	return
-}
-
 // Validates a signed token using internal state
 func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) (err error) {
 	// Convert EntityID to ID
-	msgID, err := id.Unmarshal(msg.ID)
+	senderId, err := id.Unmarshal(msg.ID)
 	if err != nil {
 		return err
 	}
 
 	// Verify the Host exists for the provided ID
-	host, ok := c.GetHost(msgID)
+	host, ok := c.GetHost(senderId)
 	if !ok {
-
-		// If the host does not already exist, attempt dynamic authentication
-		jww.DEBUG.Printf("Attempting dynamic authentication: %s", msgID.String())
-		host, err = c.dynamicAuth(msg)
-		if err != nil {
-			return errors.Errorf(
-				"Unable to complete dynamic authentication: %+v", err)
-		}
+		return errors.Errorf("No host set up with %s, refusing contact", senderId)
 	}
 
 	// Get the signed token
@@ -253,13 +208,21 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) (err error) {
 
 // AuthenticatedReceiver handles reception of an AuthenticatedMessage,
 // checking if the host is authenticated & returning an Auth state
-func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) (*Auth, error) {
+func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage, ctx context.Context) (*Auth, error) {
+
+	// Retrieve the IP address
+	ipAddr, _, err := GetAddressFromContext(ctx)
+	if err != nil {
+		return &Auth{}, errors.Errorf("Failed to retrieve ip address from context: %v", err)
+	}
+
 	// Convert EntityID to ID
 	msgID, err := id.Unmarshal(msg.ID)
 	if err != nil {
 		return &Auth{
 			IsAuthenticated: false,
 			Sender:          &Host{},
+			IpAddress:       ipAddr,
 			Reason: fmt.Sprintf("Host {%v} cannot be "+
 				"unmarshaled: %s", msg.ID, err),
 		}, nil
@@ -271,6 +234,7 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) (*Auth,
 		return &Auth{
 			IsAuthenticated: false,
 			Sender:          &Host{},
+			IpAddress:       ipAddr,
 			Reason:          fmt.Sprintf("Host {%s} cannot be found", msgID),
 		}, nil
 	}
@@ -280,6 +244,7 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) (*Auth,
 		return &Auth{
 			IsAuthenticated: false,
 			Sender:          host,
+			IpAddress:       ipAddr,
 			Reason:          fmt.Sprintf("Token {%v} cannot be unmarshaled", msg.Token),
 		}, nil
 	}
@@ -290,6 +255,7 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) (*Auth,
 		return &Auth{
 			IsAuthenticated: false,
 			Sender:          host,
+			IpAddress:       ipAddr,
 			Reason: fmt.Sprintf("failed to authenticate token %v, "+
 				"no reception token for %s", remoteToken, host.id),
 		}, nil
@@ -300,6 +266,7 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) (*Auth,
 		return &Auth{
 			IsAuthenticated: false,
 			Sender:          host,
+			IpAddress:       ipAddr,
 			Reason: fmt.Sprintf("failed to authenticate token %v, "+
 				"does not match reception token %v for %s", remoteToken,
 				receptionToken, host.id),
@@ -310,6 +277,7 @@ func (c *ProtoComms) AuthenticatedReceiver(msg *pb.AuthenticatedMessage) (*Auth,
 	res := &Auth{
 		IsAuthenticated: true,
 		Sender:          host,
+		IpAddress:       ipAddr,
 		Reason:          "authenticated",
 	}
 
