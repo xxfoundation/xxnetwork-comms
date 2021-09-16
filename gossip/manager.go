@@ -91,7 +91,7 @@ func (m *Manager) NewGossip(tag string, flags ProtocolFlags,
 
 	// Set default fingerprinter function
 	if flags.Fingerprinter == nil {
-		flags.Fingerprinter = func(msg *GossipMsg) Fingerprint {
+		protocol.fingerprinter = func(msg *GossipMsg) Fingerprint {
 			return getFingerprint(msg)
 		}
 	}

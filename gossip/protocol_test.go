@@ -241,6 +241,9 @@ func setup(t *testing.T) *Protocol {
 		verify:           v,
 		IsDefunct:        false,
 		sendWorkers:      make(chan sendInstructions, 100*flags.NumParallelSends),
+		fingerprinter: func(msg *GossipMsg) Fingerprint {
+			return getFingerprint(msg)
+		},
 	}
 
 	launchSendWorkers(flags.NumParallelSends, p.sendWorkers)
