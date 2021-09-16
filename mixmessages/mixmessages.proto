@@ -29,7 +29,7 @@ service Node {
     }
 
     // FinishRealtime broadcasts when realtime is complete
-    rpc FinishRealtime (messages.AuthenticatedMessage) returns (messages.Ack) {
+    rpc FinishRealtime (stream Slot) returns (messages.Ack) {
     }
 
     // PostPhase runs a cMix phase on another node
