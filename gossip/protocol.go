@@ -11,7 +11,6 @@ package gossip
 
 import (
 	"context"
-	"crypto/md5"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
@@ -19,6 +18,7 @@ import (
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/crypto/shuffle"
 	"gitlab.com/xx_network/primitives/id"
+	"golang.org/x/crypto/blake2b"
 	"google.golang.org/grpc"
 	"io"
 	"math"
@@ -34,19 +34,24 @@ type Fingerprint [16]byte
 const minimumPeers = 20
 
 // NewFingerprint creates a new fingerprint from a byte slice
-func NewFingerprint(data [16]byte) Fingerprint {
+func NewFingerprint(data []byte) Fingerprint {
 	fp := Fingerprint{}
-	copy(fp[:], data[:])
+	copy(fp[:], data)
 	return fp
 }
 
 // Obtain the fingerprint of the GossipMsg
-func GetFingerprint(msg *GossipMsg) Fingerprint {
+func getFingerprint(msg *GossipMsg) Fingerprint {
 	preSum := append([]byte(msg.Tag), msg.Origin...)
 	preSum = append(preSum, msg.Payload...)
 	preSum = append(preSum, msg.Signature...)
-	fingerprint := NewFingerprint(md5.Sum(preSum))
-	return fingerprint
+	hasher, err := blake2b.New256(nil)
+	if err != nil {
+		jww.FATAL.Panicf("Gossip protocol could not get blake2b Hash: %+v", err)
+	}
+	hasher.Reset()
+	hasher.Write(preSum)
+	return NewFingerprint(hasher.Sum(nil))
 }
 
 // Returns the data of a GossipMsg excluding the Signature as bytes
@@ -63,6 +68,7 @@ type ProtocolFlags struct {
 	NumParallelSends        uint32        // Default = 5
 	MaxGossipAge            time.Duration // Default = 10 * time.Second
 	SelfGossip              bool          // Default = false
+	Fingerprinter           FingerprintGetter
 }
 
 // Returns a ProtocolFlags object with all flags set to their defaults
@@ -74,6 +80,7 @@ func DefaultProtocolFlags() ProtocolFlags {
 		NumParallelSends:        500,
 		MaxGossipAge:            10 * time.Second,
 		SelfGossip:              false,
+		Fingerprinter:           nil,
 	}
 }
 
@@ -96,6 +103,9 @@ type Protocol struct {
 
 	// Handler function for GossipMsg Reception
 	receiver Receiver
+
+	// Determines how message fingerprints are generated
+	fingerprinter FingerprintGetter
 
 	// Verifier function for GossipMsg signatures
 	verify SignatureVerification
@@ -178,7 +188,7 @@ func (p *Protocol) receive(msg *GossipMsg) error {
 	var err error
 
 	// Check fingerprint of the message against our record
-	fingerprint := GetFingerprint(msg)
+	fingerprint := p.fingerprinter(msg)
 	numSendsPrt, ok := p.checkFingerprint(fingerprint)
 	// if there is no record of receiving the fingerprint, process it as new
 	if !ok {
@@ -271,7 +281,7 @@ func (p *Protocol) Gossip(msg *GossipMsg) (int, []error) {
 
 		// set the fingerprint so it is not received multiple times
 		if !p.flags.SelfGossip {
-			p.setFingerprintUnsafe(GetFingerprint(msg))
+			p.setFingerprintUnsafe(p.fingerprinter(msg))
 		}
 	}
 

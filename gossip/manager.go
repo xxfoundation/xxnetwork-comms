@@ -86,6 +86,14 @@ func (m *Manager) NewGossip(tag string, flags ProtocolFlags,
 		IsDefunct:       false,
 		crand:           csprng.NewSystemRNG(),
 		sendWorkers:     make(chan sendInstructions, 100*flags.NumParallelSends),
+		fingerprinter:   flags.Fingerprinter,
+	}
+
+	// Set default fingerprinter function
+	if flags.Fingerprinter == nil {
+		flags.Fingerprinter = func(msg *GossipMsg) Fingerprint {
+			return getFingerprint(msg)
+		}
 	}
 
 	// create the runners
