@@ -206,10 +206,6 @@ service Gateway {
     rpc RequestMessages(GetMessages) returns (GetMessagesResponse) {
     }
 
-    // Gateway -> Gateway message sharing within a team
-    // Has RoundMessages underlying type
-    rpc ShareMessages(messages.AuthenticatedMessage) returns (messages.Ack) {
-    }
 }
 
 // StreamChunk represents a part of a response, to be streamed in chunks

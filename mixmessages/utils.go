@@ -57,7 +57,7 @@ func AssembleChunksIntoResponse(chunks []*StreamChunk, response proto.Message) e
 	lastChunkLen := len(chunks[len(chunks)-1].Datum)
 
 	// Calculate the total data of all chunks
-	totalData := ChunkSize * (len(chunks) - 1) + lastChunkLen
+	totalData := ChunkSize*(len(chunks)-1) + lastChunkLen
 
 	// Allocate a byte slice with that data
 	data := make([]byte, 0, totalData)
