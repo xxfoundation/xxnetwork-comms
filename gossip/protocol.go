@@ -33,8 +33,15 @@ type Fingerprint [16]byte
 
 const minimumPeers = 20
 
-// NewFingerprint creates a new fingerprint from a byte slice
-func NewFingerprint(data []byte) Fingerprint {
+// NewFingerprint creates a new fingerprint from a byte slice of data
+func NewFingerprint(preSum []byte) Fingerprint {
+	hasher, err := blake2b.New256(nil)
+	if err != nil {
+		jww.FATAL.Panicf("Gossip protocol could not get blake2b Hash: %+v", err)
+	}
+	hasher.Reset()
+	hasher.Write(preSum)
+	data := hasher.Sum(nil)
 	fp := Fingerprint{}
 	copy(fp[:], data)
 	return fp
@@ -45,13 +52,7 @@ func getFingerprint(msg *GossipMsg) Fingerprint {
 	preSum := append([]byte(msg.Tag), msg.Origin...)
 	preSum = append(preSum, msg.Payload...)
 	preSum = append(preSum, msg.Signature...)
-	hasher, err := blake2b.New256(nil)
-	if err != nil {
-		jww.FATAL.Panicf("Gossip protocol could not get blake2b Hash: %+v", err)
-	}
-	hasher.Reset()
-	hasher.Write(preSum)
-	return NewFingerprint(hasher.Sum(nil))
+	return NewFingerprint(preSum)
 }
 
 // Returns the data of a GossipMsg excluding the Signature as bytes
@@ -68,7 +69,7 @@ type ProtocolFlags struct {
 	NumParallelSends        uint32        // Default = 5
 	MaxGossipAge            time.Duration // Default = 10 * time.Second
 	SelfGossip              bool          // Default = false
-	Fingerprinter           FingerprintGetter
+	Fingerprinter           FingerprintDigest
 }
 
 // Returns a ProtocolFlags object with all flags set to their defaults
@@ -105,7 +106,7 @@ type Protocol struct {
 	receiver Receiver
 
 	// Determines how message fingerprints are generated
-	fingerprinter FingerprintGetter
+	fingerprinter FingerprintDigest
 
 	// Verifier function for GossipMsg signatures
 	verify SignatureVerification

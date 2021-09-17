@@ -13,7 +13,7 @@ package gossip
 type Receiver func(*GossipMsg) error
 
 // Passed into NewGossip to specify how fingerprints will be generated
-type FingerprintGetter func(msg *GossipMsg) Fingerprint
+type FingerprintDigest func(msg *GossipMsg) Fingerprint
 
 // Passed into NewGossip to specify how Gossip message signatures will be verified
 // the byte slice will be used to pass in a merkle tree and signature on the
