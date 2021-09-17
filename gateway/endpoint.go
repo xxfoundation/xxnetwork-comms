@@ -10,7 +10,6 @@
 package gateway
 
 import (
-	"github.com/golang/protobuf/ptypes"
 	"github.com/pkg/errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/messages"
@@ -71,24 +70,6 @@ func (g *Comms) ConfirmNonce(ctx context.Context,
 	msg *pb.RequestRegistrationConfirmation) (*pb.RegistrationConfirmation, error) {
 
 	return g.handler.ConfirmNonce(msg)
-}
-
-// Gateway -> Gateway message sharing within a team
-func (g *Comms) ShareMessages(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
-
-	authState, err := g.AuthenticatedReceiver(msg, ctx)
-	if err != nil {
-		return nil, errors.Errorf("Unable to handle reception of AuthenticatedMessage: %+v", err)
-	}
-
-	// Marshall the any message to the message type needed
-	roundMessages := &pb.RoundMessages{}
-	err = ptypes.UnmarshalAny(msg.Message, roundMessages)
-	if err != nil {
-		return nil, err
-	}
-
-	return &messages.Ack{}, g.handler.ShareMessages(roundMessages, authState)
 }
 
 // Client -> Gateway unified polling
