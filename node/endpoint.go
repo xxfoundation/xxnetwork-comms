@@ -184,26 +184,6 @@ func (s *Comms) PostPrecompResult(ctx context.Context,
 	return &messages.Ack{}, err
 }
 
-// FinishRealtime broadcasts to all nodes when the realtime is completed
-func (s *Comms) FinishRealtime(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
-	// Verify the message authentication
-	authState, err := s.AuthenticatedReceiver(msg, ctx)
-	if err != nil {
-		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
-	}
-
-	//Unmarshall the any message to the message type needed
-	roundInfoMsg := &pb.RoundInfo{}
-	err = ptypes.UnmarshalAny(msg.Message, roundInfoMsg)
-	if err != nil {
-		return nil, err
-	}
-
-	err = s.handler.FinishRealtime(roundInfoMsg, authState)
-
-	return &messages.Ack{}, err
-}
-
 func (s *Comms) GetMeasure(ctx context.Context, msg *messages.AuthenticatedMessage) (*pb.RoundMetrics, error) {
 	// Verify the message authentication
 	authState, err := s.AuthenticatedReceiver(msg, ctx)

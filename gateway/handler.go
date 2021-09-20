@@ -38,8 +38,6 @@ type Handler interface {
 	RequestHistoricalRounds(msg *pb.HistoricalRounds) (*pb.HistoricalRoundsResponse, error)
 	// Client -> Gateway message request
 	RequestMessages(msg *pb.GetMessages) (*pb.GetMessagesResponse, error)
-	// Gateway -> Gateway message sharing within a team
-	ShareMessages(msg *pb.RoundMessages, auth *connect.Auth) error
 }
 
 // Gateway object used to implement endpoints and top-level comms functionality
@@ -103,8 +101,6 @@ type implementationFunctions struct {
 	RequestHistoricalRounds func(msg *pb.HistoricalRounds) (*pb.HistoricalRoundsResponse, error)
 	// Client -> Gateway message request
 	RequestMessages func(msg *pb.GetMessages) (*pb.GetMessagesResponse, error)
-	// Gateway -> Gateway message sharing within a team
-	ShareMessages func(msg *pb.RoundMessages, auth *connect.Auth) error
 }
 
 // Implementation allows users of the client library to set the
@@ -150,10 +146,6 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return &pb.GetMessagesResponse{}, nil
 			},
-			ShareMessages: func(msg *pb.RoundMessages, auth *connect.Auth) error {
-				warn(um)
-				return nil
-			},
 		},
 	}
 }
@@ -192,9 +184,4 @@ func (s *Implementation) RequestHistoricalRounds(msg *pb.HistoricalRounds) (*pb.
 // Client -> Gateway historical round request
 func (s *Implementation) RequestMessages(msg *pb.GetMessages) (*pb.GetMessagesResponse, error) {
 	return s.Functions.RequestMessages(msg)
-}
-
-// Gateway -> Gateway message sharing within a team
-func (s *Implementation) ShareMessages(msg *pb.RoundMessages, auth *connect.Auth) error {
-	return s.Functions.ShareMessages(msg, auth)
 }

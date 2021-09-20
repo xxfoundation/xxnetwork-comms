@@ -15,9 +15,12 @@ import (
 )
 
 // Headers for streaming
-const PostPhaseHeader = "batchinfo"
-const UnmixedBatchHeader = "unmixedbatchinfo"
-const MixedBatchHeader = "mixedBatchInfo"
+const (
+	PostPhaseHeader      = "batchinfo"
+	UnmixedBatchHeader   = "unmixedbatchinfo"
+	MixedBatchHeader     = "mixedBatchInfo"
+	FinishRealtimeHeader = "finishRealtimeRoundInfo"
+)
 
 // ChunkSize is the size of a streaming chunk in bytes.
 const ChunkSize = 1250
@@ -57,7 +60,7 @@ func AssembleChunksIntoResponse(chunks []*StreamChunk, response proto.Message) e
 	lastChunkLen := len(chunks[len(chunks)-1].Datum)
 
 	// Calculate the total data of all chunks
-	totalData := ChunkSize * (len(chunks) - 1) + lastChunkLen
+	totalData := ChunkSize*(len(chunks)-1) + lastChunkLen
 
 	// Allocate a byte slice with that data
 	data := make([]byte, 0, totalData)
