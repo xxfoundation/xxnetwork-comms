@@ -189,7 +189,7 @@ func TestProtocol_receive_oldMessage(t *testing.T) {
 	if len(p.fingerprints) != 1 {
 		t.Errorf("Did not add message1 fingerprint to array")
 	}
-	fingerprint := GetFingerprint(message1)
+	fingerprint := p.fingerprinter(message1)
 	if atomic.LoadUint64(p.fingerprints[fingerprint]) != 0 {
 		t.Error("Should not have gossiped old message")
 	}
@@ -241,6 +241,9 @@ func setup(t *testing.T) *Protocol {
 		verify:           v,
 		IsDefunct:        false,
 		sendWorkers:      make(chan sendInstructions, 100*flags.NumParallelSends),
+		fingerprinter: func(msg *GossipMsg) Fingerprint {
+			return getFingerprint(msg)
+		},
 	}
 
 	launchSendWorkers(flags.NumParallelSends, p.sendWorkers)
@@ -273,10 +276,10 @@ func TestGetFingerprint(t *testing.T) {
 		Payload:   []byte("payload"),
 		Signature: []byte("signature"),
 	}
-	f1 := GetFingerprint(message1)
-	f2 := GetFingerprint(message2)
-	f3 := GetFingerprint(message3)
-	f4 := GetFingerprint(message4)
+	f1 := getFingerprint(message1)
+	f2 := getFingerprint(message2)
+	f3 := getFingerprint(message3)
+	f4 := getFingerprint(message4)
 	if f1 == f2 || f2 == f3 || f1 == f3 {
 		t.Errorf("Fingerprints formed from unique messages are not unique")
 	}
