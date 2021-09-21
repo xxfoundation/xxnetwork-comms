@@ -103,7 +103,7 @@ type Handler interface {
 		auth *connect.Auth) (*mixmessages.RegistrationConfirmation, error)
 
 	// PostPrecompResult interface to finalize both payloads' precomps
-	PostPrecompResult(roundID uint64, slots []*mixmessages.Slot, auth *connect.Auth) error
+	PostPrecompResult(roundID uint64, numSlots uint32, auth *connect.Auth) error
 
 	Poll(msg *mixmessages.ServerPoll, auth *connect.Auth) (*mixmessages.ServerPollResponse, error)
 
@@ -165,7 +165,7 @@ type implementationFunctions struct {
 
 	// PostPrecompResult interface to finalize both payloads' precomputations
 	PostPrecompResult func(roundID uint64,
-		slots []*mixmessages.Slot, auth *connect.Auth) error
+		numSlots uint32, auth *connect.Auth) error
 
 	Poll func(msg *mixmessages.ServerPoll, auth *connect.Auth) (*mixmessages.ServerPollResponse, error)
 
@@ -262,7 +262,7 @@ func NewImplementation() *Implementation {
 				return &mixmessages.RegistrationConfirmation{}, nil
 			},
 			PostPrecompResult: func(roundID uint64,
-				slots []*mixmessages.Slot, auth *connect.Auth) error {
+				numSlots uint32, auth *connect.Auth) error {
 				warn(um)
 				return nil
 			},
@@ -349,8 +349,8 @@ func (s *Implementation) ConfirmRegistration(requestConfirmation *mixmessages.Re
 
 // PostPrecompResult interface to finalize both payloads' precomputations
 func (s *Implementation) PostPrecompResult(roundID uint64,
-	slots []*mixmessages.Slot, auth *connect.Auth) error {
-	return s.Functions.PostPrecompResult(roundID, slots, auth)
+	numSlots uint32, auth *connect.Auth) error {
+	return s.Functions.PostPrecompResult(roundID, numSlots, auth)
 }
 
 func (s *Implementation) FinishRealtime(message *mixmessages.RoundInfo, streamServer mixmessages.Node_FinishRealtimeServer, auth *connect.Auth) error {

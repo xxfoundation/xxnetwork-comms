@@ -103,6 +103,11 @@ service Node {
 
 }
 
+message PostPrecompResult {
+    uint64 RoundId = 1;
+    uint32 NumSlots = 2;
+}
+
 // RoundInfo contains the # of precomputations ready for messages, among other
 // information
 message RoundBufferInfo {

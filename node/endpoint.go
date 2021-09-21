@@ -172,15 +172,15 @@ func (s *Comms) PostPrecompResult(ctx context.Context,
 	}
 
 	//Unmarshall the any message to the message type needed
-	batchMsg := &pb.Batch{}
+	batchMsg := &pb.PostPrecompResult{}
 	err = ptypes.UnmarshalAny(msg.Message, batchMsg)
 	if err != nil {
 		return nil, err
 	}
 
 	// Call the server handler to start a new round
-	err = s.handler.PostPrecompResult(batchMsg.GetRound().GetID(),
-		batchMsg.Slots, authState)
+	err = s.handler.PostPrecompResult(batchMsg.RoundId,
+		batchMsg.NumSlots, authState)
 	return &messages.Ack{}, err
 }
 

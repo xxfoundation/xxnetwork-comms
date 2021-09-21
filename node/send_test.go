@@ -264,7 +264,7 @@ func TestSendPostPrecompResult(t *testing.T) {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
 	slots := make([]*pb.Slot, 0)
-	_, err = server.SendPostPrecompResult(host, 0, slots)
+	_, err = server.SendPostPrecompResult(host, 0, uint32(len(slots)))
 	if err != nil {
 		t.Errorf("PostPrecompResult: Error received: %s", err)
 	}

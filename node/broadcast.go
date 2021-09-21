@@ -153,7 +153,7 @@ func (s *Comms) SendNewRound(host *connect.Host,
 
 // Server -> Server Send Function
 func (s *Comms) SendPostPrecompResult(host *connect.Host,
-	roundID uint64, slots []*pb.Slot) (*messages.Ack, error) {
+	roundID uint64, numSlots uint32) (*messages.Ack, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
@@ -162,11 +162,9 @@ func (s *Comms) SendPostPrecompResult(host *connect.Host,
 		defer cancel()
 
 		//Pack the message as an authenticated message
-		batchMsg := &pb.Batch{
-			Round: &pb.RoundInfo{
-				ID: roundID,
-			},
-			Slots: slots,
+		batchMsg := &pb.PostPrecompResult{
+			RoundId:  roundID,
+			NumSlots: numSlots,
 		}
 		authMsg, err := s.PackAuthenticatedMessage(batchMsg, host, false)
 		if err != nil {
