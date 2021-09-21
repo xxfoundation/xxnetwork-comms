@@ -43,7 +43,7 @@ func (s *Comms) SendFinishRealtime(host *connect.Host,
 	for i, slot := range batch.Slots {
 		if err = streamingClient.Send(slot); err != nil {
 			return nil, errors.Errorf("Could not stream slot (%d/%d) "+
-				"for round %d: %v", i, len(batch.Slots), batch.RoundID, err)
+				"for round %d: %v", i, len(batch.Slots), roundInfo.ID, err)
 		}
 	}
 
@@ -145,7 +145,7 @@ func (s *Comms) FinishRealtime(stream pb.Node_FinishRealtimeServer) error {
 	//Unmarshall the any message to the message type needed
 	info, err := GetFinishRealtimeStreamHeader(stream)
 	if err != nil {
-		return errors.WithMessage(err, "Could not get unmixed batch stream header")
+		return errors.WithMessage(err, "Could not get realtime stream header")
 	}
 
 	// Handle

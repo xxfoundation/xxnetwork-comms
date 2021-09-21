@@ -16,10 +16,11 @@ import (
 
 // Headers for streaming
 const (
-	PostPhaseHeader      = "batchinfo"
-	UnmixedBatchHeader   = "unmixedbatchinfo"
-	MixedBatchHeader     = "mixedBatchInfo"
-	FinishRealtimeHeader = "finishRealtimeRoundInfo"
+	PostPhaseHeader        = "batchinfo"
+	UnmixedBatchHeader     = "unmixedbatchinfo"
+	MixedBatchHeader       = "mixedBatchInfo"
+	FinishRealtimeHeader   = "finishRealtimeRoundInfo"
+	PrecompTestBatchHeader = "precompTestBatch"
 )
 
 // ChunkSize is the size of a streaming chunk in bytes.
