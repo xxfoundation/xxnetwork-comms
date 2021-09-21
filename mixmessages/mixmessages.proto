@@ -32,6 +32,12 @@ service Node {
     rpc FinishRealtime (stream Slot) returns (messages.Ack) {
     }
 
+    // PrecompTestBatch is a server to server streaming broadcast. It simulates
+    // sending the completed batch of FinishRealtime, testing for connectivity.
+    rpc PrecompTestBatch (stream Slot) returns (messages.Ack) {
+    }
+
+
     // PostPhase runs a cMix phase on another node
     rpc PostPhase (messages.AuthenticatedMessage) returns (messages.Ack) {
     }
@@ -95,6 +101,11 @@ service Node {
     rpc ShareFinalKey (messages.AuthenticatedMessage) returns (messages.Ack) {
     }
 
+}
+
+message PostPrecompResult {
+    uint64 RoundId = 1;
+    uint32 NumSlots = 2;
 }
 
 // RoundInfo contains the # of precomputations ready for messages, among other
