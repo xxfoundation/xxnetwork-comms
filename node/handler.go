@@ -80,7 +80,8 @@ type Handler interface {
 	DownloadMixedBatch(stream mixmessages.Node_DownloadMixedBatchServer,
 		batchInfo *mixmessages.BatchReady, auth *connect.Auth) error
 	// Server interface for broadcasting when realtime is complete
-	FinishRealtime(message *mixmessages.RoundInfo, auth *connect.Auth) error
+	FinishRealtime(message *mixmessages.RoundInfo,
+		streamServer mixmessages.Node_FinishRealtimeServer, auth *connect.Auth) error
 	// GetRoundBufferInfo returns # of available precomputations
 	GetRoundBufferInfo(auth *connect.Auth) (int, error)
 
@@ -138,7 +139,7 @@ type implementationFunctions struct {
 		batchInfo *mixmessages.BatchReady, auth *connect.Auth) error
 
 	// Server interface for finishing the realtime phase
-	FinishRealtime func(message *mixmessages.RoundInfo, auth *connect.Auth) error
+	FinishRealtime func(message *mixmessages.RoundInfo, streamServer mixmessages.Node_FinishRealtimeServer, auth *connect.Auth) error
 	// GetRoundBufferInfo returns # of available precomputations completed
 	GetRoundBufferInfo func(auth *connect.Auth) (int, error)
 
@@ -227,7 +228,7 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return nil
 			},
-			FinishRealtime: func(message *mixmessages.RoundInfo, auth *connect.Auth) error {
+			FinishRealtime: func(message *mixmessages.RoundInfo, streamServer mixmessages.Node_FinishRealtimeServer, auth *connect.Auth) error {
 				warn(um)
 				return nil
 			},
@@ -341,8 +342,8 @@ func (s *Implementation) PostPrecompResult(roundID uint64,
 	return s.Functions.PostPrecompResult(roundID, slots, auth)
 }
 
-func (s *Implementation) FinishRealtime(message *mixmessages.RoundInfo, auth *connect.Auth) error {
-	return s.Functions.FinishRealtime(message, auth)
+func (s *Implementation) FinishRealtime(message *mixmessages.RoundInfo, streamServer mixmessages.Node_FinishRealtimeServer, auth *connect.Auth) error {
+	return s.Functions.FinishRealtime(message, streamServer, auth)
 }
 
 func (s *Implementation) GetMeasure(message *mixmessages.RoundInfo, auth *connect.Auth) (*mixmessages.RoundMetrics, error) {
