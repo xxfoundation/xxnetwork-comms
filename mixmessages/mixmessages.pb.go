@@ -2211,18 +2211,18 @@ func (x *NodeRegistration) GetRegistrationCode() string {
 
 // UserRegistration message to initialize registration process
 // Client -> ClientRegistrar
-type UserRegistration struct {
+type ClientRegistration struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	RegistrationCode         string `protobuf:"bytes,1,opt,name=RegistrationCode,proto3" json:"RegistrationCode,omitempty"`
-	ClientRSAPubKey          string `protobuf:"bytes,2,opt,name=ClientRSAPubKey,proto3" json:"ClientRSAPubKey,omitempty"`
-	ClientReceptionRSAPubKey string `protobuf:"bytes,3,opt,name=ClientReceptionRSAPubKey,proto3" json:"ClientReceptionRSAPubKey,omitempty"`
+	RegistrationCode            string `protobuf:"bytes,1,opt,name=RegistrationCode,proto3" json:"RegistrationCode,omitempty"`
+	ClientTransmissionRSAPubKey string `protobuf:"bytes,2,opt,name=ClientTransmissionRSAPubKey,proto3" json:"ClientTransmissionRSAPubKey,omitempty"`
+	ClientReceptionRSAPubKey    string `protobuf:"bytes,3,opt,name=ClientReceptionRSAPubKey,proto3" json:"ClientReceptionRSAPubKey,omitempty"`
 }
 
-func (x *UserRegistration) Reset() {
-	*x = UserRegistration{}
+func (x *ClientRegistration) Reset() {
+	*x = ClientRegistration{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_mixmessages_proto_msgTypes[34]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -2230,13 +2230,13 @@ func (x *UserRegistration) Reset() {
 	}
 }
 
-func (x *UserRegistration) String() string {
+func (x *ClientRegistration) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*UserRegistration) ProtoMessage() {}
+func (*ClientRegistration) ProtoMessage() {}
 
-func (x *UserRegistration) ProtoReflect() protoreflect.Message {
+func (x *ClientRegistration) ProtoReflect() protoreflect.Message {
 	mi := &file_mixmessages_proto_msgTypes[34]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -2248,48 +2248,45 @@ func (x *UserRegistration) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use UserRegistration.ProtoReflect.Descriptor instead.
-func (*UserRegistration) Descriptor() ([]byte, []int) {
+// Deprecated: Use ClientRegistration.ProtoReflect.Descriptor instead.
+func (*ClientRegistration) Descriptor() ([]byte, []int) {
 	return file_mixmessages_proto_rawDescGZIP(), []int{34}
 }
 
-func (x *UserRegistration) GetRegistrationCode() string {
+func (x *ClientRegistration) GetRegistrationCode() string {
 	if x != nil {
 		return x.RegistrationCode
 	}
 	return ""
 }
 
-func (x *UserRegistration) GetClientRSAPubKey() string {
+func (x *ClientRegistration) GetClientTransmissionRSAPubKey() string {
 	if x != nil {
-		return x.ClientRSAPubKey
+		return x.ClientTransmissionRSAPubKey
 	}
 	return ""
 }
 
-func (x *UserRegistration) GetClientReceptionRSAPubKey() string {
+func (x *ClientRegistration) GetClientReceptionRSAPubKey() string {
 	if x != nil {
 		return x.ClientReceptionRSAPubKey
 	}
 	return ""
 }
 
-// UserRegistrationConfirmation to confirm registration with users
-// ClientRegistrar -> Client (Response to UserRegistration)
-type UserRegistrationConfirmation struct {
+// ClientRegistrationConfirmation to confirm registration with Clients
+// ClientRegistrar -> Client (Response to ClientRegistration)
+type ClientRegistrationConfirmation struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// RegistrationServer-Signed Client Public Key
-	ClientSignedByServer          *messages.RSASignature `protobuf:"bytes,1,opt,name=ClientSignedByServer,proto3" json:"ClientSignedByServer,omitempty"`
-	ClientReceptionSignedByServer *messages.RSASignature `protobuf:"bytes,2,opt,name=ClientReceptionSignedByServer,proto3" json:"ClientReceptionSignedByServer,omitempty"`
-	Timestamp                     int64                  `protobuf:"varint,3,opt,name=Timestamp,proto3" json:"Timestamp,omitempty"`
-	Error                         string                 `protobuf:"bytes,4,opt,name=Error,proto3" json:"Error,omitempty"`
+	RSAPubKey string `protobuf:"bytes,1,opt,name=RSAPubKey,proto3" json:"RSAPubKey,omitempty"`
+	Timestamp int64  `protobuf:"varint,2,opt,name=Timestamp,proto3" json:"Timestamp,omitempty"`
 }
 
-func (x *UserRegistrationConfirmation) Reset() {
-	*x = UserRegistrationConfirmation{}
+func (x *ClientRegistrationConfirmation) Reset() {
+	*x = ClientRegistrationConfirmation{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_mixmessages_proto_msgTypes[35]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -2297,13 +2294,13 @@ func (x *UserRegistrationConfirmation) Reset() {
 	}
 }
 
-func (x *UserRegistrationConfirmation) String() string {
+func (x *ClientRegistrationConfirmation) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*UserRegistrationConfirmation) ProtoMessage() {}
+func (*ClientRegistrationConfirmation) ProtoMessage() {}
 
-func (x *UserRegistrationConfirmation) ProtoReflect() protoreflect.Message {
+func (x *ClientRegistrationConfirmation) ProtoReflect() protoreflect.Message {
 	mi := &file_mixmessages_proto_msgTypes[35]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -2315,33 +2312,137 @@ func (x *UserRegistrationConfirmation) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use UserRegistrationConfirmation.ProtoReflect.Descriptor instead.
-func (*UserRegistrationConfirmation) Descriptor() ([]byte, []int) {
+// Deprecated: Use ClientRegistrationConfirmation.ProtoReflect.Descriptor instead.
+func (*ClientRegistrationConfirmation) Descriptor() ([]byte, []int) {
 	return file_mixmessages_proto_rawDescGZIP(), []int{35}
 }
 
-func (x *UserRegistrationConfirmation) GetClientSignedByServer() *messages.RSASignature {
+func (x *ClientRegistrationConfirmation) GetRSAPubKey() string {
 	if x != nil {
-		return x.ClientSignedByServer
+		return x.RSAPubKey
 	}
-	return nil
+	return ""
 }
 
-func (x *UserRegistrationConfirmation) GetClientReceptionSignedByServer() *messages.RSASignature {
-	if x != nil {
-		return x.ClientReceptionSignedByServer
-	}
-	return nil
-}
-
-func (x *UserRegistrationConfirmation) GetTimestamp() int64 {
+func (x *ClientRegistrationConfirmation) GetTimestamp() int64 {
 	if x != nil {
 		return x.Timestamp
 	}
 	return 0
 }
 
-func (x *UserRegistrationConfirmation) GetError() string {
+type SignedRegistrationConfirmation struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ClientRegistrationConfirmation []byte                 `protobuf:"bytes,1,opt,name=ClientRegistrationConfirmation,proto3" json:"ClientRegistrationConfirmation,omitempty"`
+	RegistrarSignature             *messages.RSASignature `protobuf:"bytes,2,opt,name=RegistrarSignature,proto3" json:"RegistrarSignature,omitempty"`
+}
+
+func (x *SignedRegistrationConfirmation) Reset() {
+	*x = SignedRegistrationConfirmation{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_mixmessages_proto_msgTypes[36]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *SignedRegistrationConfirmation) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SignedRegistrationConfirmation) ProtoMessage() {}
+
+func (x *SignedRegistrationConfirmation) ProtoReflect() protoreflect.Message {
+	mi := &file_mixmessages_proto_msgTypes[36]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SignedRegistrationConfirmation.ProtoReflect.Descriptor instead.
+func (*SignedRegistrationConfirmation) Descriptor() ([]byte, []int) {
+	return file_mixmessages_proto_rawDescGZIP(), []int{36}
+}
+
+func (x *SignedRegistrationConfirmation) GetClientRegistrationConfirmation() []byte {
+	if x != nil {
+		return x.ClientRegistrationConfirmation
+	}
+	return nil
+}
+
+func (x *SignedRegistrationConfirmation) GetRegistrarSignature() *messages.RSASignature {
+	if x != nil {
+		return x.RegistrarSignature
+	}
+	return nil
+}
+
+type SignedClientRegistrationConfirmations struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ClientTransmissionConfirmation *SignedRegistrationConfirmation `protobuf:"bytes,1,opt,name=ClientTransmissionConfirmation,proto3" json:"ClientTransmissionConfirmation,omitempty"`
+	ClientReceptionConfirmation    *SignedRegistrationConfirmation `protobuf:"bytes,2,opt,name=ClientReceptionConfirmation,proto3" json:"ClientReceptionConfirmation,omitempty"`
+	Error                          string                          `protobuf:"bytes,3,opt,name=Error,proto3" json:"Error,omitempty"`
+}
+
+func (x *SignedClientRegistrationConfirmations) Reset() {
+	*x = SignedClientRegistrationConfirmations{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_mixmessages_proto_msgTypes[37]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *SignedClientRegistrationConfirmations) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SignedClientRegistrationConfirmations) ProtoMessage() {}
+
+func (x *SignedClientRegistrationConfirmations) ProtoReflect() protoreflect.Message {
+	mi := &file_mixmessages_proto_msgTypes[37]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SignedClientRegistrationConfirmations.ProtoReflect.Descriptor instead.
+func (*SignedClientRegistrationConfirmations) Descriptor() ([]byte, []int) {
+	return file_mixmessages_proto_rawDescGZIP(), []int{37}
+}
+
+func (x *SignedClientRegistrationConfirmations) GetClientTransmissionConfirmation() *SignedRegistrationConfirmation {
+	if x != nil {
+		return x.ClientTransmissionConfirmation
+	}
+	return nil
+}
+
+func (x *SignedClientRegistrationConfirmations) GetClientReceptionConfirmation() *SignedRegistrationConfirmation {
+	if x != nil {
+		return x.ClientReceptionConfirmation
+	}
+	return nil
+}
+
+func (x *SignedClientRegistrationConfirmations) GetError() string {
 	if x != nil {
 		return x.Error
 	}
@@ -2360,7 +2461,7 @@ type ClientVersion struct {
 func (x *ClientVersion) Reset() {
 	*x = ClientVersion{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[36]
+		mi := &file_mixmessages_proto_msgTypes[38]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2373,7 +2474,7 @@ func (x *ClientVersion) String() string {
 func (*ClientVersion) ProtoMessage() {}
 
 func (x *ClientVersion) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[36]
+	mi := &file_mixmessages_proto_msgTypes[38]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2386,7 +2487,7 @@ func (x *ClientVersion) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClientVersion.ProtoReflect.Descriptor instead.
 func (*ClientVersion) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{36}
+	return file_mixmessages_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *ClientVersion) GetVersion() string {
@@ -2414,7 +2515,7 @@ type NonceRequest struct {
 func (x *NonceRequest) Reset() {
 	*x = NonceRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[37]
+		mi := &file_mixmessages_proto_msgTypes[39]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2427,7 +2528,7 @@ func (x *NonceRequest) String() string {
 func (*NonceRequest) ProtoMessage() {}
 
 func (x *NonceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[37]
+	mi := &file_mixmessages_proto_msgTypes[39]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2440,7 +2541,7 @@ func (x *NonceRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NonceRequest.ProtoReflect.Descriptor instead.
 func (*NonceRequest) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{37}
+	return file_mixmessages_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *NonceRequest) GetSalt() []byte {
@@ -2506,7 +2607,7 @@ type Nonce struct {
 func (x *Nonce) Reset() {
 	*x = Nonce{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[38]
+		mi := &file_mixmessages_proto_msgTypes[40]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2519,7 +2620,7 @@ func (x *Nonce) String() string {
 func (*Nonce) ProtoMessage() {}
 
 func (x *Nonce) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[38]
+	mi := &file_mixmessages_proto_msgTypes[40]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2532,7 +2633,7 @@ func (x *Nonce) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Nonce.ProtoReflect.Descriptor instead.
 func (*Nonce) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{38}
+	return file_mixmessages_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *Nonce) GetNonce() []byte {
@@ -2571,7 +2672,7 @@ type RequestRegistrationConfirmation struct {
 func (x *RequestRegistrationConfirmation) Reset() {
 	*x = RequestRegistrationConfirmation{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[39]
+		mi := &file_mixmessages_proto_msgTypes[41]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2584,7 +2685,7 @@ func (x *RequestRegistrationConfirmation) String() string {
 func (*RequestRegistrationConfirmation) ProtoMessage() {}
 
 func (x *RequestRegistrationConfirmation) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[39]
+	mi := &file_mixmessages_proto_msgTypes[41]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2597,7 +2698,7 @@ func (x *RequestRegistrationConfirmation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RequestRegistrationConfirmation.ProtoReflect.Descriptor instead.
 func (*RequestRegistrationConfirmation) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{39}
+	return file_mixmessages_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *RequestRegistrationConfirmation) GetUserID() []byte {
@@ -2642,7 +2743,7 @@ type RegistrationConfirmation struct {
 func (x *RegistrationConfirmation) Reset() {
 	*x = RegistrationConfirmation{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[40]
+		mi := &file_mixmessages_proto_msgTypes[42]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2655,7 +2756,7 @@ func (x *RegistrationConfirmation) String() string {
 func (*RegistrationConfirmation) ProtoMessage() {}
 
 func (x *RegistrationConfirmation) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[40]
+	mi := &file_mixmessages_proto_msgTypes[42]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2668,7 +2769,7 @@ func (x *RegistrationConfirmation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RegistrationConfirmation.ProtoReflect.Descriptor instead.
 func (*RegistrationConfirmation) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{40}
+	return file_mixmessages_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *RegistrationConfirmation) GetClientSignedByServer() *messages.RSASignature {
@@ -2713,7 +2814,7 @@ type PermissioningPoll struct {
 func (x *PermissioningPoll) Reset() {
 	*x = PermissioningPoll{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[41]
+		mi := &file_mixmessages_proto_msgTypes[43]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2726,7 +2827,7 @@ func (x *PermissioningPoll) String() string {
 func (*PermissioningPoll) ProtoMessage() {}
 
 func (x *PermissioningPoll) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[41]
+	mi := &file_mixmessages_proto_msgTypes[43]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2739,7 +2840,7 @@ func (x *PermissioningPoll) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PermissioningPoll.ProtoReflect.Descriptor instead.
 func (*PermissioningPoll) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{41}
+	return file_mixmessages_proto_rawDescGZIP(), []int{43}
 }
 
 func (x *PermissioningPoll) GetFull() *NDFHash {
@@ -2827,7 +2928,7 @@ type ClientError struct {
 func (x *ClientError) Reset() {
 	*x = ClientError{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[42]
+		mi := &file_mixmessages_proto_msgTypes[44]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2840,7 +2941,7 @@ func (x *ClientError) String() string {
 func (*ClientError) ProtoMessage() {}
 
 func (x *ClientError) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[42]
+	mi := &file_mixmessages_proto_msgTypes[44]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2853,7 +2954,7 @@ func (x *ClientError) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClientError.ProtoReflect.Descriptor instead.
 func (*ClientError) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{42}
+	return file_mixmessages_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *ClientError) GetClientId() []byte {
@@ -2891,7 +2992,7 @@ type PermissionPollResponse struct {
 func (x *PermissionPollResponse) Reset() {
 	*x = PermissionPollResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[43]
+		mi := &file_mixmessages_proto_msgTypes[45]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2904,7 +3005,7 @@ func (x *PermissionPollResponse) String() string {
 func (*PermissionPollResponse) ProtoMessage() {}
 
 func (x *PermissionPollResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[43]
+	mi := &file_mixmessages_proto_msgTypes[45]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2917,7 +3018,7 @@ func (x *PermissionPollResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PermissionPollResponse.ProtoReflect.Descriptor instead.
 func (*PermissionPollResponse) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{43}
+	return file_mixmessages_proto_rawDescGZIP(), []int{45}
 }
 
 func (x *PermissionPollResponse) GetFullNDF() *NDF {
@@ -2960,7 +3061,7 @@ type NotificationRegisterRequest struct {
 func (x *NotificationRegisterRequest) Reset() {
 	*x = NotificationRegisterRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[44]
+		mi := &file_mixmessages_proto_msgTypes[46]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2973,7 +3074,7 @@ func (x *NotificationRegisterRequest) String() string {
 func (*NotificationRegisterRequest) ProtoMessage() {}
 
 func (x *NotificationRegisterRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[44]
+	mi := &file_mixmessages_proto_msgTypes[46]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2986,7 +3087,7 @@ func (x *NotificationRegisterRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotificationRegisterRequest.ProtoReflect.Descriptor instead.
 func (*NotificationRegisterRequest) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{44}
+	return file_mixmessages_proto_rawDescGZIP(), []int{46}
 }
 
 func (x *NotificationRegisterRequest) GetToken() string {
@@ -3050,7 +3151,7 @@ type NotificationUnregisterRequest struct {
 func (x *NotificationUnregisterRequest) Reset() {
 	*x = NotificationUnregisterRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[45]
+		mi := &file_mixmessages_proto_msgTypes[47]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3063,7 +3164,7 @@ func (x *NotificationUnregisterRequest) String() string {
 func (*NotificationUnregisterRequest) ProtoMessage() {}
 
 func (x *NotificationUnregisterRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[45]
+	mi := &file_mixmessages_proto_msgTypes[47]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3076,7 +3177,7 @@ func (x *NotificationUnregisterRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotificationUnregisterRequest.ProtoReflect.Descriptor instead.
 func (*NotificationUnregisterRequest) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{45}
+	return file_mixmessages_proto_rawDescGZIP(), []int{47}
 }
 
 func (x *NotificationUnregisterRequest) GetIntermediaryId() []byte {
@@ -3105,7 +3206,7 @@ type UserIdList struct {
 func (x *UserIdList) Reset() {
 	*x = UserIdList{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[46]
+		mi := &file_mixmessages_proto_msgTypes[48]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3118,7 +3219,7 @@ func (x *UserIdList) String() string {
 func (*UserIdList) ProtoMessage() {}
 
 func (x *UserIdList) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[46]
+	mi := &file_mixmessages_proto_msgTypes[48]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3131,7 +3232,7 @@ func (x *UserIdList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserIdList.ProtoReflect.Descriptor instead.
 func (*UserIdList) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{46}
+	return file_mixmessages_proto_rawDescGZIP(), []int{48}
 }
 
 func (x *UserIdList) GetIDs() [][]byte {
@@ -3154,7 +3255,7 @@ type NotificationBatch struct {
 func (x *NotificationBatch) Reset() {
 	*x = NotificationBatch{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[47]
+		mi := &file_mixmessages_proto_msgTypes[49]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3167,7 +3268,7 @@ func (x *NotificationBatch) String() string {
 func (*NotificationBatch) ProtoMessage() {}
 
 func (x *NotificationBatch) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[47]
+	mi := &file_mixmessages_proto_msgTypes[49]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3180,7 +3281,7 @@ func (x *NotificationBatch) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotificationBatch.ProtoReflect.Descriptor instead.
 func (*NotificationBatch) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{47}
+	return file_mixmessages_proto_rawDescGZIP(), []int{49}
 }
 
 func (x *NotificationBatch) GetRoundID() uint64 {
@@ -3211,7 +3312,7 @@ type NotificationData struct {
 func (x *NotificationData) Reset() {
 	*x = NotificationData{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[48]
+		mi := &file_mixmessages_proto_msgTypes[50]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3224,7 +3325,7 @@ func (x *NotificationData) String() string {
 func (*NotificationData) ProtoMessage() {}
 
 func (x *NotificationData) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[48]
+	mi := &file_mixmessages_proto_msgTypes[50]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3237,7 +3338,7 @@ func (x *NotificationData) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotificationData.ProtoReflect.Descriptor instead.
 func (*NotificationData) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{48}
+	return file_mixmessages_proto_rawDescGZIP(), []int{50}
 }
 
 func (x *NotificationData) GetEphemeralID() int64 {
@@ -3279,7 +3380,7 @@ type UDBUserRegistration struct {
 func (x *UDBUserRegistration) Reset() {
 	*x = UDBUserRegistration{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[49]
+		mi := &file_mixmessages_proto_msgTypes[51]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3292,7 +3393,7 @@ func (x *UDBUserRegistration) String() string {
 func (*UDBUserRegistration) ProtoMessage() {}
 
 func (x *UDBUserRegistration) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[49]
+	mi := &file_mixmessages_proto_msgTypes[51]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3305,7 +3406,7 @@ func (x *UDBUserRegistration) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UDBUserRegistration.ProtoReflect.Descriptor instead.
 func (*UDBUserRegistration) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{49}
+	return file_mixmessages_proto_rawDescGZIP(), []int{51}
 }
 
 func (x *UDBUserRegistration) GetPermissioningSignature() []byte {
@@ -3371,7 +3472,7 @@ type Identity struct {
 func (x *Identity) Reset() {
 	*x = Identity{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[50]
+		mi := &file_mixmessages_proto_msgTypes[52]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3384,7 +3485,7 @@ func (x *Identity) String() string {
 func (*Identity) ProtoMessage() {}
 
 func (x *Identity) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[50]
+	mi := &file_mixmessages_proto_msgTypes[52]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3397,7 +3498,7 @@ func (x *Identity) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Identity.ProtoReflect.Descriptor instead.
 func (*Identity) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{50}
+	return file_mixmessages_proto_rawDescGZIP(), []int{52}
 }
 
 func (x *Identity) GetUsername() string {
@@ -3435,7 +3536,7 @@ type FactRegisterRequest struct {
 func (x *FactRegisterRequest) Reset() {
 	*x = FactRegisterRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[51]
+		mi := &file_mixmessages_proto_msgTypes[53]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3448,7 +3549,7 @@ func (x *FactRegisterRequest) String() string {
 func (*FactRegisterRequest) ProtoMessage() {}
 
 func (x *FactRegisterRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[51]
+	mi := &file_mixmessages_proto_msgTypes[53]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3461,7 +3562,7 @@ func (x *FactRegisterRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FactRegisterRequest.ProtoReflect.Descriptor instead.
 func (*FactRegisterRequest) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{51}
+	return file_mixmessages_proto_rawDescGZIP(), []int{53}
 }
 
 func (x *FactRegisterRequest) GetUID() []byte {
@@ -3498,7 +3599,7 @@ type Fact struct {
 func (x *Fact) Reset() {
 	*x = Fact{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[52]
+		mi := &file_mixmessages_proto_msgTypes[54]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3511,7 +3612,7 @@ func (x *Fact) String() string {
 func (*Fact) ProtoMessage() {}
 
 func (x *Fact) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[52]
+	mi := &file_mixmessages_proto_msgTypes[54]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3524,7 +3625,7 @@ func (x *Fact) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Fact.ProtoReflect.Descriptor instead.
 func (*Fact) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{52}
+	return file_mixmessages_proto_rawDescGZIP(), []int{54}
 }
 
 func (x *Fact) GetFact() string {
@@ -3553,7 +3654,7 @@ type FactRegisterResponse struct {
 func (x *FactRegisterResponse) Reset() {
 	*x = FactRegisterResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[53]
+		mi := &file_mixmessages_proto_msgTypes[55]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3566,7 +3667,7 @@ func (x *FactRegisterResponse) String() string {
 func (*FactRegisterResponse) ProtoMessage() {}
 
 func (x *FactRegisterResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[53]
+	mi := &file_mixmessages_proto_msgTypes[55]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3579,7 +3680,7 @@ func (x *FactRegisterResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FactRegisterResponse.ProtoReflect.Descriptor instead.
 func (*FactRegisterResponse) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{53}
+	return file_mixmessages_proto_rawDescGZIP(), []int{55}
 }
 
 func (x *FactRegisterResponse) GetConfirmationID() string {
@@ -3602,7 +3703,7 @@ type FactConfirmRequest struct {
 func (x *FactConfirmRequest) Reset() {
 	*x = FactConfirmRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[54]
+		mi := &file_mixmessages_proto_msgTypes[56]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3615,7 +3716,7 @@ func (x *FactConfirmRequest) String() string {
 func (*FactConfirmRequest) ProtoMessage() {}
 
 func (x *FactConfirmRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[54]
+	mi := &file_mixmessages_proto_msgTypes[56]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3628,7 +3729,7 @@ func (x *FactConfirmRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FactConfirmRequest.ProtoReflect.Descriptor instead.
 func (*FactConfirmRequest) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{54}
+	return file_mixmessages_proto_rawDescGZIP(), []int{56}
 }
 
 func (x *FactConfirmRequest) GetConfirmationID() string {
@@ -3659,7 +3760,7 @@ type FactRemovalRequest struct {
 func (x *FactRemovalRequest) Reset() {
 	*x = FactRemovalRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[55]
+		mi := &file_mixmessages_proto_msgTypes[57]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3672,7 +3773,7 @@ func (x *FactRemovalRequest) String() string {
 func (*FactRemovalRequest) ProtoMessage() {}
 
 func (x *FactRemovalRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[55]
+	mi := &file_mixmessages_proto_msgTypes[57]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3685,7 +3786,7 @@ func (x *FactRemovalRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FactRemovalRequest.ProtoReflect.Descriptor instead.
 func (*FactRemovalRequest) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{55}
+	return file_mixmessages_proto_rawDescGZIP(), []int{57}
 }
 
 func (x *FactRemovalRequest) GetUID() []byte {
@@ -3721,7 +3822,7 @@ type StrAddress struct {
 func (x *StrAddress) Reset() {
 	*x = StrAddress{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[56]
+		mi := &file_mixmessages_proto_msgTypes[58]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3734,7 +3835,7 @@ func (x *StrAddress) String() string {
 func (*StrAddress) ProtoMessage() {}
 
 func (x *StrAddress) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[56]
+	mi := &file_mixmessages_proto_msgTypes[58]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3747,7 +3848,7 @@ func (x *StrAddress) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StrAddress.ProtoReflect.Descriptor instead.
 func (*StrAddress) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{56}
+	return file_mixmessages_proto_rawDescGZIP(), []int{58}
 }
 
 func (x *StrAddress) GetAddress() string {
@@ -3780,7 +3881,7 @@ type RoundInfo struct {
 func (x *RoundInfo) Reset() {
 	*x = RoundInfo{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[57]
+		mi := &file_mixmessages_proto_msgTypes[59]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3793,7 +3894,7 @@ func (x *RoundInfo) String() string {
 func (*RoundInfo) ProtoMessage() {}
 
 func (x *RoundInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[57]
+	mi := &file_mixmessages_proto_msgTypes[59]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3806,7 +3907,7 @@ func (x *RoundInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RoundInfo.ProtoReflect.Descriptor instead.
 func (*RoundInfo) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{57}
+	return file_mixmessages_proto_rawDescGZIP(), []int{59}
 }
 
 func (x *RoundInfo) GetID() uint64 {
@@ -3909,7 +4010,7 @@ type RoundError struct {
 func (x *RoundError) Reset() {
 	*x = RoundError{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[58]
+		mi := &file_mixmessages_proto_msgTypes[60]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3922,7 +4023,7 @@ func (x *RoundError) String() string {
 func (*RoundError) ProtoMessage() {}
 
 func (x *RoundError) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[58]
+	mi := &file_mixmessages_proto_msgTypes[60]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3935,7 +4036,7 @@ func (x *RoundError) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RoundError.ProtoReflect.Descriptor instead.
 func (*RoundError) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{58}
+	return file_mixmessages_proto_rawDescGZIP(), []int{60}
 }
 
 func (x *RoundError) GetId() uint64 {
@@ -3981,7 +4082,7 @@ type AuthorizerAuth struct {
 func (x *AuthorizerAuth) Reset() {
 	*x = AuthorizerAuth{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[59]
+		mi := &file_mixmessages_proto_msgTypes[61]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3994,7 +4095,7 @@ func (x *AuthorizerAuth) String() string {
 func (*AuthorizerAuth) ProtoMessage() {}
 
 func (x *AuthorizerAuth) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[59]
+	mi := &file_mixmessages_proto_msgTypes[61]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4007,7 +4108,7 @@ func (x *AuthorizerAuth) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AuthorizerAuth.ProtoReflect.Descriptor instead.
 func (*AuthorizerAuth) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{59}
+	return file_mixmessages_proto_rawDescGZIP(), []int{61}
 }
 
 func (x *AuthorizerAuth) GetNodeID() []byte {
@@ -4314,32 +4415,53 @@ var file_mixmessages_proto_rawDesc = []byte{
 	0x50, 0x6f, 0x72, 0x74, 0x12, 0x2a, 0x0a, 0x10, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x72, 0x61,
 	0x74, 0x69, 0x6f, 0x6e, 0x43, 0x6f, 0x64, 0x65, 0x18, 0x08, 0x20, 0x01, 0x28, 0x09, 0x52, 0x10,
 	0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43, 0x6f, 0x64, 0x65,
-	0x22, 0xa4, 0x01, 0x0a, 0x10, 0x55, 0x73, 0x65, 0x72, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x72,
-	0x61, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x2a, 0x0a, 0x10, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x72,
-	0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43, 0x6f, 0x64, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52,
-	0x10, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43, 0x6f, 0x64,
-	0x65, 0x12, 0x28, 0x0a, 0x0f, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x52, 0x53, 0x41, 0x50, 0x75,
-	0x62, 0x4b, 0x65, 0x79, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0f, 0x43, 0x6c, 0x69, 0x65,
-	0x6e, 0x74, 0x52, 0x53, 0x41, 0x50, 0x75, 0x62, 0x4b, 0x65, 0x79, 0x12, 0x3a, 0x0a, 0x18, 0x43,
-	0x6c, 0x69, 0x65, 0x6e, 0x74, 0x52, 0x65, 0x63, 0x65, 0x70, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x53,
-	0x41, 0x50, 0x75, 0x62, 0x4b, 0x65, 0x79, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x18, 0x43,
-	0x6c, 0x69, 0x65, 0x6e, 0x74, 0x52, 0x65, 0x63, 0x65, 0x70, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x53,
-	0x41, 0x50, 0x75, 0x62, 0x4b, 0x65, 0x79, 0x22, 0xfc, 0x01, 0x0a, 0x1c, 0x55, 0x73, 0x65, 0x72,
-	0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43, 0x6f, 0x6e, 0x66,
-	0x69, 0x72, 0x6d, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x4a, 0x0a, 0x14, 0x43, 0x6c, 0x69, 0x65,
-	0x6e, 0x74, 0x53, 0x69, 0x67, 0x6e, 0x65, 0x64, 0x42, 0x79, 0x53, 0x65, 0x72, 0x76, 0x65, 0x72,
-	0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x16, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65,
-	0x73, 0x2e, 0x52, 0x53, 0x41, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x74, 0x75, 0x72, 0x65, 0x52, 0x14,
-	0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x53, 0x69, 0x67, 0x6e, 0x65, 0x64, 0x42, 0x79, 0x53, 0x65,
-	0x72, 0x76, 0x65, 0x72, 0x12, 0x5c, 0x0a, 0x1d, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x52, 0x65,
-	0x63, 0x65, 0x70, 0x74, 0x69, 0x6f, 0x6e, 0x53, 0x69, 0x67, 0x6e, 0x65, 0x64, 0x42, 0x79, 0x53,
-	0x65, 0x72, 0x76, 0x65, 0x72, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x16, 0x2e, 0x6d, 0x65,
-	0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x52, 0x53, 0x41, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x74,
-	0x75, 0x72, 0x65, 0x52, 0x1d, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x52, 0x65, 0x63, 0x65, 0x70,
-	0x74, 0x69, 0x6f, 0x6e, 0x53, 0x69, 0x67, 0x6e, 0x65, 0x64, 0x42, 0x79, 0x53, 0x65, 0x72, 0x76,
-	0x65, 0x72, 0x12, 0x1c, 0x0a, 0x09, 0x54, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x18,
-	0x03, 0x20, 0x01, 0x28, 0x03, 0x52, 0x09, 0x54, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70,
-	0x12, 0x14, 0x0a, 0x05, 0x45, 0x72, 0x72, 0x6f, 0x72, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x52,
+	0x22, 0xbe, 0x01, 0x0a, 0x12, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x52, 0x65, 0x67, 0x69, 0x73,
+	0x74, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x2a, 0x0a, 0x10, 0x52, 0x65, 0x67, 0x69, 0x73,
+	0x74, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43, 0x6f, 0x64, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28,
+	0x09, 0x52, 0x10, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43,
+	0x6f, 0x64, 0x65, 0x12, 0x40, 0x0a, 0x1b, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x54, 0x72, 0x61,
+	0x6e, 0x73, 0x6d, 0x69, 0x73, 0x73, 0x69, 0x6f, 0x6e, 0x52, 0x53, 0x41, 0x50, 0x75, 0x62, 0x4b,
+	0x65, 0x79, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x1b, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74,
+	0x54, 0x72, 0x61, 0x6e, 0x73, 0x6d, 0x69, 0x73, 0x73, 0x69, 0x6f, 0x6e, 0x52, 0x53, 0x41, 0x50,
+	0x75, 0x62, 0x4b, 0x65, 0x79, 0x12, 0x3a, 0x0a, 0x18, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x52,
+	0x65, 0x63, 0x65, 0x70, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x53, 0x41, 0x50, 0x75, 0x62, 0x4b, 0x65,
+	0x79, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x18, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x52,
+	0x65, 0x63, 0x65, 0x70, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x53, 0x41, 0x50, 0x75, 0x62, 0x4b, 0x65,
+	0x79, 0x22, 0x5c, 0x0a, 0x1e, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x52, 0x65, 0x67, 0x69, 0x73,
+	0x74, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x72, 0x6d, 0x61, 0x74,
+	0x69, 0x6f, 0x6e, 0x12, 0x1c, 0x0a, 0x09, 0x52, 0x53, 0x41, 0x50, 0x75, 0x62, 0x4b, 0x65, 0x79,
+	0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x52, 0x53, 0x41, 0x50, 0x75, 0x62, 0x4b, 0x65,
+	0x79, 0x12, 0x1c, 0x0a, 0x09, 0x54, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x18, 0x02,
+	0x20, 0x01, 0x28, 0x03, 0x52, 0x09, 0x54, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x22,
+	0xb0, 0x01, 0x0a, 0x1e, 0x53, 0x69, 0x67, 0x6e, 0x65, 0x64, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74,
+	0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x72, 0x6d, 0x61, 0x74, 0x69,
+	0x6f, 0x6e, 0x12, 0x46, 0x0a, 0x1e, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x52, 0x65, 0x67, 0x69,
+	0x73, 0x74, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x72, 0x6d, 0x61,
+	0x74, 0x69, 0x6f, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x1e, 0x43, 0x6c, 0x69, 0x65,
+	0x6e, 0x74, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43, 0x6f,
+	0x6e, 0x66, 0x69, 0x72, 0x6d, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x46, 0x0a, 0x12, 0x52, 0x65,
+	0x67, 0x69, 0x73, 0x74, 0x72, 0x61, 0x72, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x74, 0x75, 0x72, 0x65,
+	0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x16, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65,
+	0x73, 0x2e, 0x52, 0x53, 0x41, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x74, 0x75, 0x72, 0x65, 0x52, 0x12,
+	0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x72, 0x61, 0x72, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x74, 0x75,
+	0x72, 0x65, 0x22, 0xa1, 0x02, 0x0a, 0x25, 0x53, 0x69, 0x67, 0x6e, 0x65, 0x64, 0x43, 0x6c, 0x69,
+	0x65, 0x6e, 0x74, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43,
+	0x6f, 0x6e, 0x66, 0x69, 0x72, 0x6d, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x12, 0x73, 0x0a, 0x1e,
+	0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x6d, 0x69, 0x73, 0x73, 0x69,
+	0x6f, 0x6e, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x72, 0x6d, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x01,
+	0x20, 0x01, 0x28, 0x0b, 0x32, 0x2b, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67,
+	0x65, 0x73, 0x2e, 0x53, 0x69, 0x67, 0x6e, 0x65, 0x64, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x72,
+	0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x72, 0x6d, 0x61, 0x74, 0x69, 0x6f,
+	0x6e, 0x52, 0x1e, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x6d, 0x69,
+	0x73, 0x73, 0x69, 0x6f, 0x6e, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x72, 0x6d, 0x61, 0x74, 0x69, 0x6f,
+	0x6e, 0x12, 0x6d, 0x0a, 0x1b, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x52, 0x65, 0x63, 0x65, 0x70,
+	0x74, 0x69, 0x6f, 0x6e, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x72, 0x6d, 0x61, 0x74, 0x69, 0x6f, 0x6e,
+	0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x2b, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73,
+	0x61, 0x67, 0x65, 0x73, 0x2e, 0x53, 0x69, 0x67, 0x6e, 0x65, 0x64, 0x52, 0x65, 0x67, 0x69, 0x73,
+	0x74, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x72, 0x6d, 0x61, 0x74,
+	0x69, 0x6f, 0x6e, 0x52, 0x1b, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x52, 0x65, 0x63, 0x65, 0x70,
+	0x74, 0x69, 0x6f, 0x6e, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x72, 0x6d, 0x61, 0x74, 0x69, 0x6f, 0x6e,
+	0x12, 0x14, 0x0a, 0x05, 0x45, 0x72, 0x72, 0x6f, 0x72, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52,
 	0x05, 0x45, 0x72, 0x72, 0x6f, 0x72, 0x22, 0x29, 0x0a, 0x0d, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74,
 	0x56, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x12, 0x18, 0x0a, 0x07, 0x56, 0x65, 0x72, 0x73, 0x69,
 	0x6f, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x56, 0x65, 0x72, 0x73, 0x69, 0x6f,
@@ -4706,80 +4828,80 @@ var file_mixmessages_proto_rawDesc = []byte{
 	0x2e, 0x47, 0x65, 0x74, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x1a, 0x20, 0x2e, 0x6d,
 	0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x47, 0x65, 0x74, 0x4d, 0x65,
 	0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00,
-	0x32, 0x6d, 0x0a, 0x0f, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x72, 0x65, 0x67, 0x69, 0x73, 0x74,
-	0x72, 0x61, 0x72, 0x12, 0x5a, 0x0a, 0x0c, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x55,
-	0x73, 0x65, 0x72, 0x12, 0x1d, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65,
-	0x73, 0x2e, 0x55, 0x73, 0x65, 0x72, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x72, 0x61, 0x74, 0x69,
-	0x6f, 0x6e, 0x1a, 0x29, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73,
-	0x2e, 0x55, 0x73, 0x65, 0x72, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x72, 0x61, 0x74, 0x69, 0x6f,
-	0x6e, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x72, 0x6d, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x22, 0x00, 0x32,
-	0xb4, 0x02, 0x0a, 0x0c, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e,
-	0x12, 0x3e, 0x0a, 0x0c, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x4e, 0x6f, 0x64, 0x65,
-	0x12, 0x1d, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x4e,
-	0x6f, 0x64, 0x65, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x1a,
-	0x0d, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x41, 0x63, 0x6b, 0x22, 0x00,
-	0x12, 0x33, 0x0a, 0x07, 0x50, 0x6f, 0x6c, 0x6c, 0x4e, 0x64, 0x66, 0x12, 0x14, 0x2e, 0x6d, 0x69,
-	0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x4e, 0x44, 0x46, 0x48, 0x61, 0x73,
-	0x68, 0x1a, 0x10, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e,
-	0x4e, 0x44, 0x46, 0x22, 0x00, 0x12, 0x4d, 0x0a, 0x04, 0x50, 0x6f, 0x6c, 0x6c, 0x12, 0x1e, 0x2e,
-	0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x41, 0x75, 0x74, 0x68, 0x65, 0x6e, 0x74,
-	0x69, 0x63, 0x61, 0x74, 0x65, 0x64, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x1a, 0x23, 0x2e,
-	0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x50, 0x65, 0x72, 0x6d,
-	0x69, 0x73, 0x73, 0x69, 0x6f, 0x6e, 0x50, 0x6f, 0x6c, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
-	0x73, 0x65, 0x22, 0x00, 0x12, 0x60, 0x0a, 0x11, 0x43, 0x68, 0x65, 0x63, 0x6b, 0x52, 0x65, 0x67,
-	0x69, 0x73, 0x74, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x20, 0x2e, 0x6d, 0x69, 0x78, 0x6d,
-	0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72,
-	0x65, 0x64, 0x4e, 0x6f, 0x64, 0x65, 0x43, 0x68, 0x65, 0x63, 0x6b, 0x1a, 0x27, 0x2e, 0x6d, 0x69,
-	0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74,
-	0x65, 0x72, 0x65, 0x64, 0x4e, 0x6f, 0x64, 0x65, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x72, 0x6d, 0x61,
-	0x74, 0x69, 0x6f, 0x6e, 0x22, 0x00, 0x32, 0x90, 0x02, 0x0a, 0x0f, 0x4e, 0x6f, 0x74, 0x69, 0x66,
-	0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x42, 0x6f, 0x74, 0x12, 0x59, 0x0a, 0x1a, 0x55, 0x6e,
-	0x72, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x46, 0x6f, 0x72, 0x4e, 0x6f, 0x74, 0x69, 0x66,
-	0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x12, 0x2a, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65,
-	0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74,
-	0x69, 0x6f, 0x6e, 0x55, 0x6e, 0x72, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x52, 0x65, 0x71,
-	0x75, 0x65, 0x73, 0x74, 0x1a, 0x0d, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e,
-	0x41, 0x63, 0x6b, 0x22, 0x00, 0x12, 0x55, 0x0a, 0x18, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65,
-	0x72, 0x46, 0x6f, 0x72, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e,
-	0x73, 0x12, 0x28, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e,
-	0x4e, 0x6f, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x67, 0x69,
-	0x73, 0x74, 0x65, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x0d, 0x2e, 0x6d, 0x65,
-	0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x41, 0x63, 0x6b, 0x22, 0x00, 0x12, 0x4b, 0x0a, 0x18,
-	0x52, 0x65, 0x63, 0x65, 0x69, 0x76, 0x65, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74,
-	0x69, 0x6f, 0x6e, 0x42, 0x61, 0x74, 0x63, 0x68, 0x12, 0x1e, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61,
+	0x32, 0x78, 0x0a, 0x0f, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74,
+	0x72, 0x61, 0x72, 0x12, 0x65, 0x0a, 0x0c, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x55,
+	0x73, 0x65, 0x72, 0x12, 0x1f, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65,
+	0x73, 0x2e, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x72, 0x61,
+	0x74, 0x69, 0x6f, 0x6e, 0x1a, 0x32, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67,
+	0x65, 0x73, 0x2e, 0x53, 0x69, 0x67, 0x6e, 0x65, 0x64, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x52,
+	0x65, 0x67, 0x69, 0x73, 0x74, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43, 0x6f, 0x6e, 0x66, 0x69,
+	0x72, 0x6d, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x22, 0x00, 0x32, 0xb4, 0x02, 0x0a, 0x0c, 0x52,
+	0x65, 0x67, 0x69, 0x73, 0x74, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x3e, 0x0a, 0x0c, 0x52,
+	0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x4e, 0x6f, 0x64, 0x65, 0x12, 0x1d, 0x2e, 0x6d, 0x69,
+	0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x4e, 0x6f, 0x64, 0x65, 0x52, 0x65,
+	0x67, 0x69, 0x73, 0x74, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x1a, 0x0d, 0x2e, 0x6d, 0x65, 0x73,
+	0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x41, 0x63, 0x6b, 0x22, 0x00, 0x12, 0x33, 0x0a, 0x07, 0x50,
+	0x6f, 0x6c, 0x6c, 0x4e, 0x64, 0x66, 0x12, 0x14, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73,
+	0x61, 0x67, 0x65, 0x73, 0x2e, 0x4e, 0x44, 0x46, 0x48, 0x61, 0x73, 0x68, 0x1a, 0x10, 0x2e, 0x6d,
+	0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x4e, 0x44, 0x46, 0x22, 0x00,
+	0x12, 0x4d, 0x0a, 0x04, 0x50, 0x6f, 0x6c, 0x6c, 0x12, 0x1e, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61,
 	0x67, 0x65, 0x73, 0x2e, 0x41, 0x75, 0x74, 0x68, 0x65, 0x6e, 0x74, 0x69, 0x63, 0x61, 0x74, 0x65,
-	0x64, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x1a, 0x0d, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61,
-	0x67, 0x65, 0x73, 0x2e, 0x41, 0x63, 0x6b, 0x22, 0x00, 0x32, 0xe0, 0x02, 0x0a, 0x03, 0x55, 0x44,
-	0x42, 0x12, 0x41, 0x0a, 0x0c, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x55, 0x73, 0x65,
-	0x72, 0x12, 0x20, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e,
-	0x55, 0x44, 0x42, 0x55, 0x73, 0x65, 0x72, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x72, 0x61, 0x74,
-	0x69, 0x6f, 0x6e, 0x1a, 0x0d, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x41,
-	0x63, 0x6b, 0x22, 0x00, 0x12, 0x3e, 0x0a, 0x0a, 0x52, 0x65, 0x6d, 0x6f, 0x76, 0x65, 0x55, 0x73,
-	0x65, 0x72, 0x12, 0x1f, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73,
-	0x2e, 0x46, 0x61, 0x63, 0x74, 0x52, 0x65, 0x6d, 0x6f, 0x76, 0x61, 0x6c, 0x52, 0x65, 0x71, 0x75,
-	0x65, 0x73, 0x74, 0x1a, 0x0d, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x41,
-	0x63, 0x6b, 0x22, 0x00, 0x12, 0x55, 0x0a, 0x0c, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72,
-	0x46, 0x61, 0x63, 0x74, 0x12, 0x20, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67,
-	0x65, 0x73, 0x2e, 0x46, 0x61, 0x63, 0x74, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x52,
-	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x21, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73,
-	0x61, 0x67, 0x65, 0x73, 0x2e, 0x46, 0x61, 0x63, 0x74, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65,
-	0x72, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x3f, 0x0a, 0x0b, 0x43,
-	0x6f, 0x6e, 0x66, 0x69, 0x72, 0x6d, 0x46, 0x61, 0x63, 0x74, 0x12, 0x1f, 0x2e, 0x6d, 0x69, 0x78,
-	0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x46, 0x61, 0x63, 0x74, 0x43, 0x6f, 0x6e,
-	0x66, 0x69, 0x72, 0x6d, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x0d, 0x2e, 0x6d, 0x65,
-	0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x41, 0x63, 0x6b, 0x22, 0x00, 0x12, 0x3e, 0x0a, 0x0a,
-	0x52, 0x65, 0x6d, 0x6f, 0x76, 0x65, 0x46, 0x61, 0x63, 0x74, 0x12, 0x1f, 0x2e, 0x6d, 0x69, 0x78,
-	0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x46, 0x61, 0x63, 0x74, 0x52, 0x65, 0x6d,
-	0x6f, 0x76, 0x61, 0x6c, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x0d, 0x2e, 0x6d, 0x65,
-	0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x41, 0x63, 0x6b, 0x22, 0x00, 0x32, 0x47, 0x0a, 0x0a,
-	0x41, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x7a, 0x65, 0x72, 0x12, 0x39, 0x0a, 0x09, 0x41, 0x75,
-	0x74, 0x68, 0x6f, 0x72, 0x69, 0x7a, 0x65, 0x12, 0x1b, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73,
-	0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x41, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x7a, 0x65, 0x72,
-	0x41, 0x75, 0x74, 0x68, 0x1a, 0x0d, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e,
-	0x41, 0x63, 0x6b, 0x22, 0x00, 0x42, 0x26, 0x5a, 0x24, 0x67, 0x69, 0x74, 0x6c, 0x61, 0x62, 0x2e,
-	0x63, 0x6f, 0x6d, 0x2f, 0x65, 0x6c, 0x69, 0x78, 0x78, 0x69, 0x72, 0x2f, 0x63, 0x6f, 0x6d, 0x6d,
-	0x73, 0x2f, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x62, 0x06, 0x70,
-	0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x64, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x1a, 0x23, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65,
+	0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x50, 0x65, 0x72, 0x6d, 0x69, 0x73, 0x73, 0x69, 0x6f,
+	0x6e, 0x50, 0x6f, 0x6c, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12,
+	0x60, 0x0a, 0x11, 0x43, 0x68, 0x65, 0x63, 0x6b, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x72, 0x61,
+	0x74, 0x69, 0x6f, 0x6e, 0x12, 0x20, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67,
+	0x65, 0x73, 0x2e, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x65, 0x64, 0x4e, 0x6f, 0x64,
+	0x65, 0x43, 0x68, 0x65, 0x63, 0x6b, 0x1a, 0x27, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73,
+	0x61, 0x67, 0x65, 0x73, 0x2e, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x65, 0x64, 0x4e,
+	0x6f, 0x64, 0x65, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x72, 0x6d, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x22,
+	0x00, 0x32, 0x90, 0x02, 0x0a, 0x0f, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x69,
+	0x6f, 0x6e, 0x42, 0x6f, 0x74, 0x12, 0x59, 0x0a, 0x1a, 0x55, 0x6e, 0x72, 0x65, 0x67, 0x69, 0x73,
+	0x74, 0x65, 0x72, 0x46, 0x6f, 0x72, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x69,
+	0x6f, 0x6e, 0x73, 0x12, 0x2a, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65,
+	0x73, 0x2e, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x55, 0x6e,
+	0x72, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a,
+	0x0d, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x41, 0x63, 0x6b, 0x22, 0x00,
+	0x12, 0x55, 0x0a, 0x18, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x46, 0x6f, 0x72, 0x4e,
+	0x6f, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x12, 0x28, 0x2e, 0x6d,
+	0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x4e, 0x6f, 0x74, 0x69, 0x66,
+	0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x52,
+	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x0d, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65,
+	0x73, 0x2e, 0x41, 0x63, 0x6b, 0x22, 0x00, 0x12, 0x4b, 0x0a, 0x18, 0x52, 0x65, 0x63, 0x65, 0x69,
+	0x76, 0x65, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x42, 0x61,
+	0x74, 0x63, 0x68, 0x12, 0x1e, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x41,
+	0x75, 0x74, 0x68, 0x65, 0x6e, 0x74, 0x69, 0x63, 0x61, 0x74, 0x65, 0x64, 0x4d, 0x65, 0x73, 0x73,
+	0x61, 0x67, 0x65, 0x1a, 0x0d, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x41,
+	0x63, 0x6b, 0x22, 0x00, 0x32, 0xe0, 0x02, 0x0a, 0x03, 0x55, 0x44, 0x42, 0x12, 0x41, 0x0a, 0x0c,
+	0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x55, 0x73, 0x65, 0x72, 0x12, 0x20, 0x2e, 0x6d,
+	0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x55, 0x44, 0x42, 0x55, 0x73,
+	0x65, 0x72, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x1a, 0x0d,
+	0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x41, 0x63, 0x6b, 0x22, 0x00, 0x12,
+	0x3e, 0x0a, 0x0a, 0x52, 0x65, 0x6d, 0x6f, 0x76, 0x65, 0x55, 0x73, 0x65, 0x72, 0x12, 0x1f, 0x2e,
+	0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x46, 0x61, 0x63, 0x74,
+	0x52, 0x65, 0x6d, 0x6f, 0x76, 0x61, 0x6c, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x0d,
+	0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x41, 0x63, 0x6b, 0x22, 0x00, 0x12,
+	0x55, 0x0a, 0x0c, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x46, 0x61, 0x63, 0x74, 0x12,
+	0x20, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x46, 0x61,
+	0x63, 0x74, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
+	0x74, 0x1a, 0x21, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e,
+	0x46, 0x61, 0x63, 0x74, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x52, 0x65, 0x73, 0x70,
+	0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x3f, 0x0a, 0x0b, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x72,
+	0x6d, 0x46, 0x61, 0x63, 0x74, 0x12, 0x1f, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61,
+	0x67, 0x65, 0x73, 0x2e, 0x46, 0x61, 0x63, 0x74, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x72, 0x6d, 0x52,
+	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x0d, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65,
+	0x73, 0x2e, 0x41, 0x63, 0x6b, 0x22, 0x00, 0x12, 0x3e, 0x0a, 0x0a, 0x52, 0x65, 0x6d, 0x6f, 0x76,
+	0x65, 0x46, 0x61, 0x63, 0x74, 0x12, 0x1f, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61,
+	0x67, 0x65, 0x73, 0x2e, 0x46, 0x61, 0x63, 0x74, 0x52, 0x65, 0x6d, 0x6f, 0x76, 0x61, 0x6c, 0x52,
+	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x0d, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65,
+	0x73, 0x2e, 0x41, 0x63, 0x6b, 0x22, 0x00, 0x32, 0x47, 0x0a, 0x0a, 0x41, 0x75, 0x74, 0x68, 0x6f,
+	0x72, 0x69, 0x7a, 0x65, 0x72, 0x12, 0x39, 0x0a, 0x09, 0x41, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69,
+	0x7a, 0x65, 0x12, 0x1b, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73,
+	0x2e, 0x41, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x7a, 0x65, 0x72, 0x41, 0x75, 0x74, 0x68, 0x1a,
+	0x0d, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x41, 0x63, 0x6b, 0x22, 0x00,
+	0x42, 0x26, 0x5a, 0x24, 0x67, 0x69, 0x74, 0x6c, 0x61, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x65,
+	0x6c, 0x69, 0x78, 0x78, 0x69, 0x72, 0x2f, 0x63, 0x6f, 0x6d, 0x6d, 0x73, 0x2f, 0x6d, 0x69, 0x78,
+	0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -4794,212 +4916,215 @@ func file_mixmessages_proto_rawDescGZIP() []byte {
 	return file_mixmessages_proto_rawDescData
 }
 
-var file_mixmessages_proto_msgTypes = make([]protoimpl.MessageInfo, 60)
+var file_mixmessages_proto_msgTypes = make([]protoimpl.MessageInfo, 62)
 var file_mixmessages_proto_goTypes = []interface{}{
-	(*PostPrecompResult)(nil),               // 0: mixmessages.PostPrecompResult
-	(*RoundBufferInfo)(nil),                 // 1: mixmessages.RoundBufferInfo
-	(*RoundPublicKey)(nil),                  // 2: mixmessages.RoundPublicKey
-	(*RoundMetrics)(nil),                    // 3: mixmessages.RoundMetrics
-	(*Batch)(nil),                           // 4: mixmessages.Batch
-	(*CompletedBatch)(nil),                  // 5: mixmessages.CompletedBatch
-	(*BatchInfo)(nil),                       // 6: mixmessages.BatchInfo
-	(*RoundTripPing)(nil),                   // 7: mixmessages.RoundTripPing
-	(*ServerPoll)(nil),                      // 8: mixmessages.ServerPoll
-	(*ServerPollResponse)(nil),              // 9: mixmessages.ServerPollResponse
-	(*BatchReady)(nil),                      // 10: mixmessages.BatchReady
-	(*SharePiece)(nil),                      // 11: mixmessages.SharePiece
-	(*StreamChunk)(nil),                     // 12: mixmessages.StreamChunk
-	(*HistoricalRounds)(nil),                // 13: mixmessages.HistoricalRounds
-	(*HistoricalRoundsResponse)(nil),        // 14: mixmessages.HistoricalRoundsResponse
-	(*GetMessages)(nil),                     // 15: mixmessages.GetMessages
-	(*GetMessagesResponse)(nil),             // 16: mixmessages.GetMessagesResponse
-	(*RoundMessages)(nil),                   // 17: mixmessages.RoundMessages
-	(*IDList)(nil),                          // 18: mixmessages.IDList
-	(*Slot)(nil),                            // 19: mixmessages.Slot
-	(*GatewayPoll)(nil),                     // 20: mixmessages.GatewayPoll
-	(*GatewayPollResponse)(nil),             // 21: mixmessages.GatewayPollResponse
-	(*ClientBlooms)(nil),                    // 22: mixmessages.ClientBlooms
-	(*ClientBloom)(nil),                     // 23: mixmessages.ClientBloom
-	(*GatewaySlots)(nil),                    // 24: mixmessages.GatewaySlots
-	(*GatewaySlot)(nil),                     // 25: mixmessages.GatewaySlot
-	(*GatewaySlotResponse)(nil),             // 26: mixmessages.GatewaySlotResponse
-	(*BatchSenders)(nil),                    // 27: mixmessages.BatchSenders
-	(*Recipients)(nil),                      // 28: mixmessages.Recipients
-	(*RegisteredNodeConfirmation)(nil),      // 29: mixmessages.RegisteredNodeConfirmation
-	(*RegisteredNodeCheck)(nil),             // 30: mixmessages.RegisteredNodeCheck
-	(*NDFHash)(nil),                         // 31: mixmessages.NDFHash
-	(*NDF)(nil),                             // 32: mixmessages.NDF
-	(*NodeRegistration)(nil),                // 33: mixmessages.NodeRegistration
-	(*UserRegistration)(nil),                // 34: mixmessages.UserRegistration
-	(*UserRegistrationConfirmation)(nil),    // 35: mixmessages.UserRegistrationConfirmation
-	(*ClientVersion)(nil),                   // 36: mixmessages.ClientVersion
-	(*NonceRequest)(nil),                    // 37: mixmessages.NonceRequest
-	(*Nonce)(nil),                           // 38: mixmessages.Nonce
-	(*RequestRegistrationConfirmation)(nil), // 39: mixmessages.RequestRegistrationConfirmation
-	(*RegistrationConfirmation)(nil),        // 40: mixmessages.RegistrationConfirmation
-	(*PermissioningPoll)(nil),               // 41: mixmessages.PermissioningPoll
-	(*ClientError)(nil),                     // 42: mixmessages.ClientError
-	(*PermissionPollResponse)(nil),          // 43: mixmessages.PermissionPollResponse
-	(*NotificationRegisterRequest)(nil),     // 44: mixmessages.NotificationRegisterRequest
-	(*NotificationUnregisterRequest)(nil),   // 45: mixmessages.NotificationUnregisterRequest
-	(*UserIdList)(nil),                      // 46: mixmessages.UserIdList
-	(*NotificationBatch)(nil),               // 47: mixmessages.NotificationBatch
-	(*NotificationData)(nil),                // 48: mixmessages.NotificationData
-	(*UDBUserRegistration)(nil),             // 49: mixmessages.UDBUserRegistration
-	(*Identity)(nil),                        // 50: mixmessages.Identity
-	(*FactRegisterRequest)(nil),             // 51: mixmessages.FactRegisterRequest
-	(*Fact)(nil),                            // 52: mixmessages.Fact
-	(*FactRegisterResponse)(nil),            // 53: mixmessages.FactRegisterResponse
-	(*FactConfirmRequest)(nil),              // 54: mixmessages.FactConfirmRequest
-	(*FactRemovalRequest)(nil),              // 55: mixmessages.FactRemovalRequest
-	(*StrAddress)(nil),                      // 56: mixmessages.StrAddress
-	(*RoundInfo)(nil),                       // 57: mixmessages.RoundInfo
-	(*RoundError)(nil),                      // 58: mixmessages.RoundError
-	(*AuthorizerAuth)(nil),                  // 59: mixmessages.AuthorizerAuth
-	(*any.Any)(nil),                         // 60: google.protobuf.Any
-	(*messages.RSASignature)(nil),           // 61: messages.RSASignature
-	(*messages.ECCSignature)(nil),           // 62: messages.ECCSignature
-	(*messages.Ping)(nil),                   // 63: messages.Ping
-	(*messages.AuthenticatedMessage)(nil),   // 64: messages.AuthenticatedMessage
-	(*messages.Ack)(nil),                    // 65: messages.Ack
+	(*PostPrecompResult)(nil),                     // 0: mixmessages.PostPrecompResult
+	(*RoundBufferInfo)(nil),                       // 1: mixmessages.RoundBufferInfo
+	(*RoundPublicKey)(nil),                        // 2: mixmessages.RoundPublicKey
+	(*RoundMetrics)(nil),                          // 3: mixmessages.RoundMetrics
+	(*Batch)(nil),                                 // 4: mixmessages.Batch
+	(*CompletedBatch)(nil),                        // 5: mixmessages.CompletedBatch
+	(*BatchInfo)(nil),                             // 6: mixmessages.BatchInfo
+	(*RoundTripPing)(nil),                         // 7: mixmessages.RoundTripPing
+	(*ServerPoll)(nil),                            // 8: mixmessages.ServerPoll
+	(*ServerPollResponse)(nil),                    // 9: mixmessages.ServerPollResponse
+	(*BatchReady)(nil),                            // 10: mixmessages.BatchReady
+	(*SharePiece)(nil),                            // 11: mixmessages.SharePiece
+	(*StreamChunk)(nil),                           // 12: mixmessages.StreamChunk
+	(*HistoricalRounds)(nil),                      // 13: mixmessages.HistoricalRounds
+	(*HistoricalRoundsResponse)(nil),              // 14: mixmessages.HistoricalRoundsResponse
+	(*GetMessages)(nil),                           // 15: mixmessages.GetMessages
+	(*GetMessagesResponse)(nil),                   // 16: mixmessages.GetMessagesResponse
+	(*RoundMessages)(nil),                         // 17: mixmessages.RoundMessages
+	(*IDList)(nil),                                // 18: mixmessages.IDList
+	(*Slot)(nil),                                  // 19: mixmessages.Slot
+	(*GatewayPoll)(nil),                           // 20: mixmessages.GatewayPoll
+	(*GatewayPollResponse)(nil),                   // 21: mixmessages.GatewayPollResponse
+	(*ClientBlooms)(nil),                          // 22: mixmessages.ClientBlooms
+	(*ClientBloom)(nil),                           // 23: mixmessages.ClientBloom
+	(*GatewaySlots)(nil),                          // 24: mixmessages.GatewaySlots
+	(*GatewaySlot)(nil),                           // 25: mixmessages.GatewaySlot
+	(*GatewaySlotResponse)(nil),                   // 26: mixmessages.GatewaySlotResponse
+	(*BatchSenders)(nil),                          // 27: mixmessages.BatchSenders
+	(*Recipients)(nil),                            // 28: mixmessages.Recipients
+	(*RegisteredNodeConfirmation)(nil),            // 29: mixmessages.RegisteredNodeConfirmation
+	(*RegisteredNodeCheck)(nil),                   // 30: mixmessages.RegisteredNodeCheck
+	(*NDFHash)(nil),                               // 31: mixmessages.NDFHash
+	(*NDF)(nil),                                   // 32: mixmessages.NDF
+	(*NodeRegistration)(nil),                      // 33: mixmessages.NodeRegistration
+	(*ClientRegistration)(nil),                    // 34: mixmessages.ClientRegistration
+	(*ClientRegistrationConfirmation)(nil),        // 35: mixmessages.ClientRegistrationConfirmation
+	(*SignedRegistrationConfirmation)(nil),        // 36: mixmessages.SignedRegistrationConfirmation
+	(*SignedClientRegistrationConfirmations)(nil), // 37: mixmessages.SignedClientRegistrationConfirmations
+	(*ClientVersion)(nil),                         // 38: mixmessages.ClientVersion
+	(*NonceRequest)(nil),                          // 39: mixmessages.NonceRequest
+	(*Nonce)(nil),                                 // 40: mixmessages.Nonce
+	(*RequestRegistrationConfirmation)(nil),       // 41: mixmessages.RequestRegistrationConfirmation
+	(*RegistrationConfirmation)(nil),              // 42: mixmessages.RegistrationConfirmation
+	(*PermissioningPoll)(nil),                     // 43: mixmessages.PermissioningPoll
+	(*ClientError)(nil),                           // 44: mixmessages.ClientError
+	(*PermissionPollResponse)(nil),                // 45: mixmessages.PermissionPollResponse
+	(*NotificationRegisterRequest)(nil),           // 46: mixmessages.NotificationRegisterRequest
+	(*NotificationUnregisterRequest)(nil),         // 47: mixmessages.NotificationUnregisterRequest
+	(*UserIdList)(nil),                            // 48: mixmessages.UserIdList
+	(*NotificationBatch)(nil),                     // 49: mixmessages.NotificationBatch
+	(*NotificationData)(nil),                      // 50: mixmessages.NotificationData
+	(*UDBUserRegistration)(nil),                   // 51: mixmessages.UDBUserRegistration
+	(*Identity)(nil),                              // 52: mixmessages.Identity
+	(*FactRegisterRequest)(nil),                   // 53: mixmessages.FactRegisterRequest
+	(*Fact)(nil),                                  // 54: mixmessages.Fact
+	(*FactRegisterResponse)(nil),                  // 55: mixmessages.FactRegisterResponse
+	(*FactConfirmRequest)(nil),                    // 56: mixmessages.FactConfirmRequest
+	(*FactRemovalRequest)(nil),                    // 57: mixmessages.FactRemovalRequest
+	(*StrAddress)(nil),                            // 58: mixmessages.StrAddress
+	(*RoundInfo)(nil),                             // 59: mixmessages.RoundInfo
+	(*RoundError)(nil),                            // 60: mixmessages.RoundError
+	(*AuthorizerAuth)(nil),                        // 61: mixmessages.AuthorizerAuth
+	(*any.Any)(nil),                               // 62: google.protobuf.Any
+	(*messages.RSASignature)(nil),                 // 63: messages.RSASignature
+	(*messages.ECCSignature)(nil),                 // 64: messages.ECCSignature
+	(*messages.Ping)(nil),                         // 65: messages.Ping
+	(*messages.AuthenticatedMessage)(nil),         // 66: messages.AuthenticatedMessage
+	(*messages.Ack)(nil),                          // 67: messages.Ack
 }
 var file_mixmessages_proto_depIdxs = []int32{
-	57, // 0: mixmessages.RoundPublicKey.Round:type_name -> mixmessages.RoundInfo
-	57, // 1: mixmessages.Batch.Round:type_name -> mixmessages.RoundInfo
+	59, // 0: mixmessages.RoundPublicKey.Round:type_name -> mixmessages.RoundInfo
+	59, // 1: mixmessages.Batch.Round:type_name -> mixmessages.RoundInfo
 	19, // 2: mixmessages.Batch.slots:type_name -> mixmessages.Slot
 	19, // 3: mixmessages.CompletedBatch.slots:type_name -> mixmessages.Slot
-	57, // 4: mixmessages.BatchInfo.Round:type_name -> mixmessages.RoundInfo
-	60, // 5: mixmessages.RoundTripPing.Payload:type_name -> google.protobuf.Any
-	57, // 6: mixmessages.RoundTripPing.Round:type_name -> mixmessages.RoundInfo
+	59, // 4: mixmessages.BatchInfo.Round:type_name -> mixmessages.RoundInfo
+	62, // 5: mixmessages.RoundTripPing.Payload:type_name -> google.protobuf.Any
+	59, // 6: mixmessages.RoundTripPing.Round:type_name -> mixmessages.RoundInfo
 	31, // 7: mixmessages.ServerPoll.Full:type_name -> mixmessages.NDFHash
 	31, // 8: mixmessages.ServerPoll.Partial:type_name -> mixmessages.NDFHash
 	32, // 9: mixmessages.ServerPollResponse.FullNDF:type_name -> mixmessages.NDF
 	32, // 10: mixmessages.ServerPollResponse.PartialNDF:type_name -> mixmessages.NDF
-	57, // 11: mixmessages.ServerPollResponse.Updates:type_name -> mixmessages.RoundInfo
-	57, // 12: mixmessages.ServerPollResponse.BatchRequest:type_name -> mixmessages.RoundInfo
+	59, // 11: mixmessages.ServerPollResponse.Updates:type_name -> mixmessages.RoundInfo
+	59, // 12: mixmessages.ServerPollResponse.BatchRequest:type_name -> mixmessages.RoundInfo
 	10, // 13: mixmessages.ServerPollResponse.Batch:type_name -> mixmessages.BatchReady
-	61, // 14: mixmessages.SharePiece.Signature:type_name -> messages.RSASignature
-	57, // 15: mixmessages.HistoricalRoundsResponse.Rounds:type_name -> mixmessages.RoundInfo
+	63, // 14: mixmessages.SharePiece.Signature:type_name -> messages.RSASignature
+	59, // 15: mixmessages.HistoricalRoundsResponse.Rounds:type_name -> mixmessages.RoundInfo
 	19, // 16: mixmessages.GetMessagesResponse.Messages:type_name -> mixmessages.Slot
 	19, // 17: mixmessages.RoundMessages.Messages:type_name -> mixmessages.Slot
 	31, // 18: mixmessages.GatewayPoll.Partial:type_name -> mixmessages.NDFHash
 	32, // 19: mixmessages.GatewayPollResponse.PartialNDF:type_name -> mixmessages.NDF
-	57, // 20: mixmessages.GatewayPollResponse.Updates:type_name -> mixmessages.RoundInfo
+	59, // 20: mixmessages.GatewayPollResponse.Updates:type_name -> mixmessages.RoundInfo
 	22, // 21: mixmessages.GatewayPollResponse.Filters:type_name -> mixmessages.ClientBlooms
 	23, // 22: mixmessages.ClientBlooms.Filters:type_name -> mixmessages.ClientBloom
 	25, // 23: mixmessages.GatewaySlots.Messages:type_name -> mixmessages.GatewaySlot
 	19, // 24: mixmessages.GatewaySlot.Message:type_name -> mixmessages.Slot
-	61, // 25: mixmessages.NDF.Signature:type_name -> messages.RSASignature
-	61, // 26: mixmessages.UserRegistrationConfirmation.ClientSignedByServer:type_name -> messages.RSASignature
-	61, // 27: mixmessages.UserRegistrationConfirmation.ClientReceptionSignedByServer:type_name -> messages.RSASignature
-	61, // 28: mixmessages.NonceRequest.ClientSignedByServer:type_name -> messages.RSASignature
-	61, // 29: mixmessages.NonceRequest.RequestSignature:type_name -> messages.RSASignature
-	61, // 30: mixmessages.RequestRegistrationConfirmation.NonceSignedByClient:type_name -> messages.RSASignature
-	61, // 31: mixmessages.RegistrationConfirmation.ClientSignedByServer:type_name -> messages.RSASignature
-	31, // 32: mixmessages.PermissioningPoll.Full:type_name -> mixmessages.NDFHash
-	31, // 33: mixmessages.PermissioningPoll.Partial:type_name -> mixmessages.NDFHash
-	58, // 34: mixmessages.PermissioningPoll.Error:type_name -> mixmessages.RoundError
-	42, // 35: mixmessages.PermissioningPoll.ClientErrors:type_name -> mixmessages.ClientError
-	32, // 36: mixmessages.PermissionPollResponse.FullNDF:type_name -> mixmessages.NDF
-	32, // 37: mixmessages.PermissionPollResponse.PartialNDF:type_name -> mixmessages.NDF
-	57, // 38: mixmessages.PermissionPollResponse.Updates:type_name -> mixmessages.RoundInfo
-	48, // 39: mixmessages.NotificationBatch.notifications:type_name -> mixmessages.NotificationData
-	50, // 40: mixmessages.UDBUserRegistration.IdentityRegistration:type_name -> mixmessages.Identity
-	51, // 41: mixmessages.UDBUserRegistration.frs:type_name -> mixmessages.FactRegisterRequest
-	52, // 42: mixmessages.FactRegisterRequest.Fact:type_name -> mixmessages.Fact
-	52, // 43: mixmessages.FactRemovalRequest.RemovalData:type_name -> mixmessages.Fact
-	58, // 44: mixmessages.RoundInfo.Errors:type_name -> mixmessages.RoundError
-	42, // 45: mixmessages.RoundInfo.ClientErrors:type_name -> mixmessages.ClientError
-	61, // 46: mixmessages.RoundInfo.Signature:type_name -> messages.RSASignature
-	62, // 47: mixmessages.RoundInfo.EccSignature:type_name -> messages.ECCSignature
-	61, // 48: mixmessages.RoundError.Signature:type_name -> messages.RSASignature
-	63, // 49: mixmessages.Node.AskOnline:input_type -> messages.Ping
-	64, // 50: mixmessages.Node.CreateNewRound:input_type -> messages.AuthenticatedMessage
-	19, // 51: mixmessages.Node.UploadUnmixedBatch:input_type -> mixmessages.Slot
-	19, // 52: mixmessages.Node.FinishRealtime:input_type -> mixmessages.Slot
-	19, // 53: mixmessages.Node.PrecompTestBatch:input_type -> mixmessages.Slot
-	64, // 54: mixmessages.Node.PostPhase:input_type -> messages.AuthenticatedMessage
-	19, // 55: mixmessages.Node.StreamPostPhase:input_type -> mixmessages.Slot
-	64, // 56: mixmessages.Node.GetRoundBufferInfo:input_type -> messages.AuthenticatedMessage
-	64, // 57: mixmessages.Node.RequestNonce:input_type -> messages.AuthenticatedMessage
-	64, // 58: mixmessages.Node.ConfirmRegistration:input_type -> messages.AuthenticatedMessage
-	64, // 59: mixmessages.Node.PostPrecompResult:input_type -> messages.AuthenticatedMessage
-	64, // 60: mixmessages.Node.GetMeasure:input_type -> messages.AuthenticatedMessage
-	64, // 61: mixmessages.Node.Poll:input_type -> messages.AuthenticatedMessage
-	64, // 62: mixmessages.Node.DownloadMixedBatch:input_type -> messages.AuthenticatedMessage
-	64, // 63: mixmessages.Node.SendRoundTripPing:input_type -> messages.AuthenticatedMessage
-	64, // 64: mixmessages.Node.RoundError:input_type -> messages.AuthenticatedMessage
-	63, // 65: mixmessages.Node.GetPermissioningAddress:input_type -> messages.Ping
-	64, // 66: mixmessages.Node.StartSharePhase:input_type -> messages.AuthenticatedMessage
-	64, // 67: mixmessages.Node.SharePhaseRound:input_type -> messages.AuthenticatedMessage
-	64, // 68: mixmessages.Node.ShareFinalKey:input_type -> messages.AuthenticatedMessage
-	25, // 69: mixmessages.Gateway.PutMessage:input_type -> mixmessages.GatewaySlot
-	24, // 70: mixmessages.Gateway.PutManyMessages:input_type -> mixmessages.GatewaySlots
-	37, // 71: mixmessages.Gateway.RequestNonce:input_type -> mixmessages.NonceRequest
-	39, // 72: mixmessages.Gateway.ConfirmNonce:input_type -> mixmessages.RequestRegistrationConfirmation
-	20, // 73: mixmessages.Gateway.Poll:input_type -> mixmessages.GatewayPoll
-	13, // 74: mixmessages.Gateway.RequestHistoricalRounds:input_type -> mixmessages.HistoricalRounds
-	15, // 75: mixmessages.Gateway.RequestMessages:input_type -> mixmessages.GetMessages
-	34, // 76: mixmessages.clientregistrar.RegisterUser:input_type -> mixmessages.UserRegistration
-	33, // 77: mixmessages.Registration.RegisterNode:input_type -> mixmessages.NodeRegistration
-	31, // 78: mixmessages.Registration.PollNdf:input_type -> mixmessages.NDFHash
-	64, // 79: mixmessages.Registration.Poll:input_type -> messages.AuthenticatedMessage
-	30, // 80: mixmessages.Registration.CheckRegistration:input_type -> mixmessages.RegisteredNodeCheck
-	45, // 81: mixmessages.NotificationBot.UnregisterForNotifications:input_type -> mixmessages.NotificationUnregisterRequest
-	44, // 82: mixmessages.NotificationBot.RegisterForNotifications:input_type -> mixmessages.NotificationRegisterRequest
-	64, // 83: mixmessages.NotificationBot.ReceiveNotificationBatch:input_type -> messages.AuthenticatedMessage
-	49, // 84: mixmessages.UDB.RegisterUser:input_type -> mixmessages.UDBUserRegistration
-	55, // 85: mixmessages.UDB.RemoveUser:input_type -> mixmessages.FactRemovalRequest
-	51, // 86: mixmessages.UDB.RegisterFact:input_type -> mixmessages.FactRegisterRequest
-	54, // 87: mixmessages.UDB.ConfirmFact:input_type -> mixmessages.FactConfirmRequest
-	55, // 88: mixmessages.UDB.RemoveFact:input_type -> mixmessages.FactRemovalRequest
-	59, // 89: mixmessages.Authorizer.Authorize:input_type -> mixmessages.AuthorizerAuth
-	65, // 90: mixmessages.Node.AskOnline:output_type -> messages.Ack
-	65, // 91: mixmessages.Node.CreateNewRound:output_type -> messages.Ack
-	65, // 92: mixmessages.Node.UploadUnmixedBatch:output_type -> messages.Ack
-	65, // 93: mixmessages.Node.FinishRealtime:output_type -> messages.Ack
-	65, // 94: mixmessages.Node.PrecompTestBatch:output_type -> messages.Ack
-	65, // 95: mixmessages.Node.PostPhase:output_type -> messages.Ack
-	65, // 96: mixmessages.Node.StreamPostPhase:output_type -> messages.Ack
-	1,  // 97: mixmessages.Node.GetRoundBufferInfo:output_type -> mixmessages.RoundBufferInfo
-	38, // 98: mixmessages.Node.RequestNonce:output_type -> mixmessages.Nonce
-	40, // 99: mixmessages.Node.ConfirmRegistration:output_type -> mixmessages.RegistrationConfirmation
-	65, // 100: mixmessages.Node.PostPrecompResult:output_type -> messages.Ack
-	3,  // 101: mixmessages.Node.GetMeasure:output_type -> mixmessages.RoundMetrics
-	9,  // 102: mixmessages.Node.Poll:output_type -> mixmessages.ServerPollResponse
-	19, // 103: mixmessages.Node.DownloadMixedBatch:output_type -> mixmessages.Slot
-	65, // 104: mixmessages.Node.SendRoundTripPing:output_type -> messages.Ack
-	65, // 105: mixmessages.Node.RoundError:output_type -> messages.Ack
-	56, // 106: mixmessages.Node.GetPermissioningAddress:output_type -> mixmessages.StrAddress
-	65, // 107: mixmessages.Node.StartSharePhase:output_type -> messages.Ack
-	65, // 108: mixmessages.Node.SharePhaseRound:output_type -> messages.Ack
-	65, // 109: mixmessages.Node.ShareFinalKey:output_type -> messages.Ack
-	26, // 110: mixmessages.Gateway.PutMessage:output_type -> mixmessages.GatewaySlotResponse
-	26, // 111: mixmessages.Gateway.PutManyMessages:output_type -> mixmessages.GatewaySlotResponse
-	38, // 112: mixmessages.Gateway.RequestNonce:output_type -> mixmessages.Nonce
-	40, // 113: mixmessages.Gateway.ConfirmNonce:output_type -> mixmessages.RegistrationConfirmation
-	12, // 114: mixmessages.Gateway.Poll:output_type -> mixmessages.StreamChunk
-	14, // 115: mixmessages.Gateway.RequestHistoricalRounds:output_type -> mixmessages.HistoricalRoundsResponse
-	16, // 116: mixmessages.Gateway.RequestMessages:output_type -> mixmessages.GetMessagesResponse
-	35, // 117: mixmessages.clientregistrar.RegisterUser:output_type -> mixmessages.UserRegistrationConfirmation
-	65, // 118: mixmessages.Registration.RegisterNode:output_type -> messages.Ack
-	32, // 119: mixmessages.Registration.PollNdf:output_type -> mixmessages.NDF
-	43, // 120: mixmessages.Registration.Poll:output_type -> mixmessages.PermissionPollResponse
-	29, // 121: mixmessages.Registration.CheckRegistration:output_type -> mixmessages.RegisteredNodeConfirmation
-	65, // 122: mixmessages.NotificationBot.UnregisterForNotifications:output_type -> messages.Ack
-	65, // 123: mixmessages.NotificationBot.RegisterForNotifications:output_type -> messages.Ack
-	65, // 124: mixmessages.NotificationBot.ReceiveNotificationBatch:output_type -> messages.Ack
-	65, // 125: mixmessages.UDB.RegisterUser:output_type -> messages.Ack
-	65, // 126: mixmessages.UDB.RemoveUser:output_type -> messages.Ack
-	53, // 127: mixmessages.UDB.RegisterFact:output_type -> mixmessages.FactRegisterResponse
-	65, // 128: mixmessages.UDB.ConfirmFact:output_type -> messages.Ack
-	65, // 129: mixmessages.UDB.RemoveFact:output_type -> messages.Ack
-	65, // 130: mixmessages.Authorizer.Authorize:output_type -> messages.Ack
-	90, // [90:131] is the sub-list for method output_type
-	49, // [49:90] is the sub-list for method input_type
-	49, // [49:49] is the sub-list for extension type_name
-	49, // [49:49] is the sub-list for extension extendee
-	0,  // [0:49] is the sub-list for field type_name
+	63, // 25: mixmessages.NDF.Signature:type_name -> messages.RSASignature
+	63, // 26: mixmessages.SignedRegistrationConfirmation.RegistrarSignature:type_name -> messages.RSASignature
+	36, // 27: mixmessages.SignedClientRegistrationConfirmations.ClientTransmissionConfirmation:type_name -> mixmessages.SignedRegistrationConfirmation
+	36, // 28: mixmessages.SignedClientRegistrationConfirmations.ClientReceptionConfirmation:type_name -> mixmessages.SignedRegistrationConfirmation
+	63, // 29: mixmessages.NonceRequest.ClientSignedByServer:type_name -> messages.RSASignature
+	63, // 30: mixmessages.NonceRequest.RequestSignature:type_name -> messages.RSASignature
+	63, // 31: mixmessages.RequestRegistrationConfirmation.NonceSignedByClient:type_name -> messages.RSASignature
+	63, // 32: mixmessages.RegistrationConfirmation.ClientSignedByServer:type_name -> messages.RSASignature
+	31, // 33: mixmessages.PermissioningPoll.Full:type_name -> mixmessages.NDFHash
+	31, // 34: mixmessages.PermissioningPoll.Partial:type_name -> mixmessages.NDFHash
+	60, // 35: mixmessages.PermissioningPoll.Error:type_name -> mixmessages.RoundError
+	44, // 36: mixmessages.PermissioningPoll.ClientErrors:type_name -> mixmessages.ClientError
+	32, // 37: mixmessages.PermissionPollResponse.FullNDF:type_name -> mixmessages.NDF
+	32, // 38: mixmessages.PermissionPollResponse.PartialNDF:type_name -> mixmessages.NDF
+	59, // 39: mixmessages.PermissionPollResponse.Updates:type_name -> mixmessages.RoundInfo
+	50, // 40: mixmessages.NotificationBatch.notifications:type_name -> mixmessages.NotificationData
+	52, // 41: mixmessages.UDBUserRegistration.IdentityRegistration:type_name -> mixmessages.Identity
+	53, // 42: mixmessages.UDBUserRegistration.frs:type_name -> mixmessages.FactRegisterRequest
+	54, // 43: mixmessages.FactRegisterRequest.Fact:type_name -> mixmessages.Fact
+	54, // 44: mixmessages.FactRemovalRequest.RemovalData:type_name -> mixmessages.Fact
+	60, // 45: mixmessages.RoundInfo.Errors:type_name -> mixmessages.RoundError
+	44, // 46: mixmessages.RoundInfo.ClientErrors:type_name -> mixmessages.ClientError
+	63, // 47: mixmessages.RoundInfo.Signature:type_name -> messages.RSASignature
+	64, // 48: mixmessages.RoundInfo.EccSignature:type_name -> messages.ECCSignature
+	63, // 49: mixmessages.RoundError.Signature:type_name -> messages.RSASignature
+	65, // 50: mixmessages.Node.AskOnline:input_type -> messages.Ping
+	66, // 51: mixmessages.Node.CreateNewRound:input_type -> messages.AuthenticatedMessage
+	19, // 52: mixmessages.Node.UploadUnmixedBatch:input_type -> mixmessages.Slot
+	19, // 53: mixmessages.Node.FinishRealtime:input_type -> mixmessages.Slot
+	19, // 54: mixmessages.Node.PrecompTestBatch:input_type -> mixmessages.Slot
+	66, // 55: mixmessages.Node.PostPhase:input_type -> messages.AuthenticatedMessage
+	19, // 56: mixmessages.Node.StreamPostPhase:input_type -> mixmessages.Slot
+	66, // 57: mixmessages.Node.GetRoundBufferInfo:input_type -> messages.AuthenticatedMessage
+	66, // 58: mixmessages.Node.RequestNonce:input_type -> messages.AuthenticatedMessage
+	66, // 59: mixmessages.Node.ConfirmRegistration:input_type -> messages.AuthenticatedMessage
+	66, // 60: mixmessages.Node.PostPrecompResult:input_type -> messages.AuthenticatedMessage
+	66, // 61: mixmessages.Node.GetMeasure:input_type -> messages.AuthenticatedMessage
+	66, // 62: mixmessages.Node.Poll:input_type -> messages.AuthenticatedMessage
+	66, // 63: mixmessages.Node.DownloadMixedBatch:input_type -> messages.AuthenticatedMessage
+	66, // 64: mixmessages.Node.SendRoundTripPing:input_type -> messages.AuthenticatedMessage
+	66, // 65: mixmessages.Node.RoundError:input_type -> messages.AuthenticatedMessage
+	65, // 66: mixmessages.Node.GetPermissioningAddress:input_type -> messages.Ping
+	66, // 67: mixmessages.Node.StartSharePhase:input_type -> messages.AuthenticatedMessage
+	66, // 68: mixmessages.Node.SharePhaseRound:input_type -> messages.AuthenticatedMessage
+	66, // 69: mixmessages.Node.ShareFinalKey:input_type -> messages.AuthenticatedMessage
+	25, // 70: mixmessages.Gateway.PutMessage:input_type -> mixmessages.GatewaySlot
+	24, // 71: mixmessages.Gateway.PutManyMessages:input_type -> mixmessages.GatewaySlots
+	39, // 72: mixmessages.Gateway.RequestNonce:input_type -> mixmessages.NonceRequest
+	41, // 73: mixmessages.Gateway.ConfirmNonce:input_type -> mixmessages.RequestRegistrationConfirmation
+	20, // 74: mixmessages.Gateway.Poll:input_type -> mixmessages.GatewayPoll
+	13, // 75: mixmessages.Gateway.RequestHistoricalRounds:input_type -> mixmessages.HistoricalRounds
+	15, // 76: mixmessages.Gateway.RequestMessages:input_type -> mixmessages.GetMessages
+	34, // 77: mixmessages.ClientRegistrar.RegisterUser:input_type -> mixmessages.ClientRegistration
+	33, // 78: mixmessages.Registration.RegisterNode:input_type -> mixmessages.NodeRegistration
+	31, // 79: mixmessages.Registration.PollNdf:input_type -> mixmessages.NDFHash
+	66, // 80: mixmessages.Registration.Poll:input_type -> messages.AuthenticatedMessage
+	30, // 81: mixmessages.Registration.CheckRegistration:input_type -> mixmessages.RegisteredNodeCheck
+	47, // 82: mixmessages.NotificationBot.UnregisterForNotifications:input_type -> mixmessages.NotificationUnregisterRequest
+	46, // 83: mixmessages.NotificationBot.RegisterForNotifications:input_type -> mixmessages.NotificationRegisterRequest
+	66, // 84: mixmessages.NotificationBot.ReceiveNotificationBatch:input_type -> messages.AuthenticatedMessage
+	51, // 85: mixmessages.UDB.RegisterUser:input_type -> mixmessages.UDBUserRegistration
+	57, // 86: mixmessages.UDB.RemoveUser:input_type -> mixmessages.FactRemovalRequest
+	53, // 87: mixmessages.UDB.RegisterFact:input_type -> mixmessages.FactRegisterRequest
+	56, // 88: mixmessages.UDB.ConfirmFact:input_type -> mixmessages.FactConfirmRequest
+	57, // 89: mixmessages.UDB.RemoveFact:input_type -> mixmessages.FactRemovalRequest
+	61, // 90: mixmessages.Authorizer.Authorize:input_type -> mixmessages.AuthorizerAuth
+	67, // 91: mixmessages.Node.AskOnline:output_type -> messages.Ack
+	67, // 92: mixmessages.Node.CreateNewRound:output_type -> messages.Ack
+	67, // 93: mixmessages.Node.UploadUnmixedBatch:output_type -> messages.Ack
+	67, // 94: mixmessages.Node.FinishRealtime:output_type -> messages.Ack
+	67, // 95: mixmessages.Node.PrecompTestBatch:output_type -> messages.Ack
+	67, // 96: mixmessages.Node.PostPhase:output_type -> messages.Ack
+	67, // 97: mixmessages.Node.StreamPostPhase:output_type -> messages.Ack
+	1,  // 98: mixmessages.Node.GetRoundBufferInfo:output_type -> mixmessages.RoundBufferInfo
+	40, // 99: mixmessages.Node.RequestNonce:output_type -> mixmessages.Nonce
+	42, // 100: mixmessages.Node.ConfirmRegistration:output_type -> mixmessages.RegistrationConfirmation
+	67, // 101: mixmessages.Node.PostPrecompResult:output_type -> messages.Ack
+	3,  // 102: mixmessages.Node.GetMeasure:output_type -> mixmessages.RoundMetrics
+	9,  // 103: mixmessages.Node.Poll:output_type -> mixmessages.ServerPollResponse
+	19, // 104: mixmessages.Node.DownloadMixedBatch:output_type -> mixmessages.Slot
+	67, // 105: mixmessages.Node.SendRoundTripPing:output_type -> messages.Ack
+	67, // 106: mixmessages.Node.RoundError:output_type -> messages.Ack
+	58, // 107: mixmessages.Node.GetPermissioningAddress:output_type -> mixmessages.StrAddress
+	67, // 108: mixmessages.Node.StartSharePhase:output_type -> messages.Ack
+	67, // 109: mixmessages.Node.SharePhaseRound:output_type -> messages.Ack
+	67, // 110: mixmessages.Node.ShareFinalKey:output_type -> messages.Ack
+	26, // 111: mixmessages.Gateway.PutMessage:output_type -> mixmessages.GatewaySlotResponse
+	26, // 112: mixmessages.Gateway.PutManyMessages:output_type -> mixmessages.GatewaySlotResponse
+	40, // 113: mixmessages.Gateway.RequestNonce:output_type -> mixmessages.Nonce
+	42, // 114: mixmessages.Gateway.ConfirmNonce:output_type -> mixmessages.RegistrationConfirmation
+	12, // 115: mixmessages.Gateway.Poll:output_type -> mixmessages.StreamChunk
+	14, // 116: mixmessages.Gateway.RequestHistoricalRounds:output_type -> mixmessages.HistoricalRoundsResponse
+	16, // 117: mixmessages.Gateway.RequestMessages:output_type -> mixmessages.GetMessagesResponse
+	37, // 118: mixmessages.ClientRegistrar.RegisterUser:output_type -> mixmessages.SignedClientRegistrationConfirmations
+	67, // 119: mixmessages.Registration.RegisterNode:output_type -> messages.Ack
+	32, // 120: mixmessages.Registration.PollNdf:output_type -> mixmessages.NDF
+	45, // 121: mixmessages.Registration.Poll:output_type -> mixmessages.PermissionPollResponse
+	29, // 122: mixmessages.Registration.CheckRegistration:output_type -> mixmessages.RegisteredNodeConfirmation
+	67, // 123: mixmessages.NotificationBot.UnregisterForNotifications:output_type -> messages.Ack
+	67, // 124: mixmessages.NotificationBot.RegisterForNotifications:output_type -> messages.Ack
+	67, // 125: mixmessages.NotificationBot.ReceiveNotificationBatch:output_type -> messages.Ack
+	67, // 126: mixmessages.UDB.RegisterUser:output_type -> messages.Ack
+	67, // 127: mixmessages.UDB.RemoveUser:output_type -> messages.Ack
+	55, // 128: mixmessages.UDB.RegisterFact:output_type -> mixmessages.FactRegisterResponse
+	67, // 129: mixmessages.UDB.ConfirmFact:output_type -> messages.Ack
+	67, // 130: mixmessages.UDB.RemoveFact:output_type -> messages.Ack
+	67, // 131: mixmessages.Authorizer.Authorize:output_type -> messages.Ack
+	91, // [91:132] is the sub-list for method output_type
+	50, // [50:91] is the sub-list for method input_type
+	50, // [50:50] is the sub-list for extension type_name
+	50, // [50:50] is the sub-list for extension extendee
+	0,  // [0:50] is the sub-list for field type_name
 }
 
 func init() { file_mixmessages_proto_init() }
@@ -5417,7 +5542,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[34].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*UserRegistration); i {
+			switch v := v.(*ClientRegistration); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5429,7 +5554,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[35].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*UserRegistrationConfirmation); i {
+			switch v := v.(*ClientRegistrationConfirmation); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5441,7 +5566,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[36].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ClientVersion); i {
+			switch v := v.(*SignedRegistrationConfirmation); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5453,7 +5578,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[37].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*NonceRequest); i {
+			switch v := v.(*SignedClientRegistrationConfirmations); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5465,7 +5590,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[38].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*Nonce); i {
+			switch v := v.(*ClientVersion); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5477,7 +5602,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[39].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*RequestRegistrationConfirmation); i {
+			switch v := v.(*NonceRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5489,7 +5614,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[40].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*RegistrationConfirmation); i {
+			switch v := v.(*Nonce); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5501,7 +5626,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[41].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*PermissioningPoll); i {
+			switch v := v.(*RequestRegistrationConfirmation); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5513,7 +5638,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[42].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ClientError); i {
+			switch v := v.(*RegistrationConfirmation); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5525,7 +5650,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[43].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*PermissionPollResponse); i {
+			switch v := v.(*PermissioningPoll); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5537,7 +5662,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[44].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*NotificationRegisterRequest); i {
+			switch v := v.(*ClientError); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5549,7 +5674,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[45].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*NotificationUnregisterRequest); i {
+			switch v := v.(*PermissionPollResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5561,7 +5686,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[46].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*UserIdList); i {
+			switch v := v.(*NotificationRegisterRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5573,7 +5698,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[47].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*NotificationBatch); i {
+			switch v := v.(*NotificationUnregisterRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5585,7 +5710,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[48].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*NotificationData); i {
+			switch v := v.(*UserIdList); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5597,7 +5722,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[49].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*UDBUserRegistration); i {
+			switch v := v.(*NotificationBatch); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5609,7 +5734,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[50].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*Identity); i {
+			switch v := v.(*NotificationData); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5621,7 +5746,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[51].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*FactRegisterRequest); i {
+			switch v := v.(*UDBUserRegistration); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5633,7 +5758,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[52].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*Fact); i {
+			switch v := v.(*Identity); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5645,7 +5770,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[53].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*FactRegisterResponse); i {
+			switch v := v.(*FactRegisterRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5657,7 +5782,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[54].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*FactConfirmRequest); i {
+			switch v := v.(*Fact); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5669,7 +5794,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[55].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*FactRemovalRequest); i {
+			switch v := v.(*FactRegisterResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5681,7 +5806,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[56].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*StrAddress); i {
+			switch v := v.(*FactConfirmRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5693,7 +5818,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[57].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*RoundInfo); i {
+			switch v := v.(*FactRemovalRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5705,7 +5830,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[58].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*RoundError); i {
+			switch v := v.(*StrAddress); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5717,6 +5842,30 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[59].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*RoundInfo); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_mixmessages_proto_msgTypes[60].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*RoundError); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_mixmessages_proto_msgTypes[61].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*AuthorizerAuth); i {
 			case 0:
 				return &v.state
@@ -5735,7 +5884,7 @@ func file_mixmessages_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_mixmessages_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   60,
+			NumMessages:   62,
 			NumExtensions: 0,
 			NumServices:   7,
 		},
@@ -7057,74 +7206,74 @@ var _Gateway_serviceDesc = grpc.ServiceDesc{
 	Metadata: "mixmessages.proto",
 }
 
-// ClientregistrarClient is the client API for Clientregistrar service.
+// ClientRegistrarClient is the client API for ClientRegistrar service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
-type ClientregistrarClient interface {
+type ClientRegistrarClient interface {
 	// Client uses this to register its user with the system
-	RegisterUser(ctx context.Context, in *UserRegistration, opts ...grpc.CallOption) (*UserRegistrationConfirmation, error)
+	RegisterUser(ctx context.Context, in *ClientRegistration, opts ...grpc.CallOption) (*SignedClientRegistrationConfirmations, error)
 }
 
-type clientregistrarClient struct {
+type clientRegistrarClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewClientregistrarClient(cc grpc.ClientConnInterface) ClientregistrarClient {
-	return &clientregistrarClient{cc}
+func NewClientRegistrarClient(cc grpc.ClientConnInterface) ClientRegistrarClient {
+	return &clientRegistrarClient{cc}
 }
 
-func (c *clientregistrarClient) RegisterUser(ctx context.Context, in *UserRegistration, opts ...grpc.CallOption) (*UserRegistrationConfirmation, error) {
-	out := new(UserRegistrationConfirmation)
-	err := c.cc.Invoke(ctx, "/mixmessages.clientregistrar/RegisterUser", in, out, opts...)
+func (c *clientRegistrarClient) RegisterUser(ctx context.Context, in *ClientRegistration, opts ...grpc.CallOption) (*SignedClientRegistrationConfirmations, error) {
+	out := new(SignedClientRegistrationConfirmations)
+	err := c.cc.Invoke(ctx, "/mixmessages.ClientRegistrar/RegisterUser", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// ClientregistrarServer is the server API for Clientregistrar service.
-type ClientregistrarServer interface {
+// ClientRegistrarServer is the server API for ClientRegistrar service.
+type ClientRegistrarServer interface {
 	// Client uses this to register its user with the system
-	RegisterUser(context.Context, *UserRegistration) (*UserRegistrationConfirmation, error)
+	RegisterUser(context.Context, *ClientRegistration) (*SignedClientRegistrationConfirmations, error)
 }
 
-// UnimplementedClientregistrarServer can be embedded to have forward compatible implementations.
-type UnimplementedClientregistrarServer struct {
+// UnimplementedClientRegistrarServer can be embedded to have forward compatible implementations.
+type UnimplementedClientRegistrarServer struct {
 }
 
-func (*UnimplementedClientregistrarServer) RegisterUser(context.Context, *UserRegistration) (*UserRegistrationConfirmation, error) {
+func (*UnimplementedClientRegistrarServer) RegisterUser(context.Context, *ClientRegistration) (*SignedClientRegistrationConfirmations, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RegisterUser not implemented")
 }
 
-func RegisterClientregistrarServer(s *grpc.Server, srv ClientregistrarServer) {
-	s.RegisterService(&_Clientregistrar_serviceDesc, srv)
+func RegisterClientRegistrarServer(s *grpc.Server, srv ClientRegistrarServer) {
+	s.RegisterService(&_ClientRegistrar_serviceDesc, srv)
 }
 
-func _Clientregistrar_RegisterUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UserRegistration)
+func _ClientRegistrar_RegisterUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ClientRegistration)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ClientregistrarServer).RegisterUser(ctx, in)
+		return srv.(ClientRegistrarServer).RegisterUser(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/mixmessages.clientregistrar/RegisterUser",
+		FullMethod: "/mixmessages.ClientRegistrar/RegisterUser",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ClientregistrarServer).RegisterUser(ctx, req.(*UserRegistration))
+		return srv.(ClientRegistrarServer).RegisterUser(ctx, req.(*ClientRegistration))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-var _Clientregistrar_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "mixmessages.clientregistrar",
-	HandlerType: (*ClientregistrarServer)(nil),
+var _ClientRegistrar_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "mixmessages.ClientRegistrar",
+	HandlerType: (*ClientRegistrarServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "RegisterUser",
-			Handler:    _Clientregistrar_RegisterUser_Handler,
+			Handler:    _ClientRegistrar_RegisterUser_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

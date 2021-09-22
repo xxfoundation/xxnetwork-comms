@@ -360,9 +360,9 @@ message Recipients {
 
 
 // CLIENT REGISTRAR SERVICE ----------------------------------------------------
-service clientregistrar {
+service ClientRegistrar {
     // Client uses this to register its user with the system
-    rpc RegisterUser (UserRegistration) returns (UserRegistrationConfirmation) {
+    rpc RegisterUser (ClientRegistration) returns (SignedClientRegistrationConfirmations) {
     }
 }
 
@@ -428,21 +428,30 @@ message NodeRegistration {
 
 // UserRegistration message to initialize registration process
 // Client -> ClientRegistrar
-message UserRegistration {
+message ClientRegistration {
     string RegistrationCode = 1;
-    string ClientRSAPubKey = 2;
+    string ClientTransmissionRSAPubKey = 2;
     string ClientReceptionRSAPubKey = 3;
 }
 
-// UserRegistrationConfirmation to confirm registration with users
-// ClientRegistrar -> Client (Response to UserRegistration)
-message UserRegistrationConfirmation {
-    // RegistrationServer-Signed Client Public Key
-    messages.RSASignature ClientSignedByServer = 1;
-    messages.RSASignature ClientReceptionSignedByServer = 2;
-    int64 Timestamp = 3;
-    string Error = 4;
+// ClientRegistrationConfirmation to confirm registration with Clients
+// ClientRegistrar -> Client (Response to ClientRegistration)
+message ClientRegistrationConfirmation {
+    string RSAPubKey = 1;
+    int64 Timestamp = 2;
 }
+
+message SignedRegistrationConfirmation {
+    bytes ClientRegistrationConfirmation = 1;
+    messages.RSASignature RegistrarSignature = 2;
+}
+
+message SignedClientRegistrationConfirmations {
+    SignedRegistrationConfirmation ClientTransmissionConfirmation = 1;
+    SignedRegistrationConfirmation ClientReceptionConfirmation = 2;
+    string Error = 3;
+}
+
 
 
 // ClientVersion contains a version string for the client
