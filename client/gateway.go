@@ -177,6 +177,11 @@ func (c *Comms) SendPoll(host *connect.Host,
 		return nil, errors.Errorf("Could not receive streaming header: %v", err)
 	}
 
+	// Return with an error if there is no header being received via the stream
+	if md.Len() == 0 {
+		return nil, errors.New(pb.NoStreamingHeaderErr)
+	}
+
 	totalChunks, err := strconv.Atoi(md.Get(pb.ChunkHeader)[0])
 	if err != nil {
 		return nil, errors.Errorf("Invalid header received: %v", err)
