@@ -96,7 +96,7 @@ type Handler interface {
 	StreamPostPhase(server mixmessages.Node_StreamPostPhaseServer, auth *connect.Auth) error
 
 	// Server interface for RequestNonceMessage
-	RequestNonce(nonceRequest *mixmessages.NonceRequest, auth *connect.Auth) (*mixmessages.Nonce, error)
+	RequestNonce(nonceRequest *mixmessages.SignedClientKeyRequest, auth *connect.Auth) (*mixmessages.SignedKeyResponse, error)
 
 	// Server interface for ConfirmNonceMessage
 	ConfirmRegistration(requestConfirmation *mixmessages.RequestRegistrationConfirmation,
@@ -158,7 +158,7 @@ type implementationFunctions struct {
 	StreamPostPhase func(message mixmessages.Node_StreamPostPhaseServer, auth *connect.Auth) error
 
 	// Server interface for RequestNonceMessage
-	RequestNonce func(nonceRequest *mixmessages.NonceRequest, auth *connect.Auth) (*mixmessages.Nonce, error)
+	RequestNonce func(nonceRequest *mixmessages.SignedClientKeyRequest, auth *connect.Auth) (*mixmessages.SignedKeyResponse, error)
 	// Server interface for ConfirmNonceMessage
 	ConfirmRegistration func(requestConfirmation *mixmessages.RequestRegistrationConfirmation,
 		auth *connect.Auth) (*mixmessages.RegistrationConfirmation, error)
@@ -252,9 +252,9 @@ func NewImplementation() *Implementation {
 				return 0, nil
 			},
 
-			RequestNonce: func(nonceRequest *mixmessages.NonceRequest, auth *connect.Auth) (*mixmessages.Nonce, error) {
+			RequestNonce: func(nonceRequest *mixmessages.SignedClientKeyRequest, auth *connect.Auth) (*mixmessages.SignedKeyResponse, error) {
 				warn(um)
-				return &mixmessages.Nonce{}, nil
+				return &mixmessages.SignedKeyResponse{}, nil
 			},
 			ConfirmRegistration: func(requestConfirmation *mixmessages.RequestRegistrationConfirmation,
 				auth *connect.Auth) (*mixmessages.RegistrationConfirmation, error) {
@@ -337,7 +337,7 @@ func (s *Implementation) GetRoundBufferInfo(auth *connect.Auth) (int, error) {
 }
 
 // Server interface for RequestNonceMessage
-func (s *Implementation) RequestNonce(nonceRequest *mixmessages.NonceRequest, auth *connect.Auth) (*mixmessages.Nonce, error) {
+func (s *Implementation) RequestNonce(nonceRequest *mixmessages.SignedClientKeyRequest, auth *connect.Auth) (*mixmessages.SignedKeyResponse, error) {
 	return s.Functions.RequestNonce(nonceRequest, auth)
 }
 

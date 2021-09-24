@@ -114,8 +114,8 @@ func (s *Comms) GetRoundBufferInfo(ctx context.Context,
 }
 
 // Handles Registration Nonce Communication
-func (s *Comms) RequestNonce(ctx context.Context,
-	msg *messages.AuthenticatedMessage) (*pb.Nonce, error) {
+func (s *Comms) RequestClientKey(ctx context.Context,
+	msg *messages.AuthenticatedMessage) (*pb.SignedKeyResponse, error) {
 
 	// Verify the message authentication
 	authState, err := s.AuthenticatedReceiver(msg, ctx)
@@ -124,7 +124,7 @@ func (s *Comms) RequestNonce(ctx context.Context,
 	}
 
 	//Marshall the any message to the message type needed
-	nonceRequest := &pb.NonceRequest{}
+	nonceRequest := &pb.SignedClientKeyRequest{}
 	err = ptypes.UnmarshalAny(msg.Message, nonceRequest)
 	if err != nil {
 		return nil, err

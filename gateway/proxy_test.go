@@ -90,7 +90,7 @@ func TestComms_SendRequestNonce(t *testing.T) {
 		t.Fatalf("Failed to add host to manager: %+v", err)
 	}
 
-	_, err = gw1.SendRequestNonce(host, &pb.NonceRequest{})
+	_, err = gw1.SendRequestClientKey(host, &pb.SignedClientKeyRequest{})
 	if err != nil {
 		t.Errorf("SendRequestNonce produced an error: %+v", err)
 	}

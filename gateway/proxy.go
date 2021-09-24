@@ -81,8 +81,8 @@ func (g *Comms) SendPutManyMessages(host *connect.Host,
 }
 
 // Gateway -> Gateway forward client RequestNonce.
-func (g *Comms) SendRequestNonce(host *connect.Host,
-	messages *pb.NonceRequest) (*pb.Nonce, error) {
+func (g *Comms) SendRequestClientKey(host *connect.Host,
+	messages *pb.SignedClientKeyRequest) (*pb.SignedKeyResponse, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
@@ -91,7 +91,7 @@ func (g *Comms) SendRequestNonce(host *connect.Host,
 		defer cancel()
 
 		// Send the message
-		resultMsg, err := pb.NewGatewayClient(conn).RequestNonce(ctx, messages)
+		resultMsg, err := pb.NewGatewayClient(conn).RequestClientKey(ctx, messages)
 		if err != nil {
 			return nil, err
 		}
@@ -107,7 +107,7 @@ func (g *Comms) SendRequestNonce(host *connect.Host,
 	}
 
 	// Marshall the result
-	result := &pb.Nonce{}
+	result := &pb.SignedKeyResponse{}
 	return result, ptypes.UnmarshalAny(resultMsg, result)
 }
 

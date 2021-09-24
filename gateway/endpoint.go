@@ -59,8 +59,8 @@ func (g *Comms) PutManyMessages(ctx context.Context, msgs *pb.GatewaySlots) (*pb
 }
 
 // Pass-through for Registration Nonce Communication
-func (g *Comms) RequestNonce(ctx context.Context,
-	msg *pb.NonceRequest) (*pb.Nonce, error) {
+func (g *Comms) RequestClientKey(ctx context.Context,
+	msg *pb.SignedClientKeyRequest) (*pb.SignedKeyResponse, error) {
 
 	return g.handler.RequestNonce(msg)
 }

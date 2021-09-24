@@ -20,8 +20,8 @@ import (
 )
 
 // Gateway -> Server Send Function
-func (g *Comms) SendRequestNonceMessage(host *connect.Host,
-	message *pb.NonceRequest) (*pb.Nonce, error) {
+func (g *Comms) SendClientKeyMessage(host *connect.Host,
+	message *pb.SignedClientKeyRequest) (*pb.SignedKeyResponse, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
@@ -34,7 +34,7 @@ func (g *Comms) SendRequestNonceMessage(host *connect.Host,
 			return nil, errors.New(err.Error())
 		}
 		// Send the message
-		resultMsg, err := pb.NewNodeClient(conn).RequestNonce(ctx, authMsg)
+		resultMsg, err := pb.NewNodeClient(conn).RequestClientKey(ctx, authMsg)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
@@ -50,7 +50,7 @@ func (g *Comms) SendRequestNonceMessage(host *connect.Host,
 	}
 
 	// Marshall the result
-	result := &pb.Nonce{}
+	result := &pb.SignedKeyResponse{}
 	return result, ptypes.UnmarshalAny(resultMsg, result)
 }
 

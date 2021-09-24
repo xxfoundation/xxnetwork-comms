@@ -40,7 +40,7 @@ func TestSendPutMessage(t *testing.T) {
 	}
 }
 
-// Smoke test SendRequestNonceMessage
+// Smoke test SendClientKeyMessage
 func TestSendRequestNonceMessage(t *testing.T) {
 	gatewayAddress := getNextAddress()
 	testID := id.NewIdFromString("test", id.Gateway, t)
@@ -57,9 +57,9 @@ func TestSendRequestNonceMessage(t *testing.T) {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
 
-	_, err = c.SendRequestNonceMessage(host, &pb.NonceRequest{})
+	_, err = c.SendRequestClientKeyMessage(host, &pb.SignedClientKeyRequest{})
 	if err != nil {
-		t.Errorf("SendRequestNonceMessage: Error received: %s", err)
+		t.Errorf("SendClientKeyMessage: Error received: %s", err)
 	}
 }
 
@@ -183,7 +183,7 @@ func (m mockGatewayImpl) PutManyMessages(msgs *pb.GatewaySlots) (*pb.GatewaySlot
 	return nil, nil
 }
 
-func (m mockGatewayImpl) RequestNonce(message *pb.NonceRequest) (*pb.Nonce, error) {
+func (m mockGatewayImpl) RequestNonce(message *pb.SignedClientKeyRequest) (*pb.SignedKeyResponse, error) {
 	return nil, nil
 }
 

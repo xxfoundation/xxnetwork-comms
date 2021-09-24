@@ -51,8 +51,8 @@ service Node {
     rpc GetRoundBufferInfo (messages.AuthenticatedMessage) returns (RoundBufferInfo) {
     }
 
-    // RequestNonce generates a nonce for user registration
-    rpc RequestNonce (messages.AuthenticatedMessage) returns (Nonce) {
+    // RequestClientKey generates a nonce for user registration
+    rpc RequestClientKey (messages.AuthenticatedMessage) returns (SignedKeyResponse) {
     }
 
     // ConfirmRegistration uses a nonce confirmation to finalize user registration
@@ -102,6 +102,45 @@ service Node {
     }
 
 }
+
+message ClientKeyRequest {
+    // Salt used to generate the Client ID
+    bytes Salt = 1;
+    // NOTE: The following entry becomes a pointer to the blockchain that denotes
+    // where to find the users public key. The node can then read the blockchain
+    // and verify that the registration was done properly there.
+    SignedRegistrationConfirmation ClientTransmissionConfirmation = 2;
+    // the timestamp of this request,
+    int64 RequestTimestamp = 3;
+    // The public key of the client for the purposes of creating the diffie helman sesskey
+    bytes ClientDHPubKey = 5;
+}
+
+message SignedClientKeyRequest {
+    // Wire serialized format of the ClientKeyRequest Object (above)
+    bytes ClientKeyRequest = 1;
+    // RSA signature signed by the client
+    messages.RSASignature ClientKeyRequestSignature = 2;
+    // Target Gateway/Node - used to proxy through an alternate gateway
+    bytes Target = 3;
+}
+
+message ClientKeyResponse {
+    bytes EncryptedClientKey = 1;
+    bytes EncryptedClientKeyHMAC = 2;
+    bytes NodeDHPubKey = 3;
+    bytes KeyID = 4; // Currently unused and empty.
+    uint64 ValidUntil = 5; // Timestamp of when the key expires
+}
+
+message SignedKeyResponse {
+    bytes KeyResponse = 1;
+    messages.RSASignature KeyResponseSignedByNode = 2;
+    bytes ClientGatewayKey = 3; // Stripped off by node gateway
+    string Error = 4;
+}
+
+
 
 message PostPrecompResult {
     uint64 RoundId = 1;
@@ -197,8 +236,8 @@ service Gateway {
     rpc PutManyMessages (GatewaySlots) returns (GatewaySlotResponse) {
     }
 
-    // RequestNonce returns a Nonce to the user
-    rpc RequestNonce (NonceRequest) returns (Nonce) {
+    // RequestClientKey returns a Nonce to the user
+    rpc RequestClientKey (SignedClientKeyRequest) returns (SignedKeyResponse) {
     }
 
     // ConfirmNonce takes a client signed nonce for Registration Nonce Confirmation
@@ -457,24 +496,6 @@ message SignedClientRegistrationConfirmations {
 // ClientVersion contains a version string for the client
 message ClientVersion {
     string Version = 1;
-}
-
-// NonceRequest message to request nonce from client to server
-message NonceRequest {
-    bytes Salt = 1;
-    string ClientRSAPubKey = 2;
-    messages.RSASignature ClientSignedByServer = 3;
-    int64 TimeStamp = 4;
-    bytes ClientDHPubKey = 5;
-    messages.RSASignature RequestSignature = 6;
-    bytes Target = 7;
-}
-
-// Nonce message to reply to client from server (going through gateway)
-message Nonce {
-    bytes Nonce = 1;
-    bytes DHPubKey = 2;
-    string Error = 3;
 }
 
 // RequestRegistrationConfirmation returning proof of registration

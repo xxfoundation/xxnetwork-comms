@@ -28,7 +28,7 @@ type Handler interface {
 	// Upload many messages to the cMix Gateway
 	PutManyMessages(msgs *pb.GatewaySlots) (*pb.GatewaySlotResponse, error)
 	// Pass-through for Registration Nonce Communication
-	RequestNonce(message *pb.NonceRequest) (*pb.Nonce, error)
+	RequestNonce(message *pb.SignedClientKeyRequest) (*pb.SignedKeyResponse, error)
 	// Pass-through for Registration Nonce Confirmation
 	ConfirmNonce(message *pb.RequestRegistrationConfirmation) (*pb.
 		RegistrationConfirmation, error)
@@ -91,7 +91,7 @@ type implementationFunctions struct {
 	// Upload many messages to the cMix Gateway
 	PutManyMessages func(msgs *pb.GatewaySlots) (*pb.GatewaySlotResponse, error)
 	// Pass-through for Registration Nonce Communication
-	RequestNonce func(message *pb.NonceRequest) (*pb.Nonce, error)
+	RequestNonce func(message *pb.SignedClientKeyRequest) (*pb.SignedKeyResponse, error)
 	// Pass-through for Registration Nonce Confirmation
 	ConfirmNonce func(message *pb.RequestRegistrationConfirmation) (*pb.
 			RegistrationConfirmation, error)
@@ -126,9 +126,9 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return &pb.GatewaySlotResponse{}, nil
 			},
-			RequestNonce: func(message *pb.NonceRequest) (*pb.Nonce, error) {
+			RequestNonce: func(message *pb.SignedClientKeyRequest) (*pb.SignedKeyResponse, error) {
 				warn(um)
-				return new(pb.Nonce), nil
+				return new(pb.SignedKeyResponse), nil
 			},
 			ConfirmNonce: func(message *pb.RequestRegistrationConfirmation) (*pb.RegistrationConfirmation, error) {
 				warn(um)
@@ -161,8 +161,8 @@ func (s *Implementation) PutManyMessages(msgs *pb.GatewaySlots) (*pb.GatewaySlot
 }
 
 // Pass-through for Registration Nonce Communication
-func (s *Implementation) RequestNonce(message *pb.NonceRequest) (
-	*pb.Nonce, error) {
+func (s *Implementation) RequestNonce(message *pb.SignedClientKeyRequest) (
+	*pb.SignedKeyResponse, error) {
 	return s.Functions.RequestNonce(message)
 }
 
