@@ -112,6 +112,8 @@ message ClientKeyRequest {
     SignedRegistrationConfirmation ClientTransmissionConfirmation = 2;
     // the timestamp of this request,
     int64 RequestTimestamp = 3;
+    // timestamp of registration, tied to ClientRegistrationConfirmation
+    int64 RegistrationTimestamp = 4;
     // The public key of the client for the purposes of creating the diffie helman sesskey
     bytes ClientDHPubKey = 5;
 }
