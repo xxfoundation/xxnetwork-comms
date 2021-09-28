@@ -95,13 +95,6 @@ type Handler interface {
 
 	StreamPostPhase(server mixmessages.Node_StreamPostPhaseServer, auth *connect.Auth) error
 
-	// Server interface for RequestNonceMessage
-	RequestNonce(nonceRequest *mixmessages.SignedClientKeyRequest, auth *connect.Auth) (*mixmessages.SignedKeyResponse, error)
-
-	// Server interface for ConfirmNonceMessage
-	ConfirmRegistration(requestConfirmation *mixmessages.RequestRegistrationConfirmation,
-		auth *connect.Auth) (*mixmessages.RegistrationConfirmation, error)
-
 	// PostPrecompResult interface to finalize both payloads' precomps
 	PostPrecompResult(roundID uint64, numSlots uint32, auth *connect.Auth) error
 
@@ -130,9 +123,40 @@ type Handler interface {
 
 	// Server -> Server sending multi-party round DH key
 	ShareFinalKey(sharedPiece *mixmessages.SharePiece, auth *connect.Auth) error
+
+	// Server interface for RequestNonceMessage
+	RequestClientKey(nonceRequest *mixmessages.SignedClientKeyRequest, auth *connect.Auth) (*mixmessages.SignedKeyResponse, error)
+
+	// ---------------------- Start of deprecated fields ----------- //
+
+	// Server interface for RequestNonceMessage
+	// TODO: Remove comm once RequestClientKey is properly tested
+	RequestNonce(nonceRequest *mixmessages.NonceRequest, auth *connect.Auth) (*mixmessages.Nonce, error)
+
+	// Server interface for ConfirmNonceMessage
+	// TODO: Remove comm once RequestClientKey is properly tested
+	ConfirmNonce(requestConfirmation *mixmessages.RequestRegistrationConfirmation,
+		auth *connect.Auth) (*mixmessages.RegistrationConfirmation, error)
+	// ---------------------- End of deprecated fields ----------- //
+
 }
 
 type implementationFunctions struct {
+	// ---------------------- Start of deprecated fields ----------- //
+
+	// Server interface for RequestNonceMessage
+	// TODO: This will be deprecated. Remove comm once RequestClientKey is properly tested.
+	RequestNonce func(nonceRequest *mixmessages.NonceRequest, auth *connect.Auth) (*mixmessages.Nonce, error)
+
+	// Server interface for ConfirmNonceMessage
+	// TODO: This will be deprecated. Remove comm once RequestClientKey is properly tested.
+	ConfirmNonce func(requestConfirmation *mixmessages.RequestRegistrationConfirmation,
+		auth *connect.Auth) (*mixmessages.RegistrationConfirmation, error)
+	// ---------------------- End of deprecated fields ----------- //
+
+	// Server interface for RequestNonceMessage
+	RequestClientKey func(request *mixmessages.SignedClientKeyRequest, auth *connect.Auth) (*mixmessages.SignedKeyResponse, error)
+
 	// Server Interface for starting New Rounds
 	CreateNewRound func(message *mixmessages.RoundInfo, auth *connect.Auth) error
 	// Server interface for sending a new batch
@@ -156,12 +180,6 @@ type implementationFunctions struct {
 
 	// Server interface for internode streaming messages
 	StreamPostPhase func(message mixmessages.Node_StreamPostPhaseServer, auth *connect.Auth) error
-
-	// Server interface for RequestNonceMessage
-	RequestNonce func(nonceRequest *mixmessages.SignedClientKeyRequest, auth *connect.Auth) (*mixmessages.SignedKeyResponse, error)
-	// Server interface for ConfirmNonceMessage
-	ConfirmRegistration func(requestConfirmation *mixmessages.RequestRegistrationConfirmation,
-		auth *connect.Auth) (*mixmessages.RegistrationConfirmation, error)
 
 	// PostPrecompResult interface to finalize both payloads' precomputations
 	PostPrecompResult func(roundID uint64,
@@ -213,6 +231,30 @@ func NewImplementation() *Implementation {
 	}
 	return &Implementation{
 		Functions: implementationFunctions{
+			// ---------------------- Start of deprecated fields ----------- //
+
+			// Server interface for RequestNonceMessage
+			// TODO: Remove comm once RequestClientKey is properly tested
+			RequestNonce: func(nonceRequest *mixmessages.NonceRequest, auth *connect.Auth) (*mixmessages.Nonce, error) {
+				warn(um)
+				return &mixmessages.Nonce{}, nil
+			},
+
+			// Server interface for ConfirmNonceMessage
+			// TODO: Remove comm once RequestClientKey is properly tested
+			ConfirmNonce: func(requestConfirmation *mixmessages.RequestRegistrationConfirmation,
+				auth *connect.Auth) (*mixmessages.RegistrationConfirmation, error) {
+				warn(um)
+				return &mixmessages.RegistrationConfirmation{}, nil
+			},
+
+			// ---------------------- End of deprecated fields ----------- //
+
+			RequestClientKey: func(request *mixmessages.SignedClientKeyRequest, auth *connect.Auth) (*mixmessages.SignedKeyResponse, error) {
+				warn(um)
+				return &mixmessages.SignedKeyResponse{}, nil
+			},
+
 			CreateNewRound: func(m *mixmessages.RoundInfo, auth *connect.Auth) error {
 				warn(um)
 				return nil
@@ -252,15 +294,6 @@ func NewImplementation() *Implementation {
 				return 0, nil
 			},
 
-			RequestNonce: func(nonceRequest *mixmessages.SignedClientKeyRequest, auth *connect.Auth) (*mixmessages.SignedKeyResponse, error) {
-				warn(um)
-				return &mixmessages.SignedKeyResponse{}, nil
-			},
-			ConfirmRegistration: func(requestConfirmation *mixmessages.RequestRegistrationConfirmation,
-				auth *connect.Auth) (*mixmessages.RegistrationConfirmation, error) {
-				warn(um)
-				return &mixmessages.RegistrationConfirmation{}, nil
-			},
 			PostPrecompResult: func(roundID uint64,
 				numSlots uint32, auth *connect.Auth) error {
 				warn(um)
@@ -306,6 +339,26 @@ func NewImplementation() *Implementation {
 	}
 }
 
+// ---------------------- Start of deprecated fields ----------- //
+
+// Server interface for RequestNonceMessage
+func (s *Implementation) RequestNonce(nonceRequest *mixmessages.NonceRequest, auth *connect.Auth) (*mixmessages.Nonce, error) {
+	return s.Functions.RequestNonce(nonceRequest, auth)
+}
+
+// Server interface for ConfirmNonceMessage
+func (s *Implementation) ConfirmNonce(requestConfirmation *mixmessages.RequestRegistrationConfirmation,
+	auth *connect.Auth) (*mixmessages.RegistrationConfirmation, error) {
+	return s.Functions.ConfirmNonce(requestConfirmation, auth)
+}
+
+// ---------------------- End of deprecated fields ----------- //
+
+// Server interface for RequestNonceMessage
+func (s *Implementation) RequestClientKey(nonceRequest *mixmessages.SignedClientKeyRequest, auth *connect.Auth) (*mixmessages.SignedKeyResponse, error) {
+	return s.Functions.RequestClientKey(nonceRequest, auth)
+}
+
 // Server Interface for starting New Rounds
 func (s *Implementation) CreateNewRound(msg *mixmessages.RoundInfo, auth *connect.Auth) error {
 	return s.Functions.CreateNewRound(msg, auth)
@@ -334,17 +387,6 @@ func (s *Implementation) StreamPostPhase(m mixmessages.Node_StreamPostPhaseServe
 // GetRoundBufferInfo returns # of completed precomputations
 func (s *Implementation) GetRoundBufferInfo(auth *connect.Auth) (int, error) {
 	return s.Functions.GetRoundBufferInfo(auth)
-}
-
-// Server interface for RequestNonceMessage
-func (s *Implementation) RequestNonce(nonceRequest *mixmessages.SignedClientKeyRequest, auth *connect.Auth) (*mixmessages.SignedKeyResponse, error) {
-	return s.Functions.RequestNonce(nonceRequest, auth)
-}
-
-// Server interface for ConfirmNonceMessage
-func (s *Implementation) ConfirmRegistration(requestConfirmation *mixmessages.RequestRegistrationConfirmation,
-	auth *connect.Auth) (*mixmessages.RegistrationConfirmation, error) {
-	return s.Functions.ConfirmRegistration(requestConfirmation, auth)
 }
 
 // PostPrecompResult interface to finalize both payloads' precomputations

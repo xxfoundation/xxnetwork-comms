@@ -183,11 +183,15 @@ func (m mockGatewayImpl) PutManyMessages(msgs *pb.GatewaySlots) (*pb.GatewaySlot
 	return nil, nil
 }
 
-func (m mockGatewayImpl) RequestNonce(message *pb.SignedClientKeyRequest) (*pb.SignedKeyResponse, error) {
+func (m mockGatewayImpl) RequestNonce(message *pb.NonceRequest) (*pb.Nonce, error) {
 	return nil, nil
 }
 
 func (m mockGatewayImpl) ConfirmNonce(message *pb.RequestRegistrationConfirmation) (*pb.RegistrationConfirmation, error) {
+	return nil, nil
+}
+
+func (m mockGatewayImpl) RequestClientKey(message *pb.SignedClientKeyRequest) (*pb.SignedKeyResponse, error) {
 	return nil, nil
 }
 

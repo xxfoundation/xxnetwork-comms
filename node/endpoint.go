@@ -18,6 +18,60 @@ import (
 	"golang.org/x/net/context"
 )
 
+// ---------------------- Start of deprecated fields ----------- //
+
+// Handles Registration Nonce Communication
+// TODO: Remove comm once RequestClientKey is properly tested
+func (s *Comms) RequestNonce(ctx context.Context,
+	msg *messages.AuthenticatedMessage) (*pb.Nonce, error) {
+
+	// Verify the message authentication
+	authState, err := s.AuthenticatedReceiver(msg, ctx)
+	if err != nil {
+		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
+	}
+
+	//Marshall the any message to the message type needed
+	nonceRequest := &pb.NonceRequest{}
+	err = ptypes.UnmarshalAny(msg.Message, nonceRequest)
+	if err != nil {
+		return nil, err
+	}
+
+	// Obtain the nonce by passing to server
+	nonce, err := s.handler.RequestNonce(nonceRequest, authState)
+	if err != nil {
+
+	}
+
+	// Return the NonceMessage
+	return nonce, err
+}
+
+// Handles Registration Nonce Confirmation
+// TODO: Remove comm once RequestClientKey is properly tested
+func (s *Comms) ConfirmNonce(ctx context.Context,
+	msg *messages.AuthenticatedMessage) (*pb.RegistrationConfirmation, error) {
+
+	// Verify the message authentication
+	authState, err := s.AuthenticatedReceiver(msg, ctx)
+	if err != nil {
+		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
+	}
+
+	//Unmarshall the any message to the message type needed
+	regConfirmRequest := &pb.RequestRegistrationConfirmation{}
+	err = ptypes.UnmarshalAny(msg.Message, regConfirmRequest)
+	if err != nil {
+		return nil, err
+	}
+
+	// Obtain signed client public key by passing to server
+	return s.handler.ConfirmNonce(regConfirmRequest, authState)
+}
+
+// ---------------------- End of deprecated fields ----------- //
+
 // Handle a Broadcasted Ask Online event
 func (s *Comms) AskOnline(ctx context.Context, ping *messages.Ping) (*messages.Ack, error) {
 	return &messages.Ack{}, s.handler.AskOnline()
@@ -131,34 +185,13 @@ func (s *Comms) RequestClientKey(ctx context.Context,
 	}
 
 	// Obtain the nonce by passing to server
-	nonce, err := s.handler.RequestNonce(nonceRequest, authState)
+	nonce, err := s.handler.RequestClientKey(nonceRequest, authState)
 	if err != nil {
 
 	}
 
 	// Return the NonceMessage
 	return nonce, err
-}
-
-// Handles Registration Nonce Confirmation
-func (s *Comms) ConfirmRegistration(ctx context.Context,
-	msg *messages.AuthenticatedMessage) (*pb.RegistrationConfirmation, error) {
-
-	// Verify the message authentication
-	authState, err := s.AuthenticatedReceiver(msg, ctx)
-	if err != nil {
-		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
-	}
-
-	//Unmarshall the any message to the message type needed
-	regConfirmRequest := &pb.RequestRegistrationConfirmation{}
-	err = ptypes.UnmarshalAny(msg.Message, regConfirmRequest)
-	if err != nil {
-		return nil, err
-	}
-
-	// Obtain signed client public key by passing to server
-	return s.handler.ConfirmRegistration(regConfirmRequest, authState)
 }
 
 // PostPrecompResult sends final Message and AD precomputations.

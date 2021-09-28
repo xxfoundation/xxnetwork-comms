@@ -19,6 +19,81 @@ import (
 	"google.golang.org/grpc"
 )
 
+// ---------------------- Start of deprecated fields ----------- //
+
+// Gateway -> Server Send Function
+// TODO: This will be deprecated. Remove comm once RequestClientKey is properly tested.
+func (g *Comms) SendRequestNonceMessage(host *connect.Host,
+	message *pb.NonceRequest) (*pb.Nonce, error) {
+
+	// Create the Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := host.GetMessagingContext()
+		defer cancel()
+		//Pack the message for server
+		authMsg, err := g.PackAuthenticatedMessage(message, host, false)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+		// Send the message
+		resultMsg, err := pb.NewNodeClient(conn).RequestNonce(ctx, authMsg)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+
+		return ptypes.MarshalAny(resultMsg)
+	}
+
+	// Execute the Send function
+	jww.TRACE.Printf("Sending Request Nonce message: %+v", message)
+	resultMsg, err := g.Send(host, f)
+	if err != nil {
+		return nil, err
+	}
+
+	// Marshall the result
+	result := &pb.Nonce{}
+	return result, ptypes.UnmarshalAny(resultMsg, result)
+}
+
+// Gateway -> Server Send Function
+// TODO: This will be deprecated. Remove comm once RequestClientKey is properly tested.
+func (g *Comms) SendConfirmNonceMessage(host *connect.Host,
+	message *pb.RequestRegistrationConfirmation) (*pb.RegistrationConfirmation, error) {
+
+	// Create the Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := host.GetMessagingContext()
+		defer cancel()
+		//Pack the message for server
+		authMsg, err := g.PackAuthenticatedMessage(message, host, false)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+		// Send the message
+		resultMsg, err := pb.NewNodeClient(conn).ConfirmNonce(ctx, authMsg)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+		return ptypes.MarshalAny(resultMsg)
+	}
+
+	// Execute the Send function
+	jww.TRACE.Printf("Sending Confirm Nonce message: %+v", message)
+	resultMsg, err := g.Send(host, f)
+	if err != nil {
+		return nil, err
+	}
+
+	// Marshall the result
+	result := &pb.RegistrationConfirmation{}
+	return result, ptypes.UnmarshalAny(resultMsg, result)
+}
+
+// ---------------------- Start of deprecated fields ----------- //
+
 // Gateway -> Server Send Function
 func (g *Comms) SendClientKeyMessage(host *connect.Host,
 	message *pb.SignedClientKeyRequest) (*pb.SignedKeyResponse, error) {
@@ -51,40 +126,6 @@ func (g *Comms) SendClientKeyMessage(host *connect.Host,
 
 	// Marshall the result
 	result := &pb.SignedKeyResponse{}
-	return result, ptypes.UnmarshalAny(resultMsg, result)
-}
-
-// Gateway -> Server Send Function
-func (g *Comms) SendConfirmNonceMessage(host *connect.Host,
-	message *pb.RequestRegistrationConfirmation) (*pb.RegistrationConfirmation, error) {
-
-	// Create the Send Function
-	f := func(conn *grpc.ClientConn) (*any.Any, error) {
-		// Set up the context
-		ctx, cancel := host.GetMessagingContext()
-		defer cancel()
-		//Pack the message for server
-		authMsg, err := g.PackAuthenticatedMessage(message, host, false)
-		if err != nil {
-			return nil, errors.New(err.Error())
-		}
-		// Send the message
-		resultMsg, err := pb.NewNodeClient(conn).ConfirmRegistration(ctx, authMsg)
-		if err != nil {
-			return nil, errors.New(err.Error())
-		}
-		return ptypes.MarshalAny(resultMsg)
-	}
-
-	// Execute the Send function
-	jww.TRACE.Printf("Sending Confirm Nonce message: %+v", message)
-	resultMsg, err := g.Send(host, f)
-	if err != nil {
-		return nil, err
-	}
-
-	// Marshall the result
-	result := &pb.RegistrationConfirmation{}
 	return result, ptypes.UnmarshalAny(resultMsg, result)
 }
 

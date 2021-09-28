@@ -27,17 +27,25 @@ type Handler interface {
 	PutMessage(message *pb.GatewaySlot) (*pb.GatewaySlotResponse, error)
 	// Upload many messages to the cMix Gateway
 	PutManyMessages(msgs *pb.GatewaySlots) (*pb.GatewaySlotResponse, error)
-	// Pass-through for Registration Nonce Communication
-	RequestNonce(message *pb.SignedClientKeyRequest) (*pb.SignedKeyResponse, error)
-	// Pass-through for Registration Nonce Confirmation
-	ConfirmNonce(message *pb.RequestRegistrationConfirmation) (*pb.
-		RegistrationConfirmation, error)
 	// Client -> Gateway unified polling
 	Poll(msg *pb.GatewayPoll) (*pb.GatewayPollResponse, error)
 	// Client -> Gateway historical round request
 	RequestHistoricalRounds(msg *pb.HistoricalRounds) (*pb.HistoricalRoundsResponse, error)
 	// Client -> Gateway message request
 	RequestMessages(msg *pb.GetMessages) (*pb.GetMessagesResponse, error)
+
+	RequestClientKey(message *pb.SignedClientKeyRequest) (*pb.SignedKeyResponse, error)
+
+	// ---------------------- Start of deprecated fields ----------- //
+	// Pass-through for Registration Nonce Communication
+	// TODO: Remove comm once RequestClientKey is properly tested
+	RequestNonce(message *pb.NonceRequest) (*pb.Nonce, error)
+	// Pass-through for Registration Nonce Confirmation
+	// TODO: Remove comm once RequestClientKey is properly tested
+	ConfirmNonce(message *pb.RequestRegistrationConfirmation) (*pb.
+		RegistrationConfirmation, error)
+	// ---------------------- End of deprecated fields ----------- //
+
 }
 
 // Gateway object used to implement endpoints and top-level comms functionality
@@ -90,17 +98,25 @@ type implementationFunctions struct {
 	PutMessage func(message *pb.GatewaySlot) (*pb.GatewaySlotResponse, error)
 	// Upload many messages to the cMix Gateway
 	PutManyMessages func(msgs *pb.GatewaySlots) (*pb.GatewaySlotResponse, error)
-	// Pass-through for Registration Nonce Communication
-	RequestNonce func(message *pb.SignedClientKeyRequest) (*pb.SignedKeyResponse, error)
-	// Pass-through for Registration Nonce Confirmation
-	ConfirmNonce func(message *pb.RequestRegistrationConfirmation) (*pb.
-			RegistrationConfirmation, error)
 	// Client -> Gateway unified polling
 	Poll func(msg *pb.GatewayPoll) (*pb.GatewayPollResponse, error)
 	// Client -> Gateway historical round request
 	RequestHistoricalRounds func(msg *pb.HistoricalRounds) (*pb.HistoricalRoundsResponse, error)
 	// Client -> Gateway message request
 	RequestMessages func(msg *pb.GetMessages) (*pb.GetMessagesResponse, error)
+
+	// Pass-through for RequestClientKey Communication
+	RequestClientKey func(message *pb.SignedClientKeyRequest) (*pb.SignedKeyResponse, error)
+
+	// ---------------------- Start of deprecated fields ----------- //
+	// TODO: Remove comm once RequestClientKey is properly tested
+	RequestNonce func(message *pb.NonceRequest) (*pb.Nonce, error)
+	// Pass-through for Registration Nonce Confirmation
+	// TODO: Remove comm once RequestClientKey is properly tested
+	ConfirmNonce func(message *pb.RequestRegistrationConfirmation) (*pb.
+			RegistrationConfirmation, error)
+	// ---------------------- End of deprecated fields ----------- //
+
 }
 
 // Implementation allows users of the client library to set the
@@ -126,14 +142,7 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return &pb.GatewaySlotResponse{}, nil
 			},
-			RequestNonce: func(message *pb.SignedClientKeyRequest) (*pb.SignedKeyResponse, error) {
-				warn(um)
-				return new(pb.SignedKeyResponse), nil
-			},
-			ConfirmNonce: func(message *pb.RequestRegistrationConfirmation) (*pb.RegistrationConfirmation, error) {
-				warn(um)
-				return new(pb.RegistrationConfirmation), nil
-			},
+
 			Poll: func(msg *pb.GatewayPoll) (*pb.GatewayPollResponse, error) {
 				warn(um)
 				return &pb.GatewayPollResponse{}, nil
@@ -146,8 +155,51 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return &pb.GetMessagesResponse{}, nil
 			},
+
+			RequestClientKey: func(message *pb.SignedClientKeyRequest) (*pb.SignedKeyResponse, error) {
+				warn(um)
+				return new(pb.SignedKeyResponse), nil
+			},
+
+			// ---------------------- Start of deprecated fields ----------- //
+			// TODO: Remove comm once RequestClientKey is properly tested
+			RequestNonce: func(message *pb.NonceRequest) (*pb.Nonce, error) {
+				warn(um)
+				return new(pb.Nonce), nil
+			},
+			// TODO: Remove comm once RequestClientKey is properly tested
+			ConfirmNonce: func(message *pb.RequestRegistrationConfirmation) (*pb.RegistrationConfirmation, error) {
+				warn(um)
+				return new(pb.RegistrationConfirmation), nil
+			},
+			// ---------------------- End of deprecated fields ----------- //
+
 		},
 	}
+}
+
+// ---------------------- Start of deprecated fields ----------- //
+
+// Pass-through for Registration Nonce Communication
+// TODO: Remove comm once RequestClientKey is properly tested
+func (s *Implementation) RequestNonce(message *pb.NonceRequest) (
+	*pb.Nonce, error) {
+	return s.Functions.RequestNonce(message)
+}
+
+// Pass-through for Registration Nonce Confirmation
+// TODO: Remove comm once RequestClientKey is properly tested
+func (s *Implementation) ConfirmNonce(message *pb.RequestRegistrationConfirmation) (*pb.RegistrationConfirmation, error) {
+	return s.Functions.ConfirmNonce(message)
+}
+
+// ---------------------- End of deprecated fields ----------- //
+
+// Pass-through for RequestClientKey Communication
+// TODO: Remove comm once RequestClientKey is properly tested
+func (s *Implementation) RequestClientKey(message *pb.SignedClientKeyRequest) (
+	*pb.SignedKeyResponse, error) {
+	return s.Functions.RequestClientKey(message)
 }
 
 // Upload a message to the cMix Gateway
@@ -158,17 +210,6 @@ func (s *Implementation) PutMessage(message *pb.GatewaySlot) (*pb.GatewaySlotRes
 // Upload many messages to the cMix Gateway
 func (s *Implementation) PutManyMessages(msgs *pb.GatewaySlots) (*pb.GatewaySlotResponse, error) {
 	return s.Functions.PutManyMessages(msgs)
-}
-
-// Pass-through for Registration Nonce Communication
-func (s *Implementation) RequestNonce(message *pb.SignedClientKeyRequest) (
-	*pb.SignedKeyResponse, error) {
-	return s.Functions.RequestNonce(message)
-}
-
-// Pass-through for Registration Nonce Confirmation
-func (s *Implementation) ConfirmNonce(message *pb.RequestRegistrationConfirmation) (*pb.RegistrationConfirmation, error) {
-	return s.Functions.ConfirmNonce(message)
 }
 
 // Client -> Gateway unified polling
