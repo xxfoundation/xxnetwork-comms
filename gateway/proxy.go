@@ -86,7 +86,7 @@ func (g *Comms) SendConfirmNonce(host *connect.Host,
 
 // ---------------------- End of deprecated fields ----------- //
 
-// Gateway -> Gateway forward client RequestNonce.
+// Gateway -> Gateway forward client RequestClientKey.
 func (g *Comms) SendRequestClientKey(host *connect.Host,
 	messages *pb.SignedClientKeyRequest) (*pb.SignedKeyResponse, error) {
 

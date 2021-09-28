@@ -17,7 +17,7 @@ import (
 	"testing"
 )
 
-// Smoke test SendClientKeyMessage
+// Smoke test SendRequestClientKeyMessage
 func TestSendRequestNonceMessage(t *testing.T) {
 	GatewayAddress := getNextGatewayAddress()
 	ServerAddress := getNextServerAddress()
@@ -41,10 +41,10 @@ func TestSendRequestNonceMessage(t *testing.T) {
 		Signature: []byte("test"),
 	}
 
-	_, err = gateway.SendClientKeyMessage(host,
+	_, err = gateway.SendRequestClientKeyMessage(host,
 		&pb.SignedClientKeyRequest{ClientKeyRequestSignature: RSASignature})
 	if err != nil {
-		t.Errorf("SendClientKeyMessage: Error received: %s", err)
+		t.Errorf("SendRequestClientKeyMessage: Error received: %s", err)
 	}
 }
 

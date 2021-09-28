@@ -40,7 +40,7 @@ func TestSendPutMessage(t *testing.T) {
 	}
 }
 
-// Smoke test SendClientKeyMessage
+// Smoke test SendRequestClientKeyMessage
 func TestSendRequestNonceMessage(t *testing.T) {
 	gatewayAddress := getNextAddress()
 	testID := id.NewIdFromString("test", id.Gateway, t)
@@ -59,7 +59,7 @@ func TestSendRequestNonceMessage(t *testing.T) {
 
 	_, err = c.SendRequestClientKeyMessage(host, &pb.SignedClientKeyRequest{})
 	if err != nil {
-		t.Errorf("SendClientKeyMessage: Error received: %s", err)
+		t.Errorf("SendRequestClientKeyMessage: Error received: %s", err)
 	}
 }
 

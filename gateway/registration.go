@@ -95,7 +95,7 @@ func (g *Comms) SendConfirmNonceMessage(host *connect.Host,
 // ---------------------- Start of deprecated fields ----------- //
 
 // Gateway -> Server Send Function
-func (g *Comms) SendClientKeyMessage(host *connect.Host,
+func (g *Comms) SendRequestClientKeyMessage(host *connect.Host,
 	message *pb.SignedClientKeyRequest) (*pb.SignedKeyResponse, error) {
 
 	// Create the Send Function
