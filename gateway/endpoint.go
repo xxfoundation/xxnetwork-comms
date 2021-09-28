@@ -28,6 +28,7 @@ func (g *Comms) RequestNonce(ctx context.Context,
 }
 
 // Pass-through for Registration Nonce Confirmation
+// TODO: Remove comm once RequestClientKey is properly tested
 func (g *Comms) ConfirmNonce(ctx context.Context,
 	msg *pb.RequestRegistrationConfirmation) (*pb.RegistrationConfirmation, error) {
 
@@ -35,6 +36,13 @@ func (g *Comms) ConfirmNonce(ctx context.Context,
 }
 
 // ---------------------- End of deprecated fields ----------- //
+
+// Pass-through for Registration Nonce Communication
+func (g *Comms) RequestClientKey(ctx context.Context,
+	msg *pb.SignedClientKeyRequest) (*pb.SignedKeyResponse, error) {
+
+	return g.handler.RequestClientKey(msg)
+}
 
 // Handles validation of reverse-authentication tokens
 func (g *Comms) AuthenticateToken(ctx context.Context,
@@ -48,13 +56,6 @@ func (g *Comms) RequestToken(context.Context, *messages.Ping) (*messages.AssignT
 	return &messages.AssignToken{
 		Token: token,
 	}, err
-}
-
-// Pass-through for Registration Nonce Communication
-func (g *Comms) RequestClientKey(ctx context.Context,
-	msg *pb.SignedClientKeyRequest) (*pb.SignedKeyResponse, error) {
-
-	return g.handler.RequestClientKey(msg)
 }
 
 // Receives a single message from a client
