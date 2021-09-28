@@ -21,6 +21,7 @@ import (
 	"gitlab.com/xx_network/comms/messages"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
+	"io"
 )
 
 // ------------------------- PrecompTestBatchBroadcast Logic ---------------------------------------- //
@@ -40,6 +41,15 @@ func (s *Comms) StreamPrecompTestBatch(host *connect.Host, info *pb.RoundInfo,
 	// Stream each slot
 	for i, slot := range mockBatch.Slots {
 		if err = streamingClient.Send(slot); err != nil {
+			if err == io.EOF {
+				// Attempt to read an error
+				eofAck, eofErr := streamingClient.CloseAndRecv()
+				if eofErr != nil {
+					err = errors.Wrap(err, eofErr.Error())
+				} else {
+					err = errors.Wrap(err, eofAck.Error)
+				}
+			}
 			return errors.Errorf("Could not stream slot (%d/%d) "+
 				"for round %d: %v", i, len(mockBatch.Slots), info.ID, err)
 		}
