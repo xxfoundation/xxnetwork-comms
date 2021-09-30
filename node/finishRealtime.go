@@ -52,8 +52,9 @@ func (s *Comms) SendFinishRealtime(host *connect.Host,
 					err = errors.Wrap(err, eofAck.Error)
 				}
 			}
-			return nil, errors.Errorf("Could not stream slot (%d/%d) "+
-				"for round %d: %v", i, len(batch.Slots), roundInfo.ID, err)
+			return nil, errors.Errorf("Could not stream slot (%d/%d) to %s"+
+				"for round %d: %v", i, len(batch.Slots), host.GetId(), roundInfo.ID,
+				err)
 		}
 	}
 
