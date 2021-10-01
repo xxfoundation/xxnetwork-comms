@@ -23,7 +23,7 @@ const (
 	PrecompTestBatchHeader = "precompTestBatch"
 )
 
-const NoStreamingHeaderErr = "Streaming header has no information"
+const NoStreamingHeaderErr = "Streaming header has no information from %s"
 
 // ChunkSize is the size of a streaming chunk in bytes.
 const ChunkSize = 1250

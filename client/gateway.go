@@ -174,18 +174,18 @@ func (c *Comms) SendPoll(host *connect.Host,
 	// Get the total number of chunks from the header
 	md, err := stream.Header()
 	if err != nil {
-		return nil, errors.Errorf("Could not receive streaming header: %v", err)
+		return nil, errors.Errorf("Could not receive streaming header from %s: %v", host.GetId(), err)
 	}
 
 	// Check if metadata contains any headers
 	if md.Len() == 0 {
-		return nil, errors.New(pb.NoStreamingHeaderErr)
+		return nil, errors.Errorf(pb.NoStreamingHeaderErr, host.GetId())
 	}
 
 	// Check if metadata has the expected header
 	chunkHeader := md.Get(pb.ChunkHeader)
 	if len(chunkHeader) == 0 {
-		return nil, errors.New(pb.NoStreamingHeaderErr)
+		return nil, errors.Errorf(pb.NoStreamingHeaderErr, host.GetId())
 	}
 
 	// Process header
