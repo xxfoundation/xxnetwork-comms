@@ -331,6 +331,7 @@ func (h *Host) disconnect() {
 	// connection. In that case, we should not close a connection which does not
 	// exist
 	if h.connection != nil {
+		jww.INFO.Printf("Disconnected from %s at %s", h.GetId(), h.GetAddress())
 		err := h.connection.Close()
 		if err != nil {
 			jww.ERROR.Printf("Unable to close connection to %s: %+v",
