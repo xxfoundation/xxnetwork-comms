@@ -174,24 +174,30 @@ func (c *Comms) SendPoll(host *connect.Host,
 	// Get the total number of chunks from the header
 	md, err := stream.Header()
 	if err != nil {
-		return nil, errors.Errorf("Could not receive streaming header from %s: %v", host.GetId(), err)
+		closeErr := stream.RecvMsg(nil)
+		return nil, wrapError(closeErr, "Could not " +
+			"receive streaming header from %s: %s", host.GetId(),
+			err.Error())
 	}
 
 	// Check if metadata contains any headers
 	if md.Len() == 0 {
-		return nil, errors.Errorf(pb.NoStreamingHeaderErr, host.GetId())
+		closeErr := stream.RecvMsg(nil)
+		return nil,wrapError(closeErr, pb.NoStreamingHeaderErr, host.GetId())
 	}
 
 	// Check if metadata has the expected header
 	chunkHeader := md.Get(pb.ChunkHeader)
 	if len(chunkHeader) == 0 {
-		return nil, errors.Errorf(pb.NoStreamingHeaderErr, host.GetId())
+		closeErr := stream.CloseSend()
+		return nil, wrapError(closeErr,pb.NoStreamingHeaderErr, host.GetId())
 	}
 
 	// Process header
 	totalChunks, err := strconv.Atoi(chunkHeader[0])
 	if err != nil {
-		return nil, errors.Errorf("Invalid header received: %v", err)
+		closeErr := stream.RecvMsg(nil)
+		return nil, wrapError(closeErr,"Invalid header received: %v", err)
 	}
 
 	// Receive the chunks
@@ -202,8 +208,23 @@ func (c *Comms) SendPoll(host *connect.Host,
 		chunks = append(chunks, chunk)
 		receivedChunks++
 	}
+
+	closeErr := stream.RecvMsg(nil)
+
 	if err != io.EOF { // EOF is an expected error after server-side has completed streaming
-		return nil, errors.Errorf("Failed to complete streaming, received %d of %d messages: %v", receivedChunks, totalChunks, err)
+		if closeErr!=nil{
+			return nil, errors.WithMessagef(closeErr, "Failed to " +
+				"complete streaming, received %d of %d messages: %s",
+				receivedChunks, totalChunks, err)
+		}
+		return nil, errors.Errorf("Failed to " +
+			"complete streaming, received %d of %d messages: %s",
+			receivedChunks, totalChunks, err)
+	}
+
+	if closeErr!=nil && closeErr != io.EOF{
+		return nil, errors.WithMessagef(closeErr, "Received error on " +
+			"closing stream with %s", host.GetId())
 	}
 
 	// Assemble the result
@@ -267,4 +288,11 @@ func (c *Comms) RequestMessages(host *connect.Host,
 	// Marshall the result
 	result := &pb.GetMessagesResponse{}
 	return result, ptypes.UnmarshalAny(resultMsg, result)
+}
+
+func wrapError(err error, s string, i ...interface{})error{
+	if err==nil{
+		return errors.Errorf(s, i...)
+	}
+	return errors.Wrapf(err,s, i...)
 }
