@@ -150,12 +150,8 @@ func (c *Comms) SendPoll(host *connect.Host,
 	ctx, cancel := connect.StreamingContext()
 	defer cancel()
 
-	var localConn  *grpc.ClientConn
-
 	// Create the Stream Function
 	f := func(conn *grpc.ClientConn) (interface{}, error) {
-
-		localConn = conn
 
 		// Send the message
 		clientStream, err := pb.NewGatewayClient(conn).Poll(ctx, message)
