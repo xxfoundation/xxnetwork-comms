@@ -186,7 +186,7 @@ func (c *Comms) SendPoll(host *connect.Host,
 
 	// Check if metadata contains any headers
 	if md.Len() == 0 {
-		closeErr := stream.CloseSend()
+		closeErr := stream.RecvMsg(nil)
 		return nil,wrapError(closeErr, pb.NoStreamingHeaderErr, host.GetId())
 	}
 
