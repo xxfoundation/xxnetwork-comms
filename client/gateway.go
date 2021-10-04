@@ -200,7 +200,7 @@ func (c *Comms) SendPoll(host *connect.Host,
 	// Process header
 	totalChunks, err := strconv.Atoi(chunkHeader[0])
 	if err != nil {
-		closeErr := stream.CloseSend()
+		closeErr := stream.RecvMsg(nil)
 		return nil, wrapError(closeErr,"Invalid header received: %v", err)
 	}
 
@@ -298,5 +298,5 @@ func wrapError(err error, s string, i ...interface{})error{
 	if err==nil{
 		return errors.Errorf(s, i...)
 	}
-	return errors.WithMessagef(err,s, i...)
+	return errors.Wrapf(err,s, i...)
 }
