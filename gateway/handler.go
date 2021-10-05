@@ -35,17 +35,6 @@ type Handler interface {
 	RequestMessages(msg *pb.GetMessages) (*pb.GetMessagesResponse, error)
 
 	RequestClientKey(message *pb.SignedClientKeyRequest) (*pb.SignedKeyResponse, error)
-
-	// ---------------------- Start of deprecated fields ----------- //
-	// Pass-through for Registration Nonce Communication
-	// TODO: Remove comm once RequestClientKey is properly tested
-	RequestNonce(message *pb.NonceRequest) (*pb.Nonce, error)
-	// Pass-through for Registration Nonce Confirmation
-	// TODO: Remove comm once RequestClientKey is properly tested
-	ConfirmNonce(message *pb.RequestRegistrationConfirmation) (*pb.
-		RegistrationConfirmation, error)
-	// ---------------------- End of deprecated fields ----------- //
-
 }
 
 // Gateway object used to implement endpoints and top-level comms functionality
@@ -107,16 +96,6 @@ type implementationFunctions struct {
 
 	// Pass-through for RequestClientKey Communication
 	RequestClientKey func(message *pb.SignedClientKeyRequest) (*pb.SignedKeyResponse, error)
-
-	// ---------------------- Start of deprecated fields ----------- //
-	// TODO: Remove comm once RequestClientKey is properly tested
-	RequestNonce func(message *pb.NonceRequest) (*pb.Nonce, error)
-	// Pass-through for Registration Nonce Confirmation
-	// TODO: Remove comm once RequestClientKey is properly tested
-	ConfirmNonce func(message *pb.RequestRegistrationConfirmation) (*pb.
-			RegistrationConfirmation, error)
-	// ---------------------- End of deprecated fields ----------- //
-
 }
 
 // Implementation allows users of the client library to set the
@@ -160,43 +139,11 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return new(pb.SignedKeyResponse), nil
 			},
-
-			// ---------------------- Start of deprecated fields ----------- //
-			// TODO: Remove comm once RequestClientKey is properly tested
-			RequestNonce: func(message *pb.NonceRequest) (*pb.Nonce, error) {
-				warn(um)
-				return new(pb.Nonce), nil
-			},
-			// TODO: Remove comm once RequestClientKey is properly tested
-			ConfirmNonce: func(message *pb.RequestRegistrationConfirmation) (*pb.RegistrationConfirmation, error) {
-				warn(um)
-				return new(pb.RegistrationConfirmation), nil
-			},
-			// ---------------------- End of deprecated fields ----------- //
-
 		},
 	}
 }
 
-// ---------------------- Start of deprecated fields ----------- //
-
-// Pass-through for Registration Nonce Communication
-// TODO: Remove comm once RequestClientKey is properly tested
-func (s *Implementation) RequestNonce(message *pb.NonceRequest) (
-	*pb.Nonce, error) {
-	return s.Functions.RequestNonce(message)
-}
-
-// Pass-through for Registration Nonce Confirmation
-// TODO: Remove comm once RequestClientKey is properly tested
-func (s *Implementation) ConfirmNonce(message *pb.RequestRegistrationConfirmation) (*pb.RegistrationConfirmation, error) {
-	return s.Functions.ConfirmNonce(message)
-}
-
-// ---------------------- End of deprecated fields ----------- //
-
 // Pass-through for RequestClientKey Communication
-// TODO: Remove comm once RequestClientKey is properly tested
 func (s *Implementation) RequestClientKey(message *pb.SignedClientKeyRequest) (
 	*pb.SignedKeyResponse, error) {
 	return s.Functions.RequestClientKey(message)

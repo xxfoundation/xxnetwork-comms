@@ -63,30 +63,6 @@ func TestSendRequestNonceMessage(t *testing.T) {
 	}
 }
 
-// Smoke test SendConfirmNonceMessage
-func TestSendConfirmNonceMessage(t *testing.T) {
-	gatewayAddress := getNextAddress()
-	testID := id.NewIdFromString("test", id.Gateway, t)
-	gw := gateway.StartGateway(testID, gatewayAddress,
-		gateway.NewImplementation(), nil, nil, gossip.DefaultManagerFlags())
-	defer gw.Shutdown()
-	var c Comms
-	manager := connect.NewManagerTesting(t)
-
-	params := connect.GetDefaultHostParams()
-	params.AuthEnabled = false
-	host, err := manager.AddHost(testID, gatewayAddress, nil, params)
-	if err != nil {
-		t.Errorf("Unable to call NewHost: %+v", err)
-	}
-
-	_, err = c.SendConfirmNonceMessage(host,
-		&pb.RequestRegistrationConfirmation{})
-	if err != nil {
-		t.Errorf("SendConfirmNonceMessage: Error received: %+v", err)
-	}
-}
-
 // Smoke test SendPoll
 func TestComms_SendPoll(t *testing.T) {
 	gatewayAddress := getNextAddress()
@@ -180,14 +156,6 @@ func (m mockGatewayImpl) PutMessage(message *pb.GatewaySlot) (*pb.GatewaySlotRes
 }
 
 func (m mockGatewayImpl) PutManyMessages(msgs *pb.GatewaySlots) (*pb.GatewaySlotResponse, error) {
-	return nil, nil
-}
-
-func (m mockGatewayImpl) RequestNonce(message *pb.NonceRequest) (*pb.Nonce, error) {
-	return nil, nil
-}
-
-func (m mockGatewayImpl) ConfirmNonce(message *pb.RequestRegistrationConfirmation) (*pb.RegistrationConfirmation, error) {
 	return nil, nil
 }
 

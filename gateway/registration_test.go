@@ -48,34 +48,6 @@ func TestSendRequestNonceMessage(t *testing.T) {
 	}
 }
 
-// Smoke test SendConfirmNonceMessage
-func TestSendConfirmNonceMessage(t *testing.T) {
-	GatewayAddress := getNextGatewayAddress()
-	ServerAddress := getNextServerAddress()
-	testID := id.NewIdFromString("test", id.Generic, t)
-	gateway := StartGateway(testID, GatewayAddress, NewImplementation(), nil,
-		nil, gossip.DefaultManagerFlags())
-	server := node.StartNode(testID, ServerAddress, 0, node.NewImplementation(),
-		nil, nil)
-	defer gateway.Shutdown()
-	defer server.Shutdown()
-	manager := connect.NewManagerTesting(t)
-
-	params := connect.GetDefaultHostParams()
-	params.AuthEnabled = false
-	host, err := manager.AddHost(testID, ServerAddress, nil, params)
-	if err != nil {
-		t.Errorf("Unable to call NewHost: %+v", err)
-	}
-
-	reg := &pb.RequestRegistrationConfirmation{UserID: testID.Bytes()}
-	reg.NonceSignedByClient = &messages.RSASignature{}
-	_, err = gateway.SendConfirmNonceMessage(host, reg)
-	if err != nil {
-		t.Errorf("SendConfirmNonceMessage: Error received: %s", err)
-	}
-}
-
 func TestPoll(t *testing.T) {
 	GatewayAddress := getNextGatewayAddress()
 	ServerAddress := getNextServerAddress()

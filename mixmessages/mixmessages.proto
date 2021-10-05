@@ -15,18 +15,6 @@ import "google/protobuf/any.proto";
 // SERVER MESSAGE SERVICE ------------------------------------------------------
 
 service Node {
-    // ---------------------- Start of deprecated RPCs ----------- //
-
-    // RequestNonce generates a nonce for user registration
-    // TODO: This will be deprecated. Remove comm once RequestClientKey is properly tested.
-    rpc RequestNonce (messages.AuthenticatedMessage) returns (Nonce) {
-    }
-
-    // ConfirmNonce uses a nonce confirmation to finalize user registration
-    // TODO: This will be deprecated. Remove comm once RequestClientKey is properly tested.
-    rpc ConfirmNonce (messages.AuthenticatedMessage) returns (RegistrationConfirmation) {
-    }
-    // ---------------------- End of deprecated RPCs ----------- //
 
     // Handles AskOnline
     rpc AskOnline (messages.Ping) returns (messages.Ack) {
@@ -111,47 +99,6 @@ service Node {
     }
 
 }
-// ---------------------- Start of deprecated fields ----------- //
-
-
-// NonceRequest message to request nonce from client to server
-// TODO: Remove comm once RequestClientKey is properly tested
-message NonceRequest {
-    bytes Salt = 1;
-    string ClientRSAPubKey = 2;
-    messages.RSASignature ClientSignedByServer = 3;
-    int64 TimeStamp = 4;
-    bytes ClientDHPubKey = 5;
-    messages.RSASignature RequestSignature = 6;
-    bytes Target = 7;
-}
-
-// Nonce message to reply to client from server (going through gateway)
-// TODO: This will be deprecated. Remove this once RequestClientKey is properly tested.
-message Nonce {
-    bytes Nonce = 1;
-    bytes DHPubKey = 2;
-    string Error = 3;
-}
-
-// RequestRegistrationConfirmation returning proof of registration
-// TODO: This will be deprecated. Remove this once RequestClientKey is properly tested.
-message RequestRegistrationConfirmation {
-    bytes userID = 1;
-    messages.RSASignature NonceSignedByClient = 2;
-    string Error = 3;
-    bytes Target = 4;
-}
-
-// RegistrationConfirmation returning proof of registration
-// TODO: This will be deprecated. Remove this once RequestClientKey is properly tested.
-message RegistrationConfirmation {
-    messages.RSASignature ClientSignedByServer = 1;
-    bytes ClientGatewayKey = 2;
-    string Error = 3;
-}
-
-// ---------------------- End of deprecated fields ----------- //
 
 message ClientKeyRequest {
     // Salt used to generate the Client ID
@@ -279,20 +226,6 @@ message SharePiece {
 // GATEWAY MESSAGE SERVICE -----------------------------------------------------
 
 service Gateway {
-    // ---------------------- Start of deprecated RPCs ----------- //
-
-    // RequestNonce returns a Nonce to the user
-    // TODO: This will be deprecated. Remove comm once RequestClientKey is properly tested.
-    rpc RequestNonce (NonceRequest) returns (Nonce) {
-    }
-
-    // ConfirmNonce takes a client signed nonce for Registration Nonce Confirmation
-    // TODO: This will be deprecated. Remove comm once RequestClientKey is properly tested.
-    rpc ConfirmNonce (RequestRegistrationConfirmation) returns (RegistrationConfirmation) {
-    }
-
-    // ---------------------- End of deprecated RPCs ----------- //
-
 
     // RequestClientKey returns a Nonce to the user
     rpc RequestClientKey (SignedClientKeyRequest) returns (SignedKeyResponse) {

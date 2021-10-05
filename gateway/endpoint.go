@@ -18,25 +18,6 @@ import (
 	"strconv"
 )
 
-// ---------------------- Start of deprecated fields ----------- //
-// TODO: Remove comm once RequestClientKey is properly tested
-// Pass-through for Registration Nonce Communication
-func (g *Comms) RequestNonce(ctx context.Context,
-	msg *pb.NonceRequest) (*pb.Nonce, error) {
-
-	return g.handler.RequestNonce(msg)
-}
-
-// Pass-through for Registration Nonce Confirmation
-// TODO: Remove comm once RequestClientKey is properly tested
-func (g *Comms) ConfirmNonce(ctx context.Context,
-	msg *pb.RequestRegistrationConfirmation) (*pb.RegistrationConfirmation, error) {
-
-	return g.handler.ConfirmNonce(msg)
-}
-
-// ---------------------- End of deprecated fields ----------- //
-
 // Pass-through for Registration Nonce Communication
 func (g *Comms) RequestClientKey(ctx context.Context,
 	msg *pb.SignedClientKeyRequest) (*pb.SignedKeyResponse, error) {

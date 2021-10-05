@@ -126,33 +126,9 @@ type Handler interface {
 
 	// Server interface for RequestNonceMessage
 	RequestClientKey(nonceRequest *mixmessages.SignedClientKeyRequest, auth *connect.Auth) (*mixmessages.SignedKeyResponse, error)
-
-	// ---------------------- Start of deprecated fields ----------- //
-
-	// Server interface for RequestNonceMessage
-	// TODO: Remove comm once RequestClientKey is properly tested
-	RequestNonce(nonceRequest *mixmessages.NonceRequest, auth *connect.Auth) (*mixmessages.Nonce, error)
-
-	// Server interface for ConfirmNonceMessage
-	// TODO: Remove comm once RequestClientKey is properly tested
-	ConfirmNonce(requestConfirmation *mixmessages.RequestRegistrationConfirmation,
-		auth *connect.Auth) (*mixmessages.RegistrationConfirmation, error)
-	// ---------------------- End of deprecated fields ----------- //
-
 }
 
 type implementationFunctions struct {
-	// ---------------------- Start of deprecated fields ----------- //
-
-	// Server interface for RequestNonceMessage
-	// TODO: This will be deprecated. Remove comm once RequestClientKey is properly tested.
-	RequestNonce func(nonceRequest *mixmessages.NonceRequest, auth *connect.Auth) (*mixmessages.Nonce, error)
-
-	// Server interface for ConfirmNonceMessage
-	// TODO: This will be deprecated. Remove comm once RequestClientKey is properly tested.
-	ConfirmNonce func(requestConfirmation *mixmessages.RequestRegistrationConfirmation,
-		auth *connect.Auth) (*mixmessages.RegistrationConfirmation, error)
-	// ---------------------- End of deprecated fields ----------- //
 
 	// Server interface for RequestNonceMessage
 	RequestClientKey func(request *mixmessages.SignedClientKeyRequest, auth *connect.Auth) (*mixmessages.SignedKeyResponse, error)
@@ -231,25 +207,6 @@ func NewImplementation() *Implementation {
 	}
 	return &Implementation{
 		Functions: implementationFunctions{
-			// ---------------------- Start of deprecated fields ----------- //
-
-			// Server interface for RequestNonceMessage
-			// TODO: Remove comm once RequestClientKey is properly tested
-			RequestNonce: func(nonceRequest *mixmessages.NonceRequest, auth *connect.Auth) (*mixmessages.Nonce, error) {
-				warn(um)
-				return &mixmessages.Nonce{}, nil
-			},
-
-			// Server interface for ConfirmNonceMessage
-			// TODO: Remove comm once RequestClientKey is properly tested
-			ConfirmNonce: func(requestConfirmation *mixmessages.RequestRegistrationConfirmation,
-				auth *connect.Auth) (*mixmessages.RegistrationConfirmation, error) {
-				warn(um)
-				return &mixmessages.RegistrationConfirmation{}, nil
-			},
-
-			// ---------------------- End of deprecated fields ----------- //
-
 			RequestClientKey: func(request *mixmessages.SignedClientKeyRequest, auth *connect.Auth) (*mixmessages.SignedKeyResponse, error) {
 				warn(um)
 				return &mixmessages.SignedKeyResponse{}, nil
@@ -338,21 +295,6 @@ func NewImplementation() *Implementation {
 		},
 	}
 }
-
-// ---------------------- Start of deprecated fields ----------- //
-
-// Server interface for RequestNonceMessage
-func (s *Implementation) RequestNonce(nonceRequest *mixmessages.NonceRequest, auth *connect.Auth) (*mixmessages.Nonce, error) {
-	return s.Functions.RequestNonce(nonceRequest, auth)
-}
-
-// Server interface for ConfirmNonceMessage
-func (s *Implementation) ConfirmNonce(requestConfirmation *mixmessages.RequestRegistrationConfirmation,
-	auth *connect.Auth) (*mixmessages.RegistrationConfirmation, error) {
-	return s.Functions.ConfirmNonce(requestConfirmation, auth)
-}
-
-// ---------------------- End of deprecated fields ----------- //
 
 // Server interface for RequestNonceMessage
 func (s *Implementation) RequestClientKey(nonceRequest *mixmessages.SignedClientKeyRequest, auth *connect.Auth) (*mixmessages.SignedKeyResponse, error) {
