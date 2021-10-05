@@ -70,8 +70,6 @@ type Host struct {
 	// lock which ensures only a single thread is connecting at a time and
 	// that connections do not interrupt sends
 	connectionMux sync.RWMutex
-	// lock which ensures transmissions are not interrupted by disconnections
-	transmitMux sync.RWMutex
 
 	coolOffBucket *rateLimiting.Bucket
 	inCoolOff     bool
@@ -164,6 +162,13 @@ func (h *Host) Connected() (bool, uint64) {
 	h.connectionMux.RLock()
 	defer h.connectionMux.RUnlock()
 
+	return h.connectedUnsafe()
+}
+
+// connectedUnsafe checks if the given Host's connection is alive without taking
+// a connection lock. Only use if already under a connection lock. The the uint is
+//the connection count, it increments every time a reconnect occurs
+func (h *Host) connectedUnsafe() (bool, uint64) {
 	return h.isAlive() && !h.authenticationRequired(), h.connectionCount
 }
 
@@ -228,19 +233,17 @@ func (h *Host) SetMetricsTesting(m *Metric, face interface{}) {
 }
 
 // Disconnect closes a the Host connection under the write lock
+// Due to asynchorous connection handling, this may result in
+// killing a good connection and could result in an immediate
+// reconnection by a seperate thread
 func (h *Host) Disconnect() {
-	h.transmitMux.Lock()
-	defer h.transmitMux.Unlock()
-
-	h.disconnect()
+	h.connectionMux.Lock()
+	defer h.connectionMux.Unlock()
 }
 
 // ConditionalDisconnect closes a the Host connection under the write lock only
 // if the connection count has not increased
 func (h *Host) conditionalDisconnect(count uint64) {
-	h.connectionMux.Lock()
-	defer h.connectionMux.Unlock()
-
 	if count == h.connectionCount {
 		h.disconnect()
 	}
@@ -269,12 +272,9 @@ func (h *Host) IsOnline() bool {
 }
 
 // send checks that the host has a connection and sends if it does.
-// Operates under the host's read lock.
+// must be called under host's connection read lock.
 func (h *Host) transmit(f func(conn *grpc.ClientConn) (interface{},
 	error)) (interface{}, error) {
-
-	h.connectionMux.RLock()
-	defer h.connectionMux.RUnlock()
 
 	// Check if connection is down
 	if h.connection == nil {
@@ -315,6 +315,7 @@ func (h *Host) authenticationRequired() bool {
 }
 
 // isAlive returns true if the connection is non-nil and alive
+// must already be under the connectionMux
 func (h *Host) isAlive() bool {
 	if h.connection == nil {
 		return false
