@@ -223,7 +223,7 @@ func (h *Host) IsOnline() bool {
 	timeout := 5 * time.Second
 	conn, err := net.DialTimeout("tcp", addr, timeout)
 	if err != nil {
-		// If we cannot connect, mark the node as failed
+		// If we cannot connect, mark the connection as failed
 		jww.DEBUG.Printf("Failed to verify connectivity for address %s", addr)
 		return false
 	}
@@ -236,6 +236,29 @@ func (h *Host) IsOnline() bool {
 		}
 	}
 	return true
+}
+
+// Returns whether or not the Host is able to be contacted
+// within the given timeout by attempting to dial a tcp connection
+// and returns how long it took
+func (h *Host) IsOnlineVerbose(timeout time.Duration) (time.Duration, bool) {
+	addr := h.GetAddress()
+	start := time.Now()
+	conn, err := net.DialTimeout("tcp", addr, timeout)
+	if err != nil {
+		// If we cannot connect, mark the connection as failed
+		jww.DEBUG.Printf("Failed to verify connectivity for address %s", addr)
+		return 0, false
+	}
+	// Attempt to close the connection
+	if conn != nil {
+		errClose := conn.Close()
+		if errClose != nil {
+			jww.DEBUG.Printf("Failed to close connection for address %s",
+				addr)
+		}
+	}
+	return time.Since(start), true
 }
 
 // send checks that the host has a connection and sends if it does.
