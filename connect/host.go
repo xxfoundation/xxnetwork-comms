@@ -239,6 +239,7 @@ func (h *Host) SetMetricsTesting(m *Metric, face interface{}) {
 func (h *Host) Disconnect() {
 	h.connectionMux.Lock()
 	defer h.connectionMux.Unlock()
+	h.disconnect()
 }
 
 // ConditionalDisconnect closes a the Host connection under the write lock only
