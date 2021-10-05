@@ -36,7 +36,7 @@ func (c *ProtoComms) transmit(host *Host, f func(conn *grpc.ClientConn) (interfa
 		err = nil
 		//reconnect if necessary
 		host.connectionMux.RLock()
-		connected, connectionCount := host.Connected()
+		connected, connectionCount := host.connectedUnsafe()
 		if !connected {
 			host.connectionMux.RUnlock()
 			host.connectionMux.Lock()
