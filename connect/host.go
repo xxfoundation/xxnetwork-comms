@@ -217,34 +217,12 @@ func (h *Host) conditionalDisconnect(count uint64) {
 }
 
 // Returns whether or not the Host is able to be contacted
-// by attempting to dial a tcp connection
-func (h *Host) IsOnline() bool {
-	addr := h.GetAddress()
-	timeout := 5 * time.Second
-	conn, err := net.DialTimeout("tcp", addr, timeout)
-	if err != nil {
-		// If we cannot connect, mark the connection as failed
-		jww.DEBUG.Printf("Failed to verify connectivity for address %s", addr)
-		return false
-	}
-	// Attempt to close the connection
-	if conn != nil {
-		errClose := conn.Close()
-		if errClose != nil {
-			jww.DEBUG.Printf("Failed to close connection for address %s",
-				addr)
-		}
-	}
-	return true
-}
-
-// Returns whether or not the Host is able to be contacted
-// within the given timeout by attempting to dial a tcp connection
-// and returns how long it took
-func (h *Host) IsOnlineVerbose(timeout time.Duration) (time.Duration, bool) {
+// before the timeout by attempting to dial a tcp connection
+// Returns how long the ping took, and whether it was successful
+func (h *Host) IsOnline() (time.Duration, bool) {
 	addr := h.GetAddress()
 	start := time.Now()
-	conn, err := net.DialTimeout("tcp", addr, timeout)
+	conn, err := net.DialTimeout("tcp", addr, h.params.PingTimeout)
 	if err != nil {
 		// If we cannot connect, mark the connection as failed
 		jww.DEBUG.Printf("Failed to verify connectivity for address %s", addr)
@@ -254,8 +232,7 @@ func (h *Host) IsOnlineVerbose(timeout time.Duration) (time.Duration, bool) {
 	if conn != nil {
 		errClose := conn.Close()
 		if errClose != nil {
-			jww.DEBUG.Printf("Failed to close connection for address %s",
-				addr)
+			jww.DEBUG.Printf("Failed to close connection for address %s", addr)
 		}
 	}
 	return time.Since(start), true
