@@ -134,7 +134,7 @@ message ClientKeyResponse {
 
 message SignedKeyResponse {
     bytes KeyResponse = 1;
-    messages.RSASignature KeyResponseSignedByNode = 2;
+    messages.RSASignature KeyResponseSignedByGateway = 2;
     bytes ClientGatewayKey = 3; // Stripped off by node gateway
     string Error = 4;
 }
