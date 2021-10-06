@@ -139,7 +139,13 @@ func (h *Host) Connected() (bool, uint64) {
 
 // GetMessagingContext returns a context object for message sending configured according to HostParams
 func (h *Host) GetMessagingContext() (context.Context, context.CancelFunc) {
-	return newContext(h.params.SendTimeout)
+	return h.GetMessagingContextWithTimeout(h.params.SendTimeout)
+}
+
+// GetMessagingContext returns a context object for message sending configured according to HostParams
+func (h *Host) GetMessagingContextWithTimeout(
+	timeout time.Duration) (context.Context, context.CancelFunc) {
+	return newContext(timeout)
 }
 
 // GetId returns the id of the host
