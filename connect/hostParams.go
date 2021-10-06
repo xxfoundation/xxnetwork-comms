@@ -29,6 +29,9 @@ type HostParams struct {
 	// Message sending timeout
 	SendTimeout time.Duration
 
+	// Online ping timeout
+	PingTimeout time.Duration
+
 	// If set, metric handling will be enabled on this host
 	EnableMetrics bool
 
@@ -49,6 +52,7 @@ func GetDefaultHostParams() HostParams {
 		NumSendsBeforeCoolOff: 3,
 		CoolOffTimeout:        60 * time.Second,
 		SendTimeout:           2 * time.Minute,
+		PingTimeout:           5 * time.Second,
 		EnableMetrics:         false,
 		ExcludeMetricErrors:   make([]string, 0),
 		KaClientOpts: keepalive.ClientParameters{

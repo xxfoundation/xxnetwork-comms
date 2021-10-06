@@ -109,7 +109,8 @@ func TestHost_IsOnline(t *testing.T) {
 	}
 
 	// Test that host is offline
-	if host.IsOnline() {
+	_, isOnline := host.IsOnline()
+	if isOnline {
 		t.Errorf("Expected host to be offline!")
 	}
 
@@ -120,7 +121,8 @@ func TestHost_IsOnline(t *testing.T) {
 	}
 
 	// Test that host is online
-	if !host.IsOnline() {
+	_, isOnline = host.IsOnline()
+	if !isOnline {
 		t.Errorf("Expected host to be online!")
 	}
 
