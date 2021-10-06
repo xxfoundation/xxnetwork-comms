@@ -51,7 +51,7 @@ func TestTLS(t *testing.T) {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
 
-	_, err = c.SendRegistrationMessage(host, &pb.UserRegistration{})
+	_, err = c.SendRegistrationMessage(host, &pb.ClientRegistration{})
 	if err != nil {
 		t.Errorf("RegistrationMessage: Error received: %s", err)
 	}

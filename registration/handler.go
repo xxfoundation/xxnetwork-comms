@@ -62,7 +62,7 @@ func StartRegistrationServer(id *id.ID, localServer string, handler Handler,
 }
 
 type Handler interface {
-	RegisterUser(msg *pb.UserRegistration) (confirmation *pb.UserRegistrationConfirmation, err error)
+	RegisterUser(msg *pb.ClientRegistration) (confirmation *pb.SignedClientRegistrationConfirmations, err error)
 	RegisterNode(salt []byte, serverAddr, serverTlsCert, gatewayAddr,
 		gatewayTlsCert, registrationCode string) error
 	PollNdf(ndfHash []byte) (*pb.NDF, error)
@@ -72,7 +72,7 @@ type Handler interface {
 }
 
 type implementationFunctions struct {
-	RegisterUser func(msg *pb.UserRegistration) (confirmation *pb.UserRegistrationConfirmation, err error)
+	RegisterUser func(msg *pb.ClientRegistration) (confirmation *pb.SignedClientRegistrationConfirmations, err error)
 	RegisterNode func(salt []byte, serverAddr, serverTlsCert, gatewayAddr,
 		gatewayTlsCert, registrationCode string) error
 	PollNdf           func(ndfHash []byte) (*pb.NDF, error)
@@ -97,9 +97,9 @@ func NewImplementation() *Implementation {
 	return &Implementation{
 		Functions: implementationFunctions{
 
-			RegisterUser: func(msg *pb.UserRegistration) (confirmation *pb.UserRegistrationConfirmation, err error) {
+			RegisterUser: func(msg *pb.ClientRegistration) (confirmation *pb.SignedClientRegistrationConfirmations, err error) {
 				warn(um)
-				return &pb.UserRegistrationConfirmation{}, nil
+				return &pb.SignedClientRegistrationConfirmations{}, nil
 			},
 			RegisterNode: func(salt []byte, serverAddr, serverTlsCert, gatewayAddr,
 				gatewayTlsCert, registrationCode string) error {
@@ -125,7 +125,7 @@ func NewImplementation() *Implementation {
 }
 
 // Registers a user and returns a signed public key
-func (s *Implementation) RegisterUser(msg *pb.UserRegistration) (confirmation *pb.UserRegistrationConfirmation, err error) {
+func (s *Implementation) RegisterUser(msg *pb.ClientRegistration) (confirmation *pb.SignedClientRegistrationConfirmations, err error) {
 	return s.Functions.RegisterUser(msg)
 }
 

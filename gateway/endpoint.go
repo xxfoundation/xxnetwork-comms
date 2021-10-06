@@ -18,6 +18,13 @@ import (
 	"strconv"
 )
 
+// Pass-through for Registration Nonce Communication
+func (g *Comms) RequestClientKey(ctx context.Context,
+	msg *pb.SignedClientKeyRequest) (*pb.SignedKeyResponse, error) {
+
+	return g.handler.RequestClientKey(msg)
+}
+
 // Handles validation of reverse-authentication tokens
 func (g *Comms) AuthenticateToken(ctx context.Context,
 	msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
@@ -56,20 +63,6 @@ func (g *Comms) PutManyMessages(ctx context.Context, msgs *pb.GatewaySlots) (*pb
 
 	}
 	return returnMsg, err
-}
-
-// Pass-through for Registration Nonce Communication
-func (g *Comms) RequestNonce(ctx context.Context,
-	msg *pb.NonceRequest) (*pb.Nonce, error) {
-
-	return g.handler.RequestNonce(msg)
-}
-
-// Pass-through for Registration Nonce Confirmation
-func (g *Comms) ConfirmNonce(ctx context.Context,
-	msg *pb.RequestRegistrationConfirmation) (*pb.RegistrationConfirmation, error) {
-
-	return g.handler.ConfirmNonce(msg)
 }
 
 // Client -> Gateway unified polling
