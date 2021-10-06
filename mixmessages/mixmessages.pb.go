@@ -4721,10 +4721,11 @@ var file_mixmessages_proto_rawDesc = []byte{
 	0x1c, 0x0a, 0x09, 0x54, 0x69, 0x6d, 0x65, 0x53, 0x74, 0x61, 0x6d, 0x70, 0x18, 0x04, 0x20, 0x01,
 	0x28, 0x03, 0x52, 0x09, 0x54, 0x69, 0x6d, 0x65, 0x53, 0x74, 0x61, 0x6d, 0x70, 0x12, 0x1c, 0x0a,
 	0x09, 0x73, 0x69, 0x67, 0x6e, 0x61, 0x74, 0x75, 0x72, 0x65, 0x18, 0x05, 0x20, 0x01, 0x28, 0x0c,
-	0x52, 0x09, 0x73, 0x69, 0x67, 0x6e, 0x61, 0x74, 0x75, 0x72, 0x65, 0x32, 0x86, 0x0a, 0x0a, 0x04,
-	0x4e, 0x6f, 0x64, 0x65, 0x12, 0x2c, 0x0a, 0x09, 0x41, 0x73, 0x6b, 0x4f, 0x6e, 0x6c, 0x69, 0x6e,
-	0x65, 0x12, 0x0e, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x50, 0x69, 0x6e,
-	0x67, 0x1a, 0x0d, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x41, 0x63, 0x6b,
+	0x52, 0x09, 0x73, 0x69, 0x67, 0x6e, 0x61, 0x74, 0x75, 0x72, 0x65, 0x32, 0x96, 0x0a, 0x0a, 0x04,
+	0x4e, 0x6f, 0x64, 0x65, 0x12, 0x3c, 0x0a, 0x09, 0x41, 0x73, 0x6b, 0x4f, 0x6e, 0x6c, 0x69, 0x6e,
+	0x65, 0x12, 0x1e, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x41, 0x75, 0x74,
+	0x68, 0x65, 0x6e, 0x74, 0x69, 0x63, 0x61, 0x74, 0x65, 0x64, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67,
+	0x65, 0x1a, 0x0d, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x41, 0x63, 0x6b,
 	0x22, 0x00, 0x12, 0x41, 0x0a, 0x0e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x4e, 0x65, 0x77, 0x52,
 	0x6f, 0x75, 0x6e, 0x64, 0x12, 0x1e, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e,
 	0x41, 0x75, 0x74, 0x68, 0x65, 0x6e, 0x74, 0x69, 0x63, 0x61, 0x74, 0x65, 0x64, 0x4d, 0x65, 0x73,
@@ -4989,8 +4990,8 @@ var file_mixmessages_proto_goTypes = []interface{}{
 	(*messages.RSASignature)(nil),                 // 62: messages.RSASignature
 	(*any.Any)(nil),                               // 63: google.protobuf.Any
 	(*messages.ECCSignature)(nil),                 // 64: messages.ECCSignature
-	(*messages.Ping)(nil),                         // 65: messages.Ping
-	(*messages.AuthenticatedMessage)(nil),         // 66: messages.AuthenticatedMessage
+	(*messages.AuthenticatedMessage)(nil),         // 65: messages.AuthenticatedMessage
+	(*messages.Ping)(nil),                         // 66: messages.Ping
 	(*messages.Ack)(nil),                          // 67: messages.Ack
 }
 var file_mixmessages_proto_depIdxs = []int32{
@@ -5043,25 +5044,25 @@ var file_mixmessages_proto_depIdxs = []int32{
 	62, // 46: mixmessages.RoundInfo.Signature:type_name -> messages.RSASignature
 	64, // 47: mixmessages.RoundInfo.EccSignature:type_name -> messages.ECCSignature
 	62, // 48: mixmessages.RoundError.Signature:type_name -> messages.RSASignature
-	65, // 49: mixmessages.Node.AskOnline:input_type -> messages.Ping
-	66, // 50: mixmessages.Node.CreateNewRound:input_type -> messages.AuthenticatedMessage
+	65, // 49: mixmessages.Node.AskOnline:input_type -> messages.AuthenticatedMessage
+	65, // 50: mixmessages.Node.CreateNewRound:input_type -> messages.AuthenticatedMessage
 	23, // 51: mixmessages.Node.UploadUnmixedBatch:input_type -> mixmessages.Slot
 	23, // 52: mixmessages.Node.FinishRealtime:input_type -> mixmessages.Slot
 	23, // 53: mixmessages.Node.PrecompTestBatch:input_type -> mixmessages.Slot
-	66, // 54: mixmessages.Node.PostPhase:input_type -> messages.AuthenticatedMessage
+	65, // 54: mixmessages.Node.PostPhase:input_type -> messages.AuthenticatedMessage
 	23, // 55: mixmessages.Node.StreamPostPhase:input_type -> mixmessages.Slot
-	66, // 56: mixmessages.Node.GetRoundBufferInfo:input_type -> messages.AuthenticatedMessage
-	66, // 57: mixmessages.Node.RequestClientKey:input_type -> messages.AuthenticatedMessage
-	66, // 58: mixmessages.Node.PostPrecompResult:input_type -> messages.AuthenticatedMessage
-	66, // 59: mixmessages.Node.GetMeasure:input_type -> messages.AuthenticatedMessage
-	66, // 60: mixmessages.Node.Poll:input_type -> messages.AuthenticatedMessage
-	66, // 61: mixmessages.Node.DownloadMixedBatch:input_type -> messages.AuthenticatedMessage
-	66, // 62: mixmessages.Node.SendRoundTripPing:input_type -> messages.AuthenticatedMessage
-	66, // 63: mixmessages.Node.RoundError:input_type -> messages.AuthenticatedMessage
-	65, // 64: mixmessages.Node.GetPermissioningAddress:input_type -> messages.Ping
-	66, // 65: mixmessages.Node.StartSharePhase:input_type -> messages.AuthenticatedMessage
-	66, // 66: mixmessages.Node.SharePhaseRound:input_type -> messages.AuthenticatedMessage
-	66, // 67: mixmessages.Node.ShareFinalKey:input_type -> messages.AuthenticatedMessage
+	65, // 56: mixmessages.Node.GetRoundBufferInfo:input_type -> messages.AuthenticatedMessage
+	65, // 57: mixmessages.Node.RequestClientKey:input_type -> messages.AuthenticatedMessage
+	65, // 58: mixmessages.Node.PostPrecompResult:input_type -> messages.AuthenticatedMessage
+	65, // 59: mixmessages.Node.GetMeasure:input_type -> messages.AuthenticatedMessage
+	65, // 60: mixmessages.Node.Poll:input_type -> messages.AuthenticatedMessage
+	65, // 61: mixmessages.Node.DownloadMixedBatch:input_type -> messages.AuthenticatedMessage
+	65, // 62: mixmessages.Node.SendRoundTripPing:input_type -> messages.AuthenticatedMessage
+	65, // 63: mixmessages.Node.RoundError:input_type -> messages.AuthenticatedMessage
+	66, // 64: mixmessages.Node.GetPermissioningAddress:input_type -> messages.Ping
+	65, // 65: mixmessages.Node.StartSharePhase:input_type -> messages.AuthenticatedMessage
+	65, // 66: mixmessages.Node.SharePhaseRound:input_type -> messages.AuthenticatedMessage
+	65, // 67: mixmessages.Node.ShareFinalKey:input_type -> messages.AuthenticatedMessage
 	1,  // 68: mixmessages.Gateway.RequestClientKey:input_type -> mixmessages.SignedClientKeyRequest
 	29, // 69: mixmessages.Gateway.PutMessage:input_type -> mixmessages.GatewaySlot
 	28, // 70: mixmessages.Gateway.PutManyMessages:input_type -> mixmessages.GatewaySlots
@@ -5071,11 +5072,11 @@ var file_mixmessages_proto_depIdxs = []int32{
 	38, // 74: mixmessages.ClientRegistrar.RegisterUser:input_type -> mixmessages.ClientRegistration
 	37, // 75: mixmessages.Registration.RegisterNode:input_type -> mixmessages.NodeRegistration
 	35, // 76: mixmessages.Registration.PollNdf:input_type -> mixmessages.NDFHash
-	66, // 77: mixmessages.Registration.Poll:input_type -> messages.AuthenticatedMessage
+	65, // 77: mixmessages.Registration.Poll:input_type -> messages.AuthenticatedMessage
 	34, // 78: mixmessages.Registration.CheckRegistration:input_type -> mixmessages.RegisteredNodeCheck
 	47, // 79: mixmessages.NotificationBot.UnregisterForNotifications:input_type -> mixmessages.NotificationUnregisterRequest
 	46, // 80: mixmessages.NotificationBot.RegisterForNotifications:input_type -> mixmessages.NotificationRegisterRequest
-	66, // 81: mixmessages.NotificationBot.ReceiveNotificationBatch:input_type -> messages.AuthenticatedMessage
+	65, // 81: mixmessages.NotificationBot.ReceiveNotificationBatch:input_type -> messages.AuthenticatedMessage
 	51, // 82: mixmessages.UDB.RegisterUser:input_type -> mixmessages.UDBUserRegistration
 	57, // 83: mixmessages.UDB.RemoveUser:input_type -> mixmessages.FactRemovalRequest
 	53, // 84: mixmessages.UDB.RegisterFact:input_type -> mixmessages.FactRegisterRequest
@@ -5912,7 +5913,7 @@ const _ = grpc.SupportPackageIsVersion6
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type NodeClient interface {
 	// Handles AskOnline
-	AskOnline(ctx context.Context, in *messages.Ping, opts ...grpc.CallOption) (*messages.Ack, error)
+	AskOnline(ctx context.Context, in *messages.AuthenticatedMessage, opts ...grpc.CallOption) (*messages.Ack, error)
 	// CreatesNewRound makes a new round with a certain ID
 	CreateNewRound(ctx context.Context, in *messages.AuthenticatedMessage, opts ...grpc.CallOption) (*messages.Ack, error)
 	// UploadUnmixedBatch sends a batch to be processed in the server's realtime
@@ -5964,7 +5965,7 @@ func NewNodeClient(cc grpc.ClientConnInterface) NodeClient {
 	return &nodeClient{cc}
 }
 
-func (c *nodeClient) AskOnline(ctx context.Context, in *messages.Ping, opts ...grpc.CallOption) (*messages.Ack, error) {
+func (c *nodeClient) AskOnline(ctx context.Context, in *messages.AuthenticatedMessage, opts ...grpc.CallOption) (*messages.Ack, error) {
 	out := new(messages.Ack)
 	err := c.cc.Invoke(ctx, "/mixmessages.Node/AskOnline", in, out, opts...)
 	if err != nil {
@@ -6261,7 +6262,7 @@ func (c *nodeClient) ShareFinalKey(ctx context.Context, in *messages.Authenticat
 // NodeServer is the server API for Node service.
 type NodeServer interface {
 	// Handles AskOnline
-	AskOnline(context.Context, *messages.Ping) (*messages.Ack, error)
+	AskOnline(context.Context, *messages.AuthenticatedMessage) (*messages.Ack, error)
 	// CreatesNewRound makes a new round with a certain ID
 	CreateNewRound(context.Context, *messages.AuthenticatedMessage) (*messages.Ack, error)
 	// UploadUnmixedBatch sends a batch to be processed in the server's realtime
@@ -6309,7 +6310,7 @@ type NodeServer interface {
 type UnimplementedNodeServer struct {
 }
 
-func (*UnimplementedNodeServer) AskOnline(context.Context, *messages.Ping) (*messages.Ack, error) {
+func (*UnimplementedNodeServer) AskOnline(context.Context, *messages.AuthenticatedMessage) (*messages.Ack, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AskOnline not implemented")
 }
 func (*UnimplementedNodeServer) CreateNewRound(context.Context, *messages.AuthenticatedMessage) (*messages.Ack, error) {
@@ -6372,7 +6373,7 @@ func RegisterNodeServer(s *grpc.Server, srv NodeServer) {
 }
 
 func _Node_AskOnline_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(messages.Ping)
+	in := new(messages.AuthenticatedMessage)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -6384,7 +6385,7 @@ func _Node_AskOnline_Handler(srv interface{}, ctx context.Context, dec func(inte
 		FullMethod: "/mixmessages.Node/AskOnline",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NodeServer).AskOnline(ctx, req.(*messages.Ping))
+		return srv.(NodeServer).AskOnline(ctx, req.(*messages.AuthenticatedMessage))
 	}
 	return interceptor(ctx, in, info, handler)
 }

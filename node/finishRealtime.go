@@ -21,6 +21,7 @@ import (
 	"gitlab.com/xx_network/comms/messages"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
+	"io"
 )
 
 /* ------------------- Broadcast functions ------------------- */
@@ -42,8 +43,18 @@ func (s *Comms) SendFinishRealtime(host *connect.Host,
 	// Stream each slot
 	for i, slot := range batch.Slots {
 		if err = streamingClient.Send(slot); err != nil {
-			return nil, errors.Errorf("Could not stream slot (%d/%d) "+
-				"for round %d: %v", i, len(batch.Slots), roundInfo.ID, err)
+			if err == io.EOF {
+				// Attempt to read an error
+				eofAck, eofErr := streamingClient.CloseAndRecv()
+				if eofErr != nil {
+					err = errors.Wrap(err, eofErr.Error())
+				} else {
+					err = errors.Wrap(err, eofAck.Error)
+				}
+			}
+			return nil, errors.Errorf("Could not stream slot (%d/%d) to %s"+
+				"for round %d to %s: %v", i, len(batch.Slots), host.GetId(),
+				roundInfo.ID, host.GetId(), err)
 		}
 	}
 

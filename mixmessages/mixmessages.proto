@@ -17,7 +17,7 @@ import "google/protobuf/any.proto";
 service Node {
 
     // Handles AskOnline
-    rpc AskOnline (messages.Ping) returns (messages.Ack) {
+    rpc AskOnline (messages.AuthenticatedMessage) returns (messages.Ack) {
     }
 
     // CreatesNewRound makes a new round with a certain ID

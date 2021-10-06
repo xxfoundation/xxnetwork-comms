@@ -96,8 +96,13 @@ func (s *Comms) SendAskOnline(host *connect.Host) (*messages.Ack, error) {
 		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 
+		authMsg, err := s.PackAuthenticatedMessage(&messages.Ping{}, host, false)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+
 		// Send the message
-		resultMsg, err := pb.NewNodeClient(conn).AskOnline(ctx, &messages.Ping{})
+		resultMsg, err := pb.NewNodeClient(conn).AskOnline(ctx, authMsg)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}

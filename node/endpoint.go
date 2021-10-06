@@ -19,7 +19,18 @@ import (
 )
 
 // Handle a Broadcasted Ask Online event
-func (s *Comms) AskOnline(ctx context.Context, ping *messages.Ping) (*messages.Ack, error) {
+func (s *Comms) AskOnline(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
+	// Verify the message authentication
+	auth, err := s.AuthenticatedReceiver(msg, ctx)
+	if err != nil {
+		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
+	}
+
+	//return an error if the connection is not authenticated
+	if !auth.IsAuthenticated{
+		return &messages.Ack{}, connect.AuthError(auth.Sender.GetId())
+	}
+
 	return &messages.Ack{}, s.handler.AskOnline()
 }
 

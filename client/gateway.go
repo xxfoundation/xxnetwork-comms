@@ -19,7 +19,71 @@ import (
 	"google.golang.org/grpc"
 	"io"
 	"strconv"
+	"time"
 )
+
+// Client -> Gateway Send Function
+func (c *Comms) SendPutMessage(host *connect.Host, message *pb.GatewaySlot,
+	timeout time.Duration) (*pb.GatewaySlotResponse, error) {
+	// Create the Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := host.GetMessagingContextWithTimeout(timeout)
+		defer cancel()
+
+		// Send the message
+		resultMsg, err := pb.NewGatewayClient(conn).PutMessage(ctx, message)
+		if err != nil {
+			err = errors.New(err.Error())
+			return nil, errors.New(err.Error())
+
+		}
+		return ptypes.MarshalAny(resultMsg)
+	}
+
+	// Execute the Send function
+	jww.TRACE.Printf("Sending Put message: %+v", message)
+	resultMsg, err := c.Send(host, f)
+	if err != nil {
+		return nil, err
+	}
+
+	result := &pb.GatewaySlotResponse{}
+
+	return result, ptypes.UnmarshalAny(resultMsg, result)
+}
+
+// Client -> Gateway Send Function
+func (c *Comms) SendPutManyMessages(host *connect.Host,
+	messages *pb.GatewaySlots, timeout time.Duration) (
+	*pb.GatewaySlotResponse, error) {
+	// Create the Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := host.GetMessagingContextWithTimeout(timeout)
+		defer cancel()
+
+		// Send the message
+		resultMsg, err := pb.NewGatewayClient(conn).PutManyMessages(ctx, messages)
+		if err != nil {
+			err = errors.New(err.Error())
+			return nil, errors.New(err.Error())
+
+		}
+		return ptypes.MarshalAny(resultMsg)
+	}
+
+	// Execute the Send function
+	jww.TRACE.Printf("Sending PutManyMessages: %+v", messages)
+	resultMsg, err := c.Send(host, f)
+	if err != nil {
+		return nil, err
+	}
+
+	result := &pb.GatewaySlotResponse{}
+
+	return result, ptypes.UnmarshalAny(resultMsg, result)
+}
 
 // Client -> Gateway Send Function
 func (c *Comms) SendRequestClientKeyMessage(host *connect.Host,
@@ -54,66 +118,6 @@ func (c *Comms) SendRequestClientKeyMessage(host *connect.Host,
 }
 
 // Client -> Gateway Send Function
-func (c *Comms) SendPutMessage(host *connect.Host, message *pb.GatewaySlot) (*pb.GatewaySlotResponse, error) {
-	// Create the Send Function
-	f := func(conn *grpc.ClientConn) (*any.Any, error) {
-		// Set up the context
-		ctx, cancel := host.GetMessagingContext()
-		defer cancel()
-
-		// Send the message
-		resultMsg, err := pb.NewGatewayClient(conn).PutMessage(ctx, message)
-		if err != nil {
-			err = errors.New(err.Error())
-			return nil, errors.New(err.Error())
-
-		}
-		return ptypes.MarshalAny(resultMsg)
-	}
-
-	// Execute the Send function
-	jww.TRACE.Printf("Sending Put message: %+v", message)
-	resultMsg, err := c.Send(host, f)
-	if err != nil {
-		return nil, err
-	}
-
-	result := &pb.GatewaySlotResponse{}
-
-	return result, ptypes.UnmarshalAny(resultMsg, result)
-}
-
-// Client -> Gateway Send Function
-func (c *Comms) SendPutManyMessages(host *connect.Host, messages *pb.GatewaySlots) (*pb.GatewaySlotResponse, error) {
-	// Create the Send Function
-	f := func(conn *grpc.ClientConn) (*any.Any, error) {
-		// Set up the context
-		ctx, cancel := host.GetMessagingContext()
-		defer cancel()
-
-		// Send the message
-		resultMsg, err := pb.NewGatewayClient(conn).PutManyMessages(ctx, messages)
-		if err != nil {
-			err = errors.New(err.Error())
-			return nil, errors.New(err.Error())
-
-		}
-		return ptypes.MarshalAny(resultMsg)
-	}
-
-	// Execute the Send function
-	jww.TRACE.Printf("Sending PutManyMessages: %+v", messages)
-	resultMsg, err := c.Send(host, f)
-	if err != nil {
-		return nil, err
-	}
-
-	result := &pb.GatewaySlotResponse{}
-
-	return result, ptypes.UnmarshalAny(resultMsg, result)
-}
-
-// Client -> Gateway Send Function
 func (c *Comms) SendPoll(host *connect.Host,
 	message *pb.GatewayPoll) (*pb.GatewayPollResponse, error) {
 	// Set up the context
@@ -144,12 +148,30 @@ func (c *Comms) SendPoll(host *connect.Host,
 	// Get the total number of chunks from the header
 	md, err := stream.Header()
 	if err != nil {
-		return nil, errors.Errorf("Could not receive streaming header: %v", err)
+		closeErr := stream.RecvMsg(nil)
+		return nil, wrapError(closeErr, "Could not " +
+			"receive streaming header from %s: %s", host.GetId(),
+			err.Error())
 	}
 
-	totalChunks, err := strconv.Atoi(md.Get(pb.ChunkHeader)[0])
+	// Check if metadata contains any headers
+	if md.Len() == 0 {
+		closeErr := stream.RecvMsg(nil)
+		return nil,wrapError(closeErr, pb.NoStreamingHeaderErr, host.GetId())
+	}
+
+	// Check if metadata has the expected header
+	chunkHeader := md.Get(pb.ChunkHeader)
+	if len(chunkHeader) == 0 {
+		closeErr := stream.CloseSend()
+		return nil, wrapError(closeErr,pb.NoStreamingHeaderErr, host.GetId())
+	}
+
+	// Process header
+	totalChunks, err := strconv.Atoi(chunkHeader[0])
 	if err != nil {
-		return nil, errors.Errorf("Invalid header received: %v", err)
+		closeErr := stream.RecvMsg(nil)
+		return nil, wrapError(closeErr,"Invalid header received: %v", err)
 	}
 
 	// Receive the chunks
@@ -160,8 +182,23 @@ func (c *Comms) SendPoll(host *connect.Host,
 		chunks = append(chunks, chunk)
 		receivedChunks++
 	}
+
+	closeErr := stream.RecvMsg(nil)
+
 	if err != io.EOF { // EOF is an expected error after server-side has completed streaming
-		return nil, errors.Errorf("Failed to complete streaming, received %d of %d messages: %v", receivedChunks, totalChunks, err)
+		if closeErr!=nil{
+			return nil, errors.WithMessagef(closeErr, "Failed to " +
+				"complete streaming, received %d of %d messages: %s",
+				receivedChunks, totalChunks, err)
+		}
+		return nil, errors.Errorf("Failed to " +
+			"complete streaming, received %d of %d messages: %s",
+			receivedChunks, totalChunks, err)
+	}
+
+	if closeErr!=nil && closeErr != io.EOF{
+		return nil, errors.WithMessagef(closeErr, "Received error on " +
+			"closing stream with %s", host.GetId())
 	}
 
 	// Assemble the result
@@ -225,4 +262,11 @@ func (c *Comms) RequestMessages(host *connect.Host,
 	// Marshall the result
 	result := &pb.GetMessagesResponse{}
 	return result, ptypes.UnmarshalAny(resultMsg, result)
+}
+
+func wrapError(err error, s string, i ...interface{})error{
+	if err==nil{
+		return errors.Errorf(s, i...)
+	}
+	return errors.Wrapf(err,s, i...)
 }
