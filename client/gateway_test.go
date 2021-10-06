@@ -15,6 +15,7 @@ import (
 	"gitlab.com/xx_network/comms/gossip"
 	"gitlab.com/xx_network/primitives/id"
 	"testing"
+	"time"
 )
 
 // Smoke test SendGetMessage
@@ -34,7 +35,7 @@ func TestSendPutMessage(t *testing.T) {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
 
-	_, err = c.SendPutMessage(host, &pb.GatewaySlot{})
+	_, err = c.SendPutMessage(host, &pb.GatewaySlot{}, 10*time.Second)
 	if err != nil {
 		t.Errorf("PutMessage: Error received: %s", err)
 	}

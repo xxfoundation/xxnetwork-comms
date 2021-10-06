@@ -19,14 +19,16 @@ import (
 	"google.golang.org/grpc"
 	"io"
 	"strconv"
+	"time"
 )
 
 // Client -> Gateway Send Function
-func (c *Comms) SendPutMessage(host *connect.Host, message *pb.GatewaySlot) (*pb.GatewaySlotResponse, error) {
+func (c *Comms) SendPutMessage(host *connect.Host, message *pb.GatewaySlot,
+	timeout time.Duration) (*pb.GatewaySlotResponse, error) {
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
-		ctx, cancel := host.GetMessagingContext()
+		ctx, cancel := host.GetMessagingContextWithTimeout(timeout)
 		defer cancel()
 
 		// Send the message
@@ -52,11 +54,13 @@ func (c *Comms) SendPutMessage(host *connect.Host, message *pb.GatewaySlot) (*pb
 }
 
 // Client -> Gateway Send Function
-func (c *Comms) SendPutManyMessages(host *connect.Host, messages *pb.GatewaySlots) (*pb.GatewaySlotResponse, error) {
+func (c *Comms) SendPutManyMessages(host *connect.Host,
+	messages *pb.GatewaySlots, timeout time.Duration) (
+	*pb.GatewaySlotResponse, error) {
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
-		ctx, cancel := host.GetMessagingContext()
+		ctx, cancel := host.GetMessagingContextWithTimeout(timeout)
 		defer cancel()
 
 		// Send the message
