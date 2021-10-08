@@ -62,5 +62,3 @@ trigger-integration:
     branch: $CI_COMMIT_REF_NAME
   only:
     - master
-  only:
-    - master
