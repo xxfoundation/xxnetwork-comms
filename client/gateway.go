@@ -26,9 +26,6 @@ import (
 func (c *Comms) SendPutMessage(host *connect.Host, message *pb.GatewaySlot,
 	timeout time.Duration) (*pb.GatewaySlotResponse, error) {
 
-	// Modify message for IP
-	message.IP
-
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
