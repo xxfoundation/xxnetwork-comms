@@ -12,6 +12,7 @@ package gateway
 import (
 	"github.com/pkg/errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
+	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/messages"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc/metadata"
@@ -43,8 +44,13 @@ func (g *Comms) RequestToken(context.Context, *messages.Ping) (*messages.AssignT
 func (g *Comms) PutMessage(ctx context.Context, msg *pb.GatewaySlot) (*pb.GatewaySlotResponse,
 	error) {
 
+	ipAddr, _, err := connect.GetAddressFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	// Upload a message to the cMix Gateway
-	returnMsg, err := g.handler.PutMessage(msg)
+	returnMsg, err := g.handler.PutMessage(msg, ipAddr)
 	if err != nil {
 		returnMsg = &pb.GatewaySlotResponse{}
 
@@ -56,8 +62,13 @@ func (g *Comms) PutMessage(ctx context.Context, msg *pb.GatewaySlot) (*pb.Gatewa
 func (g *Comms) PutManyMessages(ctx context.Context, msgs *pb.GatewaySlots) (*pb.GatewaySlotResponse,
 	error) {
 
+	ipAddr, _, err := connect.GetAddressFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	// Upload messages to the cMix Gateway
-	returnMsg, err := g.handler.PutManyMessages(msgs)
+	returnMsg, err := g.handler.PutManyMessages(msgs, ipAddr)
 	if err != nil {
 		returnMsg = &pb.GatewaySlotResponse{}
 

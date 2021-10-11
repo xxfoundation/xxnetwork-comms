@@ -25,6 +25,10 @@ import (
 // Client -> Gateway Send Function
 func (c *Comms) SendPutMessage(host *connect.Host, message *pb.GatewaySlot,
 	timeout time.Duration) (*pb.GatewaySlotResponse, error) {
+
+	// Modify message for IP
+	message.IP
+
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
@@ -149,7 +153,7 @@ func (c *Comms) SendPoll(host *connect.Host,
 	md, err := stream.Header()
 	if err != nil {
 		closeErr := stream.RecvMsg(nil)
-		return nil, wrapError(closeErr, "Could not " +
+		return nil, wrapError(closeErr, "Could not "+
 			"receive streaming header from %s: %s", host.GetId(),
 			err.Error())
 	}
@@ -157,21 +161,21 @@ func (c *Comms) SendPoll(host *connect.Host,
 	// Check if metadata contains any headers
 	if md.Len() == 0 {
 		closeErr := stream.RecvMsg(nil)
-		return nil,wrapError(closeErr, pb.NoStreamingHeaderErr, host.GetId())
+		return nil, wrapError(closeErr, pb.NoStreamingHeaderErr, host.GetId())
 	}
 
 	// Check if metadata has the expected header
 	chunkHeader := md.Get(pb.ChunkHeader)
 	if len(chunkHeader) == 0 {
 		closeErr := stream.CloseSend()
-		return nil, wrapError(closeErr,pb.NoStreamingHeaderErr, host.GetId())
+		return nil, wrapError(closeErr, pb.NoStreamingHeaderErr, host.GetId())
 	}
 
 	// Process header
 	totalChunks, err := strconv.Atoi(chunkHeader[0])
 	if err != nil {
 		closeErr := stream.RecvMsg(nil)
-		return nil, wrapError(closeErr,"Invalid header received: %v", err)
+		return nil, wrapError(closeErr, "Invalid header received: %v", err)
 	}
 
 	// Receive the chunks
@@ -186,18 +190,18 @@ func (c *Comms) SendPoll(host *connect.Host,
 	closeErr := stream.RecvMsg(nil)
 
 	if err != io.EOF { // EOF is an expected error after server-side has completed streaming
-		if closeErr!=nil{
-			return nil, errors.WithMessagef(closeErr, "Failed to " +
+		if closeErr != nil {
+			return nil, errors.WithMessagef(closeErr, "Failed to "+
 				"complete streaming, received %d of %d messages: %s",
 				receivedChunks, totalChunks, err)
 		}
-		return nil, errors.Errorf("Failed to " +
+		return nil, errors.Errorf("Failed to "+
 			"complete streaming, received %d of %d messages: %s",
 			receivedChunks, totalChunks, err)
 	}
 
-	if closeErr!=nil && closeErr != io.EOF{
-		return nil, errors.WithMessagef(closeErr, "Received error on " +
+	if closeErr != nil && closeErr != io.EOF {
+		return nil, errors.WithMessagef(closeErr, "Received error on "+
 			"closing stream with %s", host.GetId())
 	}
 
@@ -264,9 +268,9 @@ func (c *Comms) RequestMessages(host *connect.Host,
 	return result, ptypes.UnmarshalAny(resultMsg, result)
 }
 
-func wrapError(err error, s string, i ...interface{})error{
-	if err==nil{
+func wrapError(err error, s string, i ...interface{}) error {
+	if err == nil {
 		return errors.Errorf(s, i...)
 	}
-	return errors.Wrapf(err,s, i...)
+	return errors.Wrapf(err, s, i...)
 }
