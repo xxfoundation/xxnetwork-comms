@@ -13,6 +13,7 @@ require (
 	gitlab.com/xx_network/crypto v0.0.5-0.20211006222352-8e0ac37b86b0
 	gitlab.com/xx_network/primitives v0.0.4-0.20210915220237-70cb4551d6f3
 	gitlab.com/xx_network/ring v0.0.3-0.20210527191221-ce3f170aabd5
+	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
 	golang.org/x/net v0.0.0-20210525063256-abc453219eb5
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/grpc v1.38.0
