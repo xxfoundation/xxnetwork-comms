@@ -13,6 +13,7 @@ import (
 	"gitlab.com/xx_network/comms/gossip"
 	"gitlab.com/xx_network/primitives/id"
 	"testing"
+	"time"
 )
 
 // Smoke test.
@@ -36,7 +37,7 @@ func TestComms_SendPutMessage(t *testing.T) {
 		t.Fatalf("Failed to add host to manager: %+v", err)
 	}
 
-	_, err = gw1.SendPutMessage(host, &pb.GatewaySlot{})
+	_, err = gw1.SendPutMessage(host, &pb.GatewaySlot{}, 2*time.Minute)
 	if err != nil {
 		t.Errorf("SendPutMessage produced an error: %+v", err)
 	}
@@ -63,7 +64,7 @@ func TestComms_SendPutManyMessages(t *testing.T) {
 		t.Fatalf("Failed to add host to manager: %+v", err)
 	}
 
-	_, err = gw1.SendPutManyMessages(host, &pb.GatewaySlots{})
+	_, err = gw1.SendPutManyMessages(host, &pb.GatewaySlots{}, 2*time.Minute)
 	if err != nil {
 		t.Errorf("SendPutMessage produced an error: %+v", err)
 	}
@@ -90,7 +91,7 @@ func TestComms_SendRequestNonce(t *testing.T) {
 		t.Fatalf("Failed to add host to manager: %+v", err)
 	}
 
-	_, err = gw1.SendRequestClientKey(host, &pb.SignedClientKeyRequest{})
+	_, err = gw1.SendRequestClientKey(host, &pb.SignedClientKeyRequest{}, 2*time.Minute)
 	if err != nil {
 		t.Errorf("SendRequestNonce produced an error: %+v", err)
 	}
@@ -117,7 +118,7 @@ func TestComms_SendRequestMessages(t *testing.T) {
 		t.Fatalf("Failed to add host to manager: %+v", err)
 	}
 
-	_, err = gw1.SendRequestMessages(host, &pb.GetMessages{})
+	_, err = gw1.SendRequestMessages(host, &pb.GetMessages{}, 2*time.Minute)
 	if err != nil {
 		t.Errorf("SendRequestMessages produced an error: %+v", err)
 	}
