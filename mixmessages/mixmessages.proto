@@ -342,6 +342,8 @@ message GatewayPollResponse {
     bytes KnownRounds = 3; // Rounds gateway knows about
     ClientBlooms Filters = 4; // Set of ClientBloomFilters requested by Client
     uint64 EarliestRound = 5; // The earliest round the gateway still has info for
+    int64 EarliestRoundTimestamp = 6; // The earliest round timestamp
+    bool HasFullHistory = 7; // True when the gateway has run long enough to have seen all recent gossips
 }
 
 // Holds a set of ClientBloom and their associated metadata
