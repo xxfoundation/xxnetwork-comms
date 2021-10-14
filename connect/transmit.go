@@ -81,7 +81,8 @@ func (c *ProtoComms) connect(host *Host, count uint64) (uint64, error) {
 				return 0, errors.New(inCoolDownErr)
 			}
 		}
-		host.inCoolOff = !host.coolOffBucket.Add(1)
+		good, _ := host.coolOffBucket.Add(1)
+		host.inCoolOff = !good
 		if host.inCoolOff {
 			return 0, errors.New(inCoolDownErr)
 		}
