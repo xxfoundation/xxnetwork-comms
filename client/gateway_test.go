@@ -152,11 +152,11 @@ func TestComms_RequestHistoricalRounds(t *testing.T) {
 
 type mockGatewayImpl struct{}
 
-func (m mockGatewayImpl) PutMessage(message *pb.GatewaySlot) (*pb.GatewaySlotResponse, error) {
+func (m mockGatewayImpl) PutMessage(message *pb.GatewaySlot, ipAddr string) (*pb.GatewaySlotResponse, error) {
 	return nil, nil
 }
 
-func (m mockGatewayImpl) PutManyMessages(msgs *pb.GatewaySlots) (*pb.GatewaySlotResponse, error) {
+func (m mockGatewayImpl) PutManyMessages(msgs *pb.GatewaySlots, ipAdd string) (*pb.GatewaySlotResponse, error) {
 	return nil, nil
 }
 

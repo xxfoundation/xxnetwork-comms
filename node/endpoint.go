@@ -27,7 +27,7 @@ func (s *Comms) AskOnline(ctx context.Context, msg *messages.AuthenticatedMessag
 	}
 
 	//return an error if the connection is not authenticated
-	if !auth.IsAuthenticated{
+	if !auth.IsAuthenticated {
 		return &messages.Ack{}, connect.AuthError(auth.Sender.GetId())
 	}
 
