@@ -206,6 +206,7 @@ message ServerPollResponse {
     repeated RoundInfo Updates = 4; //Empty if no update needed
     RoundInfo BatchRequest = 5; //Empty if no update needed
     BatchReady Batch = 6;
+    uint64 EarliestRound = 7; // The earliest round the gateway still has info for
 }
 
 message BatchReady {
@@ -522,6 +523,7 @@ message PermissionPollResponse {
     NDF FullNDF = 1; // Empty if no update needed
     NDF PartialNDF = 2; // Empty if no update needed
     repeated RoundInfo Updates = 3; // Empty if no update needed
+    uint64 EarliestRound = 4; // Earliest round to track
 }
 
 
