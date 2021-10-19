@@ -208,7 +208,7 @@ message ServerPollResponse {
     BatchReady Batch = 6;
     uint64 EarliestRound = 7; // The earliest round the gateway still has info for
     uint64 EarliestRoundTimestamp = 8; // The timestamp associated with the earliest the gateway still has info for
-
+    string EarliestRoundErr = 9;
 }
 
 message BatchReady {
