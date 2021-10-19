@@ -18,8 +18,13 @@ const MaxRetries = 3
 const inCoolDownErr = "Host is in cool down. Cannot connect."
 const lastTryErr = "Last try to connect to"
 
-// Sets up or recovers the Host's connection
+// transmit sets up or recovers the Host's connection
 // Then runs the given Send function
+// This has a bug where if a disconnect happens after "host.transmit(f)"
+// and the comms was unsuccessful and is retried, this code will connect
+// and then do the operation, leaving the host as connected. In a system
+// like the host pool in client, this will cause untracked connections.
+// Given that connections have timeouts, this is a minor issue
 func (c *ProtoComms) transmit(host *Host, f func(conn *grpc.ClientConn) (interface{},
 	error)) (result interface{}, err error) {
 
@@ -27,15 +32,16 @@ func (c *ProtoComms) transmit(host *Host, f func(conn *grpc.ClientConn) (interfa
 		return nil, errors.New("Host address is blank, host might be receive only.")
 	}
 
-	host.transmitMux.RLock()
-	defer host.transmitMux.RUnlock()
-
 	for numRetries := 0; numRetries < MaxRetries; numRetries++ {
 		err = nil
 		//reconnect if necessary
-		connected, connectionCount := host.Connected()
+		host.connectionMux.RLock()
+		connected, connectionCount := host.connectedUnsafe()
 		if !connected {
+			host.connectionMux.RUnlock()
+			host.connectionMux.Lock()
 			connectionCount, err = c.connect(host, connectionCount)
+			host.connectionMux.Unlock()
 			if err != nil {
 				if strings.Contains(err.Error(), inCoolDownErr) ||
 					strings.Contains(err.Error(), lastTryErr) {
@@ -45,16 +51,20 @@ func (c *ProtoComms) transmit(host *Host, f func(conn *grpc.ClientConn) (interfa
 					"%v/%v : %s", numRetries+1, MaxRetries, err)
 				continue
 			}
+			host.connectionMux.RLock()
 		}
 
 		//transmit
 		result, err = host.transmit(f)
+		host.connectionMux.RUnlock()
 
 		// if the transmission goes well or it is a domain specific error, return
 		if err == nil || !(isConnError(err) || IsAuthError(err)) {
 			return result, err
 		}
+		host.connectionMux.Lock()
 		host.conditionalDisconnect(connectionCount)
+		host.connectionMux.Unlock()
 		jww.WARN.Printf("Failed to send to Host on attempt %v/%v: %+v",
 			numRetries+1, MaxRetries, err)
 	}
@@ -63,9 +73,6 @@ func (c *ProtoComms) transmit(host *Host, f func(conn *grpc.ClientConn) (interfa
 }
 
 func (c *ProtoComms) connect(host *Host, count uint64) (uint64, error) {
-	host.connectionMux.Lock()
-	defer host.connectionMux.Unlock()
-
 	if host.coolOffBucket != nil {
 		if host.inCoolOff {
 			if host.coolOffBucket.IsEmpty() {
@@ -74,7 +81,8 @@ func (c *ProtoComms) connect(host *Host, count uint64) (uint64, error) {
 				return 0, errors.New(inCoolDownErr)
 			}
 		}
-		host.inCoolOff = !host.coolOffBucket.Add(1)
+		good, _ := host.coolOffBucket.Add(1)
+		host.inCoolOff = !good
 		if host.inCoolOff {
 			return 0, errors.New(inCoolDownErr)
 		}

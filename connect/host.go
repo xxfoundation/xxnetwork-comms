@@ -66,8 +66,6 @@ type Host struct {
 	// lock which ensures only a single thread is connecting at a time and
 	// that connections do not interrupt sends
 	connectionMux sync.RWMutex
-	// lock which ensures transmissions are not interrupted by disconnections
-	transmitMux sync.RWMutex
 
 	coolOffBucket *rateLimiting.Bucket
 	inCoolOff     bool
@@ -134,12 +132,25 @@ func (h *Host) Connected() (bool, uint64) {
 	h.connectionMux.RLock()
 	defer h.connectionMux.RUnlock()
 
+	return h.connectedUnsafe()
+}
+
+// connectedUnsafe checks if the given Host's connection is alive without taking
+// a connection lock. Only use if already under a connection lock. The the uint is
+//the connection count, it increments every time a reconnect occurs
+func (h *Host) connectedUnsafe() (bool, uint64) {
 	return h.isAlive() && !h.authenticationRequired(), h.connectionCount
 }
 
 // GetMessagingContext returns a context object for message sending configured according to HostParams
 func (h *Host) GetMessagingContext() (context.Context, context.CancelFunc) {
-	return newContext(h.params.SendTimeout)
+	return h.GetMessagingContextWithTimeout(h.params.SendTimeout)
+}
+
+// GetMessagingContext returns a context object for message sending configured according to HostParams
+func (h *Host) GetMessagingContextWithTimeout(
+	timeout time.Duration) (context.Context, context.CancelFunc) {
+	return newContext(timeout)
 }
 
 // GetId returns the id of the host
@@ -198,53 +209,49 @@ func (h *Host) SetMetricsTesting(m *Metric, face interface{}) {
 }
 
 // Disconnect closes a the Host connection under the write lock
+// Due to asynchorous connection handling, this may result in
+// killing a good connection and could result in an immediate
+// reconnection by a seperate thread
 func (h *Host) Disconnect() {
-	h.transmitMux.Lock()
-	defer h.transmitMux.Unlock()
-
+	h.connectionMux.Lock()
+	defer h.connectionMux.Unlock()
 	h.disconnect()
 }
 
 // ConditionalDisconnect closes a the Host connection under the write lock only
 // if the connection count has not increased
 func (h *Host) conditionalDisconnect(count uint64) {
-	h.connectionMux.Lock()
-	defer h.connectionMux.Unlock()
-
 	if count == h.connectionCount {
 		h.disconnect()
 	}
 }
 
 // Returns whether or not the Host is able to be contacted
-// by attempting to dial a tcp connection
-func (h *Host) IsOnline() bool {
+// before the timeout by attempting to dial a tcp connection
+// Returns how long the ping took, and whether it was successful
+func (h *Host) IsOnline() (time.Duration, bool) {
 	addr := h.GetAddress()
-	timeout := 5 * time.Second
-	conn, err := net.DialTimeout("tcp", addr, timeout)
+	start := time.Now()
+	conn, err := net.DialTimeout("tcp", addr, h.params.PingTimeout)
 	if err != nil {
-		// If we cannot connect, mark the node as failed
+		// If we cannot connect, mark the connection as failed
 		jww.DEBUG.Printf("Failed to verify connectivity for address %s", addr)
-		return false
+		return 0, false
 	}
 	// Attempt to close the connection
 	if conn != nil {
 		errClose := conn.Close()
 		if errClose != nil {
-			jww.DEBUG.Printf("Failed to close connection for address %s",
-				addr)
+			jww.DEBUG.Printf("Failed to close connection for address %s", addr)
 		}
 	}
-	return true
+	return time.Since(start), true
 }
 
 // send checks that the host has a connection and sends if it does.
-// Operates under the host's read lock.
+// must be called under host's connection read lock.
 func (h *Host) transmit(f func(conn *grpc.ClientConn) (interface{},
 	error)) (interface{}, error) {
-
-	h.connectionMux.RLock()
-	defer h.connectionMux.RUnlock()
 
 	// Check if connection is down
 	if h.connection == nil {
@@ -285,6 +292,7 @@ func (h *Host) authenticationRequired() bool {
 }
 
 // isAlive returns true if the connection is non-nil and alive
+// must already be under the connectionMux
 func (h *Host) isAlive() bool {
 	if h.connection == nil {
 		return false
@@ -301,6 +309,7 @@ func (h *Host) disconnect() {
 	// connection. In that case, we should not close a connection which does not
 	// exist
 	if h.connection != nil {
+		jww.INFO.Printf("Disconnected from %s at %s", h.GetId(), h.GetAddress())
 		err := h.connection.Close()
 		if err != nil {
 			jww.ERROR.Printf("Unable to close connection to %s: %+v",
