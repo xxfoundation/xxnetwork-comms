@@ -527,7 +527,7 @@ message PermissionPollResponse {
     repeated RoundInfo Updates = 3; // Empty if no update needed
     uint64 EarliestRound = 4; // Earliest round to track
     uint64 EarliestRoundTimestamp = 5; // The timestamp associated with the earliest the gateway still has info for
-
+    string EarliestRoundErr = 6;
 }
 
 
