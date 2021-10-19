@@ -15,6 +15,7 @@ import (
 	"gitlab.com/xx_network/comms/gossip"
 	"gitlab.com/xx_network/primitives/id"
 	"testing"
+	"time"
 )
 
 // Smoke test SendGetMessage
@@ -34,13 +35,13 @@ func TestSendPutMessage(t *testing.T) {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
 
-	_, err = c.SendPutMessage(host, &pb.GatewaySlot{})
+	_, err = c.SendPutMessage(host, &pb.GatewaySlot{}, 10*time.Second)
 	if err != nil {
 		t.Errorf("PutMessage: Error received: %s", err)
 	}
 }
 
-// Smoke test SendRequestNonceMessage
+// Smoke test SendRequestClientKeyMessage
 func TestSendRequestNonceMessage(t *testing.T) {
 	gatewayAddress := getNextAddress()
 	testID := id.NewIdFromString("test", id.Gateway, t)
@@ -57,33 +58,9 @@ func TestSendRequestNonceMessage(t *testing.T) {
 		t.Errorf("Unable to call NewHost: %+v", err)
 	}
 
-	_, err = c.SendRequestNonceMessage(host, &pb.NonceRequest{})
+	_, err = c.SendRequestClientKeyMessage(host, &pb.SignedClientKeyRequest{})
 	if err != nil {
-		t.Errorf("SendRequestNonceMessage: Error received: %s", err)
-	}
-}
-
-// Smoke test SendConfirmNonceMessage
-func TestSendConfirmNonceMessage(t *testing.T) {
-	gatewayAddress := getNextAddress()
-	testID := id.NewIdFromString("test", id.Gateway, t)
-	gw := gateway.StartGateway(testID, gatewayAddress,
-		gateway.NewImplementation(), nil, nil, gossip.DefaultManagerFlags())
-	defer gw.Shutdown()
-	var c Comms
-	manager := connect.NewManagerTesting(t)
-
-	params := connect.GetDefaultHostParams()
-	params.AuthEnabled = false
-	host, err := manager.AddHost(testID, gatewayAddress, nil, params)
-	if err != nil {
-		t.Errorf("Unable to call NewHost: %+v", err)
-	}
-
-	_, err = c.SendConfirmNonceMessage(host,
-		&pb.RequestRegistrationConfirmation{})
-	if err != nil {
-		t.Errorf("SendConfirmNonceMessage: Error received: %+v", err)
+		t.Errorf("SendRequestClientKeyMessage: Error received: %s", err)
 	}
 }
 
@@ -175,19 +152,15 @@ func TestComms_RequestHistoricalRounds(t *testing.T) {
 
 type mockGatewayImpl struct{}
 
-func (m mockGatewayImpl) PutMessage(message *pb.GatewaySlot) (*pb.GatewaySlotResponse, error) {
+func (m mockGatewayImpl) PutMessage(message *pb.GatewaySlot, ipAddr string) (*pb.GatewaySlotResponse, error) {
 	return nil, nil
 }
 
-func (m mockGatewayImpl) PutManyMessages(msgs *pb.GatewaySlots) (*pb.GatewaySlotResponse, error) {
+func (m mockGatewayImpl) PutManyMessages(msgs *pb.GatewaySlots, ipAdd string) (*pb.GatewaySlotResponse, error) {
 	return nil, nil
 }
 
-func (m mockGatewayImpl) RequestNonce(message *pb.NonceRequest) (*pb.Nonce, error) {
-	return nil, nil
-}
-
-func (m mockGatewayImpl) ConfirmNonce(message *pb.RequestRegistrationConfirmation) (*pb.RegistrationConfirmation, error) {
+func (m mockGatewayImpl) RequestClientKey(message *pb.SignedClientKeyRequest) (*pb.SignedKeyResponse, error) {
 	return nil, nil
 }
 

@@ -10,14 +10,21 @@
 package gateway
 
 import (
-	"github.com/golang/protobuf/ptypes"
 	"github.com/pkg/errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
+	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/messages"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc/metadata"
 	"strconv"
 )
+
+// Pass-through for Registration Nonce Communication
+func (g *Comms) RequestClientKey(ctx context.Context,
+	msg *pb.SignedClientKeyRequest) (*pb.SignedKeyResponse, error) {
+
+	return g.handler.RequestClientKey(msg)
+}
 
 // Handles validation of reverse-authentication tokens
 func (g *Comms) AuthenticateToken(ctx context.Context,
@@ -37,8 +44,13 @@ func (g *Comms) RequestToken(context.Context, *messages.Ping) (*messages.AssignT
 func (g *Comms) PutMessage(ctx context.Context, msg *pb.GatewaySlot) (*pb.GatewaySlotResponse,
 	error) {
 
+	ipAddr, _, err := connect.GetAddressFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	// Upload a message to the cMix Gateway
-	returnMsg, err := g.handler.PutMessage(msg)
+	returnMsg, err := g.handler.PutMessage(msg, ipAddr)
 	if err != nil {
 		returnMsg = &pb.GatewaySlotResponse{}
 
@@ -50,45 +62,18 @@ func (g *Comms) PutMessage(ctx context.Context, msg *pb.GatewaySlot) (*pb.Gatewa
 func (g *Comms) PutManyMessages(ctx context.Context, msgs *pb.GatewaySlots) (*pb.GatewaySlotResponse,
 	error) {
 
+	ipAddr, _, err := connect.GetAddressFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	// Upload messages to the cMix Gateway
-	returnMsg, err := g.handler.PutManyMessages(msgs)
+	returnMsg, err := g.handler.PutManyMessages(msgs, ipAddr)
 	if err != nil {
 		returnMsg = &pb.GatewaySlotResponse{}
 
 	}
 	return returnMsg, err
-}
-
-// Pass-through for Registration Nonce Communication
-func (g *Comms) RequestNonce(ctx context.Context,
-	msg *pb.NonceRequest) (*pb.Nonce, error) {
-
-	return g.handler.RequestNonce(msg)
-}
-
-// Pass-through for Registration Nonce Confirmation
-func (g *Comms) ConfirmNonce(ctx context.Context,
-	msg *pb.RequestRegistrationConfirmation) (*pb.RegistrationConfirmation, error) {
-
-	return g.handler.ConfirmNonce(msg)
-}
-
-// Gateway -> Gateway message sharing within a team
-func (g *Comms) ShareMessages(ctx context.Context, msg *messages.AuthenticatedMessage) (*messages.Ack, error) {
-
-	authState, err := g.AuthenticatedReceiver(msg, ctx)
-	if err != nil {
-		return nil, errors.Errorf("Unable to handle reception of AuthenticatedMessage: %+v", err)
-	}
-
-	// Marshall the any message to the message type needed
-	roundMessages := &pb.RoundMessages{}
-	err = ptypes.UnmarshalAny(msg.Message, roundMessages)
-	if err != nil {
-		return nil, err
-	}
-
-	return &messages.Ack{}, g.handler.ShareMessages(roundMessages, authState)
 }
 
 // Client -> Gateway unified polling

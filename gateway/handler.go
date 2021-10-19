@@ -24,22 +24,17 @@ import (
 // Handler interface for the Gateway
 type Handler interface {
 	// Upload a message to the cMix Gateway
-	PutMessage(message *pb.GatewaySlot) (*pb.GatewaySlotResponse, error)
+	PutMessage(message *pb.GatewaySlot, ipAddr string) (*pb.GatewaySlotResponse, error)
 	// Upload many messages to the cMix Gateway
-	PutManyMessages(msgs *pb.GatewaySlots) (*pb.GatewaySlotResponse, error)
-	// Pass-through for Registration Nonce Communication
-	RequestNonce(message *pb.NonceRequest) (*pb.Nonce, error)
-	// Pass-through for Registration Nonce Confirmation
-	ConfirmNonce(message *pb.RequestRegistrationConfirmation) (*pb.
-		RegistrationConfirmation, error)
+	PutManyMessages(msgs *pb.GatewaySlots, ipAddr string) (*pb.GatewaySlotResponse, error)
 	// Client -> Gateway unified polling
 	Poll(msg *pb.GatewayPoll) (*pb.GatewayPollResponse, error)
 	// Client -> Gateway historical round request
 	RequestHistoricalRounds(msg *pb.HistoricalRounds) (*pb.HistoricalRoundsResponse, error)
 	// Client -> Gateway message request
 	RequestMessages(msg *pb.GetMessages) (*pb.GetMessagesResponse, error)
-	// Gateway -> Gateway message sharing within a team
-	ShareMessages(msg *pb.RoundMessages, auth *connect.Auth) error
+
+	RequestClientKey(message *pb.SignedClientKeyRequest) (*pb.SignedKeyResponse, error)
 }
 
 // Gateway object used to implement endpoints and top-level comms functionality
@@ -89,22 +84,18 @@ func StartGateway(id *id.ID, localServer string, handler Handler,
 // Handler implementation for the Gateway
 type implementationFunctions struct {
 	// Upload a message to the cMix Gateway
-	PutMessage func(message *pb.GatewaySlot) (*pb.GatewaySlotResponse, error)
+	PutMessage func(message *pb.GatewaySlot, ipAddr string) (*pb.GatewaySlotResponse, error)
 	// Upload many messages to the cMix Gateway
-	PutManyMessages func(msgs *pb.GatewaySlots) (*pb.GatewaySlotResponse, error)
-	// Pass-through for Registration Nonce Communication
-	RequestNonce func(message *pb.NonceRequest) (*pb.Nonce, error)
-	// Pass-through for Registration Nonce Confirmation
-	ConfirmNonce func(message *pb.RequestRegistrationConfirmation) (*pb.
-			RegistrationConfirmation, error)
+	PutManyMessages func(msgs *pb.GatewaySlots, ipAddr string) (*pb.GatewaySlotResponse, error)
 	// Client -> Gateway unified polling
 	Poll func(msg *pb.GatewayPoll) (*pb.GatewayPollResponse, error)
 	// Client -> Gateway historical round request
 	RequestHistoricalRounds func(msg *pb.HistoricalRounds) (*pb.HistoricalRoundsResponse, error)
 	// Client -> Gateway message request
 	RequestMessages func(msg *pb.GetMessages) (*pb.GetMessagesResponse, error)
-	// Gateway -> Gateway message sharing within a team
-	ShareMessages func(msg *pb.RoundMessages, auth *connect.Auth) error
+
+	// Pass-through for RequestClientKey Communication
+	RequestClientKey func(message *pb.SignedClientKeyRequest) (*pb.SignedKeyResponse, error)
 }
 
 // Implementation allows users of the client library to set the
@@ -122,22 +113,15 @@ func NewImplementation() *Implementation {
 	}
 	return &Implementation{
 		Functions: implementationFunctions{
-			PutMessage: func(message *pb.GatewaySlot) (*pb.GatewaySlotResponse, error) {
+			PutMessage: func(message *pb.GatewaySlot, ipAddr string) (*pb.GatewaySlotResponse, error) {
 				warn(um)
 				return new(pb.GatewaySlotResponse), nil
 			},
-			PutManyMessages: func(msgs *pb.GatewaySlots) (*pb.GatewaySlotResponse, error) {
+			PutManyMessages: func(msgs *pb.GatewaySlots, ipAddr string) (*pb.GatewaySlotResponse, error) {
 				warn(um)
 				return &pb.GatewaySlotResponse{}, nil
 			},
-			RequestNonce: func(message *pb.NonceRequest) (*pb.Nonce, error) {
-				warn(um)
-				return new(pb.Nonce), nil
-			},
-			ConfirmNonce: func(message *pb.RequestRegistrationConfirmation) (*pb.RegistrationConfirmation, error) {
-				warn(um)
-				return new(pb.RegistrationConfirmation), nil
-			},
+
 			Poll: func(msg *pb.GatewayPoll) (*pb.GatewayPollResponse, error) {
 				warn(um)
 				return &pb.GatewayPollResponse{}, nil
@@ -150,33 +134,29 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return &pb.GetMessagesResponse{}, nil
 			},
-			ShareMessages: func(msg *pb.RoundMessages, auth *connect.Auth) error {
+
+			RequestClientKey: func(message *pb.SignedClientKeyRequest) (*pb.SignedKeyResponse, error) {
 				warn(um)
-				return nil
+				return new(pb.SignedKeyResponse), nil
 			},
 		},
 	}
 }
 
+// Pass-through for RequestClientKey Communication
+func (s *Implementation) RequestClientKey(message *pb.SignedClientKeyRequest) (
+	*pb.SignedKeyResponse, error) {
+	return s.Functions.RequestClientKey(message)
+}
+
 // Upload a message to the cMix Gateway
-func (s *Implementation) PutMessage(message *pb.GatewaySlot) (*pb.GatewaySlotResponse, error) {
-	return s.Functions.PutMessage(message)
+func (s *Implementation) PutMessage(message *pb.GatewaySlot, ipAddr string) (*pb.GatewaySlotResponse, error) {
+	return s.Functions.PutMessage(message, ipAddr)
 }
 
 // Upload many messages to the cMix Gateway
-func (s *Implementation) PutManyMessages(msgs *pb.GatewaySlots) (*pb.GatewaySlotResponse, error) {
-	return s.Functions.PutManyMessages(msgs)
-}
-
-// Pass-through for Registration Nonce Communication
-func (s *Implementation) RequestNonce(message *pb.NonceRequest) (
-	*pb.Nonce, error) {
-	return s.Functions.RequestNonce(message)
-}
-
-// Pass-through for Registration Nonce Confirmation
-func (s *Implementation) ConfirmNonce(message *pb.RequestRegistrationConfirmation) (*pb.RegistrationConfirmation, error) {
-	return s.Functions.ConfirmNonce(message)
+func (s *Implementation) PutManyMessages(msgs *pb.GatewaySlots, ipAddr string) (*pb.GatewaySlotResponse, error) {
+	return s.Functions.PutManyMessages(msgs, ipAddr)
 }
 
 // Client -> Gateway unified polling
@@ -192,9 +172,4 @@ func (s *Implementation) RequestHistoricalRounds(msg *pb.HistoricalRounds) (*pb.
 // Client -> Gateway historical round request
 func (s *Implementation) RequestMessages(msg *pb.GetMessages) (*pb.GetMessagesResponse, error) {
 	return s.Functions.RequestMessages(msg)
-}
-
-// Gateway -> Gateway message sharing within a team
-func (s *Implementation) ShareMessages(msg *pb.RoundMessages, auth *connect.Auth) error {
-	return s.Functions.ShareMessages(msg, auth)
 }

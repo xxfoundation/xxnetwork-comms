@@ -19,14 +19,17 @@ import (
 	"google.golang.org/grpc"
 	"io"
 	"strconv"
+	"time"
 )
 
 // Client -> Gateway Send Function
-func (c *Comms) SendPutMessage(host *connect.Host, message *pb.GatewaySlot) (*pb.GatewaySlotResponse, error) {
+func (c *Comms) SendPutMessage(host *connect.Host, message *pb.GatewaySlot,
+	timeout time.Duration) (*pb.GatewaySlotResponse, error) {
+
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
-		ctx, cancel := host.GetMessagingContext()
+		ctx, cancel := host.GetMessagingContextWithTimeout(timeout)
 		defer cancel()
 
 		// Send the message
@@ -52,11 +55,13 @@ func (c *Comms) SendPutMessage(host *connect.Host, message *pb.GatewaySlot) (*pb
 }
 
 // Client -> Gateway Send Function
-func (c *Comms) SendPutManyMessages(host *connect.Host, messages *pb.GatewaySlots) (*pb.GatewaySlotResponse, error) {
+func (c *Comms) SendPutManyMessages(host *connect.Host,
+	messages *pb.GatewaySlots, timeout time.Duration) (
+	*pb.GatewaySlotResponse, error) {
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
-		ctx, cancel := host.GetMessagingContext()
+		ctx, cancel := host.GetMessagingContextWithTimeout(timeout)
 		defer cancel()
 
 		// Send the message
@@ -82,8 +87,8 @@ func (c *Comms) SendPutManyMessages(host *connect.Host, messages *pb.GatewaySlot
 }
 
 // Client -> Gateway Send Function
-func (c *Comms) SendRequestNonceMessage(host *connect.Host,
-	message *pb.NonceRequest) (*pb.Nonce, error) {
+func (c *Comms) SendRequestClientKeyMessage(host *connect.Host,
+	message *pb.SignedClientKeyRequest) (*pb.SignedKeyResponse, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
@@ -92,7 +97,7 @@ func (c *Comms) SendRequestNonceMessage(host *connect.Host,
 		defer cancel()
 
 		// Send the message
-		resultMsg, err := pb.NewGatewayClient(conn).RequestNonce(ctx, message)
+		resultMsg, err := pb.NewGatewayClient(conn).RequestClientKey(ctx, message)
 
 		// Make sure there are no errors with sending the message
 		if err != nil {
@@ -102,44 +107,14 @@ func (c *Comms) SendRequestNonceMessage(host *connect.Host,
 	}
 
 	// Execute the Send function
-	jww.TRACE.Printf("Sending Request Nonce message: %+v", message)
+	jww.TRACE.Printf("Sending Request Client Key message: %+v", message)
 	resultMsg, err := c.Send(host, f)
 	if err != nil {
 		return nil, err
 	}
 
 	// Marshall the result
-	result := &pb.Nonce{}
-	return result, ptypes.UnmarshalAny(resultMsg, result)
-}
-
-// Client -> Gateway Send Function
-func (c *Comms) SendConfirmNonceMessage(host *connect.Host,
-	message *pb.RequestRegistrationConfirmation) (*pb.RegistrationConfirmation, error) {
-
-	// Create the Send Function
-	f := func(conn *grpc.ClientConn) (*any.Any, error) {
-		// Set up the context
-		ctx, cancel := host.GetMessagingContext()
-		defer cancel()
-
-		// Send the message
-		resultMsg, err := pb.NewGatewayClient(conn).ConfirmNonce(ctx, message)
-		if err != nil {
-			return nil, errors.New(err.Error())
-		}
-		return ptypes.MarshalAny(resultMsg)
-	}
-
-	// Execute the Send function
-	jww.TRACE.Printf("Sending Confirm Nonce message: %+v", message)
-	resultMsg, err := c.Send(host, f)
-	if err != nil {
-		return nil, err
-	}
-
-	// Marshall the result
-	result := &pb.RegistrationConfirmation{}
+	result := &pb.SignedKeyResponse{}
 	return result, ptypes.UnmarshalAny(resultMsg, result)
 }
 
@@ -174,12 +149,30 @@ func (c *Comms) SendPoll(host *connect.Host,
 	// Get the total number of chunks from the header
 	md, err := stream.Header()
 	if err != nil {
-		return nil, errors.Errorf("Could not receive streaming header: %v", err)
+		closeErr := stream.RecvMsg(nil)
+		return nil, wrapError(closeErr, "Could not "+
+			"receive streaming header from %s: %s", host.GetId(),
+			err.Error())
 	}
 
-	totalChunks, err := strconv.Atoi(md.Get(pb.ChunkHeader)[0])
+	// Check if metadata contains any headers
+	if md.Len() == 0 {
+		closeErr := stream.RecvMsg(nil)
+		return nil, wrapError(closeErr, pb.NoStreamingHeaderErr, host.GetId())
+	}
+
+	// Check if metadata has the expected header
+	chunkHeader := md.Get(pb.ChunkHeader)
+	if len(chunkHeader) == 0 {
+		closeErr := stream.CloseSend()
+		return nil, wrapError(closeErr, pb.NoStreamingHeaderErr, host.GetId())
+	}
+
+	// Process header
+	totalChunks, err := strconv.Atoi(chunkHeader[0])
 	if err != nil {
-		return nil, errors.Errorf("Invalid header received: %v", err)
+		closeErr := stream.RecvMsg(nil)
+		return nil, wrapError(closeErr, "Invalid header received: %v", err)
 	}
 
 	// Receive the chunks
@@ -190,8 +183,23 @@ func (c *Comms) SendPoll(host *connect.Host,
 		chunks = append(chunks, chunk)
 		receivedChunks++
 	}
+
+	closeErr := stream.RecvMsg(nil)
+
 	if err != io.EOF { // EOF is an expected error after server-side has completed streaming
-		return nil, errors.Errorf("Failed to complete streaming, received %d of %d messages: %v", receivedChunks, totalChunks, err)
+		if closeErr != nil {
+			return nil, errors.WithMessagef(closeErr, "Failed to "+
+				"complete streaming, received %d of %d messages: %s",
+				receivedChunks, totalChunks, err)
+		}
+		return nil, errors.Errorf("Failed to "+
+			"complete streaming, received %d of %d messages: %s",
+			receivedChunks, totalChunks, err)
+	}
+
+	if closeErr != nil && closeErr != io.EOF {
+		return nil, errors.WithMessagef(closeErr, "Received error on "+
+			"closing stream with %s", host.GetId())
 	}
 
 	// Assemble the result
@@ -255,4 +263,11 @@ func (c *Comms) RequestMessages(host *connect.Host,
 	// Marshall the result
 	result := &pb.GetMessagesResponse{}
 	return result, ptypes.UnmarshalAny(resultMsg, result)
+}
+
+func wrapError(err error, s string, i ...interface{}) error {
+	if err == nil {
+		return errors.Errorf(s, i...)
+	}
+	return errors.Wrapf(err, s, i...)
 }

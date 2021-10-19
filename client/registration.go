@@ -27,7 +27,7 @@ import (
 
 // Client -> Registration Send Function
 func (c *Comms) SendRegistrationMessage(host *connect.Host,
-	message *pb.UserRegistration) (*pb.UserRegistrationConfirmation, error) {
+	message *pb.ClientRegistration) (*pb.SignedClientRegistrationConfirmations, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
@@ -36,7 +36,7 @@ func (c *Comms) SendRegistrationMessage(host *connect.Host,
 		defer cancel()
 
 		// Send the message
-		resultMsg, err := pb.NewClientregistrarClient(conn).RegisterUser(ctx,
+		resultMsg, err := pb.NewClientRegistrarClient(conn).RegisterUser(ctx,
 			message)
 		if err != nil {
 			return nil, errors.New(err.Error())
@@ -52,7 +52,7 @@ func (c *Comms) SendRegistrationMessage(host *connect.Host,
 	}
 
 	// Marshall the result
-	result := &pb.UserRegistrationConfirmation{}
+	result := &pb.SignedClientRegistrationConfirmations{}
 	return result, ptypes.UnmarshalAny(resultMsg, result)
 }
 

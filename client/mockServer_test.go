@@ -68,7 +68,7 @@ func (s *MockRegistration) Poll(*pb.PermissioningPoll, *connect.Auth) (*pb.Permi
 }
 
 // Registers a user and returns a signed public key
-func (s *MockRegistration) RegisterUser(*pb.UserRegistration) (*pb.UserRegistrationConfirmation, error) {
+func (s *MockRegistration) RegisterUser(registration *pb.ClientRegistration) (*pb.SignedClientRegistrationConfirmations, error) {
 	return nil, nil
 }
 
@@ -105,7 +105,7 @@ func (s *MockRegistrationError) Poll(*pb.PermissioningPoll, *connect.Auth) (*pb.
 }
 
 // Registers a user and returns a signed public key
-func (s *MockRegistrationError) RegisterUser(*pb.UserRegistration) (*pb.UserRegistrationConfirmation, error) {
+func (s *MockRegistrationError) RegisterUser(confirmation *pb.ClientRegistration) (*pb.SignedClientRegistrationConfirmations, error) {
 	return nil, nil
 }
 

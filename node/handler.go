@@ -80,9 +80,13 @@ type Handler interface {
 	DownloadMixedBatch(stream mixmessages.Node_DownloadMixedBatchServer,
 		batchInfo *mixmessages.BatchReady, auth *connect.Auth) error
 	// Server interface for broadcasting when realtime is complete
-	FinishRealtime(message *mixmessages.RoundInfo, auth *connect.Auth) error
+	FinishRealtime(message *mixmessages.RoundInfo,
+		streamServer mixmessages.Node_FinishRealtimeServer, auth *connect.Auth) error
 	// GetRoundBufferInfo returns # of available precomputations
 	GetRoundBufferInfo(auth *connect.Auth) (int, error)
+
+	PrecompTestBatch(stream mixmessages.Node_PrecompTestBatchServer, info *mixmessages.RoundInfo,
+		auth *connect.Auth) error
 
 	GetMeasure(message *mixmessages.RoundInfo, auth *connect.Auth) (*mixmessages.RoundMetrics, error)
 
@@ -91,15 +95,8 @@ type Handler interface {
 
 	StreamPostPhase(server mixmessages.Node_StreamPostPhaseServer, auth *connect.Auth) error
 
-	// Server interface for RequestNonceMessage
-	RequestNonce(nonceRequest *mixmessages.NonceRequest, auth *connect.Auth) (*mixmessages.Nonce, error)
-
-	// Server interface for ConfirmNonceMessage
-	ConfirmRegistration(requestConfirmation *mixmessages.RequestRegistrationConfirmation,
-		auth *connect.Auth) (*mixmessages.RegistrationConfirmation, error)
-
 	// PostPrecompResult interface to finalize both payloads' precomps
-	PostPrecompResult(roundID uint64, slots []*mixmessages.Slot, auth *connect.Auth) error
+	PostPrecompResult(roundID uint64, numSlots uint32, auth *connect.Auth) error
 
 	Poll(msg *mixmessages.ServerPoll, auth *connect.Auth) (*mixmessages.ServerPollResponse, error)
 
@@ -126,9 +123,16 @@ type Handler interface {
 
 	// Server -> Server sending multi-party round DH key
 	ShareFinalKey(sharedPiece *mixmessages.SharePiece, auth *connect.Auth) error
+
+	// Server interface for RequestNonceMessage
+	RequestClientKey(nonceRequest *mixmessages.SignedClientKeyRequest, auth *connect.Auth) (*mixmessages.SignedKeyResponse, error)
 }
 
 type implementationFunctions struct {
+
+	// Server interface for RequestNonceMessage
+	RequestClientKey func(request *mixmessages.SignedClientKeyRequest, auth *connect.Auth) (*mixmessages.SignedKeyResponse, error)
+
 	// Server Interface for starting New Rounds
 	CreateNewRound func(message *mixmessages.RoundInfo, auth *connect.Auth) error
 	// Server interface for sending a new batch
@@ -138,9 +142,12 @@ type implementationFunctions struct {
 		batchInfo *mixmessages.BatchReady, auth *connect.Auth) error
 
 	// Server interface for finishing the realtime phase
-	FinishRealtime func(message *mixmessages.RoundInfo, auth *connect.Auth) error
+	FinishRealtime func(message *mixmessages.RoundInfo, streamServer mixmessages.Node_FinishRealtimeServer, auth *connect.Auth) error
 	// GetRoundBufferInfo returns # of available precomputations completed
 	GetRoundBufferInfo func(auth *connect.Auth) (int, error)
+
+	PrecompTestBatch func(stream mixmessages.Node_PrecompTestBatchServer, message *mixmessages.RoundInfo,
+		auth *connect.Auth) error
 
 	GetMeasure func(message *mixmessages.RoundInfo, auth *connect.Auth) (*mixmessages.RoundMetrics, error)
 
@@ -150,15 +157,9 @@ type implementationFunctions struct {
 	// Server interface for internode streaming messages
 	StreamPostPhase func(message mixmessages.Node_StreamPostPhaseServer, auth *connect.Auth) error
 
-	// Server interface for RequestNonceMessage
-	RequestNonce func(nonceRequest *mixmessages.NonceRequest, auth *connect.Auth) (*mixmessages.Nonce, error)
-	// Server interface for ConfirmNonceMessage
-	ConfirmRegistration func(requestConfirmation *mixmessages.RequestRegistrationConfirmation,
-		auth *connect.Auth) (*mixmessages.RegistrationConfirmation, error)
-
 	// PostPrecompResult interface to finalize both payloads' precomputations
 	PostPrecompResult func(roundID uint64,
-		slots []*mixmessages.Slot, auth *connect.Auth) error
+		numSlots uint32, auth *connect.Auth) error
 
 	Poll func(msg *mixmessages.ServerPoll, auth *connect.Auth) (*mixmessages.ServerPollResponse, error)
 
@@ -206,6 +207,11 @@ func NewImplementation() *Implementation {
 	}
 	return &Implementation{
 		Functions: implementationFunctions{
+			RequestClientKey: func(request *mixmessages.SignedClientKeyRequest, auth *connect.Auth) (*mixmessages.SignedKeyResponse, error) {
+				warn(um)
+				return &mixmessages.SignedKeyResponse{}, nil
+			},
+
 			CreateNewRound: func(m *mixmessages.RoundInfo, auth *connect.Auth) error {
 				warn(um)
 				return nil
@@ -227,7 +233,12 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return nil
 			},
-			FinishRealtime: func(message *mixmessages.RoundInfo, auth *connect.Auth) error {
+			PrecompTestBatch: func(stream mixmessages.Node_PrecompTestBatchServer, message *mixmessages.RoundInfo,
+				auth *connect.Auth) error {
+				warn(um)
+				return nil
+			},
+			FinishRealtime: func(message *mixmessages.RoundInfo, streamServer mixmessages.Node_FinishRealtimeServer, auth *connect.Auth) error {
 				warn(um)
 				return nil
 			},
@@ -240,17 +251,8 @@ func NewImplementation() *Implementation {
 				return 0, nil
 			},
 
-			RequestNonce: func(nonceRequest *mixmessages.NonceRequest, auth *connect.Auth) (*mixmessages.Nonce, error) {
-				warn(um)
-				return &mixmessages.Nonce{}, nil
-			},
-			ConfirmRegistration: func(requestConfirmation *mixmessages.RequestRegistrationConfirmation,
-				auth *connect.Auth) (*mixmessages.RegistrationConfirmation, error) {
-				warn(um)
-				return &mixmessages.RegistrationConfirmation{}, nil
-			},
 			PostPrecompResult: func(roundID uint64,
-				slots []*mixmessages.Slot, auth *connect.Auth) error {
+				numSlots uint32, auth *connect.Auth) error {
 				warn(um)
 				return nil
 			},
@@ -294,6 +296,11 @@ func NewImplementation() *Implementation {
 	}
 }
 
+// Server interface for RequestNonceMessage
+func (s *Implementation) RequestClientKey(nonceRequest *mixmessages.SignedClientKeyRequest, auth *connect.Auth) (*mixmessages.SignedKeyResponse, error) {
+	return s.Functions.RequestClientKey(nonceRequest, auth)
+}
+
 // Server Interface for starting New Rounds
 func (s *Implementation) CreateNewRound(msg *mixmessages.RoundInfo, auth *connect.Auth) error {
 	return s.Functions.CreateNewRound(msg, auth)
@@ -324,25 +331,19 @@ func (s *Implementation) GetRoundBufferInfo(auth *connect.Auth) (int, error) {
 	return s.Functions.GetRoundBufferInfo(auth)
 }
 
-// Server interface for RequestNonceMessage
-func (s *Implementation) RequestNonce(nonceRequest *mixmessages.NonceRequest, auth *connect.Auth) (*mixmessages.Nonce, error) {
-	return s.Functions.RequestNonce(nonceRequest, auth)
-}
-
-// Server interface for ConfirmNonceMessage
-func (s *Implementation) ConfirmRegistration(requestConfirmation *mixmessages.RequestRegistrationConfirmation,
-	auth *connect.Auth) (*mixmessages.RegistrationConfirmation, error) {
-	return s.Functions.ConfirmRegistration(requestConfirmation, auth)
-}
-
 // PostPrecompResult interface to finalize both payloads' precomputations
 func (s *Implementation) PostPrecompResult(roundID uint64,
-	slots []*mixmessages.Slot, auth *connect.Auth) error {
-	return s.Functions.PostPrecompResult(roundID, slots, auth)
+	numSlots uint32, auth *connect.Auth) error {
+	return s.Functions.PostPrecompResult(roundID, numSlots, auth)
 }
 
-func (s *Implementation) FinishRealtime(message *mixmessages.RoundInfo, auth *connect.Auth) error {
-	return s.Functions.FinishRealtime(message, auth)
+func (s *Implementation) FinishRealtime(message *mixmessages.RoundInfo, streamServer mixmessages.Node_FinishRealtimeServer, auth *connect.Auth) error {
+	return s.Functions.FinishRealtime(message, streamServer, auth)
+}
+
+func (s *Implementation) PrecompTestBatch(stream mixmessages.Node_PrecompTestBatchServer, message *mixmessages.RoundInfo,
+	auth *connect.Auth) error {
+	return s.Functions.PrecompTestBatch(stream, message, auth)
 }
 
 func (s *Implementation) GetMeasure(message *mixmessages.RoundInfo, auth *connect.Auth) (*mixmessages.RoundMetrics, error) {

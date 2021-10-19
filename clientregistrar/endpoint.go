@@ -36,8 +36,8 @@ func (r *Comms) RequestToken(context.Context, *messages.Ping) (*messages.AssignT
 }
 
 // RegisterUser event handler which registers a user with the platform
-func (r *Comms) RegisterUser(ctx context.Context, msg *pb.UserRegistration) (
-	*pb.UserRegistrationConfirmation, error) {
+func (r *Comms) RegisterUser(ctx context.Context, msg *pb.ClientRegistration) (
+	*pb.SignedClientRegistrationConfirmations, error) {
 	// Obtain the signed key by passing to registration server
 	confirmationMessage, err := r.handler.RegisterUser(msg)
 	// Obtain the error message, if any

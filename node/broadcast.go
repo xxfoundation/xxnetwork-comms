@@ -96,8 +96,13 @@ func (s *Comms) SendAskOnline(host *connect.Host) (*messages.Ack, error) {
 		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 
+		authMsg, err := s.PackAuthenticatedMessage(&messages.Ping{}, host, false)
+		if err != nil {
+			return nil, errors.New(err.Error())
+		}
+
 		// Send the message
-		resultMsg, err := pb.NewNodeClient(conn).AskOnline(ctx, &messages.Ping{})
+		resultMsg, err := pb.NewNodeClient(conn).AskOnline(ctx, authMsg)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
@@ -106,42 +111,6 @@ func (s *Comms) SendAskOnline(host *connect.Host) (*messages.Ack, error) {
 
 	// Execute the Send function
 	jww.TRACE.Printf("Sending Ask Online message...")
-	resultMsg, err := s.Send(host, f)
-	if err != nil {
-		return nil, err
-	}
-
-	// Marshall the result
-	result := &messages.Ack{}
-	return result, ptypes.UnmarshalAny(resultMsg, result)
-}
-
-// Server -> Server Send Function
-func (s *Comms) SendFinishRealtime(host *connect.Host,
-	message *pb.RoundInfo) (*messages.Ack, error) {
-
-	// Create the Send Function
-	f := func(conn *grpc.ClientConn) (*any.Any, error) {
-		// Set up the context
-		ctx, cancel := host.GetMessagingContext()
-		defer cancel()
-
-		//Format to authenticated message type
-		authMsg, err := s.PackAuthenticatedMessage(message, host, false)
-		if err != nil {
-			return nil, errors.New(err.Error())
-		}
-
-		// Send the message
-		resultMsg, err := pb.NewNodeClient(conn).FinishRealtime(ctx, authMsg)
-		if err != nil {
-			return nil, errors.New(err.Error())
-		}
-		return ptypes.MarshalAny(resultMsg)
-	}
-
-	// Execute the Send function
-	jww.TRACE.Printf("Sending Finish Realtime message: %+v", message)
 	resultMsg, err := s.Send(host, f)
 	if err != nil {
 		return nil, err
@@ -189,7 +158,7 @@ func (s *Comms) SendNewRound(host *connect.Host,
 
 // Server -> Server Send Function
 func (s *Comms) SendPostPrecompResult(host *connect.Host,
-	roundID uint64, slots []*pb.Slot) (*messages.Ack, error) {
+	roundID uint64, numSlots uint32) (*messages.Ack, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
@@ -198,11 +167,9 @@ func (s *Comms) SendPostPrecompResult(host *connect.Host,
 		defer cancel()
 
 		//Pack the message as an authenticated message
-		batchMsg := &pb.Batch{
-			Round: &pb.RoundInfo{
-				ID: roundID,
-			},
-			Slots: slots,
+		batchMsg := &pb.PostPrecompResult{
+			RoundId:  roundID,
+			NumSlots: numSlots,
 		}
 		authMsg, err := s.PackAuthenticatedMessage(batchMsg, host, false)
 		if err != nil {
