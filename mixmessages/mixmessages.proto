@@ -206,9 +206,10 @@ message ServerPollResponse {
     repeated RoundInfo Updates = 4; //Empty if no update needed
     RoundInfo BatchRequest = 5; //Empty if no update needed
     BatchReady Batch = 6;
-    uint64 EarliestGatewayRound = 7; // Earliest round to track for gateways
-    int64 EarliestRoundTimestamp = 8; // The timestamp associated with the earliest the gateway still has info for
-    string EarliestRoundErr = 9;
+    uint64 EarliestClientRound = 7;
+    uint64 EarliestGatewayRound = 8; // Earliest round to track for gateways
+    int64 EarliestRoundTimestamp = 9; // The timestamp associated with the earliest the gateway still has info for
+    string EarliestRoundErr = 10;
 }
 
 message BatchReady {
