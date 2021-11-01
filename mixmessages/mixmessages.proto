@@ -337,6 +337,7 @@ message GatewayPoll {
     // If true, filtered updates relevant to client (FAILED, COMPLETED, QUEUED)
     // If false, all updates from the network
     bool FastPolling = 7;
+    uint64 LastRound = 8;
 }
 
 // Unified Client->Gateway polling response
