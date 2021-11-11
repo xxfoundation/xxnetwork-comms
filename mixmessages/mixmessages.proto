@@ -206,6 +206,10 @@ message ServerPollResponse {
     repeated RoundInfo Updates = 4; //Empty if no update needed
     RoundInfo BatchRequest = 5; //Empty if no update needed
     BatchReady Batch = 6;
+    uint64 EarliestClientRound = 7;
+    uint64 EarliestGatewayRound = 8; // Earliest round to track for gateways
+    int64 EarliestRoundTimestamp = 9; // The timestamp associated with the earliest the gateway still has info for
+    string EarliestRoundErr = 10;
 }
 
 message BatchReady {
@@ -333,6 +337,7 @@ message GatewayPoll {
     // If true, filtered updates relevant to client (FAILED, COMPLETED, QUEUED)
     // If false, all updates from the network
     bool FastPolling = 7;
+    uint64 LastRound = 8;
 }
 
 // Unified Client->Gateway polling response
@@ -342,6 +347,7 @@ message GatewayPollResponse {
     bytes KnownRounds = 3; // Rounds gateway knows about
     ClientBlooms Filters = 4; // Set of ClientBloomFilters requested by Client
     uint64 EarliestRound = 5; // The earliest round the gateway still has info for
+    string EarliestRoundErr = 6;
 }
 
 // Holds a set of ClientBloom and their associated metadata
@@ -522,6 +528,10 @@ message PermissionPollResponse {
     NDF FullNDF = 1; // Empty if no update needed
     NDF PartialNDF = 2; // Empty if no update needed
     repeated RoundInfo Updates = 3; // Empty if no update needed
+    uint64 EarliestClientRound = 4; // Earliest round to track for clients
+    uint64 EarliestGatewayRound = 5; // Earliest round to track for gateways
+    int64 EarliestRoundTimestamp = 6; // The timestamp associated with the earliest the gateway still has info for
+    string EarliestRoundErr = 7;
 }
 
 
