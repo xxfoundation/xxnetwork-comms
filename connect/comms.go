@@ -29,6 +29,11 @@ import (
 // MaxWindowSize 4 MB
 const MaxWindowSize = math.MaxInt32
 
+// TestingOnlyDisableTLS is the variable set for testing
+// which allows for the disabled TLS code-path. Production
+// code-path will only function with TLS enabled.
+var TestingOnlyDisableTLS = false
+
 // KaOpts are Keepalive options for servers
 // TODO: Set these via config
 var KaOpts = keepalive.ServerParameters{
@@ -55,7 +60,7 @@ var KaEnforcement = keepalive.EnforcementPolicy{
 // MaxConcurrentStreams is the number of server-side streams to allow open
 var MaxConcurrentStreams = uint32(250000)
 
-// Proto object containing a gRPC server
+// ProtoComms is a proto object containing a gRPC server logic.
 type ProtoComms struct {
 	// Inherit the Manager object
 	*Manager
@@ -91,7 +96,8 @@ type ProtoComms struct {
 	// -------------------------------------------------------------------------
 }
 
-// Creates a ProtoComms client-type object to be used in various initializers
+// CreateCommClient creates a ProtoComms client-type object to be
+// used in various initializers.
 func CreateCommClient(id *id.ID, pubKeyPem, privKeyPem,
 	salt []byte) (*ProtoComms, error) {
 	// Build the ProtoComms object
@@ -113,7 +119,7 @@ func CreateCommClient(id *id.ID, pubKeyPem, privKeyPem,
 	return pc, nil
 }
 
-// Creates a ProtoComms server-type object to be used in various initializers
+// StartCommServer creates a ProtoComms server-type object to be used in various initializers.
 func StartCommServer(id *id.ID, localServer string,
 	certPEMblock, keyPEMblock []byte, preloadedHosts []*Host) (*ProtoComms, net.Listener, error) {
 
@@ -164,7 +170,7 @@ listen:
 			grpc.MaxRecvMsgSize(math.MaxInt32),
 			grpc.KeepaliveParams(KaOpts),
 			grpc.KeepaliveEnforcementPolicy(KaEnforcement))
-	} else {
+	} else if TestingOnlyDisableTLS {
 		// Create the gRPC server without TLS
 		jww.WARN.Printf("Starting server with TLS disabled...")
 		pc.LocalServer = grpc.NewServer(
@@ -172,12 +178,14 @@ listen:
 			grpc.MaxRecvMsgSize(math.MaxInt32),
 			grpc.KeepaliveParams(KaOpts),
 			grpc.KeepaliveEnforcementPolicy(KaEnforcement))
+	} else {
+		jww.FATAL.Panicf("TLS cannot be disabled in production, only for testing suites!")
 	}
 
 	return pc, lis, nil
 }
 
-// Performs a graceful shutdown of the local server
+// Shutdown performs a graceful shutdown of the local server.
 func (c *ProtoComms) Shutdown() {
 	c.DisconnectAll()
 	c.LocalServer.GracefulStop()
@@ -200,7 +208,7 @@ func (c *ProtoComms) setPrivateKey(data []byte) error {
 	return nil
 }
 
-// Getter for local server's private key
+// GetPrivateKey is the getter for local server's private key.
 func (c *ProtoComms) GetPrivateKey() *rsa.PrivateKey {
 	return c.privateKey
 }
@@ -213,8 +221,8 @@ const (
 	send = 3
 )
 
-// Sets up or recovers the Host's connection
-// Then runs the given Send function
+// Send sets up or recovers the Host's connection,
+// then runs the given transmit function.
 func (c *ProtoComms) Send(host *Host, f func(conn *grpc.ClientConn) (*any.Any,
 	error)) (result *any.Any, err error) {
 
@@ -231,8 +239,8 @@ func (c *ProtoComms) Send(host *Host, f func(conn *grpc.ClientConn) (*any.Any,
 	return anyFace.(*any.Any), err
 }
 
-// Sets up or recovers the Host's connection
-// Then runs the given Stream function
+// Stream sets up or recovers the Host's connection,
+// then runs the given Stream function.
 func (c *ProtoComms) Stream(host *Host, f func(conn *grpc.ClientConn) (
 	interface{}, error)) (client interface{}, err error) {
 
