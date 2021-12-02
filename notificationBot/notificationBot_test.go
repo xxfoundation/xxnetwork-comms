@@ -9,10 +9,19 @@ package notificationBot
 
 import (
 	"fmt"
+	jww "github.com/spf13/jwalterweatherman"
+	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/primitives/id"
+	"os"
 	"sync"
 	"testing"
 )
+
+func TestMain(m *testing.M) {
+	jww.SetStdoutThreshold(jww.LevelTrace)
+	connect.TestingOnlyDisableTLS = true
+	os.Exit(m.Run())
+}
 
 var botPortLock sync.Mutex
 var botPort = 1500
