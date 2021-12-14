@@ -390,6 +390,7 @@ message GatewaySlotResponse{
 message BatchSenders {
     repeated bytes SenderIds = 1;
     uint64 RoundID = 2;
+    repeated bytes Ips = 3;
 }
 
 // Gateway -> Gateway gossip of all recipient IDs in a Batch
