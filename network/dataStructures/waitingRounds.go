@@ -8,9 +8,9 @@ package dataStructures
 
 import (
 	"container/list"
-	"github.com/golang-collections/collections/set"
 	"github.com/pkg/errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
+	"gitlab.com/elixxir/primitives/excludedRounds"
 	"gitlab.com/elixxir/primitives/states"
 	"gitlab.com/xx_network/primitives/netTime"
 	"sync"
@@ -107,7 +107,7 @@ func (wr *WaitingRounds) remove(newRound *Round) {
 // list is empty, then nil is returned. If the round is on the exclusion list,
 // then the next round is checked.
 // this is assumed to be called on an operation already under the cond's lock
-func (wr *WaitingRounds) getFurthest(exclude *set.Set, cutoffDelta time.Duration) *Round {
+func (wr *WaitingRounds) getFurthest(exclude *excludedRounds.ExcludedRounds, cutoffDelta time.Duration) *Round {
 	earliestStart := netTime.Now().Add(cutoffDelta)
 
 	// Return nil for an empty list
@@ -134,7 +134,7 @@ func (wr *WaitingRounds) getFurthest(exclude *set.Set, cutoffDelta time.Duration
 // list is empty, then nil is returned. If the round is on the exclusion list,
 // then the next round is checked.
 // this is assumed to be called on an operation already under the cond's lock
-func (wr *WaitingRounds) getClosest(exclude *set.Set, minRoundAge time.Duration) *Round {
+func (wr *WaitingRounds) getClosest(exclude *excludedRounds.ExcludedRounds, minRoundAge time.Duration) *Round {
 	earliestStart := netTime.Now().Add(minRoundAge)
 
 	// Return nil for an empty list
@@ -157,12 +157,12 @@ func (wr *WaitingRounds) getClosest(exclude *set.Set, minRoundAge time.Duration)
 	return nil
 }
 
-func isExcluded(exclude *set.Set, r *pb.RoundInfo) bool {
+func isExcluded(exclude *excludedRounds.ExcludedRounds, r *pb.RoundInfo) bool {
 	if exclude == nil {
 		return false
 	}
 
-	return exclude.Has(r)
+	return exclude.Has(r.GetRoundId())
 }
 
 // GetSlice returns a slice of all round infos in the list that have yet to
@@ -197,7 +197,7 @@ func (wr *WaitingRounds) GetSlice() []*pb.RoundInfo {
 // attempts at pulling the closest round, GetUpcomingRealtime will retrieve
 // the furthest non-excluded round from WaitingRounds.
 func (wr *WaitingRounds) GetUpcomingRealtime(timeout time.Duration,
-	exclude *set.Set, minRoundAge time.Duration) (*pb.RoundInfo, error) {
+	exclude *excludedRounds.ExcludedRounds, minRoundAge time.Duration) (*pb.RoundInfo, error) {
 
 	// Start timeout timer
 	timer := time.NewTimer(timeout)
