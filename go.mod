@@ -8,7 +8,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/jwalterweatherman v1.1.0
 	gitlab.com/elixxir/crypto v0.0.7-0.20211220224022-1f518df56c0f
-	gitlab.com/elixxir/primitives v0.0.3-0.20211220223949-1fdbc43d8269
+	gitlab.com/elixxir/primitives v0.0.3-0.20211221182854-e5bc4bda7a03
 	gitlab.com/xx_network/comms v0.0.4-0.20211220223937-660809b69338
 	gitlab.com/xx_network/crypto v0.0.5-0.20211220223913-6088f05a1191
 	gitlab.com/xx_network/primitives v0.0.4-0.20211220222437-cfa4d22efd35
