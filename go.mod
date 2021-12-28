@@ -3,11 +3,8 @@ module gitlab.com/elixxir/comms
 go 1.13
 
 require (
-	github.com/golang-collections/collections v0.0.0-20130729185459-604e922904d3
 	github.com/golang/protobuf v1.5.2
-	github.com/liyue201/goqr v0.0.0-20200803022322-df443203d4ea // indirect
 	github.com/pkg/errors v0.9.1
-	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e // indirect
 	github.com/spf13/jwalterweatherman v1.1.0
 	gitlab.com/elixxir/crypto v0.0.6
 	gitlab.com/elixxir/primitives v0.0.3-0.20211221182854-e5bc4bda7a03
