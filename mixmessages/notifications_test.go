@@ -202,3 +202,31 @@ func TestBuildNotificationCSV(t *testing.T) {
 		t.Errorf("Second pass mismatch: Expected: \n[%s]\n, received: \n[%s]\n", extra, string(second))
 	}
 }
+
+func TestBuildNotificationCSV_small(t *testing.T) {
+	expected := "U4x/lrFkvxuXu59LtHLon1sUhPJSCcnZND6SugndnVI=,39ebTXZCm2F6DJ+fDTulWwzA1hRMiIU1hA==" +
+		"\nGsvgcJsHWAg/YdN1vAK0HfT5GSnhj9qeb4LlTnSOgec=,nku9b+NM3LqEPujWPoxP/hzr6lRtj6wT3Q==\n"
+
+	rng := rand.New(rand.NewSource(42))
+
+	const numNotifications = 2
+
+	notifList := make([]*NotificationData, 0, numNotifications)
+
+	for i := 0; i < numNotifications; i++ {
+		msgHash := make([]byte, 32)
+		ifp := make([]byte, 25)
+		rng.Read(msgHash)
+		rng.Read(ifp)
+		notifList = append(notifList, &NotificationData{MessageHash: msgHash, IdentityFP: ifp})
+	}
+
+	csv, rest := BuildNotificationCSV(notifList, 4096)
+
+	if expected != string(csv) {
+		t.Errorf("First pass mismatch: Expected:\n[%s]\n, received: \n[%s]\n", expected, string(csv))
+	}
+	if len(rest) != 0 {
+		t.Errorf("Should not have been any overflow, but got [%+v]", rest)
+	}
+}
