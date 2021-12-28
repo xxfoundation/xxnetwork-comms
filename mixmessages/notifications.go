@@ -24,6 +24,31 @@ func MakeNotificationsCSV(l []*NotificationData) string {
 	return string(buf.Bytes())
 }
 
+func BuildNotificationCSV(ndList []*NotificationData, maxSize int) ([]byte, []*NotificationData) {
+	buf := &bytes.Buffer{}
+	w := csv.NewWriter(buf)
+
+	numWritten := 0
+
+	for _, nd := range ndList {
+		output := []string{base64.StdEncoding.EncodeToString(nd.MessageHash),
+			base64.StdEncoding.EncodeToString(nd.IdentityFP)}
+
+		if buf.Len()+len(output) > maxSize {
+			break
+		}
+
+		if err := w.Write(output); err != nil {
+			jww.FATAL.Printf("Failed to make notificationsCSV: %+v", err)
+		}
+
+		numWritten++
+	}
+	w.Flush()
+
+	return buf.Bytes(), ndList[numWritten:]
+}
+
 func UpdateNotificationCSV(l *NotificationData, oldBuf *bytes.Buffer, maxSize int) bool {
 	output := make([]string, 2)
 	output = []string{base64.StdEncoding.EncodeToString(l.MessageHash),
