@@ -1,6 +1,7 @@
 package mixmessages
 
 import (
+	"bytes"
 	"math/rand"
 	"reflect"
 	"testing"
@@ -13,24 +14,24 @@ func TestMake_DecodeNotificationsCSV(t *testing.T) {
 
 	const numNotifications = 50
 
-	notifList := make([]*NotificationData,0,numNotifications)
+	notifList := make([]*NotificationData, 0, numNotifications)
 
-	for i:=0;i<numNotifications;i++{
-		msgHash := make([]byte,32)
-		ifp := make([]byte,25)
+	for i := 0; i < numNotifications; i++ {
+		msgHash := make([]byte, 32)
+		ifp := make([]byte, 25)
 		rng.Read(msgHash)
 		rng.Read(ifp)
-		notifList = append(notifList, &NotificationData{MessageHash: msgHash,IdentityFP: ifp})
+		notifList = append(notifList, &NotificationData{MessageHash: msgHash, IdentityFP: ifp})
 	}
 
 	notifCSV := MakeNotificationsCSV(notifList)
 	newNotifList, err := DecodeNotificationsCSV(notifCSV)
 
-	if err!=nil{
+	if err != nil {
 		t.Error(err)
 	}
 
-	if !reflect.DeepEqual(notifList,newNotifList){
+	if !reflect.DeepEqual(notifList, newNotifList) {
 		t.Errorf("The generated notifivations do not match")
 	}
 }
@@ -92,18 +93,34 @@ func TestMakeNotificationsCSV_Consistency(t *testing.T) {
 
 	const numNotifications = 50
 
-	notifList := make([]*NotificationData,0,numNotifications)
+	notifList := make([]*NotificationData, 0, numNotifications)
 
-	for i:=0;i<numNotifications;i++{
-		msgHash := make([]byte,32)
-		ifp := make([]byte,25)
+	for i := 0; i < numNotifications; i++ {
+		msgHash := make([]byte, 32)
+		ifp := make([]byte, 25)
 		rng.Read(msgHash)
 		rng.Read(ifp)
-		notifList = append(notifList, &NotificationData{MessageHash: msgHash,IdentityFP: ifp})
+		notifList = append(notifList, &NotificationData{MessageHash: msgHash, IdentityFP: ifp})
 	}
 
 	notifCSV := MakeNotificationsCSV(notifList)
-	if notifCSV!=expected{
+	if notifCSV != expected {
 		t.Errorf("generated notif does not match expected")
 	}
+}
+
+func TestUpdateNotificationCSV(t *testing.T) {
+	buf := &bytes.Buffer{}
+	newBuf, ok := UpdateNotificationCSV(&NotificationData{
+		EphemeralID: 2,
+		IdentityFP:  []byte("idfp"),
+		MessageHash: []byte("msghash"),
+	}, buf, 2048)
+	if newBuf.Len() < 1 {
+		t.Errorf("Failed to write to buffer: %+v", newBuf.Len())
+	}
+	if !ok {
+		t.Errorf("not ok")
+	}
+
 }
