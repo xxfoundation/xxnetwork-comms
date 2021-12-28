@@ -9,21 +9,6 @@ import (
 	"strings"
 )
 
-func MakeNotificationsCSV(l []*NotificationData) string {
-	output := make([][]string, len(l))
-	for i, n := range l {
-		output[i] = []string{base64.StdEncoding.EncodeToString(n.MessageHash),
-			base64.StdEncoding.EncodeToString(n.IdentityFP)}
-	}
-
-	buf := &bytes.Buffer{}
-	w := csv.NewWriter(buf)
-	if err := w.WriteAll(output); err != nil {
-		jww.FATAL.Printf("Failed to make notificationsCSV: %+v", err)
-	}
-	return string(buf.Bytes())
-}
-
 func BuildNotificationCSV(ndList []*NotificationData, maxSize int) ([]byte, []*NotificationData) {
 	buf := &bytes.Buffer{}
 
@@ -52,28 +37,6 @@ func BuildNotificationCSV(ndList []*NotificationData, maxSize int) ([]byte, []*N
 	}
 
 	return buf.Bytes(), ndList[numWritten:]
-}
-
-func UpdateNotificationCSV(l *NotificationData, oldBuf *bytes.Buffer, maxSize int) bool {
-	output := make([]string, 2)
-	output = []string{base64.StdEncoding.EncodeToString(l.MessageHash),
-		base64.StdEncoding.EncodeToString(l.IdentityFP)}
-
-	addition := &bytes.Buffer{}
-
-	w := csv.NewWriter(addition)
-	if err := w.Write(output); err != nil {
-		jww.FATAL.Printf("Failed to make notificationsCSV: %+v", err)
-	}
-	w.Flush()
-
-	if addition.Len()+oldBuf.Len() >= maxSize {
-		return false
-	}
-	if _, err := oldBuf.Write(addition.Bytes()); err != nil {
-		jww.FATAL.Printf("Failed to append addition to CSV: %+v", err)
-	}
-	return true
 }
 
 func DecodeNotificationsCSV(data string) ([]*NotificationData, error) {
