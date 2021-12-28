@@ -5,13 +5,15 @@ go 1.13
 require (
 	github.com/golang-collections/collections v0.0.0-20130729185459-604e922904d3
 	github.com/golang/protobuf v1.5.2
+	github.com/liyue201/goqr v0.0.0-20200803022322-df443203d4ea // indirect
 	github.com/pkg/errors v0.9.1
+	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e // indirect
 	github.com/spf13/jwalterweatherman v1.1.0
-	gitlab.com/elixxir/crypto v0.0.7-0.20211220224022-1f518df56c0f
+	gitlab.com/elixxir/crypto v0.0.6
 	gitlab.com/elixxir/primitives v0.0.3-0.20211221182854-e5bc4bda7a03
-	gitlab.com/xx_network/comms v0.0.4-0.20211220223937-660809b69338
-	gitlab.com/xx_network/crypto v0.0.5-0.20211220223913-6088f05a1191
-	gitlab.com/xx_network/primitives v0.0.4-0.20211220222437-cfa4d22efd35
+	gitlab.com/xx_network/comms v0.0.4-0.20211227194445-c099754b3cda
+	gitlab.com/xx_network/crypto v0.0.5-0.20211227194420-f311e8920467
+	gitlab.com/xx_network/primitives v0.0.4-0.20211222205802-03e9d7d835b0
 	gitlab.com/xx_network/ring v0.0.3-0.20210527191221-ce3f170aabd5
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
 	golang.org/x/net v0.0.0-20210525063256-abc453219eb5
