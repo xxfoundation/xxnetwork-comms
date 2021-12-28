@@ -111,13 +111,13 @@ func TestMakeNotificationsCSV_Consistency(t *testing.T) {
 
 func TestUpdateNotificationCSV(t *testing.T) {
 	buf := &bytes.Buffer{}
-	newBuf, ok := UpdateNotificationCSV(&NotificationData{
+	ok := UpdateNotificationCSV(&NotificationData{
 		EphemeralID: 2,
 		IdentityFP:  []byte("idfp"),
 		MessageHash: []byte("msghash"),
 	}, buf, 2048)
-	if newBuf.Len() < 1 {
-		t.Errorf("Failed to write to buffer: %+v", newBuf.Len())
+	if buf.Len() < 1 {
+		t.Errorf("Failed to write to buffer: %+v", buf.Len())
 	}
 	if !ok {
 		t.Errorf("not ok")
