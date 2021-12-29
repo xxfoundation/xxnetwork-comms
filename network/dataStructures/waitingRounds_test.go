@@ -131,7 +131,7 @@ func TestWaitingRounds_getFurthest_Exclude(t *testing.T) {
 	}
 
 	// Add rounds to exclusion list
-	exclude := excludedRounds.New()
+	exclude := excludedRounds.NewSet()
 	for i, round := range expectedRounds {
 		if i%2 == 0 {
 			exclude.Insert(round.info.GetRoundId())
@@ -195,7 +195,7 @@ func TestWaitingRounds_GetUpcomingRealtime_NoWait(t *testing.T) {
 	}
 
 	for i := 0; i < len(expectedRounds); i++ {
-		furthestRound, err := testWR.GetUpcomingRealtime(300*time.Millisecond, excludedRounds.New(), 0)
+		furthestRound, err := testWR.GetUpcomingRealtime(300*time.Millisecond, excludedRounds.NewSet(), 0)
 		if err != nil {
 			t.Errorf("GetUpcomingRealtime() returned an unexpected error."+
 				"\n\terror: %v", err)
@@ -213,7 +213,7 @@ func TestWaitingRounds_GetUpcomingRealtime_NoWait(t *testing.T) {
 func TestWaitingRounds_GetUpcomingRealtime_TimeoutError(t *testing.T) {
 	testWR := NewWaitingRounds()
 
-	furthestRound, err := testWR.GetUpcomingRealtime(300*time.Millisecond, excludedRounds.New(), 0)
+	furthestRound, err := testWR.GetUpcomingRealtime(300*time.Millisecond, excludedRounds.NewSet(), 0)
 	if err != timeOutError {
 		t.Errorf("GetUpcomingRealtime() did not time out when expected."+
 			"\nexpected: %v\n\treceived: %v", timeOutError, err)
@@ -240,7 +240,7 @@ func TestWaitingRounds_GetUpcomingRealtime(t *testing.T) {
 			testWR.Insert(round)
 		}(round)
 
-		furthestRound, err := testWR.GetUpcomingRealtime(5*time.Second, excludedRounds.New(), 0)
+		furthestRound, err := testWR.GetUpcomingRealtime(5*time.Second, excludedRounds.NewSet(), 0)
 
 		if err != nil {
 			t.Errorf("GetUpcomingRealtime() returned an unexpected error (%d)."+
@@ -262,7 +262,7 @@ func TestWaitingRounds_GetUpcomingRealtime_GetFurthest(t *testing.T) {
 	testWR := NewWaitingRounds()
 
 	// Populate the set
-	testSet := excludedRounds.New()
+	testSet := excludedRounds.NewSet()
 	for i := 0; i < maxGetClosestTries; i++ {
 		testSet.Insert(expectedRounds[i].info.GetRoundId())
 	}
