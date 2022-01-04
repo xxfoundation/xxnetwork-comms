@@ -3,15 +3,14 @@ module gitlab.com/elixxir/comms
 go 1.13
 
 require (
-	github.com/golang-collections/collections v0.0.0-20130729185459-604e922904d3
 	github.com/golang/protobuf v1.5.2
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/jwalterweatherman v1.1.0
-	gitlab.com/elixxir/crypto v0.0.7-0.20211022013957-3a7899285c4c
-	gitlab.com/elixxir/primitives v0.0.3-0.20211014164029-06022665b576
-	gitlab.com/xx_network/comms v0.0.4-0.20211014163953-e774276b83ae
-	gitlab.com/xx_network/crypto v0.0.5-0.20211014163843-57b345890686
-	gitlab.com/xx_network/primitives v0.0.4-0.20211014163031-53405cf191fb
+	gitlab.com/elixxir/crypto v0.0.7-0.20211230230452-bca020488964
+	gitlab.com/elixxir/primitives v0.0.3-0.20211230224340-fc0905d8776e
+	gitlab.com/xx_network/comms v0.0.4-0.20211227194445-c099754b3cda
+	gitlab.com/xx_network/crypto v0.0.5-0.20211227194420-f311e8920467
+	gitlab.com/xx_network/primitives v0.0.4-0.20211222205802-03e9d7d835b0
 	gitlab.com/xx_network/ring v0.0.3-0.20210527191221-ce3f170aabd5
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
 	golang.org/x/net v0.0.0-20210525063256-abc453219eb5
