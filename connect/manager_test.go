@@ -23,6 +23,7 @@ const ServerAddress2 = "0.0.0.0:5557"
 func TestMain(m *testing.M) {
 	lis1, _ := net.Listen("tcp", ServerAddress)
 	lis2, _ := net.Listen("tcp", ServerAddress2)
+	TestingOnlyDisableTLS = true
 
 	grpcServer1 := grpc.NewServer(grpc.MaxConcurrentStreams(math.MaxUint32),
 		grpc.MaxRecvMsgSize(33554432))

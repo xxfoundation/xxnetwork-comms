@@ -9,11 +9,19 @@ package gossip
 
 import (
 	"context"
+	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/primitives/id"
+	"os"
 	"testing"
 	"time"
 )
+
+func TestMain(m *testing.M) {
+	jww.SetStdoutThreshold(jww.LevelTrace)
+	connect.TestingOnlyDisableTLS = true
+	os.Exit(m.Run())
+}
 
 // Test endpoint when manager has a protocol
 func TestManager_Endpoint_toProtocol(t *testing.T) {

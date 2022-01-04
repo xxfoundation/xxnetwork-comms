@@ -330,10 +330,12 @@ func (h *Host) connectHelper() (err error) {
 	if h.credentials != nil {
 		// Create the gRPC client with TLS
 		securityDial = grpc.WithTransportCredentials(h.credentials)
-	} else {
+	} else if TestingOnlyDisableTLS {
 		// Create the gRPC client without TLS
 		jww.WARN.Printf("Connecting to %v without TLS!", h.GetAddress())
 		securityDial = grpc.WithInsecure()
+	} else {
+		jww.FATAL.Panicf("TLS cannot be disabled in production, only for testing suites!")
 	}
 
 	jww.DEBUG.Printf("Attempting to establish connection to %s using"+
@@ -399,8 +401,12 @@ func (h *Host) setCredentials() error {
 
 	// If no TLS Certificate specified, print a warning and do nothing
 	if h.certificate == nil || len(h.certificate) == 0 {
-		jww.WARN.Printf("No TLS Certificate specified!")
-		return nil
+		if TestingOnlyDisableTLS {
+			jww.WARN.Printf("No TLS Certificate specified!")
+			return nil
+		} else {
+			jww.FATAL.Panicf("TLS cannot be disabled in production, only for testing suites!")
+		}
 	}
 
 	// Obtain the DNS name included with the certificate
