@@ -68,7 +68,7 @@ func (wr *WaitingRounds) Insert(added, removed []*Round) {
 	//add any round which should be added
 	for i:= range added{
 		toAdd := added[i]
-		if time.Now().After(time.Unix(0,int64(toAdd.info.Timestamps[states.QUEUED]))){
+		if !time.Now().After(time.Unix(0,int64(toAdd.info.Timestamps[states.QUEUED]))){
 			wr.writeRounds.Set(toAdd.info.ID,toAdd)
 		}
 
