@@ -17,17 +17,15 @@ import (
 	"gitlab.com/xx_network/primitives/netTime"
 	"math/rand"
 	"reflect"
-	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 )
 
 // Happy path of NewWaitingRounds().
 func TestNewWaitingRounds(t *testing.T) {
-	expectedWR := &WaitingRounds{rounds: list.New()}
-	m := sync.Mutex{}
-	expectedWR.c = sync.NewCond(&m)
-
+	expectedWR := &WaitingRounds{writeRounds: list.New(), readRounds: &atomic.Value{}}
+	expectedWR.waitingMux.Lock()
 	testWR := NewWaitingRounds()
 
 	if !reflect.DeepEqual(expectedWR, testWR) {
@@ -65,7 +63,7 @@ func TestWaitingRounds_Insert(t *testing.T) {
 	}
 
 	// Check if they are in the correct order
-	for e, i := testWR.rounds.Front(), 0; e != nil; e, i = e.Next(), i+1 {
+	for e, i := testWR.writeRounds.Front(), 0; e != nil; e, i = e.Next(), i+1 {
 		if expectedRounds[i].info != e.Value.(*Round).info {
 			t.Errorf("Insert() did not inser the correct element at position %d."+
 				"\nexpected: %v\nrecieved: %v", i, expectedRounds[i], e.Value)
@@ -83,6 +81,8 @@ func TestWaitingRounds_remove(t *testing.T) {
 	for _, round := range expectedRounds {
 		testWR.Insert(round)
 	}
+
+	testWR.storeReadRounds()
 
 	for _, round := range testRounds {
 		testWR.remove(round)
@@ -105,13 +105,16 @@ func TestWaitingRounds_getFurthest(t *testing.T) {
 		testWR.Insert(round)
 	}
 
+	testWR.storeReadRounds()
+
 	for i := len(expectedRounds) - 1; i >= 0; i-- {
 		if !reflect.DeepEqual(expectedRounds[i], testWR.getFurthest(nil, 0)) {
-			t.Errorf("getFurthest() did not return the expected round."+
-				"\nexpected: %+v\nrecieved: %+v",
+			t.Errorf("getFurthest() did not return the expected round for %d."+
+				"\nexpected: %+v\nrecieved: %+v", i,
 				expectedRounds[i].info, testWR.getFurthest(nil, 0).info)
 		}
 		testWR.remove(expectedRounds[i])
+		testWR.storeReadRounds()
 	}
 
 	if testWR.getFurthest(nil, 0) != nil {
@@ -142,10 +145,11 @@ func TestWaitingRounds_getFurthest_Exclude(t *testing.T) {
 		if i%2 == 1 {
 			received := testWR.getFurthest(exclude, 0)
 			if !reflect.DeepEqual(expectedRounds[i], received) {
-				t.Errorf("getFurthest() did not return the expected round."+
-					"\nexpected: %v\nrecieved: %v", expectedRounds[i], received)
+				t.Errorf("getFurthest() did not return the expected round for %d."+
+					"\nexpected: %v\nrecieved: %v", i, expectedRounds[i], received)
 			}
 			testWR.remove(expectedRounds[i])
+			testWR.storeReadRounds()
 		}
 	}
 	if testWR.getFurthest(exclude, 0) != nil {
@@ -166,16 +170,17 @@ func TestWaitingRounds_getClosest(t *testing.T) {
 
 	for i := 0; i < len(expectedRounds); i++ {
 		if !reflect.DeepEqual(expectedRounds[i], testWR.getClosest(nil, 0)) {
-			t.Errorf("getClosest() did not return the expected round."+
-				"\nexpected: %+v\nrecieved: %+v",
+			t.Errorf("getClosest() did not return the expected round for %d."+
+				"\nexpected: %+v\nrecieved: %+v", i,
 				expectedRounds[i].info, testWR.getClosest(nil, 0).info)
 		}
 		testWR.remove(expectedRounds[i])
+		testWR.storeReadRounds()
 	}
 
 	if testWR.getClosest(nil, 0) != nil {
 		t.Errorf("getFurthest() did not return nil on empty list: %+v",
-			testWR.rounds)
+			testWR.writeRounds)
 	}
 }
 
@@ -192,6 +197,7 @@ func TestWaitingRounds_GetUpcomingRealtime_NoWait(t *testing.T) {
 			t.Errorf("Failed to sign round info #%d: %+v", i, err)
 		}
 		testWR.Insert(round)
+		testWR.storeReadRounds()
 	}
 
 	for i := 0; i < len(expectedRounds); i++ {
@@ -205,6 +211,7 @@ func TestWaitingRounds_GetUpcomingRealtime_NoWait(t *testing.T) {
 				"\nexpected: %+v\nrecieved: %+v", i, expectedRounds[i].info, furthestRound)
 		}
 		testWR.remove(expectedRounds[i])
+		testWR.storeReadRounds()
 	}
 }
 
@@ -212,6 +219,7 @@ func TestWaitingRounds_GetUpcomingRealtime_NoWait(t *testing.T) {
 // list after timeout.
 func TestWaitingRounds_GetUpcomingRealtime_TimeoutError(t *testing.T) {
 	testWR := NewWaitingRounds()
+	testWR.storeReadRounds()
 
 	furthestRound, err := testWR.GetUpcomingRealtime(300*time.Millisecond, excludedRounds.NewSet(), 0)
 	if err != timeOutError {
@@ -239,6 +247,7 @@ func TestWaitingRounds_GetUpcomingRealtime(t *testing.T) {
 			}
 			testWR.Insert(round)
 		}(round)
+		testWR.storeReadRounds()
 
 		furthestRound, err := testWR.GetUpcomingRealtime(5*time.Second, excludedRounds.NewSet(), 0)
 
@@ -354,7 +363,7 @@ func createTestRoundInfos(num int, t *testing.T) ([]*Round, []*Round) {
 
 	for i := 0; i < num; i++ {
 		rounds[i] = NewRound(&pb.RoundInfo{
-			ID:         rand.Uint64(),
+			ID:         uint64(i),
 			State:      uint32(rand.Int63n(int64(states.NUM_STATES) - 1)),
 			Timestamps: make([]uint64, current.NUM_STATES),
 		}, pubKey, nil)

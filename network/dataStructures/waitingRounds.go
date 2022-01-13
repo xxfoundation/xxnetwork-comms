@@ -29,25 +29,28 @@ const maxGetClosestTries = 2
 // WaitingRounds contains a list of all queued rounds ordered by which occurs
 // furthest in the future with the furthest in the the back.
 type WaitingRounds struct {
-	rounds *list.List
-	c      *sync.Cond
+	readRounds *atomic.Value
+	writeRounds *list.List
+	writeMux sync.Mutex
+	waitingMux sync.RWMutex
 }
 
 // NewWaitingRounds generates a new WaitingRounds with an empty round list.
 func NewWaitingRounds() *WaitingRounds {
 	wr := WaitingRounds{
-		rounds: list.New(),
+		writeRounds: list.New(),
+		readRounds: &atomic.Value{},
 	}
 
-	m := sync.Mutex{}
-	wr.c = sync.NewCond(&m)
-
+	wr.waitingMux.Lock()
 	return &wr
 }
 
 // Len returns the number of rounds in the list.
 func (wr *WaitingRounds) Len() int {
-	return wr.rounds.Len()
+	wr.writeMux.Lock()
+	defer wr.writeMux.Unlock()
+	return wr.writeRounds.Len()
 }
 
 // Insert inserts a queued round into the list in order of its timestamp, from
@@ -55,16 +58,19 @@ func (wr *WaitingRounds) Len() int {
 // not inserted. If the new round already exists in the list but is no longer
 // queued, then it is removed.
 func (wr *WaitingRounds) Insert(newRound *Round) {
+	wr.writeMux.Lock()
+	defer wr.writeMux.Unlock()
+	edited := false
 	// If the round is queued, then add it to the list; otherwise, remove it
 	if newRound.info.GetState() == uint32(states.QUEUED) {
-		wr.c.L.Lock()
+		edited= true
 		inserted := false
 		// Loop through every round, starting with the furthest in the future
-		for e := wr.rounds.Back(); e != nil; e = e.Prev() {
+		for e := wr.writeRounds.Back(); e != nil; e = e.Prev() {
 			// If the new round is larger, than add it before
 			extractedRound := e.Value.(*Round)
 			if getTime(newRound) > getTime(extractedRound) {
-				wr.rounds.InsertAfter(newRound, e)
+				wr.writeRounds.InsertAfter(newRound, e)
 				inserted = true
 				break
 			}
@@ -73,17 +79,30 @@ func (wr *WaitingRounds) Insert(newRound *Round) {
 		// If the round's realtime is the sooner than all other rounds, then add
 		// it to the beginning  of the list
 		if !inserted {
-			wr.rounds.PushFront(newRound)
+			wr.writeRounds.PushFront(newRound)
 		}
-		go func() {
-			wr.c.Broadcast()
-			wr.c.L.Unlock()
-		}()
+
 	} else {
-		wr.c.L.Lock()
+		edited=true
 		wr.remove(newRound)
-		wr.c.L.Unlock()
 	}
+	if edited{
+
+		wr.storeReadRounds()
+		go func(){
+			wr.waitingMux.Unlock()
+			wr.waitingMux.Lock()
+		}()
+	}
+}
+
+func(wr *WaitingRounds)storeReadRounds(){
+	roundsList := make([]*Round,0,wr.writeRounds.Len())
+
+	for e := wr.writeRounds.Front(); e != nil; e = e.Next() {
+		roundsList = append(roundsList,e.Value.(*Round))
+	}
+	wr.readRounds.Store(roundsList)
 }
 
 // getTime returns the timestamp for the round's realtime.
@@ -94,10 +113,10 @@ func getTime(round *Round) uint64 {
 // remove deletes the round from the list if it exists.
 func (wr *WaitingRounds) remove(newRound *Round) {
 	// Look for a node with a matching ID from the list
-	for e := wr.rounds.Front(); e != nil; e = e.Next() {
+	for e := wr.writeRounds.Front(); e != nil; e = e.Next() {
 		extractedRound := e.Value.(*Round)
 		if extractedRound.info.ID == newRound.info.ID {
-			wr.rounds.Remove(e)
+			wr.writeRounds.Remove(e)
 			return
 		}
 	}
@@ -110,14 +129,12 @@ func (wr *WaitingRounds) remove(newRound *Round) {
 func (wr *WaitingRounds) getFurthest(exclude excludedRounds.ExcludedRounds, cutoffDelta time.Duration) *Round {
 	earliestStart := netTime.Now().Add(cutoffDelta)
 
-	// Return nil for an empty list
-	if wr.Len() == 0 {
-		return nil
-	}
+
+	roundsList := wr.readRounds.Load().([]*Round)
 
 	// Return the last non-excluded round in the list
-	for e := wr.rounds.Back(); e != nil; e = e.Prev() {
-		r := e.Value.(*Round)
+	for i:=len(roundsList)-1;i>=0;i-- {
+		r := roundsList[i]
 		// Cannot guarantee that the round object's pointers will be exact match
 		// of value in set
 		RoundStartTime := time.Unix(0, int64(r.info.Timestamps[states.QUEUED]))
@@ -137,14 +154,11 @@ func (wr *WaitingRounds) getFurthest(exclude excludedRounds.ExcludedRounds, cuto
 func (wr *WaitingRounds) getClosest(exclude excludedRounds.ExcludedRounds, minRoundAge time.Duration) *Round {
 	earliestStart := netTime.Now().Add(minRoundAge)
 
-	// Return nil for an empty list
-	if wr.Len() == 0 {
-		return nil
-	}
+	roundsList := wr.readRounds.Load().([]*Round)
 
 	// Return the first non-excluded round in the list
-	for e := wr.rounds.Front(); e != nil; e = e.Next() {
-		r := e.Value.(*Round)
+	for i:=0;i<len(roundsList);i++ {
+		r := roundsList[i]
 		// Cannot guarantee that the round object's pointers will be exact match
 		// of value in set
 		RoundStartTime := time.Unix(0, int64(r.info.Timestamps[states.QUEUED]))
@@ -168,17 +182,14 @@ func isExcluded(exclude excludedRounds.ExcludedRounds, r *pb.RoundInfo) bool {
 // GetSlice returns a slice of all round infos in the list that have yet to
 // occur.
 func (wr *WaitingRounds) GetSlice() []*pb.RoundInfo {
-	wr.c.L.Lock()
-	defer wr.c.L.Unlock()
+
+	roundsList := wr.readRounds.Load().([]*Round)
 
 	now := uint64(netTime.Now().Nanosecond())
 	var roundInfos []*pb.RoundInfo
-	iter := 0
-	for e, i := wr.rounds.Front(), 0; e != nil; e, i = e.Next(), i+1 {
-		iter++
-		extractedRound := e.Value.(*Round)
-		if getTime(extractedRound) > now {
-			roundInfos = append(roundInfos, extractedRound.info)
+	for i:=0;i<len(roundsList);i++ {
+		if getTime(roundsList[i]) > now {
+			roundInfos = append(roundInfos, roundsList[i].info)
 		}
 	}
 
@@ -209,7 +220,6 @@ func (wr *WaitingRounds) GetUpcomingRealtime(timeout time.Duration,
 	sig := make(chan *pb.RoundInfo, 1)
 	go func() {
 		var round *Round
-		wr.c.L.Lock()
 		for atomic.LoadUint32(&exit) == 0 {
 			if exclude.Len() < maxGetClosestTries {
 				// Use getClosest when excluded set's length is small
@@ -224,9 +234,9 @@ func (wr *WaitingRounds) GetUpcomingRealtime(timeout time.Duration,
 					break
 				}
 			}
-			wr.c.Wait()
+			wr.waitingMux.RLock()
+			wr.waitingMux.RUnlock()
 		}
-		wr.c.L.Unlock()
 		if round != nil {
 			sig <- round.Get()
 		}
