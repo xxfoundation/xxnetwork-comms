@@ -68,7 +68,7 @@ func (wr *WaitingRounds) Insert(added, removed []*Round) {
 	//check all rounds to see if they should be updates
 	for i:= range added{
 		toAdd := added[i]
-		wr.writeRounds.Set(toAdd,toAdd.info.ID)
+		wr.writeRounds.Set(toAdd.info.ID,toAdd)
 	}
 
 	for i := range removed {
