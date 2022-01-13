@@ -9,6 +9,7 @@ package dataStructures
 import (
 	"container/list"
 	"github.com/pkg/errors"
+	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/primitives/excludedRounds"
 	"gitlab.com/elixxir/primitives/states"
@@ -29,10 +30,10 @@ const maxGetClosestTries = 2
 // WaitingRounds contains a list of all queued rounds ordered by which occurs
 // furthest in the future with the furthest in the the back.
 type WaitingRounds struct {
-	readRounds *atomic.Value
+	readRounds  *atomic.Value
 	writeRounds *list.List
-	writeMux sync.Mutex
-	waitingMux sync.RWMutex
+	mux         sync.Mutex
+	signal 	    chan struct{}
 }
 
 // NewWaitingRounds generates a new WaitingRounds with an empty round list.
@@ -40,16 +41,19 @@ func NewWaitingRounds() *WaitingRounds {
 	wr := WaitingRounds{
 		writeRounds: list.New(),
 		readRounds: &atomic.Value{},
+		// this is intentionally unbuffered,
+		// do not change
+		signal: make(chan struct{}),
 	}
 
-	wr.waitingMux.Lock()
+
 	return &wr
 }
 
 // Len returns the number of rounds in the list.
 func (wr *WaitingRounds) Len() int {
-	wr.writeMux.Lock()
-	defer wr.writeMux.Unlock()
+	wr.mux.Lock()
+	defer wr.mux.Unlock()
 	return wr.writeRounds.Len()
 }
 
@@ -58,12 +62,10 @@ func (wr *WaitingRounds) Len() int {
 // not inserted. If the new round already exists in the list but is no longer
 // queued, then it is removed.
 func (wr *WaitingRounds) Insert(newRound *Round) {
-	wr.writeMux.Lock()
-	defer wr.writeMux.Unlock()
-	edited := false
+	wr.mux.Lock()
+	defer wr.mux.Unlock()
 	// If the round is queued, then add it to the list; otherwise, remove it
 	if newRound.info.GetState() == uint32(states.QUEUED) {
-		edited= true
 		inserted := false
 		// Loop through every round, starting with the furthest in the future
 		for e := wr.writeRounds.Back(); e != nil; e = e.Prev() {
@@ -82,17 +84,22 @@ func (wr *WaitingRounds) Insert(newRound *Round) {
 			wr.writeRounds.PushFront(newRound)
 		}
 
-	} else {
-		edited=true
-		wr.remove(newRound)
-	}
-	if edited{
-
 		wr.storeReadRounds()
 		go func(){
-			wr.waitingMux.Unlock()
-			wr.waitingMux.Lock()
+			// this will loop for as many people are waiting on the
+			// channel which is why it is in a seperate function
+			for{
+				select{
+				case wr.signal<- struct{}{}:
+				default:
+					//exit when there are no listeners
+					return
+				}
+			}
 		}()
+
+	} else {
+		wr.remove(newRound)
 	}
 }
 
@@ -213,45 +220,42 @@ func (wr *WaitingRounds) GetUpcomingRealtime(timeout time.Duration,
 	// Start timeout timer
 	timer := time.NewTimer(timeout)
 
-	exit := uint32(0)
-	defer atomic.StoreUint32(&exit, 1)
 
 	// Start waiting for rounds to be added
-	sig := make(chan *pb.RoundInfo, 1)
-	go func() {
-		var round *Round
-		for atomic.LoadUint32(&exit) == 0 {
-			if exclude.Len() < maxGetClosestTries {
-				// Use getClosest when excluded set's length is small
-				round = wr.getClosest(exclude, minRoundAge)
-				if round != nil {
-					break
-				}
-			} else {
-				// Use getFurthest when excluded set's length exceeds maxGetClosestTries
-				round = wr.getFurthest(exclude, minRoundAge)
-				if round != nil {
-					break
-				}
-			}
-			wr.waitingMux.RLock()
-			wr.waitingMux.RUnlock()
-		}
-		if round != nil {
-			sig <- round.Get()
-		}
-	}()
+	round := wr.get(exclude,minRoundAge)
+	if round!=nil{
+		return round, nil
+	}
 
-	// If rounds already exist in the list, then return the the correct round
-	// without waiting
-
+	jww.INFO.Printf("Could not find round to send on, waiting for update")
 	// If the list is empty, then start waiting for rounds to be added.
 	for {
 		select {
 		case <-timer.C:
 			return nil, timeOutError
-		case round := <-sig:
-			return round, nil
+		case <-wr.signal:
+			round = wr.get(exclude,minRoundAge)
+			if round!=nil{
+				return round, nil
+			}
 		}
 	}
+}
+
+func (wr *WaitingRounds) get(exclude excludedRounds.ExcludedRounds, minRoundAge time.Duration)*pb.RoundInfo{
+	if exclude.Len() < maxGetClosestTries {
+		// Use getClosest when excluded set's length is small
+		round := wr.getClosest(exclude, minRoundAge)
+		if round != nil {
+			return round.Get()
+		}
+	} else {
+		// Use getFurthest when excluded set's length exceeds maxGetClosestTries
+		round := wr.getFurthest(exclude, minRoundAge)
+		if round != nil {
+			return round.Get()
+		}
+	}
+	return nil
+
 }
