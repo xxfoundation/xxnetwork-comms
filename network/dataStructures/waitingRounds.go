@@ -42,7 +42,6 @@ func NewWaitingRounds() *WaitingRounds {
 		readRounds: &atomic.Value{},
 	}
 
-	wr.waitingMux.Lock()
 	return &wr
 }
 
@@ -88,10 +87,10 @@ func (wr *WaitingRounds) Insert(newRound *Round) {
 	}
 	if edited{
 
-		wr.storeReadRounds()
 		go func(){
-			wr.waitingMux.Unlock()
 			wr.waitingMux.Lock()
+			defer wr.waitingMux.Unlock()
+			wr.storeReadRounds()
 		}()
 	}
 }
