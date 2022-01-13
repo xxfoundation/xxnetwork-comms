@@ -65,12 +65,16 @@ func (wr *WaitingRounds) Insert(added, removed []*Round) {
 	wr.mux.Lock()
 	defer wr.mux.Unlock()
 
-	//check all rounds to see if they should be updates
+	//add any round which should be added
 	for i:= range added{
 		toAdd := added[i]
-		wr.writeRounds.Set(toAdd.info.ID,toAdd)
+		if time.Now().After(time.Unix(0,int64(toAdd.info.Timestamps[states.QUEUED]))){
+			wr.writeRounds.Set(toAdd.info.ID,toAdd)
+		}
+
 	}
 
+	//remove any round which should be removed
 	for i := range removed {
 		toRemove := removed[i]
 		wr.writeRounds.Delete(toRemove.info.ID)
@@ -82,6 +86,8 @@ func (wr *WaitingRounds) Insert(added, removed []*Round) {
 	}
 
 	// If inserts occured, signal to any waiting threads
+	// only do this on inserts because only inserts will change the
+	// evaluation by callers of GetUpcomingRealtime
 	if len(added)>0 {
 		go func(){
 			// this will loop for as many people are waiting on the
