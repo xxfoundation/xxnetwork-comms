@@ -7,7 +7,7 @@
 package dataStructures
 
 import (
-	"container/list"
+	"github.com/elliotchance/orderedmap"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
@@ -31,7 +31,7 @@ const maxGetClosestTries = 2
 // furthest in the future with the furthest in the the back.
 type WaitingRounds struct {
 	readRounds  *atomic.Value
-	writeRounds *list.List
+	writeRounds *orderedmap.OrderedMap
 	mux         sync.Mutex
 	signal 	    chan struct{}
 }
@@ -39,7 +39,7 @@ type WaitingRounds struct {
 // NewWaitingRounds generates a new WaitingRounds with an empty round list.
 func NewWaitingRounds() *WaitingRounds {
 	wr := WaitingRounds{
-		writeRounds: list.New(),
+		writeRounds: orderedmap.NewOrderedMap(),
 		readRounds: &atomic.Value{},
 		// this is intentionally unbuffered,
 		// do not change
@@ -61,30 +61,28 @@ func (wr *WaitingRounds) Len() int {
 // smallest to greatest. If the new round is not in a QUEUED state, then it is
 // not inserted. If the new round already exists in the list but is no longer
 // queued, then it is removed.
-func (wr *WaitingRounds) Insert(newRound *Round) {
+func (wr *WaitingRounds) Insert(added, removed []*Round) {
 	wr.mux.Lock()
 	defer wr.mux.Unlock()
-	// If the round is queued, then add it to the list; otherwise, remove it
-	if newRound.info.GetState() == uint32(states.QUEUED) {
-		inserted := false
-		// Loop through every round, starting with the furthest in the future
-		for e := wr.writeRounds.Back(); e != nil; e = e.Prev() {
-			// If the new round is larger, than add it before
-			extractedRound := e.Value.(*Round)
-			if getTime(newRound) > getTime(extractedRound) {
-				wr.writeRounds.InsertAfter(newRound, e)
-				inserted = true
-				break
-			}
-		}
 
-		// If the round's realtime is the sooner than all other rounds, then add
-		// it to the beginning  of the list
-		if !inserted {
-			wr.writeRounds.PushFront(newRound)
-		}
+	//check all rounds to see if they should be updates
+	for i:= range added{
+		toAdd := added[i]
+		wr.writeRounds.Set(toAdd,toAdd.info.ID)
+	}
 
+	for i := range removed {
+		toRemove := removed[i]
+		wr.writeRounds.Delete(toRemove.info.ID)
+	}
+
+	// If changes occured, update the atomic
+	if len(removed)>0||len(added)>0{
 		wr.storeReadRounds()
+	}
+
+	// If inserts occured, signal to any waiting threads
+	if len(added)>0 {
 		go func(){
 			// this will loop for as many people are waiting on the
 			// channel which is why it is in a seperate function
@@ -97,36 +95,36 @@ func (wr *WaitingRounds) Insert(newRound *Round) {
 				}
 			}
 		}()
-
-	} else {
-		wr.remove(newRound)
 	}
 }
 
 func(wr *WaitingRounds)storeReadRounds(){
 	roundsList := make([]*Round,0,wr.writeRounds.Len())
 
+	toDelete  := make([]*Round,0)
+
 	for e := wr.writeRounds.Front(); e != nil; e = e.Next() {
-		roundsList = append(roundsList,e.Value.(*Round))
+		rnd := e.Value.(*Round)
+		if time.Since(time.Unix(0,int64(rnd.info.Timestamps[states.QUEUED])))<time.Hour{
+			roundsList = append(roundsList,rnd)
+		}else{
+			toDelete = append(toDelete,rnd)
+		}
+
 	}
 	wr.readRounds.Store(roundsList)
+
+	if len(toDelete)>0{
+		for i := range toDelete {
+			toRemove := toDelete[i]
+			wr.writeRounds.Delete(toRemove.info.ID)
+		}
+	}
 }
 
 // getTime returns the timestamp for the round's realtime.
 func getTime(round *Round) uint64 {
 	return round.info.Timestamps[states.QUEUED]
-}
-
-// remove deletes the round from the list if it exists.
-func (wr *WaitingRounds) remove(newRound *Round) {
-	// Look for a node with a matching ID from the list
-	for e := wr.writeRounds.Front(); e != nil; e = e.Next() {
-		extractedRound := e.Value.(*Round)
-		if extractedRound.info.ID == newRound.info.ID {
-			wr.writeRounds.Remove(e)
-			return
-		}
-	}
 }
 
 // getFurthest returns the round that will occur furthest in the future. If the
@@ -221,14 +219,14 @@ func (wr *WaitingRounds) GetUpcomingRealtime(timeout time.Duration,
 	timer := time.NewTimer(timeout)
 
 
-	// Start waiting for rounds to be added
+	// Start seeing if an acceptable round exists
 	round := wr.get(exclude,minRoundAge)
 	if round!=nil{
 		return round, nil
 	}
 
 	jww.INFO.Printf("Could not find round to send on, waiting for update")
-	// If the list is empty, then start waiting for rounds to be added.
+	// If the no round exists, wait for an update to the list.
 	for {
 		select {
 		case <-timer.C:
