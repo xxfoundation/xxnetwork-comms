@@ -311,7 +311,8 @@ func TestInstance_RoundUpdate(t *testing.T) {
 	}
 	i, err := NewInstance(&pc, testutils.NDF, testutils.NDF, nil, 0, false)
 	pub := testkeys.LoadFromPath(testkeys.GetGatewayCertPath())
-	err = i.RoundUpdate(msg)
+
+	_, err = i.RoundUpdate(msg)
 	if err == nil {
 		t.Error("Should have failed to get perm host")
 	}
@@ -320,7 +321,7 @@ func TestInstance_RoundUpdate(t *testing.T) {
 	if err != nil {
 		t.Errorf("failed to add bad host: %+v", err)
 	}
-	err = i.RoundUpdate(msg)
+	_, err = i.RoundUpdate(msg)
 	// Fixme
 	/*	if err == nil {
 		t.Error("Should have failed to verify")
@@ -328,7 +329,7 @@ func TestInstance_RoundUpdate(t *testing.T) {
 
 	i, _ = setupComm(t)
 
-	err = i.RoundUpdate(msg)
+	_, err = i.RoundUpdate(msg)
 	if err != nil {
 		t.Errorf("Failed to update ndf: %+v", err)
 	}
@@ -989,9 +990,10 @@ func TestInstance_RoundUpdates(t *testing.T) {
 	i.SetNetworkHealthChan(nwHealth)
 
 	r := &mixmessages.RoundInfo{
-		ID:       2,
-		UpdateID: 4,
-		State:    uint32(states.COMPLETED),
+		ID:         2,
+		UpdateID:   4,
+		State:      uint32(states.COMPLETED),
+		Timestamps: []uint64{0, 0, 0, 0, 0},
 	}
 	err := testutils.SignRoundInfoRsa(r, t)
 	if err != nil {
@@ -1145,7 +1147,7 @@ func TestInstance_RoundUpdateAddsToERS(t *testing.T) {
 	}
 
 	// Cause a RoundUpdate
-	err = i.RoundUpdate(r)
+	_, err = i.RoundUpdate(r)
 	if err != nil {
 		t.Errorf(err.Error())
 	}

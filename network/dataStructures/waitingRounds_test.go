@@ -9,6 +9,7 @@ package dataStructures
 
 import (
 	"container/list"
+	"github.com/elliotchance/orderedmap"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/testutils"
 	"gitlab.com/elixxir/primitives/current"
@@ -17,6 +18,7 @@ import (
 	"gitlab.com/xx_network/primitives/netTime"
 	"math/rand"
 	"reflect"
+	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -24,9 +26,14 @@ import (
 
 // Happy path of NewWaitingRounds().
 func TestNewWaitingRounds(t *testing.T) {
-	expectedWR := &WaitingRounds{writeRounds: list.New(), readRounds: &atomic.Value{}}
-	expectedWR.waitingMux.Lock()
+	expectedWR := &WaitingRounds{
+		writeRounds: orderedmap.NewOrderedMap(),
+		readRounds:  &atomic.Value{},
+		mux:         sync.Mutex{},
+	}
 	testWR := NewWaitingRounds()
+
+	expectedWR.signal = testWR.signal
 
 	if !reflect.DeepEqual(expectedWR, testWR) {
 		t.Errorf("NewWaitingRounds() did not return the expected object."+
@@ -50,12 +57,11 @@ func TestWaitingRounds_Len(t *testing.T) {
 func TestWaitingRounds_Insert(t *testing.T) {
 	// Generate rounds
 	expectedRounds, testRounds := createTestRoundInfos(25, t)
-
+	t.Logf("expectedRndLen: %d", len(expectedRounds))
+	t.Logf("testRndLen: %v", len(testRounds))
 	// Add rounds to list
 	testWR := NewWaitingRounds()
-	for _, round := range testRounds {
-		testWR.Insert(round)
-	}
+	testWR.Insert(expectedRounds, nil)
 
 	if len(expectedRounds) != testWR.Len() {
 		t.Fatalf("List does not have the expected length."+
@@ -71,39 +77,14 @@ func TestWaitingRounds_Insert(t *testing.T) {
 	}
 }
 
-// Happy path of WaitingRounds.remove().
-func TestWaitingRounds_remove(t *testing.T) {
-	// Generate rounds
-	expectedRounds, testRounds := createTestRoundInfos(25, t)
-
-	// Add rounds to list
-	testWR := NewWaitingRounds()
-	for _, round := range expectedRounds {
-		testWR.Insert(round)
-	}
-
-	testWR.storeReadRounds()
-
-	for _, round := range testRounds {
-		testWR.remove(round)
-	}
-
-	if testWR.Len() != 0 {
-		t.Fatalf("remove() did not remove everything, list still has %d rounds.",
-			testWR.Len())
-	}
-}
-
 // Happy path of WaitingRounds.getFurthest().
 func TestWaitingRounds_getFurthest(t *testing.T) {
 	// Generate rounds
-	expectedRounds, testRounds := createTestRoundInfos(25, t)
+	expectedRounds, _ := createTestRoundInfos(25, t)
 
 	// Add rounds to list
 	testWR := NewWaitingRounds()
-	for _, round := range testRounds {
-		testWR.Insert(round)
-	}
+	testWR.Insert(expectedRounds, nil)
 
 	testWR.storeReadRounds()
 
@@ -113,7 +94,8 @@ func TestWaitingRounds_getFurthest(t *testing.T) {
 				"\nexpected: %+v\nrecieved: %+v", i,
 				expectedRounds[i].info, testWR.getFurthest(nil, 0).info)
 		}
-		testWR.remove(expectedRounds[i])
+		//testWR.remove(expectedRounds[i])
+		testWR.Insert(nil, []*Round{expectedRounds[i]})
 		testWR.storeReadRounds()
 	}
 
@@ -125,13 +107,11 @@ func TestWaitingRounds_getFurthest(t *testing.T) {
 // Happy path of WaitingRounds.getFurthest() with half the rounds excluded.
 func TestWaitingRounds_getFurthest_Exclude(t *testing.T) {
 	// Generate rounds
-	expectedRounds, testRounds := createTestRoundInfos(25, t)
+	expectedRounds, _ := createTestRoundInfos(25, t)
 
 	// Add rounds to list
 	testWR := NewWaitingRounds()
-	for _, round := range testRounds {
-		testWR.Insert(round)
-	}
+	testWR.Insert(expectedRounds, nil)
 
 	// Add rounds to exclusion list
 	exclude := excludedRounds.NewSet()
@@ -148,7 +128,7 @@ func TestWaitingRounds_getFurthest_Exclude(t *testing.T) {
 				t.Errorf("getFurthest() did not return the expected round for %d."+
 					"\nexpected: %v\nrecieved: %v", i, expectedRounds[i], received)
 			}
-			testWR.remove(expectedRounds[i])
+			testWR.Insert(nil, []*Round{expectedRounds[i]})
 			testWR.storeReadRounds()
 		}
 	}
@@ -160,13 +140,11 @@ func TestWaitingRounds_getFurthest_Exclude(t *testing.T) {
 // Happy path.
 func TestWaitingRounds_getClosest(t *testing.T) {
 	// Generate rounds
-	expectedRounds, testRounds := createTestRoundInfos(25, t)
+	expectedRounds, _ := createTestRoundInfos(25, t)
 
 	// Add rounds to list
 	testWR := NewWaitingRounds()
-	for _, round := range testRounds {
-		testWR.Insert(round)
-	}
+	testWR.Insert(expectedRounds, nil)
 
 	for i := 0; i < len(expectedRounds); i++ {
 		if !reflect.DeepEqual(expectedRounds[i], testWR.getClosest(nil, 0)) {
@@ -174,7 +152,7 @@ func TestWaitingRounds_getClosest(t *testing.T) {
 				"\nexpected: %+v\nrecieved: %+v", i,
 				expectedRounds[i].info, testWR.getClosest(nil, 0).info)
 		}
-		testWR.remove(expectedRounds[i])
+		testWR.Insert(nil, []*Round{expectedRounds[i]})
 		testWR.storeReadRounds()
 	}
 
@@ -188,17 +166,17 @@ func TestWaitingRounds_getClosest(t *testing.T) {
 // and no waiting occurs.
 func TestWaitingRounds_GetUpcomingRealtime_NoWait(t *testing.T) {
 	// Generate rounds and add to new list
-	expectedRounds, testRounds := createTestRoundInfos(25, t)
+	expectedRounds, _ := createTestRoundInfos(25, t)
 	testWR := NewWaitingRounds()
 
-	for i, round := range testRounds {
+	for i, round := range expectedRounds {
 		err := testutils.SignRoundInfoRsa(round.info, t)
 		if err != nil {
 			t.Errorf("Failed to sign round info #%d: %+v", i, err)
 		}
-		testWR.Insert(round)
-		testWR.storeReadRounds()
 	}
+
+	testWR.Insert(expectedRounds, nil)
 
 	for i := 0; i < len(expectedRounds); i++ {
 		furthestRound, err := testWR.GetUpcomingRealtime(300*time.Millisecond, excludedRounds.NewSet(), 0)
@@ -210,7 +188,8 @@ func TestWaitingRounds_GetUpcomingRealtime_NoWait(t *testing.T) {
 			t.Errorf("GetUpcomingRealtime() did not return the expected round (%d)."+
 				"\nexpected: %+v\nrecieved: %+v", i, expectedRounds[i].info, furthestRound)
 		}
-		testWR.remove(expectedRounds[i])
+		//testWR.remove(expectedRounds[i])
+		testWR.Insert(nil, []*Round{expectedRounds[i]})
 		testWR.storeReadRounds()
 	}
 }
@@ -245,7 +224,7 @@ func TestWaitingRounds_GetUpcomingRealtime(t *testing.T) {
 			if err != nil {
 				t.Errorf("Failed to sign round info #%d: %+v", i, err)
 			}
-			testWR.Insert(round)
+			testWR.Insert([]*Round{round}, nil)
 		}(round)
 		testWR.storeReadRounds()
 
@@ -259,7 +238,7 @@ func TestWaitingRounds_GetUpcomingRealtime(t *testing.T) {
 			t.Errorf("GetUpcomingRealtime() did not return the expected round (%d)."+
 				"\nexpected: %v\nrecieved: %v", i, round, furthestRound)
 		}
-		testWR.remove(round)
+		testWR.Insert(nil, []*Round{round})
 	}
 }
 
@@ -283,7 +262,7 @@ func TestWaitingRounds_GetUpcomingRealtime_GetFurthest(t *testing.T) {
 		if err != nil {
 			t.Errorf("Failed to sign round info #%d: %+v", i, err)
 		}
-		testWR.Insert(round)
+		testWR.Insert([]*Round{round}, nil)
 	}
 
 	// Attempt to get the furthest round in the queue
@@ -307,7 +286,7 @@ func TestWaitingRounds_GetUpcomingRealtime_GetFurthest(t *testing.T) {
 // Happy path of WaitingRounds.GetSlice().
 func TestWaitingRounds_GetSlice(t *testing.T) {
 	// Generate rounds and add to new list
-	expectedRounds, testRounds := createTestRoundInfos(25, t)
+	expectedRounds, _ := createTestRoundInfos(25, t)
 	testWR := NewWaitingRounds()
 
 	ri := &pb.RoundInfo{
@@ -315,6 +294,8 @@ func TestWaitingRounds_GetSlice(t *testing.T) {
 		State:      uint32(states.QUEUED),
 		Timestamps: []uint64{0, 0, 0, 0, 0},
 	}
+
+	ri.Timestamps[states.QUEUED] = uint64(time.Now().Add(100 * time.Millisecond).UnixNano())
 
 	err := testutils.SignRoundInfoRsa(ri, t)
 	if err != nil {
@@ -328,15 +309,13 @@ func TestWaitingRounds_GetSlice(t *testing.T) {
 	}
 	rnd := NewRound(ri, pubKey, nil)
 
-	testRounds = append(testRounds, rnd)
-	for _, round := range testRounds {
-		testWR.Insert(round)
-	}
+	expectedRounds = append(expectedRounds, rnd)
+	testWR.Insert(expectedRounds, nil)
 
 	testSlice := testWR.GetSlice()
 
 	// Convert Round slice to round info slice
-	expectedRoundInfos := make([]*pb.RoundInfo, 0)
+	expectedRoundInfos := make([]*pb.RoundInfo, 0, len(expectedRounds))
 	for _, val := range expectedRounds {
 		expectedRoundInfos = append(expectedRoundInfos, val.info)
 	}
