@@ -24,11 +24,19 @@ func newContext(waitingPeriod time.Duration) (context.Context, context.CancelFun
 	return ctx, cancel
 }
 
-// StreamingContext Creates a context object with the default context
+// StreamingContext creates a context object with the default context
 // for all client streaming messages. This is primarily used to
 // allow a cancel option for clients and is suitable for unary streaming.
 func StreamingContext() (context.Context, context.CancelFunc) {
 	ctx, cancel := context.WithCancel(context.Background())
+	return ctx, cancel
+}
+
+// StreamingContextWithTimeout creates a context object with the default
+// context given a timout streaming messages. This is primarily used to
+// allow a cancel option for clients and is suitable for unary streaming.
+func StreamingContextWithTimeout(timeout time.Duration) (context.Context, context.CancelFunc) {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	return ctx, cancel
 }
 
