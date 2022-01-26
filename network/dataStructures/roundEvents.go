@@ -140,6 +140,9 @@ func (r *RoundEvents) TriggerRoundEvent(rnd *Round) {
 
 	// Send round info to every event in the list
 	for _, event := range callbacks[rnd.info.State] {
-		event.signal <- roundInfo
+		select{
+			case event.signal <- roundInfo:
+			default:
+		}
 	}
 }
