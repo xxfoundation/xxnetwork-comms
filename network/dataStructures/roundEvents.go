@@ -5,7 +5,8 @@
 // LICENSE file                                                              //
 ///////////////////////////////////////////////////////////////////////////////
 
-// Stores callbacks that will be called in the process of running a round
+// Package dataStructures stores callbacks that will be called in the process of
+// running a round.
 package dataStructures
 
 import (
@@ -16,41 +17,45 @@ import (
 	"time"
 )
 
-// Callbacks must use this function signature
+// RoundEventCallback is the callbacks called on trigger.
 type RoundEventCallback func(ri *pb.RoundInfo, timedOut bool)
 
-// One callback and associated data
+// EventCallback contains one callback and associated data.
 type EventCallback struct {
 	// Round states where this function can be called
 	states []states.Round
+
 	// Send on this channel to cause the relevant callbacks
 	signal chan *pb.RoundInfo
 }
 
-// Holds the callbacks for a round
+// RoundEvents holds the callbacks for a round.
 type RoundEvents struct {
-	// The slice that map[id.Round] maps to is a collection of event callbacks for each of the round's states
+	// The slice that map[id.Round] maps to is a collection of event callbacks
+	// for each of the round's states
 	callbacks map[id.Round][states.NUM_STATES]map[*EventCallback]*EventCallback
 	mux       sync.RWMutex
 }
 
-// Initialize a RoundEvents
+// NewRoundEvents initialize a new RoundEvents object.
 func NewRoundEvents() *RoundEvents {
 	return &RoundEvents{
-		callbacks: make(map[id.Round][states.NUM_STATES]map[*EventCallback]*EventCallback),
+		callbacks: make(
+			map[id.Round][states.NUM_STATES]map[*EventCallback]*EventCallback),
 	}
 }
 
-// Wraps non-exported remove with mutex
+// Remove wraps non-exported remove with mutex.
 func (r *RoundEvents) Remove(rid id.Round, e *EventCallback) {
 	r.mux.Lock()
 	r.remove(rid, e)
 	r.mux.Unlock()
 }
 
-// Remove an event callback from all the states' maps
-// Also remove the round if it's become empty
+// remove deletes an event callback from all the states' maps. Also removes the
+// round from the top-level map if it becomes empty.
 func (r *RoundEvents) remove(rid id.Round, e *EventCallback) {
+	// Remove all EventCallbacks for the given round
 	for _, s := range e.states {
 		delete(r.callbacks[rid][s], e)
 	}
@@ -61,14 +66,16 @@ func (r *RoundEvents) remove(rid id.Round, e *EventCallback) {
 	for s := states.Round(0); (s < states.NUM_STATES) && removeRound; s++ {
 		removeRound = removeRound && len(r.callbacks[rid][s]) == 0
 	}
+
 	if removeRound {
 		delete(r.callbacks, rid)
 	}
 }
 
-// Call or timeout a round event.
-// Removes round events when they're called or timed out to allow them to get garbage collected
-func (r *RoundEvents) signal(rid id.Round, event *EventCallback, callback RoundEventCallback, timeout time.Duration) {
+// signal calls or timeout a round event. Removes round events when they are
+// called or timed out to allow them to get garbage collected.
+func (r *RoundEvents) signal(rid id.Round, event *EventCallback,
+	callback RoundEventCallback, timeout time.Duration) {
 	ri := &pb.RoundInfo{ID: uint64(rid)}
 	select {
 	case <-time.After(timeout):
@@ -85,18 +92,23 @@ type EventReturn struct {
 	TimedOut  bool
 }
 
-// Put the round event on a channel instead of using a callback
-func (r *RoundEvents) AddRoundEventChan(rid id.Round, eventChan chan EventReturn, timeout time.Duration, validStates ...states.Round) *EventCallback {
-	return r.AddRoundEvent(rid, func(ri *pb.RoundInfo, timedOut bool) {
-		eventChan <- EventReturn{
-			RoundInfo: ri,
-			TimedOut:  timedOut,
-		}
-	}, timeout, validStates...)
+// AddRoundEventChan puts the round event on a channel instead of using a
+// callback.
+func (r *RoundEvents) AddRoundEventChan(rid id.Round,
+	eventChan chan EventReturn, timeout time.Duration,
+	validStates ...states.Round) *EventCallback {
+
+	callback := func(ri *pb.RoundInfo, timedOut bool) {
+		eventChan <- EventReturn{ri, timedOut}
+	}
+
+	return r.AddRoundEvent(rid, callback, timeout, validStates...)
 }
 
-// Adds an event to the RoundEvents struct and returns its handle for possible deletion
-func (r *RoundEvents) AddRoundEvent(rid id.Round, callback RoundEventCallback, timeout time.Duration, validStates ...states.Round) *EventCallback {
+// AddRoundEvent adds an event to the RoundEvents struct and returns its handle
+// for possible deletion.
+func (r *RoundEvents) AddRoundEvent(rid id.Round, callback RoundEventCallback,
+	timeout time.Duration, validStates ...states.Round) *EventCallback {
 	// Add the specific event to the round
 	thisEvent := &EventCallback{
 		states: validStates,
@@ -124,7 +136,7 @@ func (r *RoundEvents) AddRoundEvent(rid id.Round, callback RoundEventCallback, t
 }
 
 // TriggerRoundEvent signals all round events matching the passed RoundInfo
-// according to its ID and state
+// according to its ID and state.
 func (r *RoundEvents) TriggerRoundEvent(rnd *Round) {
 	r.mux.RLock()
 	defer r.mux.RUnlock()
@@ -140,9 +152,9 @@ func (r *RoundEvents) TriggerRoundEvent(rnd *Round) {
 
 	// Send round info to every event in the list
 	for _, event := range callbacks[rnd.info.State] {
-		select{
-			case event.signal <- roundInfo:
-			default:
+		select {
+		case event.signal <- roundInfo:
+		default:
 		}
 	}
 }
