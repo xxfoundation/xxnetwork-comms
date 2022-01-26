@@ -121,13 +121,13 @@ func (c *Comms) SendRequestClientKeyMessage(host *connect.Host,
 // Client -> Gateway Send Function
 func (c *Comms) SendPoll(host *connect.Host,
 	message *pb.GatewayPoll) (*pb.GatewayPollResponse, error) {
-	// Set up the context
-	ctx, cancel := connect.StreamingContext()
+	// Set up the context with a timeout to ensure that streaming does not
+	// block the follower
+	ctx, cancel := connect.StreamingContextWithTimeout(300 * time.Millisecond)
 	defer cancel()
 
 	// Create the Stream Function
 	f := func(conn *grpc.ClientConn) (interface{}, error) {
-
 		// Send the message
 		clientStream, err := pb.NewGatewayClient(conn).Poll(ctx, message)
 		if err != nil {
@@ -154,6 +154,8 @@ func (c *Comms) SendPoll(host *connect.Host,
 			"receive streaming header from %s: %s", host.GetId(),
 			err.Error())
 	}
+
+	stream.Context().Done()
 
 	// Check if metadata contains any headers
 	if md.Len() == 0 {
