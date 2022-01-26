@@ -136,6 +136,58 @@ func TestRoundEvents_TriggerRoundEvent(t *testing.T) {
 	}
 }
 
+// Round events should be callable after being added.
+func TestRoundEvents_TriggerRoundEvents(t *testing.T) {
+	// Normal path
+	events := NewRoundEvents()
+	rid1 := id.Round(1)
+	called1 := false
+	events.AddRoundEvent(rid1, func(*pb.RoundInfo, bool) { called1 = true },
+		time.Minute, states.PENDING)
+	rid2 := id.Round(2)
+	called2 := false
+	events.AddRoundEvent(rid2, func(*pb.RoundInfo, bool) { called2 = true },
+		time.Minute, states.PENDING)
+
+	// Construct a mock round object
+	ri1 := &pb.RoundInfo{
+		ID:    uint64(rid1),
+		State: uint32(states.PENDING),
+	}
+	ri2 := &pb.RoundInfo{
+		ID:    uint64(rid2),
+		State: uint32(states.PENDING),
+	}
+
+	if err := testutils.SignRoundInfoRsa(ri1, t); err != nil {
+		t.Errorf("Failed to sign mock round info: %v", err)
+	}
+
+	if err := testutils.SignRoundInfoRsa(ri2, t); err != nil {
+		t.Errorf("Failed to sign mock round info: %v", err)
+	}
+
+	pubKey, err := testutils.LoadPublicKeyTesting(t)
+	if err != nil {
+		t.Fatalf("Failed to load public key: %v", err)
+	}
+	rnd1 := NewRound(ri1, pubKey, nil)
+	rnd2 := NewRound(ri2, pubKey, nil)
+	events.TriggerRoundEvents(rnd1, rnd2)
+
+	// wait for calling
+	time.Sleep(5 * time.Millisecond)
+	if !called1 {
+		t.Error("callback should have been called")
+	}
+	if !called2 {
+		t.Error("callback should have been called")
+	}
+	if len(events.callbacks) != 0 {
+		t.Error("callback should have been removed after calling")
+	}
+}
+
 // Add a round event with a channel and make sure it can be triggered.
 func TestRoundEvents_AddRoundEventChan(t *testing.T) {
 	// Normal path

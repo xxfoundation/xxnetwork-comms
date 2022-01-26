@@ -460,8 +460,9 @@ func getBannedNodes(old []ndf.Node, new []ndf.Node) ([]*id.ID, error) {
 func (i *Instance) RoundUpdates(rounds []*pb.RoundInfo) error {
 	// Keep track of whether one of the rounds is completed
 	isRoundComplete := false
-	addedRounds := make([]*ds.Round,0,len(rounds))
-	removedRounds := make([]*ds.Round,0,len(rounds))
+	addedRounds := make([]*ds.Round, 0, len(rounds))
+	removedRounds := make([]*ds.Round, 0, len(rounds))
+	roundsToTrigger := make([]*ds.Round, 0, len(rounds))
 	for _, round := range rounds {
 		if states.Round(round.State) == states.COMPLETED {
 			isRoundComplete = true
@@ -475,12 +476,16 @@ func (i *Instance) RoundUpdates(rounds []*pb.RoundInfo) error {
 		state := states.Round(round.State)
 		if state == states.QUEUED {
 			addedRounds = append(addedRounds, rnd)
-		} else if state>states.QUEUED{
+		} else if state > states.QUEUED {
 			addedRounds = append(removedRounds, rnd)
 		}
+
+		roundsToTrigger = append(roundsToTrigger, rnd)
 	}
 
-	i.waitingRounds.Insert(addedRounds,removedRounds)
+	go i.events.TriggerRoundEvents(roundsToTrigger...)
+
+	i.waitingRounds.Insert(addedRounds, removedRounds)
 
 	// Send a Heartbeat over the networkHealth channel
 	if i.networkHealth != nil {
@@ -541,7 +546,6 @@ func (i *Instance) RoundUpdate(info *pb.RoundInfo) (*ds.Round, error) {
 		_ = i.ers.Store(info)
 	}
 
-	i.events.TriggerRoundEvent(rnd)
 	return rnd, nil
 }
 

@@ -158,3 +158,30 @@ func (r *RoundEvents) TriggerRoundEvent(rnd *Round) {
 		}
 	}
 }
+
+// TriggerRoundEvents signals all round events matching the passed RoundInfos
+// according to its ID and state.
+func (r *RoundEvents) TriggerRoundEvents(rounds ...*Round) {
+	r.mux.RLock()
+	defer r.mux.RUnlock()
+
+	for _, rnd := range rounds {
+
+		// Try to find callbacks
+		callbacks, ok := r.callbacks[id.Round(rnd.info.ID)]
+		if !ok || len(callbacks[rnd.info.State]) == 0 {
+			return
+		}
+
+		// Retrieve and validate the round info
+		roundInfo := rnd.Get()
+
+		// Send round info to every event in the list
+		for _, event := range callbacks[rnd.info.State] {
+			select {
+			case event.signal <- roundInfo:
+			default:
+			}
+		}
+	}
+}
