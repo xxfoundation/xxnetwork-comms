@@ -460,17 +460,27 @@ func getBannedNodes(old []ndf.Node, new []ndf.Node) ([]*id.ID, error) {
 func (i *Instance) RoundUpdates(rounds []*pb.RoundInfo) error {
 	// Keep track of whether one of the rounds is completed
 	isRoundComplete := false
+	addedRounds := make([]*ds.Round,0,len(rounds))
+	removedRounds := make([]*ds.Round,0,len(rounds))
 	for _, round := range rounds {
 		if states.Round(round.State) == states.COMPLETED {
 			isRoundComplete = true
 		}
 
 		// Send the RoundUpdate
-		err := i.RoundUpdate(round)
+		rnd, err := i.RoundUpdate(round)
 		if err != nil {
 			return err
 		}
+		state := states.Round(round.State)
+		if state == states.QUEUED {
+			addedRounds = append(addedRounds, rnd)
+		} else if state>states.QUEUED{
+			addedRounds = append(removedRounds, rnd)
+		}
 	}
+
+	i.waitingRounds.Insert(addedRounds,removedRounds)
 
 	// Send a Heartbeat over the networkHealth channel
 	if i.networkHealth != nil {
@@ -488,11 +498,11 @@ func (i *Instance) RoundUpdates(rounds []*pb.RoundInfo) error {
 }
 
 // Add a round to the round and update buffer
-func (i *Instance) RoundUpdate(info *pb.RoundInfo) error {
+func (i *Instance) RoundUpdate(info *pb.RoundInfo) (*ds.Round, error) {
 	perm, success := i.comm.GetHost(&id.Permissioning)
 
 	if !success {
-		return errors.New("Could not get permissioning Public Key" +
+		return nil, errors.New("Could not get permissioning Public Key" +
 			"for round info verification")
 	}
 
@@ -508,18 +518,18 @@ func (i *Instance) RoundUpdate(info *pb.RoundInfo) error {
 	if i.validationLevel == Strict {
 		err := signature.VerifyRsa(info, perm.GetPubKey())
 		if err != nil {
-			return errors.WithMessage(err, fmt.Sprintf("Could not validate "+
+			return nil, errors.WithMessage(err, fmt.Sprintf("Could not validate "+
 				"the roundInfo signature: %+v", info))
 		}
 	}
 
 	err := i.roundUpdates.AddRound(rnd)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	err = i.roundData.UpsertRound(rnd)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if i.ers != nil {
 		// If we are not lazy, we validate the info before storage
@@ -532,8 +542,7 @@ func (i *Instance) RoundUpdate(info *pb.RoundInfo) error {
 	}
 
 	i.events.TriggerRoundEvent(rnd)
-	i.waitingRounds.Insert(rnd)
-	return nil
+	return rnd, nil
 }
 
 // GetE2EGroup gets the e2eGroup from the instance
