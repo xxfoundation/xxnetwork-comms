@@ -23,10 +23,16 @@ import (
 
 // Handler interface for the Gateway
 type Handler interface {
-	// Upload a message to the cMix Gateway
+	// Upload a message to the cMix Gateway (client->Gateway)
 	PutMessage(message *pb.GatewaySlot, ipAddr string) (*pb.GatewaySlotResponse, error)
-	// Upload many messages to the cMix Gateway
+	// Upload many messages to the cMix Gateway (client->Gateway)
 	PutManyMessages(msgs *pb.GatewaySlots, ipAddr string) (*pb.GatewaySlotResponse, error)
+
+	// Upload a message to the cMix Gateway (gateway -> gateway)
+	PutMessageProxy(message *pb.GatewaySlot, auth *connect.Auth) (*pb.GatewaySlotResponse, error)
+	// Upload many messages to the cMix Gateway (gateway -> gateway)
+	PutManyMessagesProxy(msgs *pb.GatewaySlots, auth *connect.Auth) (*pb.GatewaySlotResponse, error)
+
 	// Client -> Gateway unified polling
 	Poll(msg *pb.GatewayPoll) (*pb.GatewayPollResponse, error)
 	// Client -> Gateway historical round request
@@ -96,6 +102,11 @@ type implementationFunctions struct {
 
 	// Pass-through for RequestClientKey Communication
 	RequestClientKey func(message *pb.SignedClientKeyRequest) (*pb.SignedKeyResponse, error)
+
+	// Upload a message to the cMix Gateway (gateway -> gateway)
+	PutMessageProxy func(message *pb.GatewaySlot, auth *connect.Auth) (*pb.GatewaySlotResponse, error)
+	// Upload many messages to the cMix Gateway (gateway -> gateway)
+	PutManyMessagesProxy func(msgs *pb.GatewaySlots, auth *connect.Auth) (*pb.GatewaySlotResponse, error)
 }
 
 // Implementation allows users of the client library to set the
@@ -139,6 +150,17 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return new(pb.SignedKeyResponse), nil
 			},
+
+			// Upload a message to the cMix Gateway (gateway -> gateway)
+			PutMessageProxy: func(message *pb.GatewaySlot, auth *connect.Auth) (*pb.GatewaySlotResponse, error) {
+				warn(um)
+				return &pb.GatewaySlotResponse{}, nil
+			},
+			// Upload many messages to the cMix Gateway (gateway -> gateway)
+			PutManyMessagesProxy: func(msgs *pb.GatewaySlots, auth *connect.Auth) (*pb.GatewaySlotResponse, error) {
+				warn(um)
+				return &pb.GatewaySlotResponse{}, nil
+			},
 		},
 	}
 }
@@ -157,6 +179,16 @@ func (s *Implementation) PutMessage(message *pb.GatewaySlot, ipAddr string) (*pb
 // Upload many messages to the cMix Gateway
 func (s *Implementation) PutManyMessages(msgs *pb.GatewaySlots, ipAddr string) (*pb.GatewaySlotResponse, error) {
 	return s.Functions.PutManyMessages(msgs, ipAddr)
+}
+
+// Upload a message to the cMix Gateway
+func (s *Implementation) PutMessageProxy(message *pb.GatewaySlot, auth *connect.Auth) (*pb.GatewaySlotResponse, error) {
+	return s.Functions.PutMessageProxy(message, auth)
+}
+
+// Upload many messages to the cMix Gateway
+func (s *Implementation) PutManyMessagesProxy(msgs *pb.GatewaySlots, auth *connect.Auth) (*pb.GatewaySlotResponse, error) {
+	return s.Functions.PutManyMessagesProxy(msgs, auth)
 }
 
 // Client -> Gateway unified polling

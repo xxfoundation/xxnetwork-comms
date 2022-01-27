@@ -10,6 +10,7 @@
 package gateway
 
 import (
+	"github.com/golang/protobuf/ptypes"
 	"github.com/pkg/errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/connect"
@@ -69,6 +70,58 @@ func (g *Comms) PutManyMessages(ctx context.Context, msgs *pb.GatewaySlots) (*pb
 
 	// Upload messages to the cMix Gateway
 	returnMsg, err := g.handler.PutManyMessages(msgs, ipAddr)
+	if err != nil {
+		returnMsg = &pb.GatewaySlotResponse{}
+
+	}
+	return returnMsg, err
+}
+
+// Receives a single message from a gateway proxy
+func (g *Comms) PutMessageProxy(ctx context.Context, msg *messages.AuthenticatedMessage) (*pb.GatewaySlotResponse,
+	error) {
+
+	// Verify the message authentication
+	authState, err := g.AuthenticatedReceiver(msg, ctx)
+	if err != nil {
+		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
+	}
+
+	// Unnmarshall the any message to the message type needed
+	slot := &pb.GatewaySlot{}
+	err = ptypes.UnmarshalAny(msg.Message, slot)
+	if err != nil {
+		return nil, errors.New(err.Error())
+	}
+
+	// Upload a message to the cMix Gateway
+	returnMsg, err := g.handler.PutMessageProxy(slot, authState)
+	if err != nil {
+		returnMsg = &pb.GatewaySlotResponse{}
+
+	}
+	return returnMsg, err
+}
+
+// Upload many messages to the cMix Gateway from a proxy
+func (g *Comms) PutManyMessagesProxy(ctx context.Context, msg *messages.AuthenticatedMessage) (*pb.GatewaySlotResponse,
+	error) {
+
+	// Verify the message authentication
+	authState, err := g.AuthenticatedReceiver(msg, ctx)
+	if err != nil {
+		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
+	}
+
+	// Unnmarshall the any message to the message type needed
+	slots := &pb.GatewaySlots{}
+	err = ptypes.UnmarshalAny(msg.Message, slots)
+	if err != nil {
+		return nil, errors.New(err.Error())
+	}
+
+	// Upload messages to the cMix Gateway
+	returnMsg, err := g.handler.PutManyMessagesProxy(slots, authState)
 	if err != nil {
 		returnMsg = &pb.GatewaySlotResponse{}
 

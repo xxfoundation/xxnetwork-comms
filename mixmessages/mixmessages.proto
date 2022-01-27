@@ -235,14 +235,20 @@ service Gateway {
     rpc RequestClientKey (SignedClientKeyRequest) returns (SignedKeyResponse) {
     }
 
-    // PutMessage on the cMix Gateway
-    rpc PutMessage (messages.AuthenticatedMessage) returns (GatewaySlotResponse) {
+    // PutMessage on the cMix Gateway (client -> gateway)
+    rpc PutMessage (GatewaySlot) returns (GatewaySlotResponse) {
     }
 
-    // PutMessage on the cMix Gateway
-    rpc PutManyMessages (messages.AuthenticatedMessage) returns (GatewaySlotResponse) {
+    // PutMessage on the cMix Gateway (client -> gateway)
+    rpc PutManyMessages (GatewaySlots) returns (GatewaySlotResponse) {}
+
+    // PutMessage on the cMix Gateway (gateway -> gateway)
+    rpc PutMessageProxy (messages.AuthenticatedMessage) returns (GatewaySlotResponse) {
     }
 
+    // PutMessage on the cMix Gateway (gateway -> gateway)
+    rpc PutManyMessagesProxy (messages.AuthenticatedMessage) returns (GatewaySlotResponse) {
+    }
 
     // Client -> Gateway unified polling
     rpc Poll (GatewayPoll) returns (stream StreamChunk) {
