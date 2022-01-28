@@ -170,7 +170,7 @@ func (r *RoundEvents) TriggerRoundEvents(rounds ...*Round) {
 		// Try to find callbacks
 		callbacks, ok := r.callbacks[id.Round(rnd.info.ID)]
 		if !ok || len(callbacks[rnd.info.State]) == 0 {
-			return
+			continue
 		}
 
 		// Retrieve and validate the round info
