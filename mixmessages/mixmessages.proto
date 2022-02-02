@@ -563,6 +563,7 @@ message NotificationRegisterRequest {
     bytes IIDTransmissionRsaSig = 6;
     // Timestamp in which user registered with the network (ie permissioning)
     int64 RegistrationTimestamp = 7;
+    string NotificationProvider = 8;
 }
 
 message NotificationUnregisterRequest {
