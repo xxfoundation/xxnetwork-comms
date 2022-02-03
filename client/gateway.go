@@ -123,7 +123,7 @@ func (c *Comms) SendPoll(host *connect.Host,
 	message *pb.GatewayPoll) (*pb.GatewayPollResponse, error) {
 	// Set up the context with a timeout to ensure that streaming does not
 	// block the follower
-	ctx, cancel := connect.StreamingContextWithTimeout(300 * time.Millisecond)
+	ctx, cancel := connect.StreamingContextWithTimeout(10 * time.Second)
 	defer cancel()
 
 	// Create the Stream Function
