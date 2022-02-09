@@ -11,7 +11,6 @@ package connect
 
 import (
 	"crypto/tls"
-	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/xx_network/comms/connect/token"
@@ -20,6 +19,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/keepalive"
+	"google.golang.org/protobuf/types/known/anypb"
 	"math"
 	"net"
 	"strings"
@@ -223,8 +223,8 @@ const (
 
 // Send sets up or recovers the Host's connection,
 // then runs the given transmit function.
-func (c *ProtoComms) Send(host *Host, f func(conn *grpc.ClientConn) (*any.Any,
-	error)) (result *any.Any, err error) {
+func (c *ProtoComms) Send(host *Host, f func(conn *grpc.ClientConn) (*anypb.Any,
+	error)) (result *anypb.Any, err error) {
 
 	jww.TRACE.Printf("Attempting to send to host: %s", host)
 	fSh := func(conn *grpc.ClientConn) (interface{}, error) {
@@ -236,7 +236,7 @@ func (c *ProtoComms) Send(host *Host, f func(conn *grpc.ClientConn) (*any.Any,
 		return nil, err
 	}
 
-	return anyFace.(*any.Any), err
+	return anyFace.(*anypb.Any), err
 }
 
 // Stream sets up or recovers the Host's connection,

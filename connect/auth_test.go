@@ -10,13 +10,13 @@ package connect
 import (
 	"bytes"
 	"context"
-	"github.com/golang/protobuf/ptypes"
 	token "gitlab.com/xx_network/comms/connect/token"
 	pb "gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/comms/testkeys"
 	"gitlab.com/xx_network/crypto/signature/rsa"
 	"gitlab.com/xx_network/primitives/id"
 	"google.golang.org/grpc/peer"
+	"google.golang.org/protobuf/types/known/anypb"
 	"net"
 	"testing"
 	"time"
@@ -42,7 +42,7 @@ func TestSignVerify(t *testing.T) {
 		Error: "test",
 	}
 
-	wrappedMessage, err := ptypes.MarshalAny(&message)
+	wrappedMessage, err := anypb.New(&message)
 	if err != nil {
 		t.Errorf("Error converting to Any type: %+v", err)
 	}

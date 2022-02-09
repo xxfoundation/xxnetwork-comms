@@ -8,10 +8,10 @@
 package connect
 
 import (
-	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
 	"gitlab.com/xx_network/primitives/id"
 	"google.golang.org/grpc"
+	"google.golang.org/protobuf/types/known/anypb"
 	"testing"
 )
 
@@ -24,7 +24,7 @@ func TestSendNoAddressFails(t *testing.T) {
 	host := Host{}
 
 	// Create the Send Function
-	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+	f := func(conn *grpc.ClientConn) (*anypb.Any, error) {
 		t.Errorf("Client send function shouldn't have run")
 		return nil, errors.New("Client send function shouldn't have run")
 	}
