@@ -11,12 +11,11 @@ package interconnect
 
 import (
 	"errors"
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/any"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/messages"
 	"google.golang.org/grpc"
+	"google.golang.org/protobuf/types/known/anypb"
 )
 
 // CMixServer -> consensus node Send Function
@@ -24,7 +23,7 @@ func (c *CMixServer) GetNdf(host *connect.Host,
 	message *messages.Ping) (*NDF, error) {
 
 	// Create the Send Function
-	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+	f := func(conn *grpc.ClientConn) (*anypb.Any, error) {
 		// Set up the context
 		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
@@ -35,7 +34,7 @@ func (c *CMixServer) GetNdf(host *connect.Host,
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
-		return ptypes.MarshalAny(resultMsg)
+		return anypb.New(resultMsg)
 	}
 
 	// Execute the Send function
@@ -47,5 +46,5 @@ func (c *CMixServer) GetNdf(host *connect.Host,
 
 	// Marshall the result
 	result := &NDF{}
-	return result, ptypes.UnmarshalAny(resultMsg, result)
+	return result, resultMsg.UnmarshalTo(result)
 }
