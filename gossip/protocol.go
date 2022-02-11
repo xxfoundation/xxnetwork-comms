@@ -11,6 +11,8 @@ package gossip
 
 import (
 	"context"
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/xx_network/comms/connect"
@@ -18,7 +20,6 @@ import (
 	"gitlab.com/xx_network/primitives/id"
 	"golang.org/x/crypto/blake2b"
 	"google.golang.org/grpc"
-	"google.golang.org/protobuf/types/known/anypb"
 	"io"
 	"math"
 	"sync"
@@ -291,13 +292,13 @@ func (p *Protocol) Gossip(msg *GossipMsg) (int, []error) {
 		if !ok {
 			return errors.Errorf("Failed to get host with ID %s", id)
 		}
-		f := func(conn *grpc.ClientConn) (*anypb.Any, error) {
+		f := func(conn *grpc.ClientConn) (*any.Any, error) {
 			gossipClient := NewGossipClient(conn)
 			ack, err := gossipClient.Endpoint(context.Background(), msg)
 			if err != nil {
 				return nil, errors.WithMessage(err, "Failed to send message")
 			}
-			return anypb.New(ack)
+			return ptypes.MarshalAny(ack)
 		}
 		_, err := p.comms.Send(h, f)
 		if err != nil {

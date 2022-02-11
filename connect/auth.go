@@ -14,6 +14,8 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"fmt"
+	"github.com/golang/protobuf/proto"
+	"github.com/golang/protobuf/ptypes"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/xx_network/comms/connect/token"
@@ -21,8 +23,6 @@ import (
 	"gitlab.com/xx_network/crypto/signature/rsa"
 	"gitlab.com/xx_network/primitives/id"
 	"google.golang.org/grpc/metadata"
-	"google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/types/known/anypb"
 )
 
 // Auth represents an authorization state for a message or host
@@ -95,7 +95,7 @@ func (c *ProtoComms) PackAuthenticatedMessage(msg proto.Message, host *Host,
 	enableSignature bool) (*pb.AuthenticatedMessage, error) {
 
 	// Marshall the provided message into an Any type
-	anyMsg, err := anypb.New(msg)
+	anyMsg, err := ptypes.MarshalAny(msg)
 	if err != nil {
 		return nil, errors.New(err.Error())
 	}
@@ -178,7 +178,7 @@ func (c *ProtoComms) ValidateToken(msg *pb.AuthenticatedMessage) (err error) {
 
 	// Get the signed token
 	tokenMsg := &pb.AssignToken{}
-	err = msg.Message.UnmarshalTo(tokenMsg)
+	err = ptypes.UnmarshalAny(msg.Message, tokenMsg)
 	if err != nil {
 		return errors.Errorf("Unable to unmarshal token: %+v", err)
 	}
