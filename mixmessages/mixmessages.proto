@@ -235,14 +235,20 @@ service Gateway {
     rpc RequestClientKey (SignedClientKeyRequest) returns (SignedKeyResponse) {
     }
 
-    // PutMessage on the cMix Gateway
+    // PutMessage on the cMix Gateway (client -> gateway)
     rpc PutMessage (GatewaySlot) returns (GatewaySlotResponse) {
     }
 
-    // PutMessage on the cMix Gateway
-    rpc PutManyMessages (GatewaySlots) returns (GatewaySlotResponse) {
+    // PutMessage on the cMix Gateway (client -> gateway)
+    rpc PutManyMessages (GatewaySlots) returns (GatewaySlotResponse) {}
+
+    // PutMessage on the cMix Gateway (gateway -> gateway)
+    rpc PutMessageProxy (messages.AuthenticatedMessage) returns (GatewaySlotResponse) {
     }
 
+    // PutMessage on the cMix Gateway (gateway -> gateway)
+    rpc PutManyMessagesProxy (messages.AuthenticatedMessage) returns (GatewaySlotResponse) {
+    }
 
     // Client -> Gateway unified polling
     rpc Poll (GatewayPoll) returns (stream StreamChunk) {
@@ -370,6 +376,7 @@ message GatewaySlots {
     // Below should have same values as all elements in slice (this is assumed)
     uint64 RoundID = 2;
     bytes Target = 3;
+    string IpAddr = 4; // IpAddr of client
 }
 
 // Client -> Gateway authentication message
@@ -378,6 +385,8 @@ message GatewaySlot{
     uint64 RoundID = 2;
     bytes MAC = 3;
     bytes Target = 4;
+    string IpAddr = 5; // IpAddr of client
+
 }
 
 // Gateway -> Client authentication response

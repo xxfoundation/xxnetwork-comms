@@ -52,8 +52,7 @@ func (g *Comms) SendRequestClientKey(host *connect.Host,
 }
 
 // Gateway -> Gateway forward client PutMessage.
-func (g *Comms) SendPutMessage(host *connect.Host, messages *pb.GatewaySlot,
-	timeout time.Duration) (*pb.GatewaySlotResponse, error) {
+func (g *Comms) SendPutMessageProxy(host *connect.Host, messages *pb.GatewaySlot, timeout time.Duration) (*pb.GatewaySlotResponse, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
@@ -61,8 +60,18 @@ func (g *Comms) SendPutMessage(host *connect.Host, messages *pb.GatewaySlot,
 		ctx, cancel := host.GetMessagingContextWithTimeout(timeout)
 		defer cancel()
 
+		//if messages != nil {
+		//	messages.IpAddr = ipAddr
+		//}
+
+		// Pack data into authenticated message
+		authMsg, err := g.PackAuthenticatedMessage(messages, host, false)
+		if err != nil {
+			return nil, err
+		}
+
 		// Send the message
-		resultMsg, err := pb.NewGatewayClient(conn).PutMessage(ctx, messages)
+		resultMsg, err := pb.NewGatewayClient(conn).PutMessageProxy(ctx, authMsg)
 		if err != nil {
 			return nil, err
 		}
@@ -83,9 +92,7 @@ func (g *Comms) SendPutMessage(host *connect.Host, messages *pb.GatewaySlot,
 }
 
 // Gateway -> Gateway forward client PutManyMessages.
-func (g *Comms) SendPutManyMessages(host *connect.Host,
-	messages *pb.GatewaySlots, timeout time.Duration) (*pb.GatewaySlotResponse,
-	error) {
+func (g *Comms) SendPutManyMessagesProxy(host *connect.Host, messages *pb.GatewaySlots, timeout time.Duration) (*pb.GatewaySlotResponse, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
@@ -93,8 +100,18 @@ func (g *Comms) SendPutManyMessages(host *connect.Host,
 		ctx, cancel := host.GetMessagingContextWithTimeout(timeout)
 		defer cancel()
 
+		//if messages != nil {
+		//	messages.IpAddr = ipAddr
+		//}
+
+		// Pack data into authenticated message
+		authMsg, err := g.PackAuthenticatedMessage(messages, host, false)
+		if err != nil {
+			return nil, err
+		}
+
 		// Send the message
-		resultMsg, err := pb.NewGatewayClient(conn).PutManyMessages(ctx, messages)
+		resultMsg, err := pb.NewGatewayClient(conn).PutManyMessagesProxy(ctx, authMsg)
 		if err != nil {
 			return nil, err
 		}
