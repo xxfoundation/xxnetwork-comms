@@ -37,7 +37,7 @@ func TestComms_SendPutMessage(t *testing.T) {
 		t.Fatalf("Failed to add host to manager: %+v", err)
 	}
 
-	_, err = gw1.SendPutMessage(host, &pb.GatewaySlot{}, 2*time.Minute)
+	_, err = gw1.SendPutMessageProxy(host, &pb.GatewaySlot{}, 2*time.Minute)
 	if err != nil {
 		t.Errorf("SendPutMessage produced an error: %+v", err)
 	}
@@ -64,7 +64,7 @@ func TestComms_SendPutManyMessages(t *testing.T) {
 		t.Fatalf("Failed to add host to manager: %+v", err)
 	}
 
-	_, err = gw1.SendPutManyMessages(host, &pb.GatewaySlots{}, 2*time.Minute)
+	_, err = gw1.SendPutManyMessagesProxy(host, &pb.GatewaySlots{}, 2*time.Minute)
 	if err != nil {
 		t.Errorf("SendPutMessage produced an error: %+v", err)
 	}
