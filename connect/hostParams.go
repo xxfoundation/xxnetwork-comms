@@ -14,7 +14,13 @@ import (
 
 // HostParams is the configuration object for Host creation
 type HostParams struct {
-	MaxRetries  uint32
+	// Set maximum number of connection attempts
+	MaxRetries uint32
+
+	// Set maximum number of transmission attempts
+	MaxSendRetries uint32
+
+	// Toggle authorization for Host
 	AuthEnabled bool
 
 	// Toggles connection cool off
@@ -47,6 +53,7 @@ type HostParams struct {
 func GetDefaultHostParams() HostParams {
 	return HostParams{
 		MaxRetries:            100,
+		MaxSendRetries:        3,
 		AuthEnabled:           true,
 		EnableCoolOff:         false,
 		NumSendsBeforeCoolOff: 3,

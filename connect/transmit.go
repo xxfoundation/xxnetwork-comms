@@ -14,7 +14,6 @@ import (
 	"strings"
 )
 
-const MaxRetries = 3
 const inCoolDownErr = "Host is in cool down. Cannot connect."
 const lastTryErr = "Last try to connect to"
 
@@ -32,7 +31,7 @@ func (c *ProtoComms) transmit(host *Host, f func(conn *grpc.ClientConn) (interfa
 		return nil, errors.New("Host address is blank, host might be receive only.")
 	}
 
-	for numRetries := 0; numRetries < MaxRetries; numRetries++ {
+	for numRetries := uint32(0); numRetries < host.params.MaxRetries; numRetries++ {
 		err = nil
 		//reconnect if necessary
 		host.connectionMux.RLock()
@@ -48,7 +47,7 @@ func (c *ProtoComms) transmit(host *Host, f func(conn *grpc.ClientConn) (interfa
 					return nil, err
 				}
 				jww.WARN.Printf("Failed to connect to Host on attempt "+
-					"%v/%v : %s", numRetries+1, MaxRetries, err)
+					"%v/%v : %s", numRetries+1, host.params.MaxSendRetries, err)
 				continue
 			}
 			host.connectionMux.RLock()
@@ -58,7 +57,7 @@ func (c *ProtoComms) transmit(host *Host, f func(conn *grpc.ClientConn) (interfa
 		result, err = host.transmit(f)
 		host.connectionMux.RUnlock()
 
-		// if the transmission goes well or it is a domain specific error, return
+		// if the transmission goes well or if it is a domain specific error, return
 		if err == nil || !(isConnError(err) || IsAuthError(err)) {
 			return result, err
 		}
@@ -66,7 +65,7 @@ func (c *ProtoComms) transmit(host *Host, f func(conn *grpc.ClientConn) (interfa
 		host.conditionalDisconnect(connectionCount)
 		host.connectionMux.Unlock()
 		jww.WARN.Printf("Failed to send to Host on attempt %v/%v: %+v",
-			numRetries+1, MaxRetries, err)
+			numRetries+1, host.params.MaxSendRetries, err)
 	}
 
 	return nil, err
