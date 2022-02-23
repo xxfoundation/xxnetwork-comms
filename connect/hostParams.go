@@ -32,7 +32,7 @@ type HostParams struct {
 	// Amount of time after a cool off is triggered before allowed to send again
 	CoolOffTimeout time.Duration
 
-	// Message sending timeout
+	// Message send timeout (context deadline)
 	SendTimeout time.Duration
 
 	// Online ping timeout
