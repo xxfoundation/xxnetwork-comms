@@ -9,6 +9,13 @@ package dataStructures
 
 import (
 	"container/list"
+	"math/rand"
+	"reflect"
+	"sync"
+	"sync/atomic"
+	"testing"
+	"time"
+
 	"github.com/elliotchance/orderedmap"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/testutils"
@@ -16,12 +23,6 @@ import (
 	"gitlab.com/elixxir/primitives/excludedRounds"
 	"gitlab.com/elixxir/primitives/states"
 	"gitlab.com/xx_network/primitives/netTime"
-	"math/rand"
-	"reflect"
-	"sync"
-	"sync/atomic"
-	"testing"
-	"time"
 )
 
 // Happy path of NewWaitingRounds().
@@ -31,6 +32,8 @@ func TestNewWaitingRounds(t *testing.T) {
 		readRounds:  &atomic.Value{},
 		mux:         sync.Mutex{},
 	}
+	roundsList := make([]*Round, 0, 0)
+	expectedWR.readRounds.Store(roundsList)
 	testWR := NewWaitingRounds()
 
 	expectedWR.signal = testWR.signal
