@@ -46,7 +46,7 @@ func NewWaitingRounds() *WaitingRounds {
 		// do not change
 		signal: make(chan struct{}),
 	}
-	roundsList := make([]*Round, 0, wr.writeRounds.Len())
+	roundsList := make([]*Round, 0, 0)
 	wr.readRounds.Store(roundsList)
 
 	return &wr
