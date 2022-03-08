@@ -165,7 +165,11 @@ func (wr *WaitingRounds) getFurthest(exclude excludedRounds.ExcludedRounds, cuto
 func (wr *WaitingRounds) getClosest(exclude excludedRounds.ExcludedRounds, minRoundAge time.Duration) *Round {
 	earliestStart := netTime.Now().Add(minRoundAge)
 
-	roundsList := wr.readRounds.Load().([]*Round)
+	roundsListInt := wr.readRounds.Load()
+	if roundsListInt == nil {
+		return nil
+	}
+	roundsList := roundsListInt.([]*Round)
 
 	// Return the first non-excluded round in the list
 	for i:=0;i<len(roundsList);i++ {
