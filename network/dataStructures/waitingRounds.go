@@ -7,6 +7,10 @@
 package dataStructures
 
 import (
+	"sync"
+	"sync/atomic"
+	"time"
+
 	"github.com/elliotchance/orderedmap"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
@@ -14,9 +18,6 @@ import (
 	"gitlab.com/elixxir/primitives/excludedRounds"
 	"gitlab.com/elixxir/primitives/states"
 	"gitlab.com/xx_network/primitives/netTime"
-	"sync"
-	"sync/atomic"
-	"time"
 )
 
 var timeOutError = errors.New("Timed out getting round furthest in the future.")
@@ -33,19 +34,18 @@ type WaitingRounds struct {
 	readRounds  *atomic.Value
 	writeRounds *orderedmap.OrderedMap
 	mux         sync.Mutex
-	signal 	    chan struct{}
+	signal      chan struct{}
 }
 
 // NewWaitingRounds generates a new WaitingRounds with an empty round list.
 func NewWaitingRounds() *WaitingRounds {
 	wr := WaitingRounds{
 		writeRounds: orderedmap.NewOrderedMap(),
-		readRounds: &atomic.Value{},
+		readRounds:  &atomic.Value{},
 		// this is intentionally unbuffered,
 		// do not change
 		signal: make(chan struct{}),
 	}
-
 
 	return &wr
 }
@@ -66,10 +66,10 @@ func (wr *WaitingRounds) Insert(added, removed []*Round) {
 	defer wr.mux.Unlock()
 
 	//add any round which should be added
-	for i:= range added{
+	for i := range added {
 		toAdd := added[i]
-		if !time.Now().After(time.Unix(0,int64(toAdd.info.Timestamps[states.QUEUED]))){
-			wr.writeRounds.Set(toAdd.info.ID,toAdd)
+		if !time.Now().After(time.Unix(0, int64(toAdd.info.Timestamps[states.QUEUED]))) {
+			wr.writeRounds.Set(toAdd.info.ID, toAdd)
 		}
 
 	}
@@ -81,20 +81,20 @@ func (wr *WaitingRounds) Insert(added, removed []*Round) {
 	}
 
 	// If changes occured, update the atomic
-	if len(removed)>0||len(added)>0{
+	if len(removed) > 0 || len(added) > 0 {
 		wr.storeReadRounds()
 	}
 
 	// If inserts occured, signal to any waiting threads
 	// only do this on inserts because only inserts will change the
 	// evaluation by callers of GetUpcomingRealtime
-	if len(added)>0 {
-		go func(){
+	if len(added) > 0 {
+		go func() {
 			// this will loop for as many people are waiting on the
 			// channel which is why it is in a seperate function
-			for{
-				select{
-				case wr.signal<- struct{}{}:
+			for {
+				select {
+				case wr.signal <- struct{}{}:
 				default:
 					//exit when there are no listeners
 					return
@@ -104,23 +104,23 @@ func (wr *WaitingRounds) Insert(added, removed []*Round) {
 	}
 }
 
-func(wr *WaitingRounds)storeReadRounds(){
-	roundsList := make([]*Round,0,wr.writeRounds.Len())
+func (wr *WaitingRounds) storeReadRounds() {
+	roundsList := make([]*Round, 0, wr.writeRounds.Len())
 
-	toDelete  := make([]*Round,0)
+	toDelete := make([]*Round, 0)
 
 	for e := wr.writeRounds.Front(); e != nil; e = e.Next() {
 		rnd := e.Value.(*Round)
-		if time.Since(time.Unix(0,int64(rnd.info.Timestamps[states.QUEUED])))<time.Hour{
-			roundsList = append(roundsList,rnd)
-		}else{
-			toDelete = append(toDelete,rnd)
+		if time.Since(time.Unix(0, int64(rnd.info.Timestamps[states.QUEUED]))) < time.Hour {
+			roundsList = append(roundsList, rnd)
+		} else {
+			toDelete = append(toDelete, rnd)
 		}
 
 	}
 	wr.readRounds.Store(roundsList)
 
-	if len(toDelete)>0{
+	if len(toDelete) > 0 {
 		for i := range toDelete {
 			toRemove := toDelete[i]
 			wr.writeRounds.Delete(toRemove.info.ID)
@@ -140,11 +140,13 @@ func getTime(round *Round) uint64 {
 func (wr *WaitingRounds) getFurthest(exclude excludedRounds.ExcludedRounds, cutoffDelta time.Duration) *Round {
 	earliestStart := netTime.Now().Add(cutoffDelta)
 
-
-	roundsList := wr.readRounds.Load().([]*Round)
+	roundsList, exists := wr.readRounds.Load().([]*Round)
+	if !exists {
+		return nil
+	}
 
 	// Return the last non-excluded round in the list
-	for i:=len(roundsList)-1;i>=0;i-- {
+	for i := len(roundsList) - 1; i >= 0; i-- {
 		r := roundsList[i]
 		// Cannot guarantee that the round object's pointers will be exact match
 		// of value in set
@@ -165,14 +167,13 @@ func (wr *WaitingRounds) getFurthest(exclude excludedRounds.ExcludedRounds, cuto
 func (wr *WaitingRounds) getClosest(exclude excludedRounds.ExcludedRounds, minRoundAge time.Duration) *Round {
 	earliestStart := netTime.Now().Add(minRoundAge)
 
-	roundsListInt := wr.readRounds.Load()
-	if roundsListInt == nil {
+	roundsList, exists := wr.readRounds.Load().([]*Round)
+	if !exists {
 		return nil
 	}
-	roundsList := roundsListInt.([]*Round)
 
 	// Return the first non-excluded round in the list
-	for i:=0;i<len(roundsList);i++ {
+	for i := 0; i < len(roundsList); i++ {
 		r := roundsList[i]
 		// Cannot guarantee that the round object's pointers will be exact match
 		// of value in set
@@ -197,12 +198,15 @@ func isExcluded(exclude excludedRounds.ExcludedRounds, r *pb.RoundInfo) bool {
 // GetSlice returns a slice of all round infos in the list that have yet to
 // occur.
 func (wr *WaitingRounds) GetSlice() []*pb.RoundInfo {
+	var roundInfos []*pb.RoundInfo
 
-	roundsList := wr.readRounds.Load().([]*Round)
+	roundsList, exists := wr.readRounds.Load().([]*Round)
+	if !exists {
+		return roundInfos
+	}
 
 	now := uint64(netTime.Now().Nanosecond())
-	var roundInfos []*pb.RoundInfo
-	for i:=0;i<len(roundsList);i++ {
+	for i := 0; i < len(roundsList); i++ {
 		if getTime(roundsList[i]) > now {
 			roundInfos = append(roundInfos, roundsList[i].info)
 		}
@@ -228,10 +232,9 @@ func (wr *WaitingRounds) GetUpcomingRealtime(timeout time.Duration,
 	// Start timeout timer
 	timer := time.NewTimer(timeout)
 
-
 	// Start seeing if an acceptable round exists
-	round := wr.get(exclude,minRoundAge)
-	if round!=nil{
+	round := wr.get(exclude, minRoundAge)
+	if round != nil {
 		return round, nil
 	}
 
@@ -242,15 +245,15 @@ func (wr *WaitingRounds) GetUpcomingRealtime(timeout time.Duration,
 		case <-timer.C:
 			return nil, timeOutError
 		case <-wr.signal:
-			round = wr.get(exclude,minRoundAge)
-			if round!=nil{
+			round = wr.get(exclude, minRoundAge)
+			if round != nil {
 				return round, nil
 			}
 		}
 	}
 }
 
-func (wr *WaitingRounds) get(exclude excludedRounds.ExcludedRounds, minRoundAge time.Duration)*pb.RoundInfo{
+func (wr *WaitingRounds) get(exclude excludedRounds.ExcludedRounds, minRoundAge time.Duration) *pb.RoundInfo {
 	if exclude.Len() < maxGetClosestTries {
 		// Use getClosest when excluded set's length is small
 		round := wr.getClosest(exclude, minRoundAge)
