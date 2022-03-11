@@ -88,7 +88,7 @@ func (c *ProtoComms) connect(host *Host, count uint64) (uint64, error) {
 	}
 
 	//if the connection is alive return, it is possible for another transmission
-	//to connect between releasing the read lock and taking the write lick
+	//to connect between releasing the read lock and taking the write lock
 	if !host.isAlive() {
 		//connect to host
 		jww.INFO.Printf("Host %s not connected, attempting to connect...",
