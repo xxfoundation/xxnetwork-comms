@@ -275,6 +275,14 @@ func (h *Host) transmit(f func(conn *grpc.ClientConn) (interface{},
 	return a, err
 }
 
+// Connect allows manual connection to the host if it does not have a valid connection
+func (h *Host) Connect() error {
+	h.connectionMux.Lock()
+	defer h.connectionMux.Unlock()
+
+	return h.connect()
+}
+
 // connect attempts to connect to the host if it does not have a valid connection
 func (h *Host) connect() error {
 
