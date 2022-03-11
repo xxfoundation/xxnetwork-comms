@@ -455,7 +455,7 @@ func TestProtocol_getPeers(t *testing.T) {
 // Show that data that's valid propagates, and that data that's not valid doesn't
 func TestGossipNodes(t *testing.T) {
 	// Have some nodes
-	numNodes := 100
+	numNodes := 50
 	portOffset := 24671
 	managers := make([]*Manager, 0, numNodes)
 	nodes := make([]*id.ID, 0, numNodes)
