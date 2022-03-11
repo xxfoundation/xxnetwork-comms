@@ -112,7 +112,7 @@ func NewHost(id *id.ID, address string, cert []byte, params HostParams) (host *H
 	}
 
 	// Connect immediately if configured to do so
-	if !params.LazyConnection {
+	if params.DisableLazyConnection {
 		// No mutex required
 		err = host.connect()
 	}
