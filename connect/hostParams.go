@@ -41,6 +41,10 @@ type HostParams struct {
 	// If set, metric handling will be enabled on this host
 	EnableMetrics bool
 
+	// If false, a connection will only be established when a comm is sent
+	// else, a connection will be established immediately upon host creation
+	DisableLazyConnection bool
+
 	// List of sending errors that are deemed unimportant
 	// Reception of these errors will not update the Metric state
 	ExcludeMetricErrors []string
@@ -61,6 +65,7 @@ func GetDefaultHostParams() HostParams {
 		SendTimeout:           2 * time.Minute,
 		PingTimeout:           5 * time.Second,
 		EnableMetrics:         false,
+		DisableLazyConnection: false,
 		ExcludeMetricErrors:   make([]string, 0),
 		KaClientOpts: keepalive.ClientParameters{
 			// Send keepAlive every Time interval
