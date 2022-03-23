@@ -1,15 +1,15 @@
 package mixmessages
 
 import (
+	"gitlab.com/xx_network/primitives/netTime"
 	"math/rand"
 	"reflect"
 	"testing"
-	"time"
 )
 
 func TestMake_DecodeNotificationsCSV(t *testing.T) {
 
-	rng := rand.New(rand.NewSource(time.Now().UnixNano()))
+	rng := rand.New(rand.NewSource(netTime.Now().UnixNano()))
 
 	const numNotifications = 50
 
