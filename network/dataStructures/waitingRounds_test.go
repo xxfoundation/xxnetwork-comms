@@ -97,7 +97,7 @@ func TestWaitingRounds_getFurthest(t *testing.T) {
 				"\nexpected: %+v\nrecieved: %+v", i,
 				expectedRounds[i].info, testWR.getFurthest(nil, 0).info)
 		}
-		//testWR.remove(expectedRounds[i])
+		// testWR.remove(expectedRounds[i])
 		testWR.Insert(nil, []*Round{expectedRounds[i]})
 		testWR.storeReadRounds()
 	}
@@ -191,7 +191,7 @@ func TestWaitingRounds_GetUpcomingRealtime_NoWait(t *testing.T) {
 			t.Errorf("GetUpcomingRealtime() did not return the expected round (%d)."+
 				"\nexpected: %+v\nrecieved: %+v", i, expectedRounds[i].info, furthestRound)
 		}
-		//testWR.remove(expectedRounds[i])
+		// testWR.remove(expectedRounds[i])
 		testWR.Insert(nil, []*Round{expectedRounds[i]})
 		testWR.storeReadRounds()
 	}
@@ -254,8 +254,10 @@ func TestWaitingRounds_GetUpcomingRealtime_GetFurthest(t *testing.T) {
 
 	// Populate the set
 	testSet := excludedRounds.NewSet()
+	expectedTestSet := excludedRounds.NewSet()
 	for i := 0; i < maxGetClosestTries; i++ {
 		testSet.Insert(expectedRounds[i].info.GetRoundId())
+		expectedTestSet.Insert(expectedRounds[i].info.GetRoundId())
 	}
 
 	// Populate the waiting rounds
@@ -275,7 +277,7 @@ func TestWaitingRounds_GetUpcomingRealtime_GetFurthest(t *testing.T) {
 			"\n\terror: %v", err)
 	}
 
-	expectedFurthest := testWR.getFurthest(testSet, 0).Get()
+	expectedFurthest := testWR.getFurthest(expectedTestSet, 0).Get()
 
 	if !reflect.DeepEqual(expectedFurthest, furthestRound) {
 		t.Fatalf("GetUpcomingRealtime should retrieve the furthest round"+
@@ -298,7 +300,7 @@ func TestWaitingRounds_GetSlice(t *testing.T) {
 		Timestamps: []uint64{0, 0, 0, 0, 0},
 	}
 
-	ri.Timestamps[states.QUEUED] = uint64(time.Now().Add(100 * time.Millisecond).UnixNano())
+	ri.Timestamps[states.QUEUED] = uint64(netTime.Now().Add(100 * time.Millisecond).UnixNano())
 
 	err := testutils.SignRoundInfoRsa(ri, t)
 	if err != nil {
