@@ -144,36 +144,32 @@ func (c *Comms) SendPoll(host *connect.Host,
 	}
 
 	stream := resultClient.(pb.Gateway_PollClient)
-	jww.DEBUG.Printf("Receiving chunks for gateway poll")
+	jww.DEBUG.Printf("Receiving chunks for gateway poll from %s", host.GetId().String())
+	closeErr := stream.CloseSend()
+	if closeErr != nil {
+		return nil, wrapError(closeErr, "Unable to close send stream")
+	}
 
 	// Get the total number of chunks from the header
 	md, err := stream.Header()
 	if err != nil {
-		closeErr := stream.RecvMsg(nil)
+		closeErr = stream.RecvMsg(nil)
 		return nil, wrapError(closeErr, "Could not "+
 			"receive streaming header from %s: %s", host.GetId(),
 			err.Error())
 	}
 
-	stream.Context().Done()
-
-	// Check if metadata contains any headers
-	if md.Len() == 0 {
-		closeErr := stream.RecvMsg(nil)
-		return nil, wrapError(closeErr, pb.NoStreamingHeaderErr, host.GetId())
-	}
-
 	// Check if metadata has the expected header
 	chunkHeader := md.Get(pb.ChunkHeader)
 	if len(chunkHeader) == 0 {
-		closeErr := stream.CloseSend()
+		closeErr = stream.RecvMsg(nil)
 		return nil, wrapError(closeErr, pb.NoStreamingHeaderErr, host.GetId())
 	}
 
 	// Process header
 	totalChunks, err := strconv.Atoi(chunkHeader[0])
 	if err != nil {
-		closeErr := stream.RecvMsg(nil)
+		closeErr = stream.RecvMsg(nil)
 		return nil, wrapError(closeErr, "Invalid header received: %v", err)
 	}
 
@@ -181,25 +177,19 @@ func (c *Comms) SendPoll(host *connect.Host,
 	chunks := make([]*pb.StreamChunk, 0, totalChunks)
 	chunk, err := stream.Recv()
 	receivedChunks := 0
-	for ; err == nil; chunk, err = stream.Recv() {
+	for ; err == nil && receivedChunks <= totalChunks; chunk, err = stream.Recv() {
 		chunks = append(chunks, chunk)
 		receivedChunks++
 	}
-
-	closeErr := stream.RecvMsg(nil)
-
 	if err != io.EOF { // EOF is an expected error after server-side has completed streaming
-		if closeErr != nil {
-			return nil, errors.WithMessagef(closeErr, "Failed to "+
-				"complete streaming, received %d of %d messages: %s",
-				receivedChunks, totalChunks, err)
-		}
 		return nil, errors.Errorf("Failed to "+
 			"complete streaming, received %d of %d messages: %s",
 			receivedChunks, totalChunks, err)
 	}
 
-	if closeErr != nil && closeErr != io.EOF {
+	// Close stream once done
+	closeErr = stream.RecvMsg(nil)
+	if closeErr != io.EOF {
 		return nil, errors.WithMessagef(closeErr, "Received error on "+
 			"closing stream with %s", host.GetId())
 	}
