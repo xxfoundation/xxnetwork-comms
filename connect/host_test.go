@@ -9,8 +9,12 @@ package connect
 
 import (
 	"bytes"
+	"github.com/pkg/errors"
+	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/xx_network/primitives/id"
+	"google.golang.org/grpc"
 	"net"
+	"strings"
 	"testing"
 )
 
@@ -197,4 +201,43 @@ func TestHost_GetMetrics(t *testing.T) {
 		t.Errorf("get call should reset state for metric")
 	}
 
+}
+
+// Tests that Host.transmit returns the original proxy error when under the
+// proxy error threshold and returns TooManyProxyError when over the threshold.
+func TestHost_transmit_ProxyError(t *testing.T) {
+	jww.SetStdoutThreshold(jww.LevelTrace)
+	// Create the host
+	p := GetDefaultHostParams()
+	p.ProxyErrorMetricParams.Cutoff = 0.17
+	host, err := NewHost(&id.ID{}, "", nil, p)
+	if err != nil {
+		t.Fatalf("Unable to create host: %+v", host)
+	}
+	host.connection = &grpc.ClientConn{}
+
+	originalErr := errors.New("Unable to SendToAny via " +
+		"ZT9BlnUhZZaPGB/A0BBR6tIjRrASM5GcnXrSkepElWwB: Register: Failed " +
+		"requesting client key from gateway " +
+		"I3g/DVoWVGsz/JTh6DuccdgXT8o0fM+TtA21EppKPtcB: rpc error: code = " +
+		"Unknown desc = unable to connect to target host " +
+		"I3g/DVoWVGsz/JTh6DuccdgXT8o0fM+TtA21EppKPtcB..Did not replace host.")
+
+	f := func(*grpc.ClientConn) (interface{}, error) {
+		return nil, originalErr
+	}
+
+	// Check that the original error is returned when under the cutoff
+	_, err = host.transmit(f)
+	if err == nil || err != originalErr {
+		t.Errorf("Error did not contain expected message."+
+			"\nexpected: %s\nreceived: %+v", originalErr, err)
+	}
+
+	// Check that TooManyProxyError is returned when over the cutoff
+	_, err = host.transmit(f)
+	if err == nil || !strings.Contains(err.Error(), TooManyProxyError) {
+		t.Errorf("Error did not contain expected message."+
+			"\nexpected: %s\nreceived: %+v", TooManyProxyError, err)
+	}
 }
