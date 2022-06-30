@@ -17,6 +17,7 @@ import (
 	"gitlab.com/xx_network/comms/connect/token"
 	"gitlab.com/xx_network/crypto/signature/rsa"
 	tlsCreds "gitlab.com/xx_network/crypto/tls"
+	"gitlab.com/xx_network/primitives/exponential"
 	"gitlab.com/xx_network/primitives/id"
 	"gitlab.com/xx_network/primitives/rateLimiting"
 	"google.golang.org/grpc"
@@ -66,6 +67,10 @@ type Host struct {
 	// State tracking for host metric
 	metrics *Metric
 
+	// Tracks the exponential moving average of proxy error messages so that if
+	// too many connection error occur, the layer above can be informed
+	proxyErrorMetric *exponential.MovingAvg
+
 	coolOffBucket *rateLimiting.Bucket
 	inCoolOff     bool
 
@@ -89,6 +94,7 @@ func NewHost(id *id.ID, address string, cert []byte, params HostParams) (host *H
 		transmissionToken: token.NewLive(),
 		receptionToken:    token.NewLive(),
 		metrics:           newMetric(),
+		proxyErrorMetric:  exponential.NewMovingAvg(params.ProxyErrorMetricParams),
 		params:            params,
 		windowSize:        &windowSize,
 	}
@@ -269,6 +275,18 @@ func (h *Host) transmit(f func(conn *grpc.ClientConn) (interface{},
 		// If it is not an excluded error, update host's metrics
 		if !h.isExcludedMetricError(err.Error()) {
 			h.metrics.incrementErrors()
+		}
+	}
+
+	if err != nil {
+		// Check if the received error is a connection timeout and add it to the
+		// moving average. If the cutoff is reached for too many timeouts,
+		// return TooManyProxyError instead so that the host can be removed from
+		// the host pool on the layer above.
+		err2 := h.proxyErrorMetric.Intake(
+			exponential.BoolToFloat(strings.Contains(err.Error(), ProxyError)))
+		if err2 != nil {
+			err = errors.Errorf("%s: %+v", TooManyProxyError, err2)
 		}
 	}
 

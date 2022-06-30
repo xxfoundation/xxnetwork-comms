@@ -8,6 +8,7 @@
 package connect
 
 import (
+	"gitlab.com/xx_network/primitives/exponential"
 	"google.golang.org/grpc/keepalive"
 	"time"
 )
@@ -51,6 +52,10 @@ type HostParams struct {
 
 	// KeepAlive Options for Host connections
 	KaClientOpts keepalive.ClientParameters
+
+	// ProxyErrorMetricParams are the parameters used for the proxy error
+	// tracker that uses exponential moving average (exponential.MovingAvg).
+	ProxyErrorMetricParams exponential.MovingAvgParams
 }
 
 // GetDefaultHostParams Get default set of host params
@@ -75,5 +80,6 @@ func GetDefaultHostParams() HostParams {
 			// For all connections, with and without streaming
 			PermitWithoutStream: true,
 		},
+		ProxyErrorMetricParams: exponential.DefaultMovingAvgParams(),
 	}
 }
