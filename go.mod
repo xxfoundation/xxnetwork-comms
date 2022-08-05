@@ -16,15 +16,7 @@ require (
 	golang.org/x/crypto v0.0.0-20220128200615-198e4374d7ed
 	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2
 	google.golang.org/grpc v1.38.0
-	google.golang.org/protobuf v1.27.1
+	google.golang.org/protobuf v1.27.1 // indirect
 )
 
-require (
-	github.com/golang-collections/collections v0.0.0-20130729185459-604e922904d3 // indirect
-	github.com/mitchellh/go-homedir v1.1.0 // indirect
-	github.com/zeebo/blake3 v0.1.1 // indirect
-	golang.org/x/sys v0.0.0-20211007075335-d3039528d8ac // indirect
-	golang.org/x/text v0.3.6 // indirect
-	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
-	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013 // indirect
-)
+require golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect

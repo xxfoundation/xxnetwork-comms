@@ -56,3 +56,7 @@ func (u *Comms) ConfirmFact(ctx context.Context, msg *pb.FactConfirmRequest) (*m
 func (u *Comms) RemoveFact(ctx context.Context, msg *pb.FactRemovalRequest) (*messages.Ack, error) {
 	return u.handler.RemoveFact(msg)
 }
+
+func (u *Comms) RequestChannelAuthentication(ctx context.Context, msg *pb.ChannelAuthenticationRequest) (*pb.ChannelAuthenticationResponse, error) {
+	return u.handler.RequestChannelAuthentication(msg)
+}
