@@ -627,23 +627,24 @@ service UDB {
 
     // RequestChannelAuthentication requests a signature from UD on a user's ed25519 public key
     // Returning a lease and a signature from UD
-    rpc RequestChannelAuthentication (ChannelAuthenticationRequest) returns (ChannelAuthenticationResponse) {
+    rpc RequestChannelLease (ChannelLeaseRequest) returns (ChannelLeaseResponse) {
 
     }
 }
 
 // Holds information for a user requesting channel authentication from UD
-message ChannelAuthenticationRequest {
+message ChannelLeaseRequest {
     bytes UserID = 1;
     bytes UserEd25519PubKey = 2;
     int64 Timestamp = 3;
-    bytes UserSignedEdPubKey = 4;
+    bytes UserPubKeyRSASignature = 4;
 }
 
 // Contains UD response to a ChannelAuthenticationRequest, including lease & signature
-message ChannelAuthenticationResponse {
+message ChannelLeaseResponse {
     int64 lease = 1;
-    bytes UDSignedEdPubKey = 2;
+    bytes UserEd25519PubKey = 2;
+    bytes UDLeaseEd25519Signature = 3;
 
 }
 

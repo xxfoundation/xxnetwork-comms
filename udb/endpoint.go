@@ -57,6 +57,6 @@ func (u *Comms) RemoveFact(ctx context.Context, msg *pb.FactRemovalRequest) (*me
 	return u.handler.RemoveFact(msg)
 }
 
-func (u *Comms) RequestChannelAuthentication(ctx context.Context, msg *pb.ChannelAuthenticationRequest) (*pb.ChannelAuthenticationResponse, error) {
-	return u.handler.RequestChannelAuthentication(msg)
+func (u *Comms) RequestChannelLease(ctx context.Context, msg *pb.ChannelLeaseRequest) (*pb.ChannelLeaseResponse, error) {
+	return u.handler.RequestChannelLease(msg)
 }
