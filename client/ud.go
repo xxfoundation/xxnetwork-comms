@@ -152,3 +152,33 @@ func (c *Comms) SendRemoveUser(host *connect.Host, message *pb.FactRemovalReques
 
 	return &messages.Ack{}, nil
 }
+
+// Client -> User Discovery channel authentication & lease request
+func (c *Comms) SendChannelAuthRequest(host *connect.Host, message *pb.ChannelLeaseRequest) (*pb.ChannelLeaseResponse, error) {
+	// Create the Send Function
+	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := host.GetMessagingContext()
+		defer cancel()
+
+		// Send the message
+		resultMsg, err := pb.NewUDBClient(conn).RequestChannelLease(ctx, message)
+		if err != nil {
+			err = errors.New(err.Error())
+			return nil, errors.New(err.Error())
+
+		}
+		return ptypes.MarshalAny(resultMsg)
+	}
+
+	jww.TRACE.Printf("Sending Channel Auth Request message: %+v", message)
+	resultMsg, err := c.Send(host, f)
+	if err != nil {
+		return nil, err
+	}
+
+	result := &pb.ChannelLeaseResponse{}
+
+	return result, ptypes.UnmarshalAny(resultMsg, result)
+
+}

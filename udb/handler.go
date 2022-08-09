@@ -83,6 +83,8 @@ type Handler interface {
 	// RemoveFact deletes a fact from its associated ID.
 	// You cannot RemoveFact on a username. Callers must RemoveUser and reregister.
 	RemoveFact(request *pb.FactRemovalRequest) (*messages.Ack, error)
+	// RequestChannelLease requests a signature & lease on a user's ed25519 public key from user discovery for use in channels
+	RequestChannelLease(request *pb.ChannelLeaseRequest) (*pb.ChannelLeaseResponse, error)
 }
 
 // implementationFunctions are the actual implementations of
@@ -105,6 +107,8 @@ type implementationFunctions struct {
 	// RemoveFact deletes a fact from its associated ID.
 	// You cannot RemoveFact on a username. Callers must RemoveUser and reregister.
 	RemoveFact func(request *pb.FactRemovalRequest) (*messages.Ack, error)
+	// RequestChannelLease requests a signature & lease on a user's ed25519 public key from user discovery for use in channels
+	RequestChannelLease func(request *pb.ChannelLeaseRequest) (*pb.ChannelLeaseResponse, error)
 }
 
 // Implementation allows users of the client library to set the
@@ -150,6 +154,10 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return &messages.Ack{}, nil
 			},
+			RequestChannelLease: func(request *pb.ChannelLeaseRequest) (*pb.ChannelLeaseResponse, error) {
+				warn(um)
+				return &pb.ChannelLeaseResponse{}, nil
+			},
 		},
 	}
 }
@@ -177,4 +185,9 @@ func (s *Implementation) ConfirmFact(request *pb.FactConfirmRequest) (*messages.
 // RemoveFact is called by the RemoveFact in endpoint.go. It calls the corresponding function in the interface.
 func (s *Implementation) RemoveFact(request *pb.FactRemovalRequest) (*messages.Ack, error) {
 	return s.Functions.RemoveFact(request)
+}
+
+// RequestChannelLease is called by the RequestChannelAuthentication in endpoint.go.  It calls the corresponding function in the interface
+func (s *Implementation) RequestChannelLease(request *pb.ChannelLeaseRequest) (*pb.ChannelLeaseResponse, error) {
+	return s.Functions.RequestChannelLease(request)
 }

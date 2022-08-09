@@ -624,6 +624,28 @@ service UDB {
     // You cannot RemoveFact on a username. Callers must RemoveUser and reregsiter.
     rpc RemoveFact (FactRemovalRequest) returns (messages.Ack) {
     }
+
+    // RequestChannelAuthentication requests a signature from UD on a user's ed25519 public key
+    // Returning a lease and a signature from UD
+    rpc RequestChannelLease (ChannelLeaseRequest) returns (ChannelLeaseResponse) {
+
+    }
+}
+
+// Holds information for a user requesting channel authentication from UD
+message ChannelLeaseRequest {
+    bytes UserID = 1;
+    bytes UserEd25519PubKey = 2;
+    int64 Timestamp = 3;
+    bytes UserPubKeyRSASignature = 4;
+}
+
+// Contains UD response to a ChannelAuthenticationRequest, including lease & signature
+message ChannelLeaseResponse {
+    int64 lease = 1;
+    bytes UserEd25519PubKey = 2;
+    bytes UDLeaseEd25519Signature = 3;
+
 }
 
 // Holds information for a UDB user registration request
