@@ -40,12 +40,12 @@ func StartCMixInterconnect(id *id.ID, port string, handler ServerHandler,
 
 	go func() {
 		// Register GRPC services to the listening address
-		RegisterInterconnectServer(CMixInterconnect.LocalServer, &CMixInterconnect)
-		//messages.RegisterGenericServer(CMixInterconnect.LocalServer, &CMixInterconnect)
+		RegisterInterconnectServer(CMixInterconnect.GetServer(), &CMixInterconnect)
+		//messages.RegisterGenericServer(CMixInterconnect.grpcServer, &CMixInterconnect)
 
 		// Register reflection service on gRPC server.
-		reflection.Register(CMixInterconnect.LocalServer)
-		if err := CMixInterconnect.LocalServer.Serve(lis); err != nil {
+		reflection.Register(CMixInterconnect.GetServer())
+		if err := CMixInterconnect.GetServer().Serve(lis); err != nil {
 			jww.FATAL.Panicf("Failed to serve: %+v",
 				errors.New(err.Error()))
 		}

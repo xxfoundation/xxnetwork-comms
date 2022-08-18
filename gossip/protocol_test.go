@@ -488,8 +488,8 @@ func TestGossipNodes(t *testing.T) {
 
 		go func() {
 			// start serving
-			RegisterGossipServer(pc.LocalServer, manager)
-			err := pc.LocalServer.Serve(listen)
+			RegisterGossipServer(pc.GetServer(), manager)
+			err := pc.GetServer().Serve(listen)
 			if err != nil {
 				t.Fatal(err)
 			}

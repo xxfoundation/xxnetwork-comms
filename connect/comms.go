@@ -66,7 +66,7 @@ type ProtoComms struct {
 	*Manager
 
 	// The network ID of this comms server
-	Id *id.ID
+	receptionId *id.ID
 
 	// Private key of the local comms instance
 	privateKey *rsa.PrivateKey
@@ -79,11 +79,14 @@ type ProtoComms struct {
 	// A map of reverse-authentication tokens
 	tokens *token.Map
 
+	// Low-level net.Listener object that listens at listeningAddress
+	netListener net.Listener
+
 	// Local network server
-	LocalServer *grpc.Server
+	grpcServer *grpc.Server
 
 	// Listening address of the local server
-	ListeningAddr string
+	listeningAddress string
 
 	// CLIENT-ONLY FIELDS ------------------------------------------------------
 
@@ -96,17 +99,33 @@ type ProtoComms struct {
 	// -------------------------------------------------------------------------
 }
 
+func (c *ProtoComms) GetId() *id.ID {
+	return c.receptionId.DeepCopy()
+}
+
+func (c *ProtoComms) GetListener() net.Listener {
+	return c.netListener
+}
+
+func (c *ProtoComms) GetServer() *grpc.Server {
+	return c.grpcServer
+}
+
+func (c *ProtoComms) GetListeningAddress() string {
+	return c.listeningAddress
+}
+
 // CreateCommClient creates a ProtoComms client-type object to be
 // used in various initializers.
 func CreateCommClient(id *id.ID, pubKeyPem, privKeyPem,
 	salt []byte) (*ProtoComms, error) {
 	// Build the ProtoComms object
 	pc := &ProtoComms{
-		Id:        id,
-		pubKeyPem: pubKeyPem,
-		salt:      salt,
-		tokens:    token.NewMap(),
-		Manager:   newManager(),
+		receptionId: id,
+		pubKeyPem:   pubKeyPem,
+		salt:        salt,
+		tokens:      token.NewMap(),
+		Manager:     newManager(),
 	}
 
 	// Set the private key if specified
@@ -121,19 +140,7 @@ func CreateCommClient(id *id.ID, pubKeyPem, privKeyPem,
 
 // StartCommServer creates a ProtoComms server-type object to be used in various initializers.
 func StartCommServer(id *id.ID, localServer string,
-	certPEMblock, keyPEMblock []byte, preloadedHosts []*Host) (*ProtoComms, net.Listener, error) {
-
-	// Build the ProtoComms object
-	pc := &ProtoComms{
-		Id:            id,
-		ListeningAddr: localServer,
-		tokens:        token.NewMap(),
-		Manager:       newManager(),
-	}
-
-	for _, h := range preloadedHosts {
-		pc.Manager.addHost(h)
-	}
+	certPEMblock, keyPEMblock []byte, preloadedHosts []*Host) (*ProtoComms, error) {
 
 listen:
 	// Listen on the given address
@@ -144,7 +151,20 @@ listen:
 			time.Sleep(30 * time.Second)
 			goto listen
 		}
-		return nil, nil, errors.New(err.Error())
+		return nil, errors.New(err.Error())
+	}
+
+	// Build the comms object
+	pc := &ProtoComms{
+		receptionId:      id,
+		listeningAddress: localServer,
+		netListener:      lis,
+		tokens:           token.NewMap(),
+		Manager:          newManager(),
+	}
+
+	for _, h := range preloadedHosts {
+		pc.Manager.addHost(h)
 	}
 
 	// If TLS was specified
@@ -153,19 +173,19 @@ listen:
 		// Create the TLS certificate
 		x509cert, err := tls.X509KeyPair(certPEMblock, keyPEMblock)
 		if err != nil {
-			return nil, nil, errors.Errorf("Could not load TLS keys: %+v", err)
+			return nil, errors.Errorf("Could not load TLS keys: %+v", err)
 		}
 
 		// Set the private key
 		err = pc.setPrivateKey(keyPEMblock)
 		if err != nil {
-			return nil, nil, errors.Errorf("Could not set private key: %+v", err)
+			return nil, errors.Errorf("Could not set private key: %+v", err)
 		}
 
 		// Create the gRPC server with TLS
 		jww.INFO.Printf("Starting server with TLS...")
 		creds := credentials.NewServerTLSFromCert(&x509cert)
-		pc.LocalServer = grpc.NewServer(grpc.Creds(creds),
+		pc.grpcServer = grpc.NewServer(grpc.Creds(creds),
 			grpc.MaxConcurrentStreams(MaxConcurrentStreams),
 			grpc.MaxRecvMsgSize(math.MaxInt32),
 			grpc.KeepaliveParams(KaOpts),
@@ -173,7 +193,7 @@ listen:
 	} else if TestingOnlyDisableTLS {
 		// Create the gRPC server without TLS
 		jww.WARN.Printf("Starting server with TLS disabled...")
-		pc.LocalServer = grpc.NewServer(
+		pc.grpcServer = grpc.NewServer(
 			grpc.MaxConcurrentStreams(MaxConcurrentStreams),
 			grpc.MaxRecvMsgSize(math.MaxInt32),
 			grpc.KeepaliveParams(KaOpts),
@@ -182,19 +202,23 @@ listen:
 		jww.FATAL.Panicf("TLS cannot be disabled in production, only for testing suites!")
 	}
 
-	return pc, lis, nil
+	return pc, nil
 }
 
 // Shutdown performs a graceful shutdown of the local server.
 func (c *ProtoComms) Shutdown() {
+	c.grpcServer.GracefulStop()
 	c.DisconnectAll()
-	c.LocalServer.GracefulStop()
-	time.Sleep(time.Millisecond * 500)
+	err := c.netListener.Close()
+	if err != nil {
+		jww.ERROR.Printf("Unable to close net listener: %+v", err)
+	}
+	time.Sleep(100 * time.Millisecond)
 }
 
 // Stringer method
 func (c *ProtoComms) String() string {
-	return c.ListeningAddr
+	return c.listeningAddress
 }
 
 // Setter for local server's private key
@@ -212,14 +236,6 @@ func (c *ProtoComms) setPrivateKey(data []byte) error {
 func (c *ProtoComms) GetPrivateKey() *rsa.PrivateKey {
 	return c.privateKey
 }
-
-const (
-	//numerical designators for 3 operations of send, used to ensure the same
-	//operation isn't repeated
-	con  = 1
-	auth = 2
-	send = 3
-)
 
 // Send sets up or recovers the Host's connection,
 // then runs the given transmit function.

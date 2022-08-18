@@ -33,7 +33,7 @@ func TestSignVerify(t *testing.T) {
 	}
 
 	testId := id.NewIdFromBytes([]byte("Kirby"), t)
-	c.Id = testId
+	c.receptionId = testId
 
 	private := c.GetPrivateKey()
 	pub := private.Public().(*rsa.PublicKey)
@@ -66,11 +66,11 @@ func TestSignVerify(t *testing.T) {
 func TestProtoComms_AuthenticatedReceiver(t *testing.T) {
 	// Create comm object
 	pc := ProtoComms{
-		Manager:       newManager(),
-		tokens:        token.NewMap(),
-		LocalServer:   nil,
-		ListeningAddr: "",
-		privateKey:    nil,
+		Manager:          newManager(),
+		tokens:           token.NewMap(),
+		grpcServer:       nil,
+		listeningAddress: "",
+		privateKey:       nil,
 	}
 	// Create id and token
 	testID := id.NewIdFromString("testSender", id.Node, t)
@@ -121,11 +121,11 @@ func TestProtoComms_AuthenticatedReceiver(t *testing.T) {
 func TestProtoComms_AuthenticatedReceiver_BadId(t *testing.T) {
 	// Create comm object
 	pc := ProtoComms{
-		Manager:       newManager(),
-		tokens:        token.NewMap(),
-		LocalServer:   nil,
-		ListeningAddr: "",
-		privateKey:    nil,
+		Manager:          newManager(),
+		tokens:           token.NewMap(),
+		grpcServer:       nil,
+		listeningAddress: "",
+		privateKey:       nil,
 	}
 	// Create id and token
 	testID := id.NewIdFromString("testSender", id.Node, t)
@@ -170,10 +170,10 @@ func TestProtoComms_AuthenticatedReceiver_BadId(t *testing.T) {
 // Happy path
 func TestProtoComms_GenerateToken(t *testing.T) {
 	comm := ProtoComms{
-		tokens:        token.NewMap(),
-		LocalServer:   nil,
-		ListeningAddr: "",
-		privateKey:    nil,
+		tokens:           token.NewMap(),
+		grpcServer:       nil,
+		listeningAddress: "",
+		privateKey:       nil,
 	}
 	tokenBytes, err := comm.GenerateToken()
 	if err != nil || tokenBytes == nil {
@@ -195,11 +195,11 @@ func TestProtoComms_GenerateToken(t *testing.T) {
 func TestProtoComms_PackAuthenticatedMessage(t *testing.T) {
 	testServerId := id.NewIdFromString("test12345", id.Node, t)
 	comm := ProtoComms{
-		Id:            testServerId,
-		LocalServer:   nil,
-		ListeningAddr: "",
-		privateKey:    nil,
-		tokens:        token.NewMap(),
+		receptionId:      testServerId,
+		grpcServer:       nil,
+		listeningAddress: "",
+		privateKey:       nil,
+		tokens:           token.NewMap(),
 	}
 
 	tokenBytes, err := comm.GenerateToken()
@@ -237,12 +237,12 @@ func TestProtoComms_PackAuthenticatedMessage(t *testing.T) {
 func TestProtoComms_ValidateToken(t *testing.T) {
 	testId := id.NewIdFromString("test", id.Node, t)
 	comm := ProtoComms{
-		Id:            testId,
-		LocalServer:   nil,
-		ListeningAddr: "",
-		privateKey:    nil,
-		tokens:        token.NewMap(),
-		Manager:       newManager(),
+		receptionId:      testId,
+		grpcServer:       nil,
+		listeningAddress: "",
+		privateKey:       nil,
+		tokens:           token.NewMap(),
+		Manager:          newManager(),
 	}
 	err := comm.setPrivateKey(testkeys.LoadFromPath(testkeys.GetNodeKeyPath()))
 	if err != nil {
@@ -291,12 +291,12 @@ func TestProtoComms_ValidateToken(t *testing.T) {
 func TestProtoComms_ValidateToken_BadId(t *testing.T) {
 	testId := id.NewIdFromString("test", id.Node, t)
 	comm := ProtoComms{
-		Id:            testId,
-		LocalServer:   nil,
-		ListeningAddr: "",
-		privateKey:    nil,
-		tokens:        token.NewMap(),
-		Manager:       newManager(),
+		receptionId:      testId,
+		grpcServer:       nil,
+		listeningAddress: "",
+		privateKey:       nil,
+		tokens:           token.NewMap(),
+		Manager:          newManager(),
 	}
 	err := comm.setPrivateKey(testkeys.LoadFromPath(testkeys.GetNodeKeyPath()))
 	if err != nil {
@@ -346,10 +346,10 @@ func TestProtoComms_ValidateToken_BadId(t *testing.T) {
 func TestProtoComms_DisableAuth(t *testing.T) {
 	testId := id.NewIdFromString("test", id.Node, t)
 	comm := ProtoComms{
-		Id:            testId,
-		LocalServer:   nil,
-		ListeningAddr: "",
-		privateKey:    nil,
+		receptionId:      testId,
+		grpcServer:       nil,
+		listeningAddress: "",
+		privateKey:       nil,
 	}
 
 	comm.DisableAuth()

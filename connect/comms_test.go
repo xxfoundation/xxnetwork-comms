@@ -18,7 +18,7 @@ import (
 // Test that trying to send to a host with no address fails
 func TestSendNoAddressFails(t *testing.T) {
 	// Define a new protocomms object
-	comms := &ProtoComms{Id: id.NewIdFromString("test", id.Generic, t)}
+	comms := &ProtoComms{receptionId: id.NewIdFromString("test", id.Generic, t)}
 
 	// Make fake host
 	host := Host{}
