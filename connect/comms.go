@@ -106,10 +106,6 @@ func (c *ProtoComms) GetId() *id.ID {
 	return c.receptionId.DeepCopy()
 }
 
-func (c *ProtoComms) GetListener() net.Listener {
-	return c.netListener
-}
-
 func (c *ProtoComms) GetServer() *grpc.Server {
 	return c.grpcServer
 }
@@ -218,18 +214,17 @@ func (c *ProtoComms) Serve() {
 		}
 		jww.INFO.Printf("Shutting down GRPC server listener")
 	}
-	go listenGRPC(c.GetListener())
+	go listenGRPC(c.netListener)
 }
 
 // ServeWithWeb is a non-blocking call that begins serving content
 // for grpcWeb (over HTTP) and GRPC on the same port.
 // GRPC endpoints must be registered before making this call.
 func (c *ProtoComms) ServeWithWeb() {
-	netListener := c.GetListener()
 	grpcServer := c.GetServer()
 
 	// Split netListener into two distinct listeners for GRPC and HTTP
-	mux := cmux.New(netListener)
+	mux := cmux.New(c.netListener)
 	grpcL := mux.MatchWithWriters(
 		cmux.HTTP2MatchHeaderFieldSendSettings("content-type", "application/grpc"))
 	httpL := mux.Match(cmux.HTTP1Fast())
