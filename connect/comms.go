@@ -261,13 +261,10 @@ func (c *ProtoComms) ServeWithWeb() {
 
 // Shutdown performs a graceful shutdown of the local server.
 func (c *ProtoComms) Shutdown() {
+	// Also handles closing of net.Listener
 	c.grpcServer.GracefulStop()
+	// Close all Manager connections
 	c.DisconnectAll()
-	if err := c.netListener.Close(); err != nil {
-		jww.ERROR.Printf("Unable to close net listener: %+v", err)
-		return
-	}
-	time.Sleep(100 * time.Millisecond)
 	jww.INFO.Printf("Comms server successfully shut down")
 }
 
