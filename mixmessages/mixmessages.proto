@@ -632,7 +632,7 @@ service UDB {
     }
 }
 
-// Holds information for a user requesting channel authentication from UD
+// Holds information for a user requesting a channel lease from UD
 message ChannelLeaseRequest {
     bytes UserID = 1;
     bytes UserEd25519PubKey = 2;
@@ -640,9 +640,9 @@ message ChannelLeaseRequest {
     bytes UserPubKeyRSASignature = 4;
 }
 
-// Contains UD response to a ChannelAuthenticationRequest, including lease & signature
+// Contains UD response to a ChannelLeaseRequest, including lease & signature
 message ChannelLeaseResponse {
-    int64 lease = 1;
+    int64 Lease = 1;
     bytes UserEd25519PubKey = 2;
     bytes UDLeaseEd25519Signature = 3;
 
