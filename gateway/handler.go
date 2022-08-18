@@ -12,7 +12,6 @@
 package gateway
 
 import (
-	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/connect"
@@ -46,13 +45,13 @@ type Handler interface {
 // and a callback interface for gateway operations
 // with given path to public and private key for TLS connection.
 func StartGateway(id *id.ID, localServer string, handler Handler,
-	certPem, keyPem []byte, gossipFlags gossip.ManagerFlags) (*Comms, error) {
+	certPem, keyPem []byte, gossipFlags gossip.ManagerFlags) *Comms {
 
 	// Initialize the low-level comms listeners
 	pc, err := connect.StartCommServer(id, localServer,
 		certPem, keyPem, nil)
 	if err != nil {
-		return nil, errors.Errorf("Unable to StartCommServer: %+v", err)
+		jww.FATAL.Panicf("Unable to StartCommServer: %+v", err)
 	}
 	gatewayServer := Comms{
 		handler:    handler,
@@ -67,7 +66,7 @@ func StartGateway(id *id.ID, localServer string, handler Handler,
 	gossip.RegisterGossipServer(grpcServer, gatewayServer.Manager)
 
 	pc.ServeWithWeb()
-	return &gatewayServer, nil
+	return &gatewayServer
 }
 
 // implementationFunctions for the Handler interface.
