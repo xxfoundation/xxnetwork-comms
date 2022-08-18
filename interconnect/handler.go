@@ -7,7 +7,6 @@
 package interconnect
 
 import (
-	"errors"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/primitives/id"
@@ -39,22 +38,13 @@ func StartCMixInterconnect(id *id.ID, port string, handler ServerHandler,
 	// Register GRPC services to the listening address
 	RegisterInterconnectServer(CMixInterconnect.GetServer(), &CMixInterconnect)
 
-	go func() {
-		// Register reflection service on gRPC server.
-		if err := CMixInterconnect.GetServer().Serve(pc.GetListener()); err != nil {
-			jww.FATAL.Panicf("Failed to serve: %+v",
-				errors.New(err.Error()))
-		}
-		jww.INFO.Printf("Shutting down interconnect server listener")
-	}()
-
 	closeFunc := func() error {
 		jww.INFO.Printf("Closing listening port for CMix's interconnect service!")
 		CMixInterconnect.Shutdown()
-		return pc.GetListener().Close()
-
+		return nil
 	}
 
+	pc.Serve()
 	return &CMixInterconnect, closeFunc
 
 }
