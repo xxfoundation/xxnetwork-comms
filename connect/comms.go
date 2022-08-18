@@ -12,7 +12,9 @@ package connect
 import (
 	"crypto/tls"
 	"github.com/golang/protobuf/ptypes/any"
+	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	"github.com/pkg/errors"
+	"github.com/soheilhy/cmux"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/xx_network/comms/connect/token"
 	"gitlab.com/xx_network/crypto/signature/rsa"
@@ -22,6 +24,7 @@ import (
 	"google.golang.org/grpc/keepalive"
 	"math"
 	"net"
+	"net/http"
 	"strings"
 	"time"
 )
@@ -205,15 +208,72 @@ listen:
 	return pc, nil
 }
 
+// Serve is a non-blocking call that begins serving content
+// for GRPC. GRPC endpoints must be registered before making this call.
+func (c *ProtoComms) Serve() {
+	listenGRPC := func(l net.Listener) {
+		// This blocks for the lifetime of the listener.
+		if err := c.GetServer().Serve(l); err != nil {
+			jww.FATAL.Panicf("Failed to serve GRPC: %+v", err)
+		}
+		jww.INFO.Printf("Shutting down GRPC server listener")
+	}
+	go listenGRPC(c.GetListener())
+}
+
+// ServeWithWeb is a non-blocking call that begins serving content
+// for grpcWeb (over HTTP) and GRPC on the same port.
+// GRPC endpoints must be registered before making this call.
+func (c *ProtoComms) ServeWithWeb() {
+	netListener := c.GetListener()
+	grpcServer := c.GetServer()
+
+	// Split netListener into two distinct listeners for GRPC and HTTP
+	mux := cmux.New(netListener)
+	grpcL := mux.MatchWithWriters(
+		cmux.HTTP2MatchHeaderFieldSendSettings("content-type", "application/grpc"))
+	httpL := mux.Match(cmux.HTTP1Fast())
+
+	jww.INFO.Printf("Started HTTP listener on GRPC endpoints: %+v",
+		grpcweb.ListGRPCResources(grpcServer))
+
+	listenHTTP := func(l net.Listener) {
+		httpServer := grpcweb.WrapServer(grpcServer,
+			grpcweb.WithOriginFunc(func(origin string) bool { return true }))
+		// This blocks for the lifetime of the listener.
+		if err := http.Serve(l, httpServer); err != nil {
+			jww.FATAL.Panicf("Failed to serve HTTP: %v", err)
+		}
+		jww.INFO.Printf("Shutting down HTTP server listener")
+	}
+	listenGRPC := func(l net.Listener) {
+		// This blocks for the lifetime of the listener.
+		if err := grpcServer.Serve(l); err != nil {
+			jww.FATAL.Panicf("Failed to serve GRPC: %+v", err)
+		}
+		jww.INFO.Printf("Shutting down GRPC server listener")
+	}
+	listenPort := func() {
+		if err := mux.Serve(); err != nil {
+			jww.FATAL.Panicf("Failed to serve port: %+v", err)
+		}
+		jww.INFO.Printf("Shutting down port server listener")
+	}
+	go listenGRPC(grpcL)
+	go listenHTTP(httpL)
+	go listenPort()
+}
+
 // Shutdown performs a graceful shutdown of the local server.
 func (c *ProtoComms) Shutdown() {
 	c.grpcServer.GracefulStop()
 	c.DisconnectAll()
-	err := c.netListener.Close()
-	if err != nil {
+	if err := c.netListener.Close(); err != nil {
 		jww.ERROR.Printf("Unable to close net listener: %+v", err)
+		return
 	}
 	time.Sleep(100 * time.Millisecond)
+	jww.INFO.Printf("Comms server successfully shut down")
 }
 
 // Stringer method
