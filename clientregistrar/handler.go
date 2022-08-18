@@ -12,13 +12,11 @@ package clientregistrar
 import (
 	"runtime/debug"
 
-	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/primitives/id"
-	"google.golang.org/grpc/reflection"
 )
 
 // Registration object used to implement
@@ -34,7 +32,7 @@ type Comms struct {
 func StartClientRegistrarServer(id *id.ID, localServer string, handler Handler,
 	certPEMblock, keyPEMblock []byte) *Comms {
 
-	pc, lis, err := connect.StartCommServer(id, localServer,
+	pc, err := connect.StartCommServer(id, localServer,
 		certPEMblock, keyPEMblock, nil)
 	if err != nil {
 		jww.FATAL.Panicf("Unable to start comms server: %+v", err)
@@ -44,21 +42,10 @@ func StartClientRegistrarServer(id *id.ID, localServer string, handler Handler,
 		ProtoComms: pc,
 		handler:    handler,
 	}
+	pb.RegisterClientRegistrarServer(clientRegistrarServer.GetServer(), &clientRegistrarServer)
+	messages.RegisterGenericServer(clientRegistrarServer.GetServer(), &clientRegistrarServer)
 
-	go func() {
-		pb.RegisterClientRegistrarServer(clientRegistrarServer.LocalServer, &clientRegistrarServer)
-		messages.RegisterGenericServer(clientRegistrarServer.LocalServer, &clientRegistrarServer)
-
-		// Register reflection service on gRPC server.
-		reflection.Register(clientRegistrarServer.LocalServer)
-		if err := clientRegistrarServer.LocalServer.Serve(lis); err != nil {
-			err = errors.New(err.Error())
-			jww.FATAL.Panicf("Failed to serve: %+v", err)
-		}
-		jww.INFO.Printf("Shutting down registration server listener:"+
-			" %s", lis)
-	}()
-
+	pc.ServeWithWeb()
 	return &clientRegistrarServer
 }
 
