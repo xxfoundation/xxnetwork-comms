@@ -689,7 +689,7 @@ message UsernameValidationRequest {
 // UsernameValidation is the response to a UsernameValidationRequest.
 // This contains a signature from a UD server on the data within the request message.
 message UsernameValidation {
-    string Signature = 1;
+    bytes Signature = 1;
 }
 
 // CONNECTIVITY CHECKER --------------------------------------------------------
