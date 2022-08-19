@@ -229,28 +229,27 @@ func (c *ProtoComms) ServeWithWeb() {
 		cmux.HTTP2MatchHeaderFieldSendSettings("content-type", "application/grpc"))
 	httpL := mux.Match(cmux.HTTP1Fast())
 
-	jww.INFO.Printf("Started HTTP listener on GRPC endpoints: %+v",
-		grpcweb.ListGRPCResources(grpcServer))
-
 	listenHTTP := func(l net.Listener) {
+		jww.INFO.Printf("Starting HTTP listener on GRPC endpoints: %+v",
+			grpcweb.ListGRPCResources(grpcServer))
 		httpServer := grpcweb.WrapServer(grpcServer,
 			grpcweb.WithOriginFunc(func(origin string) bool { return true }))
 		// This blocks for the lifetime of the listener.
 		if err := http.Serve(l, httpServer); err != nil {
-			jww.FATAL.Panicf("Failed to serve HTTP: %v", err)
+			jww.ERROR.Printf("Failed to serve HTTP: %v", err)
 		}
 		jww.INFO.Printf("Shutting down HTTP server listener")
 	}
 	listenGRPC := func(l net.Listener) {
 		// This blocks for the lifetime of the listener.
 		if err := grpcServer.Serve(l); err != nil {
-			jww.FATAL.Panicf("Failed to serve GRPC: %+v", err)
+			jww.ERROR.Printf("Failed to serve GRPC: %+v", err)
 		}
 		jww.INFO.Printf("Shutting down GRPC server listener")
 	}
 	listenPort := func() {
 		if err := mux.Serve(); err != nil {
-			jww.FATAL.Panicf("Failed to serve port: %+v", err)
+			jww.ERROR.Printf("Failed to serve port: %+v", err)
 		}
 		jww.INFO.Printf("Shutting down port server listener")
 	}
