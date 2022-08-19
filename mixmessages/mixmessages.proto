@@ -682,7 +682,7 @@ message FactRemovalRequest {
 // for validation that they own their username
 message UsernameValidationRequest {
     string Username = 1;
-    string ReceptionPublicKeyPem = 2;
+    bytes ReceptionPublicKeyPem = 2;
     bytes UserId = 3;
 }
 
