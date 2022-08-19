@@ -21,11 +21,7 @@ If glide isn't working and you don't know why, try removing glide.lock and
 
 ## Regenerate Protobuf File
 
-To regenerate the `mixmessage.pb.go` file, first install gRPC:
-
-`go get -u google.golang.org/grpc`
-
-Then install protocol buffers v3 as follows:
+Install protocol buffers v3 as follows:
 - The simplest way to do this is to download pre-compiled binaries
   **for your platform** (`protoc-[version]-[platform].zip`) from here:
     https://github.com/google/protobuf/releases
@@ -39,7 +35,7 @@ Then install protocol buffers v3 as follows:
 
 Next, install the protoc plugin for go with the following command:
 
-`go get -u github.com/golang/protobuf/protoc-gen-go@v1.22.0`
+`go get -u google.golang.org/protobuf@v1.27.1`
 
 This will add the plugin to your `go` directory in a `bin` folder. You
 must add this to your `PATH` variable in your `.bash_profile`, so
@@ -59,9 +55,9 @@ run the following command in the terminal in order to regenerate the
 `mixmessage.pb.go` file:
 
 ```
-go get -u github.com/golang/protobuf/protoc-gen-go@v1.22.0
+go get -u google.golang.org/protobuf@v1.27.1 
 cd mixmessages
-protoc -I. -I/path/to/gitlab.com mixmessages.proto --go_opt=paths=source_relative --go_out=plugins=grpc:../mixmessages/
+protoc -I. -I../vendor/ mixmessages.proto  --go_opt=paths=source_relative --go_out=plugins=grpc:../mixmessages/
 cd ..
 ```
 
