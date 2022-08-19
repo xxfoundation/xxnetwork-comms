@@ -33,7 +33,7 @@ func TestSignVerify(t *testing.T) {
 	}
 
 	testId := id.NewIdFromBytes([]byte("Kirby"), t)
-	c.receptionId = testId
+	c.networkId = testId
 
 	private := c.GetPrivateKey()
 	pub := private.Public().(*rsa.PublicKey)
@@ -195,7 +195,7 @@ func TestProtoComms_GenerateToken(t *testing.T) {
 func TestProtoComms_PackAuthenticatedMessage(t *testing.T) {
 	testServerId := id.NewIdFromString("test12345", id.Node, t)
 	comm := ProtoComms{
-		receptionId:      testServerId,
+		networkId:        testServerId,
 		grpcServer:       nil,
 		listeningAddress: "",
 		privateKey:       nil,
@@ -237,7 +237,7 @@ func TestProtoComms_PackAuthenticatedMessage(t *testing.T) {
 func TestProtoComms_ValidateToken(t *testing.T) {
 	testId := id.NewIdFromString("test", id.Node, t)
 	comm := ProtoComms{
-		receptionId:      testId,
+		networkId:        testId,
 		grpcServer:       nil,
 		listeningAddress: "",
 		privateKey:       nil,
@@ -291,7 +291,7 @@ func TestProtoComms_ValidateToken(t *testing.T) {
 func TestProtoComms_ValidateToken_BadId(t *testing.T) {
 	testId := id.NewIdFromString("test", id.Node, t)
 	comm := ProtoComms{
-		receptionId:      testId,
+		networkId:        testId,
 		grpcServer:       nil,
 		listeningAddress: "",
 		privateKey:       nil,
@@ -346,7 +346,7 @@ func TestProtoComms_ValidateToken_BadId(t *testing.T) {
 func TestProtoComms_DisableAuth(t *testing.T) {
 	testId := id.NewIdFromString("test", id.Node, t)
 	comm := ProtoComms{
-		receptionId:      testId,
+		networkId:        testId,
 		grpcServer:       nil,
 		listeningAddress: "",
 		privateKey:       nil,

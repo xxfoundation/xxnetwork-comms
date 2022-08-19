@@ -38,6 +38,7 @@ func StartCMixInterconnect(id *id.ID, port string, handler ServerHandler,
 	// Register GRPC services to the listening address
 	RegisterInterconnectServer(CMixInterconnect.GetServer(), &CMixInterconnect)
 
+	// TODO-2022: This should really be removed. It is handled by pc.Shutdown()
 	closeFunc := func() error {
 		jww.INFO.Printf("Closing listening port for CMix's interconnect service!")
 		CMixInterconnect.Shutdown()

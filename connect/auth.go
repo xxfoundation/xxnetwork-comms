@@ -102,7 +102,7 @@ func (c *ProtoComms) PackAuthenticatedMessage(msg proto.Message, host *Host,
 
 	// Build the authenticated message
 	authMsg := &pb.AuthenticatedMessage{
-		ID:      c.receptionId.Marshal(),
+		ID:      c.networkId.Marshal(),
 		Token:   host.transmissionToken.GetBytes(),
 		Message: anyMsg,
 		Client: &pb.ClientID{
@@ -126,7 +126,7 @@ func (c *ProtoComms) PackAuthenticatedMessage(msg proto.Message, host *Host,
 func (c *ProtoComms) PackAuthenticatedContext(host *Host,
 	ctx context.Context) context.Context {
 
-	ctx = metadata.AppendToOutgoingContext(ctx, "ID", c.receptionId.String())
+	ctx = metadata.AppendToOutgoingContext(ctx, "ID", c.networkId.String())
 	ctx = metadata.AppendToOutgoingContext(ctx, "TOKEN",
 		base64.StdEncoding.EncodeToString(host.transmissionToken.GetBytes()))
 	return ctx
@@ -345,7 +345,7 @@ func (c *ProtoComms) verifyMessage(msg proto.Message, signature []byte, host *Ho
 		idToHash = id.DummyUser.DeepCopy()
 		idToHash.SetType(id.Node)
 	} else {
-		idToHash = c.receptionId
+		idToHash = c.networkId
 	}
 
 	// Get hashed data of the message

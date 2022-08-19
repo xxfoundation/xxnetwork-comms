@@ -69,7 +69,7 @@ type ProtoComms struct {
 	*Manager
 
 	// The network ID of this comms server
-	receptionId *id.ID
+	networkId *id.ID
 
 	// Private key of the local comms instance
 	privateKey *rsa.PrivateKey
@@ -103,7 +103,7 @@ type ProtoComms struct {
 }
 
 func (c *ProtoComms) GetId() *id.ID {
-	return c.receptionId.DeepCopy()
+	return c.networkId.DeepCopy()
 }
 
 func (c *ProtoComms) GetServer() *grpc.Server {
@@ -120,11 +120,11 @@ func CreateCommClient(id *id.ID, pubKeyPem, privKeyPem,
 	salt []byte) (*ProtoComms, error) {
 	// Build the ProtoComms object
 	pc := &ProtoComms{
-		receptionId: id,
-		pubKeyPem:   pubKeyPem,
-		salt:        salt,
-		tokens:      token.NewMap(),
-		Manager:     newManager(),
+		networkId: id,
+		pubKeyPem: pubKeyPem,
+		salt:      salt,
+		tokens:    token.NewMap(),
+		Manager:   newManager(),
 	}
 
 	// Set the private key if specified
@@ -155,7 +155,7 @@ listen:
 
 	// Build the comms object
 	pc := &ProtoComms{
-		receptionId:      id,
+		networkId:        id,
 		listeningAddress: localServer,
 		netListener:      lis,
 		tokens:           token.NewMap(),
@@ -239,6 +239,7 @@ func (c *ProtoComms) ServeWithWeb() {
 			grpcweb.WithOriginFunc(func(origin string) bool { return true }))
 		// This blocks for the lifetime of the listener.
 		if err := http.Serve(l, httpServer); err != nil {
+			// Cannot panic here due to shared net.Listener
 			jww.ERROR.Printf("Failed to serve HTTP: %v", err)
 		}
 		jww.INFO.Printf("Shutting down HTTP server listener")
@@ -246,12 +247,14 @@ func (c *ProtoComms) ServeWithWeb() {
 	listenGRPC := func(l net.Listener) {
 		// This blocks for the lifetime of the listener.
 		if err := grpcServer.Serve(l); err != nil {
+			// Cannot panic here due to shared net.Listener
 			jww.ERROR.Printf("Failed to serve GRPC: %+v", err)
 		}
 		jww.INFO.Printf("Shutting down GRPC server listener")
 	}
 	listenPort := func() {
 		if err := mux.Serve(); err != nil {
+			// Cannot panic here due to shared net.Listener
 			jww.ERROR.Printf("Failed to serve port: %+v", err)
 		}
 		jww.INFO.Printf("Shutting down port server listener")
