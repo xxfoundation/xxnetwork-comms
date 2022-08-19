@@ -81,8 +81,11 @@ type Handler interface {
 	// ConfirmFact checks a Fact against the Fact database
 	ConfirmFact(msg *pb.FactConfirmRequest) (*messages.Ack, error)
 	// RemoveFact deletes a fact from its associated ID.
-	// You cannot RemoveFact on a username. Callers must RemoveUser and reregister.
+	// You cannot RemoveFact on a username. Callers must call RemoveUser and reregister.
 	RemoveFact(request *pb.FactRemovalRequest) (*messages.Ack, error)
+	// ValidateUsername validates that a user owns a username by signing the contents of the
+	// mixmessages.UsernameValidationRequest.
+	ValidateUsername(request *pb.UsernameValidationRequest) (*pb.UsernameValidation, error)
 }
 
 // implementationFunctions are the actual implementations of
@@ -105,6 +108,9 @@ type implementationFunctions struct {
 	// RemoveFact deletes a fact from its associated ID.
 	// You cannot RemoveFact on a username. Callers must RemoveUser and reregister.
 	RemoveFact func(request *pb.FactRemovalRequest) (*messages.Ack, error)
+	// ValidateUsername validates that a user owns a username by signing the contents of the
+	// mixmessages.UsernameValidationRequest.
+	ValidateUsername func(request *pb.UsernameValidationRequest) (*pb.UsernameValidation, error)
 }
 
 // Implementation allows users of the client library to set the
@@ -150,6 +156,10 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return &messages.Ack{}, nil
 			},
+			ValidateUsername: func(request *pb.UsernameValidationRequest) (*pb.UsernameValidation, error) {
+				warn(um)
+				return &pb.UsernameValidation{}, nil
+			},
 		},
 	}
 }
@@ -177,4 +187,10 @@ func (s *Implementation) ConfirmFact(request *pb.FactConfirmRequest) (*messages.
 // RemoveFact is called by the RemoveFact in endpoint.go. It calls the corresponding function in the interface.
 func (s *Implementation) RemoveFact(request *pb.FactRemovalRequest) (*messages.Ack, error) {
 	return s.Functions.RemoveFact(request)
+}
+
+// ValidateUsername validates that a user owns a username by signing the contents of the
+// mixmessages.UsernameValidationRequest.
+func (s *Implementation) ValidateUsername(request *pb.UsernameValidationRequest) (*pb.UsernameValidation, error) {
+	return s.Functions.ValidateUsername(request)
 }
