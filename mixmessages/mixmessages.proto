@@ -683,6 +683,7 @@ message FactRemovalRequest {
 message UsernameValidationRequest {
     string Username = 1;
     string ReceptionPublicKeyPem = 2;
+    bytes UserId = 3;
 }
 
 // UsernameValidation is the response to a UsernameValidationRequest.
