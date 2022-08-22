@@ -4,6 +4,8 @@ go 1.13
 
 require (
 	github.com/golang/protobuf v1.5.2
+	github.com/improbable-eng/grpc-web v0.12.0
+	github.com/ktr0731/grpc-web-go-client v0.2.8
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/jwalterweatherman v1.1.0
 	gitlab.com/xx_network/crypto v0.0.5-0.20220606200528-3f886fe49e81
