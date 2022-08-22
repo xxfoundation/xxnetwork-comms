@@ -88,9 +88,6 @@ type ProtoComms struct {
 	// Local network server
 	grpcServer *grpc.Server
 
-	// Listening address of the local server
-	listeningAddress string
-
 	// CLIENT-ONLY FIELDS ------------------------------------------------------
 
 	// Used to store the public key used for generating Client Id
@@ -102,16 +99,14 @@ type ProtoComms struct {
 	// -------------------------------------------------------------------------
 }
 
+// GetId returns a copy of the ProtoComms networkId
 func (c *ProtoComms) GetId() *id.ID {
 	return c.networkId.DeepCopy()
 }
 
+// GetServer returns the ProtoComms grpc.Server object
 func (c *ProtoComms) GetServer() *grpc.Server {
 	return c.grpcServer
-}
-
-func (c *ProtoComms) GetListeningAddress() string {
-	return c.listeningAddress
 }
 
 // CreateCommClient creates a ProtoComms client-type object to be
@@ -138,15 +133,16 @@ func CreateCommClient(id *id.ID, pubKeyPem, privKeyPem,
 }
 
 // StartCommServer creates a ProtoComms server-type object to be used in various initializers.
-func StartCommServer(id *id.ID, localServer string,
+// Opens a net.Listener the local address specified by listeningAddr.
+func StartCommServer(id *id.ID, listeningAddr string,
 	certPEMblock, keyPEMblock []byte, preloadedHosts []*Host) (*ProtoComms, error) {
 
 listen:
 	// Listen on the given address
-	lis, err := net.Listen("tcp", localServer)
+	lis, err := net.Listen("tcp", listeningAddr)
 	if err != nil {
 		if strings.Contains(err.Error(), "bind: address already in use") {
-			jww.WARN.Printf("Could not listen on %s, is port in use? waiting 30s: %s", localServer, err.Error())
+			jww.WARN.Printf("Could not listen on %s, is port in use? waiting 30s: %s", listeningAddr, err.Error())
 			time.Sleep(30 * time.Second)
 			goto listen
 		}
@@ -155,11 +151,10 @@ listen:
 
 	// Build the comms object
 	pc := &ProtoComms{
-		networkId:        id,
-		listeningAddress: localServer,
-		netListener:      lis,
-		tokens:           token.NewMap(),
-		Manager:          newManager(),
+		networkId:   id,
+		netListener: lis,
+		tokens:      token.NewMap(),
+		Manager:     newManager(),
 	}
 
 	for _, h := range preloadedHosts {
@@ -275,7 +270,7 @@ func (c *ProtoComms) Shutdown() {
 
 // Stringer method
 func (c *ProtoComms) String() string {
-	return c.listeningAddress
+	return c.netListener.Addr().String()
 }
 
 // Setter for local server's private key
