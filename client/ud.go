@@ -154,7 +154,7 @@ func (c *Comms) SendRemoveUser(host *connect.Host, message *pb.FactRemovalReques
 }
 
 // Client -> User Discovery channel authentication & lease request
-func (c *Comms) SendChannelAuthRequest(host *connect.Host, message *pb.ChannelLeaseRequest) (*pb.ChannelLeaseResponse, error) {
+func (c *Comms) SendChannelLeaseRequest(host *connect.Host, message *pb.ChannelLeaseRequest) (*pb.ChannelLeaseResponse, error) {
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
