@@ -12,11 +12,10 @@ import (
 	"time"
 )
 
-// webConn implements the Connection interface
+// grpcConn implements the Connection interface
 type grpcConn struct {
-	h        *Host
-	webConn  *grpcweb.ClientConn
-	grpcConn *grpc.ClientConn
+	h          *Host
+	connection *grpc.ClientConn
 }
 
 // GetWebConn returns the grpcweb ClientConn object
@@ -27,7 +26,7 @@ func (gc *grpcConn) GetWebConn() *grpcweb.ClientConn {
 
 // GetGrpcConn returns the grpc ClientConn object
 func (gc *grpcConn) GetGrpcConn() *grpc.ClientConn {
-	return gc.grpcConn
+	return gc.connection
 }
 
 // Connect initializes the appropriate connection using helper functions.
@@ -35,7 +34,7 @@ func (gc *grpcConn) Connect() error {
 	return gc.connectGrpcHelper()
 }
 
-// IsWeb returns true if the webConn is configured for web connections
+// IsWeb returns true if the connection is configured for web connections
 func (gc *grpcConn) IsWeb() bool {
 	return false
 }
@@ -90,7 +89,7 @@ func (gc *grpcConn) connectGrpcHelper() (err error) {
 		}
 
 		// Create the connection
-		gc.grpcConn, err = grpc.DialContext(ctx, gc.h.GetAddress(),
+		gc.connection, err = grpc.DialContext(ctx, gc.h.GetAddress(),
 			dialOpts...)
 
 		if err != nil {
@@ -113,12 +112,12 @@ func (gc *grpcConn) connectGrpcHelper() (err error) {
 	return
 }
 
-// Close calls the internal Close function on the grpcConn
+// Close calls the internal Close function on the connection
 func (gc *grpcConn) Close() error {
-	if gc.grpcConn == nil {
+	if gc.connection == nil {
 		return nil
 	}
-	return gc.grpcConn.Close()
+	return gc.connection.Close()
 }
 
 // disconnect closes the grpcConn connection while not under a write lock.
@@ -127,14 +126,14 @@ func (gc *grpcConn) disconnect() {
 	// it's possible to close a host which never sent so that it never made a
 	// connection. In that case, we should not close a connection which does not
 	// exist
-	if gc.grpcConn != nil {
+	if gc.connection != nil {
 		jww.INFO.Printf("Disconnected from %s at %s", gc.h.GetId(), gc.h.GetAddress())
-		err := gc.grpcConn.Close()
+		err := gc.connection.Close()
 		if err != nil {
 			jww.ERROR.Printf("Unable to close connection to %s: %+v",
 				gc.h.GetAddress(), errors.New(err.Error()))
 		} else {
-			gc.grpcConn = nil
+			gc.connection = nil
 		}
 	}
 }
@@ -142,10 +141,10 @@ func (gc *grpcConn) disconnect() {
 // isAlive returns true if the grpcConn is non-nil and alive
 // must already be under the connectionMux
 func (gc *grpcConn) isAlive() bool {
-	if gc.grpcConn == nil {
+	if gc.connection == nil {
 		return false
 	}
-	state := gc.grpcConn.GetState()
+	state := gc.connection.GetState()
 	return state == connectivity.Idle || state == connectivity.Connecting ||
 		state == connectivity.Ready
 }

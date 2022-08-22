@@ -39,8 +39,9 @@ func TestWebConnection(t *testing.T) {
 	}
 	hostParams := GetDefaultHostParams()
 	TestingOnlyDisableTLS = true
+	hostParams.ConnectionType = Web
 
-	h, err := newHost(hostId, addr, nil, hostParams, true)
+	h, err := newHost(hostId, addr, nil, hostParams)
 	if err != nil {
 		t.Fatal(err)
 	}

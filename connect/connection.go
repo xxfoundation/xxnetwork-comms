@@ -2,12 +2,34 @@ package connect
 
 import (
 	"github.com/ktr0731/grpc-web-go-client/grpcweb"
+	jww "github.com/spf13/jwalterweatherman"
 	"google.golang.org/grpc"
 )
 
 const (
 	tlsError = "TLS cannot be disabled in production, only for testing suites!"
 )
+
+// ConnectionType is intended to act as an enum for different methods of host connection
+type ConnectionType uint8
+
+// Enumerate the extant connection methods
+const (
+	Grpc ConnectionType = iota
+	Web
+)
+
+// Stringify connection constants
+func (ct ConnectionType) String() string {
+	switch ct {
+	case Grpc:
+		return "grpc"
+	case Web:
+		return "web"
+	default:
+		return "unknown"
+	}
+}
 
 // Connection is an interface designed to sit between hosts and connections
 // to allow use of grpcweb clients.
@@ -36,15 +58,15 @@ type clientConnHelpers interface {
 	disconnect()
 }
 
-// newConnection initializes a webConn and returns it wrapped as a Connection
-func newConnection(isWeb bool, host *Host) Connection {
-	if isWeb {
-		return &webConn{
-			h: host,
-		}
-	} else {
-		return &grpcConn{
-			h: host,
-		}
+// newConnection initializes a webConn or grpcConn and returns it wrapped as a Connection
+func newConnection(t ConnectionType, host *Host) Connection {
+	switch t {
+	case Web:
+		return &webConn{h: host}
+	case Grpc:
+		return &grpcConn{h: host}
+	default:
+		jww.ERROR.Printf("Cannot make connection of type %s", t)
+		return nil
 	}
 }

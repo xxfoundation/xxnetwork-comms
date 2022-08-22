@@ -10,14 +10,13 @@ import (
 
 // webConn implements the Connection interface
 type webConn struct {
-	h        *Host
-	webConn  *grpcweb.ClientConn
-	grpcConn *grpc.ClientConn
+	h          *Host
+	connection *grpcweb.ClientConn
 }
 
 // GetWebConn returns the grpcweb ClientConn object
 func (wc *webConn) GetWebConn() *grpcweb.ClientConn {
-	return wc.webConn
+	return wc.connection
 }
 
 // GetGrpcConn returns the grpc ClientConn object
@@ -31,7 +30,7 @@ func (wc *webConn) Connect() error {
 	return wc.connectWebHelper()
 }
 
-// IsWeb returns true if the webConn is configured for web connections
+// IsWeb returns true if the connection is configured for web connections
 func (wc *webConn) IsWeb() bool {
 	return true
 }
@@ -84,7 +83,7 @@ func (wc *webConn) connectWebHelper() (err error) {
 		//}
 
 		// Create the connection
-		wc.webConn, err = grpcweb.DialContext(wc.h.GetAddress(),
+		wc.connection, err = grpcweb.DialContext(wc.h.GetAddress(),
 			dialOpts...)
 
 		if err != nil {
@@ -110,7 +109,7 @@ func (wc *webConn) connectWebHelper() (err error) {
 // Close handles closing the http connection.
 func (wc *webConn) Close() error {
 	// TODO this needs work on the grpc-web-go-client side
-	if wc.webConn == nil {
+	if wc.connection == nil {
 		return nil
 	}
 	return nil
@@ -123,9 +122,9 @@ func (wc *webConn) disconnect() {
 	// it's possible to close a host which never sent so that it never made a
 	// connection. In that case, we should not close a connection which does not
 	// exist
-	if wc.webConn != nil {
+	if wc.connection != nil {
 		// TODO webconn cannot close yet, this needs work on that side
-		wc.webConn = nil
+		wc.connection = nil
 	}
 
 }
@@ -134,7 +133,7 @@ func (wc *webConn) disconnect() {
 // must already be under the connectionMux
 func (wc *webConn) isAlive() bool {
 	// TODO this cannot be determined until grpcweb clients have a persistent connection
-	if wc.webConn == nil {
+	if wc.connection == nil {
 		return false
 	}
 	return true

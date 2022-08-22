@@ -56,6 +56,9 @@ type HostParams struct {
 	// ProxyErrorMetricParams are the parameters used for the proxy error
 	// tracker that uses exponential moving average (exponential.MovingAvg).
 	ProxyErrorMetricParams exponential.MovingAvgParams
+
+	// ConnectionType describes the method for the underlying host connection
+	ConnectionType ConnectionType
 }
 
 // GetDefaultHostParams Get default set of host params
@@ -81,5 +84,6 @@ func GetDefaultHostParams() HostParams {
 			PermitWithoutStream: true,
 		},
 		ProxyErrorMetricParams: exponential.DefaultMovingAvgParams(),
+		ConnectionType:         Grpc,
 	}
 }
