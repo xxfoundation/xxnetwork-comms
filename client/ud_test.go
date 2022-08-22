@@ -12,7 +12,6 @@ import (
 func TestComms_SendRegisterUser(t *testing.T) {
 	udAddr := getNextAddress()
 	ud := udb.StartServer(&id.UDB, udAddr, udb.NewImplementation(), nil, nil)
-	_ = ud.Id
 	defer ud.Shutdown()
 	c, err := NewClientComms(&id.DummyUser, nil, nil, nil)
 	if err != nil {
@@ -37,7 +36,6 @@ func TestComms_SendRegisterUser(t *testing.T) {
 func TestComms_SendRegisterFact(t *testing.T) {
 	udAddr := getNextAddress()
 	ud := udb.StartServer(&id.UDB, udAddr, udb.NewImplementation(), nil, nil)
-	_ = ud.Id
 	defer ud.Shutdown()
 	c, err := NewClientComms(&id.DummyUser, nil, nil, nil)
 	if err != nil {
@@ -62,7 +60,6 @@ func TestComms_SendRegisterFact(t *testing.T) {
 func TestComms_SendConfirmFact(t *testing.T) {
 	udAddr := getNextAddress()
 	ud := udb.StartServer(&id.UDB, udAddr, udb.NewImplementation(), nil, nil)
-	_ = ud.Id
 	defer ud.Shutdown()
 	c, err := NewClientComms(&id.DummyUser, nil, nil, nil)
 	if err != nil {
@@ -87,7 +84,6 @@ func TestComms_SendConfirmFact(t *testing.T) {
 func TestComms_SendRemoveFact(t *testing.T) {
 	udAddr := getNextAddress()
 	ud := udb.StartServer(&id.UDB, udAddr, udb.NewImplementation(), nil, nil)
-	_ = ud.Id
 	defer ud.Shutdown()
 	c, err := NewClientComms(&id.DummyUser, nil, nil, nil)
 	if err != nil {
@@ -112,7 +108,6 @@ func TestComms_SendRemoveFact(t *testing.T) {
 func TestComms_SendRemoveUser(t *testing.T) {
 	udAddr := getNextAddress()
 	ud := udb.StartServer(&id.UDB, udAddr, udb.NewImplementation(), nil, nil)
-	_ = ud.Id
 	defer ud.Shutdown()
 	c, err := NewClientComms(&id.DummyUser, nil, nil, nil)
 	if err != nil {
