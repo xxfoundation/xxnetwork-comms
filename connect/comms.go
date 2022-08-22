@@ -12,7 +12,9 @@ package connect
 import (
 	"crypto/tls"
 	"github.com/golang/protobuf/ptypes/any"
+	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	"github.com/pkg/errors"
+	"github.com/soheilhy/cmux"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/xx_network/comms/connect/token"
 	"gitlab.com/xx_network/crypto/signature/rsa"
@@ -22,6 +24,7 @@ import (
 	"google.golang.org/grpc/keepalive"
 	"math"
 	"net"
+	"net/http"
 	"strings"
 	"time"
 )
@@ -66,7 +69,7 @@ type ProtoComms struct {
 	*Manager
 
 	// The network ID of this comms server
-	Id *id.ID
+	networkId *id.ID
 
 	// Private key of the local comms instance
 	privateKey *rsa.PrivateKey
@@ -79,11 +82,11 @@ type ProtoComms struct {
 	// A map of reverse-authentication tokens
 	tokens *token.Map
 
-	// Local network server
-	LocalServer *grpc.Server
+	// Low-level net.Listener object that listens at listeningAddress
+	netListener net.Listener
 
-	// Listening address of the local server
-	ListeningAddr string
+	// Local network server
+	grpcServer *grpc.Server
 
 	// CLIENT-ONLY FIELDS ------------------------------------------------------
 
@@ -96,13 +99,23 @@ type ProtoComms struct {
 	// -------------------------------------------------------------------------
 }
 
+// GetId returns a copy of the ProtoComms networkId
+func (c *ProtoComms) GetId() *id.ID {
+	return c.networkId.DeepCopy()
+}
+
+// GetServer returns the ProtoComms grpc.Server object
+func (c *ProtoComms) GetServer() *grpc.Server {
+	return c.grpcServer
+}
+
 // CreateCommClient creates a ProtoComms client-type object to be
 // used in various initializers.
 func CreateCommClient(id *id.ID, pubKeyPem, privKeyPem,
 	salt []byte) (*ProtoComms, error) {
 	// Build the ProtoComms object
 	pc := &ProtoComms{
-		Id:        id,
+		networkId: id,
 		pubKeyPem: pubKeyPem,
 		salt:      salt,
 		tokens:    token.NewMap(),
@@ -120,31 +133,32 @@ func CreateCommClient(id *id.ID, pubKeyPem, privKeyPem,
 }
 
 // StartCommServer creates a ProtoComms server-type object to be used in various initializers.
-func StartCommServer(id *id.ID, localServer string,
-	certPEMblock, keyPEMblock []byte, preloadedHosts []*Host) (*ProtoComms, net.Listener, error) {
+// Opens a net.Listener the local address specified by listeningAddr.
+func StartCommServer(id *id.ID, listeningAddr string,
+	certPEMblock, keyPEMblock []byte, preloadedHosts []*Host) (*ProtoComms, error) {
 
-	// Build the ProtoComms object
+listen:
+	// Listen on the given address
+	lis, err := net.Listen("tcp", listeningAddr)
+	if err != nil {
+		if strings.Contains(err.Error(), "bind: address already in use") {
+			jww.WARN.Printf("Could not listen on %s, is port in use? waiting 30s: %s", listeningAddr, err.Error())
+			time.Sleep(30 * time.Second)
+			goto listen
+		}
+		return nil, errors.New(err.Error())
+	}
+
+	// Build the comms object
 	pc := &ProtoComms{
-		Id:            id,
-		ListeningAddr: localServer,
-		tokens:        token.NewMap(),
-		Manager:       newManager(),
+		networkId:   id,
+		netListener: lis,
+		tokens:      token.NewMap(),
+		Manager:     newManager(),
 	}
 
 	for _, h := range preloadedHosts {
 		pc.Manager.addHost(h)
-	}
-
-listen:
-	// Listen on the given address
-	lis, err := net.Listen("tcp", localServer)
-	if err != nil {
-		if strings.Contains(err.Error(), "bind: address already in use") {
-			jww.WARN.Printf("Could not listen on %s, is port in use? waiting 30s: %s", localServer, err.Error())
-			time.Sleep(30 * time.Second)
-			goto listen
-		}
-		return nil, nil, errors.New(err.Error())
 	}
 
 	// If TLS was specified
@@ -153,19 +167,19 @@ listen:
 		// Create the TLS certificate
 		x509cert, err := tls.X509KeyPair(certPEMblock, keyPEMblock)
 		if err != nil {
-			return nil, nil, errors.Errorf("Could not load TLS keys: %+v", err)
+			return nil, errors.Errorf("Could not load TLS keys: %+v", err)
 		}
 
 		// Set the private key
 		err = pc.setPrivateKey(keyPEMblock)
 		if err != nil {
-			return nil, nil, errors.Errorf("Could not set private key: %+v", err)
+			return nil, errors.Errorf("Could not set private key: %+v", err)
 		}
 
 		// Create the gRPC server with TLS
 		jww.INFO.Printf("Starting server with TLS...")
 		creds := credentials.NewServerTLSFromCert(&x509cert)
-		pc.LocalServer = grpc.NewServer(grpc.Creds(creds),
+		pc.grpcServer = grpc.NewServer(grpc.Creds(creds),
 			grpc.MaxConcurrentStreams(MaxConcurrentStreams),
 			grpc.MaxRecvMsgSize(math.MaxInt32),
 			grpc.KeepaliveParams(KaOpts),
@@ -173,7 +187,7 @@ listen:
 	} else if TestingOnlyDisableTLS {
 		// Create the gRPC server without TLS
 		jww.WARN.Printf("Starting server with TLS disabled...")
-		pc.LocalServer = grpc.NewServer(
+		pc.grpcServer = grpc.NewServer(
 			grpc.MaxConcurrentStreams(MaxConcurrentStreams),
 			grpc.MaxRecvMsgSize(math.MaxInt32),
 			grpc.KeepaliveParams(KaOpts),
@@ -182,19 +196,81 @@ listen:
 		jww.FATAL.Panicf("TLS cannot be disabled in production, only for testing suites!")
 	}
 
-	return pc, lis, nil
+	return pc, nil
+}
+
+// Serve is a non-blocking call that begins serving content
+// for GRPC. GRPC endpoints must be registered before making this call.
+func (c *ProtoComms) Serve() {
+	listenGRPC := func(l net.Listener) {
+		// This blocks for the lifetime of the listener.
+		if err := c.GetServer().Serve(l); err != nil {
+			jww.FATAL.Panicf("Failed to serve GRPC: %+v", err)
+		}
+		jww.INFO.Printf("Shutting down GRPC server listener")
+	}
+	go listenGRPC(c.netListener)
+}
+
+// ServeWithWeb is a non-blocking call that begins serving content
+// for grpcWeb (over HTTP) and GRPC on the same port.
+// GRPC endpoints must be registered before making this call.
+func (c *ProtoComms) ServeWithWeb() {
+	grpcServer := c.GetServer()
+
+	// Split netListener into two distinct listeners for GRPC and HTTP
+	mux := cmux.New(c.netListener)
+	grpcMatcher := cmux.TLS()
+	if TestingOnlyDisableTLS {
+		grpcMatcher = cmux.Any()
+	}
+	grpcL := mux.Match(grpcMatcher)
+	httpL := mux.Match(cmux.Any())
+
+	listenHTTP := func(l net.Listener) {
+		jww.INFO.Printf("Starting HTTP listener on GRPC endpoints: %+v",
+			grpcweb.ListGRPCResources(grpcServer))
+		httpServer := grpcweb.WrapServer(grpcServer,
+			grpcweb.WithOriginFunc(func(origin string) bool { return true }))
+		// This blocks for the lifetime of the listener.
+		if err := http.Serve(l, httpServer); err != nil {
+			// Cannot panic here due to shared net.Listener
+			jww.ERROR.Printf("Failed to serve HTTP: %v", err)
+		}
+		jww.INFO.Printf("Shutting down HTTP server listener")
+	}
+	listenGRPC := func(l net.Listener) {
+		// This blocks for the lifetime of the listener.
+		if err := grpcServer.Serve(l); err != nil {
+			// Cannot panic here due to shared net.Listener
+			jww.ERROR.Printf("Failed to serve GRPC: %+v", err)
+		}
+		jww.INFO.Printf("Shutting down GRPC server listener")
+	}
+	listenPort := func() {
+		if err := mux.Serve(); err != nil {
+			// Cannot panic here due to shared net.Listener
+			jww.ERROR.Printf("Failed to serve port: %+v", err)
+		}
+		jww.INFO.Printf("Shutting down port server listener")
+	}
+	go listenGRPC(grpcL)
+	go listenHTTP(httpL)
+	go listenPort()
 }
 
 // Shutdown performs a graceful shutdown of the local server.
 func (c *ProtoComms) Shutdown() {
+	// Also handles closing of net.Listener
+	c.grpcServer.GracefulStop()
+	// Close all Manager connections
 	c.DisconnectAll()
-	c.LocalServer.GracefulStop()
-	time.Sleep(time.Millisecond * 500)
+	jww.INFO.Printf("Comms server successfully shut down")
 }
 
 // Stringer method
 func (c *ProtoComms) String() string {
-	return c.ListeningAddr
+	return c.netListener.Addr().String()
 }
 
 // Setter for local server's private key
@@ -212,14 +288,6 @@ func (c *ProtoComms) setPrivateKey(data []byte) error {
 func (c *ProtoComms) GetPrivateKey() *rsa.PrivateKey {
 	return c.privateKey
 }
-
-const (
-	//numerical designators for 3 operations of send, used to ensure the same
-	//operation isn't repeated
-	con  = 1
-	auth = 2
-	send = 3
-)
 
 // Send sets up or recovers the Host's connection,
 // then runs the given transmit function.
