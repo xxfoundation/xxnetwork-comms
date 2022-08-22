@@ -16,7 +16,6 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/messages"
-	"google.golang.org/grpc"
 )
 
 // CMixServer -> consensus node Send Function
@@ -24,14 +23,14 @@ func (c *CMixServer) GetNdf(host *connect.Host,
 	message *messages.Ping) (*NDF, error) {
 
 	// Create the Send Function
-	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+	f := func(conn connect.Connection) (*any.Any, error) {
 		// Set up the context
 		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 		//Format to authenticated message type
 		// Send the message
 
-		resultMsg, err := NewInterconnectClient(conn).GetNDF(ctx, message)
+		resultMsg, err := NewInterconnectClient(conn.GetGrpcConn()).GetNDF(ctx, message)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}

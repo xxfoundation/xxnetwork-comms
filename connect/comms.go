@@ -291,11 +291,11 @@ func (c *ProtoComms) GetPrivateKey() *rsa.PrivateKey {
 
 // Send sets up or recovers the Host's connection,
 // then runs the given transmit function.
-func (c *ProtoComms) Send(host *Host, f func(conn *grpc.ClientConn) (*any.Any,
+func (c *ProtoComms) Send(host *Host, f func(conn Connection) (*any.Any,
 	error)) (result *any.Any, err error) {
 
 	jww.TRACE.Printf("Attempting to send to host: %s", host)
-	fSh := func(conn *grpc.ClientConn) (interface{}, error) {
+	fSh := func(conn Connection) (interface{}, error) {
 		return f(conn)
 	}
 
@@ -309,7 +309,7 @@ func (c *ProtoComms) Send(host *Host, f func(conn *grpc.ClientConn) (*any.Any,
 
 // Stream sets up or recovers the Host's connection,
 // then runs the given Stream function.
-func (c *ProtoComms) Stream(host *Host, f func(conn *grpc.ClientConn) (
+func (c *ProtoComms) Stream(host *Host, f func(conn Connection) (
 	interface{}, error)) (client interface{}, err error) {
 
 	// Ensure the connection is running

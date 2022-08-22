@@ -20,8 +20,6 @@ import (
 	"gitlab.com/xx_network/primitives/exponential"
 	"gitlab.com/xx_network/primitives/id"
 	"gitlab.com/xx_network/primitives/rateLimiting"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/credentials"
 	"math"
 	"net"
@@ -52,7 +50,7 @@ type Host struct {
 	transmissionToken *token.Live
 
 	// GRPC connection object
-	connection      *grpc.ClientConn
+	connection      Connection
 	connectionCount uint64
 	// lock which ensures only a single thread is connecting at a time and
 	// that connections do not interrupt sends
@@ -82,8 +80,14 @@ type Host struct {
 	windowSize *int32
 }
 
-// NewHost creates a new Host object
-func NewHost(id *id.ID, address string, cert []byte, params HostParams) (host *Host, err error) {
+// NewHost creates a new host object which will use GRPC.
+func NewHost(id *id.ID, address string, cert []byte,
+	params HostParams) (host *Host, err error) {
+	return newHost(id, address, cert, params)
+}
+
+// newHost is a helper which creates a new Host object
+func newHost(id *id.ID, address string, cert []byte, params HostParams) (host *Host, err error) {
 
 	windowSize := int32(0)
 
@@ -98,6 +102,8 @@ func NewHost(id *id.ID, address string, cert []byte, params HostParams) (host *H
 		params:            params,
 		windowSize:        &windowSize,
 	}
+
+	host.connection = newConnection(params.ConnectionType, host)
 
 	if params.EnableCoolOff {
 		host.coolOffBucket = rateLimiting.CreateBucket(
@@ -149,7 +155,7 @@ func (h *Host) Connected() (bool, uint64) {
 // a connection lock. Only use if already under a connection lock. The uint is
 //the connection count, it increments every time a reconnect occurs
 func (h *Host) connectedUnsafe() (bool, uint64) {
-	return h.isAlive() && !h.authenticationRequired(), h.connectionCount
+	return h.connection != nil && h.connection.isAlive() && !h.authenticationRequired(), h.connectionCount
 }
 
 // GetMessagingContext returns a context object for message sending configured according to HostParams
@@ -201,6 +207,11 @@ func (h *Host) isExcludedMetricError(err string) bool {
 		}
 	}
 	return false
+}
+
+// IsWeb returns the connection type of the host
+func (h *Host) IsWeb() bool {
+	return h.connection.IsWeb()
 }
 
 // SetMetricsTesting sets the host metrics to an arbitrary value. Used for testing
@@ -260,7 +271,7 @@ func (h *Host) IsOnline() (time.Duration, bool) {
 
 // send checks that the host has a connection and sends if it does.
 // must be called under host's connection read lock.
-func (h *Host) transmit(f func(conn *grpc.ClientConn) (interface{},
+func (h *Host) transmit(f func(conn Connection) (interface{},
 	error)) (interface{}, error) {
 
 	// Check if connection is down
@@ -303,9 +314,8 @@ func (h *Host) Connect() error {
 
 // connect attempts to connect to the host if it does not have a valid connection
 func (h *Host) connect() error {
-
 	//connect to remote
-	if err := h.connectHelper(); err != nil {
+	if err := h.connection.Connect(); err != nil {
 		return err
 	}
 
@@ -327,102 +337,14 @@ func (h *Host) isAlive() bool {
 	if h.connection == nil {
 		return false
 	}
-	state := h.connection.GetState()
-	return state == connectivity.Idle || state == connectivity.Connecting ||
-		state == connectivity.Ready
+	return h.connection.isAlive()
 }
 
 // disconnect closes the Host connection while not under a write lock.
 // undefined behavior if the caller has not taken the write lock
 func (h *Host) disconnect() {
-	// it's possible to close a host which never sent so that it never made a
-	// connection. In that case, we should not close a connection which does not
-	// exist
-	if h.connection != nil {
-		jww.INFO.Printf("Disconnected from %s at %s", h.GetId(), h.GetAddress())
-		err := h.connection.Close()
-		if err != nil {
-			jww.ERROR.Printf("Unable to close connection to %s: %+v",
-				h.GetAddress(), errors.New(err.Error()))
-		} else {
-			h.connection = nil
-		}
-	}
+	h.connection.disconnect()
 	h.transmissionToken.Clear()
-}
-
-// connectHelper creates a connection while not under a write lock.
-// undefined behavior if the caller has not taken the write lock
-func (h *Host) connectHelper() (err error) {
-
-	// Configure TLS options
-	var securityDial grpc.DialOption
-	if h.credentials != nil {
-		// Create the gRPC client with TLS
-		securityDial = grpc.WithTransportCredentials(h.credentials)
-	} else if TestingOnlyDisableTLS {
-		// Create the gRPC client without TLS
-		jww.WARN.Printf("Connecting to %v without TLS!", h.GetAddress())
-		securityDial = grpc.WithInsecure()
-	} else {
-		jww.FATAL.Panicf("TLS cannot be disabled in production, only for testing suites!")
-	}
-
-	jww.DEBUG.Printf("Attempting to establish connection to %s using"+
-		" credentials: %+v", h.GetAddress(), securityDial)
-
-	// Attempt to establish a new connection
-	var numRetries uint32
-	//todo-remove this retry block when grpc is updated
-	for numRetries = 0; numRetries < h.params.MaxRetries && !h.isAlive(); numRetries++ {
-		h.disconnect()
-
-		jww.DEBUG.Printf("Connecting to %+v Attempt number %+v of %+v",
-			h.GetAddress(), numRetries, h.params.MaxRetries)
-
-		// If timeout is enabled, the max wait time becomes
-		// ~14 seconds (with maxRetries=100)
-		backoffTime := 2000 * (numRetries/16 + 1)
-		if backoffTime > 15000 {
-			backoffTime = 15000
-		}
-		ctx, cancel := newContext(time.Duration(backoffTime) * time.Millisecond)
-
-		dialOpts := []grpc.DialOption{
-			grpc.WithBlock(),
-			grpc.WithKeepaliveParams(h.params.KaClientOpts),
-			grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(math.MaxInt32)),
-			securityDial,
-		}
-
-		windowSize := atomic.LoadInt32(h.windowSize)
-		if windowSize != 0 {
-			dialOpts = append(dialOpts, grpc.WithInitialWindowSize(windowSize))
-			dialOpts = append(dialOpts, grpc.WithInitialConnWindowSize(windowSize))
-		}
-
-		// Create the connection
-		h.connection, err = grpc.DialContext(ctx, h.GetAddress(),
-			dialOpts...)
-
-		if err != nil {
-			jww.DEBUG.Printf("Attempt number %+v to connect to %s failed\n",
-				numRetries, h.GetAddress())
-		}
-		cancel()
-	}
-
-	// Verify that the connection was established successfully
-	if !h.isAlive() {
-		h.disconnect()
-		return errors.New(fmt.Sprintf(
-			"Last try to connect to %s failed. Giving up",
-			h.GetAddress()))
-	}
-
-	// Add the successful connection to the Manager
-	jww.INFO.Printf("Successfully connected to %v", h.GetAddress())
-	return
 }
 
 // setCredentials sets TransportCredentials and RSA PublicKey objects

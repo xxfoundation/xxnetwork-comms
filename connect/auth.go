@@ -41,17 +41,24 @@ type Auth struct {
 // no lock is taken because this is assumed to be done exclusively under the
 // send lock taken in ProtoComms.transmit()
 func (c *ProtoComms) clientHandshake(host *Host) (err error) {
-
-	// Set up the context
-	client := pb.NewGenericClient(host.connection)
 	ctx, cancel := host.GetMessagingContext()
 	defer cancel()
+	var result *pb.AssignToken
+	if host.connection.IsWeb() {
+		wc := host.connection.GetWebConn()
+		err = wc.Invoke(ctx, "/messages.Generic/RequestToken", &pb.Ping{}, result)
+		if err != nil {
+			return err
+		}
+	} else {
+		client := pb.NewGenericClient(host.connection.GetGrpcConn())
 
-	// Send the token request message
-	result, err := client.RequestToken(ctx,
-		&pb.Ping{})
-	if err != nil {
-		return errors.New(err.Error())
+		// Send the token request message
+		result, err = client.RequestToken(ctx,
+			&pb.Ping{})
+		if err != nil {
+			return errors.New(err.Error())
+		}
 	}
 
 	remoteToken, err := token.Unmarshal(result.Token)
@@ -78,12 +85,23 @@ func (c *ProtoComms) clientHandshake(host *Host) (err error) {
 	ctx, cancel = host.GetMessagingContext()
 	defer cancel()
 
-	// Send the authenticate token message
-	_, err = client.AuthenticateToken(ctx, msg)
-	if err != nil {
-		return errors.New(err.Error())
+	if host.connection.IsWeb() {
+		wc := host.connection.GetWebConn()
+		err = wc.Invoke(ctx, "/messages.Generic/AuthenticateToken", &pb.Ping{}, result)
+		if err != nil {
+			return err
+		}
+	} else {
+		client := pb.NewGenericClient(host.connection.GetGrpcConn())
+
+		// Send the authenticate token message
+		_, err = client.AuthenticateToken(ctx, msg)
+		if err != nil {
+			return errors.New(err.Error())
+		}
 	}
-	jww.TRACE.Printf("Negotiatied Remote token: %v", remoteToken)
+
+	jww.TRACE.Printf("Negotiated Remote token: %v", remoteToken)
 	// Assign the host token
 	host.transmissionToken.Set(remoteToken)
 
