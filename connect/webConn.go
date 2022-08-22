@@ -130,6 +130,8 @@ func (wc *webConn) disconnect() {
 
 }
 
+// isAlive returns true if the webConn is non-nil and alive
+// must already be under the connectionMux
 func (wc *webConn) isAlive() bool {
 	// TODO this cannot be determined until grpcweb clients have a persistent connection
 	if wc.webConn == nil {

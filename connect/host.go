@@ -81,17 +81,20 @@ type Host struct {
 }
 
 // NewHost creates a new host object which will use GRPC.
-func NewHost(id *id.ID, address string, cert []byte, params HostParams) (host *Host, err error) {
+func NewHost(id *id.ID, address string, cert []byte,
+	params HostParams) (host *Host, err error) {
 	return newHost(id, address, cert, params, false)
 }
 
 // NewHostWeb creates a new host object which will use the grpcweb library.
-func NewHostWeb(id *id.ID, address string, cert []byte, params HostParams) (host *Host, err error) {
+func NewHostWeb(id *id.ID, address string, cert []byte,
+	params HostParams) (host *Host, err error) {
 	return newHost(id, address, cert, params, true)
 }
 
 // newHost is a helper which creates a new Host object
-func newHost(id *id.ID, address string, cert []byte, params HostParams, isWeb bool) (host *Host, err error) {
+func newHost(id *id.ID, address string, cert []byte, params HostParams,
+	isWeb bool) (host *Host, err error) {
 
 	windowSize := int32(0)
 

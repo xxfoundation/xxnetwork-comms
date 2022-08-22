@@ -113,6 +113,7 @@ func (gc *grpcConn) connectGrpcHelper() (err error) {
 	return
 }
 
+// Close calls the internal Close function on the grpcConn
 func (gc *grpcConn) Close() error {
 	if gc.grpcConn == nil {
 		return nil
@@ -138,6 +139,8 @@ func (gc *grpcConn) disconnect() {
 	}
 }
 
+// isAlive returns true if the grpcConn is non-nil and alive
+// must already be under the connectionMux
 func (gc *grpcConn) isAlive() bool {
 	if gc.grpcConn == nil {
 		return false

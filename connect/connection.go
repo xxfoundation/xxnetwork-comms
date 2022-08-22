@@ -12,11 +12,19 @@ const (
 // Connection is an interface designed to sit between hosts and connections
 // to allow use of grpcweb clients.
 type Connection interface {
+	// GetWebConn returns the grpcweb ClientConn for use in browsers.
+	// It panics if called on a grpc client.
 	GetWebConn() *grpcweb.ClientConn
+	// GetGrpcConn returns the grpc ClientConn for standard use.
+	// It panics if called on a grpcweb client.
 	GetGrpcConn() *grpc.ClientConn
+	// Connect initiates a connection with the host using connection logic
+	// supplied by the underlying class.
 	Connect() error
+	// IsWeb returns true if the connection uses grpcweb
 	IsWeb() bool
 
+	// Close closes the underlying connection
 	Close() error
 
 	clientConnHelpers
