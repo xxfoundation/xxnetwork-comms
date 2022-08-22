@@ -7,11 +7,9 @@
 package interconnect
 
 import (
-	"errors"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/primitives/id"
-	"google.golang.org/grpc/reflection"
 	"net"
 	"runtime/debug"
 )
@@ -28,7 +26,7 @@ func StartCMixInterconnect(id *id.ID, port string, handler ServerHandler,
 
 	addr := net.JoinHostPort("localhost", port)
 
-	pc, lis, err := connect.StartCommServer(id, addr, certPEMblock, keyPEMblock, nil)
+	pc, err := connect.StartCommServer(id, addr, certPEMblock, keyPEMblock, nil)
 	if err != nil {
 		jww.FATAL.Panicf("Unable to start comms server: %+v", err)
 	}
@@ -37,28 +35,17 @@ func StartCMixInterconnect(id *id.ID, port string, handler ServerHandler,
 		ProtoComms: pc,
 		handler:    handler,
 	}
+	// Register GRPC services to the listening address
+	RegisterInterconnectServer(CMixInterconnect.GetServer(), &CMixInterconnect)
 
-	go func() {
-		// Register GRPC services to the listening address
-		RegisterInterconnectServer(CMixInterconnect.LocalServer, &CMixInterconnect)
-		//messages.RegisterGenericServer(CMixInterconnect.LocalServer, &CMixInterconnect)
-
-		// Register reflection service on gRPC server.
-		reflection.Register(CMixInterconnect.LocalServer)
-		if err := CMixInterconnect.LocalServer.Serve(lis); err != nil {
-			jww.FATAL.Panicf("Failed to serve: %+v",
-				errors.New(err.Error()))
-		}
-		jww.INFO.Printf("Shutting down node server listener: %s", lis)
-	}()
-
+	// TODO-2022: This should really be removed. It is handled by pc.Shutdown()
 	closeFunc := func() error {
 		jww.INFO.Printf("Closing listening port for CMix's interconnect service!")
 		CMixInterconnect.Shutdown()
-		return lis.Close()
-
+		return nil
 	}
 
+	pc.Serve()
 	return &CMixInterconnect, closeFunc
 
 }
