@@ -84,6 +84,6 @@ func GetDefaultHostParams() HostParams {
 			PermitWithoutStream: true,
 		},
 		ProxyErrorMetricParams: exponential.DefaultMovingAvgParams(),
-		ConnectionType:         Grpc,
+		ConnectionType:         GetDefaultConnectionType(),
 	}
 }
