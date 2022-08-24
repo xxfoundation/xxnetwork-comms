@@ -220,8 +220,8 @@ func (c *ProtoComms) ServeWithWeb() {
 
 	// Split netListener into two distinct listeners for GRPC and HTTP
 	mux := cmux.New(c.netListener)
-	grpcL := mux.Match(
-		cmux.HTTP2HeaderField("content-type", "application/grpc"))
+	grpcL := mux.MatchWithWriters(cmux.HTTP2MatchHeaderFieldSendSettings(
+		"content-type", "application/grpc"))
 	httpL := mux.Match(cmux.Any())
 
 	listenHTTP := func(l net.Listener) {
