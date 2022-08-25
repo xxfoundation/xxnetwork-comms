@@ -11,14 +11,14 @@ package dataStructures
 
 import (
 	"bytes"
-	"crypto/sha256"
 	"github.com/pkg/errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/elixxir/primitives/ndf"
+	"gitlab.com/xx_network/primitives/ndf"
+	"golang.org/x/crypto/blake2b"
 	"sync"
 )
 
-// Struct which encapsulates all data from an NDF
+// Ndf encapsulates all data from an NDF.
 type Ndf struct {
 	f    *ndf.NetworkDefinition
 	pb   *pb.NDF
@@ -26,12 +26,13 @@ type Ndf struct {
 	sync.RWMutex
 }
 
-// Initialize an Ndf object from a primitives NetworkDefinition
+// NewNdf initializes a Ndf object from a primitives ndf.NetworkDefinition.
 func NewNdf(definition *ndf.NetworkDefinition) (*Ndf, error) {
-	h, err := GenerateNDFHash(definition)
+	h, err := GenerateNDFHash(nil)
 	if err != nil {
-		return nil, errors.WithMessage(err, "Failed to hash ndf")
+		return nil, errors.WithMessage(err, "Failed to hash NDF")
 	}
+
 	return &Ndf{
 		f:    definition,
 		pb:   nil,
@@ -39,12 +40,11 @@ func NewNdf(definition *ndf.NetworkDefinition) (*Ndf, error) {
 	}, nil
 }
 
-//Updates to a new NDF if the passed NDF is valid
+// Update to a new NDF if the passed NDF is valid.
 func (file *Ndf) Update(m *pb.NDF) error {
 
-	//build the ndf object
-	decoded, _, err := ndf.DecodeNDF(string(m.Ndf))
-
+	// Build the ndf object
+	decoded, err := ndf.Unmarshal(m.Ndf)
 	if err != nil {
 		return errors.WithMessage(err, "Could not decode the NDF")
 	}
@@ -55,14 +55,13 @@ func (file *Ndf) Update(m *pb.NDF) error {
 	file.pb = m
 	file.f = decoded
 
-	file.hash, err = GenerateNDFHash(file.f)
+	file.hash, err = GenerateNDFHash(file.pb)
 
 	return err
 }
 
-//returns the ndf object
-//fix-me: return a copy instead to ensure edits to not impact the
-//original version
+// Get returns the NDF object.
+// FIXME: return a copy instead to ensure edits to not impact the original version
 func (file *Ndf) Get() *ndf.NetworkDefinition {
 	file.RLock()
 	defer file.RUnlock()
@@ -70,7 +69,7 @@ func (file *Ndf) Get() *ndf.NetworkDefinition {
 	return file.f
 }
 
-//returns the ndf hash
+// GetHash returns the NDF hash.
 func (file *Ndf) GetHash() []byte {
 	file.RLock()
 	defer file.RUnlock()
@@ -80,9 +79,8 @@ func (file *Ndf) GetHash() []byte {
 	return rtn
 }
 
-//returns the ndf hash
-//fix-me: return a copy instead to ensure edits to not impact the
-//original version
+// GetPb returns the NDF message.
+// FIXME: return a copy instead to ensure edits to not impact the original version
 func (file *Ndf) GetPb() *pb.NDF {
 	file.RLock()
 	defer file.RUnlock()
@@ -90,26 +88,28 @@ func (file *Ndf) GetPb() *pb.NDF {
 	return file.pb
 }
 
-// Evaluates if the passed ndf hash is the same as the stored one
+// CompareHash evaluates if the passed NDF hash is the same as the stored one.
 func (file *Ndf) CompareHash(h []byte) bool {
 	file.RLock()
 	defer file.RUnlock()
 
 	// Return whether the hashes are different
-	return bytes.Compare(file.hash, h) == 0
+	return bytes.Equal(file.hash, h)
 }
 
-// helper function to generate a hash of the NDF
-func GenerateNDFHash(definition *ndf.NetworkDefinition) ([]byte, error) {
-	//set the ndf hash
-	marshaled, err := definition.Marshal()
+// GenerateNDFHash generates a hash of the unmarshalled NDF bytes in the comms
+// message. If the message or NDF bytes is nil, zeroes are returned.
+func GenerateNDFHash(msg *pb.NDF) ([]byte, error) {
+	if msg == nil || msg.GetNdf() == nil {
+		return make([]byte, 32), nil
+	}
+	// Create new BLAKE2b hash
+	hash, err := blake2b.New256(nil)
 	if err != nil {
-		return nil, errors.WithMessage(err,
-			"Could not marshal NDF for hashing")
+		return nil, err
 	}
 
-	// Serialize then hash the constructed ndf
-	hash := sha256.New()
-	hash.Write(marshaled)
+	hash.Write(msg.Ndf)
+
 	return hash.Sum(nil), nil
 }

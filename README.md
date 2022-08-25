@@ -4,7 +4,7 @@
 [![coverage report](https://gitlab.com/elixxir/comms/badges/master/coverage.svg)](https://gitlab.com/elixxir/comms/commits/master)
 
 This library implements functionality for communications operations in
-the xxnetwork system.
+the xx network system.
 
 ## How to run tests
 
@@ -39,7 +39,7 @@ Then install protocol buffers v3 as follows:
 
 Next, install the protoc plugin for go with the following command:
 
-`go get -u github.com/golang/protobuf/protoc-gen-go`
+`go get -u github.com/golang/protobuf/protoc-gen-go@v1.22.0`
 
 This will add the plugin to your `go` directory in a `bin` folder. You
 must add this to your `PATH` variable in your `.bash_profile`, so
@@ -59,8 +59,13 @@ run the following command in the terminal in order to regenerate the
 `mixmessage.pb.go` file:
 
 ```
-protoc -I vendor/ -I mixmessages/ mixmessages/mixmessages.proto --go_out=plugins=grpc:mixmessages
+go get -u github.com/golang/protobuf/protoc-gen-go@v1.22.0
+cd mixmessages
+protoc -I. -I/path/to/gitlab.com mixmessages.proto --go_opt=paths=source_relative --go_out=plugins=grpc:../mixmessages/
+cd ..
 ```
+
+Note that `/path/to/gitlab` must have `xx_network/comms` and `elixxir/comms` checked out into it.
 
 ## Repository Organization
 

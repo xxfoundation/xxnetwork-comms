@@ -20,13 +20,13 @@ import (
 )
 
 // Gateway -> Server Send Function
-func (g *Comms) SendRequestNonceMessage(host *connect.Host,
-	message *pb.NonceRequest) (*pb.Nonce, error) {
+func (g *Comms) SendRequestClientKeyMessage(host *connect.Host,
+	message *pb.SignedClientKeyRequest) (*pb.SignedKeyResponse, error) {
 
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
-		ctx, cancel := connect.MessagingContext()
+		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 		//Pack the message for server
 		authMsg, err := g.PackAuthenticatedMessage(message, host, false)
@@ -34,56 +34,23 @@ func (g *Comms) SendRequestNonceMessage(host *connect.Host,
 			return nil, errors.New(err.Error())
 		}
 		// Send the message
-		resultMsg, err := pb.NewNodeClient(conn).RequestNonce(ctx, authMsg)
+		resultMsg, err := pb.NewNodeClient(conn).RequestClientKey(ctx, authMsg)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
+
 		return ptypes.MarshalAny(resultMsg)
 	}
 
 	// Execute the Send function
-	jww.DEBUG.Printf("Sending Request Nonce message: %+v", message)
+	jww.TRACE.Printf("Sending Request Nonce message: %+v", message)
 	resultMsg, err := g.Send(host, f)
 	if err != nil {
 		return nil, err
 	}
 
 	// Marshall the result
-	result := &pb.Nonce{}
-	return result, ptypes.UnmarshalAny(resultMsg, result)
-}
-
-// Gateway -> Server Send Function
-func (g *Comms) SendConfirmNonceMessage(host *connect.Host,
-	message *pb.RequestRegistrationConfirmation) (*pb.RegistrationConfirmation, error) {
-
-	// Create the Send Function
-	f := func(conn *grpc.ClientConn) (*any.Any, error) {
-		// Set up the context
-		ctx, cancel := connect.MessagingContext()
-		defer cancel()
-		//Pack the message for server
-		authMsg, err := g.PackAuthenticatedMessage(message, host, false)
-		if err != nil {
-			return nil, errors.New(err.Error())
-		}
-		// Send the message
-		resultMsg, err := pb.NewNodeClient(conn).ConfirmRegistration(ctx, authMsg)
-		if err != nil {
-			return nil, errors.New(err.Error())
-		}
-		return ptypes.MarshalAny(resultMsg)
-	}
-
-	// Execute the Send function
-	jww.DEBUG.Printf("Sending Confirm Nonce message: %+v", message)
-	resultMsg, err := g.Send(host, f)
-	if err != nil {
-		return nil, err
-	}
-
-	// Marshall the result
-	result := &pb.RegistrationConfirmation{}
+	result := &pb.SignedKeyResponse{}
 	return result, ptypes.UnmarshalAny(resultMsg, result)
 }
 
@@ -94,7 +61,7 @@ func (g *Comms) SendPoll(host *connect.Host,
 	// Create the Send Function
 	f := func(conn *grpc.ClientConn) (*any.Any, error) {
 		// Set up the context
-		ctx, cancel := connect.MessagingContext()
+		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 		//Pack the message for server
 		authMsg, err := g.PackAuthenticatedMessage(message, host, false)

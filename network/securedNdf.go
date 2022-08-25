@@ -13,9 +13,9 @@ import (
 	"github.com/pkg/errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	ds "gitlab.com/elixxir/comms/network/dataStructures"
-	"gitlab.com/elixxir/crypto/signature"
-	"gitlab.com/elixxir/crypto/signature/rsa"
-	"gitlab.com/elixxir/primitives/ndf"
+	"gitlab.com/xx_network/comms/signature"
+	"gitlab.com/xx_network/crypto/signature/rsa"
+	"gitlab.com/xx_network/primitives/ndf"
 )
 
 // wraps the ndf data structure, expoting all the functionality expect the
@@ -37,7 +37,7 @@ func NewSecuredNdf(definition *ndf.NetworkDefinition) (*SecuredNdf, error) {
 
 // unexported NDF update code
 func (sndf *SecuredNdf) update(m *pb.NDF, key *rsa.PublicKey) error {
-	err := signature.Verify(m, key)
+	err := signature.VerifyRsa(m, key)
 	if err != nil {
 		return errors.WithMessage(err, "Could not validate NDF")
 	}

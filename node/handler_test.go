@@ -9,8 +9,18 @@
 package node
 
 import (
+	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
+	"gitlab.com/xx_network/comms/connect"
+	"os"
+	"testing"
 )
+
+func TestMain(m *testing.M) {
+	jww.SetStdoutThreshold(jww.LevelTrace)
+	connect.TestingOnlyDisableTLS = true
+	os.Exit(m.Run())
+}
 
 // Blank struct implementing Handler interface for testing purposes (Passing to StartNode)
 type TestInterface struct{}

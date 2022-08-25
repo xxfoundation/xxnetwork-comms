@@ -11,73 +11,97 @@
 package mixmessages
 
 import (
-	"github.com/pkg/errors"
-	"gitlab.com/elixxir/primitives/id"
+	"crypto"
+	"encoding/binary"
 	"gitlab.com/elixxir/primitives/states"
 	"gitlab.com/xx_network/comms/messages"
+	"gitlab.com/xx_network/primitives/id"
+	"hash"
 )
 
-// SetSignature sets RoundInfo's signature to the newSig argument
-func (m *RoundInfo) SetSig(newSig []byte) error {
-	// Cannot set signature to nil
-	if newSig == nil {
-		return errors.New("Cannot set signature to nil value")
-	}
-
-	// If the signature object is nil, create it and set value
-	if m.Signature == nil {
-		m.Signature = &messages.RSASignature{Signature: newSig}
-		return nil
-	}
-
-	// Set value as normal otherwise
-	m.Signature.Signature = newSig
-	return nil
-}
-
-// ClearSignature clears out roundInfo's signature
-func (m *RoundInfo) ClearSig() {
+// GetSig returns the RSA signature.
+// IF none exists, it creates it, adds it to the object, then returns it.
+func (m *RoundInfo) GetSig() *messages.RSASignature {
 	if m.Signature != nil {
-		m.Signature.Signature = nil
+		return m.Signature
 	}
+
+	m.Signature = new(messages.RSASignature)
+
+	return m.Signature
 }
 
-// GetNonce gets the value of the nonce
-func (m *RoundInfo) GetNonce() []byte {
-	// If the signature object is nil, then value is nil
-	if m.Signature == nil {
-		return nil
+func (m *RoundInfo) GetEccSig() *messages.ECCSignature {
+	if m.EccSignature != nil {
+		return m.EccSignature
 	}
 
-	return m.Signature.GetNonce()
+	m.EccSignature = new(messages.ECCSignature)
+
+	return m.EccSignature
 }
 
-// SetSignature sets RoundInfo's nonce to the newNonce argument
-func (m *RoundInfo) SetNonce(newNonce []byte) error {
-	// Cannot set nonce to nil
-	if newNonce == nil {
-		return errors.New("Cannot set nonce to nil")
+// Digest hashes the contents of the message in a repeatable manner
+// using the provided cryptographic hash. It includes the nonce in the hash
+func (m *RoundInfo) Digest(nonce []byte, h hash.Hash) []byte {
+	h.Reset()
+
+	// Serialize  and hash RoundId
+	h.Write(serializeUin64(m.ID))
+
+	// Serialize and hash UpdateId
+	h.Write(serializeUin64(m.UpdateID))
+
+	// Serialize and hash state
+	h.Write(serializeUin32(m.State))
+
+	// Serialize and hash batch size
+	h.Write(serializeUin32(m.BatchSize))
+
+	// Serialize and hash resource queue timeout
+	h.Write(serializeUin32(m.ResourceQueueTimeoutMillis))
+
+	// Serialize and hash address space size
+	h.Write(serializeUin32(m.AddressSpaceSize))
+
+	// Hash the topology
+	for _, node := range m.Topology {
+		h.Write(node)
 	}
 
-	// If the signature object is nil, create it and set value
-	if m.Signature == nil {
-		m.Signature = &messages.RSASignature{Nonce: newNonce}
-		return nil
+	// Serialize and hash the timestamps
+	for _, timeStamp := range m.Timestamps {
+		h.Write(serializeUin64(timeStamp))
 	}
 
-	// Set value otherwise
-	m.Signature.Nonce = newNonce
+	// Hash ClientErrors
+	for _, clientError := range m.ClientErrors {
+		sha := crypto.SHA256.New()
+		data := clientError.Digest(nonce, sha)
+		h.Write(data)
+	}
 
-	return nil
+	// Hash nonce
+	h.Write(nonce)
+
+	// Return the hash
+	return h.Sum(nil)
 }
 
-// GetSignature gets the value of the signature in RSASignature
-func (m *RoundInfo) GetSig() []byte {
-	if m.Signature == nil {
-		return nil
-	}
+// serializeUin64 is a helper function which serializes
+// any uint64 data into a byte slice for hashing purposes
+func serializeUin64(data uint64) []byte {
+	serializedData := make([]byte, 8)
+	binary.LittleEndian.PutUint64(serializedData, data)
+	return serializedData
+}
 
-	return m.GetSignature().GetSignature()
+// serializeUin32 is a helper function which serializes
+// any uint32 data into a byte slice for hashing purposes
+func serializeUin32(data uint32) []byte {
+	serializedData := make([]byte, 4)
+	binary.LittleEndian.PutUint32(serializedData, data)
+	return serializedData
 }
 
 // GetActivity gets the state of the node
@@ -87,4 +111,21 @@ func (m *RoundInfo) GetRoundState() states.Round {
 
 func (m *RoundInfo) GetRoundId() id.Round {
 	return id.Round(m.ID)
+}
+
+func (m *RoundInfo) DeepCopy() *RoundInfo {
+	return &RoundInfo{
+		ID:                         m.ID,
+		UpdateID:                   m.UpdateID,
+		State:                      m.State,
+		BatchSize:                  m.BatchSize,
+		Topology:                   m.Topology,
+		Timestamps:                 m.Timestamps,
+		Errors:                     m.Errors,
+		ClientErrors:               m.ClientErrors,
+		ResourceQueueTimeoutMillis: m.ResourceQueueTimeoutMillis,
+		Signature:                  m.Signature,
+		AddressSpaceSize:           m.AddressSpaceSize,
+		EccSignature:               m.EccSignature,
+	}
 }

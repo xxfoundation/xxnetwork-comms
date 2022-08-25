@@ -10,8 +10,8 @@ package node
 import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/registration"
-	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/xx_network/comms/connect"
+	"gitlab.com/xx_network/primitives/id"
 	"testing"
 )
 
@@ -19,10 +19,9 @@ import (
 func TestSendNodeRegistration(t *testing.T) {
 	RegAddress := getNextServerAddress()
 	testId := id.NewIdFromString("test", id.Generic, t)
-	server := StartNode(testId, getNextServerAddress(), NewImplementation(),
+	server := StartNode(testId, getNextServerAddress(), 0, NewImplementation(),
 		nil, nil)
-	reg := registration.StartRegistrationServer(testId, RegAddress,
-		registration.NewImplementation(), nil, nil)
+	reg := registration.StartRegistrationServer(testId, RegAddress, registration.NewImplementation(), nil, nil, nil)
 	defer server.Shutdown()
 	defer reg.Shutdown()
 	manager := connect.NewManagerTesting(t)
@@ -45,10 +44,9 @@ func TestSendNodeRegistration(t *testing.T) {
 func TestComms_SendPoll(t *testing.T) {
 	RegAddress := getNextServerAddress()
 	testId := id.NewIdFromString("test", id.Generic, t)
-	server := StartNode(testId, getNextServerAddress(), NewImplementation(),
+	server := StartNode(testId, getNextServerAddress(), 0, NewImplementation(),
 		nil, nil)
-	reg := registration.StartRegistrationServer(testId, RegAddress,
-		registration.NewImplementation(), nil, nil)
+	reg := registration.StartRegistrationServer(testId, RegAddress, registration.NewImplementation(), nil, nil, nil)
 	defer server.Shutdown()
 	defer reg.Shutdown()
 	manager := connect.NewManagerTesting(t)
@@ -78,10 +76,9 @@ func TestComms_SendPoll(t *testing.T) {
 func TestComms_SendRegistrationCheck(t *testing.T) {
 	RegAddress := getNextServerAddress()
 	testId := id.NewIdFromString("blah", id.Generic, t)
-	server := StartNode(testId, getNextServerAddress(), NewImplementation(),
+	server := StartNode(testId, getNextServerAddress(), 0, NewImplementation(),
 		nil, nil)
-	reg := registration.StartRegistrationServer(testId, RegAddress,
-		registration.NewImplementation(), nil, nil)
+	reg := registration.StartRegistrationServer(testId, RegAddress, registration.NewImplementation(), nil, nil, nil)
 	defer server.Shutdown()
 	defer reg.Shutdown()
 	manager := connect.NewManagerTesting(t)

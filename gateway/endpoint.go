@@ -10,13 +10,22 @@
 package gateway
 
 import (
+	"github.com/golang/protobuf/ptypes"
 	"github.com/pkg/errors"
 	pb "gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/messages"
 	"golang.org/x/net/context"
+	"google.golang.org/grpc/metadata"
+	"strconv"
 )
+
+// Pass-through for Registration Nonce Communication
+func (g *Comms) RequestClientKey(ctx context.Context,
+	msg *pb.SignedClientKeyRequest) (*pb.SignedKeyResponse, error) {
+
+	return g.handler.RequestClientKey(msg)
+}
 
 // Handles validation of reverse-authentication tokens
 func (g *Comms) AuthenticateToken(ctx context.Context,
@@ -32,113 +41,136 @@ func (g *Comms) RequestToken(context.Context, *messages.Ping) (*messages.AssignT
 	}, err
 }
 
-// Sends new MessageIDs in the buffer to a client
-func (g *Comms) CheckMessages(ctx context.Context,
-	msg *pb.ClientRequest) (*pb.IDList, error) {
-
-	// Get peer information from context
-	addr, _, err := connect.GetAddressFromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-	userID, err := id.Unmarshal(msg.UserID)
-	if err != nil {
-		return nil, err
-	}
-
-	msgIds, err := g.handler.CheckMessages(userID, msg.LastMessageID, addr)
-	returnMsg := &pb.IDList{}
-	if err == nil {
-		returnMsg.IDs = msgIds
-	}
-	return returnMsg, err
-}
-
-// Sends a message matching the given parameters to a client
-func (g *Comms) GetMessage(ctx context.Context, msg *pb.ClientRequest) (
-	*pb.Slot, error) {
-
-	// Get peer information from context
-	addr, _, err := connect.GetAddressFromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	userID, err := id.Unmarshal(msg.UserID)
-	if err != nil {
-		return nil, err
-	}
-
-	returnMsg, err := g.handler.GetMessage(userID, msg.LastMessageID, addr)
-	if err != nil {
-		// Return an empty message if no results
-		returnMsg = &pb.Slot{}
-	}
-	return returnMsg, err
-}
-
 // Receives a single message from a client
-func (g *Comms) PutMessage(ctx context.Context, msg *pb.Slot) (*messages.Ack,
+func (g *Comms) PutMessage(ctx context.Context, msg *pb.GatewaySlot) (*pb.GatewaySlotResponse,
 	error) {
 
-	// Get peer information from context
-	addr, _, err := connect.GetAddressFromContext(ctx)
+	ipAddr, _, err := connect.GetAddressFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	// Upload a message to the cMix Gateway at the peer's IP address
-	err = g.handler.PutMessage(msg, addr)
-
-	return &messages.Ack{}, err
-}
-
-// Pass-through for Registration Nonce Communication
-func (g *Comms) RequestNonce(ctx context.Context,
-	msg *pb.NonceRequest) (*pb.Nonce, error) {
-
-	// Get peer information from context
-	addr, _, err := connect.GetAddressFromContext(ctx)
+	// Upload a message to the cMix Gateway
+	returnMsg, err := g.handler.PutMessage(msg, ipAddr)
 	if err != nil {
-		return nil, err
-	}
+		returnMsg = &pb.GatewaySlotResponse{}
 
-	return g.handler.RequestNonce(msg, addr)
+	}
+	return returnMsg, err
 }
 
-// Pass-through for Registration Nonce Confirmation
-func (g *Comms) ConfirmNonce(ctx context.Context,
-	msg *pb.RequestRegistrationConfirmation) (*pb.RegistrationConfirmation,
+// Upload many messages to the cMix Gateway
+func (g *Comms) PutManyMessages(ctx context.Context, msgs *pb.GatewaySlots) (*pb.GatewaySlotResponse,
 	error) {
 
-	// Get peer information from context
-	addr, _, err := connect.GetAddressFromContext(ctx)
+	ipAddr, _, err := connect.GetAddressFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	return g.handler.ConfirmNonce(msg, addr)
+	// Upload messages to the cMix Gateway
+	returnMsg, err := g.handler.PutManyMessages(msgs, ipAddr)
+	if err != nil {
+		returnMsg = &pb.GatewaySlotResponse{}
+
+	}
+	return returnMsg, err
 }
 
-// Ping gateway to ask for users to notify
-func (g *Comms) PollForNotifications(ctx context.Context, msg *messages.AuthenticatedMessage) (*pb.UserIdList, error) {
+// Receives a single message from a gateway proxy
+func (g *Comms) PutMessageProxy(ctx context.Context, msg *messages.AuthenticatedMessage) (*pb.GatewaySlotResponse,
+	error) {
 
-	authState, err := g.AuthenticatedReceiver(msg)
+	// Verify the message authentication
+	authState, err := g.AuthenticatedReceiver(msg, ctx)
 	if err != nil {
 		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
 	}
 
-	ids, err := g.handler.PollForNotifications(authState)
-	returnMsg := &pb.UserIdList{}
-	if err == nil {
-		for i, userID := range ids {
-			returnMsg.IDs[i] = userID.Marshal()
-		}
+	// Unnmarshall the any message to the message type needed
+	slot := &pb.GatewaySlot{}
+	err = ptypes.UnmarshalAny(msg.Message, slot)
+	if err != nil {
+		return nil, errors.New(err.Error())
+	}
+
+	// Upload a message to the cMix Gateway
+	returnMsg, err := g.handler.PutMessageProxy(slot, authState)
+	if err != nil {
+		returnMsg = &pb.GatewaySlotResponse{}
+
+	}
+	return returnMsg, err
+}
+
+// Upload many messages to the cMix Gateway from a proxy
+func (g *Comms) PutManyMessagesProxy(ctx context.Context, msg *messages.AuthenticatedMessage) (*pb.GatewaySlotResponse,
+	error) {
+
+	// Verify the message authentication
+	authState, err := g.AuthenticatedReceiver(msg, ctx)
+	if err != nil {
+		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
+	}
+
+	// Unnmarshall the any message to the message type needed
+	slots := &pb.GatewaySlots{}
+	err = ptypes.UnmarshalAny(msg.Message, slots)
+	if err != nil {
+		return nil, errors.New(err.Error())
+	}
+
+	// Upload messages to the cMix Gateway
+	returnMsg, err := g.handler.PutManyMessagesProxy(slots, authState)
+	if err != nil {
+		returnMsg = &pb.GatewaySlotResponse{}
+
 	}
 	return returnMsg, err
 }
 
 // Client -> Gateway unified polling
-func (g *Comms) Poll(ctx context.Context, msg *pb.GatewayPoll) (*pb.GatewayPollResponse, error) {
-	return g.handler.Poll(msg)
+func (g *Comms) Poll(msg *pb.GatewayPoll, stream pb.Gateway_PollServer) error {
+	// Get response from higher level
+	response, err := g.handler.Poll(msg)
+	if err != nil {
+		return err
+	}
+
+	// Split response into streamable chunks
+	chunks, err := pb.SplitResponseIntoChunks(response)
+	if err != nil {
+		return err
+	}
+
+	// Send a header informing client-side of the total number of chunks
+	metadataMap := map[string]string{
+		pb.ChunkHeader: strconv.Itoa(len(chunks)),
+	}
+
+	md := metadata.New(metadataMap)
+	if err = stream.SendHeader(md); err != nil {
+		return errors.Errorf("Failed to send streaming header: %v", err)
+	}
+
+	// Stream each chunk individually
+	for i, chunk := range chunks {
+		err = stream.Send(chunk)
+		if err != nil {
+			return errors.Errorf("Failed to send chunk (%d/%d) for "+
+				"client polling: %v", i, len(chunks), err)
+		}
+	}
+
+	return nil
+}
+
+// Client -> Gateway historical round request
+func (g *Comms) RequestHistoricalRounds(ctx context.Context, msg *pb.HistoricalRounds) (*pb.HistoricalRoundsResponse, error) {
+	return g.handler.RequestHistoricalRounds(msg)
+}
+
+// Client -> Gateway message request
+func (g *Comms) RequestMessages(ctx context.Context, msg *pb.GetMessages) (*pb.GetMessagesResponse, error) {
+	return g.handler.RequestMessages(msg)
 }

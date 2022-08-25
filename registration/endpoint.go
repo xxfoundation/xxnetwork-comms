@@ -39,37 +39,19 @@ func (r *Comms) RequestToken(context.Context, *messages.Ping) (*messages.AssignT
 }
 
 // RegisterUser event handler which registers a user with the platform
-func (r *Comms) RegisterUser(ctx context.Context, msg *pb.UserRegistration) (
-	*pb.UserRegistrationConfirmation, error) {
+func (r *Comms) RegisterUser(ctx context.Context, msg *pb.ClientRegistration) (
+	*pb.SignedClientRegistrationConfirmations, error) {
 	// Obtain the signed key by passing to registration server
-	pubKey := msg.GetClientRSAPubKey()
-	signature, err := r.handler.RegisterUser(msg.GetRegistrationCode(), pubKey)
+	confirmationMessage, err := r.handler.RegisterUser(msg)
 	// Obtain the error message, if any
 	errMsg := ""
 	if err != nil {
 		errMsg = err.Error()
 		err = errors.New(err.Error())
 	}
-
+	confirmationMessage.Error = errMsg
 	// Return the confirmation message
-	return &pb.UserRegistrationConfirmation{
-		ClientSignedByServer: &messages.RSASignature{
-			Signature: signature,
-		},
-		Error: errMsg,
-	}, err
-}
-
-// CheckClientVersion event handler which checks whether the client library
-// version is compatible with the network
-func (r *Comms) GetCurrentClientVersion(ctx context.Context, ping *messages.Ping) (*pb.ClientVersion, error) {
-
-	version, err := r.handler.GetCurrentClientVersion()
-
-	// Return the confirmation message
-	return &pb.ClientVersion{
-		Version: version,
-	}, err
+	return confirmationMessage, err
 }
 
 // Handle a node registration event
@@ -97,29 +79,14 @@ func (r *Comms) RegisterNode(ctx context.Context, msg *pb.NodeRegistration) (
 }
 
 // Handles incoming requests for the NDF
-func (r *Comms) PollNdf(ctx context.Context, msg *messages.AuthenticatedMessage) (*pb.NDF, error) {
-	// Create an auth object
-	authState, err := r.AuthenticatedReceiver(msg)
-	if err != nil {
-		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
-	}
-
-	// Unmarshall the any message to the message type needed
-	ndfHash := &pb.NDFHash{}
-	err = ptypes.UnmarshalAny(msg.Message, ndfHash)
-	if err != nil {
-		return nil, err
-	}
-
-	newNDF, err := r.handler.PollNdf(ndfHash.Hash, authState)
-	//Return the new ndf
-	return &pb.NDF{Ndf: newNDF}, err
+func (r *Comms) PollNdf(ctx context.Context, ndfHash *pb.NDFHash) (*pb.NDF, error) {
+	return r.handler.PollNdf(ndfHash.Hash)
 }
 
 // Server -> Permissioning unified polling
 func (r *Comms) Poll(ctx context.Context, msg *messages.AuthenticatedMessage) (*pb.PermissionPollResponse, error) {
 	// Create an auth object
-	authState, err := r.AuthenticatedReceiver(msg)
+	authState, err := r.AuthenticatedReceiver(msg, ctx)
 	if err != nil {
 		return nil, errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
 	}
@@ -131,16 +98,8 @@ func (r *Comms) Poll(ctx context.Context, msg *messages.AuthenticatedMessage) (*
 		return nil, err
 	}
 
-	// Get server IP and port
-	ip, _, err := connect.GetAddressFromContext(ctx)
-	if err != nil {
-		return &pb.PermissionPollResponse{}, err
-	}
-	port := pollMsg.ServerPort
-	address := fmt.Sprintf("%s:%d", ip, port)
-
 	//Return the new ndf
-	return r.handler.Poll(pollMsg, authState, address)
+	return r.handler.Poll(pollMsg, authState)
 }
 
 // Server -> Permissioning unified polling

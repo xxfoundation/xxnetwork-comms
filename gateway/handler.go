@@ -13,34 +13,39 @@ import (
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
-	"gitlab.com/elixxir/primitives/id"
 	"gitlab.com/xx_network/comms/connect"
+	"gitlab.com/xx_network/comms/gossip"
 	"gitlab.com/xx_network/comms/messages"
+	"gitlab.com/xx_network/primitives/id"
 	"google.golang.org/grpc/reflection"
 	"runtime/debug"
 )
 
 // Handler interface for the Gateway
 type Handler interface {
-	// Return any MessageIDs in the buffer for this UserID
-	CheckMessages(userID *id.ID, messageID string, ipAddress string) ([]string, error)
-	// Returns the message matching the given parameters to the client
-	GetMessage(userID *id.ID, msgID string, ipAddress string) (*pb.Slot, error)
-	// Upload a message to the cMix Gateway
-	PutMessage(message *pb.Slot, ipAddress string) error
-	// Pass-through for Registration Nonce Communication
-	RequestNonce(message *pb.NonceRequest, ipAddress string) (*pb.Nonce, error)
-	// Pass-through for Registration Nonce Confirmation
-	ConfirmNonce(message *pb.RequestRegistrationConfirmation, ipAddress string) (*pb.
-		RegistrationConfirmation, error)
-	// Ping gateway to ask for users to notify
-	PollForNotifications(auth *connect.Auth) ([]*id.ID, error)
+	// Upload a message to the cMix Gateway (client->Gateway)
+	PutMessage(message *pb.GatewaySlot, ipAddr string) (*pb.GatewaySlotResponse, error)
+	// Upload many messages to the cMix Gateway (client->Gateway)
+	PutManyMessages(msgs *pb.GatewaySlots, ipAddr string) (*pb.GatewaySlotResponse, error)
+
+	// Upload a message to the cMix Gateway (gateway -> gateway)
+	PutMessageProxy(message *pb.GatewaySlot, auth *connect.Auth) (*pb.GatewaySlotResponse, error)
+	// Upload many messages to the cMix Gateway (gateway -> gateway)
+	PutManyMessagesProxy(msgs *pb.GatewaySlots, auth *connect.Auth) (*pb.GatewaySlotResponse, error)
+
 	// Client -> Gateway unified polling
 	Poll(msg *pb.GatewayPoll) (*pb.GatewayPollResponse, error)
+	// Client -> Gateway historical round request
+	RequestHistoricalRounds(msg *pb.HistoricalRounds) (*pb.HistoricalRoundsResponse, error)
+	// Client -> Gateway message request
+	RequestMessages(msg *pb.GetMessages) (*pb.GetMessagesResponse, error)
+
+	RequestClientKey(message *pb.SignedClientKeyRequest) (*pb.SignedKeyResponse, error)
 }
 
 // Gateway object used to implement endpoints and top-level comms functionality
 type Comms struct {
+	*gossip.Manager
 	*connect.ProtoComms
 	handler Handler
 }
@@ -49,21 +54,23 @@ type Comms struct {
 // and a callback interface for gateway operations
 // with given path to public and private key for TLS connection
 func StartGateway(id *id.ID, localServer string, handler Handler,
-	certPEMblock, keyPEMblock []byte) *Comms {
+	certPem, keyPem []byte, gossipFlags gossip.ManagerFlags) *Comms {
 	pc, lis, err := connect.StartCommServer(id, localServer,
-		certPEMblock, keyPEMblock)
+		certPem, keyPem, nil)
 	if err != nil {
 		jww.FATAL.Panicf("Unable to start comms server: %+v", err)
 	}
 
 	gatewayServer := Comms{
-		ProtoComms: pc,
 		handler:    handler,
+		ProtoComms: pc,
+		Manager:    gossip.NewManager(pc, gossipFlags),
 	}
 
 	go func() {
 		pb.RegisterGatewayServer(gatewayServer.LocalServer, &gatewayServer)
 		messages.RegisterGenericServer(gatewayServer.LocalServer, &gatewayServer)
+		gossip.RegisterGossipServer(gatewayServer.LocalServer, gatewayServer.Manager)
 
 		// Register reflection service on gRPC server.
 		// This blocks for the lifetime of the listener.
@@ -82,21 +89,24 @@ func StartGateway(id *id.ID, localServer string, handler Handler,
 
 // Handler implementation for the Gateway
 type implementationFunctions struct {
-	// Return any MessageIDs in the buffer for this UserID
-	CheckMessages func(userID *id.ID, messageID string, ipAddress string) ([]string, error)
-	// Returns the message matching the given parameters to the client
-	GetMessage func(userID *id.ID, msgID string, ipAddress string) (*pb.Slot, error)
 	// Upload a message to the cMix Gateway
-	PutMessage func(message *pb.Slot, ipAddress string) error
-	// Pass-through for Registration Nonce Communication
-	RequestNonce func(message *pb.NonceRequest, ipAddress string) (*pb.Nonce, error)
-	// Pass-through for Registration Nonce Confirmation
-	ConfirmNonce func(message *pb.RequestRegistrationConfirmation, ipAddress string) (*pb.
-			RegistrationConfirmation, error)
-	// Ping gateway to ask for users to notify
-	PollForNotifications func(auth *connect.Auth) ([]*id.ID, error)
+	PutMessage func(message *pb.GatewaySlot, ipAddr string) (*pb.GatewaySlotResponse, error)
+	// Upload many messages to the cMix Gateway
+	PutManyMessages func(msgs *pb.GatewaySlots, ipAddr string) (*pb.GatewaySlotResponse, error)
 	// Client -> Gateway unified polling
 	Poll func(msg *pb.GatewayPoll) (*pb.GatewayPollResponse, error)
+	// Client -> Gateway historical round request
+	RequestHistoricalRounds func(msg *pb.HistoricalRounds) (*pb.HistoricalRoundsResponse, error)
+	// Client -> Gateway message request
+	RequestMessages func(msg *pb.GetMessages) (*pb.GetMessagesResponse, error)
+
+	// Pass-through for RequestClientKey Communication
+	RequestClientKey func(message *pb.SignedClientKeyRequest) (*pb.SignedKeyResponse, error)
+
+	// Upload a message to the cMix Gateway (gateway -> gateway)
+	PutMessageProxy func(message *pb.GatewaySlot, auth *connect.Auth) (*pb.GatewaySlotResponse, error)
+	// Upload many messages to the cMix Gateway (gateway -> gateway)
+	PutManyMessagesProxy func(msgs *pb.GatewaySlots, auth *connect.Auth) (*pb.GatewaySlotResponse, error)
 }
 
 // Implementation allows users of the client library to set the
@@ -114,73 +124,84 @@ func NewImplementation() *Implementation {
 	}
 	return &Implementation{
 		Functions: implementationFunctions{
-			CheckMessages: func(userID *id.ID, messageID string, ipAddress string) ([]string, error) {
+			PutMessage: func(message *pb.GatewaySlot, ipAddr string) (*pb.GatewaySlotResponse, error) {
 				warn(um)
-				return nil, nil
+				return new(pb.GatewaySlotResponse), nil
 			},
-			GetMessage: func(userID *id.ID, msgID string, ipAddress string) (*pb.Slot, error) {
+			PutManyMessages: func(msgs *pb.GatewaySlots, ipAddr string) (*pb.GatewaySlotResponse, error) {
 				warn(um)
-				return &pb.Slot{}, nil
+				return &pb.GatewaySlotResponse{}, nil
 			},
-			PutMessage: func(message *pb.Slot, ipAddress string) error {
-				warn(um)
-				return nil
-			},
-			RequestNonce: func(message *pb.NonceRequest, ipAddress string) (*pb.Nonce, error) {
-				warn(um)
-				return new(pb.Nonce), nil
-			},
-			ConfirmNonce: func(message *pb.RequestRegistrationConfirmation, ipAddress string) (*pb.RegistrationConfirmation, error) {
-				warn(um)
-				return new(pb.RegistrationConfirmation), nil
-			},
-			PollForNotifications: func(auth *connect.Auth) ([]*id.ID, error) {
-				warn(um)
-				return nil, nil
-			},
+
 			Poll: func(msg *pb.GatewayPoll) (*pb.GatewayPollResponse, error) {
 				warn(um)
 				return &pb.GatewayPollResponse{}, nil
+			},
+			RequestHistoricalRounds: func(msg *pb.HistoricalRounds) (*pb.HistoricalRoundsResponse, error) {
+				warn(um)
+				return &pb.HistoricalRoundsResponse{}, nil
+			},
+			RequestMessages: func(msg *pb.GetMessages) (*pb.GetMessagesResponse, error) {
+				warn(um)
+				return &pb.GetMessagesResponse{}, nil
+			},
+
+			RequestClientKey: func(message *pb.SignedClientKeyRequest) (*pb.SignedKeyResponse, error) {
+				warn(um)
+				return new(pb.SignedKeyResponse), nil
+			},
+
+			// Upload a message to the cMix Gateway (gateway -> gateway)
+			PutMessageProxy: func(message *pb.GatewaySlot, auth *connect.Auth) (*pb.GatewaySlotResponse, error) {
+				warn(um)
+				return &pb.GatewaySlotResponse{}, nil
+			},
+			// Upload many messages to the cMix Gateway (gateway -> gateway)
+			PutManyMessagesProxy: func(msgs *pb.GatewaySlots, auth *connect.Auth) (*pb.GatewaySlotResponse, error) {
+				warn(um)
+				return &pb.GatewaySlotResponse{}, nil
 			},
 		},
 	}
 }
 
-// Return any MessageIDs in the buffer for this UserID
-func (s *Implementation) CheckMessages(userID *id.ID, messageID string, ipAddress string) (
-	[]string, error) {
-	return s.Functions.CheckMessages(userID, messageID, ipAddress)
-}
-
-// Returns the message matching the given parameters to the client
-func (s *Implementation) GetMessage(userID *id.ID, msgID string, ipAddress string) (
-	*pb.Slot, error) {
-	return s.Functions.GetMessage(userID, msgID, ipAddress)
+// Pass-through for RequestClientKey Communication
+func (s *Implementation) RequestClientKey(message *pb.SignedClientKeyRequest) (
+	*pb.SignedKeyResponse, error) {
+	return s.Functions.RequestClientKey(message)
 }
 
 // Upload a message to the cMix Gateway
-func (s *Implementation) PutMessage(message *pb.Slot, ipAddress string) error {
-	return s.Functions.PutMessage(message, ipAddress)
+func (s *Implementation) PutMessage(message *pb.GatewaySlot, ipAddr string) (*pb.GatewaySlotResponse, error) {
+	return s.Functions.PutMessage(message, ipAddr)
 }
 
-// Pass-through for Registration Nonce Communication
-func (s *Implementation) RequestNonce(message *pb.NonceRequest, ipAddress string) (
-	*pb.Nonce, error) {
-	return s.Functions.RequestNonce(message, ipAddress)
+// Upload many messages to the cMix Gateway
+func (s *Implementation) PutManyMessages(msgs *pb.GatewaySlots, ipAddr string) (*pb.GatewaySlotResponse, error) {
+	return s.Functions.PutManyMessages(msgs, ipAddr)
 }
 
-// Pass-through for Registration Nonce Confirmation
-func (s *Implementation) ConfirmNonce(message *pb.RequestRegistrationConfirmation,
-	ipAddress string) (*pb.RegistrationConfirmation, error) {
-	return s.Functions.ConfirmNonce(message, ipAddress)
+// Upload a message to the cMix Gateway
+func (s *Implementation) PutMessageProxy(message *pb.GatewaySlot, auth *connect.Auth) (*pb.GatewaySlotResponse, error) {
+	return s.Functions.PutMessageProxy(message, auth)
 }
 
-// Ping gateway to ask for users to notify
-func (s *Implementation) PollForNotifications(auth *connect.Auth) ([]*id.ID, error) {
-	return s.Functions.PollForNotifications(auth)
+// Upload many messages to the cMix Gateway
+func (s *Implementation) PutManyMessagesProxy(msgs *pb.GatewaySlots, auth *connect.Auth) (*pb.GatewaySlotResponse, error) {
+	return s.Functions.PutManyMessagesProxy(msgs, auth)
 }
 
 // Client -> Gateway unified polling
 func (s *Implementation) Poll(msg *pb.GatewayPoll) (*pb.GatewayPollResponse, error) {
 	return s.Functions.Poll(msg)
+}
+
+// Client -> Gateway historical round request
+func (s *Implementation) RequestHistoricalRounds(msg *pb.HistoricalRounds) (*pb.HistoricalRoundsResponse, error) {
+	return s.Functions.RequestHistoricalRounds(msg)
+}
+
+// Client -> Gateway historical round request
+func (s *Implementation) RequestMessages(msg *pb.GetMessages) (*pb.GetMessagesResponse, error) {
+	return s.Functions.RequestMessages(msg)
 }
