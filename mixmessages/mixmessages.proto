@@ -624,6 +624,24 @@ service UDB {
     // You cannot RemoveFact on a username. Callers must RemoveUser and reregsiter.
     rpc RemoveFact (FactRemovalRequest) returns (messages.Ack) {
     }
+
+    // ValidateUsername sends a UsernameValidationRequest. This is a user side
+    // initiated comm, where UD signs the username.
+    rpc ValidateUsername(UsernameValidationRequest) returns (UsernameValidation) {}
+}
+
+// UsernameValidationRequest is the message a user sends to UD to
+// for validation that they own their username
+message UsernameValidationRequest {
+    string Username = 1;
+    bytes ReceptionPublicKeyPem = 2;
+    bytes UserId = 3;
+}
+
+// UsernameValidation is the response to a UsernameValidationRequest.
+// This contains a signature from a UD server on the data within the request message.
+message UsernameValidation {
+    bytes Signature = 1;
 }
 
 // Holds information for a UDB user registration request
