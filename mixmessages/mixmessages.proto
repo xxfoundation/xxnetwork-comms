@@ -625,7 +625,8 @@ service UDB {
     rpc RemoveFact (FactRemovalRequest) returns (messages.Ack) {
     }
 
-    //
+    // ValidateUsername sends a UsernameValidationRequest. This is a user side
+    // initiated comm, where UD signs the username.
     rpc ValidateUsername(UsernameValidationRequest) returns (UsernameValidation) {}
 }
 
