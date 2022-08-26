@@ -11,7 +11,6 @@ package connect
 
 import (
 	"crypto/tls"
-	"fmt"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	"github.com/pkg/errors"
@@ -232,13 +231,11 @@ func (c *ProtoComms) ServeWithWeb() {
 			grpcweb.WithOriginFunc(func(origin string) bool { return true }))
 		// This blocks for the lifetime of the listener.
 		if TestingOnlyDisableTLS && c.privateKey == nil {
-			fmt.Println("no tls")
 			if err := http.Serve(l, httpServer); err != nil {
 				// Cannot panic here due to shared net.Listener
 				jww.ERROR.Printf("Failed to serve HTTP: %v", err)
 			}
 		} else {
-			fmt.Println("tls")
 			tlsConf := &tls.Config{}
 			tlsConf.NextProtos = append(tlsConf.NextProtos, "http/1.1")
 			tlsConf.Certificates = make([]tls.Certificate, 1)
