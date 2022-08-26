@@ -176,6 +176,9 @@ listen:
 			return nil, errors.Errorf("Could not set private key: %+v", err)
 		}
 
+		// Set the public key data
+		pc.pubKeyPem = certPEMblock
+
 		// Create the gRPC server with TLS
 		jww.INFO.Printf("Starting server with TLS...")
 		creds := credentials.NewServerTLSFromCert(&x509cert)
