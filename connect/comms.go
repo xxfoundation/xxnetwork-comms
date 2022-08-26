@@ -236,9 +236,11 @@ func (c *ProtoComms) ServeWithWeb() {
 				jww.ERROR.Printf("Failed to serve HTTP: %v", err)
 			}
 		} else {
+			// Configure tls for this listener, using the config from http.ServeTLS
 			tlsConf := &tls.Config{}
 			tlsConf.NextProtos = append(tlsConf.NextProtos, "http/1.1")
 			tlsConf.Certificates = make([]tls.Certificate, 1)
+			// Our internal certificates may not pass standard verification
 			tlsConf.InsecureSkipVerify = true
 			var err error
 			tlsConf.Certificates[0], err = tls.X509KeyPair(c.pubKeyPem, rsa.CreatePrivateKeyPem(c.privateKey))

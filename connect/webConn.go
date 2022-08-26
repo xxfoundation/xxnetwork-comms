@@ -9,9 +9,26 @@ import (
 	"time"
 )
 
+// WebConnParam struct holds parameters used
+// for establishing a grpc-web connection
+// The params are used when estabilishing the http connection
 type WebConnParam struct {
-	TlsHandshakeTimeout   time.Duration
-	IdleConnTimeout       time.Duration
+	/* HTTP Transport config options */
+	// TLSHandshakeTimeout specifies the maximum amount of time waiting to
+	// wait for a TLS handshake. Zero means no timeout.
+	TlsHandshakeTimeout time.Duration
+	// IdleConnTimeout is the maximum amount of time an idle
+	// (keep-alive) connection will remain idle before closing
+	// itself.
+	// Zero means no limit.
+	IdleConnTimeout time.Duration
+	// ExpectContinueTimeout, if non-zero, specifies the amount of
+	// time to wait for a server's first response headers after fully
+	// writing the request headers if the request has an
+	// "Expect: 100-continue" header. Zero means no timeout and
+	// causes the body to be sent immediately, without
+	// waiting for the server to approve.
+	// This time does not include the time to send the request header.
 	ExpectContinueTimeout time.Duration
 }
 
