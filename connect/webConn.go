@@ -2,11 +2,18 @@ package connect
 
 import (
 	"fmt"
-	"github.com/ktr0731/grpc-web-go-client/grpcweb"
+	"git.xx.network/elixxir/grpc-web-go-client/grpcweb"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	"google.golang.org/grpc"
+	"time"
 )
+
+type WebConnParam struct {
+	TlsHandshakeTimeout   time.Duration
+	IdleConnTimeout       time.Duration
+	ExpectContinueTimeout time.Duration
+}
 
 // webConn implements the Connection interface
 type webConn struct {
@@ -42,7 +49,7 @@ func (wc *webConn) connectWebHelper() (err error) {
 	// Configure TLS options
 	var securityDial grpcweb.DialOption
 	if wc.h.credentials != nil {
-		securityDial = grpcweb.WithTransportCredentials(wc.h.credentials)
+		securityDial = grpcweb.WithTlsCertificate(wc.h.certificate)
 	} else if TestingOnlyDisableTLS {
 		jww.WARN.Printf("Connecting to %v without TLS!", wc.h.GetAddress())
 		securityDial = grpcweb.WithInsecure()
@@ -70,8 +77,10 @@ func (wc *webConn) connectWebHelper() (err error) {
 		//ctx, cancel := newContext(time.Duration(backoffTime) * time.Millisecond)
 
 		dialOpts := []grpcweb.DialOption{
-			// grpc.WithBlock(),
-			// grpc.WithKeepaliveParams(wc.h.params.KaClientOpts),
+			grpcweb.WithIdleConnTimeout(wc.h.params.WebParams.IdleConnTimeout),
+			grpcweb.WithExpectContinueTimeout(wc.h.params.WebParams.ExpectContinueTimeout),
+			grpcweb.WithTlsHandshakeTimeout(wc.h.params.WebParams.TlsHandshakeTimeout),
+			grpcweb.WithInsecureTlsVerification(),
 			grpcweb.WithDefaultCallOptions(), // grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(math.MaxInt32)),
 			securityDial,
 		}
@@ -108,11 +117,10 @@ func (wc *webConn) connectWebHelper() (err error) {
 
 // Close handles closing the http connection.
 func (wc *webConn) Close() error {
-	// TODO this needs work on the grpc-web-go-client side
 	if wc.connection == nil {
 		return nil
 	}
-	return nil
+	return wc.connection.Close()
 
 }
 
@@ -123,7 +131,9 @@ func (wc *webConn) disconnect() {
 	// connection. In that case, we should not close a connection which does not
 	// exist
 	if wc.connection != nil {
-		// TODO webconn cannot close yet, this needs work on that side
+		if err := wc.connection.Close(); err != nil {
+			jww.FATAL.Panicf("Failed to disconnect web client: %+v", err)
+		}
 		wc.connection = nil
 	}
 
@@ -132,9 +142,8 @@ func (wc *webConn) disconnect() {
 // isAlive returns true if the webConn is non-nil and alive
 // must already be under the connectionMux
 func (wc *webConn) isAlive() bool {
-	// TODO this cannot be determined until grpcweb clients have a persistent connection
 	if wc.connection == nil {
 		return false
 	}
-	return true
+	return wc.connection.IsAlive()
 }

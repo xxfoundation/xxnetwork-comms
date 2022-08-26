@@ -11,6 +11,7 @@ package connect
 
 import (
 	"crypto/tls"
+	"fmt"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	"github.com/pkg/errors"
@@ -230,10 +231,30 @@ func (c *ProtoComms) ServeWithWeb() {
 		httpServer := grpcweb.WrapServer(grpcServer,
 			grpcweb.WithOriginFunc(func(origin string) bool { return true }))
 		// This blocks for the lifetime of the listener.
-		if err := http.Serve(l, httpServer); err != nil {
-			// Cannot panic here due to shared net.Listener
-			jww.ERROR.Printf("Failed to serve HTTP: %v", err)
+		if TestingOnlyDisableTLS && c.privateKey == nil {
+			fmt.Println("no tls")
+			if err := http.Serve(l, httpServer); err != nil {
+				// Cannot panic here due to shared net.Listener
+				jww.ERROR.Printf("Failed to serve HTTP: %v", err)
+			}
+		} else {
+			fmt.Println("tls")
+			tlsConf := &tls.Config{}
+			tlsConf.NextProtos = append(tlsConf.NextProtos, "http/1.1")
+			tlsConf.Certificates = make([]tls.Certificate, 1)
+			tlsConf.InsecureSkipVerify = true
+			var err error
+			tlsConf.Certificates[0], err = tls.X509KeyPair(c.pubKeyPem, rsa.CreatePrivateKeyPem(c.privateKey))
+			if err != nil {
+				jww.FATAL.Panicf("Failed to load tls key: %+v", err)
+			}
+			tlsLis := tls.NewListener(l, tlsConf)
+			if err := http.Serve(tlsLis, httpServer); err != nil {
+				// Cannot panic here due to shared net.Listener
+				jww.ERROR.Printf("Failed to serve HTTP: %v", err)
+			}
 		}
+
 		jww.INFO.Printf("Shutting down HTTP server listener")
 	}
 	listenGRPC := func(l net.Listener) {
