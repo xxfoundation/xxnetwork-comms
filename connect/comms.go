@@ -242,6 +242,9 @@ func (c *ProtoComms) ServeWithWeb() {
 			tlsConf.Certificates = make([]tls.Certificate, 1)
 			// Our internal certificates may not pass standard verification
 			tlsConf.InsecureSkipVerify = true
+			//tlsConf.VerifyPeerCertificate = func(rawCerts [][]byte,
+			//	verifiedChains [][]*x509.Certificate) error {
+			//}
 			var err error
 			tlsConf.Certificates[0], err = tls.X509KeyPair(c.pubKeyPem, rsa.CreatePrivateKeyPem(c.privateKey))
 			if err != nil {
