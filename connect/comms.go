@@ -241,7 +241,7 @@ func (c *ProtoComms) ServeWithWeb() {
 		} else {
 			// Configure tls for this listener, using the config from http.ServeTLS
 			tlsConf := &tls.Config{}
-			tlsConf.NextProtos = append(tlsConf.NextProtos, "http/1.1")
+			tlsConf.NextProtos = append(tlsConf.NextProtos, "h2", "http/1.1")
 			tlsConf.Certificates = make([]tls.Certificate, 1)
 			// Our internal certificates may not pass standard verification
 			tlsConf.InsecureSkipVerify = true
