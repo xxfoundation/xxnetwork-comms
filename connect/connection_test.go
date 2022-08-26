@@ -80,7 +80,7 @@ func TestWebConnection(t *testing.T) {
 }
 
 func TestWebConnection_TLS(t *testing.T) {
-	addr := "0.0.0.0:11420"
+	addr := "0.0.0.0:11421"
 
 	certBytes, err := utils.ReadFile(testkeys.GetNodeCertPath())
 	if err != nil {
