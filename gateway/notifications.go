@@ -5,7 +5,6 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/connect"
-	"google.golang.org/grpc"
 )
 
 // SendNotificationBatch sends the batch of notification data to the
@@ -13,7 +12,7 @@ import (
 func (g *Comms) SendNotificationBatch(host *connect.Host, notifBatch *pb.NotificationBatch) error {
 
 	// Create the send function
-	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+	f := func(conn connect.Connection) (*any.Any, error) {
 		// Set up the context
 		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
@@ -25,7 +24,8 @@ func (g *Comms) SendNotificationBatch(host *connect.Host, notifBatch *pb.Notific
 		}
 
 		// Send the message
-		_, err = pb.NewNotificationBotClient(conn).ReceiveNotificationBatch(ctx, authMsg)
+		_, err = pb.NewNotificationBotClient(conn.GetGrpcConn()).
+			ReceiveNotificationBatch(ctx, authMsg)
 		return nil, err
 	}
 

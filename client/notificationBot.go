@@ -17,21 +17,20 @@ import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/messages"
-	"google.golang.org/grpc"
 )
 
 // Client -> NotificationBot
 func (c *Comms) RegisterForNotifications(host *connect.Host,
 	message *pb.NotificationRegisterRequest) (*messages.Ack, error) {
 	// Create the Send Function
-	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+	f := func(conn connect.Connection) (*any.Any, error) {
 		// Set up the context
 		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 
 		// Send the message
-		resultMsg, err := pb.NewNotificationBotClient(conn).RegisterForNotifications(ctx,
-			message)
+		resultMsg, err := pb.NewNotificationBotClient(conn.GetGrpcConn()).
+			RegisterForNotifications(ctx, message)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
@@ -54,14 +53,14 @@ func (c *Comms) RegisterForNotifications(host *connect.Host,
 // Client -> NotificationBot
 func (c *Comms) UnregisterForNotifications(host *connect.Host, message *pb.NotificationUnregisterRequest) (*messages.Ack, error) {
 	// Create the Send Function
-	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+	f := func(conn connect.Connection) (*any.Any, error) {
 		// Set up the context
 		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 
 		// Send the message
-		resultMsg, err := pb.NewNotificationBotClient(conn).UnregisterForNotifications(ctx,
-			message)
+		resultMsg, err := pb.NewNotificationBotClient(conn.GetGrpcConn()).
+			UnregisterForNotifications(ctx, message)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}

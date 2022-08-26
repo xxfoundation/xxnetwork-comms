@@ -34,18 +34,22 @@ func TestSendPutMessage(t *testing.T) {
 		gateway.NewImplementation(), nil, nil, gossip.DefaultManagerFlags())
 	defer gw.Shutdown()
 	var c Comms
-	manager := connect.NewManagerTesting(t)
 
-	params := connect.GetDefaultHostParams()
-	params.AuthEnabled = false
-	host, err := manager.AddHost(testID, gatewayAddress, nil, params)
-	if err != nil {
-		t.Errorf("Unable to call NewHost: %+v", err)
-	}
+	for _, connectionType := range []connect.ConnectionType{connect.Grpc, connect.Web} {
+		manager := connect.NewManagerTesting(t)
 
-	_, err = c.SendPutMessage(host, &pb.GatewaySlot{}, 10*time.Second)
-	if err != nil {
-		t.Errorf("PutMessage: Error received: %s", err)
+		params := connect.GetDefaultHostParams()
+		params.ConnectionType = connectionType
+		params.AuthEnabled = false
+		host, err := manager.AddHost(testID, gatewayAddress, nil, params)
+		if err != nil {
+			t.Errorf("Unable to call NewHost: %+v", err)
+		}
+
+		_, err = c.SendPutMessage(host, &pb.GatewaySlot{}, 10*time.Second)
+		if err != nil {
+			t.Errorf("PutMessage: Error received: %s", err)
+		}
 	}
 }
 
@@ -57,18 +61,22 @@ func TestSendRequestNonceMessage(t *testing.T) {
 		gateway.NewImplementation(), nil, nil, gossip.DefaultManagerFlags())
 	defer gw.Shutdown()
 	var c Comms
-	manager := connect.NewManagerTesting(t)
 
-	params := connect.GetDefaultHostParams()
-	params.AuthEnabled = false
-	host, err := manager.AddHost(testID, gatewayAddress, nil, params)
-	if err != nil {
-		t.Errorf("Unable to call NewHost: %+v", err)
-	}
+	for _, connectionType := range []connect.ConnectionType{connect.Grpc, connect.Web} {
+		manager := connect.NewManagerTesting(t)
 
-	_, err = c.SendRequestClientKeyMessage(host, &pb.SignedClientKeyRequest{})
-	if err != nil {
-		t.Errorf("SendRequestClientKeyMessage: Error received: %s", err)
+		params := connect.GetDefaultHostParams()
+		params.ConnectionType = connectionType
+		params.AuthEnabled = false
+		host, err := manager.AddHost(testID, gatewayAddress, nil, params)
+		if err != nil {
+			t.Errorf("Unable to call NewHost: %+v", err)
+		}
+
+		_, err = c.SendRequestClientKeyMessage(host, &pb.SignedClientKeyRequest{})
+		if err != nil {
+			t.Errorf("SendRequestClientKeyMessage: Error received: %+v", err)
+		}
 	}
 }
 
@@ -78,26 +86,29 @@ func TestComms_SendPoll(t *testing.T) {
 	testID := id.NewIdFromString("test", id.Gateway, t)
 	gw := gateway.StartGateway(testID, gatewayAddress,
 		mockGatewayImpl{}, nil, nil, gossip.DefaultManagerFlags())
-
 	defer gw.Shutdown()
 	var c Comms
-	manager := connect.NewManagerTesting(t)
 
-	params := connect.GetDefaultHostParams()
-	params.AuthEnabled = false
-	host, err := manager.AddHost(testID, gatewayAddress, nil, params)
-	if err != nil {
-		t.Errorf("Unable to call NewHost: %+v", err)
-	}
+	for _, connectionType := range []connect.ConnectionType{connect.Grpc, connect.Web} {
+		manager := connect.NewManagerTesting(t)
 
-	_, err = c.SendPoll(host,
-		&pb.GatewayPoll{
-			Partial: &pb.NDFHash{
-				Hash: make([]byte, 0),
-			},
-		})
-	if err != nil {
-		t.Errorf("SendPoll: Error received: %+v", err)
+		params := connect.GetDefaultHostParams()
+		params.ConnectionType = connectionType
+		params.AuthEnabled = false
+		host, err := manager.AddHost(testID, gatewayAddress, nil, params)
+		if err != nil {
+			t.Errorf("Unable to call NewHost: %+v", err)
+		}
+
+		_, err = c.SendPoll(host,
+			&pb.GatewayPoll{
+				Partial: &pb.NDFHash{
+					Hash: make([]byte, 0),
+				},
+			})
+		if err != nil {
+			t.Errorf("SendPoll: Error received: %+v", err)
+		}
 	}
 }
 
@@ -110,22 +121,27 @@ func TestComms_RequestMessages(t *testing.T) {
 	gw := gateway.StartGateway(testID, gatewayAddress,
 		gateway.NewImplementation(), nil, nil, gossip.DefaultManagerFlags())
 	defer gw.Shutdown()
-	c, err := NewClientComms(testID, nil, pk, nil)
-	if err != nil {
-		t.Errorf("Could not start client: %v", err)
-	}
-	params := connect.GetDefaultHostParams()
-	params.AuthEnabled = false
 
-	host, err := c.Manager.AddHost(testID, gatewayAddress, nil, params)
-	if err != nil {
-		t.Errorf("Unable to call NewHost: %+v", err)
-	}
+	for _, connectionType := range []connect.ConnectionType{connect.Grpc, connect.Web} {
+		c, err := NewClientComms(testID, nil, pk, nil)
+		if err != nil {
+			t.Errorf("Could not start client: %v", err)
+		}
 
-	_, err = c.RequestMessages(host,
-		&pb.GetMessages{})
-	if err != nil {
-		t.Errorf("SendPoll: Error received: %+v", err)
+		params := connect.GetDefaultHostParams()
+		params.ConnectionType = connectionType
+		params.AuthEnabled = false
+
+		host, err := c.Manager.AddHost(testID, gatewayAddress, nil, params)
+		if err != nil {
+			t.Errorf("Unable to call NewHost: %+v", err)
+		}
+
+		_, err = c.RequestMessages(host,
+			&pb.GetMessages{})
+		if err != nil {
+			t.Errorf("SendPoll: Error received: %+v", err)
+		}
 	}
 }
 
@@ -138,23 +154,26 @@ func TestComms_RequestHistoricalRounds(t *testing.T) {
 	defer gw.Shutdown()
 	pk := testkeys.LoadFromPath(testkeys.GetGatewayKeyPath())
 
-	c, err := NewClientComms(testID, nil, pk, nil)
-	if err != nil {
-		t.Errorf("Could not start client: %v", err)
-	}
+	for _, connectionType := range []connect.ConnectionType{connect.Grpc, connect.Web} {
+		c, err := NewClientComms(testID, nil, pk, nil)
+		if err != nil {
+			t.Errorf("Could not start client: %v", err)
+		}
 
-	params := connect.GetDefaultHostParams()
-	params.AuthEnabled = false
+		params := connect.GetDefaultHostParams()
+		params.ConnectionType = connectionType
+		params.AuthEnabled = false
 
-	host, err := c.Manager.AddHost(testID, gatewayAddress, nil, params)
-	if err != nil {
-		t.Errorf("Unable to call NewHost: %+v", err)
-	}
+		host, err := c.Manager.AddHost(testID, gatewayAddress, nil, params)
+		if err != nil {
+			t.Errorf("Unable to call NewHost: %+v", err)
+		}
 
-	_, err = c.RequestHistoricalRounds(host,
-		&pb.HistoricalRounds{})
-	if err != nil {
-		t.Errorf("SendPoll: Error received: %+v", err)
+		_, err = c.RequestHistoricalRounds(host,
+			&pb.HistoricalRounds{})
+		if err != nil {
+			t.Errorf("SendPoll: Error received: %+v", err)
+		}
 	}
 }
 
