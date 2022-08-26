@@ -8,7 +8,6 @@ import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/messages"
-	"google.golang.org/grpc"
 )
 
 // SendGetPermissioningAddress ping server to return the address of
@@ -16,14 +15,14 @@ import (
 func (g *Comms) SendGetPermissioningAddress(host *connect.Host) (string, error) {
 
 	// Create the Send Function
-	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+	f := func(conn connect.Connection) (*any.Any, error) {
 		// Set up the context
 		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 
 		// Send the message
-		resultMsg, err := pb.NewNodeClient(conn).GetPermissioningAddress(ctx,
-			&messages.Ping{})
+		resultMsg, err := pb.NewNodeClient(conn.GetGrpcConn()).
+			GetPermissioningAddress(ctx, &messages.Ping{})
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
