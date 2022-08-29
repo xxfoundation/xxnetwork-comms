@@ -59,6 +59,7 @@ type HostParams struct {
 
 	// ConnectionType describes the method for the underlying host connection
 	ConnectionType ConnectionType
+	WebParams      WebConnParam
 }
 
 // GetDefaultHostParams Get default set of host params

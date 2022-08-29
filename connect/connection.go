@@ -1,7 +1,7 @@
 package connect
 
 import (
-	"github.com/ktr0731/grpc-web-go-client/grpcweb"
+	"git.xx.network/elixxir/grpc-web-go-client/grpcweb"
 	jww "github.com/spf13/jwalterweatherman"
 	"google.golang.org/grpc"
 )
