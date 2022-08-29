@@ -11,6 +11,7 @@ package connect
 
 import (
 	"crypto/tls"
+	"crypto/x509"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	"github.com/pkg/errors"
@@ -18,6 +19,7 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/xx_network/comms/connect/token"
 	"gitlab.com/xx_network/crypto/signature/rsa"
+	tlsCreds "gitlab.com/xx_network/crypto/tls"
 	"gitlab.com/xx_network/primitives/id"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -242,13 +244,16 @@ func (c *ProtoComms) ServeWithWeb() {
 			// Configure tls for this listener, using the config from http.ServeTLS
 			tlsConf := &tls.Config{}
 			tlsConf.NextProtos = append(tlsConf.NextProtos, "h2", "http/1.1")
-			tlsConf.Certificates = make([]tls.Certificate, 1)
-			// Our internal certificates may not pass standard verification
-			tlsConf.InsecureSkipVerify = true
-			//tlsConf.VerifyPeerCertificate = func(rawCerts [][]byte,
-			//	verifiedChains [][]*x509.Certificate) error {
-			//}
+
 			var err error
+			var cert *x509.Certificate
+			cert, err = tlsCreds.LoadCertificate(string(c.pubKeyPem))
+			if err != nil {
+				jww.FATAL.Panicf("failed to load tls certificate: %+v", err)
+			}
+			tlsConf.ServerName = cert.DNSNames[0]
+
+			tlsConf.Certificates = make([]tls.Certificate, 1)
 			tlsConf.Certificates[0], err = tls.X509KeyPair(c.pubKeyPem, rsa.CreatePrivateKeyPem(c.privateKey))
 			if err != nil {
 				jww.FATAL.Panicf("Failed to load tls key: %+v", err)

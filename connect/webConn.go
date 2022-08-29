@@ -64,12 +64,12 @@ func (wc *webConn) IsWeb() bool {
 // establish a connection past creating the http object.
 func (wc *webConn) connectWebHelper() (err error) {
 	// Configure TLS options
-	var securityDial grpcweb.DialOption
+	var securityDial []grpcweb.DialOption
 	if wc.h.credentials != nil {
-		securityDial = grpcweb.WithTlsCertificate(wc.h.certificate)
+		securityDial = []grpcweb.DialOption{grpcweb.WithTlsCertificate(wc.h.certificate)}
 	} else if TestingOnlyDisableTLS {
 		jww.WARN.Printf("Connecting to %v without TLS!", wc.h.GetAddress())
-		securityDial = grpcweb.WithInsecure()
+		securityDial = []grpcweb.DialOption{grpcweb.WithInsecure()}
 	} else {
 		jww.FATAL.Panicf(tlsError)
 	}
@@ -97,10 +97,9 @@ func (wc *webConn) connectWebHelper() (err error) {
 			grpcweb.WithIdleConnTimeout(wc.h.params.WebParams.IdleConnTimeout),
 			grpcweb.WithExpectContinueTimeout(wc.h.params.WebParams.ExpectContinueTimeout),
 			grpcweb.WithTlsHandshakeTimeout(wc.h.params.WebParams.TlsHandshakeTimeout),
-			grpcweb.WithInsecureTlsVerification(),
 			grpcweb.WithDefaultCallOptions(), // grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(math.MaxInt32)),
-			securityDial,
 		}
+		dialOpts = append(dialOpts, securityDial...)
 
 		//windowSize := atomic.LoadInt32(wc.h.windowSize)
 		//if windowSize != 0 {
