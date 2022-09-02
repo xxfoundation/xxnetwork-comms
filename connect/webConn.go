@@ -1,11 +1,15 @@
 package connect
 
 import (
+	"crypto/tls"
 	"fmt"
 	"git.xx.network/elixxir/grpc-web-go-client/grpcweb"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	"google.golang.org/grpc"
+	"net/http"
+	"net/http/httptrace"
+	"strings"
 	"time"
 )
 
@@ -162,4 +166,57 @@ func (wc *webConn) isAlive() bool {
 		return false
 	}
 	return wc.connection.IsAlive()
+}
+
+func (wc *webConn) IsOnline() (time.Duration, bool) {
+	addr := wc.h.GetAddress()
+	start := time.Now()
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}
+	client := http.Client{
+		Transport: tr,
+		Timeout:   wc.h.params.PingTimeout,
+	}
+	req, err := http.NewRequest("GET", addr, nil)
+	if err != nil {
+		fmt.Print("Failed to initiate request ", err)
+	}
+
+	trace := &httptrace.ClientTrace{
+		DNSDone: func(dnsInfo httptrace.DNSDoneInfo) {
+			fmt.Println("DNS Info: %+v\n", dnsInfo)
+		},
+		GotConn: func(connInfo httptrace.GotConnInfo) {
+			fmt.Println("Got Conn: %+v\n", connInfo)
+		},
+		GotFirstResponseByte: func() {
+			fmt.Println("Got first byte!")
+		},
+	}
+
+	// IMPORTANT - enables better HTTP(S) discovery, because many browsers block CORS by default.
+	req.Header.Add("js.fetch:mode", "no-cors")
+	fmt.Println("(GO request): ", fmt.Sprintf("%+v", req))
+
+	req = req.WithContext(httptrace.WithClientTrace(req.Context(), trace))
+	if _, err := client.Do(req); err != nil {
+		fmt.Println(err)
+		fmt.Println("(GO error): ", err.Error())
+
+		// TODO: Get more exception strings for major browsers
+		errString := strings.ToLower(err.Error())
+		if strings.Contains(errString, "exceeded while awaiting") ||
+			strings.Contains(errString, "ssl") ||
+			strings.Contains(errString, "cors") ||
+			strings.Contains(errString, "invalid") ||
+			strings.Contains(errString, "protocol") {
+			return time.Since(start), true
+		} else {
+			return time.Since(start), false
+		}
+	}
+	return time.Since(start), true
 }
