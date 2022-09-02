@@ -10,7 +10,7 @@ require (
 	github.com/soheilhy/cmux v0.1.5
 	github.com/spf13/jwalterweatherman v1.1.0
 	gitlab.com/xx_network/crypto v0.0.5-0.20220729193517-1e5e96f39f6e
-	gitlab.com/xx_network/primitives v0.0.4-0.20220712193914-aebd8544396e
+	gitlab.com/xx_network/primitives v0.0.4-0.20220809193445-9fc0a5209548
 	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad
 	golang.org/x/net v0.0.0-20220822230855-b0a4917ee28c
 	google.golang.org/grpc v1.49.0
