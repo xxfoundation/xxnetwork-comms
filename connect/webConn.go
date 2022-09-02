@@ -168,6 +168,7 @@ func (wc *webConn) isAlive() bool {
 	return wc.connection.IsAlive()
 }
 
+// IsOnline sends an empty http get request to verify the status of the server
 func (wc *webConn) IsOnline() (time.Duration, bool) {
 	addr := wc.h.GetAddress()
 	start := time.Now()
@@ -180,20 +181,22 @@ func (wc *webConn) IsOnline() (time.Duration, bool) {
 		Transport: tr,
 		Timeout:   wc.h.params.PingTimeout,
 	}
-	req, err := http.NewRequest("GET", addr, nil)
+	target := fmt.Sprintf("http://%s", addr)
+	req, err := http.NewRequest("GET", target, nil)
 	if err != nil {
-		fmt.Print("Failed to initiate request ", err)
+		jww.DEBUG.Print("Failed to initiate request ", err)
+		return time.Since(start), false
 	}
 
 	trace := &httptrace.ClientTrace{
 		DNSDone: func(dnsInfo httptrace.DNSDoneInfo) {
-			fmt.Println("DNS Info: %+v\n", dnsInfo)
+			jww.DEBUG.Println("DNS Info: %+v\n", dnsInfo)
 		},
 		GotConn: func(connInfo httptrace.GotConnInfo) {
-			fmt.Println("Got Conn: %+v\n", connInfo)
+			jww.DEBUG.Println("Got Conn: %+v\n", connInfo)
 		},
 		GotFirstResponseByte: func() {
-			fmt.Println("Got first byte!")
+			jww.DEBUG.Println("Got first byte!")
 		},
 	}
 
@@ -213,10 +216,13 @@ func (wc *webConn) IsOnline() (time.Duration, bool) {
 			strings.Contains(errString, "cors") ||
 			strings.Contains(errString, "invalid") ||
 			strings.Contains(errString, "protocol") {
-			return time.Since(start), true
+			jww.DEBUG.Printf("Web connectivity verified for address %s with error %+v", addr, err)
 		} else {
+			jww.DEBUG.Printf("Failed to verify connectivity for address %s: %+v",
+				addr, err)
 			return time.Since(start), false
 		}
 	}
+	client.CloseIdleConnections()
 	return time.Since(start), true
 }
