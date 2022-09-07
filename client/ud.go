@@ -187,7 +187,7 @@ func (c *Comms) SendRemoveUser(host *connect.Host, message *pb.FactRemovalReques
 }
 
 // Client -> User Discovery channel authentication & lease request
-func (c *Comms) SendChannelAuthRequest(host *connect.Host, message *pb.ChannelLeaseRequest) (*pb.ChannelLeaseResponse, error) {
+func (c *Comms) SendChannelLeaseRequest(host *connect.Host, message *pb.ChannelLeaseRequest) (*pb.ChannelLeaseResponse, error) {
 	// Create the Send Function
 	f := func(conn connect.Connection) (*any.Any, error) {
 		// Set up the context
@@ -211,7 +211,7 @@ func (c *Comms) SendChannelAuthRequest(host *connect.Host, message *pb.ChannelLe
 		return ptypes.MarshalAny(resultMsg)
 	}
 
-	jww.TRACE.Printf("Sending Channel Auth Request message: %+v", message)
+	jww.TRACE.Printf("Sending Channel Lease Request message: %+v", message)
 	resultMsg, err := c.Send(host, f)
 	if err != nil {
 		return nil, err
