@@ -9,6 +9,7 @@ import (
 	"google.golang.org/grpc"
 	"net/http"
 	"net/http/httptrace"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -181,47 +182,51 @@ func (wc *webConn) IsOnline() (time.Duration, bool) {
 		Transport: tr,
 		Timeout:   wc.h.params.PingTimeout,
 	}
-	target := fmt.Sprintf("http://%s", addr)
+	target := "http://" + addr
 	req, err := http.NewRequest("GET", target, nil)
 	if err != nil {
-		jww.DEBUG.Print("Failed to initiate request ", err)
+		jww.WARN.Printf("Failed to initiate request: %+v", err)
 		return time.Since(start), false
 	}
 
 	trace := &httptrace.ClientTrace{
 		DNSDone: func(dnsInfo httptrace.DNSDoneInfo) {
-			jww.DEBUG.Println("DNS Info: %+v\n", dnsInfo)
+			jww.DEBUG.Printf("DNS Info: %+v\n", dnsInfo)
 		},
 		GotConn: func(connInfo httptrace.GotConnInfo) {
-			jww.DEBUG.Println("Got Conn: %+v\n", connInfo)
+			jww.DEBUG.Printf("Got Conn: %+v\n", connInfo)
 		},
 		GotFirstResponseByte: func() {
-			jww.DEBUG.Println("Got first byte!")
+			jww.DEBUG.Print("Got first byte!")
 		},
 	}
 
 	// IMPORTANT - enables better HTTP(S) discovery, because many browsers block CORS by default.
 	req.Header.Add("js.fetch:mode", "no-cors")
-	jww.TRACE.Println("(GO request): ", fmt.Sprintf("%+v", req))
+	jww.TRACE.Printf("(GO request): %+v", req)
 
 	req = req.WithContext(httptrace.WithClientTrace(req.Context(), trace))
-	if _, err := client.Do(req); err != nil {
-		jww.TRACE.Println("(GO error): ", err.Error())
-
-		// TODO: Get more exception strings for major browsers
-		errString := strings.ToLower(err.Error())
-		if strings.Contains(errString, "exceeded while awaiting") ||
-			strings.Contains(errString, "ssl") ||
-			strings.Contains(errString, "cors") ||
-			strings.Contains(errString, "invalid") ||
-			strings.Contains(errString, "protocol") {
-			jww.DEBUG.Printf("Web connectivity verified for address %s with error %+v", addr, err)
-		} else {
-			jww.DEBUG.Printf("Failed to verify connectivity for address %s: %+v",
+	if _, err = client.Do(req); err != nil {
+		jww.TRACE.Printf("(GO error): %s", err.Error())
+		if checkErrorExceptions(err) {
+			jww.DEBUG.Printf(
+				"Web connectivity verified for address %s with error %+v",
 				addr, err)
+		} else {
+			jww.WARN.Printf(
+				"Failed to verify connectivity for address %s: %+v", addr, err)
 			return time.Since(start), false
 		}
 	}
 	client.CloseIdleConnections()
 	return time.Since(start), true
+}
+
+// checkErrorExceptions checks if the error matches any of the exceptions.
+func checkErrorExceptions(err error) bool {
+	// TODO: Get more exception strings for major browsers
+	var re = regexp.MustCompile(
+		"exceeded while awaiting|ssl|cors|invalid|protocol")
+
+	return re.MatchString(strings.ToLower(err.Error()))
 }

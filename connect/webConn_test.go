@@ -1,6 +1,7 @@
 package connect
 
 import (
+	"github.com/pkg/errors"
 	"gitlab.com/xx_network/crypto/csprng"
 	"gitlab.com/xx_network/primitives/id"
 	"testing"
@@ -119,5 +120,25 @@ func TestWebConn_IsWeb(t *testing.T) {
 	wc := webConn{}
 	if !wc.IsWeb() {
 		t.Fatal("WebConn is not web")
+	}
+}
+
+func Test_checkErrorExceptions(t *testing.T) {
+	tests := map[error]bool{
+		errors.New("(Client.Timeout exceeded while awaiting headers)"): true,
+		errors.New("SSL"):                      true,
+		errors.New("CORS"):                     true,
+		errors.New("This is an invalid error"): true,
+		errors.New("Protocol"):                 true,
+		errors.New("error"):                    false,
+		errors.New("https"):                    false,
+	}
+
+	for err, b := range tests {
+		result := checkErrorExceptions(err)
+		if result != b {
+			t.Errorf("checkErrorExceptions did not return expected bool for %s"+
+				"\nexpected: %t\nreceived: %t", err.Error(), b, result)
+		}
 	}
 }
