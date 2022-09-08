@@ -4,6 +4,7 @@ import (
 	"git.xx.network/elixxir/grpc-web-go-client/grpcweb"
 	jww "github.com/spf13/jwalterweatherman"
 	"google.golang.org/grpc"
+	"time"
 )
 
 const (
@@ -49,6 +50,7 @@ type Connection interface {
 	// Close closes the underlying connection
 	Close() error
 
+	IsOnline() (time.Duration, bool)
 	clientConnHelpers
 }
 

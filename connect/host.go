@@ -22,7 +22,6 @@ import (
 	"gitlab.com/xx_network/primitives/rateLimiting"
 	"google.golang.org/grpc/credentials"
 	"math"
-	"net"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -251,22 +250,7 @@ func (h *Host) conditionalDisconnect(count uint64) {
 // before the timeout by attempting to dial a tcp connection
 // Returns how long the ping took, and whether it was successful
 func (h *Host) IsOnline() (time.Duration, bool) {
-	addr := h.GetAddress()
-	start := time.Now()
-	conn, err := net.DialTimeout("tcp", addr, h.params.PingTimeout)
-	if err != nil {
-		// If we cannot connect, mark the connection as failed
-		jww.DEBUG.Printf("Failed to verify connectivity for address %s", addr)
-		return 0, false
-	}
-	// Attempt to close the connection
-	if conn != nil {
-		errClose := conn.Close()
-		if errClose != nil {
-			jww.DEBUG.Printf("Failed to close connection for address %s", addr)
-		}
-	}
-	return time.Since(start), true
+	return h.connection.IsOnline()
 }
 
 // send checks that the host has a connection and sends if it does.

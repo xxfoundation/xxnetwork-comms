@@ -1,11 +1,16 @@
 package connect
 
 import (
+	"crypto/tls"
 	"fmt"
 	"git.xx.network/elixxir/grpc-web-go-client/grpcweb"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	"google.golang.org/grpc"
+	"net/http"
+	"net/http/httptrace"
+	"regexp"
+	"strings"
 	"time"
 )
 
@@ -162,4 +167,66 @@ func (wc *webConn) isAlive() bool {
 		return false
 	}
 	return wc.connection.IsAlive()
+}
+
+// IsOnline sends an empty http get request to verify the status of the server
+func (wc *webConn) IsOnline() (time.Duration, bool) {
+	addr := wc.h.GetAddress()
+	start := time.Now()
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}
+	client := http.Client{
+		Transport: tr,
+		Timeout:   wc.h.params.PingTimeout,
+	}
+	target := "http://" + addr
+	req, err := http.NewRequest("GET", target, nil)
+	if err != nil {
+		jww.WARN.Printf("Failed to initiate request: %+v", err)
+		return time.Since(start), false
+	}
+
+	trace := &httptrace.ClientTrace{
+		DNSDone: func(dnsInfo httptrace.DNSDoneInfo) {
+			jww.DEBUG.Printf("DNS Info: %+v\n", dnsInfo)
+		},
+		GotConn: func(connInfo httptrace.GotConnInfo) {
+			jww.DEBUG.Printf("Got Conn: %+v\n", connInfo)
+		},
+		GotFirstResponseByte: func() {
+			jww.DEBUG.Print("Got first byte!")
+		},
+	}
+
+	// IMPORTANT - enables better HTTP(S) discovery, because many browsers block CORS by default.
+	req.Header.Add("js.fetch:mode", "no-cors")
+	jww.TRACE.Printf("(GO request): %+v", req)
+
+	req = req.WithContext(httptrace.WithClientTrace(req.Context(), trace))
+	if _, err = client.Do(req); err != nil {
+		jww.TRACE.Printf("(GO error): %s", err.Error())
+		if checkErrorExceptions(err) {
+			jww.DEBUG.Printf(
+				"Web connectivity verified for address %s with error %+v",
+				addr, err)
+		} else {
+			jww.WARN.Printf(
+				"Failed to verify connectivity for address %s: %+v", addr, err)
+			return time.Since(start), false
+		}
+	}
+	client.CloseIdleConnections()
+	return time.Since(start), true
+}
+
+// checkErrorExceptions checks if the error matches any of the exceptions.
+func checkErrorExceptions(err error) bool {
+	// TODO: Get more exception strings for major browsers
+	var re = regexp.MustCompile(
+		"exceeded while awaiting|ssl|cors|invalid|protocol")
+
+	return re.MatchString(strings.ToLower(err.Error()))
 }
