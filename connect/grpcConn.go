@@ -156,14 +156,16 @@ func (gc *grpcConn) IsOnline() (time.Duration, bool) {
 	conn, err := net.DialTimeout("tcp", addr, gc.h.params.PingTimeout)
 	if err != nil {
 		// If we cannot connect, mark the connection as failed
-		jww.DEBUG.Printf("Failed to verify connectivity for address %s", addr)
+		jww.DEBUG.Printf(
+			"Failed to verify connectivity for address %s: %+v", addr, err)
 		return 0, false
 	}
 	// Attempt to close the connection
 	if conn != nil {
 		errClose := conn.Close()
 		if errClose != nil {
-			jww.DEBUG.Printf("Failed to close connection for address %s", addr)
+			jww.DEBUG.Printf(
+				"Failed to close connection for address %s: %+v", addr, errClose)
 		}
 	}
 	return time.Since(start), true

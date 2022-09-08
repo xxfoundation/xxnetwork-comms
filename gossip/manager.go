@@ -209,7 +209,7 @@ func launchSendWorkers(numWorkers uint32, receiver chan sendInstructions) {
 					case instructions.errChannel <- errors.WithMessagef(err,
 						"Failed to send to ID %s", instructions.peer):
 					default:
-						jww.WARN.Println("Could not transmit gossip error")
+						jww.WARN.Print("Could not transmit gossip error")
 					}
 				}
 				// signal the wait group
