@@ -27,17 +27,25 @@ func (c *Comms) SendPutMessage(host *connect.Host, message *pb.GatewaySlot,
 	timeout time.Duration) (*pb.GatewaySlotResponse, error) {
 
 	// Create the Send Function
-	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+	f := func(conn connect.Connection) (*any.Any, error) {
 		// Set up the context
 		ctx, cancel := host.GetMessagingContextWithTimeout(timeout)
 		defer cancel()
 
 		// Send the message
-		resultMsg, err := pb.NewGatewayClient(conn).PutMessage(ctx, message)
-		if err != nil {
-			err = errors.New(err.Error())
-			return nil, errors.New(err.Error())
+		var resultMsg = &pb.GatewaySlotResponse{}
+		var err error
+		if conn.IsWeb() {
+			wc := conn.GetWebConn()
+			err = wc.Invoke(
+				ctx, "/mixmessages.Gateway/PutMessage", message, resultMsg)
+		} else {
+			resultMsg, err = pb.NewGatewayClient(conn.GetGrpcConn()).
+				PutMessage(ctx, message)
+		}
 
+		if err != nil {
+			return nil, err
 		}
 		return ptypes.MarshalAny(resultMsg)
 	}
@@ -59,17 +67,24 @@ func (c *Comms) SendPutManyMessages(host *connect.Host,
 	messages *pb.GatewaySlots, timeout time.Duration) (
 	*pb.GatewaySlotResponse, error) {
 	// Create the Send Function
-	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+	f := func(conn connect.Connection) (*any.Any, error) {
 		// Set up the context
 		ctx, cancel := host.GetMessagingContextWithTimeout(timeout)
 		defer cancel()
 
 		// Send the message
-		resultMsg, err := pb.NewGatewayClient(conn).PutManyMessages(ctx, messages)
+		var resultMsg = &pb.GatewaySlotResponse{}
+		var err error
+		if conn.IsWeb() {
+			wc := conn.GetWebConn()
+			err = wc.Invoke(ctx, "/mixmessages.Gateway/PutManyMessages",
+				messages, resultMsg)
+		} else {
+			resultMsg, err = pb.NewGatewayClient(conn.GetGrpcConn()).
+				PutManyMessages(ctx, messages)
+		}
 		if err != nil {
-			err = errors.New(err.Error())
-			return nil, errors.New(err.Error())
-
+			return nil, err
 		}
 		return ptypes.MarshalAny(resultMsg)
 	}
@@ -91,17 +106,26 @@ func (c *Comms) SendRequestClientKeyMessage(host *connect.Host,
 	message *pb.SignedClientKeyRequest) (*pb.SignedKeyResponse, error) {
 
 	// Create the Send Function
-	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+	f := func(conn connect.Connection) (*any.Any, error) {
 		// Set up the context
 		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 
 		// Send the message
-		resultMsg, err := pb.NewGatewayClient(conn).RequestClientKey(ctx, message)
+		var resultMsg = &pb.SignedKeyResponse{}
+		var err error
+		if conn.IsWeb() {
+			wc := conn.GetWebConn()
+			err = wc.Invoke(ctx, "/mixmessages.Gateway/RequestClientKey",
+				message, resultMsg)
+		} else {
+			resultMsg, err = pb.NewGatewayClient(conn.GetGrpcConn()).
+				RequestClientKey(ctx, message)
+		}
 
 		// Make sure there are no errors with sending the message
 		if err != nil {
-			return nil, errors.New(err.Error())
+			return nil, err
 		}
 		return ptypes.MarshalAny(resultMsg)
 	}
@@ -127,13 +151,29 @@ func (c *Comms) SendPoll(host *connect.Host,
 	defer cancel()
 
 	// Create the Stream Function
-	f := func(conn *grpc.ClientConn) (interface{}, error) {
+	f := func(conn connect.Connection) (interface{}, error) {
 		// Send the message
-		clientStream, err := pb.NewGatewayClient(conn).Poll(ctx, message)
-		if err != nil {
-			return nil, errors.New(err.Error())
+		if conn.IsWeb() {
+			wc := conn.GetWebConn()
+			clientStream, err := wc.NewServerStream(
+				&grpc.StreamDesc{ServerStreams: true},
+				"/mixmessages.Gateway/Poll")
+			if err != nil {
+				return nil, err
+			}
+			err = clientStream.Send(ctx, message)
+			if err != nil {
+				return nil, err
+			}
+			return newServerStream(ctx, clientStream), nil
+		} else {
+			clientStream, err := pb.NewGatewayClient(conn.GetGrpcConn()).
+				Poll(ctx, message)
+			if err != nil {
+				return nil, err
+			}
+			return clientStream, nil
 		}
-		return clientStream, nil
 	}
 
 	// Execute the Send function
@@ -155,8 +195,7 @@ func (c *Comms) SendPoll(host *connect.Host,
 	if err != nil {
 		closeErr = stream.RecvMsg(nil)
 		return nil, wrapError(closeErr, "Could not "+
-			"receive streaming header from %s: %s", host.GetId(),
-			err.Error())
+			"receive streaming header from %s: %s", host.GetId(), err)
 	}
 
 	// Check if metadata has the expected header
@@ -203,15 +242,24 @@ func (c *Comms) SendPoll(host *connect.Host,
 func (c *Comms) RequestHistoricalRounds(host *connect.Host,
 	message *pb.HistoricalRounds) (*pb.HistoricalRoundsResponse, error) {
 	// Create the Send Function
-	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+	f := func(conn connect.Connection) (*any.Any, error) {
 		// Set up the context
 		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 
 		// Send the message
-		resultMsg, err := pb.NewGatewayClient(conn).RequestHistoricalRounds(ctx, message)
+		var resultMsg = &pb.HistoricalRoundsResponse{}
+		var err error
+		if conn.IsWeb() {
+			wc := conn.GetWebConn()
+			err = wc.Invoke(ctx, "/mixmessages.Gateway/RequestHistoricalRounds",
+				message, resultMsg)
+		} else {
+			resultMsg, err = pb.NewGatewayClient(conn.GetGrpcConn()).
+				RequestHistoricalRounds(ctx, message)
+		}
 		if err != nil {
-			return nil, errors.New(err.Error())
+			return nil, err
 		}
 		return ptypes.MarshalAny(resultMsg)
 	}
@@ -232,15 +280,24 @@ func (c *Comms) RequestHistoricalRounds(host *connect.Host,
 func (c *Comms) RequestMessages(host *connect.Host,
 	message *pb.GetMessages) (*pb.GetMessagesResponse, error) {
 	// Create the Send Function
-	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+	f := func(conn connect.Connection) (*any.Any, error) {
 		// Set up the context
 		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 
+		var resultMsg = &pb.GetMessagesResponse{}
+		var err error
 		// Send the message
-		resultMsg, err := pb.NewGatewayClient(conn).RequestMessages(ctx, message)
+		if conn.IsWeb() {
+			wc := conn.GetWebConn()
+			err = wc.Invoke(
+				ctx, "/mixmessages.Gateway/RequestMessages", message, resultMsg)
+		} else {
+			resultMsg, err = pb.NewGatewayClient(conn.GetGrpcConn()).
+				RequestMessages(ctx, message)
+		}
 		if err != nil {
-			return nil, errors.New(err.Error())
+			return nil, err
 		}
 		return ptypes.MarshalAny(resultMsg)
 	}

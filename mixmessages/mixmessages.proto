@@ -344,6 +344,12 @@ message GatewayPoll {
     // If false, all updates from the network
     bool FastPolling = 7;
     uint64 LastRound = 8;
+
+    // When set to true, the gateway will not get new NDFs and network round
+    // updates. This variable is added as the last field to be backward
+    // compatible. If it is not included, then the field defaults to false and
+    // will return all updates.
+    bool DisableUpdates = 9;
 }
 
 // Unified Client->Gateway polling response
