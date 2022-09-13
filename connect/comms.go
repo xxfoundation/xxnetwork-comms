@@ -11,7 +11,6 @@ package connect
 
 import (
 	"crypto/tls"
-	"crypto/x509"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	"github.com/pkg/errors"
@@ -19,7 +18,6 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/xx_network/comms/connect/token"
 	"gitlab.com/xx_network/crypto/signature/rsa"
-	tlsCreds "gitlab.com/xx_network/crypto/tls"
 	"gitlab.com/xx_network/primitives/id"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -225,9 +223,12 @@ func (c *ProtoComms) ServeWithWeb() {
 
 	// Split netListener into two distinct listeners for GRPC and HTTP
 	mux := cmux.New(c.netListener)
-	grpcL := mux.MatchWithWriters(cmux.HTTP2MatchHeaderFieldSendSettings(
-		"content-type", "application/grpc"))
-	httpL := mux.Match(cmux.Any())
+	grpcMatcher := cmux.TLS()
+	if TestingOnlyDisableTLS {
+		grpcMatcher = cmux.HTTP2()
+	}
+	grpcL := mux.Match(grpcMatcher)
+	httpL := mux.Match(cmux.HTTP1())
 
 	listenHTTP := func(l net.Listener) {
 		jww.INFO.Printf("Starting HTTP listener on GRPC endpoints: %+v",
@@ -235,35 +236,46 @@ func (c *ProtoComms) ServeWithWeb() {
 		httpServer := grpcweb.WrapServer(grpcServer,
 			grpcweb.WithOriginFunc(func(origin string) bool { return true }))
 		// This blocks for the lifetime of the listener.
-		if TestingOnlyDisableTLS && c.privateKey == nil {
-			if err := http.Serve(l, httpServer); err != nil {
-				// Cannot panic here due to shared net.Listener
-				jww.ERROR.Printf("Failed to serve HTTP: %v", err)
-			}
-		} else {
-			// Configure tls for this listener, using the config from http.ServeTLS
-			tlsConf := &tls.Config{}
-			tlsConf.NextProtos = append(tlsConf.NextProtos, "h2", "http/1.1")
-
-			var err error
-			var cert *x509.Certificate
-			cert, err = tlsCreds.LoadCertificate(string(c.pubKeyPem))
-			if err != nil {
-				jww.FATAL.Panicf("failed to load tls certificate: %+v", err)
-			}
-			tlsConf.ServerName = cert.DNSNames[0]
-
-			tlsConf.Certificates = make([]tls.Certificate, 1)
-			tlsConf.Certificates[0], err = tls.X509KeyPair(c.pubKeyPem, rsa.CreatePrivateKeyPem(c.privateKey))
-			if err != nil {
-				jww.FATAL.Panicf("Failed to load tls key: %+v", err)
-			}
-			tlsLis := tls.NewListener(l, tlsConf)
-			if err := http.Serve(tlsLis, httpServer); err != nil {
-				// Cannot panic here due to shared net.Listener
-				jww.ERROR.Printf("Failed to serve HTTP: %v", err)
-			}
+		jww.CRITICAL.Printf("Starting HTTP server to without TLS!")
+		if err := http.Serve(l, httpServer); err != nil {
+			// Cannot panic here due to shared net.Listener
+			jww.ERROR.Printf("Failed to serve HTTP: %+v", err)
 		}
+
+		// FIXME: Currently only HTTP is used. This must be fixed to use HTTPS
+		//  before production use.
+		// if TestingOnlyDisableTLS && c.privateKey == nil {
+		//  jww.WARN.Printf("Starting HTTP server to without TLS!")
+		// 	if err := http.Serve(l, httpServer); err != nil {
+		// 		// Cannot panic here due to shared net.Listener
+		// 		jww.ERROR.Printf("Failed to serve HTTP: %+v", err)
+		// 	}
+		// } else {
+		// 	// Configure TLS for this listener, using the config from
+		// 	// http.ServeTLS
+		// 	tlsConf := &tls.Config{}
+		// 	tlsConf.NextProtos = append(tlsConf.NextProtos, "h2", "http/1.1")
+		//
+		// 	var err error
+		// 	var cert *x509.Certificate
+		// 	cert, err = tlsCreds.LoadCertificate(string(c.pubKeyPem))
+		// 	if err != nil {
+		// 		jww.FATAL.Panicf("Failed to load TLS certificate: %+v", err)
+		// 	}
+		// 	tlsConf.ServerName = cert.DNSNames[0]
+		//
+		// 	tlsConf.Certificates = make([]tls.Certificate, 1)
+		// 	tlsConf.Certificates[0], err = tls.X509KeyPair(
+		// 		c.pubKeyPem, rsa.CreatePrivateKeyPem(c.privateKey))
+		// 	if err != nil {
+		// 		jww.FATAL.Panicf("Failed to load TLS key: %+v", err)
+		// 	}
+		// 	tlsLis := tls.NewListener(l, tlsConf)
+		// 	if err := http.Serve(tlsLis, httpServer); err != nil {
+		// 		// Cannot panic here due to shared net.Listener
+		// 		jww.ERROR.Printf("Failed to serve HTTP: %+v", err)
+		// 	}
+		// }
 
 		jww.INFO.Printf("Shutting down HTTP server listener")
 	}
@@ -282,8 +294,8 @@ func (c *ProtoComms) ServeWithWeb() {
 		}
 		jww.INFO.Printf("Shutting down port server listener")
 	}
-	go listenGRPC(grpcL)
 	go listenHTTP(httpL)
+	go listenGRPC(grpcL)
 	go listenPort()
 }
 

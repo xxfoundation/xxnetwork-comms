@@ -2,7 +2,6 @@ package connect
 
 import (
 	"crypto/tls"
-	"fmt"
 	"git.xx.network/elixxir/grpc-web-go-client/grpcweb"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
@@ -68,26 +67,32 @@ func (wc *webConn) IsWeb() bool {
 // Note that until the downstream repo is fixed, this doesn't actually
 // establish a connection past creating the http object.
 func (wc *webConn) connectWebHelper() (err error) {
-	// Configure TLS options
-	var securityDial []grpcweb.DialOption
-	if wc.h.credentials != nil {
-		securityDial = []grpcweb.DialOption{grpcweb.WithTlsCertificate(wc.h.certificate)}
-	} else if TestingOnlyDisableTLS {
-		jww.WARN.Printf("Connecting to %v without TLS!", wc.h.GetAddress())
-		securityDial = []grpcweb.DialOption{grpcweb.WithInsecure()}
-	} else {
-		jww.FATAL.Panicf(tlsError)
-	}
 
-	jww.DEBUG.Printf("Attempting to establish connection to %s using"+
-		" credentials: %+v", wc.h.GetAddress(), securityDial)
+	// FIXME: Currently only HTTP is used. This must be fixed to use HTTPS
+	//  before production use.
+	// Configure TLS options
+	jww.WARN.Printf("grpcWeb connecting to %s without TLS! This is insecure "+
+		"and should only be used for testing.", wc.h.GetAddress())
+	securityDial := []grpcweb.DialOption{grpcweb.WithInsecure()}
+	// var securityDial []grpcweb.DialOption
+	// if wc.h.credentials != nil {
+	// 	securityDial = []grpcweb.DialOption{grpcweb.WithTlsCertificate(wc.h.certificate)}
+	// } else if TestingOnlyDisableTLS {
+	// 	jww.WARN.Printf("Connecting to %s without TLS!", wc.h.GetAddress())
+	// 	securityDial = []grpcweb.DialOption{grpcweb.WithInsecure()}
+	// } else {
+	// 	jww.FATAL.Panicf(tlsError)
+	// }
+
+	jww.DEBUG.Printf("Attempting to establish connection to %s using "+
+		"credentials: %v", wc.h.GetAddress(), securityDial)
 
 	// Attempt to establish a new connection
 	var numRetries uint32
 	for numRetries = 0; numRetries < wc.h.params.MaxRetries && !wc.isAlive(); numRetries++ {
 		wc.h.disconnect()
 
-		jww.DEBUG.Printf("Connecting to %+v Attempt number %+v of %+v",
+		jww.DEBUG.Printf("Connecting to %s Attempt number %d of %d",
 			wc.h.GetAddress(), numRetries, wc.h.params.MaxRetries)
 
 		// If timeout is enabled, the max wait time becomes
@@ -96,7 +101,7 @@ func (wc *webConn) connectWebHelper() (err error) {
 		if backoffTime > 15000 {
 			backoffTime = 15000
 		}
-		//ctx, cancel := newContext(time.Duration(backoffTime) * time.Millisecond)
+		// ctx, cancel := newContext(time.Duration(backoffTime) * time.Millisecond)
 
 		dialOpts := []grpcweb.DialOption{
 			grpcweb.WithIdleConnTimeout(wc.h.params.WebParams.IdleConnTimeout),
@@ -106,33 +111,31 @@ func (wc *webConn) connectWebHelper() (err error) {
 		}
 		dialOpts = append(dialOpts, securityDial...)
 
-		//windowSize := atomic.LoadInt32(wc.h.windowSize)
-		//if windowSize != 0 {
+		// windowSize := atomic.LoadInt32(wc.h.windowSize)
+		// if windowSize != 0 {
 		//	dialOpts = append(dialOpts, grpc.WithInitialWindowSize(windowSize))
 		//	dialOpts = append(dialOpts, grpc.WithInitialConnWindowSize(windowSize))
-		//}
+		// }
 
 		// Create the connection
-		wc.connection, err = grpcweb.DialContext(wc.h.GetAddress(),
-			dialOpts...)
+		wc.connection, err = grpcweb.DialContext(wc.h.GetAddress(), dialOpts...)
 
 		if err != nil {
-			jww.DEBUG.Printf("Attempt number %+v to connect to %s failed\n",
+			jww.DEBUG.Printf("Attempt number %d to connect to %s failed",
 				numRetries, wc.h.GetAddress())
 		}
-		//cancel()
+		// cancel()
 	}
 
 	// Verify that the connection was established successfully
 	if !wc.isAlive() {
 		wc.h.disconnect()
-		return errors.New(fmt.Sprintf(
-			"Last try to connect to %s failed. Giving up",
-			wc.h.GetAddress()))
+		return errors.Errorf(
+			"Last try to connect to %s failed. Giving up", wc.h.GetAddress())
 	}
 
 	// Add the successful connection to the Manager
-	jww.INFO.Printf("Successfully connected to %v", wc.h.GetAddress())
+	jww.INFO.Printf("Successfully connected to %s", wc.h.GetAddress())
 	return
 }
 
