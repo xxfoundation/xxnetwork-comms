@@ -35,6 +35,8 @@ type Handler interface {
 type Comms struct {
 	*connect.ProtoComms
 	handler Handler
+	*pb.UnimplementedNotificationBotServer
+	*messages.UnimplementedGenericServer
 }
 
 // Starts a new server on the address:port specified by localServer

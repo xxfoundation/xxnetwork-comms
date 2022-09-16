@@ -29,6 +29,8 @@ type Comms struct {
 	*gossip.Manager
 	*connect.ProtoComms
 	handler Handler
+	*pb.UnimplementedGatewayServer
+	*messages.UnimplementedGenericServer
 }
 
 // Handler describes the endpoint callbacks for Gateway.
