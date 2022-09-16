@@ -6,9 +6,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 syntax = "proto3";
-option go_package = "gitlab.com/xx_network/comms/gossip";
 
 package gossip;
+
+option go_package = "gitlab.com/xx_network/comms/gossip";
+
 
 // RPC for handling generic reception of Gossip messages
 service Gossip {
