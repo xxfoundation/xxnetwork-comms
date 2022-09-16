@@ -55,6 +55,8 @@ type Manager struct {
 	bufferLock sync.RWMutex              // Lock for buffers object
 
 	flags ManagerFlags
+
+	*UnimplementedGossipServer
 }
 
 // Creates a new Gossip Manager struct

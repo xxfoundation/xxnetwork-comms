@@ -6,11 +6,13 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 syntax = "proto3";
+
+package interconnect;
+
 option go_package = "gitlab.com/xx_network/comms/interconnect";
 
 import "gitlab.com/xx_network/comms/messages/messages.proto";
 
-package interconnect;
 
 // RPC for handling communication between cmix nodes and consensus nodes
 service Interconnect {
