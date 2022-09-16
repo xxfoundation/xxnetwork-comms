@@ -30,6 +30,8 @@ type Comms struct {
 	*connect.ProtoComms
 	handler Handler // an object that implements the interface below, which
 	// has all the functions called by endpoint.go
+	*pb.UnimplementedUDBServer
+	*messages.UnimplementedGenericServer
 }
 
 // StartServer starts a new server on the address:port specified by localServer

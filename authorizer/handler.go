@@ -26,6 +26,8 @@ import (
 type Comms struct {
 	*connect.ProtoComms
 	handler Handler
+	*pb.UnimplementedAuthorizerServer
+	*messages.UnimplementedGenericServer
 }
 
 // Starts a new server on the address:port specified by localServer
