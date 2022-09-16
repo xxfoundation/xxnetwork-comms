@@ -9,7 +9,7 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0
 	gitlab.com/elixxir/crypto v0.0.7-0.20220606201132-c370d5039cea
 	gitlab.com/elixxir/primitives v0.0.3-0.20220810173935-592f34a88326
-	gitlab.com/xx_network/comms v0.0.4-0.20220914214503-546c1818b07f
+	gitlab.com/xx_network/comms v0.0.4-0.20220916183430-cc3077fedf9f
 	gitlab.com/xx_network/crypto v0.0.5-0.20220729193517-1e5e96f39f6e
 	gitlab.com/xx_network/primitives v0.0.4-0.20220712193914-aebd8544396e
 	gitlab.com/xx_network/ring v0.0.3-0.20220222211904-da613960ad93
