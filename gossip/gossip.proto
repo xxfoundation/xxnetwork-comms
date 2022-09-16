@@ -1,14 +1,16 @@
-///////////////////////////////////////////////////////////////////////////////
-// Copyright © 2020 xx network SEZC                                          //
-//                                                                           //
-// Use of this source code is governed by a license that can be found in the //
-// LICENSE file                                                              //
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+// Copyright © 2022 xx foundation                                             //
+//                                                                            //
+// Use of this source code is governed by a license that can be found in the  //
+// LICENSE file.                                                              //
+////////////////////////////////////////////////////////////////////////////////
 
 syntax = "proto3";
-option go_package = "gitlab.com/xx_network/comms/gossip";
 
 package gossip;
+
+option go_package = "gitlab.com/xx_network/comms/gossip";
+
 
 // RPC for handling generic reception of Gossip messages
 service Gossip {

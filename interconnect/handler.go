@@ -1,9 +1,10 @@
-///////////////////////////////////////////////////////////////////////////////
-// Copyright © 2020 xx network SEZC                                          //
-//                                                                           //
-// Use of this source code is governed by a license that can be found in the //
-// LICENSE file                                                              //
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+// Copyright © 2022 xx foundation                                             //
+//                                                                            //
+// Use of this source code is governed by a license that can be found in the  //
+// LICENSE file.                                                              //
+////////////////////////////////////////////////////////////////////////////////
+
 package interconnect
 
 import (
@@ -54,6 +55,7 @@ func StartCMixInterconnect(id *id.ID, port string, handler ServerHandler,
 type CMixServer struct {
 	*connect.ProtoComms
 	handler ServerHandler
+	*UnimplementedInterconnectServer
 }
 
 // Handler for CMix -> consensus
