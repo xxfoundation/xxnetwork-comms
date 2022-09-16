@@ -1,13 +1,15 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright © 2019 Privategrity Corporation                                   /
-//                                                                             /
-// All rights reserved.                                                        /
+// Copyright © 2022 xx foundation                                             //
+//                                                                            //
+// Use of this source code is governed by a license that can be found in the  //
+// LICENSE file.                                                              //
 ////////////////////////////////////////////////////////////////////////////////
 
 syntax = "proto3";
-option go_package = "gitlab.com/elixxir/comms/mixmessages";
 
 package mixmessages;
+
+option go_package = "gitlab.com/elixxir/comms/mixmessages";
 
 import "gitlab.com/xx_network/comms/messages/messages.proto";
 import "google/protobuf/any.proto";
