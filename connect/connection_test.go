@@ -17,6 +17,7 @@ import (
 
 type TestGenericServer struct {
 	resp string
+	pb.UnimplementedGenericServer
 }
 
 func (ts *TestGenericServer) AuthenticateToken(context.Context, *pb.AuthenticatedMessage) (*pb.Ack, error) {
