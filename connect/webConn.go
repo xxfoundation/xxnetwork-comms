@@ -2,15 +2,17 @@ package connect
 
 import (
 	"crypto/tls"
-	"git.xx.network/elixxir/grpc-web-go-client/grpcweb"
-	"github.com/pkg/errors"
-	jww "github.com/spf13/jwalterweatherman"
-	"google.golang.org/grpc"
 	"net/http"
 	"net/http/httptrace"
 	"regexp"
 	"strings"
 	"time"
+
+	"git.xx.network/elixxir/grpc-web-go-client/grpcweb"
+	"github.com/pkg/errors"
+	jww "github.com/spf13/jwalterweatherman"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 )
 
 // WebConnParam struct holds parameters used
@@ -102,11 +104,15 @@ func (wc *webConn) connectWebHelper() (err error) {
 			backoffTime = 15000
 		}
 		// ctx, cancel := newContext(time.Duration(backoffTime) * time.Millisecond)
+		md := &metadata.MD{}
+		md.Set("Cache-Control", "no-store, must-revalidate")
+		noCache := grpcweb.Header(md)
 
 		dialOpts := []grpcweb.DialOption{
 			grpcweb.WithIdleConnTimeout(wc.h.params.WebParams.IdleConnTimeout),
 			grpcweb.WithExpectContinueTimeout(wc.h.params.WebParams.ExpectContinueTimeout),
 			grpcweb.WithTlsHandshakeTimeout(wc.h.params.WebParams.TlsHandshakeTimeout),
+			grpcweb.WithDefaultCallOptions(noCache),
 			grpcweb.WithDefaultCallOptions(), // grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(math.MaxInt32)),
 		}
 		dialOpts = append(dialOpts, securityDial...)
