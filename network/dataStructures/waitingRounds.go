@@ -56,9 +56,26 @@ func NewWaitingRounds() *WaitingRounds {
 
 // Len returns the number of rounds in the list.
 func (wr *WaitingRounds) Len() int {
-	wr.mux.Lock()
-	defer wr.mux.Unlock()
-	return wr.writeRounds.Len()
+	return len(wr.readRounds.Load().([]*Round))
+}
+
+// NumValidRounds returns how many rounds are, according to the local timestamp,
+// ready to be sent to.
+// This means they are in the "QUEUED" state and their start time is
+// after the local time
+func (wr *WaitingRounds) NumValidRounds(now time.Time) int {
+	rounds := wr.readRounds.Load().([]*Round)
+
+	numValid := 0
+
+	for _, r := range rounds {
+		roundStartTime := time.Unix(0, int64(r.info.Timestamps[states.QUEUED]))
+		if roundStartTime.After(now) {
+			numValid++
+		}
+	}
+
+	return numValid
 }
 
 // Insert inserts a queued round into the list in order of its timestamp, from

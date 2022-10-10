@@ -59,7 +59,7 @@ func TestWaitingRounds_Len(t *testing.T) {
 // Happy path of WaitingRounds.Insert().
 func TestWaitingRounds_Insert(t *testing.T) {
 	// Generate rounds
-	expectedRounds, testRounds := createTestRoundInfos(25, t)
+	expectedRounds, testRounds := createTestRoundInfos(25, netTime.Now().Add(5*time.Second), t)
 	t.Logf("expectedRndLen: %d", len(expectedRounds))
 	t.Logf("testRndLen: %v", len(testRounds))
 	// Add rounds to list
@@ -83,7 +83,7 @@ func TestWaitingRounds_Insert(t *testing.T) {
 // Happy path of WaitingRounds.getFurthest().
 func TestWaitingRounds_getFurthest(t *testing.T) {
 	// Generate rounds
-	expectedRounds, _ := createTestRoundInfos(25, t)
+	expectedRounds, _ := createTestRoundInfos(25, netTime.Now().Add(5*time.Second), t)
 
 	// Add rounds to list
 	testWR := NewWaitingRounds()
@@ -110,7 +110,7 @@ func TestWaitingRounds_getFurthest(t *testing.T) {
 // Happy path of WaitingRounds.getFurthest() with half the rounds excluded.
 func TestWaitingRounds_getFurthest_Exclude(t *testing.T) {
 	// Generate rounds
-	expectedRounds, _ := createTestRoundInfos(25, t)
+	expectedRounds, _ := createTestRoundInfos(25, netTime.Now().Add(5*time.Second), t)
 
 	// Add rounds to list
 	testWR := NewWaitingRounds()
@@ -143,7 +143,7 @@ func TestWaitingRounds_getFurthest_Exclude(t *testing.T) {
 // Happy path.
 func TestWaitingRounds_getClosest(t *testing.T) {
 	// Generate rounds
-	expectedRounds, _ := createTestRoundInfos(25, t)
+	expectedRounds, _ := createTestRoundInfos(25, netTime.Now().Add(5*time.Second), t)
 
 	// Add rounds to list
 	testWR := NewWaitingRounds()
@@ -169,7 +169,7 @@ func TestWaitingRounds_getClosest(t *testing.T) {
 // and no waiting occurs.
 func TestWaitingRounds_GetUpcomingRealtime_NoWait(t *testing.T) {
 	// Generate rounds and add to new list
-	expectedRounds, _ := createTestRoundInfos(25, t)
+	expectedRounds, _ := createTestRoundInfos(25, netTime.Now().Add(5*time.Second), t)
 	testWR := NewWaitingRounds()
 
 	for i, round := range expectedRounds {
@@ -217,7 +217,7 @@ func TestWaitingRounds_GetUpcomingRealtime_TimeoutError(t *testing.T) {
 // Happy path of WaitingRounds.GetUpcomingRealtime().
 func TestWaitingRounds_GetUpcomingRealtime(t *testing.T) {
 	// Generate rounds and WaitingRound
-	expectedRounds, _ := createTestRoundInfos(25, t)
+	expectedRounds, _ := createTestRoundInfos(25, netTime.Now().Add(5*time.Second), t)
 	testWR := NewWaitingRounds()
 
 	for i, round := range expectedRounds {
@@ -249,7 +249,7 @@ func TestWaitingRounds_GetUpcomingRealtime(t *testing.T) {
 // the excluded set's length exceeds maxGetClosestTries.
 func TestWaitingRounds_GetUpcomingRealtime_GetFurthest(t *testing.T) {
 	// Generate rounds and WaitingRound
-	expectedRounds, _ := createTestRoundInfos(25, t)
+	expectedRounds, _ := createTestRoundInfos(25, netTime.Now().Add(5*time.Second), t)
 	testWR := NewWaitingRounds()
 
 	// Populate the set
@@ -291,7 +291,7 @@ func TestWaitingRounds_GetUpcomingRealtime_GetFurthest(t *testing.T) {
 // Happy path of WaitingRounds.GetSlice().
 func TestWaitingRounds_GetSlice(t *testing.T) {
 	// Generate rounds and add to new list
-	expectedRounds, _ := createTestRoundInfos(25, t)
+	expectedRounds, _ := createTestRoundInfos(25, netTime.Now().Add(5*time.Second), t)
 	testWR := NewWaitingRounds()
 
 	ri := &pb.RoundInfo{
@@ -334,10 +334,9 @@ func TestWaitingRounds_GetSlice(t *testing.T) {
 
 // Generates two lists of round infos. The first is the expected rounds in the
 // correct order after inserting the second list of random round infos.
-func createTestRoundInfos(num int, t *testing.T) ([]*Round, []*Round) {
+func createTestRoundInfos(num int, startTime time.Time, t *testing.T) ([]*Round, []*Round) {
 	rounds := make([]*Round, num)
 	var expectedRounds []*Round
-	startTime := netTime.Now().Add(5 * time.Second)
 	randomRounds := make([]*Round, num)
 	pubKey, err := testutils.LoadPublicKeyTesting(t)
 	if err != nil {
@@ -365,4 +364,81 @@ func createTestRoundInfos(num int, t *testing.T) ([]*Round, []*Round) {
 		randomRounds[v] = rounds[i]
 	}
 	return expectedRounds, randomRounds
+}
+
+// WaitingRounds.NumValidRounds() when all listed rounds are valid
+func TestWaitingRounds_NumValidRounds_allValid(t *testing.T) {
+	// Generate rounds and WaitingRound
+	expectedRounds, _ := createTestRoundInfos(25, netTime.Now().Add(5*time.Second), t)
+	testWR := NewWaitingRounds()
+
+	for i, round := range expectedRounds {
+		err := testutils.SignRoundInfoRsa(round.info, t)
+		if err != nil {
+			t.Errorf("Failed to sign round info #%d: %+v", i, err)
+		}
+		testWR.Insert([]*Round{round}, nil)
+	}
+
+	numValid := testWR.NumValidRounds(time.Now())
+	if numValid != len(expectedRounds) {
+		t.Errorf("Could not get the correct number of valid rouns: %d vs %d",
+			len(expectedRounds), numValid)
+	}
+}
+
+// WaitingRounds.NumValidRounds() when no listed rounds are valid
+func TestWaitingRounds_NumValidRounds_noValid(t *testing.T) {
+	// Generate rounds and WaitingRound
+	expectedRounds, _ := createTestRoundInfos(25, netTime.Now().Add(-5*time.Second), t)
+	testWR := NewWaitingRounds()
+
+	for i, round := range expectedRounds {
+		err := testutils.SignRoundInfoRsa(round.info, t)
+		if err != nil {
+			t.Errorf("Failed to sign round info #%d: %+v", i, err)
+		}
+		testWR.Insert([]*Round{round}, nil)
+	}
+
+	numValid := testWR.NumValidRounds(time.Now())
+	if numValid != 0 {
+		t.Errorf("Could not get the correct number of valid rouns: %d vs %d",
+			0, numValid)
+	}
+}
+
+// WaitingRounds.NumValidRounds() when the rounds list is empty
+func TestWaitingRounds_NumValidRounds_noRounds(t *testing.T) {
+	// Generate rounds and WaitingRound
+	testWR := NewWaitingRounds()
+
+	numValid := testWR.NumValidRounds(time.Now())
+	if numValid != 0 {
+		t.Errorf("Could not get the correct number of valid rouns: %d vs %d",
+			0, numValid)
+	}
+}
+
+// WaitingRounds.NumValidRounds() when half the listed rounds are valid
+func TestWaitingRounds_NumValidRounds_halfValid(t *testing.T) {
+	// Generate rounds and WaitingRound
+	expectedRounds, _ := createTestRoundInfos(25, netTime.Now().Add(-5*time.Second), t)
+	expectedRounds2, _ := createTestRoundInfos(50, netTime.Now().Add(5*time.Second), t)
+	expectedRounds = append(expectedRounds, expectedRounds2...)
+	testWR := NewWaitingRounds()
+
+	for i, round := range expectedRounds {
+		err := testutils.SignRoundInfoRsa(round.info, t)
+		if err != nil {
+			t.Errorf("Failed to sign round info #%d: %+v", i, err)
+		}
+		testWR.Insert([]*Round{round}, nil)
+	}
+
+	numValid := testWR.NumValidRounds(time.Now())
+	if numValid != len(expectedRounds2) {
+		t.Errorf("Could not get the correct number of valid rouns: %d vs %d",
+			len(expectedRounds2), numValid)
+	}
 }
