@@ -362,6 +362,10 @@ message GatewayPollResponse {
     ClientBlooms Filters = 4; // Set of ClientBloomFilters requested by Client
     uint64 EarliestRound = 5; // The earliest round the gateway still has info for
     string EarliestRoundErr = 6;
+
+    // The following are used for the homebrew clock offset system in Client
+    int64 ReceivedTs = 7; // Timestamp that Gateway received GatewayPoll
+    int64 GatewayDelay = 8; // Duration of the Gateway Poll() function
 }
 
 // Holds a set of ClientBloom and their associated metadata
