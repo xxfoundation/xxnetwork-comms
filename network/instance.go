@@ -492,7 +492,7 @@ func (i *Instance) RoundUpdates(rounds []*pb.RoundInfo) error {
 	if i.networkHealth != nil {
 		select {
 		case i.networkHealth <- Heartbeat{
-			HasWaitingRound: i.GetWaitingRounds().NumValidRounds(netTime.Now()) > 0,
+			HasWaitingRound: i.GetWaitingRounds().HasValidRounds(netTime.Now()),
 			IsRoundComplete: isRoundComplete,
 		}:
 		default:

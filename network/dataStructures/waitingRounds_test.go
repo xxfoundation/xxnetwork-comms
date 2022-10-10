@@ -442,3 +442,76 @@ func TestWaitingRounds_NumValidRounds_halfValid(t *testing.T) {
 			len(expectedRounds2), numValid)
 	}
 }
+
+// WaitingRounds.HasValidRounds() when all listed rounds are valid
+func TestWaitingRounds_HasValidRounds_allValid(t *testing.T) {
+	// Generate rounds and WaitingRound
+	expectedRounds, _ := createTestRoundInfos(25, netTime.Now().Add(5*time.Second), t)
+	testWR := NewWaitingRounds()
+
+	for i, round := range expectedRounds {
+		err := testutils.SignRoundInfoRsa(round.info, t)
+		if err != nil {
+			t.Errorf("Failed to sign round info #%d: %+v", i, err)
+		}
+		testWR.Insert([]*Round{round}, nil)
+	}
+
+	HasValid := testWR.HasValidRounds(time.Now())
+	if !HasValid {
+		t.Errorf("didnt not return a valid round when it should")
+	}
+}
+
+// WaitingRounds.HasValidRounds() when no listed rounds are valid
+func TestWaitingRounds_HasValidRounds_noValid(t *testing.T) {
+	// Generate rounds and WaitingRound
+	expectedRounds, _ := createTestRoundInfos(25, netTime.Now().Add(-5*time.Second), t)
+	testWR := NewWaitingRounds()
+
+	for i, round := range expectedRounds {
+		err := testutils.SignRoundInfoRsa(round.info, t)
+		if err != nil {
+			t.Errorf("Failed to sign round info #%d: %+v", i, err)
+		}
+		testWR.Insert([]*Round{round}, nil)
+	}
+
+	HasValid := testWR.HasValidRounds(time.Now())
+	if HasValid {
+		t.Errorf("returned valid round when all invalid")
+	}
+}
+
+// WaitingRounds.HasValidRounds() when the rounds list is empty
+func TestWaitingRounds_HasValidRounds_noRounds(t *testing.T) {
+	// Generate rounds and WaitingRound
+	testWR := NewWaitingRounds()
+
+	HasValid := testWR.HasValidRounds(time.Now())
+	if HasValid {
+		t.Errorf("returned valid round when all invalid")
+	}
+}
+
+// WaitingRounds.HasValidRounds() when half the listed rounds are valid
+func TestWaitingRounds_HasValidRounds_halfValid(t *testing.T) {
+	// Generate rounds and WaitingRound
+	expectedRounds, _ := createTestRoundInfos(25, netTime.Now().Add(-5*time.Second), t)
+	expectedRounds2, _ := createTestRoundInfos(50, netTime.Now().Add(5*time.Second), t)
+	expectedRounds = append(expectedRounds, expectedRounds2...)
+	testWR := NewWaitingRounds()
+
+	for i, round := range expectedRounds {
+		err := testutils.SignRoundInfoRsa(round.info, t)
+		if err != nil {
+			t.Errorf("Failed to sign round info #%d: %+v", i, err)
+		}
+		testWR.Insert([]*Round{round}, nil)
+	}
+
+	hasValid := testWR.HasValidRounds(time.Now())
+	if !hasValid {
+		t.Errorf("returned that the rounds are invlaid whene there are valid rounds")
+	}
+}

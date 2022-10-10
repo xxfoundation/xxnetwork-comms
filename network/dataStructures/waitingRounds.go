@@ -78,6 +78,23 @@ func (wr *WaitingRounds) NumValidRounds(now time.Time) int {
 	return numValid
 }
 
+// HasValidRounds returns true if there is at least one valid round
+// in the queue according to its timestamp.
+// This means they are in the "QUEUED" state and their start time is
+// after the local time
+func (wr *WaitingRounds) HasValidRounds(now time.Time) bool {
+	rounds := wr.readRounds.Load().([]*Round)
+
+	for _, r := range rounds {
+		roundStartTime := time.Unix(0, int64(r.info.Timestamps[states.QUEUED]))
+		if roundStartTime.After(now) {
+			return true
+		}
+	}
+
+	return false
+}
+
 // Insert inserts a queued round into the list in order of its timestamp, from
 // smallest to greatest. If the new round is not in a QUEUED state, then it is
 // not inserted. If the new round already exists in the list but is no longer
