@@ -3,13 +3,14 @@ module gitlab.com/elixxir/comms
 go 1.17
 
 require (
+	git.xx.network/elixxir/grpc-web-go-client v0.0.0-20220908170150-ef04339ffe65
 	github.com/elliotchance/orderedmap v1.4.0
 	github.com/golang/protobuf v1.5.2
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/jwalterweatherman v1.1.0
-	gitlab.com/elixxir/crypto v0.0.6
+	gitlab.com/elixxir/crypto v0.0.7-0.20220913220142-ab0771bad0af
 	gitlab.com/elixxir/primitives v0.0.3-0.20220810173935-592f34a88326
-	gitlab.com/xx_network/comms v0.0.3
+	gitlab.com/xx_network/comms v0.0.4-0.20221005205845-b34d538ffd85
 	gitlab.com/xx_network/crypto v0.0.5-0.20220913213008-98764f5b3287
 	gitlab.com/xx_network/primitives v0.0.4-0.20220809193445-9fc0a5209548
 	gitlab.com/xx_network/ring v0.0.3-0.20220222211904-da613960ad93
@@ -33,5 +34,6 @@ require (
 	go.uber.org/atomic v1.10.0 // indirect
 	golang.org/x/sys v0.0.0-20220728004956-3c1f35247d10 // indirect
 	golang.org/x/text v0.3.7 // indirect
+	google.golang.org/genproto v0.0.0-20220822174746-9e6da59bd2fc // indirect
 	nhooyr.io/websocket v1.8.7 // indirect
 )
