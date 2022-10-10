@@ -10,7 +10,6 @@
 package client
 
 import (
-	"git.xx.network/elixxir/grpc-web-go-client/grpcweb"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
@@ -18,7 +17,6 @@ import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/connect"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/metadata"
 	"io"
 	"strconv"
 	"time"
@@ -39,11 +37,8 @@ func (c *Comms) SendPutMessage(host *connect.Host, message *pb.GatewaySlot,
 		var err error
 		if conn.IsWeb() {
 			wc := conn.GetWebConn()
-			md := &metadata.MD{}
-			md.Set("Cache-Control", "no-store, must-revalidate")
-			noChache := grpcweb.Header(md)
 			err = wc.Invoke(
-				ctx, "/mixmessages.Gateway/PutMessage", message, resultMsg, noChache)
+				ctx, "/mixmessages.Gateway/PutMessage", message, resultMsg)
 		} else {
 			resultMsg, err = pb.NewGatewayClient(conn.GetGrpcConn()).
 				PutMessage(ctx, message)
