@@ -16,14 +16,13 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/connect"
-	"gitlab.com/xx_network/primitives/netTime"
 	"google.golang.org/grpc"
 	"io"
 	"strconv"
 	"time"
 )
 
-// Client -> Gateway Send Function
+// SendPutMessage Client -> Gateway Send Function
 func (c *Comms) SendPutMessage(host *connect.Host, message *pb.GatewaySlot,
 	timeout time.Duration) (*pb.GatewaySlotResponse, error) {
 
@@ -63,7 +62,7 @@ func (c *Comms) SendPutMessage(host *connect.Host, message *pb.GatewaySlot,
 	return result, ptypes.UnmarshalAny(resultMsg, result)
 }
 
-// Client -> Gateway Send Function
+// SendPutManyMessages Client -> Gateway Send Function
 func (c *Comms) SendPutManyMessages(host *connect.Host,
 	messages *pb.GatewaySlots, timeout time.Duration) (
 	*pb.GatewaySlotResponse, error) {
@@ -102,7 +101,7 @@ func (c *Comms) SendPutManyMessages(host *connect.Host,
 	return result, ptypes.UnmarshalAny(resultMsg, result)
 }
 
-// Client -> Gateway Send Function
+// SendRequestClientKeyMessage Client -> Gateway Send Function
 func (c *Comms) SendRequestClientKeyMessage(host *connect.Host,
 	message *pb.SignedClientKeyRequest) (*pb.SignedKeyResponse, error) {
 
@@ -143,14 +142,17 @@ func (c *Comms) SendRequestClientKeyMessage(host *connect.Host,
 	return result, ptypes.UnmarshalAny(resultMsg, result)
 }
 
-// Client -> Gateway Send Function
-// Returns a time.Duration representing the roundTripTime of the comm
+// SendPoll Client -> Gateway Send Function
+// Returns a time.Time of the local clock (not netTime) when the comm was sent
+// and a time.Duration representing the roundTripTime of the comm
 func (c *Comms) SendPoll(host *connect.Host,
-	message *pb.GatewayPoll) (*pb.GatewayPollResponse, time.Duration, error) {
+	message *pb.GatewayPoll) (*pb.GatewayPollResponse, time.Time, time.Duration, error) {
 	// Set up the context with a timeout to ensure that streaming does not
 	// block the follower
 	ctx, cancel := connect.StreamingContextWithTimeout(10 * time.Second)
 	defer cancel()
+
+	var startTime time.Time
 
 	// Create the Stream Function
 	roundTripTime := time.Duration(0)
@@ -164,18 +166,25 @@ func (c *Comms) SendPoll(host *connect.Host,
 			if err != nil {
 				return nil, err
 			}
-			preSendTime := netTime.Now()
+
+			// use the local time NOT netTime because calculations for
+			// clock skew will be done with this timestamp and including
+			// the skew adjustment will break the calculation
+			startTime = time.Now()
 			err = clientStream.Send(ctx, message)
-			roundTripTime = netTime.Now().Sub(preSendTime)
+			roundTripTime = time.Now().Sub(startTime)
 			if err != nil {
 				return nil, err
 			}
 			return newServerStream(ctx, clientStream), nil
 		} else {
-			preSendTime := netTime.Now()
+			// use the local time NOT netTime because calculations for
+			// clock skew will be done with this timestamp and including
+			// the skew adjustment will break the calculation
+			startTime = time.Now()
 			clientStream, err := pb.NewGatewayClient(conn.GetGrpcConn()).
 				Poll(ctx, message)
-			roundTripTime = netTime.Now().Sub(preSendTime)
+			roundTripTime = time.Now().Sub(startTime)
 			if err != nil {
 				return nil, err
 			}
@@ -187,21 +196,21 @@ func (c *Comms) SendPoll(host *connect.Host,
 	jww.TRACE.Printf("Sending Poll message: %+v", message)
 	resultClient, err := c.Stream(host, f)
 	if err != nil {
-		return nil, 0, err
+		return nil, time.Time{}, 0, err
 	}
 
 	stream := resultClient.(pb.Gateway_PollClient)
 	jww.DEBUG.Printf("Receiving chunks for gateway poll from %s", host.GetId().String())
 	closeErr := stream.CloseSend()
 	if closeErr != nil {
-		return nil, 0, wrapError(closeErr, "Unable to close send stream")
+		return nil, time.Time{}, 0, wrapError(closeErr, "Unable to close send stream")
 	}
 
 	// Get the total number of chunks from the header
 	md, err := stream.Header()
 	if err != nil {
 		closeErr = stream.RecvMsg(nil)
-		return nil, 0, wrapError(closeErr, "Could not "+
+		return nil, time.Time{}, 0, wrapError(closeErr, "Could not "+
 			"receive streaming header from %s: %s", host.GetId(), err)
 	}
 
@@ -209,14 +218,14 @@ func (c *Comms) SendPoll(host *connect.Host,
 	chunkHeader := md.Get(pb.ChunkHeader)
 	if len(chunkHeader) == 0 {
 		closeErr = stream.RecvMsg(nil)
-		return nil, 0, wrapError(closeErr, pb.NoStreamingHeaderErr, host.GetId())
+		return nil, time.Time{}, 0, wrapError(closeErr, pb.NoStreamingHeaderErr, host.GetId())
 	}
 
 	// Process header
 	totalChunks, err := strconv.Atoi(chunkHeader[0])
 	if err != nil {
 		closeErr = stream.RecvMsg(nil)
-		return nil, 0, wrapError(closeErr, "Invalid header received: %v", err)
+		return nil, time.Time{}, 0, wrapError(closeErr, "Invalid header received: %v", err)
 	}
 
 	// Receive the chunks
@@ -228,7 +237,7 @@ func (c *Comms) SendPoll(host *connect.Host,
 		receivedChunks++
 	}
 	if err != io.EOF { // EOF is an expected error after server-side has completed streaming
-		return nil, 0, errors.Errorf("Failed to "+
+		return nil, time.Time{}, 0, errors.Errorf("Failed to "+
 			"complete streaming, received %d of %d messages: %s",
 			receivedChunks, totalChunks, err)
 	}
@@ -236,16 +245,16 @@ func (c *Comms) SendPoll(host *connect.Host,
 	// Close stream once done
 	closeErr = stream.RecvMsg(nil)
 	if closeErr != io.EOF {
-		return nil, 0, errors.WithMessagef(closeErr, "Received error on "+
+		return nil, time.Time{}, 0, errors.WithMessagef(closeErr, "Received error on "+
 			"closing stream with %s", host.GetId())
 	}
 
 	// Assemble the result
 	result := &pb.GatewayPollResponse{}
-	return result, roundTripTime, pb.AssembleChunksIntoResponse(chunks, result)
+	return result, startTime, roundTripTime, pb.AssembleChunksIntoResponse(chunks, result)
 }
 
-// Client -> Gateway Send Function
+// RequestHistoricalRounds Client -> Gateway Send Function
 func (c *Comms) RequestHistoricalRounds(host *connect.Host,
 	message *pb.HistoricalRounds) (*pb.HistoricalRoundsResponse, error) {
 	// Create the Send Function
@@ -283,7 +292,7 @@ func (c *Comms) RequestHistoricalRounds(host *connect.Host,
 	return result, ptypes.UnmarshalAny(resultMsg, result)
 }
 
-// Client -> Gateway Send Function
+// RequestMessages Client -> Gateway Send Function
 func (c *Comms) RequestMessages(host *connect.Host,
 	message *pb.GetMessages) (*pb.GetMessagesResponse, error) {
 	// Create the Send Function
