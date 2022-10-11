@@ -100,7 +100,7 @@ func TestComms_SendPoll(t *testing.T) {
 			t.Errorf("Unable to call NewHost: %+v", err)
 		}
 
-		_, _, err = c.SendPoll(host,
+		_, _, _, err = c.SendPoll(host,
 			&pb.GatewayPoll{
 				Partial: &pb.NDFHash{
 					Hash: make([]byte, 0),
