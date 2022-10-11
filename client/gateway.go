@@ -155,8 +155,6 @@ func (c *Comms) SendPoll(host *connect.Host,
 	// Create the Stream Function
 	roundTripTime := time.Duration(0)
 	f := func(conn connect.Connection) (interface{}, error) {
-		preSendTime := netTime.Now()
-
 		// Send the message
 		if conn.IsWeb() {
 			wc := conn.GetWebConn()
@@ -166,6 +164,7 @@ func (c *Comms) SendPoll(host *connect.Host,
 			if err != nil {
 				return nil, err
 			}
+			preSendTime := netTime.Now()
 			err = clientStream.Send(ctx, message)
 			roundTripTime = netTime.Now().Sub(preSendTime)
 			if err != nil {
@@ -173,6 +172,7 @@ func (c *Comms) SendPoll(host *connect.Host,
 			}
 			return newServerStream(ctx, clientStream), nil
 		} else {
+			preSendTime := netTime.Now()
 			clientStream, err := pb.NewGatewayClient(conn.GetGrpcConn()).
 				Poll(ctx, message)
 			roundTripTime = netTime.Now().Sub(preSendTime)
