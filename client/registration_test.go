@@ -28,26 +28,30 @@ func TestSendRegistrationMessage(t *testing.T) {
 	rg := clientregistrar.StartClientRegistrarServer(testId, GatewayAddress,
 		registration.NewImplementation(), nil, nil)
 	defer rg.Shutdown()
-	c, err := NewClientComms(clientId, nil, nil, nil)
-	if err != nil {
-		t.Errorf("Can't create client comms: %+v", err)
-	}
-	manager := connect.NewManagerTesting(t)
 
-	params := connect.GetDefaultHostParams()
-	params.AuthEnabled = false
-	host, err := manager.AddHost(testId, GatewayAddress, nil, params)
-	if err != nil {
-		t.Errorf("Unable to call NewHost: %+v", err)
-	}
+	for _, connectionType := range []connect.ConnectionType{connect.Grpc, connect.Web} {
+		c, err := NewClientComms(clientId, nil, nil, nil)
+		if err != nil {
+			t.Errorf("Can't create client comms: %+v", err)
+		}
+		manager := connect.NewManagerTesting(t)
 
-	_, err = c.SendRegistrationMessage(host, &pb.ClientRegistration{})
-	if err != nil {
-		t.Errorf("RegistrationMessage: Error received: %s", err)
+		params := connect.GetDefaultHostParams()
+		params.ConnectionType = connectionType
+		params.AuthEnabled = false
+		host, err := manager.AddHost(testId, GatewayAddress, nil, params)
+		if err != nil {
+			t.Errorf("Unable to call NewHost: %+v", err)
+		}
+
+		_, err = c.SendRegistrationMessage(host, &pb.ClientRegistration{})
+		if err != nil {
+			t.Errorf("RegistrationMessage: Error received: %+v", err)
+		}
 	}
 }
 
-//Smoke test RequestNdf
+// Smoke test RequestNdf
 func TestSendGetUpdatedNDF(t *testing.T) {
 	GatewayAddress := getNextAddress()
 	testId := id.NewIdFromString("test", id.Generic, t)
@@ -55,6 +59,7 @@ func TestSendGetUpdatedNDF(t *testing.T) {
 
 	rg := registration.StartRegistrationServer(testId, GatewayAddress, &MockRegistration{}, nil, nil, nil)
 	defer rg.Shutdown()
+
 	c, err := NewClientComms(clientId, nil, nil, nil)
 	if err != nil {
 		t.Errorf("Can't create client comms: %+v", err)
@@ -125,7 +130,7 @@ func TestProtoComms_PollNdf(t *testing.T) {
 	GetHostErrBool = true
 	NdfToreturn.Ndf = []byte(testutils.ExampleJSON)
 	_, err = c.RetrieveNdf(newNdf)
-	//comms.mockManager.AddHost()
+	// comms.mockManager.AddHost()
 	if err != nil {
 		t.Logf("Ndf failed to parse: %+v", err)
 		t.Fail()

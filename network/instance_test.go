@@ -274,7 +274,6 @@ func setupComm(t *testing.T) (*Instance, *mixmessages.NDF) {
 	}
 	testManager := connect.NewManagerTesting(t)
 	pc := &connect.ProtoComms{
-		Id:      id.NewIdFromString("User", id.User, t),
 		Manager: testManager,
 	}
 	i, err := NewInstance(pc, baseNDF, baseNDF, nil, 0, false)
@@ -491,7 +490,6 @@ func TestInstance_UpdateGatewayConnections(t *testing.T) {
 	secured, _ := NewSecuredNdf(testutils.NDF)
 	testManager := connect.NewManagerTesting(t)
 	pc := &connect.ProtoComms{
-		Id:      id.NewIdFromString("User", id.User, t),
 		Manager: testManager,
 	}
 	i := Instance{

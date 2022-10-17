@@ -23,6 +23,7 @@ import (
 	"gitlab.com/xx_network/crypto/signature/ec"
 	"gitlab.com/xx_network/primitives/id"
 	"gitlab.com/xx_network/primitives/ndf"
+	"gitlab.com/xx_network/primitives/netTime"
 	"testing"
 )
 
@@ -491,7 +492,7 @@ func (i *Instance) RoundUpdates(rounds []*pb.RoundInfo) error {
 	if i.networkHealth != nil {
 		select {
 		case i.networkHealth <- Heartbeat{
-			HasWaitingRound: i.GetWaitingRounds().Len() > 0,
+			HasWaitingRound: i.GetWaitingRounds().HasValidRounds(netTime.Now()),
 			IsRoundComplete: isRoundComplete,
 		}:
 		default:

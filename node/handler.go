@@ -10,14 +10,12 @@
 package node
 
 import (
-	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/interconnect"
 	"gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/primitives/id"
-	"google.golang.org/grpc/reflection"
 	"runtime/debug"
 	"strconv"
 )
@@ -35,7 +33,7 @@ type Comms struct {
 // with given path to public and private key for TLS connection
 func StartNode(id *id.ID, localServer string, interconnectPort int, handler Handler,
 	certPEMblock, keyPEMblock []byte) *Comms {
-	pc, lis, err := connect.StartCommServer(id, localServer,
+	pc, err := connect.StartCommServer(id, localServer,
 		certPEMblock, keyPEMblock, nil)
 	if err != nil {
 		jww.FATAL.Panicf("Unable to start comms server: %+v", err)
@@ -45,6 +43,9 @@ func StartNode(id *id.ID, localServer string, interconnectPort int, handler Hand
 		ProtoComms: pc,
 		handler:    handler,
 	}
+	// Register GRPC services to the listening address
+	mixmessages.RegisterNodeServer(mixmessageServer.GetServer(), &mixmessageServer)
+	messages.RegisterGenericServer(mixmessageServer.GetServer(), &mixmessageServer)
 
 	// Start up interconnect service
 	if interconnectPort != 0 {
@@ -55,21 +56,7 @@ func StartNode(id *id.ID, localServer string, interconnectPort int, handler Hand
 		jww.WARN.Printf("Port for consensus not set, interconnect not started")
 	}
 
-	go func() {
-
-		// Register GRPC services to the listening address
-		mixmessages.RegisterNodeServer(mixmessageServer.LocalServer, &mixmessageServer)
-		messages.RegisterGenericServer(mixmessageServer.LocalServer, &mixmessageServer)
-
-		// Register reflection service on gRPC server.
-		reflection.Register(mixmessageServer.LocalServer)
-		if err := mixmessageServer.LocalServer.Serve(lis); err != nil {
-			jww.FATAL.Panicf("Failed to serve: %+v",
-				errors.New(err.Error()))
-		}
-		jww.INFO.Printf("Shutting down node server listener: %s", lis)
-	}()
-
+	pc.Serve()
 	return &mixmessageServer
 }
 

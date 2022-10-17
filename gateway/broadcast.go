@@ -17,7 +17,6 @@ import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/messages"
-	"google.golang.org/grpc"
 )
 
 // GetRoundBufferInfo Asks the server for round buffer info, specifically how
@@ -27,18 +26,18 @@ import (
 func (g *Comms) GetRoundBufferInfo(host *connect.Host) (*pb.RoundBufferInfo, error) {
 
 	// Create the Send Function
-	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+	f := func(conn connect.Connection) (*any.Any, error) {
 		// Set up the context
 		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
-		//Pack message into an authenticated message
+		// Pack message into an authenticated message
 		authMsg, err := g.PackAuthenticatedMessage(&messages.Ping{}, host, false)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
 		// Send the message
-		resultMsg, err := pb.NewNodeClient(conn).GetRoundBufferInfo(ctx,
-			authMsg)
+		resultMsg, err := pb.NewNodeClient(conn.GetGrpcConn()).
+			GetRoundBufferInfo(ctx, authMsg)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
