@@ -41,17 +41,24 @@ type Auth struct {
 // no lock is taken because this is assumed to be done exclusively under the
 // send lock taken in ProtoComms.transmit()
 func (c *ProtoComms) clientHandshake(host *Host) (err error) {
-
-	// Set up the context
-	client := pb.NewGenericClient(host.connection)
 	ctx, cancel := host.GetMessagingContext()
 	defer cancel()
+	var result *pb.AssignToken
+	if host.connection.IsWeb() {
+		wc := host.connection.GetWebConn()
+		err = wc.Invoke(ctx, "/messages.Generic/RequestToken", &pb.Ping{}, result)
+		if err != nil {
+			return err
+		}
+	} else {
+		client := pb.NewGenericClient(host.connection.GetGrpcConn())
 
-	// Send the token request message
-	result, err := client.RequestToken(ctx,
-		&pb.Ping{})
-	if err != nil {
-		return errors.New(err.Error())
+		// Send the token request message
+		result, err = client.RequestToken(ctx,
+			&pb.Ping{})
+		if err != nil {
+			return errors.New(err.Error())
+		}
 	}
 
 	remoteToken, err := token.Unmarshal(result.Token)
@@ -78,12 +85,23 @@ func (c *ProtoComms) clientHandshake(host *Host) (err error) {
 	ctx, cancel = host.GetMessagingContext()
 	defer cancel()
 
-	// Send the authenticate token message
-	_, err = client.AuthenticateToken(ctx, msg)
-	if err != nil {
-		return errors.New(err.Error())
+	if host.connection.IsWeb() {
+		wc := host.connection.GetWebConn()
+		err = wc.Invoke(ctx, "/messages.Generic/AuthenticateToken", &pb.Ping{}, result)
+		if err != nil {
+			return err
+		}
+	} else {
+		client := pb.NewGenericClient(host.connection.GetGrpcConn())
+
+		// Send the authenticate token message
+		_, err = client.AuthenticateToken(ctx, msg)
+		if err != nil {
+			return errors.New(err.Error())
+		}
 	}
-	jww.TRACE.Printf("Negotiatied Remote token: %v", remoteToken)
+
+	jww.TRACE.Printf("Negotiated Remote token: %v", remoteToken)
 	// Assign the host token
 	host.transmissionToken.Set(remoteToken)
 
@@ -102,7 +120,7 @@ func (c *ProtoComms) PackAuthenticatedMessage(msg proto.Message, host *Host,
 
 	// Build the authenticated message
 	authMsg := &pb.AuthenticatedMessage{
-		ID:      c.Id.Marshal(),
+		ID:      c.networkId.Marshal(),
 		Token:   host.transmissionToken.GetBytes(),
 		Message: anyMsg,
 		Client: &pb.ClientID{
@@ -126,7 +144,7 @@ func (c *ProtoComms) PackAuthenticatedMessage(msg proto.Message, host *Host,
 func (c *ProtoComms) PackAuthenticatedContext(host *Host,
 	ctx context.Context) context.Context {
 
-	ctx = metadata.AppendToOutgoingContext(ctx, "ID", c.Id.String())
+	ctx = metadata.AppendToOutgoingContext(ctx, "ID", c.networkId.String())
 	ctx = metadata.AppendToOutgoingContext(ctx, "TOKEN",
 		base64.StdEncoding.EncodeToString(host.transmissionToken.GetBytes()))
 	return ctx
@@ -345,7 +363,7 @@ func (c *ProtoComms) verifyMessage(msg proto.Message, signature []byte, host *Ho
 		idToHash = id.DummyUser.DeepCopy()
 		idToHash.SetType(id.Node)
 	} else {
-		idToHash = c.Id
+		idToHash = c.networkId
 	}
 
 	// Get hashed data of the message

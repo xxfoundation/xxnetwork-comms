@@ -19,7 +19,6 @@ import (
 	"gitlab.com/xx_network/crypto/shuffle"
 	"gitlab.com/xx_network/primitives/id"
 	"golang.org/x/crypto/blake2b"
-	"google.golang.org/grpc"
 	"io"
 	"math"
 	"sync"
@@ -292,8 +291,8 @@ func (p *Protocol) Gossip(msg *GossipMsg) (int, []error) {
 		if !ok {
 			return errors.Errorf("Failed to get host with ID %s", id)
 		}
-		f := func(conn *grpc.ClientConn) (*any.Any, error) {
-			gossipClient := NewGossipClient(conn)
+		f := func(conn connect.Connection) (*any.Any, error) {
+			gossipClient := NewGossipClient(conn.GetGrpcConn())
 			ack, err := gossipClient.Endpoint(context.Background(), msg)
 			if err != nil {
 				return nil, errors.WithMessage(err, "Failed to send message")

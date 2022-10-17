@@ -11,20 +11,19 @@ import (
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/pkg/errors"
 	"gitlab.com/xx_network/primitives/id"
-	"google.golang.org/grpc"
 	"testing"
 )
 
 // Test that trying to send to a host with no address fails
 func TestSendNoAddressFails(t *testing.T) {
 	// Define a new protocomms object
-	comms := &ProtoComms{Id: id.NewIdFromString("test", id.Generic, t)}
+	comms := &ProtoComms{networkId: id.NewIdFromString("test", id.Generic, t)}
 
 	// Make fake host
 	host := Host{}
 
 	// Create the Send Function
-	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+	f := func(conn Connection) (*any.Any, error) {
 		t.Errorf("Client send function shouldn't have run")
 		return nil, errors.New("Client send function shouldn't have run")
 	}

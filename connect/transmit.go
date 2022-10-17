@@ -10,7 +10,6 @@ package connect
 import (
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
-	"google.golang.org/grpc"
 	"strings"
 )
 
@@ -24,7 +23,7 @@ const lastTryErr = "Last try to connect to"
 // and then do the operation, leaving the host as connected. In a system
 // like the host pool in client, this will cause untracked connections.
 // Given that connections have timeouts, this is a minor issue
-func (c *ProtoComms) transmit(host *Host, f func(conn *grpc.ClientConn) (interface{},
+func (c *ProtoComms) transmit(host *Host, f func(conn Connection) (interface{},
 	error)) (result interface{}, err error) {
 
 	if host.GetAddress() == "" {

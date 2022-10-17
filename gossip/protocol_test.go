@@ -16,7 +16,6 @@ import (
 	"gitlab.com/xx_network/comms/testkeys"
 	"gitlab.com/xx_network/primitives/id"
 	"math"
-	"net"
 	"strconv"
 	"sync"
 	"sync/atomic"
@@ -462,7 +461,6 @@ func TestGossipNodes(t *testing.T) {
 	ports := make([]string, 0, numNodes)
 	// atomic counter for gossip reception
 	numReceived := uint64(0)
-	listeners := make([]net.Listener, 0, numNodes)
 
 	validSig := []byte("valid signature")
 	// unsure if this is causing my problems
@@ -474,8 +472,7 @@ func TestGossipNodes(t *testing.T) {
 		node := id.NewIdFromUInt(uint64(i), id.Node, t)
 		nodes = append(nodes, node)
 		ports = append(ports, port)
-		pc, listen, err := connect.StartCommServer(node, "0.0.0.0:"+port, certPEM, keyPEM, nil)
-		listeners = append(listeners, listen)
+		pc, err := connect.StartCommServer(node, "0.0.0.0:"+port, certPEM, keyPEM, nil)
 
 		// Do I need to add other hosts before calling NewManager?
 		if err != nil {
@@ -488,11 +485,8 @@ func TestGossipNodes(t *testing.T) {
 
 		go func() {
 			// start serving
-			RegisterGossipServer(pc.LocalServer, manager)
-			err := pc.LocalServer.Serve(listen)
-			if err != nil {
-				t.Fatal(err)
-			}
+			RegisterGossipServer(pc.GetServer(), manager)
+			pc.Serve()
 		}()
 	}
 

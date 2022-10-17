@@ -12,7 +12,6 @@ import (
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	"gitlab.com/xx_network/primitives/id"
-	"google.golang.org/grpc"
 	"net"
 	"strings"
 	"testing"
@@ -214,7 +213,7 @@ func TestHost_transmit_ProxyError(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Unable to create host: %+v", host)
 	}
-	host.connection = &grpc.ClientConn{}
+	host.connection = &webConn{}
 
 	originalErr := errors.New("Unable to SendToAny via " +
 		"ZT9BlnUhZZaPGB/A0BBR6tIjRrASM5GcnXrSkepElWwB: Register: Failed " +
@@ -223,7 +222,7 @@ func TestHost_transmit_ProxyError(t *testing.T) {
 		"Unknown desc = unable to connect to target host " +
 		"I3g/DVoWVGsz/JTh6DuccdgXT8o0fM+TtA21EppKPtcB..Did not replace host.")
 
-	f := func(*grpc.ClientConn) (interface{}, error) {
+	f := func(conn Connection) (interface{}, error) {
 		return nil, originalErr
 	}
 
