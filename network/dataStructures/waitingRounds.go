@@ -309,19 +309,40 @@ func (wr *WaitingRounds) GetUpcomingRealtime(timeout time.Duration,
 }
 
 func (wr *WaitingRounds) get(exclude excludedRounds.ExcludedRounds, minRoundAge time.Duration) *pb.RoundInfo {
-	if exclude.Len() < maxGetClosestTries {
-		// Use getClosest when excluded set's length is small
-		round := wr.getClosest(exclude, minRoundAge)
-		if round != nil {
-			return round.Get()
-		}
-	} else {
-		// Use getFurthest when excluded set's length exceeds maxGetClosestTries
-		round := wr.getFurthest(exclude, minRoundAge)
-		if round != nil {
-			return round.Get()
-		}
+
+	delay := multiply(exclude.Len(), minRoundAge)
+
+	round := wr.getClosest(exclude, delay)
+	if round != nil {
+		return round.Get()
 	}
+
 	return nil
 
+}
+
+type fraction struct {
+	numerator   uint
+	denominator uint
+}
+
+var roundAgeMultiplier = []fraction{
+	fraction{1, 1},
+	fraction{5, 4},
+	fraction{7, 4},
+	fraction{11, 4},
+	fraction{19, 4},
+	fraction{27, 4},
+	fraction{35, 4},
+}
+
+func multiply(n int, duration time.Duration) time.Duration {
+	if n >= len(roundAgeMultiplier) {
+		n = len(roundAgeMultiplier) - 1
+	}
+
+	f := roundAgeMultiplier[n]
+	duration = duration * time.Duration(f.numerator)
+	duration = duration / time.Duration(f.denominator)
+	return duration
 }
