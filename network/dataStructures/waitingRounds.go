@@ -282,15 +282,17 @@ func (wr *WaitingRounds) GetSlice() []*pb.RoundInfo {
 // attempts at pulling the closest round, GetUpcomingRealtime will retrieve
 // the furthest non-excluded round from WaitingRounds.
 func (wr *WaitingRounds) GetUpcomingRealtime(timeout time.Duration,
-	exclude excludedRounds.ExcludedRounds, minRoundAge time.Duration) (*pb.RoundInfo, error) {
+	exclude excludedRounds.ExcludedRounds, numAttempts int, minRoundAge time.Duration) (*pb.RoundInfo, time.Duration, error) {
 
 	// Start timeout timer
 	timer := time.NewTimer(timeout)
 
+	delay := multiply(numAttempts, minRoundAge)
+
 	// Start seeing if an acceptable round exists
-	round := wr.get(exclude, minRoundAge)
+	round := wr.get(exclude, delay)
 	if round != nil {
-		return round, nil
+		return round, delay, nil
 	}
 
 	jww.INFO.Printf("Could not find round to send on, waiting for update")
@@ -298,19 +300,17 @@ func (wr *WaitingRounds) GetUpcomingRealtime(timeout time.Duration,
 	for {
 		select {
 		case <-timer.C:
-			return nil, timeOutError
+			return nil, 0, timeOutError
 		case <-wr.signal:
-			round = wr.get(exclude, minRoundAge)
+			round = wr.get(exclude, 0)
 			if round != nil {
-				return round, nil
+				return round, 0, nil
 			}
 		}
 	}
 }
 
-func (wr *WaitingRounds) get(exclude excludedRounds.ExcludedRounds, minRoundAge time.Duration) *pb.RoundInfo {
-
-	delay := multiply(exclude.Len(), minRoundAge)
+func (wr *WaitingRounds) get(exclude excludedRounds.ExcludedRounds, delay time.Duration) *pb.RoundInfo {
 
 	round := wr.getClosest(exclude, delay)
 	if round != nil {
@@ -318,7 +318,6 @@ func (wr *WaitingRounds) get(exclude excludedRounds.ExcludedRounds, minRoundAge 
 	}
 
 	return nil
-
 }
 
 type fraction struct {
