@@ -160,13 +160,13 @@ func (wr *WaitingRounds) storeReadRounds() {
 
 	//sort the rounds list, soonest first
 	sort.Slice(roundsList, func(i, j int) bool {
-		return roundsList[i].StartTime().After(roundsList[j].StartTime())
+		return roundsList[i].StartTime().Before(roundsList[j].StartTime())
 	})
 
 	var rprint string
 	for _, r := range roundsList {
 		rprint += fmt.Sprintf("\n\tround: %d, startTime: %s, time to start: %s",
-			r.info.ID, r.StartTime(), netTime.Since(r.StartTime()))
+			r.info.ID, r.StartTime(), netTime.Until(r.StartTime()))
 	}
 
 	jww.INFO.Printf("Rounds Order: %s", rprint)
