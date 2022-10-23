@@ -8,6 +8,7 @@
 package dataStructures
 
 import (
+	"fmt"
 	"sort"
 	"sync"
 	"sync/atomic"
@@ -18,7 +19,6 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/primitives/excludedRounds"
-	"gitlab.com/elixxir/primitives/states"
 	"gitlab.com/xx_network/primitives/id"
 	"gitlab.com/xx_network/primitives/netTime"
 )
@@ -70,8 +70,7 @@ func (wr *WaitingRounds) NumValidRounds(now time.Time) int {
 	numValid := 0
 
 	for _, r := range rounds {
-		roundStartTime := time.Unix(0, int64(r.info.Timestamps[states.QUEUED]))
-		if roundStartTime.After(now) {
+		if r.StartTime().After(now) {
 			numValid++
 		}
 	}
@@ -87,8 +86,7 @@ func (wr *WaitingRounds) HasValidRounds(now time.Time) bool {
 	rounds := wr.readRounds.Load().([]*Round)
 
 	for _, r := range rounds {
-		roundStartTime := time.Unix(0, int64(r.info.Timestamps[states.QUEUED]))
-		if roundStartTime.After(now) {
+		if r.StartTime().After(now) {
 			return true
 		}
 	}
@@ -108,8 +106,7 @@ func (wr *WaitingRounds) Insert(added, removed []*Round) {
 	var addedRounds uint
 	for i := range added {
 		toAdd := added[i]
-		roundStartTime := time.Unix(0, int64(toAdd.info.Timestamps[states.QUEUED]))
-		if roundStartTime.After(netTime.Now()) {
+		if toAdd.StartTime().After(netTime.Now()) {
 			addedRounds++
 			wr.writeRounds.Set(toAdd.info.ID, toAdd)
 		}
@@ -154,8 +151,7 @@ func (wr *WaitingRounds) storeReadRounds() {
 	//filter rounds which should not be included
 	for e := wr.writeRounds.Front(); e != nil; e = e.Next() {
 		rnd := e.Value.(*Round)
-		roundStartTime := time.Unix(0, int64(rnd.info.Timestamps[states.QUEUED]))
-		if now.Before(roundStartTime) {
+		if now.Before(rnd.StartTime()) {
 			roundsList = append(roundsList, rnd)
 		} else {
 			toDelete = append(toDelete, rnd)
@@ -164,10 +160,16 @@ func (wr *WaitingRounds) storeReadRounds() {
 
 	//sort the rounds list, soonest first
 	sort.Slice(roundsList, func(i, j int) bool {
-		iTs := time.Unix(0, int64(roundsList[i].info.Timestamps[states.QUEUED]))
-		jTs := time.Unix(0, int64(roundsList[j].info.Timestamps[states.QUEUED]))
-		return iTs.Before(jTs)
+		return roundsList[i].StartTime().After(roundsList[j].StartTime())
 	})
+
+	var rprint string
+	for _, r := range roundsList {
+		rprint += fmt.Sprintf("\n\tround: %d, startTime: %s, time to start: %s",
+			r.info.ID, r.StartTime(), netTime.Since(r.StartTime()))
+	}
+
+	jww.INFO.Printf("Rounds Order: %s", rprint)
 
 	wr.readRounds.Store(roundsList)
 
@@ -199,8 +201,7 @@ func (wr *WaitingRounds) getFurthest(exclude excludedRounds.ExcludedRounds,
 
 		// Cannot guarantee that the round object's pointers will be exact match
 		// of value in set
-		roundStartTime := time.Unix(0, int64(r.info.Timestamps[states.QUEUED]))
-		if roundStartTime.After(earliestStart) {
+		if r.StartTime().After(earliestStart) {
 			// If no excluded list has been passed in, do not check
 			if exclude == nil {
 				return r
@@ -239,8 +240,7 @@ func (wr *WaitingRounds) getClosest(exclude excludedRounds.ExcludedRounds,
 
 		// Cannot guarantee that the round object's pointers will be exact match
 		// of value in set
-		roundStartTime := time.Unix(0, int64(r.info.Timestamps[states.QUEUED]))
-		if roundStartTime.After(earliestStart) {
+		if r.StartTime().After(earliestStart) {
 			// If no excluded list has been passed in, do not check
 			if exclude == nil {
 				return r
@@ -271,9 +271,7 @@ func (wr *WaitingRounds) GetSlice() []*pb.RoundInfo {
 
 	timeNow := netTime.Now()
 	for i := 0; i < len(roundsList); i++ {
-		roundStartTime := time.Unix(
-			0, int64(roundsList[i].info.Timestamps[states.QUEUED]))
-		if roundStartTime.After(timeNow) {
+		if roundsList[i].StartTime().After(timeNow) {
 			roundInfos = append(roundInfos, roundsList[i].info)
 		}
 	}
