@@ -8,6 +8,7 @@
 package dataStructures
 
 import (
+	"sort"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -146,17 +147,27 @@ func (wr *WaitingRounds) Insert(added, removed []*Round) {
 
 func (wr *WaitingRounds) storeReadRounds() {
 	roundsList := make([]*Round, 0, wr.writeRounds.Len())
-	toDelete := make([]*Round, 0)
+	toDelete := make([]*Round, 0, wr.writeRounds.Len())
 
+	now := netTime.Now()
+
+	//filter rounds which should not be included
 	for e := wr.writeRounds.Front(); e != nil; e = e.Next() {
 		rnd := e.Value.(*Round)
 		roundStartTime := time.Unix(0, int64(rnd.info.Timestamps[states.QUEUED]))
-		if netTime.Since(roundStartTime) < time.Hour {
+		if now.Before(roundStartTime) {
 			roundsList = append(roundsList, rnd)
 		} else {
 			toDelete = append(toDelete, rnd)
 		}
 	}
+
+	//sort the rounds list, soonest first
+	sort.Slice(roundsList, func(i, j int) bool {
+		iTs := time.Unix(0, int64(roundsList[i].info.Timestamps[states.QUEUED]))
+		jTs := time.Unix(0, int64(roundsList[j].info.Timestamps[states.QUEUED]))
+		return iTs.Before(jTs)
+	})
 
 	wr.readRounds.Store(roundsList)
 
