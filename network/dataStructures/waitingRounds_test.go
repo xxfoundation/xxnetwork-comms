@@ -277,16 +277,16 @@ func TestWaitingRounds_GetSlice(t *testing.T) {
 	testSlice := testWR.GetSlice()
 
 	// Convert Round slice to round info slice
-	expectedRoundInfos := make([]*pb.RoundInfo, 0, len(expectedRounds))
-	for _, val := range expectedRounds {
-		expectedRoundInfos = append(expectedRoundInfos, val.info)
+outer:
+	for i, val := range expectedRounds {
+		for _, result := range testSlice {
+			if val.info.ID == result.ID {
+				continue outer
+			}
+		}
+		t.Errorf("element %d not present", i)
 	}
 
-	if !reflect.DeepEqual(expectedRoundInfos, testSlice) {
-		t.Errorf("GetSlice() returned slice with incorrect rounds."+
-			"\n\texepcted: %v\n\treceived: %v",
-			expectedRoundInfos, testSlice)
-	}
 }
 
 // Generates two lists of round infos. The first is the expected rounds in the
@@ -302,19 +302,26 @@ func createTestRoundInfos(num int, startTime time.Time, t *testing.T) ([]*Round,
 	}
 
 	for i := 0; i < num; i++ {
-		rounds[i] = NewRound(&pb.RoundInfo{
+		include := false
+		ri := &pb.RoundInfo{
 			ID:         uint64(i),
 			State:      uint32(rand.Int63n(int64(states.NUM_STATES) - 1)),
 			Timestamps: make([]uint64, current.NUM_STATES),
-		}, pubKey, nil)
-		rounds[i].info.Timestamps[states.QUEUED] = uint64(startTime.UnixNano())
-		startTime = startTime.Add(100 * time.Millisecond)
-		if i%2 == 1 {
-			rounds[i].info.State = uint32(states.QUEUED)
-			expectedRounds = append(expectedRounds, rounds[i])
-		} else if rounds[i].info.State == uint32(states.QUEUED) {
-			rounds[i].info.State = uint32(states.REALTIME)
 		}
+		ri.Timestamps[states.QUEUED] = uint64(startTime.UnixNano())
+		if i%2 == 1 {
+			ri.State = uint32(states.QUEUED)
+			include = true
+		} else if ri.State == uint32(states.QUEUED) {
+			ri.State = uint32(states.REALTIME)
+		}
+		rounds[i] = NewRound(ri, pubKey, nil)
+		if include {
+			expectedRounds = append(expectedRounds, rounds[i])
+		}
+
+		startTime = startTime.Add(100 * time.Millisecond)
+
 	}
 	perm := rand.Perm(num)
 	for i, v := range perm {

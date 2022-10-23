@@ -101,14 +101,15 @@ func (wr *WaitingRounds) HasValidRounds(now time.Time) bool {
 func (wr *WaitingRounds) Insert(added, removed []*Round) {
 	wr.mux.Lock()
 	defer wr.mux.Unlock()
-
+	now := netTime.Now()
 	// Add any round which should be added
 	var addedRounds uint
 	for i := range added {
 		toAdd := added[i]
-		if toAdd.StartTime().After(netTime.Now()) {
+		if toAdd.StartTime().After(now) {
 			addedRounds++
 			wr.writeRounds.Set(toAdd.info.ID, toAdd)
+		} else {
 		}
 	}
 
