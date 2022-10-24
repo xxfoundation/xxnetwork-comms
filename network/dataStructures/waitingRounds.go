@@ -163,13 +163,14 @@ func (wr *WaitingRounds) storeReadRounds() {
 		return roundsList[i].StartTime().Before(roundsList[j].StartTime())
 	})
 
-	var rprint string
-	for _, r := range roundsList {
-		rprint += fmt.Sprintf("\n\tround: %d, startTime: %s, time to start: %s",
-			r.info.ID, r.StartTime(), netTime.Until(r.StartTime()))
+	if jww.LogThreshold() == jww.LevelTrace {
+		var rprint string
+		for _, r := range roundsList {
+			rprint += fmt.Sprintf("\n\tround: %d, startTime: %s, time to start: %s",
+				r.info.ID, r.StartTime(), netTime.Until(r.StartTime()))
+		}
+		jww.TRACE.Printf("Rounds Order: %s", rprint)
 	}
-
-	jww.INFO.Printf("Rounds Order: %s", rprint)
 
 	wr.readRounds.Store(roundsList)
 
