@@ -109,7 +109,6 @@ func (wr *WaitingRounds) Insert(added, removed []*Round) {
 		if toAdd.StartTime().After(now) {
 			addedRounds++
 			wr.writeRounds.Set(toAdd.info.ID, toAdd)
-		} else {
 		}
 	}
 
