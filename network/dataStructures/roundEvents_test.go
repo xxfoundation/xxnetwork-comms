@@ -102,8 +102,9 @@ func TestRoundEvents_TriggerRoundEvent(t *testing.T) {
 
 	// Construct a mock round object
 	ri := &pb.RoundInfo{
-		ID:    uint64(rid),
-		State: uint32(states.PENDING),
+		ID:         uint64(rid),
+		State:      uint32(states.PENDING),
+		Timestamps: make([]uint64, states.NUM_STATES),
 	}
 
 	if err := testutils.SignRoundInfoRsa(ri, t); err != nil {
@@ -151,12 +152,14 @@ func TestRoundEvents_TriggerRoundEvents(t *testing.T) {
 
 	// Construct a mock round object
 	ri1 := &pb.RoundInfo{
-		ID:    uint64(rid1),
-		State: uint32(states.PENDING),
+		ID:         uint64(rid1),
+		State:      uint32(states.PENDING),
+		Timestamps: make([]uint64, states.NUM_STATES),
 	}
 	ri2 := &pb.RoundInfo{
-		ID:    uint64(rid2),
-		State: uint32(states.PENDING),
+		ID:         uint64(rid2),
+		State:      uint32(states.PENDING),
+		Timestamps: make([]uint64, states.NUM_STATES),
 	}
 
 	if err := testutils.SignRoundInfoRsa(ri1, t); err != nil {
@@ -198,8 +201,9 @@ func TestRoundEvents_AddRoundEventChan(t *testing.T) {
 
 	// Construct a mock round object
 	ri := &pb.RoundInfo{
-		ID:    uint64(rid),
-		State: uint32(states.PENDING),
+		ID:         uint64(rid),
+		State:      uint32(states.PENDING),
+		Timestamps: make([]uint64, states.NUM_STATES),
 	}
 	if err := testutils.SignRoundInfoRsa(ri, t); err != nil {
 		t.Errorf("Failed to sign mock round info: %v", err)

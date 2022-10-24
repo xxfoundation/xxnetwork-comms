@@ -8,6 +8,8 @@
 package dataStructures
 
 import (
+	"fmt"
+	"sort"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -17,7 +19,6 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/primitives/excludedRounds"
-	"gitlab.com/elixxir/primitives/states"
 	"gitlab.com/xx_network/primitives/id"
 	"gitlab.com/xx_network/primitives/netTime"
 )
@@ -69,8 +70,7 @@ func (wr *WaitingRounds) NumValidRounds(now time.Time) int {
 	numValid := 0
 
 	for _, r := range rounds {
-		roundStartTime := time.Unix(0, int64(r.info.Timestamps[states.QUEUED]))
-		if roundStartTime.After(now) {
+		if r.StartTime().After(now) {
 			numValid++
 		}
 	}
@@ -86,8 +86,7 @@ func (wr *WaitingRounds) HasValidRounds(now time.Time) bool {
 	rounds := wr.readRounds.Load().([]*Round)
 
 	for _, r := range rounds {
-		roundStartTime := time.Unix(0, int64(r.info.Timestamps[states.QUEUED]))
-		if roundStartTime.After(now) {
+		if r.StartTime().After(now) {
 			return true
 		}
 	}
@@ -102,13 +101,12 @@ func (wr *WaitingRounds) HasValidRounds(now time.Time) bool {
 func (wr *WaitingRounds) Insert(added, removed []*Round) {
 	wr.mux.Lock()
 	defer wr.mux.Unlock()
-
+	now := netTime.Now()
 	// Add any round which should be added
 	var addedRounds uint
 	for i := range added {
 		toAdd := added[i]
-		roundStartTime := time.Unix(0, int64(toAdd.info.Timestamps[states.QUEUED]))
-		if roundStartTime.After(netTime.Now()) {
+		if toAdd.StartTime().After(now) {
 			addedRounds++
 			wr.writeRounds.Set(toAdd.info.ID, toAdd)
 		}
@@ -146,17 +144,32 @@ func (wr *WaitingRounds) Insert(added, removed []*Round) {
 
 func (wr *WaitingRounds) storeReadRounds() {
 	roundsList := make([]*Round, 0, wr.writeRounds.Len())
-	toDelete := make([]*Round, 0)
+	toDelete := make([]*Round, 0, wr.writeRounds.Len())
 
+	now := netTime.Now()
+
+	//filter rounds which should not be included
 	for e := wr.writeRounds.Front(); e != nil; e = e.Next() {
 		rnd := e.Value.(*Round)
-		roundStartTime := time.Unix(0, int64(rnd.info.Timestamps[states.QUEUED]))
-		if netTime.Since(roundStartTime) < time.Hour {
+		if now.Before(rnd.StartTime()) {
 			roundsList = append(roundsList, rnd)
 		} else {
 			toDelete = append(toDelete, rnd)
 		}
 	}
+
+	//sort the rounds list, soonest first
+	sort.Slice(roundsList, func(i, j int) bool {
+		return roundsList[i].StartTime().Before(roundsList[j].StartTime())
+	})
+
+	var rprint string
+	for _, r := range roundsList {
+		rprint += fmt.Sprintf("\n\tround: %d, startTime: %s, time to start: %s",
+			r.info.ID, r.StartTime(), netTime.Until(r.StartTime()))
+	}
+
+	jww.INFO.Printf("Rounds Order: %s", rprint)
 
 	wr.readRounds.Store(roundsList)
 
@@ -188,8 +201,7 @@ func (wr *WaitingRounds) getFurthest(exclude excludedRounds.ExcludedRounds,
 
 		// Cannot guarantee that the round object's pointers will be exact match
 		// of value in set
-		roundStartTime := time.Unix(0, int64(r.info.Timestamps[states.QUEUED]))
-		if roundStartTime.After(earliestStart) {
+		if r.StartTime().After(earliestStart) {
 			// If no excluded list has been passed in, do not check
 			if exclude == nil {
 				return r
@@ -228,8 +240,7 @@ func (wr *WaitingRounds) getClosest(exclude excludedRounds.ExcludedRounds,
 
 		// Cannot guarantee that the round object's pointers will be exact match
 		// of value in set
-		roundStartTime := time.Unix(0, int64(r.info.Timestamps[states.QUEUED]))
-		if roundStartTime.After(earliestStart) {
+		if r.StartTime().After(earliestStart) {
 			// If no excluded list has been passed in, do not check
 			if exclude == nil {
 				return r
@@ -260,9 +271,7 @@ func (wr *WaitingRounds) GetSlice() []*pb.RoundInfo {
 
 	timeNow := netTime.Now()
 	for i := 0; i < len(roundsList); i++ {
-		roundStartTime := time.Unix(
-			0, int64(roundsList[i].info.Timestamps[states.QUEUED]))
-		if roundStartTime.After(timeNow) {
+		if roundsList[i].StartTime().After(timeNow) {
 			roundInfos = append(roundInfos, roundsList[i].info)
 		}
 	}
@@ -282,15 +291,17 @@ func (wr *WaitingRounds) GetSlice() []*pb.RoundInfo {
 // attempts at pulling the closest round, GetUpcomingRealtime will retrieve
 // the furthest non-excluded round from WaitingRounds.
 func (wr *WaitingRounds) GetUpcomingRealtime(timeout time.Duration,
-	exclude excludedRounds.ExcludedRounds, minRoundAge time.Duration) (*pb.RoundInfo, error) {
+	exclude excludedRounds.ExcludedRounds, numAttempts int, minRoundAge time.Duration) (*pb.RoundInfo, time.Duration, error) {
 
 	// Start timeout timer
 	timer := time.NewTimer(timeout)
 
+	delay := multiply(numAttempts, minRoundAge)
+
 	// Start seeing if an acceptable round exists
-	round := wr.get(exclude, minRoundAge)
+	round := wr.get(exclude, delay)
 	if round != nil {
-		return round, nil
+		return round, delay, nil
 	}
 
 	jww.INFO.Printf("Could not find round to send on, waiting for update")
@@ -298,30 +309,48 @@ func (wr *WaitingRounds) GetUpcomingRealtime(timeout time.Duration,
 	for {
 		select {
 		case <-timer.C:
-			return nil, timeOutError
+			return nil, 0, timeOutError
 		case <-wr.signal:
-			round = wr.get(exclude, minRoundAge)
+			round = wr.get(exclude, 0)
 			if round != nil {
-				return round, nil
+				return round, 0, nil
 			}
 		}
 	}
 }
 
-func (wr *WaitingRounds) get(exclude excludedRounds.ExcludedRounds, minRoundAge time.Duration) *pb.RoundInfo {
-	if exclude.Len() < maxGetClosestTries {
-		// Use getClosest when excluded set's length is small
-		round := wr.getClosest(exclude, minRoundAge)
-		if round != nil {
-			return round.Get()
-		}
-	} else {
-		// Use getFurthest when excluded set's length exceeds maxGetClosestTries
-		round := wr.getFurthest(exclude, minRoundAge)
-		if round != nil {
-			return round.Get()
-		}
-	}
-	return nil
+func (wr *WaitingRounds) get(exclude excludedRounds.ExcludedRounds, delay time.Duration) *pb.RoundInfo {
 
+	round := wr.getClosest(exclude, delay)
+	if round != nil {
+		return round.Get()
+	}
+
+	return nil
+}
+
+type fraction struct {
+	numerator   uint
+	denominator uint
+}
+
+var roundAgeMultiplier = []fraction{
+	fraction{1, 1},
+	fraction{5, 4},
+	fraction{7, 4},
+	fraction{11, 4},
+	fraction{19, 4},
+	fraction{27, 4},
+	fraction{35, 4},
+}
+
+func multiply(n int, duration time.Duration) time.Duration {
+	if n >= len(roundAgeMultiplier) {
+		n = len(roundAgeMultiplier) - 1
+	}
+
+	f := roundAgeMultiplier[n]
+	duration = duration * time.Duration(f.numerator)
+	duration = duration / time.Duration(f.denominator)
+	return duration
 }

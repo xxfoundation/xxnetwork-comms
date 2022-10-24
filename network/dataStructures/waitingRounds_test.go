@@ -182,7 +182,7 @@ func TestWaitingRounds_GetUpcomingRealtime_NoWait(t *testing.T) {
 	testWR.Insert(expectedRounds, nil)
 
 	for i := 0; i < len(expectedRounds); i++ {
-		furthestRound, err := testWR.GetUpcomingRealtime(300*time.Millisecond, excludedRounds.NewSet(), 0)
+		furthestRound, _, err := testWR.GetUpcomingRealtime(300*time.Millisecond, excludedRounds.NewSet(), 0, 0)
 		if err != nil {
 			t.Errorf("GetUpcomingRealtime() returned an unexpected error."+
 				"\n\terror: %v", err)
@@ -203,7 +203,7 @@ func TestWaitingRounds_GetUpcomingRealtime_TimeoutError(t *testing.T) {
 	testWR := NewWaitingRounds()
 	testWR.storeReadRounds()
 
-	furthestRound, err := testWR.GetUpcomingRealtime(300*time.Millisecond, excludedRounds.NewSet(), 0)
+	furthestRound, _, err := testWR.GetUpcomingRealtime(300*time.Millisecond, excludedRounds.NewSet(), 0, 0)
 	if err != timeOutError {
 		t.Errorf("GetUpcomingRealtime() did not time out when expected."+
 			"\nexpected: %v\n\treceived: %v", timeOutError, err)
@@ -231,7 +231,7 @@ func TestWaitingRounds_GetUpcomingRealtime(t *testing.T) {
 		}(round)
 		testWR.storeReadRounds()
 
-		furthestRound, err := testWR.GetUpcomingRealtime(5*time.Second, excludedRounds.NewSet(), 0)
+		furthestRound, _, err := testWR.GetUpcomingRealtime(5*time.Second, excludedRounds.NewSet(), 0, 0)
 
 		if err != nil {
 			t.Errorf("GetUpcomingRealtime() returned an unexpected error (%d)."+
@@ -243,49 +243,6 @@ func TestWaitingRounds_GetUpcomingRealtime(t *testing.T) {
 		}
 		testWR.Insert(nil, []*Round{round})
 	}
-}
-
-// Tests that GetUpcomingRealtime pulls the furthest round when
-// the excluded set's length exceeds maxGetClosestTries.
-func TestWaitingRounds_GetUpcomingRealtime_GetFurthest(t *testing.T) {
-	// Generate rounds and WaitingRound
-	expectedRounds, _ := createTestRoundInfos(25, netTime.Now().Add(5*time.Second), t)
-	testWR := NewWaitingRounds()
-
-	// Populate the set
-	testSet := excludedRounds.NewSet()
-	expectedTestSet := excludedRounds.NewSet()
-	for i := 0; i < maxGetClosestTries; i++ {
-		testSet.Insert(expectedRounds[i].info.GetRoundId())
-		expectedTestSet.Insert(expectedRounds[i].info.GetRoundId())
-	}
-
-	// Populate the waiting rounds
-	for i, round := range expectedRounds {
-		time.Sleep(30 * time.Millisecond)
-		err := testutils.SignRoundInfoRsa(round.info, t)
-		if err != nil {
-			t.Errorf("Failed to sign round info #%d: %+v", i, err)
-		}
-		testWR.Insert([]*Round{round}, nil)
-	}
-
-	// Attempt to get the furthest round in the queue
-	furthestRound, err := testWR.GetUpcomingRealtime(5*time.Second, testSet, 0)
-	if err != nil {
-		t.Errorf("GetUpcomingRealtime() returned an unexpected error."+
-			"\n\terror: %v", err)
-	}
-
-	expectedFurthest := testWR.getFurthest(expectedTestSet, 0).Get()
-
-	if !reflect.DeepEqual(expectedFurthest, furthestRound) {
-		t.Fatalf("GetUpcomingRealtime should retrieve the furthest round"+
-			" in waiting rounds."+
-			"\n\tExpected: %v\n\tReceived: %v", expectedFurthest, furthestRound)
-
-	}
-
 }
 
 // Happy path of WaitingRounds.GetSlice().
@@ -320,16 +277,16 @@ func TestWaitingRounds_GetSlice(t *testing.T) {
 	testSlice := testWR.GetSlice()
 
 	// Convert Round slice to round info slice
-	expectedRoundInfos := make([]*pb.RoundInfo, 0, len(expectedRounds))
-	for _, val := range expectedRounds {
-		expectedRoundInfos = append(expectedRoundInfos, val.info)
+outer:
+	for i, val := range expectedRounds {
+		for _, result := range testSlice {
+			if val.info.ID == result.ID {
+				continue outer
+			}
+		}
+		t.Errorf("element %d not present", i)
 	}
 
-	if !reflect.DeepEqual(expectedRoundInfos, testSlice) {
-		t.Errorf("GetSlice() returned slice with incorrect rounds."+
-			"\n\texepcted: %v\n\treceived: %v",
-			expectedRoundInfos, testSlice)
-	}
 }
 
 // Generates two lists of round infos. The first is the expected rounds in the
@@ -345,19 +302,26 @@ func createTestRoundInfos(num int, startTime time.Time, t *testing.T) ([]*Round,
 	}
 
 	for i := 0; i < num; i++ {
-		rounds[i] = NewRound(&pb.RoundInfo{
+		include := false
+		ri := &pb.RoundInfo{
 			ID:         uint64(i),
 			State:      uint32(rand.Int63n(int64(states.NUM_STATES) - 1)),
 			Timestamps: make([]uint64, current.NUM_STATES),
-		}, pubKey, nil)
-		rounds[i].info.Timestamps[states.QUEUED] = uint64(startTime.UnixNano())
-		startTime = startTime.Add(100 * time.Millisecond)
-		if i%2 == 1 {
-			rounds[i].info.State = uint32(states.QUEUED)
-			expectedRounds = append(expectedRounds, rounds[i])
-		} else if rounds[i].info.State == uint32(states.QUEUED) {
-			rounds[i].info.State = uint32(states.REALTIME)
 		}
+		ri.Timestamps[states.QUEUED] = uint64(startTime.UnixNano())
+		if i%2 == 1 {
+			ri.State = uint32(states.QUEUED)
+			include = true
+		} else if ri.State == uint32(states.QUEUED) {
+			ri.State = uint32(states.REALTIME)
+		}
+		rounds[i] = NewRound(ri, pubKey, nil)
+		if include {
+			expectedRounds = append(expectedRounds, rounds[i])
+		}
+
+		startTime = startTime.Add(100 * time.Millisecond)
+
 	}
 	perm := rand.Perm(num)
 	for i, v := range perm {

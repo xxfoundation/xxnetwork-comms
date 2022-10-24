@@ -10,6 +10,7 @@ package dataStructures
 import (
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/testutils"
+	"gitlab.com/elixxir/primitives/states"
 	"testing"
 )
 
@@ -18,8 +19,9 @@ func TestUpdates_AddRound(t *testing.T) {
 	u := NewUpdates()
 	// Construct a mock round object
 	ri := &mixmessages.RoundInfo{
-		ID:       0,
-		UpdateID: 0,
+		ID:         0,
+		UpdateID:   0,
+		Timestamps: make([]uint64, states.NUM_STATES),
 	}
 	pubKey, err := testutils.LoadPublicKeyTesting(t)
 	if err != nil {
@@ -41,8 +43,9 @@ func TestUpdates_GetUpdate(t *testing.T) {
 	updateID := 3
 	// Construct a mock round object
 	ri := &mixmessages.RoundInfo{
-		ID:       0,
-		UpdateID: uint64(updateID),
+		ID:         0,
+		UpdateID:   uint64(updateID),
+		Timestamps: make([]uint64, states.NUM_STATES),
 	}
 	if err := testutils.SignRoundInfoRsa(ri, t); err != nil {
 		t.Errorf("Failed to sign mock round info: %v", err)
@@ -80,8 +83,9 @@ func TestUpdates_GetUpdates(t *testing.T) {
 	updateID := 3
 	// Construct a mock round object
 	roundInfoOne := &mixmessages.RoundInfo{
-		ID:       0,
-		UpdateID: uint64(updateID),
+		ID:         0,
+		UpdateID:   uint64(updateID),
+		Timestamps: make([]uint64, states.NUM_STATES),
 	}
 
 	// Sign the round on the keys
@@ -96,8 +100,9 @@ func TestUpdates_GetUpdates(t *testing.T) {
 
 	// Construct a second eound
 	roundInfoTwo := &mixmessages.RoundInfo{
-		ID:       0,
-		UpdateID: uint64(updateID + 1),
+		ID:         0,
+		UpdateID:   uint64(updateID + 1),
+		Timestamps: make([]uint64, states.NUM_STATES),
 	}
 	if err := testutils.SignRoundInfoRsa(roundInfoTwo, t); err != nil {
 		t.Errorf("Failed to sign mock round info: %v", err)
