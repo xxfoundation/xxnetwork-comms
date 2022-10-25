@@ -21,51 +21,26 @@ If glide isn't working and you don't know why, try removing glide.lock and
 
 ## Regenerate Protobuf File
 
-To regenerate the `mixmessage.pb.go` file, first install gRPC:
+First install the protobuf compiler or update by following the instructions in
+[Installing Protocol Buffer Compiler](#installing-protocol-buffer-compiler)
+below.
 
-`go get -u google.golang.org/grpc`
+Use the following command to compile a protocol buffer.
 
-Then install protocol buffers v3 as follows:
-- The simplest way to do this is to download pre-compiled binaries
-  **for your platform** (`protoc-[version]-[platform].zip`) from here:
-    https://github.com/google/protobuf/releases
-- Unzip and move the protoc binary in the `bin` directory to some logical
-  location (e.g. `/usr/local/bin` on Mac OS X)
-- Update the environment variable `PATH` to include the path to the protoc
-  binary file you moved as follows:
-- Find your `.bash_profile` file and add the following line (if it isn't
-  already there) with the path set to wherever you placed the protoc binary:
-  `export PATH=/usr/local/bin:$PATH`
-
-Next, install the protoc plugin for go with the following command:
-
-`go get -u github.com/golang/protobuf/protoc-gen-go@v1.22.0`
-
-This will add the plugin to your `go` directory in a `bin` folder. You
-must add this to your `PATH` variable in your `.bash_profile`, so
-again find your `.bash_profile file` and make sure your `GOPATH` is
-defined (on Mac OS the default is: `export GOPATH=$HOME/go`).
-
-If `GOPATH` isn't defined, then add a line like the above defining it
-(replacing `$HOME/go` with the path of your go directory). Finally add
-the following line to your `.bash_profile`:
-
-`export PATH=$PATH:$GOPATH/bin`
-
-Everything should be installed now. Check by running `protoc-gen-go`
-in a terminal. It should hang with no errors if everything is
-installed correctly. Now navigate to the `comms` project directory and
-run the following command in the terminal in order to regenerate the
-`mixmessage.pb.go` file:
-
-```
-go get -u github.com/golang/protobuf/protoc-gen-go@v1.22.0
-cd mixmessages
-protoc -I. -I/path/to/gitlab.com mixmessages.proto --go_opt=paths=source_relative --go_out=plugins=grpc:../mixmessages/
-cd ..
+```shell
+protoc -I. -I../vendor --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative *.proto
 ```
 
-Note that `/path/to/gitlab` must have `xx_network/comms` and `elixxir/comms` checked out into it.
+* This command must be run from the directory containing the `.proto` file
+  being compiled.
+* The `-I` flag specifies where to find imports used by the `.proto` file and
+  may need to be modified or removed to suit the .proto file being compiled.\
+    * 💡 **Note:** Note: If you are importing a file from the vendor directory,
+      ensure that you have the correct version by running `go mod vendor`.
+* If there is more than one proto file in the directory, replace `*.proto` with
+  the file’s name.
+* If the `.proto` file does not use gRPC, then the `--go-grpc_out` and
+  `--go-grpc_opt` can be excluded.
 
 ## Repository Organization
 
@@ -101,3 +76,69 @@ is implemented.
    go in the location where the module is the client (i.e., if the node calls to the
    gateway, it goes in node)
 
+## Installing Protocol Buffer Compiler
+
+This guide describes how to install the required dependencies to compile
+`.proto` files to Go.
+
+Before following the instructions below, be sure to remove all old versions of
+`protoc`. If your previous protoc-gen-go file is not installed in your Go bin
+directory, it will also need to be removed.
+
+If you have followed this guide previously when installing `protoc` and need to
+update, you can simply follow the instructions below. No uninstallation or
+removal is necessary.
+
+To compile a protocol buffer, you need the protocol buffer compiler `protoc`
+along with two plugins `protoc-gen-go` and `protoc-gen-go-grpc`. Make sure you
+use the correct versions as listed below.
+
+|                      | Version | Download                                                            | Documentation                                                           |
+|----------------------|--------:|---------------------------------------------------------------------|-------------------------------------------------------------------------|
+| `protoc`             |  3.15.6 | https://github.com/protocolbuffers/protobuf/releases/tag/v3.15.6    | https://developers.google.com/protocol-buffers/docs/gotutorial          |
+| `protoc-gen-go`      |  1.27.1 | https://github.com/protocolbuffers/protobuf-go/releases/tag/v1.27.1 | https://pkg.go.dev/google.golang.org/protobuf@v1.27.1/cmd/protoc-gen-go |
+| `protoc-gen-go-grpc` |   1.2.0 | https://github.com/grpc/grpc-go/releases/tag/v1.2.0                 | https://pkg.go.dev/google.golang.org/grpc/cmd/protoc-gen-go-grpc        |
+
+1. Download the correct release of `protoc` from the
+   [release page](https://github.com/protocolbuffers/protobuf/releases) or use
+   the link from the table above to get the download for your OS.
+
+       wget https://github.com/protocolbuffers/protobuf/releases/download/v3.15.6/protoc-3.15.6-linux-x86_64.zip
+
+2. Extract the files to a folder, such as `$HOME/.local`.
+
+       unzip protoc-3.15.6-linux-x86_64.zip -d $HOME/.local
+
+3. Add the selected directory to your environment’s `PATH` variable, make sure
+   to include it in your `.profile` or `.bashrc` file. Also, include your go bin
+   directory (`$GOPATH/bin` or `$GOBIN`) if it is not already included.
+
+       export PATH="$PATH:$HOME/.local/bin:$GOPATH/bin"
+
+   💡 **Note:** Make sure you update your configuration file once done with
+   source `.profile`.
+
+4. Now check that `protoc` is installed with the correct version by running the
+   following command.
+
+       protoc --version
+
+   Which prints the current version
+
+       libprotoc 3.15.6
+
+5. Next, download `protoc-gen-go` and `protoc-gen-go-grpc` using the version
+   found in the table above.
+
+       go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.27
+       go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2
+
+6. Check that `protoc-gen-go` is installed with the correct version.
+
+       protoc-gen-go --version
+       protoc-gen-go v1.27.1
+
+7. Check that `protoc-gen-go-grpc` is installed with the correct version.
+
+       protoc-gen-go-grpc --version
+       protoc-gen-go-grpc 1.2.0

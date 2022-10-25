@@ -1,9 +1,9 @@
-///////////////////////////////////////////////////////////////////////////////
-// Copyright © 2020 xx network SEZC                                          //
-//                                                                           //
-// Use of this source code is governed by a license that can be found in the //
-// LICENSE file                                                              //
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+// Copyright © 2022 xx foundation                                             //
+//                                                                            //
+// Use of this source code is governed by a license that can be found in the  //
+// LICENSE file.                                                              //
+////////////////////////////////////////////////////////////////////////////////
 
 package network
 
@@ -155,7 +155,7 @@ func TestInstance_GetRound(t *testing.T) {
 	}
 
 	// Construct a mock round object
-	ri := &mixmessages.RoundInfo{ID: uint64(1)}
+	ri := &mixmessages.RoundInfo{ID: uint64(1), Timestamps: make([]uint64, states.NUM_STATES)}
 	testutils.SignRoundInfoRsa(ri, t)
 
 	pubKey, err := testutils.LoadPublicKeyTesting(t)
@@ -178,7 +178,7 @@ func TestInstance_GetWrappedRound(t *testing.T) {
 	}
 
 	// Construct a mock round object
-	ri := &mixmessages.RoundInfo{ID: uint64(1)}
+	ri := &mixmessages.RoundInfo{ID: uint64(1), Timestamps: make([]uint64, states.NUM_STATES)}
 	testutils.SignRoundInfoRsa(ri, t)
 
 	pubKey, err := testutils.LoadPublicKeyTesting(t)
@@ -207,7 +207,7 @@ func TestInstance_GetRoundUpdate(t *testing.T) {
 		roundUpdates: ds.NewUpdates(),
 	}
 
-	ri := &mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(1)}
+	ri := &mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(1), Timestamps: make([]uint64, states.NUM_STATES)}
 	if err := testutils.SignRoundInfoRsa(ri, t); err != nil {
 		t.Fatalf("Cannot sign round info: %v", err)
 	}
@@ -234,9 +234,9 @@ func TestInstance_GetRoundUpdates(t *testing.T) {
 		t.FailNow()
 	}
 
-	roundInfoOne := &mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(1)}
+	roundInfoOne := &mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(1), Timestamps: make([]uint64, states.NUM_STATES)}
 	testutils.SignRoundInfoRsa(roundInfoOne, t)
-	roundInfoTwo := &mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(2)}
+	roundInfoTwo := &mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(2), Timestamps: make([]uint64, states.NUM_STATES)}
 	testutils.SignRoundInfoRsa(roundInfoTwo, t)
 	roundOne := ds.NewRound(roundInfoOne, pubKey, nil)
 	roundTwo := ds.NewRound(roundInfoTwo, pubKey, nil)
@@ -290,10 +290,11 @@ func setupComm(t *testing.T) (*Instance, *mixmessages.NDF) {
 
 func TestInstance_RoundUpdate(t *testing.T) {
 	msg := &mixmessages.RoundInfo{
-		ID:        2,
-		UpdateID:  4,
-		State:     6,
-		BatchSize: 8,
+		ID:         2,
+		UpdateID:   4,
+		State:      6,
+		BatchSize:  8,
+		Timestamps: make([]uint64, states.NUM_STATES),
 	}
 	privKey, err := testutils.LoadPrivateKeyTesting(t)
 	if err != nil {
@@ -385,7 +386,7 @@ func TestInstance_GetLastRoundID(t *testing.T) {
 	}
 
 	expectedLastRound := 23
-	ri := &mixmessages.RoundInfo{ID: uint64(expectedLastRound)}
+	ri := &mixmessages.RoundInfo{ID: uint64(expectedLastRound), Timestamps: make([]uint64, states.NUM_STATES)}
 	pubKey, err := testutils.LoadPublicKeyTesting(t)
 	if err != nil {
 		t.Errorf("Failed to load public key: %v", err)
@@ -408,7 +409,7 @@ func TestInstance_GetLastUpdateID(t *testing.T) {
 	}
 
 	expectedUpdateId := 5
-	ri := &mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(expectedUpdateId)}
+	ri := &mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(expectedUpdateId), Timestamps: make([]uint64, states.NUM_STATES)}
 	pubKey, err := testutils.LoadPublicKeyTesting(t)
 	if err != nil {
 		t.Errorf("Failed to load public key: %v", err)
@@ -432,7 +433,7 @@ func TestInstance_GetOldestRoundID(t *testing.T) {
 	}
 
 	expectedOldRoundId := id.Round(0)
-	expectedOldRoundInfo := &mixmessages.RoundInfo{ID: uint64(expectedOldRoundId)}
+	expectedOldRoundInfo := &mixmessages.RoundInfo{ID: uint64(expectedOldRoundId), Timestamps: make([]uint64, states.NUM_STATES)}
 	pubKey, err := testutils.LoadPublicKeyTesting(t)
 	if err != nil {
 		t.Errorf("Failed to load public key: %v", err)
@@ -440,7 +441,7 @@ func TestInstance_GetOldestRoundID(t *testing.T) {
 	}
 	expectedOldRound := ds.NewRound(expectedOldRoundInfo, pubKey, nil)
 
-	mockRoundInfo := &mixmessages.RoundInfo{ID: uint64(2)}
+	mockRoundInfo := &mixmessages.RoundInfo{ID: uint64(2), Timestamps: make([]uint64, states.NUM_STATES)}
 	mockRound := ds.NewRound(mockRoundInfo, pubKey, nil)
 
 	_ = i.roundData.UpsertRound(expectedOldRound)
@@ -468,7 +469,7 @@ func TestInstance_GetOldestRoundID_ManyRounds(t *testing.T) {
 
 	// Ensure a circle back in the round buffer
 	for i := 1; i <= ds.RoundInfoBufLen; i++ {
-		ri := &mixmessages.RoundInfo{ID: uint64(i)}
+		ri := &mixmessages.RoundInfo{ID: uint64(i), Timestamps: make([]uint64, states.NUM_STATES)}
 		rnd := ds.NewRound(ri, pubKey, nil)
 		_ = testInstance.roundData.UpsertRound(rnd)
 
@@ -1136,8 +1137,9 @@ func TestInstance_RoundUpdateAddsToERS(t *testing.T) {
 
 	// Build a basic RoundInfo object and sign it
 	r := &mixmessages.RoundInfo{
-		ID:       2,
-		UpdateID: 4,
+		ID:         2,
+		UpdateID:   4,
+		Timestamps: make([]uint64, states.NUM_STATES),
 	}
 	err = signature.SignRsa(r, privKey)
 	if err != nil {

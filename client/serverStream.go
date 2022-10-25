@@ -9,7 +9,7 @@ package client
 
 import (
 	"context"
-	"github.com/ktr0731/grpc-web-go-client/grpcweb"
+	"git.xx.network/elixxir/grpc-web-go-client/grpcweb"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"google.golang.org/grpc/metadata"
 	"io"

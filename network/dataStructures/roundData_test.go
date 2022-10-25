@@ -1,15 +1,16 @@
-///////////////////////////////////////////////////////////////////////////////
-// Copyright © 2020 xx network SEZC                                          //
-//                                                                           //
-// Use of this source code is governed by a license that can be found in the //
-// LICENSE file                                                              //
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+// Copyright © 2022 xx foundation                                             //
+//                                                                            //
+// Use of this source code is governed by a license that can be found in the  //
+// LICENSE file.                                                              //
+////////////////////////////////////////////////////////////////////////////////
 
 package dataStructures
 
 import (
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/testutils"
+	"gitlab.com/elixxir/primitives/states"
 	"reflect"
 	"testing"
 )
@@ -19,8 +20,9 @@ func TestData_UpsertRound(t *testing.T) {
 
 	// Construct a mock round object
 	ri := &mixmessages.RoundInfo{
-		ID:       0,
-		UpdateID: 0,
+		ID:         0,
+		UpdateID:   0,
+		Timestamps: make([]uint64, states.NUM_STATES),
 	}
 
 	pubKey, err := testutils.LoadPublicKeyTesting(t)
@@ -40,8 +42,9 @@ func TestData_GetRound(t *testing.T) {
 
 	// Construct a mock round object
 	ri := &mixmessages.RoundInfo{
-		ID:       0,
-		UpdateID: 0,
+		ID:         0,
+		UpdateID:   0,
+		Timestamps: make([]uint64, states.NUM_STATES),
 	}
 	testutils.SignRoundInfoRsa(ri, t)
 
@@ -64,8 +67,9 @@ func TestData_GetWrappedRound(t *testing.T) {
 
 	// Construct a mock round object
 	ri := &mixmessages.RoundInfo{
-		ID:       0,
-		UpdateID: 0,
+		ID:         0,
+		UpdateID:   0,
+		Timestamps: make([]uint64, states.NUM_STATES),
 	}
 	testutils.SignRoundInfoRsa(ri, t)
 
@@ -94,8 +98,9 @@ func TestData_ComparisonFunc(t *testing.T) {
 
 	// Construct a mock round object
 	roundInfoOne := &mixmessages.RoundInfo{
-		ID:       2,
-		UpdateID: 3,
+		ID:         2,
+		UpdateID:   3,
+		Timestamps: make([]uint64, states.NUM_STATES),
 	}
 	testutils.SignRoundInfoRsa(roundInfoOne, t)
 
@@ -109,8 +114,9 @@ func TestData_ComparisonFunc(t *testing.T) {
 
 	// Construct a mock round object
 	roundInfoTwo := &mixmessages.RoundInfo{
-		ID:       2,
-		UpdateID: 4,
+		ID:         2,
+		UpdateID:   4,
+		Timestamps: make([]uint64, states.NUM_STATES),
 	}
 	testutils.SignRoundInfoRsa(roundInfoTwo, t)
 

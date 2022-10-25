@@ -1,9 +1,9 @@
-///////////////////////////////////////////////////////////////////////////////
-// Copyright © 2020 xx network SEZC                                          //
-//                                                                           //
-// Use of this source code is governed by a license that can be found in the //
-// LICENSE file                                                              //
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+// Copyright © 2022 xx foundation                                             //
+//                                                                            //
+// Use of this source code is governed by a license that can be found in the  //
+// LICENSE file.                                                              //
+////////////////////////////////////////////////////////////////////////////////
 
 package client
 
@@ -100,7 +100,7 @@ func TestComms_SendPoll(t *testing.T) {
 			t.Errorf("Unable to call NewHost: %+v", err)
 		}
 
-		_, err = c.SendPoll(host,
+		_, _, _, err = c.SendPoll(host,
 			&pb.GatewayPoll{
 				Partial: &pb.NDFHash{
 					Hash: make([]byte, 0),
