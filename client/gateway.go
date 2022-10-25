@@ -143,6 +143,47 @@ func (c *Comms) SendRequestClientKeyMessage(host *connect.Host,
 }
 
 // Client -> Gateway Send Function
+func (c *Comms) SendBatchRequestClientKeyMessage(host *connect.Host,
+	message *pb.SignedClientBatchKeyRequest) (*pb.SignedBatchKeyResponse, error) {
+
+	// Create the Send Function
+	f := func(conn connect.Connection) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := host.GetMessagingContext()
+		defer cancel()
+
+		// Send the message
+		var resultMsg = &pb.SignedBatchKeyResponse{}
+		var err error
+		if conn.IsWeb() {
+			wc := conn.GetWebConn()
+			err = wc.Invoke(ctx, "/mixmessages.Gateway/RequestClientKey",
+				message, resultMsg)
+		} else {
+			resultMsg, err = pb.NewGatewayClient(conn.GetGrpcConn()).
+				BatchNodeRegistration(ctx, message)
+		}
+
+		// Make sure there are no errors with sending the message
+		if err != nil {
+			return nil, err
+		}
+		return ptypes.MarshalAny(resultMsg)
+	}
+
+	// Execute the Send function
+	jww.TRACE.Printf("Sending Request Client Key message: %+v", message)
+	resultMsg, err := c.Send(host, f)
+	if err != nil {
+		return nil, err
+	}
+
+	// Marshall the result
+	result := &pb.SignedBatchKeyResponse{}
+	return result, ptypes.UnmarshalAny(resultMsg, result)
+}
+
+// Client -> Gateway Send Function
 func (c *Comms) SendPoll(host *connect.Host,
 	message *pb.GatewayPoll) (*pb.GatewayPollResponse, error) {
 	// Set up the context with a timeout to ensure that streaming does not
