@@ -143,7 +143,7 @@ func (c *Comms) SendRequestClientKeyMessage(host *connect.Host,
 }
 
 // Client -> Gateway Send Function
-func (c *Comms) SendBatchRequestClientKeyMessage(host *connect.Host,
+func (c *Comms) BatchNodeRegistration(host *connect.Host,
 	message *pb.SignedClientBatchKeyRequest) (*pb.SignedBatchKeyResponse, error) {
 
 	// Create the Send Function
@@ -157,7 +157,7 @@ func (c *Comms) SendBatchRequestClientKeyMessage(host *connect.Host,
 		var err error
 		if conn.IsWeb() {
 			wc := conn.GetWebConn()
-			err = wc.Invoke(ctx, "/mixmessages.Gateway/RequestClientKey",
+			err = wc.Invoke(ctx, "/mixmessages.Gateway/BatchNodeRegistration",
 				message, resultMsg)
 		} else {
 			resultMsg, err = pb.NewGatewayClient(conn.GetGrpcConn()).
