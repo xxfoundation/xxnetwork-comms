@@ -8,12 +8,12 @@ require (
 	github.com/golang/protobuf v1.5.2
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/jwalterweatherman v1.1.0
-	gitlab.com/elixxir/crypto v0.0.7-0.20221024012326-cf941c375c1f
-	gitlab.com/elixxir/primitives v0.0.3-0.20221017172918-6176818d1aba
-	gitlab.com/xx_network/comms v0.0.4-0.20221017172508-09e33697dc15
-	gitlab.com/xx_network/crypto v0.0.5-0.20221017172404-b384a8d8b171
-	gitlab.com/xx_network/primitives v0.0.4-0.20221017171439-42169a3e5c0d
-	gitlab.com/xx_network/ring v0.0.3-0.20220222211904-da613960ad93
+	gitlab.com/elixxir/crypto v0.0.7-0.20221025020525-985806badd65
+	gitlab.com/elixxir/primitives v0.0.3-0.20221025020430-f5d2eb330fbc
+	gitlab.com/xx_network/comms v0.0.4-0.20221025020408-9b62d4c2e700
+	gitlab.com/xx_network/crypto v0.0.5-0.20221025020316-517fa8f91d2c
+	gitlab.com/xx_network/primitives v0.0.4-0.20221025020003-cbec15a71b8f
+	gitlab.com/xx_network/ring v0.0.3-0.20220902183151-a7d3b15bc981
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa
 	golang.org/x/net v0.0.0-20220822230855-b0a4917ee28c
 	google.golang.org/grpc v1.49.0
