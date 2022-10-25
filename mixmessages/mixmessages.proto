@@ -115,6 +115,14 @@ message ClientKeyRequest {
     bytes ClientDHPubKey = 5;
 }
 
+message SignedClientBatchKeyRequest {
+    bytes ClientKeyRequest = 1;
+    messages.RSASignature ClientKeyRequestSignature = 2;
+    repeated bytes Targets = 3;
+    uint64 Timeout = 4;
+
+}
+
 message SignedClientKeyRequest {
     // Wire serialized format of the ClientKeyRequest Object (above)
     bytes ClientKeyRequest = 1;
@@ -130,6 +138,10 @@ message ClientKeyResponse {
     bytes NodeDHPubKey = 3;
     bytes KeyID = 4; // Currently unused and empty.
     uint64 ValidUntil = 5; // Timestamp of when the key expires
+}
+
+message SignedBatchKeyResponse {
+    repeated SignedKeyResponse SignedKeys = 1;
 }
 
 message SignedKeyResponse {
@@ -234,6 +246,8 @@ service Gateway {
     // RequestClientKey returns a Nonce to the user
     rpc RequestClientKey (SignedClientKeyRequest) returns (SignedKeyResponse) {
     }
+
+    rpc BatchNodeRegistration (SignedClientBatchKeyRequest) returns (SignedBatchKeyResponse) {}
 
     // PutMessage on the cMix Gateway (client -> gateway)
     rpc PutMessage (GatewaySlot) returns (GatewaySlotResponse) {

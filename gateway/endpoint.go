@@ -174,3 +174,7 @@ func (g *Comms) RequestHistoricalRounds(ctx context.Context, msg *pb.HistoricalR
 func (g *Comms) RequestMessages(ctx context.Context, msg *pb.GetMessages) (*pb.GetMessagesResponse, error) {
 	return g.handler.RequestMessages(msg)
 }
+
+func (g *Comms) BatchNodeRegistration(ctx context.Context, msg *pb.SignedClientBatchKeyRequest) (*pb.SignedBatchKeyResponse, error) {
+	return g.handler.BatchNodeRegistration(msg)
+}

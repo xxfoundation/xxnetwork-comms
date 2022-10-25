@@ -39,6 +39,7 @@ type Handler interface {
 	RequestHistoricalRounds(msg *pb.HistoricalRounds) (*pb.HistoricalRoundsResponse, error)
 	RequestMessages(msg *pb.GetMessages) (*pb.GetMessagesResponse, error)
 	RequestClientKey(message *pb.SignedClientKeyRequest) (*pb.SignedKeyResponse, error)
+	BatchNodeRegistration(msg *pb.SignedClientBatchKeyRequest) (*pb.SignedBatchKeyResponse, error)
 }
 
 // StartGateway starts a new gateway on the address:port specified by localServer
@@ -79,6 +80,7 @@ type implementationFunctions struct {
 	RequestClientKey        func(message *pb.SignedClientKeyRequest) (*pb.SignedKeyResponse, error)
 	PutMessageProxy         func(message *pb.GatewaySlot, auth *connect.Auth) (*pb.GatewaySlotResponse, error)
 	PutManyMessagesProxy    func(msgs *pb.GatewaySlots, auth *connect.Auth) (*pb.GatewaySlotResponse, error)
+	BatchNodeRegistration   func(msg *pb.SignedClientBatchKeyRequest) (*pb.SignedBatchKeyResponse, error)
 }
 
 // Implementation allows users of the client library to set the
@@ -128,6 +130,10 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return &pb.GatewaySlotResponse{}, nil
 			},
+			BatchNodeRegistration: func(msg *pb.SignedClientBatchKeyRequest) (*pb.SignedBatchKeyResponse, error) {
+				warn(um)
+				return &pb.SignedBatchKeyResponse{}, nil
+			},
 		},
 	}
 }
@@ -171,4 +177,8 @@ func (s *Implementation) RequestHistoricalRounds(msg *pb.HistoricalRounds) (*pb.
 // RequestMessages handles Client -> Gateway requests for message pickup.
 func (s *Implementation) RequestMessages(msg *pb.GetMessages) (*pb.GetMessagesResponse, error) {
 	return s.Functions.RequestMessages(msg)
+}
+
+func (s *Implementation) BatchNodeRegistration(msg *pb.SignedClientBatchKeyRequest) (*pb.SignedBatchKeyResponse, error) {
+	return s.Functions.BatchNodeRegistration(msg)
 }
