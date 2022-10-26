@@ -8,10 +8,11 @@
 package token
 
 import (
-	"bytes"
+	"crypto/hmac"
+	"sync"
+
 	"github.com/pkg/errors"
 	"gitlab.com/xx_network/crypto/nonce"
-	"sync"
 )
 
 type Token [nonce.NonceLen]byte
@@ -36,7 +37,7 @@ func (t Token) Marshal() []byte {
 }
 
 func (t Token) Equals(u Token) bool {
-	return bytes.Equal(t[:], u[:])
+	return hmac.Equal(t[:], u[:])
 }
 
 // Represents a reverse-authentication token
@@ -73,7 +74,7 @@ func (l *Live) GetBytes() []byte {
 	}
 }
 
-//Returns true if a token is present
+// Returns true if a token is present
 func (l *Live) Has() bool {
 	l.mux.RLock()
 	defer l.mux.RUnlock()
