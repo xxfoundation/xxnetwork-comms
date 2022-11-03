@@ -49,3 +49,13 @@ func (r *Comms) Authorize(ctx context.Context, auth *pb.AuthorizerAuth) (ack *me
 	}
 	return &messages.Ack{Error: errString}, returned_err
 }
+
+// Request a signed certificate for HTTPS
+func (r *Comms) RequestCert(ctx context.Context, msg *pb.AuthorizerCertRequest) (*pb.AuthorizerCert, error) {
+	return r.handler.RequestCert(msg)
+}
+
+// Request ACME key for HTTPS
+func (r *Comms) RequestACME(ctx context.Context, msg *pb.AuthorizerACMERequest) (*pb.AuthorizerACMEResponse, error) {
+	return r.handler.RequestACME(msg)
+}

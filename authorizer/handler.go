@@ -53,10 +53,14 @@ func StartAuthorizerServer(id *id.ID, localServer string, handler Handler,
 
 type Handler interface {
 	Authorize(auth *pb.AuthorizerAuth, ipAddr string) (err error)
+	RequestCert(msg *pb.AuthorizerCertRequest) (*pb.AuthorizerCert, error)
+	RequestACME(msg *pb.AuthorizerACMERequest) (*pb.AuthorizerACMEResponse, error)
 }
 
 type implementationFunctions struct {
-	Authorize func(auth *pb.AuthorizerAuth, ipAddr string) (err error)
+	Authorize   func(auth *pb.AuthorizerAuth, ipAddr string) (err error)
+	RequestCert func(msg *pb.AuthorizerCertRequest) (*pb.AuthorizerCert, error)
+	RequestACME func(msg *pb.AuthorizerACMERequest) (*pb.AuthorizerACMEResponse, error)
 }
 
 // Implementation allows users of the client library to set the
@@ -80,6 +84,14 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return nil
 			},
+			RequestCert: func(msg *pb.AuthorizerCertRequest) (*pb.AuthorizerCert, error) {
+				warn(um)
+				return &pb.AuthorizerCert{}, nil
+			},
+			RequestACME: func(msg *pb.AuthorizerACMERequest) (*pb.AuthorizerACMEResponse, error) {
+				warn(um)
+				return &pb.AuthorizerACMEResponse{}, nil
+			},
 		},
 	}
 }
@@ -87,4 +99,14 @@ func NewImplementation() *Implementation {
 // Authorizes a node to talk to permissioning
 func (s *Implementation) Authorize(auth *pb.AuthorizerAuth, ipAddr string) (err error) {
 	return s.Functions.Authorize(auth, ipAddr)
+}
+
+// Request a signed certificate for HTTPS
+func (s *Implementation) RequestCert(msg *pb.AuthorizerCertRequest) (*pb.AuthorizerCert, error) {
+	return s.Functions.RequestCert(msg)
+}
+
+// Request ACME key for HTTPS
+func (s *Implementation) RequestACME(msg *pb.AuthorizerACMERequest) (*pb.AuthorizerACMEResponse, error) {
+	return s.Functions.RequestACME(msg)
 }

@@ -748,6 +748,32 @@ message RoundError {
 service Authorizer{
     rpc Authorize(AuthorizerAuth) returns (messages.Ack) {
     }
+
+    rpc RequestCert(AuthorizerCertRequest) returns (AuthorizerCert) {}
+
+    rpc RequestACME(AuthorizerACMERequest) returns (AuthorizerACMEResponse) {}
+}
+
+message AuthorizerACMERequest {
+    string AccessKey = 1;
+}
+
+message AuthorizerACMEResponse {
+    uint32 success = 1;
+    string KeyId = 2;
+    string Key = 3;
+}
+
+message AuthorizerCertRequest {
+    bytes GwID = 1;
+    uint64 Timestamp = 2;
+    string ACMEToken = 3;
+    bytes Signature = 4;
+}
+
+message AuthorizerCert {
+    bytes Certificate = 1;
+    string Error = 2;
 }
 
 message AuthorizerAuth{
