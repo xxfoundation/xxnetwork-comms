@@ -2096,8 +2096,8 @@ var UDB_ServiceDesc = grpc.ServiceDesc{
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AuthorizerClient interface {
 	Authorize(ctx context.Context, in *AuthorizerAuth, opts ...grpc.CallOption) (*messages.Ack, error)
-	RequestCert(ctx context.Context, in *AuthorizerCertRequest, opts ...grpc.CallOption) (*AuthorizerCert, error)
-	RequestACME(ctx context.Context, in *AuthorizerACMERequest, opts ...grpc.CallOption) (*AuthorizerACMEResponse, error)
+	RequestCert(ctx context.Context, in *AuthorizerCertRequest, opts ...grpc.CallOption) (*messages.Ack, error)
+	SendEABCredentialRequest(ctx context.Context, in *EABCredentialRequest, opts ...grpc.CallOption) (*EABCredentialResponse, error)
 }
 
 type authorizerClient struct {
@@ -2117,8 +2117,8 @@ func (c *authorizerClient) Authorize(ctx context.Context, in *AuthorizerAuth, op
 	return out, nil
 }
 
-func (c *authorizerClient) RequestCert(ctx context.Context, in *AuthorizerCertRequest, opts ...grpc.CallOption) (*AuthorizerCert, error) {
-	out := new(AuthorizerCert)
+func (c *authorizerClient) RequestCert(ctx context.Context, in *AuthorizerCertRequest, opts ...grpc.CallOption) (*messages.Ack, error) {
+	out := new(messages.Ack)
 	err := c.cc.Invoke(ctx, "/mixmessages.Authorizer/RequestCert", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -2126,9 +2126,9 @@ func (c *authorizerClient) RequestCert(ctx context.Context, in *AuthorizerCertRe
 	return out, nil
 }
 
-func (c *authorizerClient) RequestACME(ctx context.Context, in *AuthorizerACMERequest, opts ...grpc.CallOption) (*AuthorizerACMEResponse, error) {
-	out := new(AuthorizerACMEResponse)
-	err := c.cc.Invoke(ctx, "/mixmessages.Authorizer/RequestACME", in, out, opts...)
+func (c *authorizerClient) SendEABCredentialRequest(ctx context.Context, in *EABCredentialRequest, opts ...grpc.CallOption) (*EABCredentialResponse, error) {
+	out := new(EABCredentialResponse)
+	err := c.cc.Invoke(ctx, "/mixmessages.Authorizer/SendEABCredentialRequest", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -2140,8 +2140,8 @@ func (c *authorizerClient) RequestACME(ctx context.Context, in *AuthorizerACMERe
 // for forward compatibility
 type AuthorizerServer interface {
 	Authorize(context.Context, *AuthorizerAuth) (*messages.Ack, error)
-	RequestCert(context.Context, *AuthorizerCertRequest) (*AuthorizerCert, error)
-	RequestACME(context.Context, *AuthorizerACMERequest) (*AuthorizerACMEResponse, error)
+	RequestCert(context.Context, *AuthorizerCertRequest) (*messages.Ack, error)
+	SendEABCredentialRequest(context.Context, *EABCredentialRequest) (*EABCredentialResponse, error)
 	mustEmbedUnimplementedAuthorizerServer()
 }
 
@@ -2152,11 +2152,11 @@ type UnimplementedAuthorizerServer struct {
 func (UnimplementedAuthorizerServer) Authorize(context.Context, *AuthorizerAuth) (*messages.Ack, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Authorize not implemented")
 }
-func (UnimplementedAuthorizerServer) RequestCert(context.Context, *AuthorizerCertRequest) (*AuthorizerCert, error) {
+func (UnimplementedAuthorizerServer) RequestCert(context.Context, *AuthorizerCertRequest) (*messages.Ack, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RequestCert not implemented")
 }
-func (UnimplementedAuthorizerServer) RequestACME(context.Context, *AuthorizerACMERequest) (*AuthorizerACMEResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method RequestACME not implemented")
+func (UnimplementedAuthorizerServer) SendEABCredentialRequest(context.Context, *EABCredentialRequest) (*EABCredentialResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SendEABCredentialRequest not implemented")
 }
 func (UnimplementedAuthorizerServer) mustEmbedUnimplementedAuthorizerServer() {}
 
@@ -2207,20 +2207,20 @@ func _Authorizer_RequestCert_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Authorizer_RequestACME_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AuthorizerACMERequest)
+func _Authorizer_SendEABCredentialRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EABCredentialRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AuthorizerServer).RequestACME(ctx, in)
+		return srv.(AuthorizerServer).SendEABCredentialRequest(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/mixmessages.Authorizer/RequestACME",
+		FullMethod: "/mixmessages.Authorizer/SendEABCredentialRequest",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthorizerServer).RequestACME(ctx, req.(*AuthorizerACMERequest))
+		return srv.(AuthorizerServer).SendEABCredentialRequest(ctx, req.(*EABCredentialRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -2241,8 +2241,8 @@ var Authorizer_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Authorizer_RequestCert_Handler,
 		},
 		{
-			MethodName: "RequestACME",
-			Handler:    _Authorizer_RequestACME_Handler,
+			MethodName: "SendEABCredentialRequest",
+			Handler:    _Authorizer_SendEABCredentialRequest_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -13,10 +13,11 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/connect"
+	"gitlab.com/xx_network/comms/messages"
 )
 
 // SendAuthorizerCertRequest sends a request for an https certificate to the authorizer
-func (g *Comms) SendAuthorizerCertRequest(host *connect.Host, msg *pb.AuthorizerCertRequest) (*pb.AuthorizerCert, error) {
+func (g *Comms) SendAuthorizerCertRequest(host *connect.Host, msg *pb.AuthorizerCertRequest) (*messages.Ack, error) {
 	// Create the send function
 	f := func(conn connect.Connection) (*any.Any, error) {
 		// Set up the context
@@ -39,12 +40,12 @@ func (g *Comms) SendAuthorizerCertRequest(host *connect.Host, msg *pb.Authorizer
 		return nil, err
 	}
 
-	result := &pb.AuthorizerCert{}
+	result := &messages.Ack{}
 	return result, ptypes.UnmarshalAny(resp, result)
 }
 
-// SendAuthorizerACMERequest sends a request for ACME authorization to the authorizer
-func (g *Comms) SendAuthorizerACMERequest(host *connect.Host, msg *pb.AuthorizerACMERequest) (*pb.AuthorizerACMEResponse, error) {
+// SendEABCredentialRequest sends a request for ACME authorization to the authorizer
+func (g *Comms) SendEABCredentialRequest(host *connect.Host, msg *pb.EABCredentialRequest) (*pb.EABCredentialResponse, error) {
 	// Create the send function
 	f := func(conn connect.Connection) (*any.Any, error) {
 		// Set up the context
@@ -53,7 +54,7 @@ func (g *Comms) SendAuthorizerACMERequest(host *connect.Host, msg *pb.Authorizer
 
 		// Send the message
 		resp, err := pb.NewAuthorizerClient(conn.GetGrpcConn()).
-			RequestACME(ctx, msg)
+			SendEABCredentialRequest(ctx, msg)
 		if err != nil {
 			return nil, err
 		}
@@ -67,6 +68,6 @@ func (g *Comms) SendAuthorizerACMERequest(host *connect.Host, msg *pb.Authorizer
 		return nil, err
 	}
 
-	result := &pb.AuthorizerACMEResponse{}
+	result := &pb.EABCredentialResponse{}
 	return result, ptypes.UnmarshalAny(resp, result)
 }

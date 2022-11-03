@@ -6,6 +6,7 @@ import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/gossip"
+	"gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/primitives/id"
 	"testing"
 	"time"
@@ -27,9 +28,9 @@ func TestComms_SendAuthorizerCertRequest(t *testing.T) {
 	authID := &id.Authorizer
 	impl := authorizer.NewImplementation()
 	receiveChan := make(chan *pb.AuthorizerCertRequest)
-	impl.Functions.RequestCert = func(notifBatch *pb.AuthorizerCertRequest) (*pb.AuthorizerCert, error) {
+	impl.Functions.RequestCert = func(notifBatch *pb.AuthorizerCertRequest) (*messages.Ack, error) {
 		go func() { receiveChan <- notifBatch }()
-		return &pb.AuthorizerCert{}, nil
+		return &messages.Ack{}, nil
 	}
 	authServer := authorizer.StartAuthorizerServer(authID, authAddr, impl, nil, nil)
 	defer authServer.Shutdown()
@@ -69,7 +70,7 @@ func TestComms_SendAuthorizerCertRequest(t *testing.T) {
 }
 
 // Happy path.
-func TestComms_SendAuthorizerACMERequest(t *testing.T) {
+func TestComms_SendEABCredentialRequest(t *testing.T) {
 	jww.SetLogThreshold(jww.LevelTrace)
 	jww.SetStdoutThreshold(jww.LevelTrace)
 
@@ -83,10 +84,10 @@ func TestComms_SendAuthorizerACMERequest(t *testing.T) {
 	authAddr := getNextServerAddress()
 	authID := &id.Authorizer
 	impl := authorizer.NewImplementation()
-	receiveChan := make(chan *pb.AuthorizerACMERequest)
-	impl.Functions.RequestACME = func(notifBatch *pb.AuthorizerACMERequest) (*pb.AuthorizerACMEResponse, error) {
+	receiveChan := make(chan *pb.EABCredentialRequest)
+	impl.Functions.SendEABCredentialRequest = func(notifBatch *pb.EABCredentialRequest) (*pb.EABCredentialResponse, error) {
 		go func() { receiveChan <- notifBatch }()
-		return &pb.AuthorizerACMEResponse{}, nil
+		return &pb.EABCredentialResponse{}, nil
 	}
 	authServer := authorizer.StartAuthorizerServer(authID, authAddr, impl, nil, nil)
 	defer authServer.Shutdown()
@@ -101,26 +102,24 @@ func TestComms_SendAuthorizerACMERequest(t *testing.T) {
 	}
 
 	// Generate message to send
-	msg := &pb.AuthorizerACMERequest{
-		AccessKey: "TestACMEAccessKey",
-	}
+	msg := &pb.EABCredentialRequest{}
 
-	// Send auth ACME request to authorizer
-	resp, err := gateway.SendAuthorizerACMERequest(host, msg)
+	// Send auth EABCredential request to authorizer
+	resp, err := gateway.SendEABCredentialRequest(host, msg)
 	if err != nil {
-		t.Errorf("SendAuthorizerACMERequest() returned an error: %+v", err)
+		t.Errorf("SendEABCredentialRequest() returned an error: %+v", err)
 	}
 	if resp == nil {
-		t.Errorf("SendAuthorizerACMERequest() did not respond with an ACMEResponse")
+		t.Errorf("SendEABCredentialRequest() did not respond with an EABCredentialResponse")
 	}
 
 	select {
 	case result := <-receiveChan:
 		if msg.String() != result.String() {
-			t.Errorf("Failed to receive the expected Authorizer ACME response."+
+			t.Errorf("Failed to receive the expected Authorizer EABCredential response."+
 				"\nexpected: %s\nreceived: %s", msg, result)
 		}
 	case <-time.NewTimer(50 * time.Millisecond).C:
-		t.Error("Timed out while waiting to receive the Authorizer ACME response.")
+		t.Error("Timed out while waiting to receive the Authorizer EAB credential response.")
 	}
 }

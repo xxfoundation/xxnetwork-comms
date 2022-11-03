@@ -749,16 +749,15 @@ service Authorizer{
     rpc Authorize(AuthorizerAuth) returns (messages.Ack) {
     }
 
-    rpc RequestCert(AuthorizerCertRequest) returns (AuthorizerCert) {}
+    rpc RequestCert(AuthorizerCertRequest) returns (messages.Ack) {}
 
-    rpc RequestACME(AuthorizerACMERequest) returns (AuthorizerACMEResponse) {}
+    rpc SendEABCredentialRequest(EABCredentialRequest) returns (EABCredentialResponse) {}
 }
 
-message AuthorizerACMERequest {
-    string AccessKey = 1;
+message EABCredentialRequest {
 }
 
-message AuthorizerACMEResponse {
+message EABCredentialResponse {
     uint32 success = 1;
     string KeyId = 2;
     string Key = 3;
@@ -769,11 +768,6 @@ message AuthorizerCertRequest {
     uint64 Timestamp = 2;
     string ACMEToken = 3;
     bytes Signature = 4;
-}
-
-message AuthorizerCert {
-    bytes Certificate = 1;
-    string Error = 2;
 }
 
 message AuthorizerAuth{

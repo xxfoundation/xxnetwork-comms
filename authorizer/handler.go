@@ -53,14 +53,14 @@ func StartAuthorizerServer(id *id.ID, localServer string, handler Handler,
 
 type Handler interface {
 	Authorize(auth *pb.AuthorizerAuth, ipAddr string) (err error)
-	RequestCert(msg *pb.AuthorizerCertRequest) (*pb.AuthorizerCert, error)
-	RequestACME(msg *pb.AuthorizerACMERequest) (*pb.AuthorizerACMEResponse, error)
+	RequestCert(msg *pb.AuthorizerCertRequest) (*messages.Ack, error)
+	SendEABCredentialRequest(msg *pb.EABCredentialRequest) (*pb.EABCredentialResponse, error)
 }
 
 type implementationFunctions struct {
-	Authorize   func(auth *pb.AuthorizerAuth, ipAddr string) (err error)
-	RequestCert func(msg *pb.AuthorizerCertRequest) (*pb.AuthorizerCert, error)
-	RequestACME func(msg *pb.AuthorizerACMERequest) (*pb.AuthorizerACMEResponse, error)
+	Authorize                func(auth *pb.AuthorizerAuth, ipAddr string) (err error)
+	RequestCert              func(msg *pb.AuthorizerCertRequest) (*messages.Ack, error)
+	SendEABCredentialRequest func(msg *pb.EABCredentialRequest) (*pb.EABCredentialResponse, error)
 }
 
 // Implementation allows users of the client library to set the
@@ -84,13 +84,13 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return nil
 			},
-			RequestCert: func(msg *pb.AuthorizerCertRequest) (*pb.AuthorizerCert, error) {
+			RequestCert: func(msg *pb.AuthorizerCertRequest) (*messages.Ack, error) {
 				warn(um)
-				return &pb.AuthorizerCert{}, nil
+				return &messages.Ack{}, nil
 			},
-			RequestACME: func(msg *pb.AuthorizerACMERequest) (*pb.AuthorizerACMEResponse, error) {
+			SendEABCredentialRequest: func(msg *pb.EABCredentialRequest) (*pb.EABCredentialResponse, error) {
 				warn(um)
-				return &pb.AuthorizerACMEResponse{}, nil
+				return &pb.EABCredentialResponse{}, nil
 			},
 		},
 	}
@@ -102,11 +102,11 @@ func (s *Implementation) Authorize(auth *pb.AuthorizerAuth, ipAddr string) (err 
 }
 
 // Request a signed certificate for HTTPS
-func (s *Implementation) RequestCert(msg *pb.AuthorizerCertRequest) (*pb.AuthorizerCert, error) {
+func (s *Implementation) RequestCert(msg *pb.AuthorizerCertRequest) (*messages.Ack, error) {
 	return s.Functions.RequestCert(msg)
 }
 
 // Request ACME key for HTTPS
-func (s *Implementation) RequestACME(msg *pb.AuthorizerACMERequest) (*pb.AuthorizerACMEResponse, error) {
-	return s.Functions.RequestACME(msg)
+func (s *Implementation) SendEABCredentialRequest(msg *pb.EABCredentialRequest) (*pb.EABCredentialResponse, error) {
+	return s.Functions.SendEABCredentialRequest(msg)
 }
