@@ -2097,7 +2097,7 @@ var UDB_ServiceDesc = grpc.ServiceDesc{
 type AuthorizerClient interface {
 	Authorize(ctx context.Context, in *AuthorizerAuth, opts ...grpc.CallOption) (*messages.Ack, error)
 	RequestCert(ctx context.Context, in *AuthorizerCertRequest, opts ...grpc.CallOption) (*messages.Ack, error)
-	SendEABCredentialRequest(ctx context.Context, in *EABCredentialRequest, opts ...grpc.CallOption) (*EABCredentialResponse, error)
+	RequestEABCredentials(ctx context.Context, in *EABCredentialRequest, opts ...grpc.CallOption) (*EABCredentialResponse, error)
 }
 
 type authorizerClient struct {
@@ -2126,9 +2126,9 @@ func (c *authorizerClient) RequestCert(ctx context.Context, in *AuthorizerCertRe
 	return out, nil
 }
 
-func (c *authorizerClient) SendEABCredentialRequest(ctx context.Context, in *EABCredentialRequest, opts ...grpc.CallOption) (*EABCredentialResponse, error) {
+func (c *authorizerClient) RequestEABCredentials(ctx context.Context, in *EABCredentialRequest, opts ...grpc.CallOption) (*EABCredentialResponse, error) {
 	out := new(EABCredentialResponse)
-	err := c.cc.Invoke(ctx, "/mixmessages.Authorizer/SendEABCredentialRequest", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/mixmessages.Authorizer/RequestEABCredentials", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -2141,7 +2141,7 @@ func (c *authorizerClient) SendEABCredentialRequest(ctx context.Context, in *EAB
 type AuthorizerServer interface {
 	Authorize(context.Context, *AuthorizerAuth) (*messages.Ack, error)
 	RequestCert(context.Context, *AuthorizerCertRequest) (*messages.Ack, error)
-	SendEABCredentialRequest(context.Context, *EABCredentialRequest) (*EABCredentialResponse, error)
+	RequestEABCredentials(context.Context, *EABCredentialRequest) (*EABCredentialResponse, error)
 	mustEmbedUnimplementedAuthorizerServer()
 }
 
@@ -2155,8 +2155,8 @@ func (UnimplementedAuthorizerServer) Authorize(context.Context, *AuthorizerAuth)
 func (UnimplementedAuthorizerServer) RequestCert(context.Context, *AuthorizerCertRequest) (*messages.Ack, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RequestCert not implemented")
 }
-func (UnimplementedAuthorizerServer) SendEABCredentialRequest(context.Context, *EABCredentialRequest) (*EABCredentialResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SendEABCredentialRequest not implemented")
+func (UnimplementedAuthorizerServer) RequestEABCredentials(context.Context, *EABCredentialRequest) (*EABCredentialResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RequestEABCredentials not implemented")
 }
 func (UnimplementedAuthorizerServer) mustEmbedUnimplementedAuthorizerServer() {}
 
@@ -2207,20 +2207,20 @@ func _Authorizer_RequestCert_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Authorizer_SendEABCredentialRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Authorizer_RequestEABCredentials_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(EABCredentialRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AuthorizerServer).SendEABCredentialRequest(ctx, in)
+		return srv.(AuthorizerServer).RequestEABCredentials(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/mixmessages.Authorizer/SendEABCredentialRequest",
+		FullMethod: "/mixmessages.Authorizer/RequestEABCredentials",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthorizerServer).SendEABCredentialRequest(ctx, req.(*EABCredentialRequest))
+		return srv.(AuthorizerServer).RequestEABCredentials(ctx, req.(*EABCredentialRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -2241,8 +2241,8 @@ var Authorizer_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Authorizer_RequestCert_Handler,
 		},
 		{
-			MethodName: "SendEABCredentialRequest",
-			Handler:    _Authorizer_SendEABCredentialRequest_Handler,
+			MethodName: "RequestEABCredentials",
+			Handler:    _Authorizer_RequestEABCredentials_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

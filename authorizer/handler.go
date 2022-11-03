@@ -54,13 +54,13 @@ func StartAuthorizerServer(id *id.ID, localServer string, handler Handler,
 type Handler interface {
 	Authorize(auth *pb.AuthorizerAuth, ipAddr string) (err error)
 	RequestCert(msg *pb.AuthorizerCertRequest) (*messages.Ack, error)
-	SendEABCredentialRequest(msg *pb.EABCredentialRequest) (*pb.EABCredentialResponse, error)
+	RequestEABCredentials(msg *pb.EABCredentialRequest) (*pb.EABCredentialResponse, error)
 }
 
 type implementationFunctions struct {
-	Authorize                func(auth *pb.AuthorizerAuth, ipAddr string) (err error)
-	RequestCert              func(msg *pb.AuthorizerCertRequest) (*messages.Ack, error)
-	SendEABCredentialRequest func(msg *pb.EABCredentialRequest) (*pb.EABCredentialResponse, error)
+	Authorize             func(auth *pb.AuthorizerAuth, ipAddr string) (err error)
+	RequestCert           func(msg *pb.AuthorizerCertRequest) (*messages.Ack, error)
+	RequestEABCredentials func(msg *pb.EABCredentialRequest) (*pb.EABCredentialResponse, error)
 }
 
 // Implementation allows users of the client library to set the
@@ -88,7 +88,7 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return &messages.Ack{}, nil
 			},
-			SendEABCredentialRequest: func(msg *pb.EABCredentialRequest) (*pb.EABCredentialResponse, error) {
+			RequestEABCredentials: func(msg *pb.EABCredentialRequest) (*pb.EABCredentialResponse, error) {
 				warn(um)
 				return &pb.EABCredentialResponse{}, nil
 			},
@@ -107,6 +107,6 @@ func (s *Implementation) RequestCert(msg *pb.AuthorizerCertRequest) (*messages.A
 }
 
 // Request ACME key for HTTPS
-func (s *Implementation) SendEABCredentialRequest(msg *pb.EABCredentialRequest) (*pb.EABCredentialResponse, error) {
-	return s.Functions.SendEABCredentialRequest(msg)
+func (s *Implementation) RequestEABCredentials(msg *pb.EABCredentialRequest) (*pb.EABCredentialResponse, error) {
+	return s.Functions.RequestEABCredentials(msg)
 }

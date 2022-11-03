@@ -85,7 +85,7 @@ func TestComms_SendEABCredentialRequest(t *testing.T) {
 	authID := &id.Authorizer
 	impl := authorizer.NewImplementation()
 	receiveChan := make(chan *pb.EABCredentialRequest)
-	impl.Functions.SendEABCredentialRequest = func(notifBatch *pb.EABCredentialRequest) (*pb.EABCredentialResponse, error) {
+	impl.Functions.RequestEABCredentials = func(notifBatch *pb.EABCredentialRequest) (*pb.EABCredentialResponse, error) {
 		go func() { receiveChan <- notifBatch }()
 		return &pb.EABCredentialResponse{}, nil
 	}

@@ -56,6 +56,6 @@ func (r *Comms) RequestCert(ctx context.Context, msg *pb.AuthorizerCertRequest) 
 }
 
 // Request ACME key for HTTPS
-func (r *Comms) SendEABCredentialRequest(ctx context.Context, msg *pb.EABCredentialRequest) (*pb.EABCredentialResponse, error) {
-	return r.handler.SendEABCredentialRequest(msg)
+func (r *Comms) RequestEABCredentials(ctx context.Context, msg *pb.EABCredentialRequest) (*pb.EABCredentialResponse, error) {
+	return r.handler.RequestEABCredentials(msg)
 }

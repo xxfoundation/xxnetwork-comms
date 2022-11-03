@@ -751,7 +751,7 @@ service Authorizer{
 
     rpc RequestCert(AuthorizerCertRequest) returns (messages.Ack) {}
 
-    rpc SendEABCredentialRequest(EABCredentialRequest) returns (EABCredentialResponse) {}
+    rpc RequestEABCredentials(EABCredentialRequest) returns (EABCredentialResponse) {}
 }
 
 message EABCredentialRequest {

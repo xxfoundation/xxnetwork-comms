@@ -54,7 +54,7 @@ func (g *Comms) SendEABCredentialRequest(host *connect.Host, msg *pb.EABCredenti
 
 		// Send the message
 		resp, err := pb.NewAuthorizerClient(conn.GetGrpcConn()).
-			SendEABCredentialRequest(ctx, msg)
+			RequestEABCredentials(ctx, msg)
 		if err != nil {
 			return nil, err
 		}
