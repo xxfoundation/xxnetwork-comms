@@ -1,6 +1,6 @@
 module gitlab.com/xx_network/comms
 
-go 1.17
+go 1.19
 
 require (
 	git.xx.network/elixxir/grpc-web-go-client v0.0.0-20221102223039-dc1f37d94e70
