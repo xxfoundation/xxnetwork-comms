@@ -758,9 +758,8 @@ message EABCredentialRequest {
 }
 
 message EABCredentialResponse {
-    uint32 success = 1;
-    string KeyId = 2;
-    string Key = 3;
+    string KeyId = 1;
+    string Key = 2;
 }
 
 message AuthorizerCertRequest {
