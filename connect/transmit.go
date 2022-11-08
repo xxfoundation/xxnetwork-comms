@@ -52,8 +52,14 @@ func (c *ProtoComms) transmit(host *Host, f func(conn Connection) (interface{},
 			host.connectionMux.RLock()
 		}
 
-		//transmit
-		result, err = host.transmit(f)
+		// TODO: this is a temporary fix for xx-4337 (segfault in invoke)
+		// Should be removed once the root cause is addressed
+		if !host.IsWeb() && host.connection.GetGrpcConn() == nil {
+			err = errors.New("Cannot send; connection is nil")
+		} else {
+			//transmit
+			result, err = host.transmit(f)
+		}
 		host.connectionMux.RUnlock()
 
 		// if the transmission goes well or if it is a domain specific error, return
