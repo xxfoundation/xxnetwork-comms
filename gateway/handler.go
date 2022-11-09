@@ -1,9 +1,9 @@
-///////////////////////////////////////////////////////////////////////////////
-// Copyright © 2020 xx network SEZC                                          //
-//                                                                           //
-// Use of this source code is governed by a license that can be found in the //
-// LICENSE file                                                              //
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+// Copyright © 2022 xx foundation                                             //
+//                                                                            //
+// Use of this source code is governed by a license that can be found in the  //
+// LICENSE file.                                                              //
+////////////////////////////////////////////////////////////////////////////////
 
 // Contains the top-level initialization for the Gateway comms API.
 // This includes listening on ports, registering GRPC endpoints, and defining
@@ -12,14 +12,12 @@
 package gateway
 
 import (
-	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/gossip"
 	"gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/primitives/id"
-	"google.golang.org/grpc/reflection"
 	"runtime/debug"
 )
 
@@ -29,11 +27,12 @@ type Comms struct {
 	*gossip.Manager
 	*connect.ProtoComms
 	handler Handler
+	*pb.UnimplementedGatewayServer
+	*messages.UnimplementedGenericServer
 }
 
 // Handler describes the endpoint callbacks for Gateway.
 type Handler interface {
-	// PutMessage uploads a message to the cMix Gateway
 	PutMessage(message *pb.GatewaySlot, ipAddr string) (*pb.GatewaySlotResponse, error)
 	PutManyMessages(msgs *pb.GatewaySlots, ipAddr string) (*pb.GatewaySlotResponse, error)
 	PutMessageProxy(message *pb.GatewaySlot, auth *connect.Auth) (*pb.GatewaySlotResponse, error)
@@ -49,35 +48,26 @@ type Handler interface {
 // with given path to public and private key for TLS connection.
 func StartGateway(id *id.ID, localServer string, handler Handler,
 	certPem, keyPem []byte, gossipFlags gossip.ManagerFlags) *Comms {
-	pc, lis, err := connect.StartCommServer(id, localServer,
+
+	// Initialize the low-level comms listeners
+	pc, err := connect.StartCommServer(id, localServer,
 		certPem, keyPem, nil)
 	if err != nil {
-		jww.FATAL.Panicf("Unable to start comms server: %+v", err)
+		jww.FATAL.Panicf("Unable to StartCommServer: %+v", err)
 	}
-
 	gatewayServer := Comms{
 		handler:    handler,
 		ProtoComms: pc,
 		Manager:    gossip.NewManager(pc, gossipFlags),
 	}
 
-	go func() {
-		pb.RegisterGatewayServer(gatewayServer.LocalServer, &gatewayServer)
-		messages.RegisterGenericServer(gatewayServer.LocalServer, &gatewayServer)
-		gossip.RegisterGossipServer(gatewayServer.LocalServer, gatewayServer.Manager)
+	// Register the high-level comms endpoint functionality
+	grpcServer := gatewayServer.GetServer()
+	pb.RegisterGatewayServer(grpcServer, &gatewayServer)
+	messages.RegisterGenericServer(grpcServer, &gatewayServer)
+	gossip.RegisterGossipServer(grpcServer, gatewayServer.Manager)
 
-		// Register reflection service on gRPC server.
-		// This blocks for the lifetime of the listener.
-		reflection.Register(gatewayServer.LocalServer)
-		if err := gatewayServer.LocalServer.Serve(lis); err != nil {
-			jww.FATAL.Panicf("Failed to serve: %+v",
-				errors.New(err.Error()))
-		}
-		jww.INFO.Printf("Shutting down gateway server listener: %s",
-			lis)
-
-	}()
-
+	pc.ServeWithWeb()
 	return &gatewayServer
 }
 

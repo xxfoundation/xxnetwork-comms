@@ -1,9 +1,9 @@
-///////////////////////////////////////////////////////////////////////////////
-// Copyright © 2020 xx network SEZC                                          //
-//                                                                           //
-// Use of this source code is governed by a license that can be found in the //
-// LICENSE file                                                              //
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+// Copyright © 2022 xx foundation                                             //
+//                                                                            //
+// Use of this source code is governed by a license that can be found in the  //
+// LICENSE file.                                                              //
+////////////////////////////////////////////////////////////////////////////////
 
 // Contains logic for batch-related comms
 
@@ -19,7 +19,6 @@ import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/messages"
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 	"io"
 )
@@ -109,13 +108,14 @@ func (s *Comms) getPrecompTestBatchStream(host *connect.Host,
 	ctx context.Context) (pb.Node_PrecompTestBatchClient, error) {
 
 	// Create the Stream Function
-	f := func(conn *grpc.ClientConn) (interface{}, error) {
+	f := func(conn connect.Connection) (interface{}, error) {
 
 		// Add authentication information to streaming context
 		ctx = s.PackAuthenticatedContext(host, ctx)
 
 		// Get the stream client
-		streamClient, err := pb.NewNodeClient(conn).PrecompTestBatch(ctx)
+		streamClient, err := pb.NewNodeClient(conn.GetGrpcConn()).
+			PrecompTestBatch(ctx)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
@@ -148,7 +148,7 @@ func (s *Comms) PrecompTestBatch(stream pb.Node_PrecompTestBatchServer) error {
 		return errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
 	}
 
-	//Unmarshall the any message to the message type needed
+	// Unmarshall the any message to the message type needed
 	info, err := GetPrecompTestBatchStreamHeader(stream)
 	if err != nil {
 		return errors.WithMessage(err, "Could not get test batch stream header")
@@ -234,7 +234,7 @@ func (s *Comms) DownloadMixedBatch(authMsg *messages.AuthenticatedMessage,
 		return errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
 	}
 
-	//Unmarshall the any message to the message type needed
+	// Unmarshall the any message to the message type needed
 	batchInfo := &pb.BatchReady{}
 	err = ptypes.UnmarshalAny(authMsg.Message, batchInfo)
 	if err != nil {

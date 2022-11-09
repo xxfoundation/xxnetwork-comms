@@ -1,9 +1,9 @@
-///////////////////////////////////////////////////////////////////////////////
-// Copyright © 2020 xx network SEZC                                          //
-//                                                                           //
-// Use of this source code is governed by a license that can be found in the //
-// LICENSE file                                                              //
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+// Copyright © 2022 xx foundation                                             //
+//                                                                            //
+// Use of this source code is governed by a license that can be found in the  //
+// LICENSE file.                                                              //
+////////////////////////////////////////////////////////////////////////////////
 
 // Contains user discovery server gRPC endpoint wrappers
 // When you add the udb server to mixmessages/mixmessages.proto and add the
@@ -62,4 +62,8 @@ func (u *Comms) RemoveFact(ctx context.Context, msg *pb.FactRemovalRequest) (*me
 func (u *Comms) ValidateUsername(
 	ctx context.Context, request *pb.UsernameValidationRequest) (*pb.UsernameValidation, error) {
 	return u.handler.ValidateUsername(request)
+}
+
+func (u *Comms) RequestChannelLease(ctx context.Context, msg *pb.ChannelLeaseRequest) (*pb.ChannelLeaseResponse, error) {
+	return u.handler.RequestChannelLease(msg)
 }

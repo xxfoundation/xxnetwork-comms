@@ -1,9 +1,9 @@
-///////////////////////////////////////////////////////////////////////////////
-// Copyright © 2020 xx network SEZC                                          //
-//                                                                           //
-// Use of this source code is governed by a license that can be found in the //
-// LICENSE file                                                              //
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+// Copyright © 2022 xx foundation                                             //
+//                                                                            //
+// Use of this source code is governed by a license that can be found in the  //
+// LICENSE file.                                                              //
+////////////////////////////////////////////////////////////////////////////////
 
 // Contains notificationBot -> all servers functionality
 
@@ -16,13 +16,12 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/connect"
-	"google.golang.org/grpc"
 )
 
 // PollNdf gets the NDF from the permissioning server
 func (nb *Comms) PollNdf(host *connect.Host, ndfHash []byte) (*pb.NDF, error) {
 	// Create the Send Function
-	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+	f := func(conn connect.Connection) (*any.Any, error) {
 		// Set up the context
 		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
@@ -31,8 +30,8 @@ func (nb *Comms) PollNdf(host *connect.Host, ndfHash []byte) (*pb.NDF, error) {
 		ndfRequest := &pb.NDFHash{Hash: ndfHash}
 
 		// Send the message
-		clientConn := pb.NewRegistrationClient(conn)
-		resultMsg, err := clientConn.PollNdf(ctx, ndfRequest)
+		resultMsg, err := pb.NewRegistrationClient(conn.GetGrpcConn()).
+			PollNdf(ctx, ndfRequest)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}

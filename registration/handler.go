@@ -1,22 +1,20 @@
-///////////////////////////////////////////////////////////////////////////////
-// Copyright © 2020 xx network SEZC                                          //
-//                                                                           //
-// Use of this source code is governed by a license that can be found in the //
-// LICENSE file                                                              //
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+// Copyright © 2022 xx foundation                                             //
+//                                                                            //
+// Use of this source code is governed by a license that can be found in the  //
+// LICENSE file.                                                              //
+////////////////////////////////////////////////////////////////////////////////
 
 // Contains callback interface for registration functionality
 
 package registration
 
 import (
-	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/primitives/id"
-	"google.golang.org/grpc/reflection"
 	"runtime/debug"
 )
 
@@ -25,6 +23,8 @@ import (
 type Comms struct {
 	*connect.ProtoComms
 	handler Handler
+	*pb.UnimplementedRegistrationServer
+	*messages.UnimplementedGenericServer
 }
 
 // Starts a new server on the address:port specified by localServer
@@ -33,7 +33,7 @@ type Comms struct {
 func StartRegistrationServer(id *id.ID, localServer string, handler Handler,
 	certPEMblock, keyPEMblock []byte, preloadedHosts []*connect.Host) *Comms {
 
-	pc, lis, err := connect.StartCommServer(id, localServer,
+	pc, err := connect.StartCommServer(id, localServer,
 		certPEMblock, keyPEMblock, preloadedHosts)
 	if err != nil {
 		jww.FATAL.Panicf("Unable to start comms server: %+v", err)
@@ -43,21 +43,10 @@ func StartRegistrationServer(id *id.ID, localServer string, handler Handler,
 		ProtoComms: pc,
 		handler:    handler,
 	}
+	pb.RegisterRegistrationServer(registrationServer.GetServer(), &registrationServer)
+	messages.RegisterGenericServer(registrationServer.GetServer(), &registrationServer)
 
-	go func() {
-		pb.RegisterRegistrationServer(registrationServer.LocalServer, &registrationServer)
-		messages.RegisterGenericServer(registrationServer.LocalServer, &registrationServer)
-
-		// Register reflection service on gRPC server.
-		reflection.Register(registrationServer.LocalServer)
-		if err := registrationServer.LocalServer.Serve(lis); err != nil {
-			err = errors.New(err.Error())
-			jww.FATAL.Panicf("Failed to serve: %+v", err)
-		}
-		jww.INFO.Printf("Shutting down registration server listener:"+
-			" %s", lis)
-	}()
-
+	pc.Serve()
 	return &registrationServer
 }
 

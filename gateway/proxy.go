@@ -1,9 +1,9 @@
-///////////////////////////////////////////////////////////////////////////////
-// Copyright © 2020 xx network SEZC                                          //
-//                                                                           //
-// Use of this source code is governed by a license that can be found in the //
-// LICENSE file                                                              //
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+// Copyright © 2022 xx foundation                                             //
+//                                                                            //
+// Use of this source code is governed by a license that can be found in the  //
+// LICENSE file.                                                              //
+////////////////////////////////////////////////////////////////////////////////
 
 // Contains gateway -> gateway proxying functionality
 
@@ -15,7 +15,6 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/connect"
-	"google.golang.org/grpc"
 	"time"
 )
 
@@ -25,13 +24,14 @@ func (g *Comms) SendRequestClientKey(host *connect.Host,
 	*pb.SignedKeyResponse, error) {
 
 	// Create the Send Function
-	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+	f := func(conn connect.Connection) (*any.Any, error) {
 		// Set up the context
 		ctx, cancel := host.GetMessagingContextWithTimeout(timeout)
 		defer cancel()
 
 		// Send the message
-		resultMsg, err := pb.NewGatewayClient(conn).RequestClientKey(ctx, messages)
+		resultMsg, err := pb.NewGatewayClient(conn.GetGrpcConn()).
+			RequestClientKey(ctx, messages)
 		if err != nil {
 			return nil, err
 		}
@@ -55,14 +55,14 @@ func (g *Comms) SendRequestClientKey(host *connect.Host,
 func (g *Comms) SendPutMessageProxy(host *connect.Host, messages *pb.GatewaySlot, timeout time.Duration) (*pb.GatewaySlotResponse, error) {
 
 	// Create the Send Function
-	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+	f := func(conn connect.Connection) (*any.Any, error) {
 		// Set up the context
 		ctx, cancel := host.GetMessagingContextWithTimeout(timeout)
 		defer cancel()
 
-		//if messages != nil {
-		//	messages.IpAddr = ipAddr
-		//}
+		// if messages != nil {
+		// 	messages.IpAddr = ipAddr
+		// }
 
 		// Pack data into authenticated message
 		authMsg, err := g.PackAuthenticatedMessage(messages, host, false)
@@ -71,7 +71,8 @@ func (g *Comms) SendPutMessageProxy(host *connect.Host, messages *pb.GatewaySlot
 		}
 
 		// Send the message
-		resultMsg, err := pb.NewGatewayClient(conn).PutMessageProxy(ctx, authMsg)
+		resultMsg, err := pb.NewGatewayClient(conn.GetGrpcConn()).
+			PutMessageProxy(ctx, authMsg)
 		if err != nil {
 			return nil, err
 		}
@@ -95,14 +96,14 @@ func (g *Comms) SendPutMessageProxy(host *connect.Host, messages *pb.GatewaySlot
 func (g *Comms) SendPutManyMessagesProxy(host *connect.Host, messages *pb.GatewaySlots, timeout time.Duration) (*pb.GatewaySlotResponse, error) {
 
 	// Create the Send Function
-	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+	f := func(conn connect.Connection) (*any.Any, error) {
 		// Set up the context
 		ctx, cancel := host.GetMessagingContextWithTimeout(timeout)
 		defer cancel()
 
-		//if messages != nil {
-		//	messages.IpAddr = ipAddr
-		//}
+		// if messages != nil {
+		// 	messages.IpAddr = ipAddr
+		// }
 
 		// Pack data into authenticated message
 		authMsg, err := g.PackAuthenticatedMessage(messages, host, false)
@@ -111,7 +112,8 @@ func (g *Comms) SendPutManyMessagesProxy(host *connect.Host, messages *pb.Gatewa
 		}
 
 		// Send the message
-		resultMsg, err := pb.NewGatewayClient(conn).PutManyMessagesProxy(ctx, authMsg)
+		resultMsg, err := pb.NewGatewayClient(conn.GetGrpcConn()).
+			PutManyMessagesProxy(ctx, authMsg)
 		if err != nil {
 			return nil, err
 		}
@@ -137,13 +139,14 @@ func (g *Comms) SendRequestMessages(host *connect.Host,
 	error) {
 
 	// Create the Send Function
-	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+	f := func(conn connect.Connection) (*any.Any, error) {
 		// Set up the context
 		ctx, cancel := host.GetMessagingContextWithTimeout(timeout)
 		defer cancel()
 
 		// Send the message
-		resultMsg, err := pb.NewGatewayClient(conn).RequestMessages(ctx, messages)
+		resultMsg, err := pb.NewGatewayClient(conn.GetGrpcConn()).
+			RequestMessages(ctx, messages)
 		if err != nil {
 			return nil, err
 		}

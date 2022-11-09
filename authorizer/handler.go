@@ -1,9 +1,9 @@
-///////////////////////////////////////////////////////////////////////////////
-// Copyright © 2020 xx network SEZC                                          //
-//                                                                           //
-// Use of this source code is governed by a license that can be found in the //
-// LICENSE file                                                              //
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+// Copyright © 2022 xx foundation                                             //
+//                                                                            //
+// Use of this source code is governed by a license that can be found in the  //
+// LICENSE file.                                                              //
+////////////////////////////////////////////////////////////////////////////////
 
 // Contains callback interface for authorizer functionality
 
@@ -12,13 +12,11 @@ package authorizer
 import (
 	"runtime/debug"
 
-	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/primitives/id"
-	"google.golang.org/grpc/reflection"
 )
 
 // Authorizer object used to implement
@@ -26,6 +24,8 @@ import (
 type Comms struct {
 	*connect.ProtoComms
 	handler Handler
+	*pb.UnimplementedAuthorizerServer
+	*messages.UnimplementedGenericServer
 }
 
 // Starts a new server on the address:port specified by localServer
@@ -34,7 +34,7 @@ type Comms struct {
 func StartAuthorizerServer(id *id.ID, localServer string, handler Handler,
 	certPEMblock, keyPEMblock []byte) *Comms {
 
-	pc, lis, err := connect.StartCommServer(id, localServer,
+	pc, err := connect.StartCommServer(id, localServer,
 		certPEMblock, keyPEMblock, nil)
 	if err != nil {
 		jww.FATAL.Panicf("Unable to start comms server: %+v", err)
@@ -44,21 +44,10 @@ func StartAuthorizerServer(id *id.ID, localServer string, handler Handler,
 		ProtoComms: pc,
 		handler:    handler,
 	}
+	pb.RegisterAuthorizerServer(authorizerServer.GetServer(), &authorizerServer)
+	messages.RegisterGenericServer(authorizerServer.GetServer(), &authorizerServer)
 
-	go func() {
-		pb.RegisterAuthorizerServer(authorizerServer.LocalServer, &authorizerServer)
-		messages.RegisterGenericServer(authorizerServer.LocalServer, &authorizerServer)
-
-		// Register reflection service on gRPC server.
-		reflection.Register(authorizerServer.LocalServer)
-		if err := authorizerServer.LocalServer.Serve(lis); err != nil {
-			err = errors.New(err.Error())
-			jww.FATAL.Panicf("Failed to serve: %+v", err)
-		}
-		jww.INFO.Printf("Shutting down authorizer server listener:"+
-			" %s", lis)
-	}()
-
+	pc.Serve()
 	return &authorizerServer
 }
 

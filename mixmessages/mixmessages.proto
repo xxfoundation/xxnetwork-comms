@@ -1,13 +1,15 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright © 2019 Privategrity Corporation                                   /
-//                                                                             /
-// All rights reserved.                                                        /
+// Copyright © 2022 xx foundation                                             //
+//                                                                            //
+// Use of this source code is governed by a license that can be found in the  //
+// LICENSE file.                                                              //
 ////////////////////////////////////////////////////////////////////////////////
 
 syntax = "proto3";
-option go_package = "gitlab.com/elixxir/comms/mixmessages";
 
 package mixmessages;
+
+option go_package = "gitlab.com/elixxir/comms/mixmessages";
 
 import "gitlab.com/xx_network/comms/messages/messages.proto";
 import "google/protobuf/any.proto";
@@ -344,6 +346,12 @@ message GatewayPoll {
     // If false, all updates from the network
     bool FastPolling = 7;
     uint64 LastRound = 8;
+
+    // When set to true, the gateway will not get new NDFs and network round
+    // updates. This variable is added as the last field to be backward
+    // compatible. If it is not included, then the field defaults to false and
+    // will return all updates.
+    bool DisableUpdates = 9;
 }
 
 // Unified Client->Gateway polling response
@@ -354,6 +362,10 @@ message GatewayPollResponse {
     ClientBlooms Filters = 4; // Set of ClientBloomFilters requested by Client
     uint64 EarliestRound = 5; // The earliest round the gateway still has info for
     string EarliestRoundErr = 6;
+
+    // The following are used for the homebrew clock offset system in Client
+    int64 ReceivedTs = 7; // Timestamp that Gateway received GatewayPoll
+    int64 GatewayDelay = 8; // Duration of the Gateway Poll() function
 }
 
 // Holds a set of ClientBloom and their associated metadata
@@ -628,6 +640,28 @@ service UDB {
     // ValidateUsername sends a UsernameValidationRequest. This is a user side
     // initiated comm, where UD signs the username.
     rpc ValidateUsername(UsernameValidationRequest) returns (UsernameValidation) {}
+
+    // RequestChannelAuthentication requests a signature from UD on a user's ed25519 public key
+    // Returning a lease and a signature from UD
+    rpc RequestChannelLease (ChannelLeaseRequest) returns (ChannelLeaseResponse) {
+
+    }
+}
+
+// Holds information for a user requesting a channel lease from UD
+message ChannelLeaseRequest {
+    bytes UserID = 1;
+    bytes UserEd25519PubKey = 2;
+    int64 Timestamp = 3;
+    bytes UserPubKeyRSASignature = 4;
+}
+
+// Contains UD response to a ChannelLeaseRequest, including lease & signature
+message ChannelLeaseResponse {
+    int64 Lease = 1;
+    bytes UserEd25519PubKey = 2;
+    bytes UDLeaseEd25519Signature = 3;
+
 }
 
 // Holds information for a UDB user registration request
