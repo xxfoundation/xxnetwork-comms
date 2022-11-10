@@ -9,8 +9,8 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/soheilhy/cmux v0.1.5
 	github.com/spf13/jwalterweatherman v1.1.0
-	gitlab.com/xx_network/crypto v0.0.5-0.20221108182939-05998dc093e9
-	gitlab.com/xx_network/primitives v0.0.4-0.20221104175439-f0d440beacd9
+	gitlab.com/xx_network/crypto v0.0.5-0.20221110181048-76f0c556fe95
+	gitlab.com/xx_network/primitives v0.0.4-0.20221110180011-fd6ea3058225
 	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad
 	golang.org/x/net v0.0.0-20220822230855-b0a4917ee28c
 	google.golang.org/grpc v1.49.0
