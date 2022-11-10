@@ -264,6 +264,15 @@ service Gateway {
     rpc RequestMessages(GetMessages) returns (GetMessagesResponse) {
     }
 
+    rpc RequestTlsCert(RequestGatewayCert) returns (GatewayCertificate) {}
+
+}
+
+message RequestGatewayCert {}
+
+message GatewayCertificate {
+    bytes Certificate = 1;
+    bytes Signature = 2;
 }
 
 // StreamChunk represents a part of a response, to be streamed in chunks
