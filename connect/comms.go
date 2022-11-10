@@ -11,6 +11,7 @@ package connect
 
 import (
 	"crypto/tls"
+	"crypto/x509"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	"github.com/pkg/errors"
@@ -26,6 +27,8 @@ import (
 	"net"
 	"net/http"
 	"strings"
+	"sync"
+	"sync/atomic"
 	"time"
 )
 
@@ -95,6 +98,9 @@ type ProtoComms struct {
 
 	// Used to store the salt used for generating Client Id
 	salt []byte
+
+	needsHttpsCreds atomic.Bool
+	httpsCredChan   chan tls.Certificate
 
 	// -------------------------------------------------------------------------
 }
@@ -228,54 +234,58 @@ func (c *ProtoComms) ServeWithWeb() {
 		grpcMatcher = cmux.HTTP2()
 	}
 	grpcL := mux.Match(grpcMatcher)
-	httpL := mux.Match(cmux.HTTP1())
+	// TODO did we find a better way to do this than using any with https?
+	httpL := mux.Match(cmux.Any())
 
+	var wg sync.WaitGroup
+	wg.Add(1)
 	listenHTTP := func(l net.Listener) {
 		jww.INFO.Printf("Starting HTTP listener on GRPC endpoints: %+v",
 			grpcweb.ListGRPCResources(grpcServer))
 		httpServer := grpcweb.WrapServer(grpcServer,
 			grpcweb.WithOriginFunc(func(origin string) bool { return true }))
-		// This blocks for the lifetime of the listener.
-		jww.CRITICAL.Printf("Starting HTTP server to without TLS!")
-		if err := http.Serve(l, httpServer); err != nil {
-			// Cannot panic here due to shared net.Listener
-			jww.ERROR.Printf("Failed to serve HTTP: %+v", err)
-		}
 
-		// FIXME: Currently only HTTP is used. This must be fixed to use HTTPS
-		//  before production use.
-		// if TestingOnlyDisableTLS && c.privateKey == nil {
-		//  jww.WARN.Printf("Starting HTTP server to without TLS!")
-		// 	if err := http.Serve(l, httpServer); err != nil {
-		// 		// Cannot panic here due to shared net.Listener
-		// 		jww.ERROR.Printf("Failed to serve HTTP: %+v", err)
-		// 	}
-		// } else {
-		// 	// Configure TLS for this listener, using the config from
-		// 	// http.ServeTLS
-		// 	tlsConf := &tls.Config{}
-		// 	tlsConf.NextProtos = append(tlsConf.NextProtos, "h2", "http/1.1")
-		//
-		// 	var err error
-		// 	var cert *x509.Certificate
-		// 	cert, err = tlsCreds.LoadCertificate(string(c.pubKeyPem))
-		// 	if err != nil {
-		// 		jww.FATAL.Panicf("Failed to load TLS certificate: %+v", err)
-		// 	}
-		// 	tlsConf.ServerName = cert.DNSNames[0]
-		//
-		// 	tlsConf.Certificates = make([]tls.Certificate, 1)
-		// 	tlsConf.Certificates[0], err = tls.X509KeyPair(
-		// 		c.pubKeyPem, rsa.CreatePrivateKeyPem(c.privateKey))
-		// 	if err != nil {
-		// 		jww.FATAL.Panicf("Failed to load TLS key: %+v", err)
-		// 	}
-		// 	tlsLis := tls.NewListener(l, tlsConf)
-		// 	if err := http.Serve(tlsLis, httpServer); err != nil {
-		// 		// Cannot panic here due to shared net.Listener
-		// 		jww.ERROR.Printf("Failed to serve HTTP: %+v", err)
-		// 	}
-		// }
+		if TestingOnlyDisableTLS && c.privateKey == nil {
+			wg.Done()
+			jww.WARN.Printf("Starting HTTP server to without TLS!")
+			if err := http.Serve(l, httpServer); err != nil {
+				// Cannot panic here due to shared net.Listener
+				jww.ERROR.Printf("Failed to serve HTTP: %+v", err)
+			}
+		} else {
+			// Configure TLS for this listener, using the config from
+			// http.ServeTLS
+			tlsConf := &tls.Config{}
+			tlsConf.NextProtos = append(tlsConf.NextProtos, "h2", "http/1.1")
+
+			// Wait for creds to be provided for https
+			c.httpsCredChan = make(chan tls.Certificate, 1)
+			wg.Done()
+			creds := <-c.httpsCredChan
+			var err error
+
+			tlsConf.Certificates = make([]tls.Certificate, 1)
+			tlsConf.Certificates[0] = creds
+
+			var serverName string
+			if tlsConf.Certificates[0].Leaf == nil {
+				var cert *x509.Certificate
+				cert, err = x509.ParseCertificate(creds.Certificate[0])
+				if err != nil {
+					jww.FATAL.Panicf("Failed to load TLS certificate: %+v", err)
+				}
+				serverName = cert.DNSNames[0]
+			} else {
+				serverName = tlsConf.Certificates[0].Leaf.DNSNames[0]
+			}
+			tlsConf.ServerName = serverName
+
+			tlsLis := tls.NewListener(l, tlsConf)
+			if err := http.Serve(tlsLis, httpServer); err != nil {
+				// Cannot panic here due to shared net.Listener
+				jww.ERROR.Printf("Failed to serve HTTP: %+v", err)
+			}
+		}
 
 		jww.INFO.Printf("Shutting down HTTP server listener")
 	}
@@ -297,6 +307,24 @@ func (c *ProtoComms) ServeWithWeb() {
 	go listenHTTP(httpL)
 	go listenGRPC(grpcL)
 	go listenPort()
+	wg.Wait() // Don't return until https is ready for creds
+}
+
+// ProvisionHttps provides a tls cert and key to the thread which serves the
+// grpcweb endpoints, allowing it to continue and serve with https.
+// This function should be called exactly once after ServeWithWeb, any further
+// calls will have undefined behavior
+func (c *ProtoComms) ProvisionHttps(cert, key []byte) error {
+	if c.httpsCredChan == nil {
+		return errors.New("https cred chan does not exist; is https enabled?")
+	}
+	keyPair, err := tls.X509KeyPair(
+		cert, key)
+	if err != nil {
+		return errors.WithMessage(err, "cert & key could not be parsed to valid tls certificate")
+	}
+	c.httpsCredChan <- keyPair
+	return nil
 }
 
 // Shutdown performs a graceful shutdown of the local server.

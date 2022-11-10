@@ -2,6 +2,7 @@ package connect
 
 import (
 	"crypto/tls"
+	"fmt"
 	"net/http"
 	"net/http/httptrace"
 	"regexp"
@@ -73,18 +74,15 @@ func (wc *webConn) connectWebHelper() (err error) {
 	// FIXME: Currently only HTTP is used. This must be fixed to use HTTPS
 	//  before production use.
 	// Configure TLS options
-	jww.WARN.Printf("grpcWeb connecting to %s without TLS! This is insecure "+
-		"and should only be used for testing.", wc.h.GetAddress())
-	securityDial := []grpcweb.DialOption{grpcweb.WithInsecure()}
-	// var securityDial []grpcweb.DialOption
-	// if wc.h.credentials != nil {
-	// 	securityDial = []grpcweb.DialOption{grpcweb.WithTlsCertificate(wc.h.certificate)}
-	// } else if TestingOnlyDisableTLS {
-	// 	jww.WARN.Printf("Connecting to %s without TLS!", wc.h.GetAddress())
-	// 	securityDial = []grpcweb.DialOption{grpcweb.WithInsecure()}
-	// } else {
-	// 	jww.FATAL.Panicf(tlsError)
-	// }
+	var securityDial []grpcweb.DialOption
+	if wc.h.credentials != nil {
+		securityDial = []grpcweb.DialOption{grpcweb.WithTlsCertificate(wc.h.certificate)}
+	} else if TestingOnlyDisableTLS {
+		jww.WARN.Printf("Connecting to %s without TLS!", wc.h.GetAddress())
+		securityDial = []grpcweb.DialOption{grpcweb.WithInsecure()}
+	} else {
+		jww.FATAL.Panicf(tlsError)
+	}
 
 	jww.DEBUG.Printf("Attempting to establish connection to %s using "+
 		"credentials: %v", wc.h.GetAddress(), securityDial)
@@ -211,11 +209,12 @@ func (wc *webConn) IsOnline() (time.Duration, bool) {
 	}
 
 	// IMPORTANT - enables better HTTP(S) discovery, because many browsers block CORS by default.
-	req.Header.Add("js.fetch:mode", "no-cors")
+	//req.Header.Add("js.fetch:mode", "no-cors")
 	jww.TRACE.Printf("(GO request): %+v", req)
 
 	req = req.WithContext(httptrace.WithClientTrace(req.Context(), trace))
-	if _, err = client.Do(req); err != nil {
+	var resp *http.Response
+	if resp, err = client.Do(req); err != nil {
 		jww.TRACE.Printf("(GO error): %s", err.Error())
 		if checkErrorExceptions(err) {
 			jww.DEBUG.Printf(
@@ -227,6 +226,7 @@ func (wc *webConn) IsOnline() (time.Duration, bool) {
 			return time.Since(start), false
 		}
 	}
+	fmt.Println(resp)
 	client.CloseIdleConnections()
 	return time.Since(start), true
 }

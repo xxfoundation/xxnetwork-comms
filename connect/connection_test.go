@@ -105,7 +105,6 @@ func TestWebConnection_TLS(t *testing.T) {
 		t.Fatal(err)
 	}
 	hostParams := GetDefaultHostParams()
-	TestingOnlyDisableTLS = true
 	hostParams.ConnectionType = Web
 
 	h, err := newHost(hostId, addr, certBytes, hostParams)
@@ -114,7 +113,7 @@ func TestWebConnection_TLS(t *testing.T) {
 	}
 
 	s := grpc.NewServer()
-	pb.RegisterGenericServer(s, &TestGenericServer{})
+	pb.RegisterGenericServer(s, &TestGenericServer{resp: "hello!"})
 
 	pk, err := rsa.LoadPrivateKeyFromPem(keyBytes)
 	if err != nil {
@@ -125,6 +124,7 @@ func TestWebConnection_TLS(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	errCh := make(chan error)
 	go func() {
 		pc := ProtoComms{
 			networkId:   id.NewIdFromString("zezima", id.User, t),
@@ -137,9 +137,15 @@ func TestWebConnection_TLS(t *testing.T) {
 			pubKeyPem:   certBytes,
 			salt:        nil,
 		}
+
 		pc.ServeWithWeb()
+		errCh <- pc.ProvisionHttps(certBytes, keyBytes)
 	}()
-	time.Sleep(time.Second * 5)
+	time.Sleep(60)
+	err = <-errCh
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	err = h.connect()
 	if err != nil {
@@ -152,6 +158,9 @@ func TestWebConnection_TLS(t *testing.T) {
 	resp := &pb.Ack{}
 	err = h.connection.GetWebConn().Invoke(ctx, "/messages.Generic/AuthenticateToken", &pb.AuthenticatedMessage{}, resp)
 	if err != nil {
-		t.Fatal(err)
+		t.Fatalf("Failed to invoke authenticate: %+v", err)
+	}
+	if resp.Error != "hello!" {
+		t.Errorf("Did not receive expected payload")
 	}
 }
