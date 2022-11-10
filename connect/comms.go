@@ -28,7 +28,6 @@ import (
 	"net/http"
 	"strings"
 	"sync"
-	"sync/atomic"
 	"time"
 )
 
@@ -99,8 +98,7 @@ type ProtoComms struct {
 	// Used to store the salt used for generating Client Id
 	salt []byte
 
-	needsHttpsCreds atomic.Bool
-	httpsCredChan   chan tls.Certificate
+	httpsCredChan chan tls.Certificate
 
 	// -------------------------------------------------------------------------
 }
