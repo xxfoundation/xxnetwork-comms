@@ -219,3 +219,7 @@ func (m mockGatewayImpl) RequestMessages(msg *pb.GetMessages) (*pb.GetMessagesRe
 func (m mockGatewayImpl) ShareMessages(msg *pb.RoundMessages, auth *connect.Auth) error {
 	return nil
 }
+
+func (m mockGatewayImpl) RequestTlsCert(msg *pb.RequestGatewayCert) (*pb.GatewayCertificate, error) {
+	return &pb.GatewayCertificate{}, nil
+}
