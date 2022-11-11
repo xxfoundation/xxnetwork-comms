@@ -272,7 +272,7 @@ message RequestGatewayCert {}
 
 message GatewayCertificate {
     bytes Certificate = 1;
-    messages.RSASignature Signature = 2;
+    bytes Signature = 2;
 }
 
 // StreamChunk represents a part of a response, to be streamed in chunks
