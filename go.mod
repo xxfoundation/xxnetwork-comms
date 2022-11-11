@@ -10,9 +10,9 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0
 	gitlab.com/elixxir/crypto v0.0.7-0.20221028214442-29091a3c04b1
 	gitlab.com/elixxir/primitives v0.0.3-0.20221025020430-f5d2eb330fbc
-	gitlab.com/xx_network/comms v0.0.4-0.20221102223537-7c654a7f70fc
-	gitlab.com/xx_network/crypto v0.0.5-0.20221025020316-517fa8f91d2c
-	gitlab.com/xx_network/primitives v0.0.4-0.20221025020003-cbec15a71b8f
+	gitlab.com/xx_network/comms v0.0.4-0.20221110230330-3a63a3732f37
+	gitlab.com/xx_network/crypto v0.0.5-0.20221108182939-05998dc093e9
+	gitlab.com/xx_network/primitives v0.0.4-0.20221104175439-f0d440beacd9
 	gitlab.com/xx_network/ring v0.0.3-0.20220902183151-a7d3b15bc981
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa
 	golang.org/x/net v0.0.0-20220822230855-b0a4917ee28c
