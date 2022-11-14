@@ -56,3 +56,10 @@ func (u *Comms) ConfirmFact(ctx context.Context, msg *pb.FactConfirmRequest) (*m
 func (u *Comms) RemoveFact(ctx context.Context, msg *pb.FactRemovalRequest) (*messages.Ack, error) {
 	return u.handler.RemoveFact(msg)
 }
+
+// ValidateUsername validates that a user owns a username by signing the contents of the
+// mixmessages.UsernameValidationRequest.
+func (u *Comms) ValidateUsername(
+	ctx context.Context, request *pb.UsernameValidationRequest) (*pb.UsernameValidation, error) {
+	return u.handler.ValidateUsername(request)
+}
