@@ -773,7 +773,7 @@ message EABCredentialResponse {
 
 message AuthorizerCertRequest {
     bytes GwID = 1;
-    uint64 Timestamp = 2;
+    int64 Timestamp = 2;
     string ACMEToken = 3;
     bytes Signature = 4;
 }

@@ -46,7 +46,7 @@ func TestComms_SendAuthorizerCertRequest(t *testing.T) {
 
 	// Generate message to send
 	msg := &pb.AuthorizerCertRequest{
-		Timestamp: uint64(54321),
+		Timestamp: int64(54321),
 	}
 
 	// Send auth cert request to authorizer
