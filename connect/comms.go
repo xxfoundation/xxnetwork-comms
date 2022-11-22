@@ -98,7 +98,9 @@ type ProtoComms struct {
 	// Used to store the salt used for generating Client Id
 	salt []byte
 
-	httpsCredChan chan tls.Certificate
+	httpsCredChan        chan tls.Certificate
+	httpsCertificate     *tls.Certificate
+	httpsCertificateLock sync.RWMutex
 
 	// -------------------------------------------------------------------------
 }
@@ -260,23 +262,19 @@ func (c *ProtoComms) ServeWithWeb() {
 			c.httpsCredChan = make(chan tls.Certificate, 1)
 			wg.Done()
 			creds := <-c.httpsCredChan
-			var err error
 
-			tlsConf.Certificates = make([]tls.Certificate, 1)
-			tlsConf.Certificates[0] = creds
+			c.httpsCertificate = &creds
+			tlsConf.GetCertificate = c.GetCertificateFunc()
 
 			var serverName string
-			if tlsConf.Certificates[0].Leaf == nil {
-				var cert *x509.Certificate
-				cert, err = x509.ParseCertificate(creds.Certificate[0])
-				if err != nil {
-					jww.FATAL.Panicf("Failed to load TLS certificate: %+v", err)
-				}
-				serverName = cert.DNSNames[0]
-			} else {
-				serverName = tlsConf.Certificates[0].Leaf.DNSNames[0]
+			cert, err := x509.ParseCertificate(creds.Certificate[0])
+			if err != nil {
+				jww.FATAL.Panicf("Failed to load TLS certificate: %+v", err)
 			}
+			serverName = cert.DNSNames[0]
 			tlsConf.ServerName = serverName
+
+			go c.startUpdateCertificate()
 
 			tlsLis := tls.NewListener(l, tlsConf)
 			if err := http.Serve(tlsLis, httpServer); err != nil {
@@ -381,6 +379,25 @@ func (c *ProtoComms) Stream(host *Host, f func(conn Connection) (
 	// Ensure the connection is running
 	jww.TRACE.Printf("Attempting to stream to host: %s", host)
 	return c.transmit(host, f)
+}
+
+func (c *ProtoComms) GetCertificateFunc() func(*tls.ClientHelloInfo) (*tls.Certificate, error) {
+	return func(clientHello *tls.ClientHelloInfo) (*tls.Certificate, error) {
+		c.httpsCertificateLock.RLock()
+		defer c.httpsCertificateLock.RUnlock()
+		return c.httpsCertificate, nil
+	}
+}
+
+func (c *ProtoComms) startUpdateCertificate() {
+	for {
+		select {
+		case creds := <-c.httpsCredChan:
+			c.httpsCertificateLock.Lock()
+			c.httpsCertificate = &creds
+			c.httpsCertificateLock.Unlock()
+		}
+	}
 }
 
 // returns true if the connection error is one of the connection errors which
