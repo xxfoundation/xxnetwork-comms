@@ -2,6 +2,7 @@ package connect
 
 import (
 	"context"
+	"crypto/tls"
 	"gitlab.com/xx_network/comms/connect/token"
 	pb "gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/comms/testkeys"
@@ -127,15 +128,16 @@ func TestWebConnection_TLS(t *testing.T) {
 	errCh := make(chan error)
 	go func() {
 		pc := ProtoComms{
-			networkId:   id.NewIdFromString("zezima", id.User, t),
-			privateKey:  pk,
-			disableAuth: false,
-			tokens:      token.NewMap(),
-			Manager:     newManager(),
-			netListener: lis,
-			grpcServer:  s,
-			pubKeyPem:   certBytes,
-			salt:        nil,
+			networkId:     id.NewIdFromString("zezima", id.User, t),
+			privateKey:    pk,
+			disableAuth:   false,
+			tokens:        token.NewMap(),
+			Manager:       newManager(),
+			netListener:   lis,
+			grpcServer:    s,
+			pubKeyPem:     certBytes,
+			salt:          nil,
+			httpsCredChan: make(chan tls.Certificate, 1),
 		}
 
 		pc.ServeWithWeb()
