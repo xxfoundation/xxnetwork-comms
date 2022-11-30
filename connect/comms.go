@@ -307,7 +307,7 @@ func (c *ProtoComms) ServeHttps(cert, key []byte) error {
 	}
 
 	if c.netListener == nil {
-		return errors.New("ProtoComms is closed, call ServeWithWeb to initialize listener")
+		return errors.New("ProtoComms is closed, call Restart to initialize")
 	}
 
 	var httpL net.Listener
