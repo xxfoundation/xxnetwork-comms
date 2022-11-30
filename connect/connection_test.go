@@ -50,7 +50,6 @@ func TestWebConnection(t *testing.T) {
 	errCh := make(chan error)
 	go func() {
 		s := grpc.NewServer()
-		pb.RegisterGenericServer(s, &TestGenericServer{resp: "response"})
 		pc := ProtoComms{
 			networkId:        id.NewIdFromString("zezima", id.User, t),
 			disableAuth:      true,
@@ -59,6 +58,13 @@ func TestWebConnection(t *testing.T) {
 			listeningAddress: addr,
 			grpcServer:       s,
 		}
+
+		err = pc.Restart()
+		if err != nil {
+			errCh <- err
+		}
+		expectedResponse := "response"
+		pb.RegisterGenericServer(pc.grpcServer, &TestGenericServer{resp: expectedResponse})
 
 		pc.ServeWithWeb()
 		errCh <- pc.ServeHttps(nil, nil)
