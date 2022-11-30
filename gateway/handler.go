@@ -72,6 +72,22 @@ func StartGateway(id *id.ID, localServer string, handler Handler,
 	return &gatewayServer
 }
 
+func (g *Comms) RestartGateway() error {
+	g.ProtoComms.Shutdown()
+	err := g.ProtoComms.Restart()
+	if err != nil {
+		return err
+	}
+	// Register the high-level comms endpoint functionality
+	grpcServer := g.GetServer()
+	pb.RegisterGatewayServer(grpcServer, g)
+	messages.RegisterGenericServer(grpcServer, g)
+	gossip.RegisterGossipServer(grpcServer, g.Manager)
+
+	g.ProtoComms.ServeWithWeb()
+	return nil
+}
+
 // implementationFunctions for the Handler interface.
 type implementationFunctions struct {
 	PutMessage              func(message *pb.GatewaySlot, ipAddr string) (*pb.GatewaySlotResponse, error)

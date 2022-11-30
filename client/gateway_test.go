@@ -57,6 +57,46 @@ func TestSendPutMessage(t *testing.T) {
 	}
 }
 
+// Smoke test SendGetMessage
+func TestRestart(t *testing.T) {
+	gatewayAddress := getNextAddress()
+	testID := id.NewIdFromString("test", id.Gateway, t)
+	gw := gateway.StartGateway(testID, gatewayAddress,
+		gateway.NewImplementation(), nil, nil, gossip.DefaultManagerFlags())
+	defer gw.Shutdown()
+	err := gw.ServeHttps(nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var c Comms
+
+	err = gw.RestartGateway()
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = gw.ServeHttps(nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for _, connectionType := range []connect.ConnectionType{connect.Grpc, connect.Web} {
+		manager := connect.NewManagerTesting(t)
+
+		params := connect.GetDefaultHostParams()
+		params.ConnectionType = connectionType
+		params.AuthEnabled = false
+		host, err := manager.AddHost(testID, gatewayAddress, nil, params)
+		if err != nil {
+			t.Errorf("Unable to call NewHost: %+v", err)
+		}
+
+		_, err = c.SendPutMessage(host, &pb.GatewaySlot{}, 10*time.Second)
+		if err != nil {
+			t.Errorf("PutMessage: Error received: %s", err)
+		}
+	}
+}
+
 // Smoke test SendRequestClientKeyMessage
 func TestSendRequestNonceMessage(t *testing.T) {
 	gatewayAddress := getNextAddress()
