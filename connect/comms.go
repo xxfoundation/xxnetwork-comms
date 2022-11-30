@@ -27,7 +27,6 @@ import (
 	"net"
 	"net/http"
 	"strings"
-	"sync"
 	"time"
 )
 
@@ -79,6 +78,8 @@ type ProtoComms struct {
 	// Disables the checking of authentication signatures for testing setups
 	disableAuth bool
 
+	listeningAddress string
+
 	// SERVER-ONLY FIELDS ------------------------------------------------------
 
 	// A map of reverse-authentication tokens
@@ -89,6 +90,7 @@ type ProtoComms struct {
 
 	// Local network server
 	grpcServer *grpc.Server
+	grpcCreds  credentials.TransportCredentials
 
 	// CLIENT-ONLY FIELDS ------------------------------------------------------
 
@@ -98,9 +100,11 @@ type ProtoComms struct {
 	// Used to store the salt used for generating Client Id
 	salt []byte
 
-	httpsCredChan        chan tls.Certificate
-	httpsCertificate     *tls.Certificate
-	httpsCertificateLock sync.RWMutex
+	// cmux interface for starting http listener when serving with web
+	mux cmux.CMux
+
+	// https certificate infra for replacing tls cert with no downtime
+	httpsCertificate *tls.Certificate
 
 	// -------------------------------------------------------------------------
 }
@@ -157,11 +161,11 @@ listen:
 
 	// Build the comms object
 	pc := &ProtoComms{
-		networkId:     id,
-		netListener:   lis,
-		tokens:        token.NewMap(),
-		Manager:       newManager(),
-		httpsCredChan: make(chan tls.Certificate, 1),
+		networkId:        id,
+		netListener:      lis,
+		tokens:           token.NewMap(),
+		Manager:          newManager(),
+		listeningAddress: listeningAddr,
 	}
 
 	for _, h := range preloadedHosts {
@@ -209,6 +213,40 @@ listen:
 	return pc, nil
 }
 
+func (c *ProtoComms) Restart() error {
+	if TestingOnlyDisableTLS {
+		c.grpcServer = grpc.NewServer(
+			grpc.MaxConcurrentStreams(MaxConcurrentStreams),
+			grpc.MaxRecvMsgSize(math.MaxInt32),
+			grpc.KeepaliveParams(KaOpts),
+			grpc.KeepaliveEnforcementPolicy(KaEnforcement))
+	} else {
+		c.grpcServer = grpc.NewServer(grpc.Creds(c.grpcCreds),
+			grpc.MaxConcurrentStreams(MaxConcurrentStreams),
+			grpc.MaxRecvMsgSize(math.MaxInt32),
+			grpc.KeepaliveParams(KaOpts),
+			grpc.KeepaliveEnforcementPolicy(KaEnforcement))
+	}
+
+	if c.netListener != nil {
+		return errors.New("ProtoComms is already listening")
+	}
+listen:
+	// Listen on the given address
+	lis, err := net.Listen("tcp", c.listeningAddress)
+	if err != nil {
+		if strings.Contains(err.Error(), "bind: address already in use") {
+			jww.WARN.Printf("Could not listen on %s, is port in use? waiting 30s: %s", c.listeningAddress, err.Error())
+			time.Sleep(30 * time.Second)
+			goto listen
+		}
+		return errors.New(err.Error())
+	}
+
+	c.netListener = lis
+	return nil
+}
+
 // Serve is a non-blocking call that begins serving content
 // for GRPC. GRPC endpoints must be registered before making this call.
 func (c *ProtoComms) Serve() {
@@ -230,65 +268,15 @@ func (c *ProtoComms) ServeWithWeb() {
 
 	// Split netListener into two distinct listeners for GRPC and HTTP
 	mux := cmux.New(c.netListener)
-	grpcMatcher := cmux.TLS()
+	grpcMatcher := cmux.HTTP2HeaderField("content-type", "application/grpc")
+
+	// TODO: do we need this anymore?  the header should match either case...
 	if TestingOnlyDisableTLS {
 		grpcMatcher = cmux.HTTP2()
 	}
 	grpcL := mux.Match(grpcMatcher)
-	// TODO did we find a better way to do this than using any with https?
-	httpL := mux.Match(cmux.Any())
+	c.mux = mux
 
-	var wg sync.WaitGroup
-	wg.Add(1)
-	listenHTTP := func(l net.Listener) {
-		jww.INFO.Printf("Starting HTTP listener on GRPC endpoints: %+v",
-			grpcweb.ListGRPCResources(grpcServer))
-		httpServer := grpcweb.WrapServer(grpcServer,
-			grpcweb.WithOriginFunc(func(origin string) bool { return true }))
-
-		if TestingOnlyDisableTLS && c.privateKey == nil {
-			wg.Done()
-			jww.WARN.Printf("Starting HTTP server to without TLS!")
-			if err := http.Serve(l, httpServer); err != nil {
-				// Cannot panic here due to shared net.Listener
-				jww.ERROR.Printf("Failed to serve HTTP: %+v", err)
-			}
-		} else {
-			// Configure TLS for this listener, using the config from
-			// http.ServeTLS
-			tlsConf := &tls.Config{}
-			tlsConf.NextProtos = append(tlsConf.NextProtos, "h2", "http/1.1")
-
-			// Wait for creds to be provided for https
-			wg.Done()
-			creds := <-c.httpsCredChan
-
-			// We use the GetCertificate field and a function which returns
-			// c.httpsCertificate wrapped by a ReadLock to allow for future
-			// changes to the certificate without downtime
-			c.httpsCertificate = &creds
-			tlsConf.GetCertificate = c.GetCertificateFunc()
-
-			var serverName string
-			cert, err := x509.ParseCertificate(creds.Certificate[0])
-			if err != nil {
-				jww.FATAL.Panicf("Failed to load TLS certificate: %+v", err)
-			}
-			serverName = cert.DNSNames[0]
-			tlsConf.ServerName = serverName
-
-			// Start thread which will update the certificate going forward
-			go c.startUpdateCertificate()
-
-			tlsLis := tls.NewListener(l, tlsConf)
-			if err := http.Serve(tlsLis, httpServer); err != nil {
-				// Cannot panic here due to shared net.Listener
-				jww.ERROR.Printf("Failed to serve HTTP: %+v", err)
-			}
-		}
-
-		jww.INFO.Printf("Shutting down HTTP server listener")
-	}
 	listenGRPC := func(l net.Listener) {
 		// This blocks for the lifetime of the listener.
 		if err := grpcServer.Serve(l); err != nil {
@@ -304,10 +292,8 @@ func (c *ProtoComms) ServeWithWeb() {
 		}
 		jww.INFO.Printf("Shutting down port server listener")
 	}
-	go listenHTTP(httpL)
 	go listenGRPC(grpcL)
 	go listenPort()
-	wg.Wait() // Don't return until https is ready for creds
 }
 
 // ProvisionHttps provides a tls cert and key to the thread which serves the
@@ -315,16 +301,80 @@ func (c *ProtoComms) ServeWithWeb() {
 // not be usable until this has been called at least once, unblocking the
 // listenHTTP func in ServeWithWeb.  Future calls will be handled by the
 // startUpdateCertificate thread.
-func (c *ProtoComms) ProvisionHttps(cert, key []byte) error {
-	if c.httpsCredChan == nil {
-		return errors.New("https cred chan does not exist; is https enabled?")
+func (c *ProtoComms) ServeHttps(cert, key []byte) error {
+	if c.mux == nil {
+		return errors.New("mux does not exist; is https enabled?")
 	}
-	keyPair, err := tls.X509KeyPair(
-		cert, key)
-	if err != nil {
-		return errors.WithMessage(err, "cert & key could not be parsed to valid tls certificate")
+
+	if c.netListener == nil {
+		return errors.New("ProtoComms is closed, call ServeWithWeb to initialize listener")
 	}
-	c.httpsCredChan <- keyPair
+
+	var httpL net.Listener
+	if TestingOnlyDisableTLS && cert == nil && key == nil {
+		httpL = c.mux.Match(cmux.HTTP1())
+	} else {
+		httpL = c.mux.Match(cmux.TLS())
+	}
+
+	grpcServer := c.grpcServer
+	var keyPair tls.Certificate
+	var err error
+	if cert == nil && key == nil {
+		if !TestingOnlyDisableTLS {
+			return errors.New("cannot serve without tls outside of testing")
+		}
+	} else {
+		keyPair, err = tls.X509KeyPair(
+			cert, key)
+		if err != nil {
+			return errors.WithMessage(err, "cert & key could not be parsed to valid tls certificate")
+		}
+	}
+
+	listenHTTP := func(l net.Listener) {
+		jww.INFO.Printf("Starting HTTP listener on GRPC endpoints: %+v",
+			grpcweb.ListGRPCResources(grpcServer))
+		httpServer := grpcweb.WrapServer(grpcServer,
+			grpcweb.WithOriginFunc(func(origin string) bool { return true }))
+		if TestingOnlyDisableTLS && c.privateKey == nil {
+			jww.WARN.Printf("Starting HTTP server to without TLS!")
+			if err := http.Serve(l, httpServer); err != nil {
+				// Cannot panic here due to shared net.Listener
+				jww.ERROR.Printf("Failed to serve HTTP: %+v", err)
+			}
+		} else {
+			// Configure TLS for this listener, using the config from
+			// http.ServeTLS
+			tlsConf := &tls.Config{}
+			tlsConf.NextProtos = append(tlsConf.NextProtos, "h2", "http/1.1")
+
+			// We use the GetCertificate field and a function which returns
+			// c.httpsCertificate wrapped by a ReadLock to allow for future
+			// changes to the certificate without downtime
+			c.httpsCertificate = &keyPair
+			tlsConf.GetCertificate = c.GetCertificateFunc()
+
+			var serverName string
+			cert, err := x509.ParseCertificate(keyPair.Certificate[0])
+			if err != nil {
+				jww.FATAL.Panicf("Failed to load TLS certificate: %+v", err)
+			}
+			serverName = cert.DNSNames[0]
+			tlsConf.ServerName = serverName
+
+			tlsLis := tls.NewListener(l, tlsConf)
+			if err := http.Serve(tlsLis, httpServer); err != nil {
+				// Cannot panic here due to shared net.Listener
+				jww.ERROR.Printf("Failed to serve HTTP: %+v", err)
+			}
+		}
+
+		jww.INFO.Printf("Shutting down HTTP server listener")
+	}
+
+	go listenHTTP(httpL)
+
 	return nil
 }
 
@@ -334,11 +384,17 @@ func (c *ProtoComms) Shutdown() {
 	c.grpcServer.GracefulStop()
 	// Close all Manager connections
 	c.DisconnectAll()
+	c.grpcServer = nil
+	c.netListener = nil
+	c.mux = nil
 	jww.INFO.Printf("Comms server successfully shut down")
 }
 
 // Stringer method
 func (c *ProtoComms) String() string {
+	if c.netListener == nil {
+		return c.listeningAddress
+	}
 	return c.netListener.Addr().String()
 }
 
@@ -391,23 +447,7 @@ func (c *ProtoComms) Stream(host *Host, f func(conn Connection) (
 // without downtime
 func (c *ProtoComms) GetCertificateFunc() func(*tls.ClientHelloInfo) (*tls.Certificate, error) {
 	return func(clientHello *tls.ClientHelloInfo) (*tls.Certificate, error) {
-		c.httpsCertificateLock.RLock()
-		defer c.httpsCertificateLock.RUnlock()
 		return c.httpsCertificate, nil
-	}
-}
-
-// startUpdateCertificate starts a thread which listens for further updates to
-// the TLS certificate.  When received, it takes the write lock & updates
-// the stored certificate
-func (c *ProtoComms) startUpdateCertificate() {
-	for {
-		select {
-		case creds := <-c.httpsCredChan:
-			c.httpsCertificateLock.Lock()
-			c.httpsCertificate = &creds
-			c.httpsCertificateLock.Unlock()
-		}
 	}
 }
 
