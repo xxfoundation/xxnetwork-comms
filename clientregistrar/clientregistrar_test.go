@@ -40,7 +40,8 @@ func TestTLS(t *testing.T) {
 	certPath := testkeys.GetNodeCertPath()
 	certData := testkeys.LoadFromPath(certPath)
 	testId := id.NewIdFromString("test", id.Generic, t)
-
+	fmt.Println(certData)
+	fmt.Println(keyData)
 	rg := StartClientRegistrarServer(testId, RegAddress,
 		NewImplementation(),
 		certData, keyData)
@@ -48,6 +49,11 @@ func TestTLS(t *testing.T) {
 	// It's a client
 	// So, we need some way to add a connection to the manager for the client
 	defer rg.Shutdown()
+	err := rg.ServeHttps(certData, keyData)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	var c client.Comms
 	manager := connect.NewManagerTesting(t)
 

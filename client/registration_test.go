@@ -28,6 +28,10 @@ func TestSendRegistrationMessage(t *testing.T) {
 	rg := clientregistrar.StartClientRegistrarServer(testId, GatewayAddress,
 		registration.NewImplementation(), nil, nil)
 	defer rg.Shutdown()
+	err := rg.ServeHttps(nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	for _, connectionType := range []connect.ConnectionType{connect.Grpc, connect.Web} {
 		c, err := NewClientComms(clientId, nil, nil, nil)
@@ -59,7 +63,6 @@ func TestSendGetUpdatedNDF(t *testing.T) {
 
 	rg := registration.StartRegistrationServer(testId, GatewayAddress, &MockRegistration{}, nil, nil, nil)
 	defer rg.Shutdown()
-
 	c, err := NewClientComms(clientId, nil, nil, nil)
 	if err != nil {
 		t.Errorf("Can't create client comms: %+v", err)

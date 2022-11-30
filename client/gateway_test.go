@@ -33,6 +33,10 @@ func TestSendPutMessage(t *testing.T) {
 	gw := gateway.StartGateway(testID, gatewayAddress,
 		gateway.NewImplementation(), nil, nil, gossip.DefaultManagerFlags())
 	defer gw.Shutdown()
+	err := gw.ServeHttps(nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
 	var c Comms
 
 	for _, connectionType := range []connect.ConnectionType{connect.Grpc, connect.Web} {
@@ -60,6 +64,10 @@ func TestSendRequestNonceMessage(t *testing.T) {
 	gw := gateway.StartGateway(testID, gatewayAddress,
 		gateway.NewImplementation(), nil, nil, gossip.DefaultManagerFlags())
 	defer gw.Shutdown()
+	err := gw.ServeHttps(nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
 	var c Comms
 
 	for _, connectionType := range []connect.ConnectionType{connect.Grpc, connect.Web} {
@@ -87,6 +95,10 @@ func TestComms_SendPoll(t *testing.T) {
 	gw := gateway.StartGateway(testID, gatewayAddress,
 		mockGatewayImpl{}, nil, nil, gossip.DefaultManagerFlags())
 	defer gw.Shutdown()
+	err := gw.ServeHttps(nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
 	var c Comms
 
 	for _, connectionType := range []connect.ConnectionType{connect.Grpc, connect.Web} {
@@ -121,6 +133,10 @@ func TestComms_RequestMessages(t *testing.T) {
 	gw := gateway.StartGateway(testID, gatewayAddress,
 		gateway.NewImplementation(), nil, nil, gossip.DefaultManagerFlags())
 	defer gw.Shutdown()
+	err := gw.ServeHttps(nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	for _, connectionType := range []connect.ConnectionType{connect.Grpc, connect.Web} {
 		c, err := NewClientComms(testID, nil, pk, nil)
@@ -152,6 +168,10 @@ func TestComms_RequestHistoricalRounds(t *testing.T) {
 	gw := gateway.StartGateway(testID, gatewayAddress,
 		gateway.NewImplementation(), nil, nil, gossip.DefaultManagerFlags())
 	defer gw.Shutdown()
+	err := gw.ServeHttps(nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
 	pk := testkeys.LoadFromPath(testkeys.GetGatewayKeyPath())
 
 	for _, connectionType := range []connect.ConnectionType{connect.Grpc, connect.Web} {
