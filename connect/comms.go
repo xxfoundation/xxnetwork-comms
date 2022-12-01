@@ -454,10 +454,7 @@ func (c *ProtoComms) Shutdown() {
 
 // Stringer method
 func (c *ProtoComms) String() string {
-	if c.netListener == nil {
-		return c.listeningAddress
-	}
-	return c.netListener.Addr().String()
+	return c.listeningAddress
 }
 
 // Setter for local server's private key
