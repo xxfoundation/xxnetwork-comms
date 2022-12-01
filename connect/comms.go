@@ -11,6 +11,7 @@ package connect
 
 import (
 	"crypto/tls"
+	"crypto/x509"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	"github.com/pkg/errors"
@@ -19,18 +20,22 @@ import (
 	"gitlab.com/xx_network/comms/connect/token"
 	"gitlab.com/xx_network/crypto/signature/rsa"
 	"gitlab.com/xx_network/primitives/id"
+	"golang.org/x/crypto/cryptobyte"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/keepalive"
+	"io"
 	"math"
 	"net"
 	"net/http"
+	"src.agwa.name/tlshacks"
 	"strings"
 	"time"
 )
 
 // MaxWindowSize 4 MB
 const MaxWindowSize = math.MaxInt32
+const tlsHandshakePrefixLen = 5
 
 // TestingOnlyDisableTLS is the variable set for testing
 // which allows for the disabled TLS code-path. Production
@@ -77,6 +82,8 @@ type ProtoComms struct {
 	// Disables the checking of authentication signatures for testing setups
 	disableAuth bool
 
+	listeningAddress string
+
 	// SERVER-ONLY FIELDS ------------------------------------------------------
 
 	// A map of reverse-authentication tokens
@@ -87,6 +94,7 @@ type ProtoComms struct {
 
 	// Local network server
 	grpcServer *grpc.Server
+	grpcCreds  credentials.TransportCredentials
 
 	// CLIENT-ONLY FIELDS ------------------------------------------------------
 
@@ -95,6 +103,12 @@ type ProtoComms struct {
 
 	// Used to store the salt used for generating Client Id
 	salt []byte
+
+	// cmux interface for starting http listener when serving with web
+	mux cmux.CMux
+
+	// https certificate infra for replacing tls cert with no downtime
+	httpsCertificate *tls.Certificate
 
 	// -------------------------------------------------------------------------
 }
@@ -151,10 +165,11 @@ listen:
 
 	// Build the comms object
 	pc := &ProtoComms{
-		networkId:   id,
-		netListener: lis,
-		tokens:      token.NewMap(),
-		Manager:     newManager(),
+		networkId:        id,
+		netListener:      lis,
+		tokens:           token.NewMap(),
+		Manager:          newManager(),
+		listeningAddress: listeningAddr,
 	}
 
 	for _, h := range preloadedHosts {
@@ -202,6 +217,42 @@ listen:
 	return pc, nil
 }
 
+// Restart is a public accessor meant to allow for reuse of a host after
+// Shutdown is called.  The intended use is for replacing certificates.
+func (c *ProtoComms) Restart() error {
+	if TestingOnlyDisableTLS {
+		c.grpcServer = grpc.NewServer(
+			grpc.MaxConcurrentStreams(MaxConcurrentStreams),
+			grpc.MaxRecvMsgSize(math.MaxInt32),
+			grpc.KeepaliveParams(KaOpts),
+			grpc.KeepaliveEnforcementPolicy(KaEnforcement))
+	} else {
+		c.grpcServer = grpc.NewServer(grpc.Creds(c.grpcCreds),
+			grpc.MaxConcurrentStreams(MaxConcurrentStreams),
+			grpc.MaxRecvMsgSize(math.MaxInt32),
+			grpc.KeepaliveParams(KaOpts),
+			grpc.KeepaliveEnforcementPolicy(KaEnforcement))
+	}
+
+	if c.netListener != nil {
+		return errors.New("ProtoComms is already listening")
+	}
+listen:
+	// Listen on the given address
+	lis, err := net.Listen("tcp", c.listeningAddress)
+	if err != nil {
+		if strings.Contains(err.Error(), "bind: address already in use") {
+			jww.WARN.Printf("Could not listen on %s, is port in use? waiting 30s: %s", c.listeningAddress, err.Error())
+			time.Sleep(30 * time.Second)
+			goto listen
+		}
+		return errors.New(err.Error())
+	}
+
+	c.netListener = lis
+	return nil
+}
+
 // Serve is a non-blocking call that begins serving content
 // for GRPC. GRPC endpoints must be registered before making this call.
 func (c *ProtoComms) Serve() {
@@ -223,61 +274,23 @@ func (c *ProtoComms) ServeWithWeb() {
 
 	// Split netListener into two distinct listeners for GRPC and HTTP
 	mux := cmux.New(c.netListener)
-	grpcMatcher := cmux.TLS()
+	grpcMatcher := matchGrpcTls
+
 	if TestingOnlyDisableTLS {
 		grpcMatcher = cmux.HTTP2()
 	}
-	grpcL := mux.Match(grpcMatcher)
 	httpL := mux.Match(cmux.HTTP1())
+	grpcL := mux.Match(grpcMatcher)
+	c.mux = mux
 
 	listenHTTP := func(l net.Listener) {
-		jww.INFO.Printf("Starting HTTP listener on GRPC endpoints: %+v",
-			grpcweb.ListGRPCResources(grpcServer))
 		httpServer := grpcweb.WrapServer(grpcServer,
 			grpcweb.WithOriginFunc(func(origin string) bool { return true }))
-		// This blocks for the lifetime of the listener.
-		jww.CRITICAL.Printf("Starting HTTP server to without TLS!")
+		jww.WARN.Printf("Starting HTTP server to without TLS!")
 		if err := http.Serve(l, httpServer); err != nil {
 			// Cannot panic here due to shared net.Listener
 			jww.ERROR.Printf("Failed to serve HTTP: %+v", err)
 		}
-
-		// FIXME: Currently only HTTP is used. This must be fixed to use HTTPS
-		//  before production use.
-		// if TestingOnlyDisableTLS && c.privateKey == nil {
-		//  jww.WARN.Printf("Starting HTTP server to without TLS!")
-		// 	if err := http.Serve(l, httpServer); err != nil {
-		// 		// Cannot panic here due to shared net.Listener
-		// 		jww.ERROR.Printf("Failed to serve HTTP: %+v", err)
-		// 	}
-		// } else {
-		// 	// Configure TLS for this listener, using the config from
-		// 	// http.ServeTLS
-		// 	tlsConf := &tls.Config{}
-		// 	tlsConf.NextProtos = append(tlsConf.NextProtos, "h2", "http/1.1")
-		//
-		// 	var err error
-		// 	var cert *x509.Certificate
-		// 	cert, err = tlsCreds.LoadCertificate(string(c.pubKeyPem))
-		// 	if err != nil {
-		// 		jww.FATAL.Panicf("Failed to load TLS certificate: %+v", err)
-		// 	}
-		// 	tlsConf.ServerName = cert.DNSNames[0]
-		//
-		// 	tlsConf.Certificates = make([]tls.Certificate, 1)
-		// 	tlsConf.Certificates[0], err = tls.X509KeyPair(
-		// 		c.pubKeyPem, rsa.CreatePrivateKeyPem(c.privateKey))
-		// 	if err != nil {
-		// 		jww.FATAL.Panicf("Failed to load TLS key: %+v", err)
-		// 	}
-		// 	tlsLis := tls.NewListener(l, tlsConf)
-		// 	if err := http.Serve(tlsLis, httpServer); err != nil {
-		// 		// Cannot panic here due to shared net.Listener
-		// 		jww.ERROR.Printf("Failed to serve HTTP: %+v", err)
-		// 	}
-		// }
-
-		jww.INFO.Printf("Shutting down HTTP server listener")
 	}
 	listenGRPC := func(l net.Listener) {
 		// This blocks for the lifetime of the listener.
@@ -299,18 +312,136 @@ func (c *ProtoComms) ServeWithWeb() {
 	go listenPort()
 }
 
+// Matcher function for grpc TLS connections; parses the client hello message,
+// return true if the info contains ALPN and if the protos contain 'h2'.
+func matchGrpcTls(r io.Reader) bool {
+	var handshakePrefix cryptobyte.String
+	handshakePrefix = make([]byte, tlsHandshakePrefixLen)
+	n, err := io.ReadFull(r, handshakePrefix)
+	if err != nil || n != tlsHandshakePrefixLen {
+		return false
+	}
+
+	jww.TRACE.Printf("Read potential prefix bytes %+v", handshakePrefix)
+
+	var handshakeMessageType, messageVersionMinor, messageVersionMajor uint8
+	var handshakeMessageLength uint16
+	if !handshakePrefix.ReadUint8(&handshakeMessageType) {
+		return false
+	}
+	if !handshakePrefix.ReadUint8(&messageVersionMajor) {
+		return false
+	}
+	if !handshakePrefix.ReadUint8(&messageVersionMinor) {
+		return false
+	}
+	if !handshakePrefix.ReadUint16(&handshakeMessageLength) {
+		return false
+	}
+
+	jww.DEBUG.Printf("Read handshake message of type %d (%d.%d), %d bytes left to read", handshakeMessageType, messageVersionMajor, messageVersionMinor, handshakeMessageLength)
+
+	helloMessage := make([]byte, handshakeMessageLength)
+	n, err = io.ReadFull(r, helloMessage)
+	if err != nil {
+		return false
+	}
+
+	if helloMessage[0] != 0x01 {
+		return false
+	}
+
+	hello := tlshacks.UnmarshalClientHello(helloMessage)
+	if hello == nil {
+		return false
+	}
+
+	if len(hello.Info.Protocols) < 1 {
+		return false
+	}
+	if hello.Info.Protocols[0] != "h2" {
+		return false
+	}
+
+	return true
+}
+
+// ProvisionHttps provides a tls cert and key to the thread which serves the
+// grpcweb endpoints, allowing it to serve with https.  Note that https will
+// not be usable until this has been called at least once, unblocking the
+// listenHTTP func in ServeWithWeb.  Future calls will be handled by the
+// startUpdateCertificate thread.
+func (c *ProtoComms) ServeHttps(cert, key []byte) error {
+	if c.mux == nil {
+		return errors.New("mux does not exist; is https enabled?")
+	}
+
+	if c.netListener == nil {
+		return errors.New("ProtoComms is closed, call Restart to initialize")
+	}
+
+	httpL := c.mux.Match(cmux.TLS())
+
+	grpcServer := c.grpcServer
+	keyPair, err := tls.X509KeyPair(
+		cert, key)
+	if err != nil {
+		return errors.WithMessage(err, "cert & key could not be parsed to valid tls certificate")
+	}
+
+	listenHTTPS := func(l net.Listener) {
+		jww.INFO.Printf("Starting HTTP listener on GRPC endpoints: %+v",
+			grpcweb.ListGRPCResources(grpcServer))
+		httpsServer := grpcweb.WrapServer(grpcServer,
+			grpcweb.WithOriginFunc(func(origin string) bool { return true }))
+
+		// Configure TLS for this listener, using the config from
+		// http.ServeTLS
+		tlsConf := &tls.Config{}
+		tlsConf.NextProtos = append(tlsConf.NextProtos, "h2", "http/1.1")
+
+		// We use the GetCertificate field and a function which returns
+		// c.httpsCertificate wrapped by a ReadLock to allow for future
+		// changes to the certificate without downtime
+		c.httpsCertificate = &keyPair
+		tlsConf.Certificates = []tls.Certificate{keyPair}
+
+		var serverName string
+		cert, err := x509.ParseCertificate(keyPair.Certificate[0])
+		if err != nil {
+			jww.FATAL.Panicf("Failed to load TLS certificate: %+v", err)
+		}
+		serverName = cert.DNSNames[0]
+		tlsConf.ServerName = serverName
+
+		tlsLis := tls.NewListener(l, tlsConf)
+		if err := http.Serve(tlsLis, httpsServer); err != nil {
+			// Cannot panic here due to shared net.Listener
+			jww.WARN.Printf("HTTPS listener shutting down: %+v", err)
+		}
+		jww.INFO.Printf("Stopped HTTPS server listener")
+	}
+
+	go listenHTTPS(httpL)
+
+	return nil
+}
+
 // Shutdown performs a graceful shutdown of the local server.
 func (c *ProtoComms) Shutdown() {
 	// Also handles closing of net.Listener
 	c.grpcServer.GracefulStop()
 	// Close all Manager connections
 	c.DisconnectAll()
+	c.grpcServer = nil
+	c.netListener = nil
+	c.mux = nil
 	jww.INFO.Printf("Comms server successfully shut down")
 }
 
 // Stringer method
 func (c *ProtoComms) String() string {
-	return c.netListener.Addr().String()
+	return c.listeningAddress
 }
 
 // Setter for local server's private key
