@@ -274,9 +274,8 @@ func (c *ProtoComms) ServeWithWeb() {
 
 	// Split netListener into two distinct listeners for GRPC and HTTP
 	mux := cmux.New(c.netListener)
-	grpcMatcher := matchGrpcTls //cmux.HTTP2HeaderField("content-type", "application/grpc")
+	grpcMatcher := matchGrpcTls
 
-	// TODO: do we need this anymore?  the header should match either case...
 	if TestingOnlyDisableTLS {
 		grpcMatcher = cmux.HTTP2()
 	}
