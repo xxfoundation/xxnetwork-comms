@@ -28,10 +28,6 @@ func TestSendRegistrationMessage(t *testing.T) {
 	rg := clientregistrar.StartClientRegistrarServer(testId, GatewayAddress,
 		registration.NewImplementation(), nil, nil)
 	defer rg.Shutdown()
-	err := rg.ServeHttps(nil, nil)
-	if err != nil {
-		t.Fatal(err)
-	}
 
 	for _, connectionType := range []connect.ConnectionType{connect.Grpc, connect.Web} {
 		c, err := NewClientComms(clientId, nil, nil, nil)

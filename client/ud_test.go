@@ -21,10 +21,6 @@ func TestComms_SendRegisterUser(t *testing.T) {
 	ud := udb.StartServer(&id.UDB, udAddr, udb.NewImplementation(), nil, nil)
 
 	defer ud.Shutdown()
-	err := ud.ServeHttps(nil, nil)
-	if err != nil {
-		t.Fatal(err)
-	}
 
 	for _, connectionType := range []connect.ConnectionType{connect.Grpc, connect.Web} {
 		c, err := NewClientComms(&id.DummyUser, nil, nil, nil)
@@ -53,10 +49,6 @@ func TestComms_SendRegisterFact(t *testing.T) {
 	udAddr := getNextAddress()
 	ud := udb.StartServer(&id.UDB, udAddr, udb.NewImplementation(), nil, nil)
 	defer ud.Shutdown()
-	err := ud.ServeHttps(nil, nil)
-	if err != nil {
-		t.Fatal(err)
-	}
 
 	for _, connectionType := range []connect.ConnectionType{connect.Grpc, connect.Web} {
 		c, err := NewClientComms(&id.DummyUser, nil, nil, nil)
@@ -85,10 +77,6 @@ func TestComms_SendConfirmFact(t *testing.T) {
 	udAddr := getNextAddress()
 	ud := udb.StartServer(&id.UDB, udAddr, udb.NewImplementation(), nil, nil)
 	defer ud.Shutdown()
-	err := ud.ServeHttps(nil, nil)
-	if err != nil {
-		t.Fatal(err)
-	}
 
 	for _, connectionType := range []connect.ConnectionType{connect.Grpc, connect.Web} {
 		c, err := NewClientComms(&id.DummyUser, nil, nil, nil)
@@ -117,10 +105,6 @@ func TestComms_SendRemoveFact(t *testing.T) {
 	udAddr := getNextAddress()
 	ud := udb.StartServer(&id.UDB, udAddr, udb.NewImplementation(), nil, nil)
 	defer ud.Shutdown()
-	err := ud.ServeHttps(nil, nil)
-	if err != nil {
-		t.Fatal(err)
-	}
 
 	for _, connectionType := range []connect.ConnectionType{connect.Grpc, connect.Web} {
 		c, err := NewClientComms(&id.DummyUser, nil, nil, nil)
@@ -149,10 +133,6 @@ func TestComms_SendRemoveUser(t *testing.T) {
 	udAddr := getNextAddress()
 	ud := udb.StartServer(&id.UDB, udAddr, udb.NewImplementation(), nil, nil)
 	defer ud.Shutdown()
-	err := ud.ServeHttps(nil, nil)
-	if err != nil {
-		t.Fatal(err)
-	}
 
 	for _, connectionType := range []connect.ConnectionType{connect.Grpc, connect.Web} {
 		c, err := NewClientComms(&id.DummyUser, nil, nil, nil)
