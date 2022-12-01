@@ -53,7 +53,7 @@ func TestSendPutMessage(t *testing.T) {
 	}
 }
 
-// Smoke test SendGetMessage
+// Test the restart function of gateway comms
 func TestRestart(t *testing.T) {
 	gatewayAddress := getNextAddress()
 	testID := id.NewIdFromString("test", id.Gateway, t)
@@ -61,6 +61,9 @@ func TestRestart(t *testing.T) {
 		gateway.NewImplementation(), nil, nil, gossip.DefaultManagerFlags())
 	defer gw.Shutdown()
 	var c Comms
+
+	// this ensures we don't get caught in a 30s sleep waiting for the socket to release
+	time.Sleep(time.Second)
 
 	err := gw.RestartGateway()
 	if err != nil {
@@ -82,6 +85,7 @@ func TestRestart(t *testing.T) {
 		if err != nil {
 			t.Errorf("PutMessage: Error received: %s", err)
 		}
+		host.Disconnect()
 	}
 }
 
