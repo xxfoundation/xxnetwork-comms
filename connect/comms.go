@@ -217,6 +217,8 @@ listen:
 	return pc, nil
 }
 
+// Restart is a public accessor meant to allow for reuse of a host after
+// Shutdown is called.  The intended use is for replacing certificates.
 func (c *ProtoComms) Restart() error {
 	if TestingOnlyDisableTLS {
 		c.grpcServer = grpc.NewServer(
@@ -379,26 +381,13 @@ func (c *ProtoComms) ServeHttps(cert, key []byte) error {
 		return errors.New("ProtoComms is closed, call Restart to initialize")
 	}
 
-	var httpL net.Listener
-	if TestingOnlyDisableTLS && cert == nil && key == nil {
-
-	} else {
-		httpL = c.mux.Match(cmux.TLS())
-	}
+	httpL := c.mux.Match(cmux.TLS())
 
 	grpcServer := c.grpcServer
-	var keyPair tls.Certificate
-	var err error
-	if cert == nil && key == nil {
-		if !TestingOnlyDisableTLS {
-			return errors.New("cannot serve without tls outside of testing")
-		}
-	} else {
-		keyPair, err = tls.X509KeyPair(
-			cert, key)
-		if err != nil {
-			return errors.WithMessage(err, "cert & key could not be parsed to valid tls certificate")
-		}
+	keyPair, err := tls.X509KeyPair(
+		cert, key)
+	if err != nil {
+		return errors.WithMessage(err, "cert & key could not be parsed to valid tls certificate")
 	}
 
 	listenHTTPS := func(l net.Listener) {
@@ -416,7 +405,7 @@ func (c *ProtoComms) ServeHttps(cert, key []byte) error {
 		// c.httpsCertificate wrapped by a ReadLock to allow for future
 		// changes to the certificate without downtime
 		c.httpsCertificate = &keyPair
-		tlsConf.GetCertificate = c.GetCertificateFunc()
+		tlsConf.Certificates = []tls.Certificate{keyPair}
 
 		var serverName string
 		cert, err := x509.ParseCertificate(keyPair.Certificate[0])
@@ -429,10 +418,9 @@ func (c *ProtoComms) ServeHttps(cert, key []byte) error {
 		tlsLis := tls.NewListener(l, tlsConf)
 		if err := http.Serve(tlsLis, httpsServer); err != nil {
 			// Cannot panic here due to shared net.Listener
-			jww.ERROR.Printf("Failed to serve HTTP: %+v", err)
+			jww.WARN.Printf("HTTPS listener shutting down: %+v", err)
 		}
-
-		jww.INFO.Printf("Shutting down HTTP server listener")
+		jww.INFO.Printf("Stopped HTTPS server listener")
 	}
 
 	go listenHTTPS(httpL)
@@ -499,15 +487,6 @@ func (c *ProtoComms) Stream(host *Host, f func(conn Connection) (
 	// Ensure the connection is running
 	jww.TRACE.Printf("Attempting to stream to host: %s", host)
 	return c.transmit(host, f)
-}
-
-// GetCertificateFunc returns a function which serves as the value of
-// GetCertificate in the https TLS config, enabling certificate changing
-// without downtime
-func (c *ProtoComms) GetCertificateFunc() func(*tls.ClientHelloInfo) (*tls.Certificate, error) {
-	return func(clientHello *tls.ClientHelloInfo) (*tls.Certificate, error) {
-		return c.httpsCertificate, nil
-	}
 }
 
 // returns true if the connection error is one of the connection errors which
