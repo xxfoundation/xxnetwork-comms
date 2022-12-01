@@ -10,7 +10,7 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0
 	gitlab.com/elixxir/crypto v0.0.7-0.20221028214442-29091a3c04b1
 	gitlab.com/elixxir/primitives v0.0.3-0.20221025020430-f5d2eb330fbc
-	gitlab.com/xx_network/comms v0.0.4-0.20221201114958-16e81c0669a8
+	gitlab.com/xx_network/comms v0.0.4-0.20221201220222-1022a44d9939
 	gitlab.com/xx_network/crypto v0.0.5-0.20221108182939-05998dc093e9
 	gitlab.com/xx_network/primitives v0.0.4-0.20221104175439-f0d440beacd9
 	gitlab.com/xx_network/ring v0.0.3-0.20220902183151-a7d3b15bc981
@@ -36,4 +36,5 @@ require (
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/genproto v0.0.0-20220822174746-9e6da59bd2fc // indirect
 	nhooyr.io/websocket v1.8.7 // indirect
+	src.agwa.name/tlshacks v0.0.0-20220518131152-d2c6f4e2b780 // indirect
 )
