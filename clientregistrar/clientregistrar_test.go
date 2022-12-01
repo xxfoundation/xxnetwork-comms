@@ -40,8 +40,6 @@ func TestTLS(t *testing.T) {
 	certPath := testkeys.GetNodeCertPath()
 	certData := testkeys.LoadFromPath(certPath)
 	testId := id.NewIdFromString("test", id.Generic, t)
-	fmt.Println(certData)
-	fmt.Println(keyData)
 	rg := StartClientRegistrarServer(testId, RegAddress,
 		NewImplementation(),
 		certData, keyData)
