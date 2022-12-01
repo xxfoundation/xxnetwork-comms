@@ -72,6 +72,9 @@ func StartGateway(id *id.ID, localServer string, handler Handler,
 	return &gatewayServer
 }
 
+// RestartGateway shuts down &restarts the underlying protocomms server,
+// re-registers grpc handlers & starts basic listeners again.  Intended for use
+// before replacing https certificates
 func (g *Comms) RestartGateway() error {
 	g.ProtoComms.Shutdown()
 	err := g.ProtoComms.Restart()
