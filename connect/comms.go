@@ -269,14 +269,23 @@ func (c *ProtoComms) ServeWithWeb() {
 	// Split netListener into two distinct listeners for GRPC and HTTP
 	mux := cmux.New(c.netListener)
 	grpcMatcher := cmux.HTTP2HeaderField("content-type", "application/grpc")
-
 	// TODO: do we need this anymore?  the header should match either case...
 	if TestingOnlyDisableTLS {
 		grpcMatcher = cmux.HTTP2()
 	}
 	grpcL := mux.Match(grpcMatcher)
+	httpL := mux.Match(cmux.HTTP1())
 	c.mux = mux
 
+	listenHTTP := func(l net.Listener) {
+		httpServer := grpcweb.WrapServer(grpcServer,
+			grpcweb.WithOriginFunc(func(origin string) bool { return true }))
+		jww.WARN.Printf("Starting HTTP server to without TLS!")
+		if err := http.Serve(l, httpServer); err != nil {
+			// Cannot panic here due to shared net.Listener
+			jww.ERROR.Printf("Failed to serve HTTP: %+v", err)
+		}
+	}
 	listenGRPC := func(l net.Listener) {
 		// This blocks for the lifetime of the listener.
 		if err := grpcServer.Serve(l); err != nil {
@@ -292,6 +301,7 @@ func (c *ProtoComms) ServeWithWeb() {
 		}
 		jww.INFO.Printf("Shutting down port server listener")
 	}
+	go listenHTTP(httpL)
 	go listenGRPC(grpcL)
 	go listenPort()
 }
@@ -312,7 +322,7 @@ func (c *ProtoComms) ServeHttps(cert, key []byte) error {
 
 	var httpL net.Listener
 	if TestingOnlyDisableTLS && cert == nil && key == nil {
-		httpL = c.mux.Match(cmux.HTTP1())
+
 	} else {
 		httpL = c.mux.Match(cmux.TLS())
 	}
@@ -321,9 +331,7 @@ func (c *ProtoComms) ServeHttps(cert, key []byte) error {
 	var keyPair tls.Certificate
 	var err error
 	if cert == nil && key == nil {
-		if !TestingOnlyDisableTLS {
-			return errors.New("cannot serve without tls outside of testing")
-		}
+		return errors.New("cannot serve without tls outside of testing")
 	} else {
 		keyPair, err = tls.X509KeyPair(
 			cert, key)
@@ -332,48 +340,41 @@ func (c *ProtoComms) ServeHttps(cert, key []byte) error {
 		}
 	}
 
-	listenHTTP := func(l net.Listener) {
+	listenHTTPS := func(l net.Listener) {
 		jww.INFO.Printf("Starting HTTP listener on GRPC endpoints: %+v",
 			grpcweb.ListGRPCResources(grpcServer))
-		httpServer := grpcweb.WrapServer(grpcServer,
+		httpsServer := grpcweb.WrapServer(grpcServer,
 			grpcweb.WithOriginFunc(func(origin string) bool { return true }))
-		if TestingOnlyDisableTLS && c.privateKey == nil {
-			jww.WARN.Printf("Starting HTTP server to without TLS!")
-			if err := http.Serve(l, httpServer); err != nil {
-				// Cannot panic here due to shared net.Listener
-				jww.ERROR.Printf("Failed to serve HTTP: %+v", err)
-			}
-		} else {
-			// Configure TLS for this listener, using the config from
-			// http.ServeTLS
-			tlsConf := &tls.Config{}
-			tlsConf.NextProtos = append(tlsConf.NextProtos, "h2", "http/1.1")
 
-			// We use the GetCertificate field and a function which returns
-			// c.httpsCertificate wrapped by a ReadLock to allow for future
-			// changes to the certificate without downtime
-			c.httpsCertificate = &keyPair
-			tlsConf.GetCertificate = c.GetCertificateFunc()
+		// Configure TLS for this listener, using the config from
+		// http.ServeTLS
+		tlsConf := &tls.Config{}
+		tlsConf.NextProtos = append(tlsConf.NextProtos, "h2", "http/1.1")
 
-			var serverName string
-			cert, err := x509.ParseCertificate(keyPair.Certificate[0])
-			if err != nil {
-				jww.FATAL.Panicf("Failed to load TLS certificate: %+v", err)
-			}
-			serverName = cert.DNSNames[0]
-			tlsConf.ServerName = serverName
+		// We use the GetCertificate field and a function which returns
+		// c.httpsCertificate wrapped by a ReadLock to allow for future
+		// changes to the certificate without downtime
+		c.httpsCertificate = &keyPair
+		tlsConf.GetCertificate = c.GetCertificateFunc()
 
-			tlsLis := tls.NewListener(l, tlsConf)
-			if err := http.Serve(tlsLis, httpServer); err != nil {
-				// Cannot panic here due to shared net.Listener
-				jww.ERROR.Printf("Failed to serve HTTP: %+v", err)
-			}
+		var serverName string
+		cert, err := x509.ParseCertificate(keyPair.Certificate[0])
+		if err != nil {
+			jww.FATAL.Panicf("Failed to load TLS certificate: %+v", err)
+		}
+		serverName = cert.DNSNames[0]
+		tlsConf.ServerName = serverName
+
+		tlsLis := tls.NewListener(l, tlsConf)
+		if err := http.Serve(tlsLis, httpsServer); err != nil {
+			// Cannot panic here due to shared net.Listener
+			jww.ERROR.Printf("Failed to serve HTTP: %+v", err)
 		}
 
 		jww.INFO.Printf("Shutting down HTTP server listener")
 	}
 
-	go listenHTTP(httpL)
+	go listenHTTPS(httpL)
 
 	return nil
 }

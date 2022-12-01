@@ -67,12 +67,12 @@ func TestWebConnection(t *testing.T) {
 		pb.RegisterGenericServer(pc.grpcServer, &TestGenericServer{resp: expectedResponse})
 
 		pc.ServeWithWeb()
-		errCh <- pc.ServeHttps(nil, nil)
+		//errCh <- pc.ServeHttps(nil, nil)
 	}()
-	err = <-errCh
-	if err != nil {
-		t.Fatal(err)
-	}
+	//err = <-errCh
+	//if err != nil {
+	//	t.Fatal(err)
+	//}
 
 	err = h.connect()
 	if err != nil {
