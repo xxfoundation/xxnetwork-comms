@@ -11,7 +11,7 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0
 	gitlab.com/xx_network/crypto v0.0.5-0.20221108182939-05998dc093e9
 	gitlab.com/xx_network/primitives v0.0.4-0.20221104175439-f0d440beacd9
-	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad
+	golang.org/x/crypto v0.0.0-20220518034528-6f7dac969898
 	golang.org/x/net v0.0.0-20220822230855-b0a4917ee28c
 	google.golang.org/grpc v1.49.0
 	google.golang.org/protobuf v1.28.1
@@ -30,4 +30,5 @@ require (
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/genproto v0.0.0-20220822174746-9e6da59bd2fc // indirect
 	nhooyr.io/websocket v1.8.6 // indirect
+	src.agwa.name/tlshacks v0.0.0-20220518131152-d2c6f4e2b780 // indirect
 )
