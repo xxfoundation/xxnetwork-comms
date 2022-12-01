@@ -195,7 +195,6 @@ func TestWebConnection_TLS(t *testing.T) {
 			ctx, cancel = h.GetMessagingContext()
 			defer cancel()
 
-			resp = &pb.Ack{}
 			err = h.connection.GetWebConn().Invoke(ctx, "/messages.Generic/AuthenticateToken", &pb.AuthenticatedMessage{}, resp)
 			if err != nil {
 				t.Fatalf("Failed to invoke authenticate: %+v", err)
@@ -209,5 +208,72 @@ func TestWebConnection_TLS(t *testing.T) {
 			grpcHost.disconnect()
 		})
 	}
+}
 
+func TestServeWeb_Matchers(t *testing.T) {
+	TestingOnlyDisableTLS = false
+	addr := "0.0.0.0:11421"
+
+	certBytes, err := utils.ReadFile(testkeys.GetNodeCertPath())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	keyBytes, err := utils.ReadFile(testkeys.GetNodeKeyPath())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rng := csprng.NewSystemRNG()
+	hostId, err := id.NewRandomID(rng, id.User)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for _, ct := range []ConnectionType{Web, Grpc} {
+		t.Run(fmt.Sprintf("%s-test", ct.String()), func(t *testing.T) {
+			fmt.Printf("Testing %s\n", ct.String())
+			pc, err := StartCommServer(id.NewIdFromString("zezima", id.User, t), addr, certBytes, keyBytes, nil)
+			if err != nil {
+				t.Fatal(err)
+			}
+			expectedResponse := fmt.Sprintf("send type %s", ct)
+			pb.RegisterGenericServer(pc.grpcServer, &TestGenericServer{resp: expectedResponse})
+			hostParams := GetDefaultHostParams()
+			hostParams.ConnectionType = ct
+			pc.ServeWithWeb()
+			err = pc.ServeHttps(certBytes, keyBytes)
+			if err != nil {
+				t.Fatal(err)
+			}
+			h, err := newHost(hostId, addr, certBytes, hostParams)
+			if err != nil {
+				t.Fatal(err)
+			}
+			err = h.connect()
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			resp := &pb.Ack{}
+			ctx, cancel := h.GetMessagingContext()
+			defer cancel()
+			switch ct {
+			case Web:
+				err = h.connection.GetWebConn().Invoke(ctx, "/messages.Generic/AuthenticateToken", &pb.AuthenticatedMessage{}, resp)
+			case Grpc:
+				err = h.connection.GetGrpcConn().Invoke(ctx, "/messages.Generic/AuthenticateToken", &pb.AuthenticatedMessage{}, resp)
+			}
+			if err != nil {
+				t.Fatalf("Failed to invoke authenticate: %+v", err)
+			}
+			if resp.Error != expectedResponse {
+				t.Errorf("Did not receive expected payload")
+			}
+
+			h.disconnect()
+			pc.Shutdown()
+		})
+	}
+	TestingOnlyDisableTLS = true
 }

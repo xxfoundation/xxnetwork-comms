@@ -20,18 +20,22 @@ import (
 	"gitlab.com/xx_network/comms/connect/token"
 	"gitlab.com/xx_network/crypto/signature/rsa"
 	"gitlab.com/xx_network/primitives/id"
+	"golang.org/x/crypto/cryptobyte"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/keepalive"
+	"io"
 	"math"
 	"net"
 	"net/http"
+	"src.agwa.name/tlshacks"
 	"strings"
 	"time"
 )
 
 // MaxWindowSize 4 MB
 const MaxWindowSize = math.MaxInt32
+const tlsHandshakePrefixLen = 5
 
 // TestingOnlyDisableTLS is the variable set for testing
 // which allows for the disabled TLS code-path. Production
@@ -268,13 +272,14 @@ func (c *ProtoComms) ServeWithWeb() {
 
 	// Split netListener into two distinct listeners for GRPC and HTTP
 	mux := cmux.New(c.netListener)
-	grpcMatcher := cmux.HTTP2HeaderField("content-type", "application/grpc")
+	grpcMatcher := matchGrpcTls //cmux.HTTP2HeaderField("content-type", "application/grpc")
+
 	// TODO: do we need this anymore?  the header should match either case...
 	if TestingOnlyDisableTLS {
 		grpcMatcher = cmux.HTTP2()
 	}
-	grpcL := mux.Match(grpcMatcher)
 	httpL := mux.Match(cmux.HTTP1())
+	grpcL := mux.Match(grpcMatcher)
 	c.mux = mux
 
 	listenHTTP := func(l net.Listener) {
@@ -306,6 +311,60 @@ func (c *ProtoComms) ServeWithWeb() {
 	go listenPort()
 }
 
+// Matcher function for grpc TLS connections; parses the client hello message,
+// return true if the info contains ALPN and if the protos contain 'h2'.
+func matchGrpcTls(r io.Reader) bool {
+	var handshakePrefix cryptobyte.String
+	handshakePrefix = make([]byte, tlsHandshakePrefixLen)
+	n, err := io.ReadFull(r, handshakePrefix)
+	if err != nil || n != tlsHandshakePrefixLen {
+		return false
+	}
+
+	jww.TRACE.Printf("Read potential prefix bytes %+v", handshakePrefix)
+
+	var handshakeMessageType, messageVersionMinor, messageVersionMajor uint8
+	var handshakeMessageLength uint16
+	if !handshakePrefix.ReadUint8(&handshakeMessageType) {
+		return false
+	}
+	if !handshakePrefix.ReadUint8(&messageVersionMajor) {
+		return false
+	}
+	if !handshakePrefix.ReadUint8(&messageVersionMinor) {
+		return false
+	}
+	if !handshakePrefix.ReadUint16(&handshakeMessageLength) {
+		return false
+	}
+
+	jww.DEBUG.Printf("Read handshake message of type %d (%d.%d), %d bytes left to read", handshakeMessageType, messageVersionMajor, messageVersionMinor, handshakeMessageLength)
+
+	helloMessage := make([]byte, handshakeMessageLength)
+	n, err = io.ReadFull(r, helloMessage)
+	if err != nil {
+		return false
+	}
+
+	if helloMessage[0] != 0x01 {
+		return false
+	}
+
+	hello := tlshacks.UnmarshalClientHello(helloMessage)
+	if hello == nil {
+		return false
+	}
+
+	if len(hello.Info.Protocols) < 1 {
+		return false
+	}
+	if hello.Info.Protocols[0] != "h2" {
+		return false
+	}
+
+	return true
+}
+
 // ProvisionHttps provides a tls cert and key to the thread which serves the
 // grpcweb endpoints, allowing it to serve with https.  Note that https will
 // not be usable until this has been called at least once, unblocking the
@@ -331,7 +390,9 @@ func (c *ProtoComms) ServeHttps(cert, key []byte) error {
 	var keyPair tls.Certificate
 	var err error
 	if cert == nil && key == nil {
-		return errors.New("cannot serve without tls outside of testing")
+		if !TestingOnlyDisableTLS {
+			return errors.New("cannot serve without tls outside of testing")
+		}
 	} else {
 		keyPair, err = tls.X509KeyPair(
 			cert, key)
