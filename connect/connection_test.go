@@ -7,11 +7,11 @@ import (
 	pb "gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/comms/testkeys"
 	"gitlab.com/xx_network/crypto/csprng"
-	"gitlab.com/xx_network/crypto/signature/rsa"
 	"gitlab.com/xx_network/primitives/id"
 	"gitlab.com/xx_network/primitives/utils"
 	"google.golang.org/grpc"
 	"testing"
+	"time"
 )
 
 type TestGenericServer struct {
@@ -105,6 +105,7 @@ func TestWebConnection(t *testing.T) {
 }
 
 func TestWebConnection_TLS(t *testing.T) {
+	TestingOnlyDisableTLS = false
 	addr := "0.0.0.0:11421"
 
 	certBytes, err := utils.ReadFile(testkeys.GetNodeCertPath())
@@ -123,26 +124,18 @@ func TestWebConnection_TLS(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	pk, err := rsa.LoadPrivateKeyFromPem(keyBytes)
-	if err != nil {
-		t.Fatal(err)
-	}
 	salt := make([]byte, 8)
 	_, err = rng.Read(salt)
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	pc := ProtoComms{
-		networkId:        id.NewIdFromString("zezima", id.User, t),
-		privateKey:       pk,
-		disableAuth:      false,
-		tokens:           token.NewMap(),
-		Manager:          newManager(),
-		listeningAddress: addr,
-		pubKeyPem:        certBytes,
-		salt:             nil,
+	pc, err := StartCommServer(id.NewIdFromString("zezima", id.User, t), addr, certBytes, keyBytes, nil)
+	if err != nil {
+		t.Fatal(err)
 	}
+	pc.ServeWithWeb()
+	time.Sleep(time.Second)
+	pc.Shutdown()
 
 	hostParams := GetDefaultHostParams()
 	hostParams.ConnectionType = Web
@@ -152,13 +145,15 @@ func TestWebConnection_TLS(t *testing.T) {
 	}
 
 	grpcHostParams := GetDefaultHostParams()
-	grpcHost, err := newHost(hostId, addr, certBytes, grpcHostParams)
+	hostId2 := id.NewIdFromString("user01", id.User, t)
+	grpcHost, err := newHost(hostId2, addr, certBytes, grpcHostParams)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	for i := 1; i <= 5; i++ {
 		t.Run(fmt.Sprintf("test-%d", i), func(t *testing.T) {
+
 			err = pc.Restart()
 			if err != nil {
 				t.Fatal(err)
@@ -186,11 +181,11 @@ func TestWebConnection_TLS(t *testing.T) {
 			ctx, cancel := grpcHost.GetMessagingContext()
 			resp := &pb.Ack{}
 			err = grpcHost.connection.GetGrpcConn().Invoke(ctx, "/messages.Generic/AuthenticateToken", &pb.AuthenticatedMessage{}, resp)
+			cancel()
 			if err != nil {
 				t.Fatal(err)
 			}
 			t.Log(resp.Error)
-			cancel()
 
 			ctx, cancel = h.GetMessagingContext()
 			defer cancel()
@@ -208,6 +203,7 @@ func TestWebConnection_TLS(t *testing.T) {
 			grpcHost.disconnect()
 		})
 	}
+	TestingOnlyDisableTLS = true
 }
 
 func TestServeWeb_Matchers(t *testing.T) {

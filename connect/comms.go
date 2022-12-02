@@ -12,6 +12,8 @@ package connect
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/base64"
+	"fmt"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	"github.com/pkg/errors"
@@ -197,6 +199,7 @@ listen:
 		// Create the gRPC server with TLS
 		jww.INFO.Printf("Starting server with TLS...")
 		creds := credentials.NewServerTLSFromCert(&x509cert)
+		pc.grpcCreds = creds
 		pc.grpcServer = grpc.NewServer(grpc.Creds(creds),
 			grpc.MaxConcurrentStreams(MaxConcurrentStreams),
 			grpc.MaxRecvMsgSize(math.MaxInt32),
@@ -313,13 +316,70 @@ func (c *ProtoComms) ServeWithWeb() {
 }
 
 // Matcher function for grpc TLS connections; parses the client hello message,
-// return true if the info contains ALPN and if the protos contain 'h2'.
+// return true if the servername contains xx.network or is recognized as a
+// valid IP addressinfo or if extensions contains ALPN and if the protos
+// contain 'h2'.
 func matchGrpcTls(r io.Reader) bool {
+	hello, ok := parseTlsPacket(r)
+	if !ok {
+		return false
+	}
+
+	if hello.Info.ServerName != nil {
+		grpcCertificateDefaultPrefix := "xx.network"
+		if strings.Contains(*hello.Info.ServerName, grpcCertificateDefaultPrefix) {
+			return true
+		}
+		if net.ParseIP(*hello.Info.ServerName) != nil {
+			return true
+		}
+	}
+
+	if len(hello.Info.Protocols) > 0 {
+		if len(hello.Info.Protocols) == 1 && hello.Info.Protocols[0] == "h2" {
+			return true
+		}
+	}
+
+	return false
+}
+
+// Matcher function for grpcweb TLS connections; parses the client hello
+// message, return true if the servername contains 'gwid.', if
+// protocols contain http1, or as a default for other unmatched tls connections.
+func (c *ProtoComms) matchWebTls(r io.Reader) bool {
+	hello, ok := parseTlsPacket(r)
+	if !ok {
+		return false
+	}
+
+	if hello.Info.ServerName != nil {
+		snPrefix := fmt.Sprintf("%s.", base64.URLEncoding.EncodeToString(c.GetId().Marshal()))
+		if strings.Contains(*hello.Info.ServerName, snPrefix) {
+			return true
+		}
+	}
+
+	if len(hello.Info.Protocols) > 0 {
+		if len(hello.Info.Protocols) == 1 && hello.Info.Protocols[0] == "h2" {
+			return false
+		}
+		for _, item := range hello.Info.Protocols {
+			if item == "http1" {
+				return true
+			}
+		}
+	}
+
+	return true
+}
+
+func parseTlsPacket(r io.Reader) (*tlshacks.ClientHelloInfo, bool) {
 	var handshakePrefix cryptobyte.String
 	handshakePrefix = make([]byte, tlsHandshakePrefixLen)
 	n, err := io.ReadFull(r, handshakePrefix)
 	if err != nil || n != tlsHandshakePrefixLen {
-		return false
+		return nil, false
 	}
 
 	jww.TRACE.Printf("Read potential prefix bytes %+v", handshakePrefix)
@@ -327,16 +387,16 @@ func matchGrpcTls(r io.Reader) bool {
 	var handshakeMessageType, messageVersionMinor, messageVersionMajor uint8
 	var handshakeMessageLength uint16
 	if !handshakePrefix.ReadUint8(&handshakeMessageType) {
-		return false
+		return nil, false
 	}
 	if !handshakePrefix.ReadUint8(&messageVersionMajor) {
-		return false
+		return nil, false
 	}
 	if !handshakePrefix.ReadUint8(&messageVersionMinor) {
-		return false
+		return nil, false
 	}
 	if !handshakePrefix.ReadUint16(&handshakeMessageLength) {
-		return false
+		return nil, false
 	}
 
 	jww.DEBUG.Printf("Read handshake message of type %d (%d.%d), %d bytes left to read", handshakeMessageType, messageVersionMajor, messageVersionMinor, handshakeMessageLength)
@@ -344,26 +404,18 @@ func matchGrpcTls(r io.Reader) bool {
 	helloMessage := make([]byte, handshakeMessageLength)
 	n, err = io.ReadFull(r, helloMessage)
 	if err != nil {
-		return false
+		return nil, false
 	}
 
 	if helloMessage[0] != 0x01 {
-		return false
+		return nil, false
 	}
 
 	hello := tlshacks.UnmarshalClientHello(helloMessage)
 	if hello == nil {
-		return false
+		return nil, false
 	}
-
-	if len(hello.Info.Protocols) < 1 {
-		return false
-	}
-	if hello.Info.Protocols[0] != "h2" {
-		return false
-	}
-
-	return true
+	return hello, true
 }
 
 // ProvisionHttps provides a tls cert and key to the thread which serves the
@@ -380,7 +432,7 @@ func (c *ProtoComms) ServeHttps(cert, key []byte) error {
 		return errors.New("ProtoComms is closed, call Restart to initialize")
 	}
 
-	httpL := c.mux.Match(cmux.TLS())
+	httpL := c.mux.Match(c.matchWebTls)
 
 	grpcServer := c.grpcServer
 	keyPair, err := tls.X509KeyPair(
