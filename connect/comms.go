@@ -12,6 +12,8 @@ package connect
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/base64"
+	"fmt"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	"github.com/pkg/errors"
@@ -324,7 +326,8 @@ func matchGrpcTls(r io.Reader) bool {
 	}
 
 	if hello.Info.ServerName != nil {
-		if strings.Contains(*hello.Info.ServerName, "xx.network") {
+		grpcCertificateDefaultPrefix := "xx.network"
+		if strings.Contains(*hello.Info.ServerName, grpcCertificateDefaultPrefix) {
 			return true
 		}
 		if net.ParseIP(*hello.Info.ServerName) != nil {
@@ -344,14 +347,15 @@ func matchGrpcTls(r io.Reader) bool {
 // Matcher function for grpcweb TLS connections; parses the client hello
 // message, return true if the servername contains 'gwid.', if
 // protocols contain http1, or as a default for other unmatched tls connections.
-func matchWebTls(r io.Reader) bool {
+func (c *ProtoComms) matchWebTls(r io.Reader) bool {
 	hello, ok := parseTlsPacket(r)
 	if !ok {
 		return false
 	}
 
 	if hello.Info.ServerName != nil {
-		if strings.Contains(*hello.Info.ServerName, "gwid.") {
+		snPrefix := fmt.Sprintf("%s.", base64.URLEncoding.EncodeToString(c.GetId().Marshal()))
+		if strings.Contains(*hello.Info.ServerName, snPrefix) {
 			return true
 		}
 	}
@@ -428,7 +432,7 @@ func (c *ProtoComms) ServeHttps(cert, key []byte) error {
 		return errors.New("ProtoComms is closed, call Restart to initialize")
 	}
 
-	httpL := c.mux.Match(matchWebTls)
+	httpL := c.mux.Match(c.matchWebTls)
 
 	grpcServer := c.grpcServer
 	keyPair, err := tls.X509KeyPair(

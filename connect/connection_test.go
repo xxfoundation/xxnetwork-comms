@@ -145,7 +145,7 @@ func TestWebConnection_TLS(t *testing.T) {
 	}
 
 	grpcHostParams := GetDefaultHostParams()
-	hostId2 := id.NewIdFromString("jakexx360", id.User, t)
+	hostId2 := id.NewIdFromString("user01", id.User, t)
 	grpcHost, err := newHost(hostId2, addr, certBytes, grpcHostParams)
 	if err != nil {
 		t.Fatal(err)

@@ -43,7 +43,6 @@ func (gc *grpcConn) IsWeb() bool {
 // connectGrpcHelper creates a connection while not under a write lock.
 // undefined behavior if the caller has not taken the write lock
 func (gc *grpcConn) connectGrpcHelper() (err error) {
-	fmt.Println("Connect grpc")
 	// Configure TLS options
 	var securityDial grpc.DialOption
 	if gc.h.credentials != nil {
