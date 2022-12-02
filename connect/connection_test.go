@@ -200,7 +200,7 @@ func TestWebConnection_TLS(t *testing.T) {
 
 			pc.Shutdown()
 			h.disconnect()
-			//grpcHost.disconnect()
+			grpcHost.disconnect()
 		})
 	}
 	TestingOnlyDisableTLS = true
