@@ -12,7 +12,6 @@ package connect
 import (
 	"crypto/tls"
 	"crypto/x509"
-	"fmt"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	"github.com/pkg/errors"
@@ -291,7 +290,6 @@ func (c *ProtoComms) ServeWithWeb() {
 		jww.WARN.Printf("Starting HTTP server to without TLS!")
 		if err := http.Serve(l, httpServer); err != nil {
 			// Cannot panic here due to shared net.Listener
-			fmt.Println("Http down")
 			jww.ERROR.Printf("Failed to serve HTTP: %+v", err)
 		}
 	}
@@ -299,7 +297,6 @@ func (c *ProtoComms) ServeWithWeb() {
 		// This blocks for the lifetime of the listener.
 		if err := grpcServer.Serve(l); err != nil {
 			// Cannot panic here due to shared net.Listener
-			fmt.Println("Grpc down")
 			jww.ERROR.Printf("Failed to serve GRPC: %+v", err)
 		}
 		jww.INFO.Printf("Shutting down GRPC server listener")
@@ -317,23 +314,20 @@ func (c *ProtoComms) ServeWithWeb() {
 }
 
 // Matcher function for grpc TLS connections; parses the client hello message,
-// return true if the info contains ALPN and if the protos contain 'h2'.
+// return true if the servername contains xx.network or is recognized as a
+// valid IP addressinfo or if extensions contains ALPN and if the protos
+// contain 'h2'.
 func matchGrpcTls(r io.Reader) bool {
-	fmt.Println("Attempting to match grpc")
 	hello, ok := parseTlsPacket(r)
 	if !ok {
-		fmt.Println("Couldn't parse packet")
 		return false
 	}
 
 	if hello.Info.ServerName != nil {
-		fmt.Printf("Got server name %s", *hello.Info.ServerName)
 		if strings.Contains(*hello.Info.ServerName, "xx.network") {
-			fmt.Println("Done")
 			return true
 		}
 		if net.ParseIP(*hello.Info.ServerName) != nil {
-			fmt.Println("ip parsed")
 			return true
 		}
 	}
@@ -347,10 +341,10 @@ func matchGrpcTls(r io.Reader) bool {
 	return false
 }
 
-// Matcher function for grpc TLS connections; parses the client hello message,
-// return true if the info contains ALPN and if the protos contain 'h2'.
+// Matcher function for grpcweb TLS connections; parses the client hello
+// message, return true if the servername contains 'gwid.', if
+// protocols contain http1, or as a default for other unmatched tls connections.
 func matchWebTls(r io.Reader) bool {
-	fmt.Println("Attempting to match web")
 	hello, ok := parseTlsPacket(r)
 	if !ok {
 		return false
@@ -444,7 +438,6 @@ func (c *ProtoComms) ServeHttps(cert, key []byte) error {
 	}
 
 	listenHTTPS := func(l net.Listener) {
-		fmt.Println("Serving https")
 		jww.INFO.Printf("Starting HTTP listener on GRPC endpoints: %+v",
 			grpcweb.ListGRPCResources(grpcServer))
 		httpsServer := grpcweb.WrapServer(grpcServer,
@@ -471,7 +464,6 @@ func (c *ProtoComms) ServeHttps(cert, key []byte) error {
 
 		tlsLis := tls.NewListener(l, tlsConf)
 		if err := http.Serve(tlsLis, httpsServer); err != nil {
-			fmt.Println("shutting down https")
 			// Cannot panic here due to shared net.Listener
 			jww.WARN.Printf("HTTPS listener shutting down: %+v", err)
 		}
@@ -485,7 +477,6 @@ func (c *ProtoComms) ServeHttps(cert, key []byte) error {
 
 // Shutdown performs a graceful shutdown of the local server.
 func (c *ProtoComms) Shutdown() {
-	fmt.Println("Shutting down")
 	// Also handles closing of net.Listener
 	c.grpcServer.GracefulStop()
 	// Close all Manager connections
