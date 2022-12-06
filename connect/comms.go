@@ -96,7 +96,8 @@ type ProtoComms struct {
 
 	// Local network server
 	grpcServer *grpc.Server
-	grpcCreds  credentials.TransportCredentials
+	grpcCreds  tls.Certificate
+	grpcX509   *x509.Certificate
 
 	// CLIENT-ONLY FIELDS ------------------------------------------------------
 
@@ -111,6 +112,7 @@ type ProtoComms struct {
 
 	// https certificate infra for replacing tls cert with no downtime
 	httpsCertificate *tls.Certificate
+	httpsX509        *x509.Certificate
 
 	// -------------------------------------------------------------------------
 }
@@ -198,8 +200,15 @@ listen:
 
 		// Create the gRPC server with TLS
 		jww.INFO.Printf("Starting server with TLS...")
+		if x509cert.Leaf == nil {
+			x509cert.Leaf, err = x509.ParseCertificate(x509cert.Certificate[0])
+			if err != nil {
+				return nil, errors.WithMessage(err, "Could not parse x509 certificate")
+			}
+		}
+		pc.grpcX509 = x509cert.Leaf
 		creds := credentials.NewServerTLSFromCert(&x509cert)
-		pc.grpcCreds = creds
+		pc.grpcCreds = x509cert
 		pc.grpcServer = grpc.NewServer(grpc.Creds(creds),
 			grpc.MaxConcurrentStreams(MaxConcurrentStreams),
 			grpc.MaxRecvMsgSize(math.MaxInt32),
@@ -230,7 +239,16 @@ func (c *ProtoComms) Restart() error {
 			grpc.KeepaliveParams(KaOpts),
 			grpc.KeepaliveEnforcementPolicy(KaEnforcement))
 	} else {
-		c.grpcServer = grpc.NewServer(grpc.Creds(c.grpcCreds),
+		creds := credentials.NewServerTLSFromCert(&c.grpcCreds)
+		if c.grpcCreds.Leaf == nil {
+			var err error
+			c.grpcCreds.Leaf, err = x509.ParseCertificate(c.grpcCreds.Certificate[0])
+			if err != nil {
+				return errors.WithMessage(err, "Could not parse x509 certificate")
+			}
+		}
+		c.grpcX509 = c.grpcCreds.Leaf
+		c.grpcServer = grpc.NewServer(grpc.Creds(creds),
 			grpc.MaxConcurrentStreams(MaxConcurrentStreams),
 			grpc.MaxRecvMsgSize(math.MaxInt32),
 			grpc.KeepaliveParams(KaOpts),
@@ -277,7 +295,7 @@ func (c *ProtoComms) ServeWithWeb() {
 
 	// Split netListener into two distinct listeners for GRPC and HTTP
 	mux := cmux.New(c.netListener)
-	grpcMatcher := matchGrpcTls
+	grpcMatcher := c.matchGrpcTls
 
 	if TestingOnlyDisableTLS {
 		grpcMatcher = cmux.HTTP2()
@@ -319,13 +337,20 @@ func (c *ProtoComms) ServeWithWeb() {
 // return true if the servername contains xx.network or is recognized as a
 // valid IP addressinfo or if extensions contains ALPN and if the protos
 // contain 'h2'.
-func matchGrpcTls(r io.Reader) bool {
+func (c *ProtoComms) matchGrpcTls(r io.Reader) bool {
 	hello, ok := parseTlsPacket(r)
 	if !ok {
 		return false
 	}
 
 	if hello.Info.ServerName != nil {
+		err := c.grpcX509.VerifyHostname(*hello.Info.ServerName)
+		if err == nil {
+			return true
+		} else {
+			fmt.Println(err)
+			jww.TRACE.Printf("VerifyHostname error: %+v", err)
+		}
 		grpcCertificateDefaultPrefix := "xx.network"
 		if strings.Contains(*hello.Info.ServerName, grpcCertificateDefaultPrefix) {
 			return true
@@ -354,6 +379,13 @@ func (c *ProtoComms) matchWebTls(r io.Reader) bool {
 	}
 
 	if hello.Info.ServerName != nil {
+		err := c.httpsX509.VerifyHostname(*hello.Info.ServerName)
+		if err == nil {
+			return true
+		} else {
+			fmt.Println(err)
+			jww.TRACE.Printf("VerifyHostname error: %+v", err)
+		}
 		snPrefix := fmt.Sprintf("%s.", base64.URLEncoding.EncodeToString(c.GetId().Marshal()))
 		if strings.Contains(*hello.Info.ServerName, snPrefix) {
 			return true
@@ -441,6 +473,12 @@ func (c *ProtoComms) ServeHttps(cert, key []byte) error {
 		return errors.WithMessage(err, "cert & key could not be parsed to valid tls certificate")
 	}
 
+	parsedLeafCert, err := x509.ParseCertificate(keyPair.Certificate[0])
+	if err != nil {
+		jww.FATAL.Panicf("Failed to load TLS certificate: %+v", err)
+	}
+	c.httpsX509 = parsedLeafCert
+
 	listenHTTPS := func(l net.Listener) {
 		jww.INFO.Printf("Starting HTTP listener on GRPC endpoints: %+v",
 			grpcweb.ListGRPCResources(grpcServer))
@@ -459,11 +497,7 @@ func (c *ProtoComms) ServeHttps(cert, key []byte) error {
 		tlsConf.Certificates = []tls.Certificate{keyPair}
 
 		var serverName string
-		cert, err := x509.ParseCertificate(keyPair.Certificate[0])
-		if err != nil {
-			jww.FATAL.Panicf("Failed to load TLS certificate: %+v", err)
-		}
-		serverName = cert.DNSNames[0]
+		serverName = parsedLeafCert.DNSNames[0]
 		tlsConf.ServerName = serverName
 
 		tlsLis := tls.NewListener(l, tlsConf)
@@ -487,6 +521,8 @@ func (c *ProtoComms) Shutdown() {
 	c.DisconnectAll()
 	c.grpcServer = nil
 	c.netListener = nil
+	c.httpsX509 = nil
+	c.grpcX509 = nil
 	c.mux = nil
 	jww.INFO.Printf("Comms server successfully shut down")
 }

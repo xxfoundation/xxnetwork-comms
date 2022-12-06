@@ -118,6 +118,16 @@ func TestWebConnection_TLS(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	httpsCertBytes, err := utils.ReadFile(testkeys.GetGatewayCertPath())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	httpsKeyBytes, err := utils.ReadFile(testkeys.GetGatewayKeyPath())
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	rng := csprng.NewSystemRNG()
 	hostId, err := id.NewRandomID(rng, id.User)
 	if err != nil {
@@ -139,7 +149,7 @@ func TestWebConnection_TLS(t *testing.T) {
 
 	hostParams := GetDefaultHostParams()
 	hostParams.ConnectionType = Web
-	h, err := newHost(hostId, addr, certBytes, hostParams)
+	h, err := newHost(hostId, addr, httpsCertBytes, hostParams)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -163,7 +173,7 @@ func TestWebConnection_TLS(t *testing.T) {
 			pb.RegisterGenericServer(pc.grpcServer, &TestGenericServer{resp: expectedResponse})
 
 			pc.ServeWithWeb()
-			err = pc.ServeHttps(certBytes, keyBytes)
+			err = pc.ServeHttps(httpsCertBytes, httpsKeyBytes)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -220,6 +230,16 @@ func TestServeWeb_Matchers(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	httpsCertBytes, err := utils.ReadFile(testkeys.GetGatewayCertPath())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	httpsKeyBytes, err := utils.ReadFile(testkeys.GetGatewayKeyPath())
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	rng := csprng.NewSystemRNG()
 	hostId, err := id.NewRandomID(rng, id.User)
 	if err != nil {
@@ -238,14 +258,23 @@ func TestServeWeb_Matchers(t *testing.T) {
 			hostParams := GetDefaultHostParams()
 			hostParams.ConnectionType = ct
 			pc.ServeWithWeb()
-			err = pc.ServeHttps(certBytes, keyBytes)
+			err = pc.ServeHttps(httpsCertBytes, httpsKeyBytes)
 			if err != nil {
 				t.Fatal(err)
 			}
-			h, err := newHost(hostId, addr, certBytes, hostParams)
-			if err != nil {
-				t.Fatal(err)
+			var h *Host
+			if ct == Web {
+				h, err = newHost(hostId, addr, httpsCertBytes, hostParams)
+				if err != nil {
+					t.Fatal(err)
+				}
+			} else {
+				h, err = newHost(hostId, addr, certBytes, hostParams)
+				if err != nil {
+					t.Fatal(err)
+				}
 			}
+
 			err = h.connect()
 			if err != nil {
 				t.Fatal(err)
