@@ -310,7 +310,7 @@ func (c *ProtoComms) ServeWithWeb() {
 	listenHTTP := func(l net.Listener) {
 		httpServer := grpcweb.WrapServer(grpcServer,
 			grpcweb.WithOriginFunc(func(origin string) bool { return true }))
-		jww.WARN.Printf("Starting HTTP server to without TLS!")
+		jww.WARN.Printf("Starting HTTP server!")
 		if err := http.Serve(l, httpServer); err != nil {
 			// Cannot panic here due to shared net.Listener
 			jww.ERROR.Printf("Failed to serve HTTP: %+v", err)
@@ -502,6 +502,7 @@ func (c *ProtoComms) ServeHttps(cert, key []byte) error {
 		tlsConf.ServerName = serverName
 
 		tlsLis := tls.NewListener(l, tlsConf)
+		jww.WARN.Printf("Starting HTTPS server!")
 		if err := http.Serve(tlsLis, httpsServer); err != nil {
 			// Cannot panic here due to shared net.Listener
 			jww.WARN.Printf("HTTPS listener shutting down: %+v", err)
