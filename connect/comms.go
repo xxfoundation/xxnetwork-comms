@@ -96,8 +96,10 @@ type ProtoComms struct {
 
 	// Local network server
 	grpcServer *grpc.Server
-	grpcCreds  tls.Certificate
-	grpcX509   *x509.Certificate
+	// GRPC credentials stored to re-initialize after restart
+	grpcCreds tls.Certificate
+	// Parsed grpc x509 certificate for checking incoming tls request servernames
+	grpcX509 *x509.Certificate
 
 	// CLIENT-ONLY FIELDS ------------------------------------------------------
 
@@ -112,7 +114,8 @@ type ProtoComms struct {
 
 	// https certificate infra for replacing tls cert with no downtime
 	httpsCertificate *tls.Certificate
-	httpsX509        *x509.Certificate
+	// Parsed https x509 certificate for checking incoming tls request servernames
+	httpsX509 *x509.Certificate
 
 	// -------------------------------------------------------------------------
 }
@@ -348,7 +351,6 @@ func (c *ProtoComms) matchGrpcTls(r io.Reader) bool {
 		if err == nil {
 			return true
 		} else {
-			fmt.Println(err)
 			jww.TRACE.Printf("VerifyHostname error: %+v", err)
 		}
 		grpcCertificateDefaultPrefix := "xx.network"
@@ -383,7 +385,6 @@ func (c *ProtoComms) matchWebTls(r io.Reader) bool {
 		if err == nil {
 			return true
 		} else {
-			fmt.Println(err)
 			jww.TRACE.Printf("VerifyHostname error: %+v", err)
 		}
 		snPrefix := fmt.Sprintf("%s.", base64.URLEncoding.EncodeToString(c.GetId().Marshal()))
