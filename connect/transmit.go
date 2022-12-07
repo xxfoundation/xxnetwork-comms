@@ -37,6 +37,14 @@ func (c *ProtoComms) transmit(host *Host, f func(conn Connection) (interface{},
 		connected, connectionCount := host.connectedUnsafe()
 		if !connected {
 			host.connectionMux.RUnlock()
+
+			// if auto-connect is not enable, return an error because
+			// we cannot connect and we cannot send to a disconnected
+			// host
+			if host.params.DisableAutoConnect {
+				return nil, errors.Errorf("Cannot send to a disconnected" +
+					"host when AutoConnect is disabled")
+			}
 			host.connectionMux.Lock()
 			connectionCount, err = c.connect(host, connectionCount)
 			host.connectionMux.Unlock()

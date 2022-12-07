@@ -46,6 +46,11 @@ type HostParams struct {
 	// else, a connection will be established immediately upon host creation
 	DisableLazyConnection bool
 
+	// If false, if transmitting to this host and there isnt a connection,
+	// the host will auto connect. If true, when transmitting to a not
+	// connected host, an error will be returned.
+	DisableAutoConnect bool
+
 	// List of sending errors that are deemed unimportant
 	// Reception of these errors will not update the Metric state
 	ExcludeMetricErrors []string
@@ -75,6 +80,7 @@ func GetDefaultHostParams() HostParams {
 		PingTimeout:           5 * time.Second,
 		EnableMetrics:         false,
 		DisableLazyConnection: false,
+		DisableAutoConnect:    false,
 		ExcludeMetricErrors:   make([]string, 0),
 		KaClientOpts: keepalive.ClientParameters{
 			// Send keepAlive every Time interval
