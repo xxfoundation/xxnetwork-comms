@@ -355,10 +355,6 @@ func (c *ProtoComms) matchGrpcTls(r io.Reader) bool {
 	}
 
 	if hello.Info.ServerName != nil {
-		if c.grpcX509 == nil {
-			jww.WARN.Printf("Grpc tls matcher should not be called when server is shut down")
-			return false
-		}
 		err := c.grpcX509.VerifyHostname(*hello.Info.ServerName)
 		if err == nil {
 			return true
@@ -393,10 +389,6 @@ func (c *ProtoComms) matchWebTls(r io.Reader) bool {
 	}
 
 	if hello.Info.ServerName != nil {
-		if c.httpsX509 == nil {
-			jww.WARN.Printf("http tls matcher should not be called when server is shut down")
-			return false
-		}
 		err := c.httpsX509.VerifyHostname(*hello.Info.ServerName)
 		if err == nil {
 			return true
@@ -557,8 +549,6 @@ func (c *ProtoComms) Shutdown() {
 	c.DisconnectAll()
 	c.grpcServer = nil
 	c.netListener = nil
-	c.httpsX509 = nil
-	c.grpcX509 = nil
 	c.mux = nil
 	jww.INFO.Printf("Comms server successfully shut down")
 }
