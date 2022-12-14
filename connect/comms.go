@@ -538,20 +538,21 @@ func (c *ProtoComms) ServeHttps(cert, key []byte) error {
 
 // Shutdown performs a graceful shutdown of the local server.
 func (c *ProtoComms) Shutdown() {
-	if c.httpServer != nil {
-		err := c.httpServer.Shutdown(context.Background())
-		if err != nil {
-			jww.WARN.Printf("Failed to shutdown http server: %+v", err)
-		}
-	}
+	// Also handles closing of net.Listener
 	if c.httpsServer != nil {
 		err := c.httpsServer.Shutdown(context.Background())
 		if err != nil {
 			jww.WARN.Printf("Failed to shutdown http server: %+v", err)
 		}
+	} else if c.httpServer != nil {
+		err := c.httpServer.Shutdown(context.Background())
+		if err != nil {
+			jww.WARN.Printf("Failed to shutdown http server: %+v", err)
+		}
+	} else {
+		c.grpcServer.GracefulStop()
 	}
-	// Also handles closing of net.Listener
-	c.grpcServer.GracefulStop()
+
 	// Close all Manager connections
 	c.DisconnectAll()
 	c.grpcServer = nil
