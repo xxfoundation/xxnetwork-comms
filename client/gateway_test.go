@@ -53,6 +53,42 @@ func TestSendPutMessage(t *testing.T) {
 	}
 }
 
+// Test the restart function of gateway comms
+func TestRestart(t *testing.T) {
+	gatewayAddress := getNextAddress()
+	testID := id.NewIdFromString("test", id.Gateway, t)
+	gw := gateway.StartGateway(testID, gatewayAddress,
+		gateway.NewImplementation(), nil, nil, gossip.DefaultManagerFlags())
+	defer gw.Shutdown()
+	var c Comms
+
+	// this ensures we don't get caught in a 30s sleep waiting for the socket to release
+	time.Sleep(time.Second)
+
+	err := gw.RestartGateway()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for _, connectionType := range []connect.ConnectionType{connect.Grpc, connect.Web} {
+		manager := connect.NewManagerTesting(t)
+
+		params := connect.GetDefaultHostParams()
+		params.ConnectionType = connectionType
+		params.AuthEnabled = false
+		host, err := manager.AddHost(testID, gatewayAddress, nil, params)
+		if err != nil {
+			t.Errorf("Unable to call NewHost: %+v", err)
+		}
+
+		_, err = c.SendPutMessage(host, &pb.GatewaySlot{}, 10*time.Second)
+		if err != nil {
+			t.Errorf("PutMessage: Error received: %s", err)
+		}
+		host.Disconnect()
+	}
+}
+
 // Smoke test SendRequestClientKeyMessage
 func TestSendRequestNonceMessage(t *testing.T) {
 	gatewayAddress := getNextAddress()
@@ -60,6 +96,7 @@ func TestSendRequestNonceMessage(t *testing.T) {
 	gw := gateway.StartGateway(testID, gatewayAddress,
 		gateway.NewImplementation(), nil, nil, gossip.DefaultManagerFlags())
 	defer gw.Shutdown()
+
 	var c Comms
 
 	for _, connectionType := range []connect.ConnectionType{connect.Grpc, connect.Web} {
@@ -87,6 +124,7 @@ func TestComms_SendPoll(t *testing.T) {
 	gw := gateway.StartGateway(testID, gatewayAddress,
 		mockGatewayImpl{}, nil, nil, gossip.DefaultManagerFlags())
 	defer gw.Shutdown()
+
 	var c Comms
 
 	for _, connectionType := range []connect.ConnectionType{connect.Grpc, connect.Web} {
@@ -152,6 +190,7 @@ func TestComms_RequestHistoricalRounds(t *testing.T) {
 	gw := gateway.StartGateway(testID, gatewayAddress,
 		gateway.NewImplementation(), nil, nil, gossip.DefaultManagerFlags())
 	defer gw.Shutdown()
+
 	pk := testkeys.LoadFromPath(testkeys.GetGatewayKeyPath())
 
 	for _, connectionType := range []connect.ConnectionType{connect.Grpc, connect.Web} {
@@ -218,4 +257,8 @@ func (m mockGatewayImpl) RequestMessages(msg *pb.GetMessages) (*pb.GetMessagesRe
 
 func (m mockGatewayImpl) ShareMessages(msg *pb.RoundMessages, auth *connect.Auth) error {
 	return nil
+}
+
+func (m mockGatewayImpl) RequestTlsCert(msg *pb.RequestGatewayCert) (*pb.GatewayCertificate, error) {
+	return &pb.GatewayCertificate{}, nil
 }
