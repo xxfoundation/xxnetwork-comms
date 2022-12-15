@@ -73,9 +73,10 @@ func (wc *webConn) connectWebHelper() (err error) {
 	// Configure TLS options
 	var securityDial []grpcweb.DialOption
 
-	if wc.h.credentials != nil {
-		return errors.New("Web hosts should not have credentials specified")
-	}
+	// TODO re-enable this check once issues surrounding the credentials have been resolved (12/15/2022)
+	//if wc.h.credentials != nil {
+	//	return errors.New("Web hosts should not have credentials specified")
+	//}
 
 	if !TestingOnlyDisableTLS {
 		securityDial = []grpcweb.DialOption{grpcweb.WithSecure()}
