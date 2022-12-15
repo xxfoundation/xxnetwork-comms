@@ -43,6 +43,7 @@ func TestMain(m *testing.M) {
 
 func TestSetCredentials_InvalidCert(t *testing.T) {
 	host := &Host{
+		connection:  newConnection(Grpc, nil),
 		certificate: []byte("test"),
 	}
 	err := host.setCredentials()

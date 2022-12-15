@@ -220,6 +220,7 @@ func TestWebConnection_TLS(t *testing.T) {
 
 func TestServeWeb_Matchers(t *testing.T) {
 	TestingOnlyDisableTLS = false
+	TestingOnlyInsecureTLSVerify = true
 	addr := "0.0.0.0:11421"
 
 	certBytes, err := utils.ReadFile(testkeys.GetNodeCertPath())
@@ -302,5 +303,6 @@ func TestServeWeb_Matchers(t *testing.T) {
 			pc.Shutdown()
 		})
 	}
+	TestingOnlyInsecureTLSVerify = false
 	TestingOnlyDisableTLS = true
 }
