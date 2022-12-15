@@ -532,15 +532,19 @@ func (c *ProtoComms) ServeHttps(cert, key []byte) error {
 func (c *ProtoComms) Shutdown() {
 	// Also handles closing of net.Listener
 	if c.httpsServer != nil {
-		err := c.httpsServer.Shutdown(context.Background())
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		err := c.httpsServer.Shutdown(ctx)
 		if err != nil {
 			jww.WARN.Printf("Failed to shutdown http server: %+v", err)
 		}
+		cancel()
 	} else if c.httpServer != nil {
-		err := c.httpServer.Shutdown(context.Background())
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		err := c.httpServer.Shutdown(ctx)
 		if err != nil {
 			jww.WARN.Printf("Failed to shutdown http server: %+v", err)
 		}
+		cancel()
 	} else {
 		c.grpcServer.GracefulStop()
 	}
