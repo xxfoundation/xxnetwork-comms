@@ -149,7 +149,7 @@ func TestWebConnection_TLS(t *testing.T) {
 
 	hostParams := GetDefaultHostParams()
 	hostParams.ConnectionType = Web
-	h, err := newHost(hostId, addr, httpsCertBytes, hostParams)
+	h, err := newHost(hostId, addr, nil, hostParams)
 	if err != nil {
 		t.Fatal(err)
 	}

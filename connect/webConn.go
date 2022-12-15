@@ -70,18 +70,22 @@ func (wc *webConn) IsWeb() bool {
 // Note that until the downstream repo is fixed, this doesn't actually
 // establish a connection past creating the http object.
 func (wc *webConn) connectWebHelper() (err error) {
-
-	// FIXME: Currently only HTTP is used. This must be fixed to use HTTPS
-	//  before production use.
 	// Configure TLS options
 	var securityDial []grpcweb.DialOption
+
 	if wc.h.credentials != nil {
-		securityDial = []grpcweb.DialOption{grpcweb.WithTlsCertificate(wc.h.certificate)}
-	} else if TestingOnlyDisableTLS {
+		return errors.New("Web hosts should not have credentials specified")
+	}
+
+	if !TestingOnlyDisableTLS {
+		securityDial = []grpcweb.DialOption{grpcweb.WithSecure()}
+	} else {
 		jww.WARN.Printf("Connecting to %s without TLS!", wc.h.GetAddress())
 		securityDial = []grpcweb.DialOption{grpcweb.WithInsecure()}
-	} else {
-		jww.FATAL.Panicf(tlsError)
+	}
+
+	if TestingOnlyInsecureTLSVerify {
+		securityDial = append(securityDial, grpcweb.WithInsecureTlsVerification())
 	}
 
 	jww.DEBUG.Printf("Attempting to establish connection to %s using "+

@@ -43,6 +43,7 @@ const tlsHandshakePrefixLen = 5
 // which allows for the disabled TLS code-path. Production
 // code-path will only function with TLS enabled.
 var TestingOnlyDisableTLS = false
+var TestingOnlyInsecureTLSVerify = false
 
 // KaOpts are Keepalive options for servers
 // TODO: Set these via config
