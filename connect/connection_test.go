@@ -106,6 +106,7 @@ func TestWebConnection(t *testing.T) {
 
 func TestWebConnection_TLS(t *testing.T) {
 	TestingOnlyDisableTLS = false
+	TestingOnlyInsecureTLSVerify = true
 	addr := "0.0.0.0:11421"
 
 	certBytes, err := utils.ReadFile(testkeys.GetNodeCertPath())
@@ -149,7 +150,7 @@ func TestWebConnection_TLS(t *testing.T) {
 
 	hostParams := GetDefaultHostParams()
 	hostParams.ConnectionType = Web
-	h, err := newHost(hostId, addr, httpsCertBytes, hostParams)
+	h, err := newHost(hostId, addr, nil, hostParams)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -213,11 +214,13 @@ func TestWebConnection_TLS(t *testing.T) {
 			grpcHost.disconnect()
 		})
 	}
+	TestingOnlyInsecureTLSVerify = false
 	TestingOnlyDisableTLS = true
 }
 
 func TestServeWeb_Matchers(t *testing.T) {
 	TestingOnlyDisableTLS = false
+	TestingOnlyInsecureTLSVerify = true
 	addr := "0.0.0.0:11421"
 
 	certBytes, err := utils.ReadFile(testkeys.GetNodeCertPath())
@@ -300,5 +303,6 @@ func TestServeWeb_Matchers(t *testing.T) {
 			pc.Shutdown()
 		})
 	}
+	TestingOnlyInsecureTLSVerify = false
 	TestingOnlyDisableTLS = true
 }

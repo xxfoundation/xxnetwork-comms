@@ -116,10 +116,12 @@ func newHost(id *id.ID, address string, cert []byte, params HostParams) (host *H
 
 	host.UpdateAddress(address)
 
-	// Configure the host credentials
-	err = host.setCredentials()
-	if err != nil {
-		return
+	// Configure the transport credentials for GRPC hosts
+	if !host.IsWeb() {
+		err = host.setCredentials()
+		if err != nil {
+			return
+		}
 	}
 
 	// Connect immediately if configured to do so
@@ -152,7 +154,7 @@ func (h *Host) Connected() (bool, uint64) {
 
 // connectedUnsafe checks if the given Host's connection is alive without taking
 // a connection lock. Only use if already under a connection lock. The uint is
-//the connection count, it increments every time a reconnect occurs
+// the connection count, it increments every time a reconnect occurs
 func (h *Host) connectedUnsafe() (bool, uint64) {
 	return h.connection != nil && h.connection.isAlive() && !h.authenticationRequired(), h.connectionCount
 }
@@ -331,7 +333,7 @@ func (h *Host) disconnect() {
 	h.transmissionToken.Clear()
 }
 
-// setCredentials sets TransportCredentials and RSA PublicKey objects
+// setCredentials sets GRPC TransportCredentials and RSA PublicKey objects
 // using a PEM-encoded TLS Certificate
 func (h *Host) setCredentials() error {
 

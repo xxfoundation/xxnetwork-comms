@@ -3,7 +3,7 @@ module gitlab.com/xx_network/comms
 go 1.19
 
 require (
-	git.xx.network/elixxir/grpc-web-go-client v0.0.0-20221102223039-dc1f37d94e70
+	git.xx.network/elixxir/grpc-web-go-client v0.0.0-20221215181401-0b8a26d47532
 	github.com/golang/protobuf v1.5.2
 	github.com/improbable-eng/grpc-web v0.15.0
 	github.com/pkg/errors v0.9.1
@@ -15,6 +15,7 @@ require (
 	golang.org/x/net v0.0.0-20220822230855-b0a4917ee28c
 	google.golang.org/grpc v1.49.0
 	google.golang.org/protobuf v1.28.1
+	src.agwa.name/tlshacks v0.0.0-20220518131152-d2c6f4e2b780
 )
 
 require (
@@ -30,5 +31,4 @@ require (
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/genproto v0.0.0-20220822174746-9e6da59bd2fc // indirect
 	nhooyr.io/websocket v1.8.6 // indirect
-	src.agwa.name/tlshacks v0.0.0-20220518131152-d2c6f4e2b780 // indirect
 )
