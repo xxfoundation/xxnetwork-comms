@@ -117,12 +117,13 @@ func newHost(id *id.ID, address string, cert []byte, params HostParams) (host *H
 	host.UpdateAddress(address)
 
 	// Configure the transport credentials for GRPC hosts
-	if !host.IsWeb() {
-		err = host.setCredentials()
-		if err != nil {
-			return
-		}
+	// TODO once issues surrounding web host credentials are resolved, re-enable this check
+	//if !host.IsWeb() {
+	err = host.setCredentials()
+	if err != nil {
+		return
 	}
+	//}
 
 	// Connect immediately if configured to do so
 	if params.DisableLazyConnection {
