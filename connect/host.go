@@ -116,10 +116,12 @@ func newHost(id *id.ID, address string, cert []byte, params HostParams) (host *H
 
 	host.UpdateAddress(address)
 
-	// Configure the host credentials
-	err = host.setCredentials()
-	if err != nil {
-		return
+	// Configure the transport credentials for GRPC hosts
+	if !host.IsWeb() {
+		err = host.setCredentials()
+		if err != nil {
+			return
+		}
 	}
 
 	// Connect immediately if configured to do so
@@ -331,14 +333,11 @@ func (h *Host) disconnect() {
 	h.transmissionToken.Clear()
 }
 
-// setCredentials sets TransportCredentials and RSA PublicKey objects
+// setCredentials sets GRPC TransportCredentials and RSA PublicKey objects
 // using a PEM-encoded TLS Certificate
 func (h *Host) setCredentials() error {
 
 	// If no TLS Certificate specified, print a warning and do nothing
-	if h.IsWeb() {
-		return nil
-	}
 	if h.certificate == nil || len(h.certificate) == 0 {
 		if TestingOnlyDisableTLS {
 			jww.WARN.Printf("No TLS Certificate specified!")
