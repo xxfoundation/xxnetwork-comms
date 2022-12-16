@@ -3,7 +3,7 @@ module gitlab.com/elixxir/comms
 go 1.17
 
 require (
-	git.xx.network/elixxir/grpc-web-go-client v0.0.0-20221215210930-f3786a79a04a
+	git.xx.network/elixxir/grpc-web-go-client v0.0.0-20221216145313-183725575192
 	github.com/elliotchance/orderedmap v1.4.0
 	github.com/golang/protobuf v1.5.2
 	github.com/pkg/errors v0.9.1
