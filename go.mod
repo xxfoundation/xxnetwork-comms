@@ -29,6 +29,7 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/rs/cors v1.8.2 // indirect
 	github.com/soheilhy/cmux v0.1.5 // indirect
+	github.com/stretchr/testify v1.8.1 // indirect
 	github.com/zeebo/blake3 v0.1.1 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	golang.org/x/sys v0.3.0 // indirect
