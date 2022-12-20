@@ -41,6 +41,7 @@ func (gc *grpcConn) IsWeb() bool {
 	return false
 }
 
+// GetServerCert returns an error on grpc hosts
 func (gc *grpcConn) GetServerCert() (*x509.Certificate, error) {
 	return nil, errors.New("GetServerCert not implemented for GRPC hosts")
 }

@@ -67,6 +67,7 @@ func (wc *webConn) IsWeb() bool {
 	return true
 }
 
+// GetServerCert returns the server tls certificate stored by the web connection
 func (wc *webConn) GetServerCert() (*x509.Certificate, error) {
 	return wc.connection.GetReceivedCertificate()
 }
