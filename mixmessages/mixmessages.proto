@@ -375,6 +375,8 @@ message GatewayPollResponse {
     // The following are used for the homebrew clock offset system in Client
     int64 ReceivedTs = 7; // Timestamp that Gateway received GatewayPoll
     int64 GatewayDelay = 8; // Duration of the Gateway Poll() function
+
+    uint64 EarliestClientRound = 9; // Earliest round to track for clients
 }
 
 // Holds a set of ClientBloom and their associated metadata
