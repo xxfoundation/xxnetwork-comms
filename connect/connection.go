@@ -1,6 +1,7 @@
 package connect
 
 import (
+	"crypto/x509"
 	"git.xx.network/elixxir/grpc-web-go-client/grpcweb"
 	jww "github.com/spf13/jwalterweatherman"
 	"google.golang.org/grpc"
@@ -51,6 +52,8 @@ type Connection interface {
 	Close() error
 
 	IsOnline() (time.Duration, bool)
+
+	GetServerCert() (*x509.Certificate, error)
 	clientConnHelpers
 }
 

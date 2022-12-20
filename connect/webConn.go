@@ -2,6 +2,7 @@ package connect
 
 import (
 	"crypto/tls"
+	"crypto/x509"
 	"fmt"
 	"net/http"
 	"net/http/httptrace"
@@ -64,6 +65,10 @@ func (wc *webConn) Connect() error {
 // IsWeb returns true if the connection is configured for web connections
 func (wc *webConn) IsWeb() bool {
 	return true
+}
+
+func (wc *webConn) GetServerCert() (*x509.Certificate, error) {
+	return wc.connection.GetReceivedCertificate()
 }
 
 // connectWebHelper initializes the grpcweb ClientConn object

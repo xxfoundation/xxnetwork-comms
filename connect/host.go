@@ -11,6 +11,7 @@ package connect
 
 import (
 	"context"
+	"crypto/x509"
 	"fmt"
 	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
@@ -213,6 +214,10 @@ func (h *Host) isExcludedMetricError(err string) bool {
 // IsWeb returns the connection type of the host
 func (h *Host) IsWeb() bool {
 	return h.connection.IsWeb()
+}
+
+func (h *Host) GetServerCert() (*x509.Certificate, error) {
+	return h.connection.GetServerCert()
 }
 
 // SetMetricsTesting sets the host metrics to an arbitrary value. Used for testing

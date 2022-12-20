@@ -1,6 +1,7 @@
 package connect
 
 import (
+	"crypto/x509"
 	"errors"
 	"fmt"
 	"git.xx.network/elixxir/grpc-web-go-client/grpcweb"
@@ -38,6 +39,10 @@ func (gc *grpcConn) Connect() error {
 // IsWeb returns true if the connection is configured for web connections
 func (gc *grpcConn) IsWeb() bool {
 	return false
+}
+
+func (gc *grpcConn) GetServerCert() (*x509.Certificate, error) {
+	return nil, errors.New("GetServerCert not implemented for GRPC hosts")
 }
 
 // connectGrpcHelper creates a connection while not under a write lock.
