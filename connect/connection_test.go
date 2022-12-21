@@ -214,7 +214,7 @@ func TestWebConnection_TLS(t *testing.T) {
 				t.Errorf("Did not receive expected payload")
 			}
 
-			_, err = h.GetServerCert()
+			_, err = h.GetRemoteCertificate()
 			if err != nil {
 				t.Errorf("Did not receive cert: %+v", err)
 			}
