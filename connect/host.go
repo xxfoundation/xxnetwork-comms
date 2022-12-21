@@ -216,11 +216,11 @@ func (h *Host) IsWeb() bool {
 	return h.connection.IsWeb()
 }
 
-// GetServerCert returns the tls certificate from the server for web hosts
+// GetRemoteCertificate returns the tls certificate from the server for web hosts
 // Note that this will return an error when used on grpc hosts, and will not
 // have a certificate ready until something has been sent over the connection.
-func (h *Host) GetServerCert() (*x509.Certificate, error) {
-	return h.connection.GetServerCert()
+func (h *Host) GetRemoteCertificate() (*x509.Certificate, error) {
+	return h.connection.GetRemoteCertificate()
 }
 
 // SetMetricsTesting sets the host metrics to an arbitrary value. Used for testing

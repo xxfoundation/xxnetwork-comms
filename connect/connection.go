@@ -53,7 +53,7 @@ type Connection interface {
 
 	IsOnline() (time.Duration, bool)
 
-	GetServerCert() (*x509.Certificate, error)
+	GetRemoteCertificate() (*x509.Certificate, error)
 	clientConnHelpers
 }
 
