@@ -465,7 +465,7 @@ func parseTlsPacket(r io.Reader) (*tlshacks.ClientHelloInfo, bool) {
 // not be usable until this has been called at least once, unblocking the
 // listenHTTP func in ServeWithWeb.  Future calls will be handled by the
 // startUpdateCertificate thread.
-func (c *ProtoComms) ServeHttps(cert, key []byte) error {
+func (c *ProtoComms) ServeHttps(keyPair tls.Certificate) error {
 	if c.mux == nil {
 		return errors.New("mux does not exist; is https enabled?")
 	}
@@ -477,16 +477,17 @@ func (c *ProtoComms) ServeHttps(cert, key []byte) error {
 	httpL := c.mux.Match(c.matchWebTls)
 
 	grpcServer := c.grpcServer
-	keyPair, err := tls.X509KeyPair(
-		cert, key)
-	if err != nil {
-		return errors.WithMessage(err, "cert & key could not be parsed to valid tls certificate")
+	var parsedLeafCert *x509.Certificate
+	var err error
+	if keyPair.Leaf == nil {
+		parsedLeafCert, err = x509.ParseCertificate(keyPair.Certificate[0])
+		if err != nil {
+			jww.FATAL.Panicf("Failed to load TLS certificate: %+v", err)
+		}
+	} else {
+		parsedLeafCert = keyPair.Leaf
 	}
 
-	parsedLeafCert, err := x509.ParseCertificate(keyPair.Certificate[0])
-	if err != nil {
-		jww.FATAL.Panicf("Failed to load TLS certificate: %+v", err)
-	}
 	c.httpsX509 = parsedLeafCert
 
 	listenHTTPS := func(l net.Listener) {
