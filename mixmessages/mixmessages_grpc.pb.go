@@ -47,7 +47,6 @@ type NodeClient interface {
 	// PostPrecompResult finalizes the precomputation results with each node from the last node
 	// sending the final PayloadA and PayloadB precomputations
 	PostPrecompResult(ctx context.Context, in *messages.AuthenticatedMessage, opts ...grpc.CallOption) (*messages.Ack, error)
-	//
 	GetMeasure(ctx context.Context, in *messages.AuthenticatedMessage, opts ...grpc.CallOption) (*RoundMetrics, error)
 	// Gateway -> Server unified polling
 	Poll(ctx context.Context, in *messages.AuthenticatedMessage, opts ...grpc.CallOption) (*ServerPollResponse, error)
@@ -398,7 +397,6 @@ type NodeServer interface {
 	// PostPrecompResult finalizes the precomputation results with each node from the last node
 	// sending the final PayloadA and PayloadB precomputations
 	PostPrecompResult(context.Context, *messages.AuthenticatedMessage) (*messages.Ack, error)
-	//
 	GetMeasure(context.Context, *messages.AuthenticatedMessage) (*RoundMetrics, error)
 	// Gateway -> Server unified polling
 	Poll(context.Context, *messages.AuthenticatedMessage) (*ServerPollResponse, error)

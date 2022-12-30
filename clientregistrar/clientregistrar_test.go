@@ -8,6 +8,7 @@
 package clientregistrar
 
 import (
+	"crypto/tls"
 	"fmt"
 	"sync"
 	"testing"
@@ -47,7 +48,11 @@ func TestTLS(t *testing.T) {
 	// It's a client
 	// So, we need some way to add a connection to the manager for the client
 	defer rg.Shutdown()
-	err := rg.ServeHttps(certData, keyData)
+	keypair, err := tls.X509KeyPair(certData, keyData)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = rg.ServeHttps(keypair)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -124,6 +124,8 @@ message SignedClientKeyRequest {
     messages.RSASignature ClientKeyRequestSignature = 2;
     // Target Gateway/Node - used to proxy through an alternate gateway
     bytes Target = 3;
+    // Use sha rather than blake for faster client-side signing
+    bool UseSHA = 4;
 }
 
 message ClientKeyResponse {
