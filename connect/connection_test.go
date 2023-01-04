@@ -194,6 +194,15 @@ func TestWebConnection_TLS(t *testing.T) {
 				t.Fatal(err)
 			}
 
+			_, ok := h.IsOnline()
+			if !ok {
+				t.Fatalf("host %s is not online", h.String())
+			}
+			_, ok = grpcHost.IsOnline()
+			if !ok {
+				t.Fatalf("host %s is not online", grpcHost.String())
+			}
+
 			ctx, cancel := grpcHost.GetMessagingContext()
 			resp := &pb.Ack{}
 			err = grpcHost.connection.GetGrpcConn().Invoke(ctx, "/messages.Generic/AuthenticateToken", &pb.AuthenticatedMessage{}, resp)

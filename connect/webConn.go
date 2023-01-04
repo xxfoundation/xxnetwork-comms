@@ -219,7 +219,7 @@ func (wc *webConn) IsOnline() (time.Duration, bool) {
 	}
 
 	// IMPORTANT - enables better HTTP(S) discovery, because many browsers block CORS by default.
-	//req.Header.Add("js.fetch:mode", "no-cors")
+	req.Header.Add("js.fetch:mode", "no-cors")
 	jww.TRACE.Printf("(GO request): %+v", req)
 
 	req = req.WithContext(httptrace.WithClientTrace(req.Context(), trace))
