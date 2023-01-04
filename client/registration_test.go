@@ -59,7 +59,6 @@ func TestSendGetUpdatedNDF(t *testing.T) {
 
 	rg := registration.StartRegistrationServer(testId, GatewayAddress, &MockRegistration{}, nil, nil, nil)
 	defer rg.Shutdown()
-
 	c, err := NewClientComms(clientId, nil, nil, nil)
 	if err != nil {
 		t.Errorf("Can't create client comms: %+v", err)

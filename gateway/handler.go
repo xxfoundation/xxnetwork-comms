@@ -41,6 +41,7 @@ type Handler interface {
 	RequestHistoricalRounds(msg *pb.HistoricalRounds) (*pb.HistoricalRoundsResponse, error)
 	RequestMessages(msg *pb.GetMessages) (*pb.GetMessagesResponse, error)
 	RequestClientKey(message *pb.SignedClientKeyRequest) (*pb.SignedKeyResponse, error)
+	RequestTlsCert(message *pb.RequestGatewayCert) (*pb.GatewayCertificate, error)
 	BatchNodeRegistration(msg *pb.SignedClientBatchKeyRequest) (*pb.SignedBatchKeyResponse, error)
 }
 
@@ -72,6 +73,25 @@ func StartGateway(id *id.ID, localServer string, handler Handler,
 	return &gatewayServer
 }
 
+// RestartGateway shuts down &restarts the underlying protocomms server,
+// re-registers grpc handlers & starts basic listeners again.  Intended for use
+// before replacing https certificates
+func (g *Comms) RestartGateway() error {
+	g.ProtoComms.Shutdown()
+	err := g.ProtoComms.Restart()
+	if err != nil {
+		return err
+	}
+	// Register the high-level comms endpoint functionality
+	grpcServer := g.GetServer()
+	pb.RegisterGatewayServer(grpcServer, g)
+	messages.RegisterGenericServer(grpcServer, g)
+	gossip.RegisterGossipServer(grpcServer, g.Manager)
+
+	g.ProtoComms.ServeWithWeb()
+	return nil
+}
+
 // implementationFunctions for the Handler interface.
 type implementationFunctions struct {
 	PutMessage              func(message *pb.GatewaySlot, ipAddr string) (*pb.GatewaySlotResponse, error)
@@ -82,6 +102,7 @@ type implementationFunctions struct {
 	RequestClientKey        func(message *pb.SignedClientKeyRequest) (*pb.SignedKeyResponse, error)
 	PutMessageProxy         func(message *pb.GatewaySlot, auth *connect.Auth) (*pb.GatewaySlotResponse, error)
 	PutManyMessagesProxy    func(msgs *pb.GatewaySlots, auth *connect.Auth) (*pb.GatewaySlotResponse, error)
+	RequestTlsCert          func(message *pb.RequestGatewayCert) (*pb.GatewayCertificate, error)
 	BatchNodeRegistration   func(msg *pb.SignedClientBatchKeyRequest) (*pb.SignedBatchKeyResponse, error)
 }
 
@@ -132,6 +153,10 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return &pb.GatewaySlotResponse{}, nil
 			},
+			RequestTlsCert: func(message *pb.RequestGatewayCert) (*pb.GatewayCertificate, error) {
+				warn(um)
+				return &pb.GatewayCertificate{}, nil
+			},
 			BatchNodeRegistration: func(msg *pb.SignedClientBatchKeyRequest) (*pb.SignedBatchKeyResponse, error) {
 				warn(um)
 				return &pb.SignedBatchKeyResponse{}, nil
@@ -179,6 +204,10 @@ func (s *Implementation) RequestHistoricalRounds(msg *pb.HistoricalRounds) (*pb.
 // RequestMessages handles Client -> Gateway requests for message pickup.
 func (s *Implementation) RequestMessages(msg *pb.GetMessages) (*pb.GetMessagesResponse, error) {
 	return s.Functions.RequestMessages(msg)
+}
+
+func (s *Implementation) RequestTlsCert(msg *pb.RequestGatewayCert) (*pb.GatewayCertificate, error) {
+	return s.Functions.RequestTlsCert(msg)
 }
 
 func (s *Implementation) BatchNodeRegistration(msg *pb.SignedClientBatchKeyRequest) (*pb.SignedBatchKeyResponse, error) {

@@ -371,6 +371,43 @@ func (c *Comms) RequestMessages(host *connect.Host,
 	return result, ptypes.UnmarshalAny(resultMsg, result)
 }
 
+// GetGatewayTLSCertificate Client -> Gateway cert request
+func (c *Comms) GetGatewayTLSCertificate(host *connect.Host,
+	message *pb.RequestGatewayCert) (*pb.GatewayCertificate, error) {
+	f := func(conn connect.Connection) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := host.GetMessagingContext()
+		defer cancel()
+
+		var resultMsg = &pb.GatewayCertificate{}
+		var err error
+		// Send the message
+		if conn.IsWeb() {
+			wc := conn.GetWebConn()
+			err = wc.Invoke(
+				ctx, "/mixmessages.Gateway/RequestTlsCert", message, resultMsg)
+		} else {
+			resultMsg, err = pb.NewGatewayClient(conn.GetGrpcConn()).
+				RequestTlsCert(ctx, message)
+		}
+		if err != nil {
+			return nil, err
+		}
+		return ptypes.MarshalAny(resultMsg)
+	}
+
+	// Execute the Send function
+	jww.TRACE.Printf("Requesing TLS certificate from gateway: %+v", message)
+	resultMsg, err := c.Send(host, f)
+	if err != nil {
+		return nil, err
+	}
+
+	// Marshall the result
+	result := &pb.GatewayCertificate{}
+	return result, ptypes.UnmarshalAny(resultMsg, result)
+}
+
 func wrapError(err error, s string, i ...interface{}) error {
 	if err == nil {
 		return errors.Errorf(s, i...)

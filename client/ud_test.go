@@ -19,6 +19,7 @@ import (
 func TestComms_SendRegisterUser(t *testing.T) {
 	udAddr := getNextAddress()
 	ud := udb.StartServer(&id.UDB, udAddr, udb.NewImplementation(), nil, nil)
+
 	defer ud.Shutdown()
 
 	for _, connectionType := range []connect.ConnectionType{connect.Grpc, connect.Web} {
