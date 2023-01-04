@@ -218,6 +218,10 @@ func TestComms_RequestHistoricalRounds(t *testing.T) {
 
 type mockGatewayImpl struct{}
 
+func (m mockGatewayImpl) BatchNodeRegistration(msg *pb.SignedClientBatchKeyRequest) (*pb.SignedBatchKeyResponse, error) {
+	return nil, nil
+}
+
 func (m mockGatewayImpl) PutMessageProxy(message *pb.GatewaySlot, auth *connect.Auth) (*pb.GatewaySlotResponse, error) {
 	return nil, nil
 }

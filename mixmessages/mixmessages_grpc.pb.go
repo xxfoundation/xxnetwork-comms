@@ -47,7 +47,6 @@ type NodeClient interface {
 	// PostPrecompResult finalizes the precomputation results with each node from the last node
 	// sending the final PayloadA and PayloadB precomputations
 	PostPrecompResult(ctx context.Context, in *messages.AuthenticatedMessage, opts ...grpc.CallOption) (*messages.Ack, error)
-	//
 	GetMeasure(ctx context.Context, in *messages.AuthenticatedMessage, opts ...grpc.CallOption) (*RoundMetrics, error)
 	// Gateway -> Server unified polling
 	Poll(ctx context.Context, in *messages.AuthenticatedMessage, opts ...grpc.CallOption) (*ServerPollResponse, error)
@@ -398,7 +397,6 @@ type NodeServer interface {
 	// PostPrecompResult finalizes the precomputation results with each node from the last node
 	// sending the final PayloadA and PayloadB precomputations
 	PostPrecompResult(context.Context, *messages.AuthenticatedMessage) (*messages.Ack, error)
-	//
 	GetMeasure(context.Context, *messages.AuthenticatedMessage) (*RoundMetrics, error)
 	// Gateway -> Server unified polling
 	Poll(context.Context, *messages.AuthenticatedMessage) (*ServerPollResponse, error)
@@ -971,6 +969,9 @@ var Node_ServiceDesc = grpc.ServiceDesc{
 type GatewayClient interface {
 	// RequestClientKey returns a Nonce to the user
 	RequestClientKey(ctx context.Context, in *SignedClientKeyRequest, opts ...grpc.CallOption) (*SignedKeyResponse, error)
+	// BatchNodeRegistration sends a SignedClientBatchKeyRequest to multiple
+	// gateways by proxy (client -> gateway -> target gateway)
+	BatchNodeRegistration(ctx context.Context, in *SignedClientBatchKeyRequest, opts ...grpc.CallOption) (*SignedBatchKeyResponse, error)
 	// PutMessage on the cMix Gateway (client -> gateway)
 	PutMessage(ctx context.Context, in *GatewaySlot, opts ...grpc.CallOption) (*GatewaySlotResponse, error)
 	// PutMessage on the cMix Gateway (client -> gateway)
@@ -999,6 +1000,15 @@ func NewGatewayClient(cc grpc.ClientConnInterface) GatewayClient {
 func (c *gatewayClient) RequestClientKey(ctx context.Context, in *SignedClientKeyRequest, opts ...grpc.CallOption) (*SignedKeyResponse, error) {
 	out := new(SignedKeyResponse)
 	err := c.cc.Invoke(ctx, "/mixmessages.Gateway/RequestClientKey", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *gatewayClient) BatchNodeRegistration(ctx context.Context, in *SignedClientBatchKeyRequest, opts ...grpc.CallOption) (*SignedBatchKeyResponse, error) {
+	out := new(SignedBatchKeyResponse)
+	err := c.cc.Invoke(ctx, "/mixmessages.Gateway/BatchNodeRegistration", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1106,6 +1116,9 @@ func (c *gatewayClient) RequestTlsCert(ctx context.Context, in *RequestGatewayCe
 type GatewayServer interface {
 	// RequestClientKey returns a Nonce to the user
 	RequestClientKey(context.Context, *SignedClientKeyRequest) (*SignedKeyResponse, error)
+	// BatchNodeRegistration sends a SignedClientBatchKeyRequest to multiple
+	// gateways by proxy (client -> gateway -> target gateway)
+	BatchNodeRegistration(context.Context, *SignedClientBatchKeyRequest) (*SignedBatchKeyResponse, error)
 	// PutMessage on the cMix Gateway (client -> gateway)
 	PutMessage(context.Context, *GatewaySlot) (*GatewaySlotResponse, error)
 	// PutMessage on the cMix Gateway (client -> gateway)
@@ -1130,6 +1143,9 @@ type UnimplementedGatewayServer struct {
 
 func (UnimplementedGatewayServer) RequestClientKey(context.Context, *SignedClientKeyRequest) (*SignedKeyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RequestClientKey not implemented")
+}
+func (UnimplementedGatewayServer) BatchNodeRegistration(context.Context, *SignedClientBatchKeyRequest) (*SignedBatchKeyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method BatchNodeRegistration not implemented")
 }
 func (UnimplementedGatewayServer) PutMessage(context.Context, *GatewaySlot) (*GatewaySlotResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PutMessage not implemented")
@@ -1182,6 +1198,24 @@ func _Gateway_RequestClientKey_Handler(srv interface{}, ctx context.Context, dec
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(GatewayServer).RequestClientKey(ctx, req.(*SignedClientKeyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Gateway_BatchNodeRegistration_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SignedClientBatchKeyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GatewayServer).BatchNodeRegistration(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/mixmessages.Gateway/BatchNodeRegistration",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GatewayServer).BatchNodeRegistration(ctx, req.(*SignedClientBatchKeyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1343,6 +1377,10 @@ var Gateway_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RequestClientKey",
 			Handler:    _Gateway_RequestClientKey_Handler,
+		},
+		{
+			MethodName: "BatchNodeRegistration",
+			Handler:    _Gateway_BatchNodeRegistration_Handler,
 		},
 		{
 			MethodName: "PutMessage",

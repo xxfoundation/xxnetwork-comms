@@ -42,6 +42,7 @@ type Handler interface {
 	RequestMessages(msg *pb.GetMessages) (*pb.GetMessagesResponse, error)
 	RequestClientKey(message *pb.SignedClientKeyRequest) (*pb.SignedKeyResponse, error)
 	RequestTlsCert(message *pb.RequestGatewayCert) (*pb.GatewayCertificate, error)
+	BatchNodeRegistration(msg *pb.SignedClientBatchKeyRequest) (*pb.SignedBatchKeyResponse, error)
 }
 
 // StartGateway starts a new gateway on the address:port specified by localServer
@@ -102,6 +103,7 @@ type implementationFunctions struct {
 	PutMessageProxy         func(message *pb.GatewaySlot, auth *connect.Auth) (*pb.GatewaySlotResponse, error)
 	PutManyMessagesProxy    func(msgs *pb.GatewaySlots, auth *connect.Auth) (*pb.GatewaySlotResponse, error)
 	RequestTlsCert          func(message *pb.RequestGatewayCert) (*pb.GatewayCertificate, error)
+	BatchNodeRegistration   func(msg *pb.SignedClientBatchKeyRequest) (*pb.SignedBatchKeyResponse, error)
 }
 
 // Implementation allows users of the client library to set the
@@ -155,6 +157,10 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return &pb.GatewayCertificate{}, nil
 			},
+			BatchNodeRegistration: func(msg *pb.SignedClientBatchKeyRequest) (*pb.SignedBatchKeyResponse, error) {
+				warn(um)
+				return &pb.SignedBatchKeyResponse{}, nil
+			},
 		},
 	}
 }
@@ -202,4 +208,8 @@ func (s *Implementation) RequestMessages(msg *pb.GetMessages) (*pb.GetMessagesRe
 
 func (s *Implementation) RequestTlsCert(msg *pb.RequestGatewayCert) (*pb.GatewayCertificate, error) {
 	return s.Functions.RequestTlsCert(msg)
+}
+
+func (s *Implementation) BatchNodeRegistration(msg *pb.SignedClientBatchKeyRequest) (*pb.SignedBatchKeyResponse, error) {
+	return s.Functions.BatchNodeRegistration(msg)
 }

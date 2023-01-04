@@ -117,6 +117,17 @@ message ClientKeyRequest {
     bytes ClientDHPubKey = 5;
 }
 
+// SignedClientBatchKeyRequest is a message sent from client to a gateway,
+// which will act as a proxy & send the registration request on to the
+// IDs in Targets
+message SignedClientBatchKeyRequest {
+    bytes ClientKeyRequest = 1;
+    messages.RSASignature ClientKeyRequestSignature = 2;
+    repeated bytes Targets = 3;
+    uint64 Timeout = 4;
+
+}
+
 message SignedClientKeyRequest {
     // Wire serialized format of the ClientKeyRequest Object (above)
     bytes ClientKeyRequest = 1;
@@ -132,6 +143,13 @@ message ClientKeyResponse {
     bytes NodeDHPubKey = 3;
     bytes KeyID = 4; // Currently unused and empty.
     uint64 ValidUntil = 5; // Timestamp of when the key expires
+}
+
+// SignedBatchKeyResponse contains responses received from target gateways to
+// the gateway which received the original SignedClientKeyRequest, to be
+// returned to the client
+message SignedBatchKeyResponse {
+    repeated SignedKeyResponse SignedKeys = 1;
 }
 
 message SignedKeyResponse {
@@ -236,6 +254,10 @@ service Gateway {
     // RequestClientKey returns a Nonce to the user
     rpc RequestClientKey (SignedClientKeyRequest) returns (SignedKeyResponse) {
     }
+
+    // BatchNodeRegistration sends a SignedClientBatchKeyRequest to multiple
+    // gateways by proxy (client -> gateway -> target gateway)
+    rpc BatchNodeRegistration (SignedClientBatchKeyRequest) returns (SignedBatchKeyResponse) {}
 
     // PutMessage on the cMix Gateway (client -> gateway)
     rpc PutMessage (GatewaySlot) returns (GatewaySlotResponse) {
