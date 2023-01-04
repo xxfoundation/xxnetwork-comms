@@ -115,6 +115,9 @@ func (x *ClientKeyRequest) GetClientDHPubKey() []byte {
 	return nil
 }
 
+// SignedClientBatchKeyRequest is a message sent from client to a gateway,
+// which will act as a proxy & send the registration request on to the
+// IDs in Targets
 type SignedClientBatchKeyRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -331,6 +334,9 @@ func (x *ClientKeyResponse) GetValidUntil() uint64 {
 	return 0
 }
 
+// SignedBatchKeyResponse contains responses received from target gateways to
+// the gateway which received the original SignedClientKeyRequest, to be
+// returned to the client
 type SignedBatchKeyResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache

@@ -969,6 +969,8 @@ var Node_ServiceDesc = grpc.ServiceDesc{
 type GatewayClient interface {
 	// RequestClientKey returns a Nonce to the user
 	RequestClientKey(ctx context.Context, in *SignedClientKeyRequest, opts ...grpc.CallOption) (*SignedKeyResponse, error)
+	// BatchNodeRegistration sends a SignedClientBatchKeyRequest to multiple
+	// gateways by proxy (client -> gateway -> target gateway)
 	BatchNodeRegistration(ctx context.Context, in *SignedClientBatchKeyRequest, opts ...grpc.CallOption) (*SignedBatchKeyResponse, error)
 	// PutMessage on the cMix Gateway (client -> gateway)
 	PutMessage(ctx context.Context, in *GatewaySlot, opts ...grpc.CallOption) (*GatewaySlotResponse, error)
@@ -1114,6 +1116,8 @@ func (c *gatewayClient) RequestTlsCert(ctx context.Context, in *RequestGatewayCe
 type GatewayServer interface {
 	// RequestClientKey returns a Nonce to the user
 	RequestClientKey(context.Context, *SignedClientKeyRequest) (*SignedKeyResponse, error)
+	// BatchNodeRegistration sends a SignedClientBatchKeyRequest to multiple
+	// gateways by proxy (client -> gateway -> target gateway)
 	BatchNodeRegistration(context.Context, *SignedClientBatchKeyRequest) (*SignedBatchKeyResponse, error)
 	// PutMessage on the cMix Gateway (client -> gateway)
 	PutMessage(context.Context, *GatewaySlot) (*GatewaySlotResponse, error)
