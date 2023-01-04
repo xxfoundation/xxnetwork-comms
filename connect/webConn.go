@@ -191,10 +191,10 @@ func (wc *webConn) IsOnline() (time.Duration, bool) {
 	addr := wc.h.GetAddress()
 	pingTimeout := wc.h.params.PingTimeout
 
-	return isOnlineHelper(addr, pingTimeout)
+	return wc.isOnlineHelper(addr, pingTimeout)
 }
 
-func isOnlineHelper(addr string, pingTimeout time.Duration) (time.Duration, bool) {
+func (wc *webConn) isOnlineHelper(addr string, pingTimeout time.Duration) (time.Duration, bool) {
 	start := time.Now()
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{
@@ -225,7 +225,7 @@ func isOnlineHelper(addr string, pingTimeout time.Duration) (time.Duration, bool
 	}
 
 	// IMPORTANT - enables better HTTP(S) discovery, because many browsers block CORS by default.
-	//req.Header.Add("js.fetch:mode", "no-cors")
+	req.Header = wc.addHeaders(req.Header)
 	jww.TRACE.Printf("(GO request): %+v", req)
 
 	req = req.WithContext(httptrace.WithClientTrace(req.Context(), trace))
