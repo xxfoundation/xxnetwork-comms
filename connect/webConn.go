@@ -189,6 +189,12 @@ func (wc *webConn) isAlive() bool {
 // IsOnline sends an empty http get request to verify the status of the server
 func (wc *webConn) IsOnline() (time.Duration, bool) {
 	addr := wc.h.GetAddress()
+	pingTimeout := wc.h.params.PingTimeout
+
+	return isOnlineHelper(addr, pingTimeout)
+}
+
+func isOnlineHelper(addr string, pingTimeout time.Duration) (time.Duration, bool) {
 	start := time.Now()
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{
@@ -197,9 +203,9 @@ func (wc *webConn) IsOnline() (time.Duration, bool) {
 	}
 	client := http.Client{
 		Transport: tr,
-		Timeout:   wc.h.params.PingTimeout,
+		Timeout:   pingTimeout,
 	}
-	target := "http://" + addr
+	target := "https://" + addr
 	req, err := http.NewRequest("GET", target, nil)
 	if err != nil {
 		jww.WARN.Printf("Failed to initiate request: %+v", err)
@@ -219,7 +225,7 @@ func (wc *webConn) IsOnline() (time.Duration, bool) {
 	}
 
 	// IMPORTANT - enables better HTTP(S) discovery, because many browsers block CORS by default.
-	req.Header.Add("js.fetch:mode", "no-cors")
+	//req.Header.Add("js.fetch:mode", "no-cors")
 	jww.TRACE.Printf("(GO request): %+v", req)
 
 	req = req.WithContext(httptrace.WithClientTrace(req.Context(), trace))

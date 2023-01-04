@@ -142,3 +142,9 @@ func Test_checkErrorExceptions(t *testing.T) {
 		}
 	}
 }
+
+//func Test_isOnline_actual(t *testing.T) {
+//	targetAddr := "a98c39d9f9a3b08ddc63d979f69e71c03e76e75353878e3d4b3c2e.xxnode.io:22840"
+//	_, ok := isOnlineHelper(targetAddr, time.Second*10)
+//	t.Fatal(ok)
+//}
