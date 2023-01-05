@@ -4,7 +4,6 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"net/http"
-	"net/http/httptrace"
 	"regexp"
 	"strings"
 	"time"
@@ -211,23 +210,22 @@ func (wc *webConn) isOnlineHelper(addr string, pingTimeout time.Duration) (time.
 		return time.Since(start), false
 	}
 
-	trace := &httptrace.ClientTrace{
-		DNSDone: func(dnsInfo httptrace.DNSDoneInfo) {
-			jww.TRACE.Printf("DNS Info: %+v\n", dnsInfo)
-		},
-		GotConn: func(connInfo httptrace.GotConnInfo) {
-			jww.TRACE.Printf("Got Conn: %+v\n", connInfo)
-		},
-		GotFirstResponseByte: func() {
-			jww.TRACE.Print("Got first byte!")
-		},
-	}
+	//trace := &httptrace.ClientTrace{
+	//	DNSDone: func(dnsInfo httptrace.DNSDoneInfo) {
+	//		jww.TRACE.Printf("DNS Info: %+v\n", dnsInfo)
+	//	},
+	//	GotConn: func(connInfo httptrace.GotConnInfo) {
+	//		jww.TRACE.Printf("Got Conn: %+v\n", connInfo)
+	//	},
+	//	GotFirstResponseByte: func() {
+	//		jww.TRACE.Print("Got first byte!")
+	//	},
+	//}
 
 	// IMPORTANT - enables better HTTP(S) discovery, because many browsers block CORS by default.
 	req.Header = wc.addHeaders(req.Header)
 	jww.TRACE.Printf("(GO request): %+v", req)
-
-	req = req.WithContext(httptrace.WithClientTrace(req.Context(), trace))
+	//req = req.WithContext(httptrace.WithClientTrace(req.Context(), trace))
 	if _, err = client.Do(req); err != nil {
 		jww.TRACE.Printf("(GO error): %s", err.Error())
 		if checkErrorExceptions(err) {
