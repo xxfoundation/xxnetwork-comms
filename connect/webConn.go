@@ -3,7 +3,6 @@ package connect
 import (
 	"crypto/tls"
 	"crypto/x509"
-	"fmt"
 	"net/http"
 	"net/http/httptrace"
 	"regexp"
@@ -214,13 +213,13 @@ func (wc *webConn) isOnlineHelper(addr string, pingTimeout time.Duration) (time.
 
 	trace := &httptrace.ClientTrace{
 		DNSDone: func(dnsInfo httptrace.DNSDoneInfo) {
-			jww.DEBUG.Printf("DNS Info: %+v\n", dnsInfo)
+			jww.TRACE.Printf("DNS Info: %+v\n", dnsInfo)
 		},
 		GotConn: func(connInfo httptrace.GotConnInfo) {
-			jww.DEBUG.Printf("Got Conn: %+v\n", connInfo)
+			jww.TRACE.Printf("Got Conn: %+v\n", connInfo)
 		},
 		GotFirstResponseByte: func() {
-			jww.DEBUG.Print("Got first byte!")
+			jww.TRACE.Print("Got first byte!")
 		},
 	}
 
@@ -229,8 +228,7 @@ func (wc *webConn) isOnlineHelper(addr string, pingTimeout time.Duration) (time.
 	jww.TRACE.Printf("(GO request): %+v", req)
 
 	req = req.WithContext(httptrace.WithClientTrace(req.Context(), trace))
-	var resp *http.Response
-	if resp, err = client.Do(req); err != nil {
+	if _, err = client.Do(req); err != nil {
 		jww.TRACE.Printf("(GO error): %s", err.Error())
 		if checkErrorExceptions(err) {
 			jww.DEBUG.Printf(
@@ -242,7 +240,6 @@ func (wc *webConn) isOnlineHelper(addr string, pingTimeout time.Duration) (time.
 			return time.Since(start), false
 		}
 	}
-	fmt.Println(resp)
 	client.CloseIdleConnections()
 	return time.Since(start), true
 }
