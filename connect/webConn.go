@@ -205,7 +205,7 @@ func (wc *webConn) isOnlineHelper(addr string, pingTimeout time.Duration) (time.
 		Timeout:   pingTimeout,
 	}
 	target := "https://" + addr + "/mixmessages.Gateway/RequestTlsCert"
-	req, err := http.NewRequest("GET", target, nil)
+	req, err := http.NewRequest("POST", target, nil)
 	if err != nil {
 		jww.WARN.Printf("Failed to initiate request: %+v", err)
 		return time.Since(start), false
