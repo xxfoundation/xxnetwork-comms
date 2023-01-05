@@ -187,10 +187,17 @@ func (wc *webConn) isAlive() bool {
 
 // IsOnline sends an empty http get request to verify the status of the server
 func (wc *webConn) IsOnline() (time.Duration, bool) {
-	addr := wc.h.GetAddress()
-	pingTimeout := wc.h.params.PingTimeout
-
-	return wc.isOnlineHelper(addr, pingTimeout)
+	start := time.Now()
+	err := wc.Connect()
+	if err != nil {
+		jww.WARN.Printf("[IsOnline] Could not connect: %+v", err)
+		return time.Since(start), false
+	}
+	return time.Since(start), true
+	//addr := wc.h.GetAddress()
+	//pingTimeout := wc.h.params.PingTimeout
+	//
+	//return wc.isOnlineHelper(addr, pingTimeout)
 }
 
 func (wc *webConn) isOnlineHelper(addr string, pingTimeout time.Duration) (time.Duration, bool) {
