@@ -3,7 +3,6 @@ package connect
 import (
 	"crypto/tls"
 	"crypto/x509"
-	"golang.org/x/net/http2"
 	"net/http"
 	"net/http/httptrace"
 	"regexp"
@@ -196,7 +195,7 @@ func (wc *webConn) IsOnline() (time.Duration, bool) {
 
 func (wc *webConn) isOnlineHelper(addr string, pingTimeout time.Duration) (time.Duration, bool) {
 	start := time.Now()
-	tr := &http2.Transport{
+	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{
 			InsecureSkipVerify: true,
 		},
@@ -205,7 +204,7 @@ func (wc *webConn) isOnlineHelper(addr string, pingTimeout time.Duration) (time.
 		Transport: tr,
 		Timeout:   pingTimeout,
 	}
-	target := "http://" + addr + ""
+	target := "http://" + addr
 	req, err := http.NewRequest(http.MethodGet, target, nil)
 	if err != nil {
 		jww.WARN.Printf("Failed to initiate request: %+v", err)
