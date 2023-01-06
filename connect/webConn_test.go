@@ -146,6 +146,6 @@ func Test_checkErrorExceptions(t *testing.T) {
 //func Test_isOnline_actual(t *testing.T) {
 //	targetAddr := ".xxnode.io:22840"
 //	wc := webConn{}
-//	_, ok := wc.isOnlineHelper(targetAddr, time.Second*10)
+//	_, ok := wc.isOnlineHelper(targetAddr, 100*time.Millisecond)
 //	t.Fatal(ok)
 //}
