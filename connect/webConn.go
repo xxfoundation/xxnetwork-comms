@@ -204,8 +204,8 @@ func (wc *webConn) isOnlineHelper(addr string, pingTimeout time.Duration) (time.
 		Transport: tr,
 		Timeout:   pingTimeout,
 	}
-	target := "http://" + addr
-	req, err := http.NewRequest(http.MethodGet, target, nil)
+	target := "https://" + addr
+	req, err := http.NewRequest(http.MethodOptions, target, nil)
 	if err != nil {
 		jww.WARN.Printf("Failed to initiate request: %+v", err)
 		return time.Since(start), false
