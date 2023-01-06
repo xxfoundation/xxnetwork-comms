@@ -317,7 +317,7 @@ func (c *ProtoComms) ServeWithWeb() {
 		jww.WARN.Printf("Starting HTTP server!")
 
 		c.httpServer = &http.Server{
-			Handler: &httpTraceWrapper{ws: httpServer},
+			Handler: httpServer,
 		}
 
 		if err := c.httpServer.Serve(l); err != nil {
@@ -515,7 +515,7 @@ func (c *ProtoComms) ServeHttps(keyPair tls.Certificate) error {
 		jww.WARN.Printf("Starting HTTPS server!")
 
 		c.httpsServer = &http.Server{
-			Handler: &httpTraceWrapper{ws: httpsServer},
+			Handler: httpsServer,
 		}
 
 		if err := c.httpsServer.Serve(tlsLis); err != nil {

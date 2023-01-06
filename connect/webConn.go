@@ -3,9 +3,7 @@ package connect
 import (
 	"crypto/tls"
 	"crypto/x509"
-	"fmt"
 	"golang.org/x/net/http2"
-	"io"
 	"net/http"
 	"net/http/httptrace"
 	"regexp"
@@ -214,8 +212,8 @@ func (wc *webConn) isOnlineHelper(addr string, pingTimeout time.Duration) (time.
 		Transport: tr,
 		Timeout:   pingTimeout,
 	}
-	target := "https://" + addr + "/*"
-	req, err := http.NewRequest(http.MethodTrace, target, nil)
+	target := "http://" + addr + ""
+	req, err := http.NewRequest(http.MethodGet, target, nil)
 	if err != nil {
 		jww.WARN.Printf("Failed to initiate request: %+v", err)
 		return time.Since(start), false
@@ -236,30 +234,18 @@ func (wc *webConn) isOnlineHelper(addr string, pingTimeout time.Duration) (time.
 	// IMPORTANT - enables better HTTP(S) discovery, because many browsers block CORS by default.
 	req.Header = wc.addHeaders(req.Header)
 	jww.TRACE.Printf("(GO request): %+v", req)
-	//ctx, cancel := context.WithTimeout(req.Context(), 5*time.Second)
 	req = req.WithContext(httptrace.WithClientTrace(req.Context(), trace))
-	var resp *http.Response
-	if resp, err = client.Do(req); err != nil {
+	if _, err = client.Do(req); err != nil {
 		jww.TRACE.Printf("(GO error): %s", err.Error())
-		fmt.Println(err)
 		if checkErrorExceptions(err) {
-			fmt.Println(1)
 			jww.DEBUG.Printf(
 				"Web connectivity verified for address %s with error %+v",
 				addr, err)
 		} else {
-			fmt.Println(2)
 			jww.WARN.Printf(
 				"Failed to verify connectivity for address %s: %+v", addr, err)
-			//cancel()
 			return time.Since(start), false
 		}
-	}
-	//cancel()
-	if resp != nil {
-		fmt.Println(resp)
-		respBody, _ := io.ReadAll(resp.Body)
-		fmt.Println(string(respBody))
 	}
 	client.CloseIdleConnections()
 	return time.Since(start), true
