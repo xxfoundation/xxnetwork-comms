@@ -115,6 +115,80 @@ func (x *ClientKeyRequest) GetClientDHPubKey() []byte {
 	return nil
 }
 
+// SignedClientBatchKeyRequest is a message sent from client to a gateway,
+// which will act as a proxy & send the registration request on to the
+// IDs in Targets
+type SignedClientBatchKeyRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ClientKeyRequest          []byte                 `protobuf:"bytes,1,opt,name=ClientKeyRequest,proto3" json:"ClientKeyRequest,omitempty"`
+	ClientKeyRequestSignature *messages.RSASignature `protobuf:"bytes,2,opt,name=ClientKeyRequestSignature,proto3" json:"ClientKeyRequestSignature,omitempty"`
+	Targets                   [][]byte               `protobuf:"bytes,3,rep,name=Targets,proto3" json:"Targets,omitempty"`
+	Timeout                   uint64                 `protobuf:"varint,4,opt,name=Timeout,proto3" json:"Timeout,omitempty"`
+}
+
+func (x *SignedClientBatchKeyRequest) Reset() {
+	*x = SignedClientBatchKeyRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_mixmessages_proto_msgTypes[1]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *SignedClientBatchKeyRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SignedClientBatchKeyRequest) ProtoMessage() {}
+
+func (x *SignedClientBatchKeyRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_mixmessages_proto_msgTypes[1]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SignedClientBatchKeyRequest.ProtoReflect.Descriptor instead.
+func (*SignedClientBatchKeyRequest) Descriptor() ([]byte, []int) {
+	return file_mixmessages_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *SignedClientBatchKeyRequest) GetClientKeyRequest() []byte {
+	if x != nil {
+		return x.ClientKeyRequest
+	}
+	return nil
+}
+
+func (x *SignedClientBatchKeyRequest) GetClientKeyRequestSignature() *messages.RSASignature {
+	if x != nil {
+		return x.ClientKeyRequestSignature
+	}
+	return nil
+}
+
+func (x *SignedClientBatchKeyRequest) GetTargets() [][]byte {
+	if x != nil {
+		return x.Targets
+	}
+	return nil
+}
+
+func (x *SignedClientBatchKeyRequest) GetTimeout() uint64 {
+	if x != nil {
+		return x.Timeout
+	}
+	return 0
+}
+
 type SignedClientKeyRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -133,7 +207,7 @@ type SignedClientKeyRequest struct {
 func (x *SignedClientKeyRequest) Reset() {
 	*x = SignedClientKeyRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[1]
+		mi := &file_mixmessages_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -146,7 +220,7 @@ func (x *SignedClientKeyRequest) String() string {
 func (*SignedClientKeyRequest) ProtoMessage() {}
 
 func (x *SignedClientKeyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[1]
+	mi := &file_mixmessages_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -159,7 +233,7 @@ func (x *SignedClientKeyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SignedClientKeyRequest.ProtoReflect.Descriptor instead.
 func (*SignedClientKeyRequest) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{1}
+	return file_mixmessages_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *SignedClientKeyRequest) GetClientKeyRequest() []byte {
@@ -205,7 +279,7 @@ type ClientKeyResponse struct {
 func (x *ClientKeyResponse) Reset() {
 	*x = ClientKeyResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[2]
+		mi := &file_mixmessages_proto_msgTypes[3]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -218,7 +292,7 @@ func (x *ClientKeyResponse) String() string {
 func (*ClientKeyResponse) ProtoMessage() {}
 
 func (x *ClientKeyResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[2]
+	mi := &file_mixmessages_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -231,7 +305,7 @@ func (x *ClientKeyResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClientKeyResponse.ProtoReflect.Descriptor instead.
 func (*ClientKeyResponse) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{2}
+	return file_mixmessages_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *ClientKeyResponse) GetEncryptedClientKey() []byte {
@@ -269,6 +343,56 @@ func (x *ClientKeyResponse) GetValidUntil() uint64 {
 	return 0
 }
 
+// SignedBatchKeyResponse contains responses received from target gateways to
+// the gateway which received the original SignedClientKeyRequest, to be
+// returned to the client
+type SignedBatchKeyResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	SignedKeys []*SignedKeyResponse `protobuf:"bytes,1,rep,name=SignedKeys,proto3" json:"SignedKeys,omitempty"`
+}
+
+func (x *SignedBatchKeyResponse) Reset() {
+	*x = SignedBatchKeyResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_mixmessages_proto_msgTypes[4]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *SignedBatchKeyResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SignedBatchKeyResponse) ProtoMessage() {}
+
+func (x *SignedBatchKeyResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_mixmessages_proto_msgTypes[4]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SignedBatchKeyResponse.ProtoReflect.Descriptor instead.
+func (*SignedBatchKeyResponse) Descriptor() ([]byte, []int) {
+	return file_mixmessages_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *SignedBatchKeyResponse) GetSignedKeys() []*SignedKeyResponse {
+	if x != nil {
+		return x.SignedKeys
+	}
+	return nil
+}
+
 type SignedKeyResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -283,7 +407,7 @@ type SignedKeyResponse struct {
 func (x *SignedKeyResponse) Reset() {
 	*x = SignedKeyResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[3]
+		mi := &file_mixmessages_proto_msgTypes[5]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -296,7 +420,7 @@ func (x *SignedKeyResponse) String() string {
 func (*SignedKeyResponse) ProtoMessage() {}
 
 func (x *SignedKeyResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[3]
+	mi := &file_mixmessages_proto_msgTypes[5]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -309,7 +433,7 @@ func (x *SignedKeyResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SignedKeyResponse.ProtoReflect.Descriptor instead.
 func (*SignedKeyResponse) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{3}
+	return file_mixmessages_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *SignedKeyResponse) GetKeyResponse() []byte {
@@ -352,7 +476,7 @@ type PostPrecompResult struct {
 func (x *PostPrecompResult) Reset() {
 	*x = PostPrecompResult{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[4]
+		mi := &file_mixmessages_proto_msgTypes[6]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -365,7 +489,7 @@ func (x *PostPrecompResult) String() string {
 func (*PostPrecompResult) ProtoMessage() {}
 
 func (x *PostPrecompResult) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[4]
+	mi := &file_mixmessages_proto_msgTypes[6]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -378,7 +502,7 @@ func (x *PostPrecompResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PostPrecompResult.ProtoReflect.Descriptor instead.
 func (*PostPrecompResult) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{4}
+	return file_mixmessages_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *PostPrecompResult) GetRoundId() uint64 {
@@ -408,7 +532,7 @@ type RoundBufferInfo struct {
 func (x *RoundBufferInfo) Reset() {
 	*x = RoundBufferInfo{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[5]
+		mi := &file_mixmessages_proto_msgTypes[7]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -421,7 +545,7 @@ func (x *RoundBufferInfo) String() string {
 func (*RoundBufferInfo) ProtoMessage() {}
 
 func (x *RoundBufferInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[5]
+	mi := &file_mixmessages_proto_msgTypes[7]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -434,7 +558,7 @@ func (x *RoundBufferInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RoundBufferInfo.ProtoReflect.Descriptor instead.
 func (*RoundBufferInfo) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{5}
+	return file_mixmessages_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *RoundBufferInfo) GetRoundBufferSize() uint32 {
@@ -456,7 +580,7 @@ type RoundPublicKey struct {
 func (x *RoundPublicKey) Reset() {
 	*x = RoundPublicKey{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[6]
+		mi := &file_mixmessages_proto_msgTypes[8]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -469,7 +593,7 @@ func (x *RoundPublicKey) String() string {
 func (*RoundPublicKey) ProtoMessage() {}
 
 func (x *RoundPublicKey) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[6]
+	mi := &file_mixmessages_proto_msgTypes[8]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -482,7 +606,7 @@ func (x *RoundPublicKey) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RoundPublicKey.ProtoReflect.Descriptor instead.
 func (*RoundPublicKey) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{6}
+	return file_mixmessages_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *RoundPublicKey) GetRound() *RoundInfo {
@@ -510,7 +634,7 @@ type RoundMetrics struct {
 func (x *RoundMetrics) Reset() {
 	*x = RoundMetrics{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[7]
+		mi := &file_mixmessages_proto_msgTypes[9]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -523,7 +647,7 @@ func (x *RoundMetrics) String() string {
 func (*RoundMetrics) ProtoMessage() {}
 
 func (x *RoundMetrics) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[7]
+	mi := &file_mixmessages_proto_msgTypes[9]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -536,7 +660,7 @@ func (x *RoundMetrics) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RoundMetrics.ProtoReflect.Descriptor instead.
 func (*RoundMetrics) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{7}
+	return file_mixmessages_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *RoundMetrics) GetRoundMetricJSON() string {
@@ -560,7 +684,7 @@ type Batch struct {
 func (x *Batch) Reset() {
 	*x = Batch{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[8]
+		mi := &file_mixmessages_proto_msgTypes[10]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -573,7 +697,7 @@ func (x *Batch) String() string {
 func (*Batch) ProtoMessage() {}
 
 func (x *Batch) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[8]
+	mi := &file_mixmessages_proto_msgTypes[10]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -586,7 +710,7 @@ func (x *Batch) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Batch.ProtoReflect.Descriptor instead.
 func (*Batch) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{8}
+	return file_mixmessages_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *Batch) GetRound() *RoundInfo {
@@ -622,7 +746,7 @@ type CompletedBatch struct {
 func (x *CompletedBatch) Reset() {
 	*x = CompletedBatch{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[9]
+		mi := &file_mixmessages_proto_msgTypes[11]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -635,7 +759,7 @@ func (x *CompletedBatch) String() string {
 func (*CompletedBatch) ProtoMessage() {}
 
 func (x *CompletedBatch) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[9]
+	mi := &file_mixmessages_proto_msgTypes[11]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -648,7 +772,7 @@ func (x *CompletedBatch) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CompletedBatch.ProtoReflect.Descriptor instead.
 func (*CompletedBatch) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{9}
+	return file_mixmessages_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *CompletedBatch) GetRoundID() uint64 {
@@ -679,7 +803,7 @@ type BatchInfo struct {
 func (x *BatchInfo) Reset() {
 	*x = BatchInfo{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[10]
+		mi := &file_mixmessages_proto_msgTypes[12]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -692,7 +816,7 @@ func (x *BatchInfo) String() string {
 func (*BatchInfo) ProtoMessage() {}
 
 func (x *BatchInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[10]
+	mi := &file_mixmessages_proto_msgTypes[12]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -705,7 +829,7 @@ func (x *BatchInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BatchInfo.ProtoReflect.Descriptor instead.
 func (*BatchInfo) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{10}
+	return file_mixmessages_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *BatchInfo) GetRound() *RoundInfo {
@@ -742,7 +866,7 @@ type RoundTripPing struct {
 func (x *RoundTripPing) Reset() {
 	*x = RoundTripPing{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[11]
+		mi := &file_mixmessages_proto_msgTypes[13]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -755,7 +879,7 @@ func (x *RoundTripPing) String() string {
 func (*RoundTripPing) ProtoMessage() {}
 
 func (x *RoundTripPing) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[11]
+	mi := &file_mixmessages_proto_msgTypes[13]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -768,7 +892,7 @@ func (x *RoundTripPing) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RoundTripPing.ProtoReflect.Descriptor instead.
 func (*RoundTripPing) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{11}
+	return file_mixmessages_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *RoundTripPing) GetPayload() *anypb.Any {
@@ -802,7 +926,7 @@ type ServerPoll struct {
 func (x *ServerPoll) Reset() {
 	*x = ServerPoll{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[12]
+		mi := &file_mixmessages_proto_msgTypes[14]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -815,7 +939,7 @@ func (x *ServerPoll) String() string {
 func (*ServerPoll) ProtoMessage() {}
 
 func (x *ServerPoll) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[12]
+	mi := &file_mixmessages_proto_msgTypes[14]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -828,7 +952,7 @@ func (x *ServerPoll) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ServerPoll.ProtoReflect.Descriptor instead.
 func (*ServerPoll) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{12}
+	return file_mixmessages_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *ServerPoll) GetFull() *NDFHash {
@@ -894,7 +1018,7 @@ type ServerPollResponse struct {
 func (x *ServerPollResponse) Reset() {
 	*x = ServerPollResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[13]
+		mi := &file_mixmessages_proto_msgTypes[15]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -907,7 +1031,7 @@ func (x *ServerPollResponse) String() string {
 func (*ServerPollResponse) ProtoMessage() {}
 
 func (x *ServerPollResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[13]
+	mi := &file_mixmessages_proto_msgTypes[15]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -920,7 +1044,7 @@ func (x *ServerPollResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ServerPollResponse.ProtoReflect.Descriptor instead.
 func (*ServerPollResponse) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{13}
+	return file_mixmessages_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *ServerPollResponse) GetId() []byte {
@@ -1004,7 +1128,7 @@ type BatchReady struct {
 func (x *BatchReady) Reset() {
 	*x = BatchReady{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[14]
+		mi := &file_mixmessages_proto_msgTypes[16]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1017,7 +1141,7 @@ func (x *BatchReady) String() string {
 func (*BatchReady) ProtoMessage() {}
 
 func (x *BatchReady) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[14]
+	mi := &file_mixmessages_proto_msgTypes[16]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1030,7 +1154,7 @@ func (x *BatchReady) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BatchReady.ProtoReflect.Descriptor instead.
 func (*BatchReady) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{14}
+	return file_mixmessages_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *BatchReady) GetRoundId() uint64 {
@@ -1057,7 +1181,7 @@ type SharePiece struct {
 func (x *SharePiece) Reset() {
 	*x = SharePiece{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[15]
+		mi := &file_mixmessages_proto_msgTypes[17]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1070,7 +1194,7 @@ func (x *SharePiece) String() string {
 func (*SharePiece) ProtoMessage() {}
 
 func (x *SharePiece) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[15]
+	mi := &file_mixmessages_proto_msgTypes[17]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1083,7 +1207,7 @@ func (x *SharePiece) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SharePiece.ProtoReflect.Descriptor instead.
 func (*SharePiece) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{15}
+	return file_mixmessages_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *SharePiece) GetPiece() []byte {
@@ -1123,7 +1247,7 @@ type RequestGatewayCert struct {
 func (x *RequestGatewayCert) Reset() {
 	*x = RequestGatewayCert{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[16]
+		mi := &file_mixmessages_proto_msgTypes[18]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1136,7 +1260,7 @@ func (x *RequestGatewayCert) String() string {
 func (*RequestGatewayCert) ProtoMessage() {}
 
 func (x *RequestGatewayCert) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[16]
+	mi := &file_mixmessages_proto_msgTypes[18]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1149,7 +1273,7 @@ func (x *RequestGatewayCert) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RequestGatewayCert.ProtoReflect.Descriptor instead.
 func (*RequestGatewayCert) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{16}
+	return file_mixmessages_proto_rawDescGZIP(), []int{18}
 }
 
 type GatewayCertificate struct {
@@ -1164,7 +1288,7 @@ type GatewayCertificate struct {
 func (x *GatewayCertificate) Reset() {
 	*x = GatewayCertificate{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[17]
+		mi := &file_mixmessages_proto_msgTypes[19]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1177,7 +1301,7 @@ func (x *GatewayCertificate) String() string {
 func (*GatewayCertificate) ProtoMessage() {}
 
 func (x *GatewayCertificate) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[17]
+	mi := &file_mixmessages_proto_msgTypes[19]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1190,7 +1314,7 @@ func (x *GatewayCertificate) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GatewayCertificate.ProtoReflect.Descriptor instead.
 func (*GatewayCertificate) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{17}
+	return file_mixmessages_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *GatewayCertificate) GetCertificate() []byte {
@@ -1220,7 +1344,7 @@ type StreamChunk struct {
 func (x *StreamChunk) Reset() {
 	*x = StreamChunk{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[18]
+		mi := &file_mixmessages_proto_msgTypes[20]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1233,7 +1357,7 @@ func (x *StreamChunk) String() string {
 func (*StreamChunk) ProtoMessage() {}
 
 func (x *StreamChunk) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[18]
+	mi := &file_mixmessages_proto_msgTypes[20]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1246,7 +1370,7 @@ func (x *StreamChunk) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StreamChunk.ProtoReflect.Descriptor instead.
 func (*StreamChunk) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{18}
+	return file_mixmessages_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *StreamChunk) GetDatum() []byte {
@@ -1268,7 +1392,7 @@ type HistoricalRounds struct {
 func (x *HistoricalRounds) Reset() {
 	*x = HistoricalRounds{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[19]
+		mi := &file_mixmessages_proto_msgTypes[21]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1281,7 +1405,7 @@ func (x *HistoricalRounds) String() string {
 func (*HistoricalRounds) ProtoMessage() {}
 
 func (x *HistoricalRounds) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[19]
+	mi := &file_mixmessages_proto_msgTypes[21]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1294,7 +1418,7 @@ func (x *HistoricalRounds) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HistoricalRounds.ProtoReflect.Descriptor instead.
 func (*HistoricalRounds) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{19}
+	return file_mixmessages_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *HistoricalRounds) GetRounds() []uint64 {
@@ -1316,7 +1440,7 @@ type HistoricalRoundsResponse struct {
 func (x *HistoricalRoundsResponse) Reset() {
 	*x = HistoricalRoundsResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[20]
+		mi := &file_mixmessages_proto_msgTypes[22]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1329,7 +1453,7 @@ func (x *HistoricalRoundsResponse) String() string {
 func (*HistoricalRoundsResponse) ProtoMessage() {}
 
 func (x *HistoricalRoundsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[20]
+	mi := &file_mixmessages_proto_msgTypes[22]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1342,7 +1466,7 @@ func (x *HistoricalRoundsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HistoricalRoundsResponse.ProtoReflect.Descriptor instead.
 func (*HistoricalRoundsResponse) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{20}
+	return file_mixmessages_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *HistoricalRoundsResponse) GetRounds() []*RoundInfo {
@@ -1368,7 +1492,7 @@ type GetMessages struct {
 func (x *GetMessages) Reset() {
 	*x = GetMessages{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[21]
+		mi := &file_mixmessages_proto_msgTypes[23]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1381,7 +1505,7 @@ func (x *GetMessages) String() string {
 func (*GetMessages) ProtoMessage() {}
 
 func (x *GetMessages) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[21]
+	mi := &file_mixmessages_proto_msgTypes[23]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1394,7 +1518,7 @@ func (x *GetMessages) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetMessages.ProtoReflect.Descriptor instead.
 func (*GetMessages) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{21}
+	return file_mixmessages_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *GetMessages) GetClientID() []byte {
@@ -1431,7 +1555,7 @@ type GetMessagesResponse struct {
 func (x *GetMessagesResponse) Reset() {
 	*x = GetMessagesResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[22]
+		mi := &file_mixmessages_proto_msgTypes[24]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1444,7 +1568,7 @@ func (x *GetMessagesResponse) String() string {
 func (*GetMessagesResponse) ProtoMessage() {}
 
 func (x *GetMessagesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[22]
+	mi := &file_mixmessages_proto_msgTypes[24]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1457,7 +1581,7 @@ func (x *GetMessagesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetMessagesResponse.ProtoReflect.Descriptor instead.
 func (*GetMessagesResponse) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{22}
+	return file_mixmessages_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *GetMessagesResponse) GetMessages() []*Slot {
@@ -1487,7 +1611,7 @@ type RoundMessages struct {
 func (x *RoundMessages) Reset() {
 	*x = RoundMessages{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[23]
+		mi := &file_mixmessages_proto_msgTypes[25]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1500,7 +1624,7 @@ func (x *RoundMessages) String() string {
 func (*RoundMessages) ProtoMessage() {}
 
 func (x *RoundMessages) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[23]
+	mi := &file_mixmessages_proto_msgTypes[25]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1513,7 +1637,7 @@ func (x *RoundMessages) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RoundMessages.ProtoReflect.Descriptor instead.
 func (*RoundMessages) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{23}
+	return file_mixmessages_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *RoundMessages) GetRoundId() uint64 {
@@ -1542,7 +1666,7 @@ type IDList struct {
 func (x *IDList) Reset() {
 	*x = IDList{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[24]
+		mi := &file_mixmessages_proto_msgTypes[26]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1555,7 +1679,7 @@ func (x *IDList) String() string {
 func (*IDList) ProtoMessage() {}
 
 func (x *IDList) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[24]
+	mi := &file_mixmessages_proto_msgTypes[26]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1568,7 +1692,7 @@ func (x *IDList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use IDList.ProtoReflect.Descriptor instead.
 func (*IDList) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{24}
+	return file_mixmessages_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *IDList) GetIDs() []string {
@@ -1603,7 +1727,7 @@ type Slot struct {
 func (x *Slot) Reset() {
 	*x = Slot{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[25]
+		mi := &file_mixmessages_proto_msgTypes[27]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1616,7 +1740,7 @@ func (x *Slot) String() string {
 func (*Slot) ProtoMessage() {}
 
 func (x *Slot) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[25]
+	mi := &file_mixmessages_proto_msgTypes[27]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1629,7 +1753,7 @@ func (x *Slot) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Slot.ProtoReflect.Descriptor instead.
 func (*Slot) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{25}
+	return file_mixmessages_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *Slot) GetIndex() uint32 {
@@ -1738,7 +1862,7 @@ type GatewayPoll struct {
 func (x *GatewayPoll) Reset() {
 	*x = GatewayPoll{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[26]
+		mi := &file_mixmessages_proto_msgTypes[28]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1751,7 +1875,7 @@ func (x *GatewayPoll) String() string {
 func (*GatewayPoll) ProtoMessage() {}
 
 func (x *GatewayPoll) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[26]
+	mi := &file_mixmessages_proto_msgTypes[28]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1764,7 +1888,7 @@ func (x *GatewayPoll) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GatewayPoll.ProtoReflect.Descriptor instead.
 func (*GatewayPoll) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{26}
+	return file_mixmessages_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *GatewayPoll) GetPartial() *NDFHash {
@@ -1850,7 +1974,7 @@ type GatewayPollResponse struct {
 func (x *GatewayPollResponse) Reset() {
 	*x = GatewayPollResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[27]
+		mi := &file_mixmessages_proto_msgTypes[29]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1863,7 +1987,7 @@ func (x *GatewayPollResponse) String() string {
 func (*GatewayPollResponse) ProtoMessage() {}
 
 func (x *GatewayPollResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[27]
+	mi := &file_mixmessages_proto_msgTypes[29]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1876,7 +2000,7 @@ func (x *GatewayPollResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GatewayPollResponse.ProtoReflect.Descriptor instead.
 func (*GatewayPollResponse) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{27}
+	return file_mixmessages_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *GatewayPollResponse) GetPartialNDF() *NDF {
@@ -1949,7 +2073,7 @@ type ClientBlooms struct {
 func (x *ClientBlooms) Reset() {
 	*x = ClientBlooms{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[28]
+		mi := &file_mixmessages_proto_msgTypes[30]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1962,7 +2086,7 @@ func (x *ClientBlooms) String() string {
 func (*ClientBlooms) ProtoMessage() {}
 
 func (x *ClientBlooms) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[28]
+	mi := &file_mixmessages_proto_msgTypes[30]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1975,7 +2099,7 @@ func (x *ClientBlooms) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClientBlooms.ProtoReflect.Descriptor instead.
 func (*ClientBlooms) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{28}
+	return file_mixmessages_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *ClientBlooms) GetPeriod() int64 {
@@ -2013,7 +2137,7 @@ type ClientBloom struct {
 func (x *ClientBloom) Reset() {
 	*x = ClientBloom{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[29]
+		mi := &file_mixmessages_proto_msgTypes[31]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2026,7 +2150,7 @@ func (x *ClientBloom) String() string {
 func (*ClientBloom) ProtoMessage() {}
 
 func (x *ClientBloom) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[29]
+	mi := &file_mixmessages_proto_msgTypes[31]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2039,7 +2163,7 @@ func (x *ClientBloom) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClientBloom.ProtoReflect.Descriptor instead.
 func (*ClientBloom) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{29}
+	return file_mixmessages_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *ClientBloom) GetFilter() []byte {
@@ -2079,7 +2203,7 @@ type GatewaySlots struct {
 func (x *GatewaySlots) Reset() {
 	*x = GatewaySlots{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[30]
+		mi := &file_mixmessages_proto_msgTypes[32]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2092,7 +2216,7 @@ func (x *GatewaySlots) String() string {
 func (*GatewaySlots) ProtoMessage() {}
 
 func (x *GatewaySlots) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[30]
+	mi := &file_mixmessages_proto_msgTypes[32]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2105,7 +2229,7 @@ func (x *GatewaySlots) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GatewaySlots.ProtoReflect.Descriptor instead.
 func (*GatewaySlots) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{30}
+	return file_mixmessages_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *GatewaySlots) GetMessages() []*GatewaySlot {
@@ -2152,7 +2276,7 @@ type GatewaySlot struct {
 func (x *GatewaySlot) Reset() {
 	*x = GatewaySlot{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[31]
+		mi := &file_mixmessages_proto_msgTypes[33]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2165,7 +2289,7 @@ func (x *GatewaySlot) String() string {
 func (*GatewaySlot) ProtoMessage() {}
 
 func (x *GatewaySlot) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[31]
+	mi := &file_mixmessages_proto_msgTypes[33]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2178,7 +2302,7 @@ func (x *GatewaySlot) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GatewaySlot.ProtoReflect.Descriptor instead.
 func (*GatewaySlot) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{31}
+	return file_mixmessages_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *GatewaySlot) GetMessage() *Slot {
@@ -2229,7 +2353,7 @@ type GatewaySlotResponse struct {
 func (x *GatewaySlotResponse) Reset() {
 	*x = GatewaySlotResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[32]
+		mi := &file_mixmessages_proto_msgTypes[34]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2242,7 +2366,7 @@ func (x *GatewaySlotResponse) String() string {
 func (*GatewaySlotResponse) ProtoMessage() {}
 
 func (x *GatewaySlotResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[32]
+	mi := &file_mixmessages_proto_msgTypes[34]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2255,7 +2379,7 @@ func (x *GatewaySlotResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GatewaySlotResponse.ProtoReflect.Descriptor instead.
 func (*GatewaySlotResponse) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{32}
+	return file_mixmessages_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *GatewaySlotResponse) GetAccepted() bool {
@@ -2286,7 +2410,7 @@ type BatchSenders struct {
 func (x *BatchSenders) Reset() {
 	*x = BatchSenders{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[33]
+		mi := &file_mixmessages_proto_msgTypes[35]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2299,7 +2423,7 @@ func (x *BatchSenders) String() string {
 func (*BatchSenders) ProtoMessage() {}
 
 func (x *BatchSenders) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[33]
+	mi := &file_mixmessages_proto_msgTypes[35]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2312,7 +2436,7 @@ func (x *BatchSenders) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BatchSenders.ProtoReflect.Descriptor instead.
 func (*BatchSenders) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{33}
+	return file_mixmessages_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *BatchSenders) GetSenderIds() [][]byte {
@@ -2350,7 +2474,7 @@ type Recipients struct {
 func (x *Recipients) Reset() {
 	*x = Recipients{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[34]
+		mi := &file_mixmessages_proto_msgTypes[36]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2363,7 +2487,7 @@ func (x *Recipients) String() string {
 func (*Recipients) ProtoMessage() {}
 
 func (x *Recipients) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[34]
+	mi := &file_mixmessages_proto_msgTypes[36]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2376,7 +2500,7 @@ func (x *Recipients) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Recipients.ProtoReflect.Descriptor instead.
 func (*Recipients) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{34}
+	return file_mixmessages_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *Recipients) GetRecipientIds() [][]byte {
@@ -2412,7 +2536,7 @@ type RegisteredNodeConfirmation struct {
 func (x *RegisteredNodeConfirmation) Reset() {
 	*x = RegisteredNodeConfirmation{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[35]
+		mi := &file_mixmessages_proto_msgTypes[37]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2425,7 +2549,7 @@ func (x *RegisteredNodeConfirmation) String() string {
 func (*RegisteredNodeConfirmation) ProtoMessage() {}
 
 func (x *RegisteredNodeConfirmation) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[35]
+	mi := &file_mixmessages_proto_msgTypes[37]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2438,7 +2562,7 @@ func (x *RegisteredNodeConfirmation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RegisteredNodeConfirmation.ProtoReflect.Descriptor instead.
 func (*RegisteredNodeConfirmation) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{35}
+	return file_mixmessages_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *RegisteredNodeConfirmation) GetIsRegistered() bool {
@@ -2459,7 +2583,7 @@ type RegisteredNodeCheck struct {
 func (x *RegisteredNodeCheck) Reset() {
 	*x = RegisteredNodeCheck{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[36]
+		mi := &file_mixmessages_proto_msgTypes[38]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2472,7 +2596,7 @@ func (x *RegisteredNodeCheck) String() string {
 func (*RegisteredNodeCheck) ProtoMessage() {}
 
 func (x *RegisteredNodeCheck) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[36]
+	mi := &file_mixmessages_proto_msgTypes[38]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2485,7 +2609,7 @@ func (x *RegisteredNodeCheck) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RegisteredNodeCheck.ProtoReflect.Descriptor instead.
 func (*RegisteredNodeCheck) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{36}
+	return file_mixmessages_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *RegisteredNodeCheck) GetID() []byte {
@@ -2507,7 +2631,7 @@ type NDFHash struct {
 func (x *NDFHash) Reset() {
 	*x = NDFHash{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[37]
+		mi := &file_mixmessages_proto_msgTypes[39]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2520,7 +2644,7 @@ func (x *NDFHash) String() string {
 func (*NDFHash) ProtoMessage() {}
 
 func (x *NDFHash) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[37]
+	mi := &file_mixmessages_proto_msgTypes[39]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2533,7 +2657,7 @@ func (x *NDFHash) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NDFHash.ProtoReflect.Descriptor instead.
 func (*NDFHash) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{37}
+	return file_mixmessages_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *NDFHash) GetHash() []byte {
@@ -2559,7 +2683,7 @@ type NDF struct {
 func (x *NDF) Reset() {
 	*x = NDF{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[38]
+		mi := &file_mixmessages_proto_msgTypes[40]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2572,7 +2696,7 @@ func (x *NDF) String() string {
 func (*NDF) ProtoMessage() {}
 
 func (x *NDF) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[38]
+	mi := &file_mixmessages_proto_msgTypes[40]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2585,7 +2709,7 @@ func (x *NDF) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NDF.ProtoReflect.Descriptor instead.
 func (*NDF) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{38}
+	return file_mixmessages_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *NDF) GetNdf() []byte {
@@ -2624,7 +2748,7 @@ type NodeRegistration struct {
 func (x *NodeRegistration) Reset() {
 	*x = NodeRegistration{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[39]
+		mi := &file_mixmessages_proto_msgTypes[41]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2637,7 +2761,7 @@ func (x *NodeRegistration) String() string {
 func (*NodeRegistration) ProtoMessage() {}
 
 func (x *NodeRegistration) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[39]
+	mi := &file_mixmessages_proto_msgTypes[41]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2650,7 +2774,7 @@ func (x *NodeRegistration) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NodeRegistration.ProtoReflect.Descriptor instead.
 func (*NodeRegistration) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{39}
+	return file_mixmessages_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *NodeRegistration) GetSalt() []byte {
@@ -2724,7 +2848,7 @@ type ClientRegistration struct {
 func (x *ClientRegistration) Reset() {
 	*x = ClientRegistration{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[40]
+		mi := &file_mixmessages_proto_msgTypes[42]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2737,7 +2861,7 @@ func (x *ClientRegistration) String() string {
 func (*ClientRegistration) ProtoMessage() {}
 
 func (x *ClientRegistration) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[40]
+	mi := &file_mixmessages_proto_msgTypes[42]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2750,7 +2874,7 @@ func (x *ClientRegistration) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClientRegistration.ProtoReflect.Descriptor instead.
 func (*ClientRegistration) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{40}
+	return file_mixmessages_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *ClientRegistration) GetRegistrationCode() string {
@@ -2788,7 +2912,7 @@ type ClientRegistrationConfirmation struct {
 func (x *ClientRegistrationConfirmation) Reset() {
 	*x = ClientRegistrationConfirmation{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[41]
+		mi := &file_mixmessages_proto_msgTypes[43]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2801,7 +2925,7 @@ func (x *ClientRegistrationConfirmation) String() string {
 func (*ClientRegistrationConfirmation) ProtoMessage() {}
 
 func (x *ClientRegistrationConfirmation) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[41]
+	mi := &file_mixmessages_proto_msgTypes[43]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2814,7 +2938,7 @@ func (x *ClientRegistrationConfirmation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClientRegistrationConfirmation.ProtoReflect.Descriptor instead.
 func (*ClientRegistrationConfirmation) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{41}
+	return file_mixmessages_proto_rawDescGZIP(), []int{43}
 }
 
 func (x *ClientRegistrationConfirmation) GetRSAPubKey() string {
@@ -2843,7 +2967,7 @@ type SignedRegistrationConfirmation struct {
 func (x *SignedRegistrationConfirmation) Reset() {
 	*x = SignedRegistrationConfirmation{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[42]
+		mi := &file_mixmessages_proto_msgTypes[44]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2856,7 +2980,7 @@ func (x *SignedRegistrationConfirmation) String() string {
 func (*SignedRegistrationConfirmation) ProtoMessage() {}
 
 func (x *SignedRegistrationConfirmation) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[42]
+	mi := &file_mixmessages_proto_msgTypes[44]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2869,7 +2993,7 @@ func (x *SignedRegistrationConfirmation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SignedRegistrationConfirmation.ProtoReflect.Descriptor instead.
 func (*SignedRegistrationConfirmation) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{42}
+	return file_mixmessages_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *SignedRegistrationConfirmation) GetClientRegistrationConfirmation() []byte {
@@ -2899,7 +3023,7 @@ type SignedClientRegistrationConfirmations struct {
 func (x *SignedClientRegistrationConfirmations) Reset() {
 	*x = SignedClientRegistrationConfirmations{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[43]
+		mi := &file_mixmessages_proto_msgTypes[45]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2912,7 +3036,7 @@ func (x *SignedClientRegistrationConfirmations) String() string {
 func (*SignedClientRegistrationConfirmations) ProtoMessage() {}
 
 func (x *SignedClientRegistrationConfirmations) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[43]
+	mi := &file_mixmessages_proto_msgTypes[45]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2925,7 +3049,7 @@ func (x *SignedClientRegistrationConfirmations) ProtoReflect() protoreflect.Mess
 
 // Deprecated: Use SignedClientRegistrationConfirmations.ProtoReflect.Descriptor instead.
 func (*SignedClientRegistrationConfirmations) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{43}
+	return file_mixmessages_proto_rawDescGZIP(), []int{45}
 }
 
 func (x *SignedClientRegistrationConfirmations) GetClientTransmissionConfirmation() *SignedRegistrationConfirmation {
@@ -2961,7 +3085,7 @@ type ClientVersion struct {
 func (x *ClientVersion) Reset() {
 	*x = ClientVersion{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[44]
+		mi := &file_mixmessages_proto_msgTypes[46]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2974,7 +3098,7 @@ func (x *ClientVersion) String() string {
 func (*ClientVersion) ProtoMessage() {}
 
 func (x *ClientVersion) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[44]
+	mi := &file_mixmessages_proto_msgTypes[46]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2987,7 +3111,7 @@ func (x *ClientVersion) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClientVersion.ProtoReflect.Descriptor instead.
 func (*ClientVersion) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{44}
+	return file_mixmessages_proto_rawDescGZIP(), []int{46}
 }
 
 func (x *ClientVersion) GetVersion() string {
@@ -3018,7 +3142,7 @@ type PermissioningPoll struct {
 func (x *PermissioningPoll) Reset() {
 	*x = PermissioningPoll{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[45]
+		mi := &file_mixmessages_proto_msgTypes[47]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3031,7 +3155,7 @@ func (x *PermissioningPoll) String() string {
 func (*PermissioningPoll) ProtoMessage() {}
 
 func (x *PermissioningPoll) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[45]
+	mi := &file_mixmessages_proto_msgTypes[47]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3044,7 +3168,7 @@ func (x *PermissioningPoll) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PermissioningPoll.ProtoReflect.Descriptor instead.
 func (*PermissioningPoll) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{45}
+	return file_mixmessages_proto_rawDescGZIP(), []int{47}
 }
 
 func (x *PermissioningPoll) GetFull() *NDFHash {
@@ -3132,7 +3256,7 @@ type ClientError struct {
 func (x *ClientError) Reset() {
 	*x = ClientError{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[46]
+		mi := &file_mixmessages_proto_msgTypes[48]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3145,7 +3269,7 @@ func (x *ClientError) String() string {
 func (*ClientError) ProtoMessage() {}
 
 func (x *ClientError) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[46]
+	mi := &file_mixmessages_proto_msgTypes[48]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3158,7 +3282,7 @@ func (x *ClientError) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClientError.ProtoReflect.Descriptor instead.
 func (*ClientError) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{46}
+	return file_mixmessages_proto_rawDescGZIP(), []int{48}
 }
 
 func (x *ClientError) GetClientId() []byte {
@@ -3200,7 +3324,7 @@ type PermissionPollResponse struct {
 func (x *PermissionPollResponse) Reset() {
 	*x = PermissionPollResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[47]
+		mi := &file_mixmessages_proto_msgTypes[49]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3213,7 +3337,7 @@ func (x *PermissionPollResponse) String() string {
 func (*PermissionPollResponse) ProtoMessage() {}
 
 func (x *PermissionPollResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[47]
+	mi := &file_mixmessages_proto_msgTypes[49]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3226,7 +3350,7 @@ func (x *PermissionPollResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PermissionPollResponse.ProtoReflect.Descriptor instead.
 func (*PermissionPollResponse) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{47}
+	return file_mixmessages_proto_rawDescGZIP(), []int{49}
 }
 
 func (x *PermissionPollResponse) GetFullNDF() *NDF {
@@ -3297,7 +3421,7 @@ type NotificationRegisterRequest struct {
 func (x *NotificationRegisterRequest) Reset() {
 	*x = NotificationRegisterRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[48]
+		mi := &file_mixmessages_proto_msgTypes[50]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3310,7 +3434,7 @@ func (x *NotificationRegisterRequest) String() string {
 func (*NotificationRegisterRequest) ProtoMessage() {}
 
 func (x *NotificationRegisterRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[48]
+	mi := &file_mixmessages_proto_msgTypes[50]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3323,7 +3447,7 @@ func (x *NotificationRegisterRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotificationRegisterRequest.ProtoReflect.Descriptor instead.
 func (*NotificationRegisterRequest) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{48}
+	return file_mixmessages_proto_rawDescGZIP(), []int{50}
 }
 
 func (x *NotificationRegisterRequest) GetToken() string {
@@ -3387,7 +3511,7 @@ type NotificationUnregisterRequest struct {
 func (x *NotificationUnregisterRequest) Reset() {
 	*x = NotificationUnregisterRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[49]
+		mi := &file_mixmessages_proto_msgTypes[51]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3400,7 +3524,7 @@ func (x *NotificationUnregisterRequest) String() string {
 func (*NotificationUnregisterRequest) ProtoMessage() {}
 
 func (x *NotificationUnregisterRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[49]
+	mi := &file_mixmessages_proto_msgTypes[51]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3413,7 +3537,7 @@ func (x *NotificationUnregisterRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotificationUnregisterRequest.ProtoReflect.Descriptor instead.
 func (*NotificationUnregisterRequest) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{49}
+	return file_mixmessages_proto_rawDescGZIP(), []int{51}
 }
 
 func (x *NotificationUnregisterRequest) GetIntermediaryId() []byte {
@@ -3442,7 +3566,7 @@ type UserIdList struct {
 func (x *UserIdList) Reset() {
 	*x = UserIdList{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[50]
+		mi := &file_mixmessages_proto_msgTypes[52]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3455,7 +3579,7 @@ func (x *UserIdList) String() string {
 func (*UserIdList) ProtoMessage() {}
 
 func (x *UserIdList) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[50]
+	mi := &file_mixmessages_proto_msgTypes[52]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3468,7 +3592,7 @@ func (x *UserIdList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserIdList.ProtoReflect.Descriptor instead.
 func (*UserIdList) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{50}
+	return file_mixmessages_proto_rawDescGZIP(), []int{52}
 }
 
 func (x *UserIdList) GetIDs() [][]byte {
@@ -3491,7 +3615,7 @@ type NotificationBatch struct {
 func (x *NotificationBatch) Reset() {
 	*x = NotificationBatch{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[51]
+		mi := &file_mixmessages_proto_msgTypes[53]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3504,7 +3628,7 @@ func (x *NotificationBatch) String() string {
 func (*NotificationBatch) ProtoMessage() {}
 
 func (x *NotificationBatch) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[51]
+	mi := &file_mixmessages_proto_msgTypes[53]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3517,7 +3641,7 @@ func (x *NotificationBatch) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotificationBatch.ProtoReflect.Descriptor instead.
 func (*NotificationBatch) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{51}
+	return file_mixmessages_proto_rawDescGZIP(), []int{53}
 }
 
 func (x *NotificationBatch) GetRoundID() uint64 {
@@ -3548,7 +3672,7 @@ type NotificationData struct {
 func (x *NotificationData) Reset() {
 	*x = NotificationData{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[52]
+		mi := &file_mixmessages_proto_msgTypes[54]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3561,7 +3685,7 @@ func (x *NotificationData) String() string {
 func (*NotificationData) ProtoMessage() {}
 
 func (x *NotificationData) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[52]
+	mi := &file_mixmessages_proto_msgTypes[54]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3574,7 +3698,7 @@ func (x *NotificationData) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NotificationData.ProtoReflect.Descriptor instead.
 func (*NotificationData) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{52}
+	return file_mixmessages_proto_rawDescGZIP(), []int{54}
 }
 
 func (x *NotificationData) GetEphemeralID() int64 {
@@ -3613,7 +3737,7 @@ type ChannelLeaseRequest struct {
 func (x *ChannelLeaseRequest) Reset() {
 	*x = ChannelLeaseRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[53]
+		mi := &file_mixmessages_proto_msgTypes[55]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3626,7 +3750,7 @@ func (x *ChannelLeaseRequest) String() string {
 func (*ChannelLeaseRequest) ProtoMessage() {}
 
 func (x *ChannelLeaseRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[53]
+	mi := &file_mixmessages_proto_msgTypes[55]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3639,7 +3763,7 @@ func (x *ChannelLeaseRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChannelLeaseRequest.ProtoReflect.Descriptor instead.
 func (*ChannelLeaseRequest) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{53}
+	return file_mixmessages_proto_rawDescGZIP(), []int{55}
 }
 
 func (x *ChannelLeaseRequest) GetUserID() []byte {
@@ -3684,7 +3808,7 @@ type ChannelLeaseResponse struct {
 func (x *ChannelLeaseResponse) Reset() {
 	*x = ChannelLeaseResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[54]
+		mi := &file_mixmessages_proto_msgTypes[56]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3697,7 +3821,7 @@ func (x *ChannelLeaseResponse) String() string {
 func (*ChannelLeaseResponse) ProtoMessage() {}
 
 func (x *ChannelLeaseResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[54]
+	mi := &file_mixmessages_proto_msgTypes[56]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3710,7 +3834,7 @@ func (x *ChannelLeaseResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChannelLeaseResponse.ProtoReflect.Descriptor instead.
 func (*ChannelLeaseResponse) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{54}
+	return file_mixmessages_proto_rawDescGZIP(), []int{56}
 }
 
 func (x *ChannelLeaseResponse) GetLease() int64 {
@@ -3752,7 +3876,7 @@ type UDBUserRegistration struct {
 func (x *UDBUserRegistration) Reset() {
 	*x = UDBUserRegistration{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[55]
+		mi := &file_mixmessages_proto_msgTypes[57]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3765,7 +3889,7 @@ func (x *UDBUserRegistration) String() string {
 func (*UDBUserRegistration) ProtoMessage() {}
 
 func (x *UDBUserRegistration) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[55]
+	mi := &file_mixmessages_proto_msgTypes[57]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3778,7 +3902,7 @@ func (x *UDBUserRegistration) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UDBUserRegistration.ProtoReflect.Descriptor instead.
 func (*UDBUserRegistration) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{55}
+	return file_mixmessages_proto_rawDescGZIP(), []int{57}
 }
 
 func (x *UDBUserRegistration) GetPermissioningSignature() []byte {
@@ -3844,7 +3968,7 @@ type Identity struct {
 func (x *Identity) Reset() {
 	*x = Identity{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[56]
+		mi := &file_mixmessages_proto_msgTypes[58]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3857,7 +3981,7 @@ func (x *Identity) String() string {
 func (*Identity) ProtoMessage() {}
 
 func (x *Identity) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[56]
+	mi := &file_mixmessages_proto_msgTypes[58]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3870,7 +3994,7 @@ func (x *Identity) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Identity.ProtoReflect.Descriptor instead.
 func (*Identity) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{56}
+	return file_mixmessages_proto_rawDescGZIP(), []int{58}
 }
 
 func (x *Identity) GetUsername() string {
@@ -3908,7 +4032,7 @@ type FactRegisterRequest struct {
 func (x *FactRegisterRequest) Reset() {
 	*x = FactRegisterRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[57]
+		mi := &file_mixmessages_proto_msgTypes[59]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3921,7 +4045,7 @@ func (x *FactRegisterRequest) String() string {
 func (*FactRegisterRequest) ProtoMessage() {}
 
 func (x *FactRegisterRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[57]
+	mi := &file_mixmessages_proto_msgTypes[59]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3934,7 +4058,7 @@ func (x *FactRegisterRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FactRegisterRequest.ProtoReflect.Descriptor instead.
 func (*FactRegisterRequest) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{57}
+	return file_mixmessages_proto_rawDescGZIP(), []int{59}
 }
 
 func (x *FactRegisterRequest) GetUID() []byte {
@@ -3971,7 +4095,7 @@ type Fact struct {
 func (x *Fact) Reset() {
 	*x = Fact{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[58]
+		mi := &file_mixmessages_proto_msgTypes[60]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3984,7 +4108,7 @@ func (x *Fact) String() string {
 func (*Fact) ProtoMessage() {}
 
 func (x *Fact) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[58]
+	mi := &file_mixmessages_proto_msgTypes[60]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3997,7 +4121,7 @@ func (x *Fact) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Fact.ProtoReflect.Descriptor instead.
 func (*Fact) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{58}
+	return file_mixmessages_proto_rawDescGZIP(), []int{60}
 }
 
 func (x *Fact) GetFact() string {
@@ -4026,7 +4150,7 @@ type FactRegisterResponse struct {
 func (x *FactRegisterResponse) Reset() {
 	*x = FactRegisterResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[59]
+		mi := &file_mixmessages_proto_msgTypes[61]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -4039,7 +4163,7 @@ func (x *FactRegisterResponse) String() string {
 func (*FactRegisterResponse) ProtoMessage() {}
 
 func (x *FactRegisterResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[59]
+	mi := &file_mixmessages_proto_msgTypes[61]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4052,7 +4176,7 @@ func (x *FactRegisterResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FactRegisterResponse.ProtoReflect.Descriptor instead.
 func (*FactRegisterResponse) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{59}
+	return file_mixmessages_proto_rawDescGZIP(), []int{61}
 }
 
 func (x *FactRegisterResponse) GetConfirmationID() string {
@@ -4075,7 +4199,7 @@ type FactConfirmRequest struct {
 func (x *FactConfirmRequest) Reset() {
 	*x = FactConfirmRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[60]
+		mi := &file_mixmessages_proto_msgTypes[62]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -4088,7 +4212,7 @@ func (x *FactConfirmRequest) String() string {
 func (*FactConfirmRequest) ProtoMessage() {}
 
 func (x *FactConfirmRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[60]
+	mi := &file_mixmessages_proto_msgTypes[62]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4101,7 +4225,7 @@ func (x *FactConfirmRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FactConfirmRequest.ProtoReflect.Descriptor instead.
 func (*FactConfirmRequest) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{60}
+	return file_mixmessages_proto_rawDescGZIP(), []int{62}
 }
 
 func (x *FactConfirmRequest) GetConfirmationID() string {
@@ -4132,7 +4256,7 @@ type FactRemovalRequest struct {
 func (x *FactRemovalRequest) Reset() {
 	*x = FactRemovalRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[61]
+		mi := &file_mixmessages_proto_msgTypes[63]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -4145,7 +4269,7 @@ func (x *FactRemovalRequest) String() string {
 func (*FactRemovalRequest) ProtoMessage() {}
 
 func (x *FactRemovalRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[61]
+	mi := &file_mixmessages_proto_msgTypes[63]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4158,7 +4282,7 @@ func (x *FactRemovalRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FactRemovalRequest.ProtoReflect.Descriptor instead.
 func (*FactRemovalRequest) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{61}
+	return file_mixmessages_proto_rawDescGZIP(), []int{63}
 }
 
 func (x *FactRemovalRequest) GetUID() []byte {
@@ -4194,7 +4318,7 @@ type StrAddress struct {
 func (x *StrAddress) Reset() {
 	*x = StrAddress{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[62]
+		mi := &file_mixmessages_proto_msgTypes[64]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -4207,7 +4331,7 @@ func (x *StrAddress) String() string {
 func (*StrAddress) ProtoMessage() {}
 
 func (x *StrAddress) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[62]
+	mi := &file_mixmessages_proto_msgTypes[64]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4220,7 +4344,7 @@ func (x *StrAddress) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StrAddress.ProtoReflect.Descriptor instead.
 func (*StrAddress) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{62}
+	return file_mixmessages_proto_rawDescGZIP(), []int{64}
 }
 
 func (x *StrAddress) GetAddress() string {
@@ -4253,7 +4377,7 @@ type RoundInfo struct {
 func (x *RoundInfo) Reset() {
 	*x = RoundInfo{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[63]
+		mi := &file_mixmessages_proto_msgTypes[65]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -4266,7 +4390,7 @@ func (x *RoundInfo) String() string {
 func (*RoundInfo) ProtoMessage() {}
 
 func (x *RoundInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[63]
+	mi := &file_mixmessages_proto_msgTypes[65]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4279,7 +4403,7 @@ func (x *RoundInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RoundInfo.ProtoReflect.Descriptor instead.
 func (*RoundInfo) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{63}
+	return file_mixmessages_proto_rawDescGZIP(), []int{65}
 }
 
 func (x *RoundInfo) GetID() uint64 {
@@ -4382,7 +4506,7 @@ type RoundError struct {
 func (x *RoundError) Reset() {
 	*x = RoundError{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[64]
+		mi := &file_mixmessages_proto_msgTypes[66]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -4395,7 +4519,7 @@ func (x *RoundError) String() string {
 func (*RoundError) ProtoMessage() {}
 
 func (x *RoundError) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[64]
+	mi := &file_mixmessages_proto_msgTypes[66]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4408,7 +4532,7 @@ func (x *RoundError) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RoundError.ProtoReflect.Descriptor instead.
 func (*RoundError) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{64}
+	return file_mixmessages_proto_rawDescGZIP(), []int{66}
 }
 
 func (x *RoundError) GetId() uint64 {
@@ -4448,7 +4572,7 @@ type EABCredentialRequest struct {
 func (x *EABCredentialRequest) Reset() {
 	*x = EABCredentialRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[65]
+		mi := &file_mixmessages_proto_msgTypes[67]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -4461,7 +4585,7 @@ func (x *EABCredentialRequest) String() string {
 func (*EABCredentialRequest) ProtoMessage() {}
 
 func (x *EABCredentialRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[65]
+	mi := &file_mixmessages_proto_msgTypes[67]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4474,7 +4598,7 @@ func (x *EABCredentialRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EABCredentialRequest.ProtoReflect.Descriptor instead.
 func (*EABCredentialRequest) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{65}
+	return file_mixmessages_proto_rawDescGZIP(), []int{67}
 }
 
 type EABCredentialResponse struct {
@@ -4489,7 +4613,7 @@ type EABCredentialResponse struct {
 func (x *EABCredentialResponse) Reset() {
 	*x = EABCredentialResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[66]
+		mi := &file_mixmessages_proto_msgTypes[68]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -4502,7 +4626,7 @@ func (x *EABCredentialResponse) String() string {
 func (*EABCredentialResponse) ProtoMessage() {}
 
 func (x *EABCredentialResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[66]
+	mi := &file_mixmessages_proto_msgTypes[68]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4515,7 +4639,7 @@ func (x *EABCredentialResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EABCredentialResponse.ProtoReflect.Descriptor instead.
 func (*EABCredentialResponse) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{66}
+	return file_mixmessages_proto_rawDescGZIP(), []int{68}
 }
 
 func (x *EABCredentialResponse) GetKeyId() string {
@@ -4546,7 +4670,7 @@ type AuthorizerCertRequest struct {
 func (x *AuthorizerCertRequest) Reset() {
 	*x = AuthorizerCertRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[67]
+		mi := &file_mixmessages_proto_msgTypes[69]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -4559,7 +4683,7 @@ func (x *AuthorizerCertRequest) String() string {
 func (*AuthorizerCertRequest) ProtoMessage() {}
 
 func (x *AuthorizerCertRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[67]
+	mi := &file_mixmessages_proto_msgTypes[69]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4572,7 +4696,7 @@ func (x *AuthorizerCertRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AuthorizerCertRequest.ProtoReflect.Descriptor instead.
 func (*AuthorizerCertRequest) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{67}
+	return file_mixmessages_proto_rawDescGZIP(), []int{69}
 }
 
 func (x *AuthorizerCertRequest) GetGwID() []byte {
@@ -4618,7 +4742,7 @@ type AuthorizerAuth struct {
 func (x *AuthorizerAuth) Reset() {
 	*x = AuthorizerAuth{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_mixmessages_proto_msgTypes[68]
+		mi := &file_mixmessages_proto_msgTypes[70]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -4631,7 +4755,7 @@ func (x *AuthorizerAuth) String() string {
 func (*AuthorizerAuth) ProtoMessage() {}
 
 func (x *AuthorizerAuth) ProtoReflect() protoreflect.Message {
-	mi := &file_mixmessages_proto_msgTypes[68]
+	mi := &file_mixmessages_proto_msgTypes[70]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4644,7 +4768,7 @@ func (x *AuthorizerAuth) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AuthorizerAuth.ProtoReflect.Descriptor instead.
 func (*AuthorizerAuth) Descriptor() ([]byte, []int) {
-	return file_mixmessages_proto_rawDescGZIP(), []int{68}
+	return file_mixmessages_proto_rawDescGZIP(), []int{70}
 }
 
 func (x *AuthorizerAuth) GetNodeID() []byte {
@@ -4710,33 +4834,52 @@ var file_mixmessages_proto_rawDesc = []byte{
 	0x74, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x54, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70,
 	0x12, 0x26, 0x0a, 0x0e, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x44, 0x48, 0x50, 0x75, 0x62, 0x4b,
 	0x65, 0x79, 0x18, 0x05, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x0e, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74,
-	0x44, 0x48, 0x50, 0x75, 0x62, 0x4b, 0x65, 0x79, 0x22, 0xca, 0x01, 0x0a, 0x16, 0x53, 0x69, 0x67,
-	0x6e, 0x65, 0x64, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x4b, 0x65, 0x79, 0x52, 0x65, 0x71, 0x75,
-	0x65, 0x73, 0x74, 0x12, 0x2a, 0x0a, 0x10, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x4b, 0x65, 0x79,
-	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x10, 0x43,
-	0x6c, 0x69, 0x65, 0x6e, 0x74, 0x4b, 0x65, 0x79, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12,
-	0x54, 0x0a, 0x19, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x4b, 0x65, 0x79, 0x52, 0x65, 0x71, 0x75,
-	0x65, 0x73, 0x74, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x74, 0x75, 0x72, 0x65, 0x18, 0x02, 0x20, 0x01,
-	0x28, 0x0b, 0x32, 0x16, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x52, 0x53,
-	0x41, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x74, 0x75, 0x72, 0x65, 0x52, 0x19, 0x43, 0x6c, 0x69, 0x65,
-	0x6e, 0x74, 0x4b, 0x65, 0x79, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x53, 0x69, 0x67, 0x6e,
-	0x61, 0x74, 0x75, 0x72, 0x65, 0x12, 0x16, 0x0a, 0x06, 0x54, 0x61, 0x72, 0x67, 0x65, 0x74, 0x18,
-	0x03, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x06, 0x54, 0x61, 0x72, 0x67, 0x65, 0x74, 0x12, 0x16, 0x0a,
-	0x06, 0x55, 0x73, 0x65, 0x53, 0x48, 0x41, 0x18, 0x04, 0x20, 0x01, 0x28, 0x08, 0x52, 0x06, 0x55,
-	0x73, 0x65, 0x53, 0x48, 0x41, 0x22, 0xd5, 0x01, 0x0a, 0x11, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74,
-	0x4b, 0x65, 0x79, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x2e, 0x0a, 0x12, 0x45,
+	0x44, 0x48, 0x50, 0x75, 0x62, 0x4b, 0x65, 0x79, 0x22, 0xd3, 0x01, 0x0a, 0x1b, 0x53, 0x69, 0x67,
+	0x6e, 0x65, 0x64, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x42, 0x61, 0x74, 0x63, 0x68, 0x4b, 0x65,
+	0x79, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x2a, 0x0a, 0x10, 0x43, 0x6c, 0x69, 0x65,
+	0x6e, 0x74, 0x4b, 0x65, 0x79, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x0c, 0x52, 0x10, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x4b, 0x65, 0x79, 0x52, 0x65, 0x71,
+	0x75, 0x65, 0x73, 0x74, 0x12, 0x54, 0x0a, 0x19, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x4b, 0x65,
+	0x79, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x74, 0x75, 0x72,
+	0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x16, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67,
+	0x65, 0x73, 0x2e, 0x52, 0x53, 0x41, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x74, 0x75, 0x72, 0x65, 0x52,
+	0x19, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x4b, 0x65, 0x79, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
+	0x74, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x74, 0x75, 0x72, 0x65, 0x12, 0x18, 0x0a, 0x07, 0x54, 0x61,
+	0x72, 0x67, 0x65, 0x74, 0x73, 0x18, 0x03, 0x20, 0x03, 0x28, 0x0c, 0x52, 0x07, 0x54, 0x61, 0x72,
+	0x67, 0x65, 0x74, 0x73, 0x12, 0x18, 0x0a, 0x07, 0x54, 0x69, 0x6d, 0x65, 0x6f, 0x75, 0x74, 0x18,
+	0x04, 0x20, 0x01, 0x28, 0x04, 0x52, 0x07, 0x54, 0x69, 0x6d, 0x65, 0x6f, 0x75, 0x74, 0x22, 0xca,
+	0x01, 0x0a, 0x16, 0x53, 0x69, 0x67, 0x6e, 0x65, 0x64, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x4b,
+	0x65, 0x79, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x2a, 0x0a, 0x10, 0x43, 0x6c, 0x69,
+	0x65, 0x6e, 0x74, 0x4b, 0x65, 0x79, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x0c, 0x52, 0x10, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x4b, 0x65, 0x79, 0x52, 0x65,
+	0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x54, 0x0a, 0x19, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x4b,
+	0x65, 0x79, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x74, 0x75,
+	0x72, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x16, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61,
+	0x67, 0x65, 0x73, 0x2e, 0x52, 0x53, 0x41, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x74, 0x75, 0x72, 0x65,
+	0x52, 0x19, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x4b, 0x65, 0x79, 0x52, 0x65, 0x71, 0x75, 0x65,
+	0x73, 0x74, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x74, 0x75, 0x72, 0x65, 0x12, 0x16, 0x0a, 0x06, 0x54,
+	0x61, 0x72, 0x67, 0x65, 0x74, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x06, 0x54, 0x61, 0x72,
+	0x67, 0x65, 0x74, 0x12, 0x16, 0x0a, 0x06, 0x55, 0x73, 0x65, 0x53, 0x48, 0x41, 0x18, 0x04, 0x20,
+	0x01, 0x28, 0x08, 0x52, 0x06, 0x55, 0x73, 0x65, 0x53, 0x48, 0x41, 0x22, 0xd5, 0x01, 0x0a, 0x11,
+	0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x4b, 0x65, 0x79, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
+	0x65, 0x12, 0x2e, 0x0a, 0x12, 0x45, 0x6e, 0x63, 0x72, 0x79, 0x70, 0x74, 0x65, 0x64, 0x43, 0x6c,
+	0x69, 0x65, 0x6e, 0x74, 0x4b, 0x65, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x12, 0x45,
 	0x6e, 0x63, 0x72, 0x79, 0x70, 0x74, 0x65, 0x64, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x4b, 0x65,
-	0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x12, 0x45, 0x6e, 0x63, 0x72, 0x79, 0x70, 0x74,
-	0x65, 0x64, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x4b, 0x65, 0x79, 0x12, 0x36, 0x0a, 0x16, 0x45,
-	0x6e, 0x63, 0x72, 0x79, 0x70, 0x74, 0x65, 0x64, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x4b, 0x65,
-	0x79, 0x48, 0x4d, 0x41, 0x43, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x16, 0x45, 0x6e, 0x63,
-	0x72, 0x79, 0x70, 0x74, 0x65, 0x64, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x4b, 0x65, 0x79, 0x48,
-	0x4d, 0x41, 0x43, 0x12, 0x22, 0x0a, 0x0c, 0x4e, 0x6f, 0x64, 0x65, 0x44, 0x48, 0x50, 0x75, 0x62,
-	0x4b, 0x65, 0x79, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x0c, 0x4e, 0x6f, 0x64, 0x65, 0x44,
-	0x48, 0x50, 0x75, 0x62, 0x4b, 0x65, 0x79, 0x12, 0x14, 0x0a, 0x05, 0x4b, 0x65, 0x79, 0x49, 0x44,
-	0x18, 0x04, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x05, 0x4b, 0x65, 0x79, 0x49, 0x44, 0x12, 0x1e, 0x0a,
-	0x0a, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x55, 0x6e, 0x74, 0x69, 0x6c, 0x18, 0x05, 0x20, 0x01, 0x28,
-	0x04, 0x52, 0x0a, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x55, 0x6e, 0x74, 0x69, 0x6c, 0x22, 0xcf, 0x01,
+	0x79, 0x12, 0x36, 0x0a, 0x16, 0x45, 0x6e, 0x63, 0x72, 0x79, 0x70, 0x74, 0x65, 0x64, 0x43, 0x6c,
+	0x69, 0x65, 0x6e, 0x74, 0x4b, 0x65, 0x79, 0x48, 0x4d, 0x41, 0x43, 0x18, 0x02, 0x20, 0x01, 0x28,
+	0x0c, 0x52, 0x16, 0x45, 0x6e, 0x63, 0x72, 0x79, 0x70, 0x74, 0x65, 0x64, 0x43, 0x6c, 0x69, 0x65,
+	0x6e, 0x74, 0x4b, 0x65, 0x79, 0x48, 0x4d, 0x41, 0x43, 0x12, 0x22, 0x0a, 0x0c, 0x4e, 0x6f, 0x64,
+	0x65, 0x44, 0x48, 0x50, 0x75, 0x62, 0x4b, 0x65, 0x79, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0c, 0x52,
+	0x0c, 0x4e, 0x6f, 0x64, 0x65, 0x44, 0x48, 0x50, 0x75, 0x62, 0x4b, 0x65, 0x79, 0x12, 0x14, 0x0a,
+	0x05, 0x4b, 0x65, 0x79, 0x49, 0x44, 0x18, 0x04, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x05, 0x4b, 0x65,
+	0x79, 0x49, 0x44, 0x12, 0x1e, 0x0a, 0x0a, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x55, 0x6e, 0x74, 0x69,
+	0x6c, 0x18, 0x05, 0x20, 0x01, 0x28, 0x04, 0x52, 0x0a, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x55, 0x6e,
+	0x74, 0x69, 0x6c, 0x22, 0x58, 0x0a, 0x16, 0x53, 0x69, 0x67, 0x6e, 0x65, 0x64, 0x42, 0x61, 0x74,
+	0x63, 0x68, 0x4b, 0x65, 0x79, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x3e, 0x0a,
+	0x0a, 0x53, 0x69, 0x67, 0x6e, 0x65, 0x64, 0x4b, 0x65, 0x79, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28,
+	0x0b, 0x32, 0x1e, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e,
+	0x53, 0x69, 0x67, 0x6e, 0x65, 0x64, 0x4b, 0x65, 0x79, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
+	0x65, 0x52, 0x0a, 0x53, 0x69, 0x67, 0x6e, 0x65, 0x64, 0x4b, 0x65, 0x79, 0x73, 0x22, 0xcf, 0x01,
 	0x0a, 0x11, 0x53, 0x69, 0x67, 0x6e, 0x65, 0x64, 0x4b, 0x65, 0x79, 0x52, 0x65, 0x73, 0x70, 0x6f,
 	0x6e, 0x73, 0x65, 0x12, 0x20, 0x0a, 0x0b, 0x4b, 0x65, 0x79, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
 	0x73, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x0b, 0x4b, 0x65, 0x79, 0x52, 0x65, 0x73,
@@ -5417,145 +5560,152 @@ var file_mixmessages_proto_rawDesc = []byte{
 	0x79, 0x12, 0x1e, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x41, 0x75, 0x74,
 	0x68, 0x65, 0x6e, 0x74, 0x69, 0x63, 0x61, 0x74, 0x65, 0x64, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67,
 	0x65, 0x1a, 0x0d, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x41, 0x63, 0x6b,
-	0x22, 0x00, 0x32, 0xff, 0x05, 0x0a, 0x07, 0x47, 0x61, 0x74, 0x65, 0x77, 0x61, 0x79, 0x12, 0x59,
+	0x22, 0x00, 0x32, 0xe9, 0x06, 0x0a, 0x07, 0x47, 0x61, 0x74, 0x65, 0x77, 0x61, 0x79, 0x12, 0x59,
 	0x0a, 0x10, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x4b,
 	0x65, 0x79, 0x12, 0x23, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73,
 	0x2e, 0x53, 0x69, 0x67, 0x6e, 0x65, 0x64, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x4b, 0x65, 0x79,
 	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1e, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73,
 	0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x53, 0x69, 0x67, 0x6e, 0x65, 0x64, 0x4b, 0x65, 0x79, 0x52,
-	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x4a, 0x0a, 0x0a, 0x50, 0x75, 0x74,
-	0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x12, 0x18, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73,
-	0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x47, 0x61, 0x74, 0x65, 0x77, 0x61, 0x79, 0x53, 0x6c, 0x6f,
-	0x74, 0x1a, 0x20, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e,
-	0x47, 0x61, 0x74, 0x65, 0x77, 0x61, 0x79, 0x53, 0x6c, 0x6f, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f,
-	0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x50, 0x0a, 0x0f, 0x50, 0x75, 0x74, 0x4d, 0x61, 0x6e, 0x79,
-	0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x12, 0x19, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65,
-	0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x47, 0x61, 0x74, 0x65, 0x77, 0x61, 0x79, 0x53, 0x6c,
-	0x6f, 0x74, 0x73, 0x1a, 0x20, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65,
-	0x73, 0x2e, 0x47, 0x61, 0x74, 0x65, 0x77, 0x61, 0x79, 0x53, 0x6c, 0x6f, 0x74, 0x52, 0x65, 0x73,
-	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x55, 0x0a, 0x0f, 0x50, 0x75, 0x74, 0x4d, 0x65,
-	0x73, 0x73, 0x61, 0x67, 0x65, 0x50, 0x72, 0x6f, 0x78, 0x79, 0x12, 0x1e, 0x2e, 0x6d, 0x65, 0x73,
-	0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x41, 0x75, 0x74, 0x68, 0x65, 0x6e, 0x74, 0x69, 0x63, 0x61,
-	0x74, 0x65, 0x64, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x1a, 0x20, 0x2e, 0x6d, 0x69, 0x78,
-	0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x47, 0x61, 0x74, 0x65, 0x77, 0x61, 0x79,
-	0x53, 0x6c, 0x6f, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x5a,
-	0x0a, 0x14, 0x50, 0x75, 0x74, 0x4d, 0x61, 0x6e, 0x79, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65,
-	0x73, 0x50, 0x72, 0x6f, 0x78, 0x79, 0x12, 0x1e, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65,
-	0x73, 0x2e, 0x41, 0x75, 0x74, 0x68, 0x65, 0x6e, 0x74, 0x69, 0x63, 0x61, 0x74, 0x65, 0x64, 0x4d,
-	0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x1a, 0x20, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73,
-	0x61, 0x67, 0x65, 0x73, 0x2e, 0x47, 0x61, 0x74, 0x65, 0x77, 0x61, 0x79, 0x53, 0x6c, 0x6f, 0x74,
-	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x3e, 0x0a, 0x04, 0x50, 0x6f,
-	0x6c, 0x6c, 0x12, 0x18, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73,
-	0x2e, 0x47, 0x61, 0x74, 0x65, 0x77, 0x61, 0x79, 0x50, 0x6f, 0x6c, 0x6c, 0x1a, 0x18, 0x2e, 0x6d,
-	0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x53, 0x74, 0x72, 0x65, 0x61,
-	0x6d, 0x43, 0x68, 0x75, 0x6e, 0x6b, 0x22, 0x00, 0x30, 0x01, 0x12, 0x61, 0x0a, 0x17, 0x52, 0x65,
-	0x71, 0x75, 0x65, 0x73, 0x74, 0x48, 0x69, 0x73, 0x74, 0x6f, 0x72, 0x69, 0x63, 0x61, 0x6c, 0x52,
-	0x6f, 0x75, 0x6e, 0x64, 0x73, 0x12, 0x1d, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61,
-	0x67, 0x65, 0x73, 0x2e, 0x48, 0x69, 0x73, 0x74, 0x6f, 0x72, 0x69, 0x63, 0x61, 0x6c, 0x52, 0x6f,
-	0x75, 0x6e, 0x64, 0x73, 0x1a, 0x25, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67,
-	0x65, 0x73, 0x2e, 0x48, 0x69, 0x73, 0x74, 0x6f, 0x72, 0x69, 0x63, 0x61, 0x6c, 0x52, 0x6f, 0x75,
-	0x6e, 0x64, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x4f, 0x0a,
-	0x0f, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73,
-	0x12, 0x18, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x47,
-	0x65, 0x74, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x1a, 0x20, 0x2e, 0x6d, 0x69, 0x78,
+	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x68, 0x0a, 0x15, 0x42, 0x61, 0x74,
+	0x63, 0x68, 0x4e, 0x6f, 0x64, 0x65, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x72, 0x61, 0x74, 0x69,
+	0x6f, 0x6e, 0x12, 0x28, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73,
+	0x2e, 0x53, 0x69, 0x67, 0x6e, 0x65, 0x64, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x42, 0x61, 0x74,
+	0x63, 0x68, 0x4b, 0x65, 0x79, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x23, 0x2e, 0x6d,
+	0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x53, 0x69, 0x67, 0x6e, 0x65,
+	0x64, 0x42, 0x61, 0x74, 0x63, 0x68, 0x4b, 0x65, 0x79, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
+	0x65, 0x22, 0x00, 0x12, 0x4a, 0x0a, 0x0a, 0x50, 0x75, 0x74, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67,
+	0x65, 0x12, 0x18, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e,
+	0x47, 0x61, 0x74, 0x65, 0x77, 0x61, 0x79, 0x53, 0x6c, 0x6f, 0x74, 0x1a, 0x20, 0x2e, 0x6d, 0x69,
+	0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x47, 0x61, 0x74, 0x65, 0x77, 0x61,
+	0x79, 0x53, 0x6c, 0x6f, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12,
+	0x50, 0x0a, 0x0f, 0x50, 0x75, 0x74, 0x4d, 0x61, 0x6e, 0x79, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67,
+	0x65, 0x73, 0x12, 0x19, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73,
+	0x2e, 0x47, 0x61, 0x74, 0x65, 0x77, 0x61, 0x79, 0x53, 0x6c, 0x6f, 0x74, 0x73, 0x1a, 0x20, 0x2e,
+	0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x47, 0x61, 0x74, 0x65,
+	0x77, 0x61, 0x79, 0x53, 0x6c, 0x6f, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22,
+	0x00, 0x12, 0x55, 0x0a, 0x0f, 0x50, 0x75, 0x74, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x50,
+	0x72, 0x6f, 0x78, 0x79, 0x12, 0x1e, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e,
+	0x41, 0x75, 0x74, 0x68, 0x65, 0x6e, 0x74, 0x69, 0x63, 0x61, 0x74, 0x65, 0x64, 0x4d, 0x65, 0x73,
+	0x73, 0x61, 0x67, 0x65, 0x1a, 0x20, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67,
+	0x65, 0x73, 0x2e, 0x47, 0x61, 0x74, 0x65, 0x77, 0x61, 0x79, 0x53, 0x6c, 0x6f, 0x74, 0x52, 0x65,
+	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x5a, 0x0a, 0x14, 0x50, 0x75, 0x74, 0x4d,
+	0x61, 0x6e, 0x79, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x50, 0x72, 0x6f, 0x78, 0x79,
+	0x12, 0x1e, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x41, 0x75, 0x74, 0x68,
+	0x65, 0x6e, 0x74, 0x69, 0x63, 0x61, 0x74, 0x65, 0x64, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65,
+	0x1a, 0x20, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x47,
+	0x61, 0x74, 0x65, 0x77, 0x61, 0x79, 0x53, 0x6c, 0x6f, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
+	0x73, 0x65, 0x22, 0x00, 0x12, 0x3e, 0x0a, 0x04, 0x50, 0x6f, 0x6c, 0x6c, 0x12, 0x18, 0x2e, 0x6d,
+	0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x47, 0x61, 0x74, 0x65, 0x77,
+	0x61, 0x79, 0x50, 0x6f, 0x6c, 0x6c, 0x1a, 0x18, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73,
+	0x61, 0x67, 0x65, 0x73, 0x2e, 0x53, 0x74, 0x72, 0x65, 0x61, 0x6d, 0x43, 0x68, 0x75, 0x6e, 0x6b,
+	0x22, 0x00, 0x30, 0x01, 0x12, 0x61, 0x0a, 0x17, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x48,
+	0x69, 0x73, 0x74, 0x6f, 0x72, 0x69, 0x63, 0x61, 0x6c, 0x52, 0x6f, 0x75, 0x6e, 0x64, 0x73, 0x12,
+	0x1d, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x48, 0x69,
+	0x73, 0x74, 0x6f, 0x72, 0x69, 0x63, 0x61, 0x6c, 0x52, 0x6f, 0x75, 0x6e, 0x64, 0x73, 0x1a, 0x25,
+	0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x48, 0x69, 0x73,
+	0x74, 0x6f, 0x72, 0x69, 0x63, 0x61, 0x6c, 0x52, 0x6f, 0x75, 0x6e, 0x64, 0x73, 0x52, 0x65, 0x73,
+	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x4f, 0x0a, 0x0f, 0x52, 0x65, 0x71, 0x75, 0x65,
+	0x73, 0x74, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x12, 0x18, 0x2e, 0x6d, 0x69, 0x78,
 	0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x47, 0x65, 0x74, 0x4d, 0x65, 0x73, 0x73,
-	0x61, 0x67, 0x65, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x54,
-	0x0a, 0x0e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x54, 0x6c, 0x73, 0x43, 0x65, 0x72, 0x74,
-	0x12, 0x1f, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x52,
-	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x47, 0x61, 0x74, 0x65, 0x77, 0x61, 0x79, 0x43, 0x65, 0x72,
-	0x74, 0x1a, 0x1f, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e,
-	0x47, 0x61, 0x74, 0x65, 0x77, 0x61, 0x79, 0x43, 0x65, 0x72, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61,
-	0x74, 0x65, 0x22, 0x00, 0x32, 0x78, 0x0a, 0x0f, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x52, 0x65,
-	0x67, 0x69, 0x73, 0x74, 0x72, 0x61, 0x72, 0x12, 0x65, 0x0a, 0x0c, 0x52, 0x65, 0x67, 0x69, 0x73,
-	0x74, 0x65, 0x72, 0x55, 0x73, 0x65, 0x72, 0x12, 0x1f, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73,
-	0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x52, 0x65, 0x67, 0x69,
-	0x73, 0x74, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x1a, 0x32, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65,
-	0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x53, 0x69, 0x67, 0x6e, 0x65, 0x64, 0x43, 0x6c, 0x69,
-	0x65, 0x6e, 0x74, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43,
-	0x6f, 0x6e, 0x66, 0x69, 0x72, 0x6d, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x22, 0x00, 0x32, 0xb4,
-	0x02, 0x0a, 0x0c, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x12,
-	0x3e, 0x0a, 0x0c, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x4e, 0x6f, 0x64, 0x65, 0x12,
-	0x1d, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x4e, 0x6f,
-	0x64, 0x65, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x1a, 0x0d,
-	0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x41, 0x63, 0x6b, 0x22, 0x00, 0x12,
-	0x33, 0x0a, 0x07, 0x50, 0x6f, 0x6c, 0x6c, 0x4e, 0x64, 0x66, 0x12, 0x14, 0x2e, 0x6d, 0x69, 0x78,
-	0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x4e, 0x44, 0x46, 0x48, 0x61, 0x73, 0x68,
-	0x1a, 0x10, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x4e,
-	0x44, 0x46, 0x22, 0x00, 0x12, 0x4d, 0x0a, 0x04, 0x50, 0x6f, 0x6c, 0x6c, 0x12, 0x1e, 0x2e, 0x6d,
-	0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x41, 0x75, 0x74, 0x68, 0x65, 0x6e, 0x74, 0x69,
-	0x63, 0x61, 0x74, 0x65, 0x64, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x1a, 0x23, 0x2e, 0x6d,
-	0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x50, 0x65, 0x72, 0x6d, 0x69,
-	0x73, 0x73, 0x69, 0x6f, 0x6e, 0x50, 0x6f, 0x6c, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
-	0x65, 0x22, 0x00, 0x12, 0x60, 0x0a, 0x11, 0x43, 0x68, 0x65, 0x63, 0x6b, 0x52, 0x65, 0x67, 0x69,
-	0x73, 0x74, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x20, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65,
-	0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x65,
-	0x64, 0x4e, 0x6f, 0x64, 0x65, 0x43, 0x68, 0x65, 0x63, 0x6b, 0x1a, 0x27, 0x2e, 0x6d, 0x69, 0x78,
-	0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65,
-	0x72, 0x65, 0x64, 0x4e, 0x6f, 0x64, 0x65, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x72, 0x6d, 0x61, 0x74,
-	0x69, 0x6f, 0x6e, 0x22, 0x00, 0x32, 0x90, 0x02, 0x0a, 0x0f, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x69,
-	0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x42, 0x6f, 0x74, 0x12, 0x59, 0x0a, 0x1a, 0x55, 0x6e, 0x72,
-	0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x46, 0x6f, 0x72, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x69,
-	0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x12, 0x2a, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73,
-	0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x69,
-	0x6f, 0x6e, 0x55, 0x6e, 0x72, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x52, 0x65, 0x71, 0x75,
-	0x65, 0x73, 0x74, 0x1a, 0x0d, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x41,
-	0x63, 0x6b, 0x22, 0x00, 0x12, 0x55, 0x0a, 0x18, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72,
-	0x46, 0x6f, 0x72, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x73,
-	0x12, 0x28, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x4e,
-	0x6f, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x67, 0x69, 0x73,
-	0x74, 0x65, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x0d, 0x2e, 0x6d, 0x65, 0x73,
-	0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x41, 0x63, 0x6b, 0x22, 0x00, 0x12, 0x4b, 0x0a, 0x18, 0x52,
-	0x65, 0x63, 0x65, 0x69, 0x76, 0x65, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x69,
-	0x6f, 0x6e, 0x42, 0x61, 0x74, 0x63, 0x68, 0x12, 0x1e, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67,
-	0x65, 0x73, 0x2e, 0x41, 0x75, 0x74, 0x68, 0x65, 0x6e, 0x74, 0x69, 0x63, 0x61, 0x74, 0x65, 0x64,
-	0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x1a, 0x0d, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67,
-	0x65, 0x73, 0x2e, 0x41, 0x63, 0x6b, 0x22, 0x00, 0x32, 0xbe, 0x03, 0x0a, 0x03, 0x55, 0x44, 0x42,
-	0x12, 0x41, 0x0a, 0x0c, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x55, 0x73, 0x65, 0x72,
-	0x12, 0x20, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x55,
-	0x44, 0x42, 0x55, 0x73, 0x65, 0x72, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x72, 0x61, 0x74, 0x69,
-	0x6f, 0x6e, 0x1a, 0x0d, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x41, 0x63,
-	0x6b, 0x22, 0x00, 0x12, 0x3e, 0x0a, 0x0a, 0x52, 0x65, 0x6d, 0x6f, 0x76, 0x65, 0x55, 0x73, 0x65,
+	0x61, 0x67, 0x65, 0x73, 0x1a, 0x20, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67,
+	0x65, 0x73, 0x2e, 0x47, 0x65, 0x74, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x52, 0x65,
+	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x54, 0x0a, 0x0e, 0x52, 0x65, 0x71, 0x75,
+	0x65, 0x73, 0x74, 0x54, 0x6c, 0x73, 0x43, 0x65, 0x72, 0x74, 0x12, 0x1f, 0x2e, 0x6d, 0x69, 0x78,
+	0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
+	0x47, 0x61, 0x74, 0x65, 0x77, 0x61, 0x79, 0x43, 0x65, 0x72, 0x74, 0x1a, 0x1f, 0x2e, 0x6d, 0x69,
+	0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x47, 0x61, 0x74, 0x65, 0x77, 0x61,
+	0x79, 0x43, 0x65, 0x72, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x65, 0x22, 0x00, 0x32, 0x78,
+	0x0a, 0x0f, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x72, 0x61,
+	0x72, 0x12, 0x65, 0x0a, 0x0c, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x55, 0x73, 0x65,
 	0x72, 0x12, 0x1f, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e,
-	0x46, 0x61, 0x63, 0x74, 0x52, 0x65, 0x6d, 0x6f, 0x76, 0x61, 0x6c, 0x52, 0x65, 0x71, 0x75, 0x65,
-	0x73, 0x74, 0x1a, 0x0d, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x41, 0x63,
-	0x6b, 0x22, 0x00, 0x12, 0x55, 0x0a, 0x0c, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x46,
-	0x61, 0x63, 0x74, 0x12, 0x20, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65,
-	0x73, 0x2e, 0x46, 0x61, 0x63, 0x74, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x52, 0x65,
-	0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x21, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61,
-	0x67, 0x65, 0x73, 0x2e, 0x46, 0x61, 0x63, 0x74, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72,
-	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x3f, 0x0a, 0x0b, 0x43, 0x6f,
-	0x6e, 0x66, 0x69, 0x72, 0x6d, 0x46, 0x61, 0x63, 0x74, 0x12, 0x1f, 0x2e, 0x6d, 0x69, 0x78, 0x6d,
-	0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x46, 0x61, 0x63, 0x74, 0x43, 0x6f, 0x6e, 0x66,
-	0x69, 0x72, 0x6d, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x0d, 0x2e, 0x6d, 0x65, 0x73,
-	0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x41, 0x63, 0x6b, 0x22, 0x00, 0x12, 0x3e, 0x0a, 0x0a, 0x52,
-	0x65, 0x6d, 0x6f, 0x76, 0x65, 0x46, 0x61, 0x63, 0x74, 0x12, 0x1f, 0x2e, 0x6d, 0x69, 0x78, 0x6d,
-	0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x46, 0x61, 0x63, 0x74, 0x52, 0x65, 0x6d, 0x6f,
-	0x76, 0x61, 0x6c, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x0d, 0x2e, 0x6d, 0x65, 0x73,
-	0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x41, 0x63, 0x6b, 0x22, 0x00, 0x12, 0x5c, 0x0a, 0x13, 0x52,
-	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x4c, 0x65, 0x61,
-	0x73, 0x65, 0x12, 0x20, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73,
-	0x2e, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x4c, 0x65, 0x61, 0x73, 0x65, 0x52, 0x65, 0x71,
-	0x75, 0x65, 0x73, 0x74, 0x1a, 0x21, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67,
-	0x65, 0x73, 0x2e, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x4c, 0x65, 0x61, 0x73, 0x65, 0x52,
-	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x32, 0xed, 0x01, 0x0a, 0x0a, 0x41, 0x75,
-	0x74, 0x68, 0x6f, 0x72, 0x69, 0x7a, 0x65, 0x72, 0x12, 0x39, 0x0a, 0x09, 0x41, 0x75, 0x74, 0x68,
-	0x6f, 0x72, 0x69, 0x7a, 0x65, 0x12, 0x1b, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61,
-	0x67, 0x65, 0x73, 0x2e, 0x41, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x7a, 0x65, 0x72, 0x41, 0x75,
-	0x74, 0x68, 0x1a, 0x0d, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x41, 0x63,
-	0x6b, 0x22, 0x00, 0x12, 0x42, 0x0a, 0x0b, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x43, 0x65,
-	0x72, 0x74, 0x12, 0x22, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73,
-	0x2e, 0x41, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x7a, 0x65, 0x72, 0x43, 0x65, 0x72, 0x74, 0x52,
-	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x0d, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65,
-	0x73, 0x2e, 0x41, 0x63, 0x6b, 0x22, 0x00, 0x12, 0x60, 0x0a, 0x15, 0x52, 0x65, 0x71, 0x75, 0x65,
-	0x73, 0x74, 0x45, 0x41, 0x42, 0x43, 0x72, 0x65, 0x64, 0x65, 0x6e, 0x74, 0x69, 0x61, 0x6c, 0x73,
-	0x12, 0x21, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x45,
-	0x41, 0x42, 0x43, 0x72, 0x65, 0x64, 0x65, 0x6e, 0x74, 0x69, 0x61, 0x6c, 0x52, 0x65, 0x71, 0x75,
-	0x65, 0x73, 0x74, 0x1a, 0x22, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65,
-	0x73, 0x2e, 0x45, 0x41, 0x42, 0x43, 0x72, 0x65, 0x64, 0x65, 0x6e, 0x74, 0x69, 0x61, 0x6c, 0x52,
-	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x42, 0x26, 0x5a, 0x24, 0x67, 0x69, 0x74,
-	0x6c, 0x61, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x65, 0x6c, 0x69, 0x78, 0x78, 0x69, 0x72, 0x2f,
-	0x63, 0x6f, 0x6d, 0x6d, 0x73, 0x2f, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65,
-	0x73, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x72, 0x61, 0x74, 0x69,
+	0x6f, 0x6e, 0x1a, 0x32, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73,
+	0x2e, 0x53, 0x69, 0x67, 0x6e, 0x65, 0x64, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x52, 0x65, 0x67,
+	0x69, 0x73, 0x74, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x72, 0x6d,
+	0x61, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x22, 0x00, 0x32, 0xb4, 0x02, 0x0a, 0x0c, 0x52, 0x65, 0x67,
+	0x69, 0x73, 0x74, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x3e, 0x0a, 0x0c, 0x52, 0x65, 0x67,
+	0x69, 0x73, 0x74, 0x65, 0x72, 0x4e, 0x6f, 0x64, 0x65, 0x12, 0x1d, 0x2e, 0x6d, 0x69, 0x78, 0x6d,
+	0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x4e, 0x6f, 0x64, 0x65, 0x52, 0x65, 0x67, 0x69,
+	0x73, 0x74, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x1a, 0x0d, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61,
+	0x67, 0x65, 0x73, 0x2e, 0x41, 0x63, 0x6b, 0x22, 0x00, 0x12, 0x33, 0x0a, 0x07, 0x50, 0x6f, 0x6c,
+	0x6c, 0x4e, 0x64, 0x66, 0x12, 0x14, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67,
+	0x65, 0x73, 0x2e, 0x4e, 0x44, 0x46, 0x48, 0x61, 0x73, 0x68, 0x1a, 0x10, 0x2e, 0x6d, 0x69, 0x78,
+	0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x4e, 0x44, 0x46, 0x22, 0x00, 0x12, 0x4d,
+	0x0a, 0x04, 0x50, 0x6f, 0x6c, 0x6c, 0x12, 0x1e, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65,
+	0x73, 0x2e, 0x41, 0x75, 0x74, 0x68, 0x65, 0x6e, 0x74, 0x69, 0x63, 0x61, 0x74, 0x65, 0x64, 0x4d,
+	0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x1a, 0x23, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73,
+	0x61, 0x67, 0x65, 0x73, 0x2e, 0x50, 0x65, 0x72, 0x6d, 0x69, 0x73, 0x73, 0x69, 0x6f, 0x6e, 0x50,
+	0x6f, 0x6c, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x60, 0x0a,
+	0x11, 0x43, 0x68, 0x65, 0x63, 0x6b, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x72, 0x61, 0x74, 0x69,
+	0x6f, 0x6e, 0x12, 0x20, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73,
+	0x2e, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x65, 0x64, 0x4e, 0x6f, 0x64, 0x65, 0x43,
+	0x68, 0x65, 0x63, 0x6b, 0x1a, 0x27, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67,
+	0x65, 0x73, 0x2e, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x65, 0x64, 0x4e, 0x6f, 0x64,
+	0x65, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x72, 0x6d, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x22, 0x00, 0x32,
+	0x90, 0x02, 0x0a, 0x0f, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e,
+	0x42, 0x6f, 0x74, 0x12, 0x59, 0x0a, 0x1a, 0x55, 0x6e, 0x72, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65,
+	0x72, 0x46, 0x6f, 0x72, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e,
+	0x73, 0x12, 0x2a, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e,
+	0x4e, 0x6f, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x55, 0x6e, 0x72, 0x65,
+	0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x0d, 0x2e,
+	0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x41, 0x63, 0x6b, 0x22, 0x00, 0x12, 0x55,
+	0x0a, 0x18, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x46, 0x6f, 0x72, 0x4e, 0x6f, 0x74,
+	0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x12, 0x28, 0x2e, 0x6d, 0x69, 0x78,
+	0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x69, 0x63,
+	0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x52, 0x65, 0x71,
+	0x75, 0x65, 0x73, 0x74, 0x1a, 0x0d, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e,
+	0x41, 0x63, 0x6b, 0x22, 0x00, 0x12, 0x4b, 0x0a, 0x18, 0x52, 0x65, 0x63, 0x65, 0x69, 0x76, 0x65,
+	0x4e, 0x6f, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x42, 0x61, 0x74, 0x63,
+	0x68, 0x12, 0x1e, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x41, 0x75, 0x74,
+	0x68, 0x65, 0x6e, 0x74, 0x69, 0x63, 0x61, 0x74, 0x65, 0x64, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67,
+	0x65, 0x1a, 0x0d, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x41, 0x63, 0x6b,
+	0x22, 0x00, 0x32, 0xbe, 0x03, 0x0a, 0x03, 0x55, 0x44, 0x42, 0x12, 0x41, 0x0a, 0x0c, 0x52, 0x65,
+	0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x55, 0x73, 0x65, 0x72, 0x12, 0x20, 0x2e, 0x6d, 0x69, 0x78,
+	0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x55, 0x44, 0x42, 0x55, 0x73, 0x65, 0x72,
+	0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x1a, 0x0d, 0x2e, 0x6d,
+	0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x41, 0x63, 0x6b, 0x22, 0x00, 0x12, 0x3e, 0x0a,
+	0x0a, 0x52, 0x65, 0x6d, 0x6f, 0x76, 0x65, 0x55, 0x73, 0x65, 0x72, 0x12, 0x1f, 0x2e, 0x6d, 0x69,
+	0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x46, 0x61, 0x63, 0x74, 0x52, 0x65,
+	0x6d, 0x6f, 0x76, 0x61, 0x6c, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x0d, 0x2e, 0x6d,
+	0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x41, 0x63, 0x6b, 0x22, 0x00, 0x12, 0x55, 0x0a,
+	0x0c, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x46, 0x61, 0x63, 0x74, 0x12, 0x20, 0x2e,
+	0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x46, 0x61, 0x63, 0x74,
+	0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a,
+	0x21, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x46, 0x61,
+	0x63, 0x74, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
+	0x73, 0x65, 0x22, 0x00, 0x12, 0x3f, 0x0a, 0x0b, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x72, 0x6d, 0x46,
+	0x61, 0x63, 0x74, 0x12, 0x1f, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65,
+	0x73, 0x2e, 0x46, 0x61, 0x63, 0x74, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x72, 0x6d, 0x52, 0x65, 0x71,
+	0x75, 0x65, 0x73, 0x74, 0x1a, 0x0d, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e,
+	0x41, 0x63, 0x6b, 0x22, 0x00, 0x12, 0x3e, 0x0a, 0x0a, 0x52, 0x65, 0x6d, 0x6f, 0x76, 0x65, 0x46,
+	0x61, 0x63, 0x74, 0x12, 0x1f, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65,
+	0x73, 0x2e, 0x46, 0x61, 0x63, 0x74, 0x52, 0x65, 0x6d, 0x6f, 0x76, 0x61, 0x6c, 0x52, 0x65, 0x71,
+	0x75, 0x65, 0x73, 0x74, 0x1a, 0x0d, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e,
+	0x41, 0x63, 0x6b, 0x22, 0x00, 0x12, 0x5c, 0x0a, 0x13, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
+	0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x4c, 0x65, 0x61, 0x73, 0x65, 0x12, 0x20, 0x2e, 0x6d,
+	0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x43, 0x68, 0x61, 0x6e, 0x6e,
+	0x65, 0x6c, 0x4c, 0x65, 0x61, 0x73, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x21,
+	0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x43, 0x68, 0x61,
+	0x6e, 0x6e, 0x65, 0x6c, 0x4c, 0x65, 0x61, 0x73, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
+	0x65, 0x22, 0x00, 0x32, 0xed, 0x01, 0x0a, 0x0a, 0x41, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x7a,
+	0x65, 0x72, 0x12, 0x39, 0x0a, 0x09, 0x41, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x7a, 0x65, 0x12,
+	0x1b, 0x2e, 0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x41, 0x75,
+	0x74, 0x68, 0x6f, 0x72, 0x69, 0x7a, 0x65, 0x72, 0x41, 0x75, 0x74, 0x68, 0x1a, 0x0d, 0x2e, 0x6d,
+	0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x41, 0x63, 0x6b, 0x22, 0x00, 0x12, 0x42, 0x0a,
+	0x0b, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x43, 0x65, 0x72, 0x74, 0x12, 0x22, 0x2e, 0x6d,
+	0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x41, 0x75, 0x74, 0x68, 0x6f,
+	0x72, 0x69, 0x7a, 0x65, 0x72, 0x43, 0x65, 0x72, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
+	0x1a, 0x0d, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x41, 0x63, 0x6b, 0x22,
+	0x00, 0x12, 0x60, 0x0a, 0x15, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x45, 0x41, 0x42, 0x43,
+	0x72, 0x65, 0x64, 0x65, 0x6e, 0x74, 0x69, 0x61, 0x6c, 0x73, 0x12, 0x21, 0x2e, 0x6d, 0x69, 0x78,
+	0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x45, 0x41, 0x42, 0x43, 0x72, 0x65, 0x64,
+	0x65, 0x6e, 0x74, 0x69, 0x61, 0x6c, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x22, 0x2e,
+	0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x2e, 0x45, 0x41, 0x42, 0x43,
+	0x72, 0x65, 0x64, 0x65, 0x6e, 0x74, 0x69, 0x61, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
+	0x65, 0x22, 0x00, 0x42, 0x26, 0x5a, 0x24, 0x67, 0x69, 0x74, 0x6c, 0x61, 0x62, 0x2e, 0x63, 0x6f,
+	0x6d, 0x2f, 0x65, 0x6c, 0x69, 0x78, 0x78, 0x69, 0x72, 0x2f, 0x63, 0x6f, 0x6d, 0x6d, 0x73, 0x2f,
+	0x6d, 0x69, 0x78, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x62, 0x06, 0x70, 0x72, 0x6f,
+	0x74, 0x6f, 0x33,
 }
 
 var (
@@ -5570,229 +5720,235 @@ func file_mixmessages_proto_rawDescGZIP() []byte {
 	return file_mixmessages_proto_rawDescData
 }
 
-var file_mixmessages_proto_msgTypes = make([]protoimpl.MessageInfo, 69)
+var file_mixmessages_proto_msgTypes = make([]protoimpl.MessageInfo, 71)
 var file_mixmessages_proto_goTypes = []interface{}{
 	(*ClientKeyRequest)(nil),                      // 0: mixmessages.ClientKeyRequest
-	(*SignedClientKeyRequest)(nil),                // 1: mixmessages.SignedClientKeyRequest
-	(*ClientKeyResponse)(nil),                     // 2: mixmessages.ClientKeyResponse
-	(*SignedKeyResponse)(nil),                     // 3: mixmessages.SignedKeyResponse
-	(*PostPrecompResult)(nil),                     // 4: mixmessages.PostPrecompResult
-	(*RoundBufferInfo)(nil),                       // 5: mixmessages.RoundBufferInfo
-	(*RoundPublicKey)(nil),                        // 6: mixmessages.RoundPublicKey
-	(*RoundMetrics)(nil),                          // 7: mixmessages.RoundMetrics
-	(*Batch)(nil),                                 // 8: mixmessages.Batch
-	(*CompletedBatch)(nil),                        // 9: mixmessages.CompletedBatch
-	(*BatchInfo)(nil),                             // 10: mixmessages.BatchInfo
-	(*RoundTripPing)(nil),                         // 11: mixmessages.RoundTripPing
-	(*ServerPoll)(nil),                            // 12: mixmessages.ServerPoll
-	(*ServerPollResponse)(nil),                    // 13: mixmessages.ServerPollResponse
-	(*BatchReady)(nil),                            // 14: mixmessages.BatchReady
-	(*SharePiece)(nil),                            // 15: mixmessages.SharePiece
-	(*RequestGatewayCert)(nil),                    // 16: mixmessages.RequestGatewayCert
-	(*GatewayCertificate)(nil),                    // 17: mixmessages.GatewayCertificate
-	(*StreamChunk)(nil),                           // 18: mixmessages.StreamChunk
-	(*HistoricalRounds)(nil),                      // 19: mixmessages.HistoricalRounds
-	(*HistoricalRoundsResponse)(nil),              // 20: mixmessages.HistoricalRoundsResponse
-	(*GetMessages)(nil),                           // 21: mixmessages.GetMessages
-	(*GetMessagesResponse)(nil),                   // 22: mixmessages.GetMessagesResponse
-	(*RoundMessages)(nil),                         // 23: mixmessages.RoundMessages
-	(*IDList)(nil),                                // 24: mixmessages.IDList
-	(*Slot)(nil),                                  // 25: mixmessages.Slot
-	(*GatewayPoll)(nil),                           // 26: mixmessages.GatewayPoll
-	(*GatewayPollResponse)(nil),                   // 27: mixmessages.GatewayPollResponse
-	(*ClientBlooms)(nil),                          // 28: mixmessages.ClientBlooms
-	(*ClientBloom)(nil),                           // 29: mixmessages.ClientBloom
-	(*GatewaySlots)(nil),                          // 30: mixmessages.GatewaySlots
-	(*GatewaySlot)(nil),                           // 31: mixmessages.GatewaySlot
-	(*GatewaySlotResponse)(nil),                   // 32: mixmessages.GatewaySlotResponse
-	(*BatchSenders)(nil),                          // 33: mixmessages.BatchSenders
-	(*Recipients)(nil),                            // 34: mixmessages.Recipients
-	(*RegisteredNodeConfirmation)(nil),            // 35: mixmessages.RegisteredNodeConfirmation
-	(*RegisteredNodeCheck)(nil),                   // 36: mixmessages.RegisteredNodeCheck
-	(*NDFHash)(nil),                               // 37: mixmessages.NDFHash
-	(*NDF)(nil),                                   // 38: mixmessages.NDF
-	(*NodeRegistration)(nil),                      // 39: mixmessages.NodeRegistration
-	(*ClientRegistration)(nil),                    // 40: mixmessages.ClientRegistration
-	(*ClientRegistrationConfirmation)(nil),        // 41: mixmessages.ClientRegistrationConfirmation
-	(*SignedRegistrationConfirmation)(nil),        // 42: mixmessages.SignedRegistrationConfirmation
-	(*SignedClientRegistrationConfirmations)(nil), // 43: mixmessages.SignedClientRegistrationConfirmations
-	(*ClientVersion)(nil),                         // 44: mixmessages.ClientVersion
-	(*PermissioningPoll)(nil),                     // 45: mixmessages.PermissioningPoll
-	(*ClientError)(nil),                           // 46: mixmessages.ClientError
-	(*PermissionPollResponse)(nil),                // 47: mixmessages.PermissionPollResponse
-	(*NotificationRegisterRequest)(nil),           // 48: mixmessages.NotificationRegisterRequest
-	(*NotificationUnregisterRequest)(nil),         // 49: mixmessages.NotificationUnregisterRequest
-	(*UserIdList)(nil),                            // 50: mixmessages.UserIdList
-	(*NotificationBatch)(nil),                     // 51: mixmessages.NotificationBatch
-	(*NotificationData)(nil),                      // 52: mixmessages.NotificationData
-	(*ChannelLeaseRequest)(nil),                   // 53: mixmessages.ChannelLeaseRequest
-	(*ChannelLeaseResponse)(nil),                  // 54: mixmessages.ChannelLeaseResponse
-	(*UDBUserRegistration)(nil),                   // 55: mixmessages.UDBUserRegistration
-	(*Identity)(nil),                              // 56: mixmessages.Identity
-	(*FactRegisterRequest)(nil),                   // 57: mixmessages.FactRegisterRequest
-	(*Fact)(nil),                                  // 58: mixmessages.Fact
-	(*FactRegisterResponse)(nil),                  // 59: mixmessages.FactRegisterResponse
-	(*FactConfirmRequest)(nil),                    // 60: mixmessages.FactConfirmRequest
-	(*FactRemovalRequest)(nil),                    // 61: mixmessages.FactRemovalRequest
-	(*StrAddress)(nil),                            // 62: mixmessages.StrAddress
-	(*RoundInfo)(nil),                             // 63: mixmessages.RoundInfo
-	(*RoundError)(nil),                            // 64: mixmessages.RoundError
-	(*EABCredentialRequest)(nil),                  // 65: mixmessages.EABCredentialRequest
-	(*EABCredentialResponse)(nil),                 // 66: mixmessages.EABCredentialResponse
-	(*AuthorizerCertRequest)(nil),                 // 67: mixmessages.AuthorizerCertRequest
-	(*AuthorizerAuth)(nil),                        // 68: mixmessages.AuthorizerAuth
-	(*messages.RSASignature)(nil),                 // 69: messages.RSASignature
-	(*anypb.Any)(nil),                             // 70: google.protobuf.Any
-	(*messages.ECCSignature)(nil),                 // 71: messages.ECCSignature
-	(*messages.AuthenticatedMessage)(nil),         // 72: messages.AuthenticatedMessage
-	(*messages.Ping)(nil),                         // 73: messages.Ping
-	(*messages.Ack)(nil),                          // 74: messages.Ack
+	(*SignedClientBatchKeyRequest)(nil),           // 1: mixmessages.SignedClientBatchKeyRequest
+	(*SignedClientKeyRequest)(nil),                // 2: mixmessages.SignedClientKeyRequest
+	(*ClientKeyResponse)(nil),                     // 3: mixmessages.ClientKeyResponse
+	(*SignedBatchKeyResponse)(nil),                // 4: mixmessages.SignedBatchKeyResponse
+	(*SignedKeyResponse)(nil),                     // 5: mixmessages.SignedKeyResponse
+	(*PostPrecompResult)(nil),                     // 6: mixmessages.PostPrecompResult
+	(*RoundBufferInfo)(nil),                       // 7: mixmessages.RoundBufferInfo
+	(*RoundPublicKey)(nil),                        // 8: mixmessages.RoundPublicKey
+	(*RoundMetrics)(nil),                          // 9: mixmessages.RoundMetrics
+	(*Batch)(nil),                                 // 10: mixmessages.Batch
+	(*CompletedBatch)(nil),                        // 11: mixmessages.CompletedBatch
+	(*BatchInfo)(nil),                             // 12: mixmessages.BatchInfo
+	(*RoundTripPing)(nil),                         // 13: mixmessages.RoundTripPing
+	(*ServerPoll)(nil),                            // 14: mixmessages.ServerPoll
+	(*ServerPollResponse)(nil),                    // 15: mixmessages.ServerPollResponse
+	(*BatchReady)(nil),                            // 16: mixmessages.BatchReady
+	(*SharePiece)(nil),                            // 17: mixmessages.SharePiece
+	(*RequestGatewayCert)(nil),                    // 18: mixmessages.RequestGatewayCert
+	(*GatewayCertificate)(nil),                    // 19: mixmessages.GatewayCertificate
+	(*StreamChunk)(nil),                           // 20: mixmessages.StreamChunk
+	(*HistoricalRounds)(nil),                      // 21: mixmessages.HistoricalRounds
+	(*HistoricalRoundsResponse)(nil),              // 22: mixmessages.HistoricalRoundsResponse
+	(*GetMessages)(nil),                           // 23: mixmessages.GetMessages
+	(*GetMessagesResponse)(nil),                   // 24: mixmessages.GetMessagesResponse
+	(*RoundMessages)(nil),                         // 25: mixmessages.RoundMessages
+	(*IDList)(nil),                                // 26: mixmessages.IDList
+	(*Slot)(nil),                                  // 27: mixmessages.Slot
+	(*GatewayPoll)(nil),                           // 28: mixmessages.GatewayPoll
+	(*GatewayPollResponse)(nil),                   // 29: mixmessages.GatewayPollResponse
+	(*ClientBlooms)(nil),                          // 30: mixmessages.ClientBlooms
+	(*ClientBloom)(nil),                           // 31: mixmessages.ClientBloom
+	(*GatewaySlots)(nil),                          // 32: mixmessages.GatewaySlots
+	(*GatewaySlot)(nil),                           // 33: mixmessages.GatewaySlot
+	(*GatewaySlotResponse)(nil),                   // 34: mixmessages.GatewaySlotResponse
+	(*BatchSenders)(nil),                          // 35: mixmessages.BatchSenders
+	(*Recipients)(nil),                            // 36: mixmessages.Recipients
+	(*RegisteredNodeConfirmation)(nil),            // 37: mixmessages.RegisteredNodeConfirmation
+	(*RegisteredNodeCheck)(nil),                   // 38: mixmessages.RegisteredNodeCheck
+	(*NDFHash)(nil),                               // 39: mixmessages.NDFHash
+	(*NDF)(nil),                                   // 40: mixmessages.NDF
+	(*NodeRegistration)(nil),                      // 41: mixmessages.NodeRegistration
+	(*ClientRegistration)(nil),                    // 42: mixmessages.ClientRegistration
+	(*ClientRegistrationConfirmation)(nil),        // 43: mixmessages.ClientRegistrationConfirmation
+	(*SignedRegistrationConfirmation)(nil),        // 44: mixmessages.SignedRegistrationConfirmation
+	(*SignedClientRegistrationConfirmations)(nil), // 45: mixmessages.SignedClientRegistrationConfirmations
+	(*ClientVersion)(nil),                         // 46: mixmessages.ClientVersion
+	(*PermissioningPoll)(nil),                     // 47: mixmessages.PermissioningPoll
+	(*ClientError)(nil),                           // 48: mixmessages.ClientError
+	(*PermissionPollResponse)(nil),                // 49: mixmessages.PermissionPollResponse
+	(*NotificationRegisterRequest)(nil),           // 50: mixmessages.NotificationRegisterRequest
+	(*NotificationUnregisterRequest)(nil),         // 51: mixmessages.NotificationUnregisterRequest
+	(*UserIdList)(nil),                            // 52: mixmessages.UserIdList
+	(*NotificationBatch)(nil),                     // 53: mixmessages.NotificationBatch
+	(*NotificationData)(nil),                      // 54: mixmessages.NotificationData
+	(*ChannelLeaseRequest)(nil),                   // 55: mixmessages.ChannelLeaseRequest
+	(*ChannelLeaseResponse)(nil),                  // 56: mixmessages.ChannelLeaseResponse
+	(*UDBUserRegistration)(nil),                   // 57: mixmessages.UDBUserRegistration
+	(*Identity)(nil),                              // 58: mixmessages.Identity
+	(*FactRegisterRequest)(nil),                   // 59: mixmessages.FactRegisterRequest
+	(*Fact)(nil),                                  // 60: mixmessages.Fact
+	(*FactRegisterResponse)(nil),                  // 61: mixmessages.FactRegisterResponse
+	(*FactConfirmRequest)(nil),                    // 62: mixmessages.FactConfirmRequest
+	(*FactRemovalRequest)(nil),                    // 63: mixmessages.FactRemovalRequest
+	(*StrAddress)(nil),                            // 64: mixmessages.StrAddress
+	(*RoundInfo)(nil),                             // 65: mixmessages.RoundInfo
+	(*RoundError)(nil),                            // 66: mixmessages.RoundError
+	(*EABCredentialRequest)(nil),                  // 67: mixmessages.EABCredentialRequest
+	(*EABCredentialResponse)(nil),                 // 68: mixmessages.EABCredentialResponse
+	(*AuthorizerCertRequest)(nil),                 // 69: mixmessages.AuthorizerCertRequest
+	(*AuthorizerAuth)(nil),                        // 70: mixmessages.AuthorizerAuth
+	(*messages.RSASignature)(nil),                 // 71: messages.RSASignature
+	(*anypb.Any)(nil),                             // 72: google.protobuf.Any
+	(*messages.ECCSignature)(nil),                 // 73: messages.ECCSignature
+	(*messages.AuthenticatedMessage)(nil),         // 74: messages.AuthenticatedMessage
+	(*messages.Ping)(nil),                         // 75: messages.Ping
+	(*messages.Ack)(nil),                          // 76: messages.Ack
 }
 var file_mixmessages_proto_depIdxs = []int32{
-	42, // 0: mixmessages.ClientKeyRequest.ClientTransmissionConfirmation:type_name -> mixmessages.SignedRegistrationConfirmation
-	69, // 1: mixmessages.SignedClientKeyRequest.ClientKeyRequestSignature:type_name -> messages.RSASignature
-	69, // 2: mixmessages.SignedKeyResponse.KeyResponseSignedByGateway:type_name -> messages.RSASignature
-	63, // 3: mixmessages.RoundPublicKey.Round:type_name -> mixmessages.RoundInfo
-	63, // 4: mixmessages.Batch.Round:type_name -> mixmessages.RoundInfo
-	25, // 5: mixmessages.Batch.slots:type_name -> mixmessages.Slot
-	25, // 6: mixmessages.CompletedBatch.slots:type_name -> mixmessages.Slot
-	63, // 7: mixmessages.BatchInfo.Round:type_name -> mixmessages.RoundInfo
-	70, // 8: mixmessages.RoundTripPing.Payload:type_name -> google.protobuf.Any
-	63, // 9: mixmessages.RoundTripPing.Round:type_name -> mixmessages.RoundInfo
-	37, // 10: mixmessages.ServerPoll.Full:type_name -> mixmessages.NDFHash
-	37, // 11: mixmessages.ServerPoll.Partial:type_name -> mixmessages.NDFHash
-	38, // 12: mixmessages.ServerPollResponse.FullNDF:type_name -> mixmessages.NDF
-	38, // 13: mixmessages.ServerPollResponse.PartialNDF:type_name -> mixmessages.NDF
-	63, // 14: mixmessages.ServerPollResponse.Updates:type_name -> mixmessages.RoundInfo
-	63, // 15: mixmessages.ServerPollResponse.BatchRequest:type_name -> mixmessages.RoundInfo
-	14, // 16: mixmessages.ServerPollResponse.Batch:type_name -> mixmessages.BatchReady
-	69, // 17: mixmessages.SharePiece.Signature:type_name -> messages.RSASignature
-	63, // 18: mixmessages.HistoricalRoundsResponse.Rounds:type_name -> mixmessages.RoundInfo
-	25, // 19: mixmessages.GetMessagesResponse.Messages:type_name -> mixmessages.Slot
-	25, // 20: mixmessages.RoundMessages.Messages:type_name -> mixmessages.Slot
-	37, // 21: mixmessages.GatewayPoll.Partial:type_name -> mixmessages.NDFHash
-	38, // 22: mixmessages.GatewayPollResponse.PartialNDF:type_name -> mixmessages.NDF
-	63, // 23: mixmessages.GatewayPollResponse.Updates:type_name -> mixmessages.RoundInfo
-	28, // 24: mixmessages.GatewayPollResponse.Filters:type_name -> mixmessages.ClientBlooms
-	29, // 25: mixmessages.ClientBlooms.Filters:type_name -> mixmessages.ClientBloom
-	31, // 26: mixmessages.GatewaySlots.Messages:type_name -> mixmessages.GatewaySlot
-	25, // 27: mixmessages.GatewaySlot.Message:type_name -> mixmessages.Slot
-	69, // 28: mixmessages.NDF.Signature:type_name -> messages.RSASignature
-	69, // 29: mixmessages.SignedRegistrationConfirmation.RegistrarSignature:type_name -> messages.RSASignature
-	42, // 30: mixmessages.SignedClientRegistrationConfirmations.ClientTransmissionConfirmation:type_name -> mixmessages.SignedRegistrationConfirmation
-	42, // 31: mixmessages.SignedClientRegistrationConfirmations.ClientReceptionConfirmation:type_name -> mixmessages.SignedRegistrationConfirmation
-	37, // 32: mixmessages.PermissioningPoll.Full:type_name -> mixmessages.NDFHash
-	37, // 33: mixmessages.PermissioningPoll.Partial:type_name -> mixmessages.NDFHash
-	64, // 34: mixmessages.PermissioningPoll.Error:type_name -> mixmessages.RoundError
-	46, // 35: mixmessages.PermissioningPoll.ClientErrors:type_name -> mixmessages.ClientError
-	38, // 36: mixmessages.PermissionPollResponse.FullNDF:type_name -> mixmessages.NDF
-	38, // 37: mixmessages.PermissionPollResponse.PartialNDF:type_name -> mixmessages.NDF
-	63, // 38: mixmessages.PermissionPollResponse.Updates:type_name -> mixmessages.RoundInfo
-	52, // 39: mixmessages.NotificationBatch.notifications:type_name -> mixmessages.NotificationData
-	56, // 40: mixmessages.UDBUserRegistration.IdentityRegistration:type_name -> mixmessages.Identity
-	57, // 41: mixmessages.UDBUserRegistration.frs:type_name -> mixmessages.FactRegisterRequest
-	58, // 42: mixmessages.FactRegisterRequest.Fact:type_name -> mixmessages.Fact
-	58, // 43: mixmessages.FactRemovalRequest.RemovalData:type_name -> mixmessages.Fact
-	64, // 44: mixmessages.RoundInfo.Errors:type_name -> mixmessages.RoundError
-	46, // 45: mixmessages.RoundInfo.ClientErrors:type_name -> mixmessages.ClientError
-	69, // 46: mixmessages.RoundInfo.Signature:type_name -> messages.RSASignature
-	71, // 47: mixmessages.RoundInfo.EccSignature:type_name -> messages.ECCSignature
-	69, // 48: mixmessages.RoundError.Signature:type_name -> messages.RSASignature
-	72, // 49: mixmessages.Node.AskOnline:input_type -> messages.AuthenticatedMessage
-	72, // 50: mixmessages.Node.CreateNewRound:input_type -> messages.AuthenticatedMessage
-	25, // 51: mixmessages.Node.UploadUnmixedBatch:input_type -> mixmessages.Slot
-	25, // 52: mixmessages.Node.FinishRealtime:input_type -> mixmessages.Slot
-	25, // 53: mixmessages.Node.PrecompTestBatch:input_type -> mixmessages.Slot
-	72, // 54: mixmessages.Node.PostPhase:input_type -> messages.AuthenticatedMessage
-	25, // 55: mixmessages.Node.StreamPostPhase:input_type -> mixmessages.Slot
-	72, // 56: mixmessages.Node.GetRoundBufferInfo:input_type -> messages.AuthenticatedMessage
-	72, // 57: mixmessages.Node.RequestClientKey:input_type -> messages.AuthenticatedMessage
-	72, // 58: mixmessages.Node.PostPrecompResult:input_type -> messages.AuthenticatedMessage
-	72, // 59: mixmessages.Node.GetMeasure:input_type -> messages.AuthenticatedMessage
-	72, // 60: mixmessages.Node.Poll:input_type -> messages.AuthenticatedMessage
-	72, // 61: mixmessages.Node.DownloadMixedBatch:input_type -> messages.AuthenticatedMessage
-	72, // 62: mixmessages.Node.SendRoundTripPing:input_type -> messages.AuthenticatedMessage
-	72, // 63: mixmessages.Node.RoundError:input_type -> messages.AuthenticatedMessage
-	73, // 64: mixmessages.Node.GetPermissioningAddress:input_type -> messages.Ping
-	72, // 65: mixmessages.Node.StartSharePhase:input_type -> messages.AuthenticatedMessage
-	72, // 66: mixmessages.Node.SharePhaseRound:input_type -> messages.AuthenticatedMessage
-	72, // 67: mixmessages.Node.ShareFinalKey:input_type -> messages.AuthenticatedMessage
-	1,  // 68: mixmessages.Gateway.RequestClientKey:input_type -> mixmessages.SignedClientKeyRequest
-	31, // 69: mixmessages.Gateway.PutMessage:input_type -> mixmessages.GatewaySlot
-	30, // 70: mixmessages.Gateway.PutManyMessages:input_type -> mixmessages.GatewaySlots
-	72, // 71: mixmessages.Gateway.PutMessageProxy:input_type -> messages.AuthenticatedMessage
-	72, // 72: mixmessages.Gateway.PutManyMessagesProxy:input_type -> messages.AuthenticatedMessage
-	26, // 73: mixmessages.Gateway.Poll:input_type -> mixmessages.GatewayPoll
-	19, // 74: mixmessages.Gateway.RequestHistoricalRounds:input_type -> mixmessages.HistoricalRounds
-	21, // 75: mixmessages.Gateway.RequestMessages:input_type -> mixmessages.GetMessages
-	16, // 76: mixmessages.Gateway.RequestTlsCert:input_type -> mixmessages.RequestGatewayCert
-	40, // 77: mixmessages.ClientRegistrar.RegisterUser:input_type -> mixmessages.ClientRegistration
-	39, // 78: mixmessages.Registration.RegisterNode:input_type -> mixmessages.NodeRegistration
-	37, // 79: mixmessages.Registration.PollNdf:input_type -> mixmessages.NDFHash
-	72, // 80: mixmessages.Registration.Poll:input_type -> messages.AuthenticatedMessage
-	36, // 81: mixmessages.Registration.CheckRegistration:input_type -> mixmessages.RegisteredNodeCheck
-	49, // 82: mixmessages.NotificationBot.UnregisterForNotifications:input_type -> mixmessages.NotificationUnregisterRequest
-	48, // 83: mixmessages.NotificationBot.RegisterForNotifications:input_type -> mixmessages.NotificationRegisterRequest
-	72, // 84: mixmessages.NotificationBot.ReceiveNotificationBatch:input_type -> messages.AuthenticatedMessage
-	55, // 85: mixmessages.UDB.RegisterUser:input_type -> mixmessages.UDBUserRegistration
-	61, // 86: mixmessages.UDB.RemoveUser:input_type -> mixmessages.FactRemovalRequest
-	57, // 87: mixmessages.UDB.RegisterFact:input_type -> mixmessages.FactRegisterRequest
-	60, // 88: mixmessages.UDB.ConfirmFact:input_type -> mixmessages.FactConfirmRequest
-	61, // 89: mixmessages.UDB.RemoveFact:input_type -> mixmessages.FactRemovalRequest
-	53, // 90: mixmessages.UDB.RequestChannelLease:input_type -> mixmessages.ChannelLeaseRequest
-	68, // 91: mixmessages.Authorizer.Authorize:input_type -> mixmessages.AuthorizerAuth
-	67, // 92: mixmessages.Authorizer.RequestCert:input_type -> mixmessages.AuthorizerCertRequest
-	65, // 93: mixmessages.Authorizer.RequestEABCredentials:input_type -> mixmessages.EABCredentialRequest
-	74, // 94: mixmessages.Node.AskOnline:output_type -> messages.Ack
-	74, // 95: mixmessages.Node.CreateNewRound:output_type -> messages.Ack
-	74, // 96: mixmessages.Node.UploadUnmixedBatch:output_type -> messages.Ack
-	74, // 97: mixmessages.Node.FinishRealtime:output_type -> messages.Ack
-	74, // 98: mixmessages.Node.PrecompTestBatch:output_type -> messages.Ack
-	74, // 99: mixmessages.Node.PostPhase:output_type -> messages.Ack
-	74, // 100: mixmessages.Node.StreamPostPhase:output_type -> messages.Ack
-	5,  // 101: mixmessages.Node.GetRoundBufferInfo:output_type -> mixmessages.RoundBufferInfo
-	3,  // 102: mixmessages.Node.RequestClientKey:output_type -> mixmessages.SignedKeyResponse
-	74, // 103: mixmessages.Node.PostPrecompResult:output_type -> messages.Ack
-	7,  // 104: mixmessages.Node.GetMeasure:output_type -> mixmessages.RoundMetrics
-	13, // 105: mixmessages.Node.Poll:output_type -> mixmessages.ServerPollResponse
-	25, // 106: mixmessages.Node.DownloadMixedBatch:output_type -> mixmessages.Slot
-	74, // 107: mixmessages.Node.SendRoundTripPing:output_type -> messages.Ack
-	74, // 108: mixmessages.Node.RoundError:output_type -> messages.Ack
-	62, // 109: mixmessages.Node.GetPermissioningAddress:output_type -> mixmessages.StrAddress
-	74, // 110: mixmessages.Node.StartSharePhase:output_type -> messages.Ack
-	74, // 111: mixmessages.Node.SharePhaseRound:output_type -> messages.Ack
-	74, // 112: mixmessages.Node.ShareFinalKey:output_type -> messages.Ack
-	3,  // 113: mixmessages.Gateway.RequestClientKey:output_type -> mixmessages.SignedKeyResponse
-	32, // 114: mixmessages.Gateway.PutMessage:output_type -> mixmessages.GatewaySlotResponse
-	32, // 115: mixmessages.Gateway.PutManyMessages:output_type -> mixmessages.GatewaySlotResponse
-	32, // 116: mixmessages.Gateway.PutMessageProxy:output_type -> mixmessages.GatewaySlotResponse
-	32, // 117: mixmessages.Gateway.PutManyMessagesProxy:output_type -> mixmessages.GatewaySlotResponse
-	18, // 118: mixmessages.Gateway.Poll:output_type -> mixmessages.StreamChunk
-	20, // 119: mixmessages.Gateway.RequestHistoricalRounds:output_type -> mixmessages.HistoricalRoundsResponse
-	22, // 120: mixmessages.Gateway.RequestMessages:output_type -> mixmessages.GetMessagesResponse
-	17, // 121: mixmessages.Gateway.RequestTlsCert:output_type -> mixmessages.GatewayCertificate
-	43, // 122: mixmessages.ClientRegistrar.RegisterUser:output_type -> mixmessages.SignedClientRegistrationConfirmations
-	74, // 123: mixmessages.Registration.RegisterNode:output_type -> messages.Ack
-	38, // 124: mixmessages.Registration.PollNdf:output_type -> mixmessages.NDF
-	47, // 125: mixmessages.Registration.Poll:output_type -> mixmessages.PermissionPollResponse
-	35, // 126: mixmessages.Registration.CheckRegistration:output_type -> mixmessages.RegisteredNodeConfirmation
-	74, // 127: mixmessages.NotificationBot.UnregisterForNotifications:output_type -> messages.Ack
-	74, // 128: mixmessages.NotificationBot.RegisterForNotifications:output_type -> messages.Ack
-	74, // 129: mixmessages.NotificationBot.ReceiveNotificationBatch:output_type -> messages.Ack
-	74, // 130: mixmessages.UDB.RegisterUser:output_type -> messages.Ack
-	74, // 131: mixmessages.UDB.RemoveUser:output_type -> messages.Ack
-	59, // 132: mixmessages.UDB.RegisterFact:output_type -> mixmessages.FactRegisterResponse
-	74, // 133: mixmessages.UDB.ConfirmFact:output_type -> messages.Ack
-	74, // 134: mixmessages.UDB.RemoveFact:output_type -> messages.Ack
-	54, // 135: mixmessages.UDB.RequestChannelLease:output_type -> mixmessages.ChannelLeaseResponse
-	74, // 136: mixmessages.Authorizer.Authorize:output_type -> messages.Ack
-	74, // 137: mixmessages.Authorizer.RequestCert:output_type -> messages.Ack
-	66, // 138: mixmessages.Authorizer.RequestEABCredentials:output_type -> mixmessages.EABCredentialResponse
-	94, // [94:139] is the sub-list for method output_type
-	49, // [49:94] is the sub-list for method input_type
-	49, // [49:49] is the sub-list for extension type_name
-	49, // [49:49] is the sub-list for extension extendee
-	0,  // [0:49] is the sub-list for field type_name
+	44, // 0: mixmessages.ClientKeyRequest.ClientTransmissionConfirmation:type_name -> mixmessages.SignedRegistrationConfirmation
+	71, // 1: mixmessages.SignedClientBatchKeyRequest.ClientKeyRequestSignature:type_name -> messages.RSASignature
+	71, // 2: mixmessages.SignedClientKeyRequest.ClientKeyRequestSignature:type_name -> messages.RSASignature
+	5,  // 3: mixmessages.SignedBatchKeyResponse.SignedKeys:type_name -> mixmessages.SignedKeyResponse
+	71, // 4: mixmessages.SignedKeyResponse.KeyResponseSignedByGateway:type_name -> messages.RSASignature
+	65, // 5: mixmessages.RoundPublicKey.Round:type_name -> mixmessages.RoundInfo
+	65, // 6: mixmessages.Batch.Round:type_name -> mixmessages.RoundInfo
+	27, // 7: mixmessages.Batch.slots:type_name -> mixmessages.Slot
+	27, // 8: mixmessages.CompletedBatch.slots:type_name -> mixmessages.Slot
+	65, // 9: mixmessages.BatchInfo.Round:type_name -> mixmessages.RoundInfo
+	72, // 10: mixmessages.RoundTripPing.Payload:type_name -> google.protobuf.Any
+	65, // 11: mixmessages.RoundTripPing.Round:type_name -> mixmessages.RoundInfo
+	39, // 12: mixmessages.ServerPoll.Full:type_name -> mixmessages.NDFHash
+	39, // 13: mixmessages.ServerPoll.Partial:type_name -> mixmessages.NDFHash
+	40, // 14: mixmessages.ServerPollResponse.FullNDF:type_name -> mixmessages.NDF
+	40, // 15: mixmessages.ServerPollResponse.PartialNDF:type_name -> mixmessages.NDF
+	65, // 16: mixmessages.ServerPollResponse.Updates:type_name -> mixmessages.RoundInfo
+	65, // 17: mixmessages.ServerPollResponse.BatchRequest:type_name -> mixmessages.RoundInfo
+	16, // 18: mixmessages.ServerPollResponse.Batch:type_name -> mixmessages.BatchReady
+	71, // 19: mixmessages.SharePiece.Signature:type_name -> messages.RSASignature
+	65, // 20: mixmessages.HistoricalRoundsResponse.Rounds:type_name -> mixmessages.RoundInfo
+	27, // 21: mixmessages.GetMessagesResponse.Messages:type_name -> mixmessages.Slot
+	27, // 22: mixmessages.RoundMessages.Messages:type_name -> mixmessages.Slot
+	39, // 23: mixmessages.GatewayPoll.Partial:type_name -> mixmessages.NDFHash
+	40, // 24: mixmessages.GatewayPollResponse.PartialNDF:type_name -> mixmessages.NDF
+	65, // 25: mixmessages.GatewayPollResponse.Updates:type_name -> mixmessages.RoundInfo
+	30, // 26: mixmessages.GatewayPollResponse.Filters:type_name -> mixmessages.ClientBlooms
+	31, // 27: mixmessages.ClientBlooms.Filters:type_name -> mixmessages.ClientBloom
+	33, // 28: mixmessages.GatewaySlots.Messages:type_name -> mixmessages.GatewaySlot
+	27, // 29: mixmessages.GatewaySlot.Message:type_name -> mixmessages.Slot
+	71, // 30: mixmessages.NDF.Signature:type_name -> messages.RSASignature
+	71, // 31: mixmessages.SignedRegistrationConfirmation.RegistrarSignature:type_name -> messages.RSASignature
+	44, // 32: mixmessages.SignedClientRegistrationConfirmations.ClientTransmissionConfirmation:type_name -> mixmessages.SignedRegistrationConfirmation
+	44, // 33: mixmessages.SignedClientRegistrationConfirmations.ClientReceptionConfirmation:type_name -> mixmessages.SignedRegistrationConfirmation
+	39, // 34: mixmessages.PermissioningPoll.Full:type_name -> mixmessages.NDFHash
+	39, // 35: mixmessages.PermissioningPoll.Partial:type_name -> mixmessages.NDFHash
+	66, // 36: mixmessages.PermissioningPoll.Error:type_name -> mixmessages.RoundError
+	48, // 37: mixmessages.PermissioningPoll.ClientErrors:type_name -> mixmessages.ClientError
+	40, // 38: mixmessages.PermissionPollResponse.FullNDF:type_name -> mixmessages.NDF
+	40, // 39: mixmessages.PermissionPollResponse.PartialNDF:type_name -> mixmessages.NDF
+	65, // 40: mixmessages.PermissionPollResponse.Updates:type_name -> mixmessages.RoundInfo
+	54, // 41: mixmessages.NotificationBatch.notifications:type_name -> mixmessages.NotificationData
+	58, // 42: mixmessages.UDBUserRegistration.IdentityRegistration:type_name -> mixmessages.Identity
+	59, // 43: mixmessages.UDBUserRegistration.frs:type_name -> mixmessages.FactRegisterRequest
+	60, // 44: mixmessages.FactRegisterRequest.Fact:type_name -> mixmessages.Fact
+	60, // 45: mixmessages.FactRemovalRequest.RemovalData:type_name -> mixmessages.Fact
+	66, // 46: mixmessages.RoundInfo.Errors:type_name -> mixmessages.RoundError
+	48, // 47: mixmessages.RoundInfo.ClientErrors:type_name -> mixmessages.ClientError
+	71, // 48: mixmessages.RoundInfo.Signature:type_name -> messages.RSASignature
+	73, // 49: mixmessages.RoundInfo.EccSignature:type_name -> messages.ECCSignature
+	71, // 50: mixmessages.RoundError.Signature:type_name -> messages.RSASignature
+	74, // 51: mixmessages.Node.AskOnline:input_type -> messages.AuthenticatedMessage
+	74, // 52: mixmessages.Node.CreateNewRound:input_type -> messages.AuthenticatedMessage
+	27, // 53: mixmessages.Node.UploadUnmixedBatch:input_type -> mixmessages.Slot
+	27, // 54: mixmessages.Node.FinishRealtime:input_type -> mixmessages.Slot
+	27, // 55: mixmessages.Node.PrecompTestBatch:input_type -> mixmessages.Slot
+	74, // 56: mixmessages.Node.PostPhase:input_type -> messages.AuthenticatedMessage
+	27, // 57: mixmessages.Node.StreamPostPhase:input_type -> mixmessages.Slot
+	74, // 58: mixmessages.Node.GetRoundBufferInfo:input_type -> messages.AuthenticatedMessage
+	74, // 59: mixmessages.Node.RequestClientKey:input_type -> messages.AuthenticatedMessage
+	74, // 60: mixmessages.Node.PostPrecompResult:input_type -> messages.AuthenticatedMessage
+	74, // 61: mixmessages.Node.GetMeasure:input_type -> messages.AuthenticatedMessage
+	74, // 62: mixmessages.Node.Poll:input_type -> messages.AuthenticatedMessage
+	74, // 63: mixmessages.Node.DownloadMixedBatch:input_type -> messages.AuthenticatedMessage
+	74, // 64: mixmessages.Node.SendRoundTripPing:input_type -> messages.AuthenticatedMessage
+	74, // 65: mixmessages.Node.RoundError:input_type -> messages.AuthenticatedMessage
+	75, // 66: mixmessages.Node.GetPermissioningAddress:input_type -> messages.Ping
+	74, // 67: mixmessages.Node.StartSharePhase:input_type -> messages.AuthenticatedMessage
+	74, // 68: mixmessages.Node.SharePhaseRound:input_type -> messages.AuthenticatedMessage
+	74, // 69: mixmessages.Node.ShareFinalKey:input_type -> messages.AuthenticatedMessage
+	2,  // 70: mixmessages.Gateway.RequestClientKey:input_type -> mixmessages.SignedClientKeyRequest
+	1,  // 71: mixmessages.Gateway.BatchNodeRegistration:input_type -> mixmessages.SignedClientBatchKeyRequest
+	33, // 72: mixmessages.Gateway.PutMessage:input_type -> mixmessages.GatewaySlot
+	32, // 73: mixmessages.Gateway.PutManyMessages:input_type -> mixmessages.GatewaySlots
+	74, // 74: mixmessages.Gateway.PutMessageProxy:input_type -> messages.AuthenticatedMessage
+	74, // 75: mixmessages.Gateway.PutManyMessagesProxy:input_type -> messages.AuthenticatedMessage
+	28, // 76: mixmessages.Gateway.Poll:input_type -> mixmessages.GatewayPoll
+	21, // 77: mixmessages.Gateway.RequestHistoricalRounds:input_type -> mixmessages.HistoricalRounds
+	23, // 78: mixmessages.Gateway.RequestMessages:input_type -> mixmessages.GetMessages
+	18, // 79: mixmessages.Gateway.RequestTlsCert:input_type -> mixmessages.RequestGatewayCert
+	42, // 80: mixmessages.ClientRegistrar.RegisterUser:input_type -> mixmessages.ClientRegistration
+	41, // 81: mixmessages.Registration.RegisterNode:input_type -> mixmessages.NodeRegistration
+	39, // 82: mixmessages.Registration.PollNdf:input_type -> mixmessages.NDFHash
+	74, // 83: mixmessages.Registration.Poll:input_type -> messages.AuthenticatedMessage
+	38, // 84: mixmessages.Registration.CheckRegistration:input_type -> mixmessages.RegisteredNodeCheck
+	51, // 85: mixmessages.NotificationBot.UnregisterForNotifications:input_type -> mixmessages.NotificationUnregisterRequest
+	50, // 86: mixmessages.NotificationBot.RegisterForNotifications:input_type -> mixmessages.NotificationRegisterRequest
+	74, // 87: mixmessages.NotificationBot.ReceiveNotificationBatch:input_type -> messages.AuthenticatedMessage
+	57, // 88: mixmessages.UDB.RegisterUser:input_type -> mixmessages.UDBUserRegistration
+	63, // 89: mixmessages.UDB.RemoveUser:input_type -> mixmessages.FactRemovalRequest
+	59, // 90: mixmessages.UDB.RegisterFact:input_type -> mixmessages.FactRegisterRequest
+	62, // 91: mixmessages.UDB.ConfirmFact:input_type -> mixmessages.FactConfirmRequest
+	63, // 92: mixmessages.UDB.RemoveFact:input_type -> mixmessages.FactRemovalRequest
+	55, // 93: mixmessages.UDB.RequestChannelLease:input_type -> mixmessages.ChannelLeaseRequest
+	70, // 94: mixmessages.Authorizer.Authorize:input_type -> mixmessages.AuthorizerAuth
+	69, // 95: mixmessages.Authorizer.RequestCert:input_type -> mixmessages.AuthorizerCertRequest
+	67, // 96: mixmessages.Authorizer.RequestEABCredentials:input_type -> mixmessages.EABCredentialRequest
+	76, // 97: mixmessages.Node.AskOnline:output_type -> messages.Ack
+	76, // 98: mixmessages.Node.CreateNewRound:output_type -> messages.Ack
+	76, // 99: mixmessages.Node.UploadUnmixedBatch:output_type -> messages.Ack
+	76, // 100: mixmessages.Node.FinishRealtime:output_type -> messages.Ack
+	76, // 101: mixmessages.Node.PrecompTestBatch:output_type -> messages.Ack
+	76, // 102: mixmessages.Node.PostPhase:output_type -> messages.Ack
+	76, // 103: mixmessages.Node.StreamPostPhase:output_type -> messages.Ack
+	7,  // 104: mixmessages.Node.GetRoundBufferInfo:output_type -> mixmessages.RoundBufferInfo
+	5,  // 105: mixmessages.Node.RequestClientKey:output_type -> mixmessages.SignedKeyResponse
+	76, // 106: mixmessages.Node.PostPrecompResult:output_type -> messages.Ack
+	9,  // 107: mixmessages.Node.GetMeasure:output_type -> mixmessages.RoundMetrics
+	15, // 108: mixmessages.Node.Poll:output_type -> mixmessages.ServerPollResponse
+	27, // 109: mixmessages.Node.DownloadMixedBatch:output_type -> mixmessages.Slot
+	76, // 110: mixmessages.Node.SendRoundTripPing:output_type -> messages.Ack
+	76, // 111: mixmessages.Node.RoundError:output_type -> messages.Ack
+	64, // 112: mixmessages.Node.GetPermissioningAddress:output_type -> mixmessages.StrAddress
+	76, // 113: mixmessages.Node.StartSharePhase:output_type -> messages.Ack
+	76, // 114: mixmessages.Node.SharePhaseRound:output_type -> messages.Ack
+	76, // 115: mixmessages.Node.ShareFinalKey:output_type -> messages.Ack
+	5,  // 116: mixmessages.Gateway.RequestClientKey:output_type -> mixmessages.SignedKeyResponse
+	4,  // 117: mixmessages.Gateway.BatchNodeRegistration:output_type -> mixmessages.SignedBatchKeyResponse
+	34, // 118: mixmessages.Gateway.PutMessage:output_type -> mixmessages.GatewaySlotResponse
+	34, // 119: mixmessages.Gateway.PutManyMessages:output_type -> mixmessages.GatewaySlotResponse
+	34, // 120: mixmessages.Gateway.PutMessageProxy:output_type -> mixmessages.GatewaySlotResponse
+	34, // 121: mixmessages.Gateway.PutManyMessagesProxy:output_type -> mixmessages.GatewaySlotResponse
+	20, // 122: mixmessages.Gateway.Poll:output_type -> mixmessages.StreamChunk
+	22, // 123: mixmessages.Gateway.RequestHistoricalRounds:output_type -> mixmessages.HistoricalRoundsResponse
+	24, // 124: mixmessages.Gateway.RequestMessages:output_type -> mixmessages.GetMessagesResponse
+	19, // 125: mixmessages.Gateway.RequestTlsCert:output_type -> mixmessages.GatewayCertificate
+	45, // 126: mixmessages.ClientRegistrar.RegisterUser:output_type -> mixmessages.SignedClientRegistrationConfirmations
+	76, // 127: mixmessages.Registration.RegisterNode:output_type -> messages.Ack
+	40, // 128: mixmessages.Registration.PollNdf:output_type -> mixmessages.NDF
+	49, // 129: mixmessages.Registration.Poll:output_type -> mixmessages.PermissionPollResponse
+	37, // 130: mixmessages.Registration.CheckRegistration:output_type -> mixmessages.RegisteredNodeConfirmation
+	76, // 131: mixmessages.NotificationBot.UnregisterForNotifications:output_type -> messages.Ack
+	76, // 132: mixmessages.NotificationBot.RegisterForNotifications:output_type -> messages.Ack
+	76, // 133: mixmessages.NotificationBot.ReceiveNotificationBatch:output_type -> messages.Ack
+	76, // 134: mixmessages.UDB.RegisterUser:output_type -> messages.Ack
+	76, // 135: mixmessages.UDB.RemoveUser:output_type -> messages.Ack
+	61, // 136: mixmessages.UDB.RegisterFact:output_type -> mixmessages.FactRegisterResponse
+	76, // 137: mixmessages.UDB.ConfirmFact:output_type -> messages.Ack
+	76, // 138: mixmessages.UDB.RemoveFact:output_type -> messages.Ack
+	56, // 139: mixmessages.UDB.RequestChannelLease:output_type -> mixmessages.ChannelLeaseResponse
+	76, // 140: mixmessages.Authorizer.Authorize:output_type -> messages.Ack
+	76, // 141: mixmessages.Authorizer.RequestCert:output_type -> messages.Ack
+	68, // 142: mixmessages.Authorizer.RequestEABCredentials:output_type -> mixmessages.EABCredentialResponse
+	97, // [97:143] is the sub-list for method output_type
+	51, // [51:97] is the sub-list for method input_type
+	51, // [51:51] is the sub-list for extension type_name
+	51, // [51:51] is the sub-list for extension extendee
+	0,  // [0:51] is the sub-list for field type_name
 }
 
 func init() { file_mixmessages_proto_init() }
@@ -5814,7 +5970,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*SignedClientKeyRequest); i {
+			switch v := v.(*SignedClientBatchKeyRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5826,7 +5982,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ClientKeyResponse); i {
+			switch v := v.(*SignedClientKeyRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5838,7 +5994,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*SignedKeyResponse); i {
+			switch v := v.(*ClientKeyResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5850,7 +6006,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*PostPrecompResult); i {
+			switch v := v.(*SignedBatchKeyResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5862,7 +6018,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*RoundBufferInfo); i {
+			switch v := v.(*SignedKeyResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5874,7 +6030,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*RoundPublicKey); i {
+			switch v := v.(*PostPrecompResult); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5886,7 +6042,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*RoundMetrics); i {
+			switch v := v.(*RoundBufferInfo); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5898,7 +6054,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*Batch); i {
+			switch v := v.(*RoundPublicKey); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5910,7 +6066,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*CompletedBatch); i {
+			switch v := v.(*RoundMetrics); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5922,7 +6078,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*BatchInfo); i {
+			switch v := v.(*Batch); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5934,7 +6090,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*RoundTripPing); i {
+			switch v := v.(*CompletedBatch); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5946,7 +6102,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ServerPoll); i {
+			switch v := v.(*BatchInfo); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5958,7 +6114,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[13].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ServerPollResponse); i {
+			switch v := v.(*RoundTripPing); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5970,7 +6126,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*BatchReady); i {
+			switch v := v.(*ServerPoll); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5982,7 +6138,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[15].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*SharePiece); i {
+			switch v := v.(*ServerPollResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -5994,7 +6150,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[16].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*RequestGatewayCert); i {
+			switch v := v.(*BatchReady); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6006,7 +6162,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[17].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GatewayCertificate); i {
+			switch v := v.(*SharePiece); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6018,7 +6174,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[18].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*StreamChunk); i {
+			switch v := v.(*RequestGatewayCert); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6030,7 +6186,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[19].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*HistoricalRounds); i {
+			switch v := v.(*GatewayCertificate); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6042,7 +6198,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[20].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*HistoricalRoundsResponse); i {
+			switch v := v.(*StreamChunk); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6054,7 +6210,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[21].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GetMessages); i {
+			switch v := v.(*HistoricalRounds); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6066,7 +6222,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[22].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GetMessagesResponse); i {
+			switch v := v.(*HistoricalRoundsResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6078,7 +6234,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[23].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*RoundMessages); i {
+			switch v := v.(*GetMessages); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6090,7 +6246,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[24].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*IDList); i {
+			switch v := v.(*GetMessagesResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6102,7 +6258,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[25].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*Slot); i {
+			switch v := v.(*RoundMessages); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6114,7 +6270,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[26].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GatewayPoll); i {
+			switch v := v.(*IDList); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6126,7 +6282,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[27].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GatewayPollResponse); i {
+			switch v := v.(*Slot); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6138,7 +6294,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[28].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ClientBlooms); i {
+			switch v := v.(*GatewayPoll); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6150,7 +6306,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[29].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ClientBloom); i {
+			switch v := v.(*GatewayPollResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6162,7 +6318,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[30].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GatewaySlots); i {
+			switch v := v.(*ClientBlooms); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6174,7 +6330,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[31].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GatewaySlot); i {
+			switch v := v.(*ClientBloom); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6186,7 +6342,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[32].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GatewaySlotResponse); i {
+			switch v := v.(*GatewaySlots); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6198,7 +6354,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[33].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*BatchSenders); i {
+			switch v := v.(*GatewaySlot); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6210,7 +6366,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[34].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*Recipients); i {
+			switch v := v.(*GatewaySlotResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6222,7 +6378,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[35].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*RegisteredNodeConfirmation); i {
+			switch v := v.(*BatchSenders); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6234,7 +6390,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[36].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*RegisteredNodeCheck); i {
+			switch v := v.(*Recipients); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6246,7 +6402,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[37].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*NDFHash); i {
+			switch v := v.(*RegisteredNodeConfirmation); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6258,7 +6414,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[38].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*NDF); i {
+			switch v := v.(*RegisteredNodeCheck); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6270,7 +6426,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[39].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*NodeRegistration); i {
+			switch v := v.(*NDFHash); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6282,7 +6438,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[40].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ClientRegistration); i {
+			switch v := v.(*NDF); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6294,7 +6450,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[41].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ClientRegistrationConfirmation); i {
+			switch v := v.(*NodeRegistration); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6306,7 +6462,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[42].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*SignedRegistrationConfirmation); i {
+			switch v := v.(*ClientRegistration); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6318,7 +6474,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[43].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*SignedClientRegistrationConfirmations); i {
+			switch v := v.(*ClientRegistrationConfirmation); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6330,7 +6486,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[44].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ClientVersion); i {
+			switch v := v.(*SignedRegistrationConfirmation); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6342,7 +6498,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[45].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*PermissioningPoll); i {
+			switch v := v.(*SignedClientRegistrationConfirmations); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6354,7 +6510,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[46].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ClientError); i {
+			switch v := v.(*ClientVersion); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6366,7 +6522,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[47].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*PermissionPollResponse); i {
+			switch v := v.(*PermissioningPoll); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6378,7 +6534,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[48].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*NotificationRegisterRequest); i {
+			switch v := v.(*ClientError); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6390,7 +6546,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[49].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*NotificationUnregisterRequest); i {
+			switch v := v.(*PermissionPollResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6402,7 +6558,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[50].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*UserIdList); i {
+			switch v := v.(*NotificationRegisterRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6414,7 +6570,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[51].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*NotificationBatch); i {
+			switch v := v.(*NotificationUnregisterRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6426,7 +6582,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[52].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*NotificationData); i {
+			switch v := v.(*UserIdList); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6438,7 +6594,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[53].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ChannelLeaseRequest); i {
+			switch v := v.(*NotificationBatch); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6450,7 +6606,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[54].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ChannelLeaseResponse); i {
+			switch v := v.(*NotificationData); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6462,7 +6618,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[55].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*UDBUserRegistration); i {
+			switch v := v.(*ChannelLeaseRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6474,7 +6630,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[56].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*Identity); i {
+			switch v := v.(*ChannelLeaseResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6486,7 +6642,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[57].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*FactRegisterRequest); i {
+			switch v := v.(*UDBUserRegistration); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6498,7 +6654,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[58].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*Fact); i {
+			switch v := v.(*Identity); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6510,7 +6666,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[59].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*FactRegisterResponse); i {
+			switch v := v.(*FactRegisterRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6522,7 +6678,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[60].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*FactConfirmRequest); i {
+			switch v := v.(*Fact); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6534,7 +6690,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[61].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*FactRemovalRequest); i {
+			switch v := v.(*FactRegisterResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6546,7 +6702,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[62].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*StrAddress); i {
+			switch v := v.(*FactConfirmRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6558,7 +6714,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[63].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*RoundInfo); i {
+			switch v := v.(*FactRemovalRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6570,7 +6726,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[64].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*RoundError); i {
+			switch v := v.(*StrAddress); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6582,7 +6738,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[65].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*EABCredentialRequest); i {
+			switch v := v.(*RoundInfo); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6594,7 +6750,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[66].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*EABCredentialResponse); i {
+			switch v := v.(*RoundError); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6606,7 +6762,7 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[67].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*AuthorizerCertRequest); i {
+			switch v := v.(*EABCredentialRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6618,6 +6774,30 @@ func file_mixmessages_proto_init() {
 			}
 		}
 		file_mixmessages_proto_msgTypes[68].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*EABCredentialResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_mixmessages_proto_msgTypes[69].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*AuthorizerCertRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_mixmessages_proto_msgTypes[70].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*AuthorizerAuth); i {
 			case 0:
 				return &v.state
@@ -6636,7 +6816,7 @@ func file_mixmessages_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_mixmessages_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   69,
+			NumMessages:   71,
 			NumExtensions: 0,
 			NumServices:   7,
 		},
