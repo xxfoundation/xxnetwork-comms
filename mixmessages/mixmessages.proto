@@ -125,7 +125,7 @@ message SignedClientBatchKeyRequest {
     messages.RSASignature ClientKeyRequestSignature = 2;
     repeated bytes Targets = 3;
     uint64 Timeout = 4;
-
+    bool UseSHA = 5;
 }
 
 message SignedClientKeyRequest {
