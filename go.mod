@@ -3,15 +3,15 @@ module gitlab.com/elixxir/comms
 go 1.17
 
 require (
-	git.xx.network/elixxir/grpc-web-go-client v0.0.0-20220824160725-73ff74c9c633
+	git.xx.network/elixxir/grpc-web-go-client v0.0.0-20230213195139-913e760b9cdd
 	github.com/elliotchance/orderedmap v1.4.0
 	github.com/golang/protobuf v1.5.2
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/jwalterweatherman v1.1.0
-	gitlab.com/elixxir/crypto v0.0.7-0.20230213192226-f368ead5388b
-	gitlab.com/elixxir/primitives v0.0.3-0.20230213192156-9265807064bb
-	gitlab.com/xx_network/comms v0.0.4-0.20230213192145-36977304ceef
-	gitlab.com/xx_network/crypto v0.0.5-0.20230213192124-20f056b9cc7d
+	gitlab.com/elixxir/crypto v0.0.7-0.20230213195303-2cb8d3c1ea05
+	gitlab.com/elixxir/primitives v0.0.3-0.20230213194606-08e65dd1a646
+	gitlab.com/xx_network/comms v0.0.4-0.20230213195240-a34baf4a722a
+	gitlab.com/xx_network/crypto v0.0.5-0.20230213194530-577973730e2e
 	gitlab.com/xx_network/primitives v0.0.4-0.20230203173415-81c2cb07da44
 	gitlab.com/xx_network/ring v0.0.3-0.20220902183151-a7d3b15bc981
 	golang.org/x/crypto v0.5.0
@@ -35,7 +35,6 @@ require (
 	golang.org/x/sys v0.4.0 // indirect
 	golang.org/x/text v0.6.0 // indirect
 	google.golang.org/genproto v0.0.0-20220822174746-9e6da59bd2fc // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 	nhooyr.io/websocket v1.8.7 // indirect
 	src.agwa.name/tlshacks v0.0.0-20220518131152-d2c6f4e2b780 // indirect
 )
