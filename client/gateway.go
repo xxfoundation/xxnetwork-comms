@@ -371,6 +371,44 @@ func (c *Comms) RequestMessages(host *connect.Host,
 	return result, ptypes.UnmarshalAny(resultMsg, result)
 }
 
+// RequestMessages Client -> Gateway Send Function
+func (c *Comms) RequestBatchMessages(host *connect.Host,
+	message *pb.GetMessagesBatch) (*pb.GetMessagesResponseBatch, error) {
+	// Create the Send Function
+	f := func(conn connect.Connection) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := host.GetMessagingContext()
+		defer cancel()
+
+		var resultMsg = &pb.GetMessagesResponseBatch{}
+		var err error
+		// Send the message
+		if conn.IsWeb() {
+			wc := conn.GetWebConn()
+			err = wc.Invoke(
+				ctx, "/mixmessages.Gateway/RequestBatchMessages", message, resultMsg)
+		} else {
+			resultMsg, err = pb.NewGatewayClient(conn.GetGrpcConn()).
+				RequestBatchMessages(ctx, message)
+		}
+		if err != nil {
+			return nil, err
+		}
+		return ptypes.MarshalAny(resultMsg)
+	}
+
+	// Execute the Send function
+	jww.TRACE.Printf("Requesting batch of Messages: %+v", message)
+	resultMsg, err := c.Send(host, f)
+	if err != nil {
+		return nil, err
+	}
+
+	// Marshall the result
+	result := &pb.GetMessagesResponseBatch{}
+	return result, ptypes.UnmarshalAny(resultMsg, result)
+}
+
 // GetGatewayTLSCertificate Client -> Gateway cert request
 func (c *Comms) GetGatewayTLSCertificate(host *connect.Host,
 	message *pb.RequestGatewayCert) (*pb.GatewayCertificate, error) {
