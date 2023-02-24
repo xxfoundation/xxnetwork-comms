@@ -986,6 +986,7 @@ type GatewayClient interface {
 	RequestHistoricalRounds(ctx context.Context, in *HistoricalRounds, opts ...grpc.CallOption) (*HistoricalRoundsResponse, error)
 	// Client -> Gateway message request
 	RequestMessages(ctx context.Context, in *GetMessages, opts ...grpc.CallOption) (*GetMessagesResponse, error)
+	RequestBatchMessages(ctx context.Context, in *GetMessagesBatch, opts ...grpc.CallOption) (*GetMessagesResponseBatch, error)
 	RequestTlsCert(ctx context.Context, in *RequestGatewayCert, opts ...grpc.CallOption) (*GatewayCertificate, error)
 }
 
@@ -1101,6 +1102,15 @@ func (c *gatewayClient) RequestMessages(ctx context.Context, in *GetMessages, op
 	return out, nil
 }
 
+func (c *gatewayClient) RequestBatchMessages(ctx context.Context, in *GetMessagesBatch, opts ...grpc.CallOption) (*GetMessagesResponseBatch, error) {
+	out := new(GetMessagesResponseBatch)
+	err := c.cc.Invoke(ctx, "/mixmessages.Gateway/RequestBatchMessages", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *gatewayClient) RequestTlsCert(ctx context.Context, in *RequestGatewayCert, opts ...grpc.CallOption) (*GatewayCertificate, error) {
 	out := new(GatewayCertificate)
 	err := c.cc.Invoke(ctx, "/mixmessages.Gateway/RequestTlsCert", in, out, opts...)
@@ -1133,6 +1143,7 @@ type GatewayServer interface {
 	RequestHistoricalRounds(context.Context, *HistoricalRounds) (*HistoricalRoundsResponse, error)
 	// Client -> Gateway message request
 	RequestMessages(context.Context, *GetMessages) (*GetMessagesResponse, error)
+	RequestBatchMessages(context.Context, *GetMessagesBatch) (*GetMessagesResponseBatch, error)
 	RequestTlsCert(context.Context, *RequestGatewayCert) (*GatewayCertificate, error)
 	mustEmbedUnimplementedGatewayServer()
 }
@@ -1167,6 +1178,9 @@ func (UnimplementedGatewayServer) RequestHistoricalRounds(context.Context, *Hist
 }
 func (UnimplementedGatewayServer) RequestMessages(context.Context, *GetMessages) (*GetMessagesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RequestMessages not implemented")
+}
+func (UnimplementedGatewayServer) RequestBatchMessages(context.Context, *GetMessagesBatch) (*GetMessagesResponseBatch, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RequestBatchMessages not implemented")
 }
 func (UnimplementedGatewayServer) RequestTlsCert(context.Context, *RequestGatewayCert) (*GatewayCertificate, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RequestTlsCert not implemented")
@@ -1349,6 +1363,24 @@ func _Gateway_RequestMessages_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Gateway_RequestBatchMessages_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMessagesBatch)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GatewayServer).RequestBatchMessages(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/mixmessages.Gateway/RequestBatchMessages",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GatewayServer).RequestBatchMessages(ctx, req.(*GetMessagesBatch))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Gateway_RequestTlsCert_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RequestGatewayCert)
 	if err := dec(in); err != nil {
@@ -1405,6 +1437,10 @@ var Gateway_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RequestMessages",
 			Handler:    _Gateway_RequestMessages_Handler,
+		},
+		{
+			MethodName: "RequestBatchMessages",
+			Handler:    _Gateway_RequestBatchMessages_Handler,
 		},
 		{
 			MethodName: "RequestTlsCert",

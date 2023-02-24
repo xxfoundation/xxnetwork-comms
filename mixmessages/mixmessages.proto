@@ -288,6 +288,8 @@ service Gateway {
     rpc RequestMessages(GetMessages) returns (GetMessagesResponse) {
     }
 
+    rpc RequestBatchMessages(GetMessagesBatch) returns (GetMessagesResponseBatch) {}
+
     rpc RequestTlsCert(RequestGatewayCert) returns (GatewayCertificate) {}
 
 }
@@ -313,6 +315,16 @@ message HistoricalRounds{
 // Gateway's response to client's request for previous (historical) rounds
 message HistoricalRoundsResponse{
     repeated RoundInfo Rounds = 1;
+}
+
+message GetMessagesBatch{
+    repeated GetMessages Requests = 1;
+    uint64 Timeout = 2;
+}
+
+message GetMessagesResponseBatch{
+    repeated GetMessagesResponse Results = 1;
+    repeated string Errors = 3;
 }
 
 // Client -> Gateway request for available messages
