@@ -182,3 +182,7 @@ func (g *Comms) BatchNodeRegistration(ctx context.Context, msg *pb.SignedClientB
 func (g *Comms) RequestTlsCert(ctx context.Context, msg *pb.RequestGatewayCert) (*pb.GatewayCertificate, error) {
 	return g.handler.RequestTlsCert(msg)
 }
+
+func (g *Comms) RequestBatchMessages(ctx context.Context, msg *pb.GetMessagesBatch) (*pb.GetMessagesResponseBatch, error) {
+	return g.handler.RequestBatchMessages(msg)
+}
