@@ -638,6 +638,7 @@ message NotificationUnregisterRequest {
     bytes IntermediaryId = 1;
     bytes IIDTransmissionRsaSig = 2;
     bytes TransmissionRSA = 3;
+    string Token = 4;
 }
 
 // The list of user IDS for notification polling
