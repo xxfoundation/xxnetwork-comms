@@ -39,7 +39,8 @@ import (
 const (
 	// tlsHandshakePrefixLen defines length of prefix for identifying TLS packets.
 	tlsHandshakePrefixLen = 5
-	// maxConcurrentStreams is the number of concurrent
+	// maxConcurrentStreams is the number of concurrent calls allowed over
+	// a single TCP connection.
 	maxConcurrentStreams = uint32(100)
 )
 
@@ -56,11 +57,14 @@ var keepaliveOptions = keepalive.ServerParameters{
 	MaxConnectionIdle: 15 * time.Second,
 	// If any connection is alive for more than this duration, send a GOAWAY
 	MaxConnectionAge: 5 * time.Minute,
-	// Allow this duration for pending RPCs to complete before forcibly closing connections
+	// Allow this duration for pending RPCs to complete
+	// before forcibly closing connections
 	MaxConnectionAgeGrace: 5 * time.Second,
-	// Ping the client if it is idle after this duration to ensure the connection is still active
+	// Ping the client if it is idle after this duration
+	// to ensure the connection is still active
 	Time: 15 * time.Second,
-	// Wait this duration for the ping ack before assuming the connection is dead and closing
+	// Wait this duration for the ping ack
+	// before assuming the connection is dead and closing
 	Timeout: 5 * time.Second,
 }
 
