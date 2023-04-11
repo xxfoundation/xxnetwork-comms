@@ -72,7 +72,8 @@ var keepaliveOptions = keepalive.ServerParameters{
 // server-side. Server will close connection with a client that violates this
 // policy.
 var keepaliveEnforcement = keepalive.EnforcementPolicy{
-	// If a client pings more than once this duration, terminate the connection
+	// If a client keepalive pings more than once this duration,
+	// terminate the connection
 	MinTime: 10 * time.Second,
 	// Allow pings even when there are no active streams
 	PermitWithoutStream: true,
