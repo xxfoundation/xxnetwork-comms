@@ -83,11 +83,17 @@ func GetDefaultHostParams() HostParams {
 		DisableAutoConnect:    false,
 		ExcludeMetricErrors:   make([]string, 0),
 		KaClientOpts: keepalive.ClientParameters{
-			// Send keepAlive every Time interval
-			Time: 5 * time.Second,
-			// Timeout after last successful keepAlive to close connection
-			Timeout: 60 * time.Second,
-			// For all connections, with and without streaming
+			// After a duration of this time if the client doesn't see any activity it
+			// pings the server to see if the transport is still alive.
+			// If set below 10s, a minimum value of 10s will be used instead.
+			Time: 10 * time.Second,
+			// After having pinged for keepalive check, the client waits for a duration
+			// of Timeout and if no activity is seen even after that the connection is
+			// closed.
+			Timeout: 5 * time.Second,
+			// If true, client sends keepalive pings even with no active RPCs. If false,
+			// when there are no active RPCs, Time and Timeout will be ignored and no
+			// keepalive pings will be sent.
 			PermitWithoutStream: true,
 		},
 		ProxyErrorMetricParams: exponential.DefaultMovingAvgParams(),

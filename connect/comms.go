@@ -36,9 +36,12 @@ import (
 	"time"
 )
 
-// MaxWindowSize 4 MB
-const MaxWindowSize = math.MaxInt32
-const tlsHandshakePrefixLen = 5
+const (
+	// tlsHandshakePrefixLen defines length of prefix for identifying TLS packets.
+	tlsHandshakePrefixLen = 5
+	// maxConcurrentStreams is the number of concurrent
+	maxConcurrentStreams = uint32(100)
+)
 
 // TestingOnlyDisableTLS is the variable set for testing
 // which allows for the disabled TLS code-path. Production
@@ -46,31 +49,30 @@ const tlsHandshakePrefixLen = 5
 var TestingOnlyDisableTLS = false
 var TestingOnlyInsecureTLSVerify = false
 
-// KaOpts are Keepalive options for servers
-// TODO: Set these via config
-var KaOpts = keepalive.ServerParameters{
-	// Idle for at most 60s
-	MaxConnectionIdle: 60 * time.Second,
-	// Reset after an hour
-	MaxConnectionAge: 1 * time.Hour,
-	// w/ 1m grace shutdown
-	MaxConnectionAgeGrace: 1 * time.Minute,
-	// Send keepAlive every Time interval
-	Time: 5 * time.Second,
-	// Timeout after last successful keepAlive to close connection
-	Timeout: 60 * time.Second,
+// keepaliveOptions is used to set keepalive and max-age parameters on the
+// server-side.
+var keepaliveOptions = keepalive.ServerParameters{
+	// If a client is idle for this duration, send a GOAWAY
+	MaxConnectionIdle: 15 * time.Second,
+	// If any connection is alive for more than this duration, send a GOAWAY
+	MaxConnectionAge: 5 * time.Minute,
+	// Allow this duration for pending RPCs to complete before forcibly closing connections
+	MaxConnectionAgeGrace: 5 * time.Second,
+	// Ping the client if it is idle after this duration to ensure the connection is still active
+	Time: 15 * time.Second,
+	// Wait this duration for the ping ack before assuming the connection is dead and closing
+	Timeout: 5 * time.Second,
 }
 
-// KaEnforcement are keepalive enforcement options for servers
-var KaEnforcement = keepalive.EnforcementPolicy{
-	// Send keepAlive every Time interval
-	MinTime: 3 * time.Second,
-	// Doing KA on non-streams is OK
+// keepaliveEnforcement is used to set keepalive enforcement policy on the
+// server-side. Server will close connection with a client that violates this
+// policy.
+var keepaliveEnforcement = keepalive.EnforcementPolicy{
+	// If a client pings more than once this duration, terminate the connection
+	MinTime: 10 * time.Second,
+	// Allow pings even when there are no active streams
 	PermitWithoutStream: true,
 }
-
-// MaxConcurrentStreams is the number of server-side streams to allow open
-var MaxConcurrentStreams = uint32(250000)
 
 // ProtoComms is a proto object containing a gRPC server logic.
 type ProtoComms struct {
@@ -217,18 +219,18 @@ listen:
 		creds := credentials.NewServerTLSFromCert(&x509cert)
 		pc.grpcCreds = x509cert
 		pc.grpcServer = grpc.NewServer(grpc.Creds(creds),
-			grpc.MaxConcurrentStreams(MaxConcurrentStreams),
+			grpc.MaxConcurrentStreams(maxConcurrentStreams),
 			grpc.MaxRecvMsgSize(math.MaxInt32),
-			grpc.KeepaliveParams(KaOpts),
-			grpc.KeepaliveEnforcementPolicy(KaEnforcement))
+			grpc.KeepaliveParams(keepaliveOptions),
+			grpc.KeepaliveEnforcementPolicy(keepaliveEnforcement))
 	} else if TestingOnlyDisableTLS {
 		// Create the gRPC server without TLS
 		jww.WARN.Printf("Starting server with TLS disabled...")
 		pc.grpcServer = grpc.NewServer(
-			grpc.MaxConcurrentStreams(MaxConcurrentStreams),
+			grpc.MaxConcurrentStreams(maxConcurrentStreams),
 			grpc.MaxRecvMsgSize(math.MaxInt32),
-			grpc.KeepaliveParams(KaOpts),
-			grpc.KeepaliveEnforcementPolicy(KaEnforcement))
+			grpc.KeepaliveParams(keepaliveOptions),
+			grpc.KeepaliveEnforcementPolicy(keepaliveEnforcement))
 	} else {
 		jww.FATAL.Panicf("TLS cannot be disabled in production, only for testing suites!")
 	}
@@ -241,10 +243,10 @@ listen:
 func (c *ProtoComms) Restart() error {
 	if TestingOnlyDisableTLS {
 		c.grpcServer = grpc.NewServer(
-			grpc.MaxConcurrentStreams(MaxConcurrentStreams),
+			grpc.MaxConcurrentStreams(maxConcurrentStreams),
 			grpc.MaxRecvMsgSize(math.MaxInt32),
-			grpc.KeepaliveParams(KaOpts),
-			grpc.KeepaliveEnforcementPolicy(KaEnforcement))
+			grpc.KeepaliveParams(keepaliveOptions),
+			grpc.KeepaliveEnforcementPolicy(keepaliveEnforcement))
 	} else {
 		creds := credentials.NewServerTLSFromCert(&c.grpcCreds)
 		if c.grpcCreds.Leaf == nil {
@@ -256,10 +258,10 @@ func (c *ProtoComms) Restart() error {
 		}
 		c.grpcX509 = c.grpcCreds.Leaf
 		c.grpcServer = grpc.NewServer(grpc.Creds(creds),
-			grpc.MaxConcurrentStreams(MaxConcurrentStreams),
+			grpc.MaxConcurrentStreams(maxConcurrentStreams),
 			grpc.MaxRecvMsgSize(math.MaxInt32),
-			grpc.KeepaliveParams(KaOpts),
-			grpc.KeepaliveEnforcementPolicy(KaEnforcement))
+			grpc.KeepaliveParams(keepaliveOptions),
+			grpc.KeepaliveEnforcementPolicy(keepaliveEnforcement))
 	}
 
 	if c.netListener != nil {
