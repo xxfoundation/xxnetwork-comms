@@ -54,16 +54,16 @@ var TestingOnlyInsecureTLSVerify = false
 // server-side.
 var keepaliveOptions = keepalive.ServerParameters{
 	// If a client is idle for this duration, send a GOAWAY
-	MaxConnectionIdle: 15 * time.Second,
+	MaxConnectionIdle: 30 * time.Second,
 	// If any connection is alive for more than this duration, send a GOAWAY
-	MaxConnectionAge: 5 * time.Minute,
+	MaxConnectionAge: 20 * time.Minute,
 	// Allow this duration for pending RPCs to complete
 	// before forcibly closing connections
 	MaxConnectionAgeGrace: 5 * time.Second,
 	// Ping the client if it is idle after this duration
 	// to ensure the connection is still active
 	Time: 15 * time.Second,
-	// Wait this duration for the ping ack
+	// Wait this duration for the keepalive ack
 	// before assuming the connection is dead and closing
 	Timeout: 5 * time.Second,
 }
