@@ -194,6 +194,13 @@ listen:
 		pc.Manager.addHost(h)
 	}
 
+	serverOpts := []grpc.ServerOption{
+		grpc.MaxConcurrentStreams(maxConcurrentStreams),
+		grpc.MaxRecvMsgSize(math.MaxInt32),
+		grpc.KeepaliveParams(keepaliveOptions),
+		grpc.KeepaliveEnforcementPolicy(keepaliveEnforcement),
+	}
+
 	// If TLS was specified
 	if certPEMblock != nil && keyPEMblock != nil {
 
@@ -223,36 +230,30 @@ listen:
 		pc.grpcX509 = x509cert.Leaf
 		creds := credentials.NewServerTLSFromCert(&x509cert)
 		pc.grpcCreds = x509cert
-		pc.grpcServer = grpc.NewServer(grpc.Creds(creds),
-			grpc.MaxConcurrentStreams(maxConcurrentStreams),
-			grpc.MaxRecvMsgSize(math.MaxInt32),
-			grpc.KeepaliveParams(keepaliveOptions),
-			grpc.KeepaliveEnforcementPolicy(keepaliveEnforcement))
+
+		// Add TLS to serverOpts
+		serverOpts = append(serverOpts, grpc.Creds(creds))
 	} else if TestingOnlyDisableTLS {
 		// Create the gRPC server without TLS
 		jww.WARN.Printf("Starting server with TLS disabled...")
-		pc.grpcServer = grpc.NewServer(
-			grpc.MaxConcurrentStreams(maxConcurrentStreams),
-			grpc.MaxRecvMsgSize(math.MaxInt32),
-			grpc.KeepaliveParams(keepaliveOptions),
-			grpc.KeepaliveEnforcementPolicy(keepaliveEnforcement))
 	} else {
 		jww.FATAL.Panicf("TLS cannot be disabled in production, only for testing suites!")
 	}
 
+	pc.grpcServer = grpc.NewServer(serverOpts...)
 	return pc, nil
 }
 
 // Restart is a public accessor meant to allow for reuse of a host after
 // Shutdown is called.  The intended use is for replacing certificates.
 func (c *ProtoComms) Restart() error {
-	if TestingOnlyDisableTLS {
-		c.grpcServer = grpc.NewServer(
-			grpc.MaxConcurrentStreams(maxConcurrentStreams),
-			grpc.MaxRecvMsgSize(math.MaxInt32),
-			grpc.KeepaliveParams(keepaliveOptions),
-			grpc.KeepaliveEnforcementPolicy(keepaliveEnforcement))
-	} else {
+	serverOpts := []grpc.ServerOption{
+		grpc.MaxConcurrentStreams(maxConcurrentStreams),
+		grpc.MaxRecvMsgSize(math.MaxInt32),
+		grpc.KeepaliveParams(keepaliveOptions),
+		grpc.KeepaliveEnforcementPolicy(keepaliveEnforcement),
+	}
+	if !TestingOnlyDisableTLS {
 		creds := credentials.NewServerTLSFromCert(&c.grpcCreds)
 		if c.grpcCreds.Leaf == nil {
 			var err error
@@ -262,12 +263,10 @@ func (c *ProtoComms) Restart() error {
 			}
 		}
 		c.grpcX509 = c.grpcCreds.Leaf
-		c.grpcServer = grpc.NewServer(grpc.Creds(creds),
-			grpc.MaxConcurrentStreams(maxConcurrentStreams),
-			grpc.MaxRecvMsgSize(math.MaxInt32),
-			grpc.KeepaliveParams(keepaliveOptions),
-			grpc.KeepaliveEnforcementPolicy(keepaliveEnforcement))
+		// Add TLS to serverOpts
+		serverOpts = append(serverOpts, grpc.Creds(creds))
 	}
+	c.grpcServer = grpc.NewServer(serverOpts...)
 
 	if c.netListener != nil {
 		return errors.New("ProtoComms is already listening")
@@ -467,7 +466,7 @@ func parseTlsPacket(r io.Reader) (*tlshacks.ClientHelloInfo, bool) {
 	return hello, true
 }
 
-// ProvisionHttps provides a tls cert and key to the thread which serves the
+// ServeHttps provides a tls cert and key to the thread which serves the
 // grpcweb endpoints, allowing it to serve with https.  Note that https will
 // not be usable until this has been called at least once, unblocking the
 // listenHTTP func in ServeWithWeb.  Future calls will be handled by the
