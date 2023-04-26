@@ -1757,6 +1757,14 @@ type NotificationBotClient interface {
 	RegisterForNotifications(ctx context.Context, in *NotificationRegisterRequest, opts ...grpc.CallOption) (*messages.Ack, error)
 	// Gateway -> Notifications notification data
 	ReceiveNotificationBatch(ctx context.Context, in *messages.AuthenticatedMessage, opts ...grpc.CallOption) (*messages.Ack, error)
+	// (V2 notifications) register a token for a user
+	RegisterToken(ctx context.Context, in *RegisterTokenRequest, opts ...grpc.CallOption) (*messages.Ack, error)
+	// (V2 notifications) unregister a token from a user
+	UnregisterToken(ctx context.Context, in *UnregisterTokenRequest, opts ...grpc.CallOption) (*messages.Ack, error)
+	// (V2 notifications) Register a tracked ID to a user
+	RegisterTrackedID(ctx context.Context, in *TrackedIntermediaryIDRequest, opts ...grpc.CallOption) (*messages.Ack, error)
+	// (V2 notifications) Unregister a tracked ID from a user
+	UnregisterTrackedID(ctx context.Context, in *TrackedIntermediaryIDRequest, opts ...grpc.CallOption) (*messages.Ack, error)
 }
 
 type notificationBotClient struct {
@@ -1794,6 +1802,42 @@ func (c *notificationBotClient) ReceiveNotificationBatch(ctx context.Context, in
 	return out, nil
 }
 
+func (c *notificationBotClient) RegisterToken(ctx context.Context, in *RegisterTokenRequest, opts ...grpc.CallOption) (*messages.Ack, error) {
+	out := new(messages.Ack)
+	err := c.cc.Invoke(ctx, "/mixmessages.NotificationBot/RegisterToken", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *notificationBotClient) UnregisterToken(ctx context.Context, in *UnregisterTokenRequest, opts ...grpc.CallOption) (*messages.Ack, error) {
+	out := new(messages.Ack)
+	err := c.cc.Invoke(ctx, "/mixmessages.NotificationBot/UnregisterToken", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *notificationBotClient) RegisterTrackedID(ctx context.Context, in *TrackedIntermediaryIDRequest, opts ...grpc.CallOption) (*messages.Ack, error) {
+	out := new(messages.Ack)
+	err := c.cc.Invoke(ctx, "/mixmessages.NotificationBot/RegisterTrackedID", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *notificationBotClient) UnregisterTrackedID(ctx context.Context, in *TrackedIntermediaryIDRequest, opts ...grpc.CallOption) (*messages.Ack, error) {
+	out := new(messages.Ack)
+	err := c.cc.Invoke(ctx, "/mixmessages.NotificationBot/UnregisterTrackedID", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // NotificationBotServer is the server API for NotificationBot service.
 // All implementations must embed UnimplementedNotificationBotServer
 // for forward compatibility
@@ -1804,6 +1848,14 @@ type NotificationBotServer interface {
 	RegisterForNotifications(context.Context, *NotificationRegisterRequest) (*messages.Ack, error)
 	// Gateway -> Notifications notification data
 	ReceiveNotificationBatch(context.Context, *messages.AuthenticatedMessage) (*messages.Ack, error)
+	// (V2 notifications) register a token for a user
+	RegisterToken(context.Context, *RegisterTokenRequest) (*messages.Ack, error)
+	// (V2 notifications) unregister a token from a user
+	UnregisterToken(context.Context, *UnregisterTokenRequest) (*messages.Ack, error)
+	// (V2 notifications) Register a tracked ID to a user
+	RegisterTrackedID(context.Context, *TrackedIntermediaryIDRequest) (*messages.Ack, error)
+	// (V2 notifications) Unregister a tracked ID from a user
+	UnregisterTrackedID(context.Context, *TrackedIntermediaryIDRequest) (*messages.Ack, error)
 	mustEmbedUnimplementedNotificationBotServer()
 }
 
@@ -1819,6 +1871,18 @@ func (UnimplementedNotificationBotServer) RegisterForNotifications(context.Conte
 }
 func (UnimplementedNotificationBotServer) ReceiveNotificationBatch(context.Context, *messages.AuthenticatedMessage) (*messages.Ack, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ReceiveNotificationBatch not implemented")
+}
+func (UnimplementedNotificationBotServer) RegisterToken(context.Context, *RegisterTokenRequest) (*messages.Ack, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RegisterToken not implemented")
+}
+func (UnimplementedNotificationBotServer) UnregisterToken(context.Context, *UnregisterTokenRequest) (*messages.Ack, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UnregisterToken not implemented")
+}
+func (UnimplementedNotificationBotServer) RegisterTrackedID(context.Context, *TrackedIntermediaryIDRequest) (*messages.Ack, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RegisterTrackedID not implemented")
+}
+func (UnimplementedNotificationBotServer) UnregisterTrackedID(context.Context, *TrackedIntermediaryIDRequest) (*messages.Ack, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UnregisterTrackedID not implemented")
 }
 func (UnimplementedNotificationBotServer) mustEmbedUnimplementedNotificationBotServer() {}
 
@@ -1887,6 +1951,78 @@ func _NotificationBot_ReceiveNotificationBatch_Handler(srv interface{}, ctx cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _NotificationBot_RegisterToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RegisterTokenRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NotificationBotServer).RegisterToken(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/mixmessages.NotificationBot/RegisterToken",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NotificationBotServer).RegisterToken(ctx, req.(*RegisterTokenRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NotificationBot_UnregisterToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UnregisterTokenRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NotificationBotServer).UnregisterToken(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/mixmessages.NotificationBot/UnregisterToken",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NotificationBotServer).UnregisterToken(ctx, req.(*UnregisterTokenRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NotificationBot_RegisterTrackedID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TrackedIntermediaryIDRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NotificationBotServer).RegisterTrackedID(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/mixmessages.NotificationBot/RegisterTrackedID",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NotificationBotServer).RegisterTrackedID(ctx, req.(*TrackedIntermediaryIDRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NotificationBot_UnregisterTrackedID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TrackedIntermediaryIDRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NotificationBotServer).UnregisterTrackedID(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/mixmessages.NotificationBot/UnregisterTrackedID",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NotificationBotServer).UnregisterTrackedID(ctx, req.(*TrackedIntermediaryIDRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // NotificationBot_ServiceDesc is the grpc.ServiceDesc for NotificationBot service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1905,6 +2041,22 @@ var NotificationBot_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ReceiveNotificationBatch",
 			Handler:    _NotificationBot_ReceiveNotificationBatch_Handler,
+		},
+		{
+			MethodName: "RegisterToken",
+			Handler:    _NotificationBot_RegisterToken_Handler,
+		},
+		{
+			MethodName: "UnregisterToken",
+			Handler:    _NotificationBot_UnregisterToken_Handler,
+		},
+		{
+			MethodName: "RegisterTrackedID",
+			Handler:    _NotificationBot_RegisterTrackedID_Handler,
+		},
+		{
+			MethodName: "UnregisterTrackedID",
+			Handler:    _NotificationBot_UnregisterTrackedID_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
