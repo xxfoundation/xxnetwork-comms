@@ -68,7 +68,7 @@ func TestComms_RegisterTrackedID(t *testing.T) {
 	}
 
 	// Unregister client with notification bot
-	_, err = c.RegisterTrackedID(host, &pb.TrackedIntermediaryIDRequest{})
+	_, err = c.RegisterTrackedID(host, &pb.TrackedIntermediaryIdRequest{})
 	if err != nil {
 		t.Errorf("RegistrationMessage: Error received: %s", err)
 	}
@@ -134,7 +134,7 @@ func TestComms_UnregisterTrackedID(t *testing.T) {
 	}
 
 	// Unregister client with notification bot
-	_, err = c.UnregisterTrackedID(host, &pb.TrackedIntermediaryIDRequest{})
+	_, err = c.UnregisterTrackedID(host, &pb.TrackedIntermediaryIdRequest{})
 	if err != nil {
 		t.Errorf("RegistrationMessage: Error received: %s", err)
 	}

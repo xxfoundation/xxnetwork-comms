@@ -79,10 +79,10 @@ func (nb *Comms) UnregisterToken(ctx context.Context, msg *pb.UnregisterTokenReq
 	return &messages.Ack{}, nb.handler.UnregisterToken(msg)
 }
 
-func (nb *Comms) RegisterTrackedID(ctx context.Context, msg *pb.TrackedIntermediaryIDRequest) (*messages.Ack, error) {
+func (nb *Comms) RegisterTrackedID(ctx context.Context, msg *pb.TrackedIntermediaryIdRequest) (*messages.Ack, error) {
 	return &messages.Ack{}, nb.handler.RegisterTrackedID(msg)
 }
 
-func (nb *Comms) UnregisterTrackedID(ctx context.Context, msg *pb.TrackedIntermediaryIDRequest) (*messages.Ack, error) {
+func (nb *Comms) UnregisterTrackedID(ctx context.Context, msg *pb.TrackedIntermediaryIdRequest) (*messages.Ack, error) {
 	return &messages.Ack{}, nb.handler.UnregisterTrackedID(msg)
 }
