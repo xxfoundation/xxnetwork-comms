@@ -1762,9 +1762,9 @@ type NotificationBotClient interface {
 	// (V2 notifications) unregister a token from a user
 	UnregisterToken(ctx context.Context, in *UnregisterTokenRequest, opts ...grpc.CallOption) (*messages.Ack, error)
 	// (V2 notifications) Register a tracked ID to a user
-	RegisterTrackedID(ctx context.Context, in *TrackedIntermediaryIdRequest, opts ...grpc.CallOption) (*messages.Ack, error)
+	RegisterTrackedID(ctx context.Context, in *RegisterTrackedIdRequest, opts ...grpc.CallOption) (*messages.Ack, error)
 	// (V2 notifications) Unregister a tracked ID from a user
-	UnregisterTrackedID(ctx context.Context, in *TrackedIntermediaryIdRequest, opts ...grpc.CallOption) (*messages.Ack, error)
+	UnregisterTrackedID(ctx context.Context, in *UnregisterTrackedIdRequest, opts ...grpc.CallOption) (*messages.Ack, error)
 }
 
 type notificationBotClient struct {
@@ -1820,7 +1820,7 @@ func (c *notificationBotClient) UnregisterToken(ctx context.Context, in *Unregis
 	return out, nil
 }
 
-func (c *notificationBotClient) RegisterTrackedID(ctx context.Context, in *TrackedIntermediaryIdRequest, opts ...grpc.CallOption) (*messages.Ack, error) {
+func (c *notificationBotClient) RegisterTrackedID(ctx context.Context, in *RegisterTrackedIdRequest, opts ...grpc.CallOption) (*messages.Ack, error) {
 	out := new(messages.Ack)
 	err := c.cc.Invoke(ctx, "/mixmessages.NotificationBot/RegisterTrackedID", in, out, opts...)
 	if err != nil {
@@ -1829,7 +1829,7 @@ func (c *notificationBotClient) RegisterTrackedID(ctx context.Context, in *Track
 	return out, nil
 }
 
-func (c *notificationBotClient) UnregisterTrackedID(ctx context.Context, in *TrackedIntermediaryIdRequest, opts ...grpc.CallOption) (*messages.Ack, error) {
+func (c *notificationBotClient) UnregisterTrackedID(ctx context.Context, in *UnregisterTrackedIdRequest, opts ...grpc.CallOption) (*messages.Ack, error) {
 	out := new(messages.Ack)
 	err := c.cc.Invoke(ctx, "/mixmessages.NotificationBot/UnregisterTrackedID", in, out, opts...)
 	if err != nil {
@@ -1853,9 +1853,9 @@ type NotificationBotServer interface {
 	// (V2 notifications) unregister a token from a user
 	UnregisterToken(context.Context, *UnregisterTokenRequest) (*messages.Ack, error)
 	// (V2 notifications) Register a tracked ID to a user
-	RegisterTrackedID(context.Context, *TrackedIntermediaryIdRequest) (*messages.Ack, error)
+	RegisterTrackedID(context.Context, *RegisterTrackedIdRequest) (*messages.Ack, error)
 	// (V2 notifications) Unregister a tracked ID from a user
-	UnregisterTrackedID(context.Context, *TrackedIntermediaryIdRequest) (*messages.Ack, error)
+	UnregisterTrackedID(context.Context, *UnregisterTrackedIdRequest) (*messages.Ack, error)
 	mustEmbedUnimplementedNotificationBotServer()
 }
 
@@ -1878,10 +1878,10 @@ func (UnimplementedNotificationBotServer) RegisterToken(context.Context, *Regist
 func (UnimplementedNotificationBotServer) UnregisterToken(context.Context, *UnregisterTokenRequest) (*messages.Ack, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UnregisterToken not implemented")
 }
-func (UnimplementedNotificationBotServer) RegisterTrackedID(context.Context, *TrackedIntermediaryIdRequest) (*messages.Ack, error) {
+func (UnimplementedNotificationBotServer) RegisterTrackedID(context.Context, *RegisterTrackedIdRequest) (*messages.Ack, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RegisterTrackedID not implemented")
 }
-func (UnimplementedNotificationBotServer) UnregisterTrackedID(context.Context, *TrackedIntermediaryIdRequest) (*messages.Ack, error) {
+func (UnimplementedNotificationBotServer) UnregisterTrackedID(context.Context, *UnregisterTrackedIdRequest) (*messages.Ack, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UnregisterTrackedID not implemented")
 }
 func (UnimplementedNotificationBotServer) mustEmbedUnimplementedNotificationBotServer() {}
@@ -1988,7 +1988,7 @@ func _NotificationBot_UnregisterToken_Handler(srv interface{}, ctx context.Conte
 }
 
 func _NotificationBot_RegisterTrackedID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TrackedIntermediaryIdRequest)
+	in := new(RegisterTrackedIdRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -2000,13 +2000,13 @@ func _NotificationBot_RegisterTrackedID_Handler(srv interface{}, ctx context.Con
 		FullMethod: "/mixmessages.NotificationBot/RegisterTrackedID",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NotificationBotServer).RegisterTrackedID(ctx, req.(*TrackedIntermediaryIdRequest))
+		return srv.(NotificationBotServer).RegisterTrackedID(ctx, req.(*RegisterTrackedIdRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _NotificationBot_UnregisterTrackedID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TrackedIntermediaryIdRequest)
+	in := new(UnregisterTrackedIdRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -2018,7 +2018,7 @@ func _NotificationBot_UnregisterTrackedID_Handler(srv interface{}, ctx context.C
 		FullMethod: "/mixmessages.NotificationBot/UnregisterTrackedID",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NotificationBotServer).UnregisterTrackedID(ctx, req.(*TrackedIntermediaryIdRequest))
+		return srv.(NotificationBotServer).UnregisterTrackedID(ctx, req.(*UnregisterTrackedIdRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

@@ -14,7 +14,7 @@ import (
 // Returns an error if TransmissionRSA is not registered with a valid token.
 // The actual ID is not revealed, instead an intermediary value is sent which cannot
 // be revered to get the ID, but is repeatable. So it can be rainbow-tabled.
-func (c *Comms) RegisterTrackedID(host *connect.Host, message *pb.TrackedIntermediaryIdRequest) (*messages.Ack, error) {
+func (c *Comms) RegisterTrackedID(host *connect.Host, message *pb.RegisterTrackedIdRequest) (*messages.Ack, error) {
 	// Create the Send Function
 	f := func(conn connect.Connection) (*any.Any, error) {
 		// Set up the context
@@ -52,7 +52,7 @@ func (c *Comms) RegisterTrackedID(host *connect.Host, message *pb.TrackedInterme
 
 // UnregisterTrackedID unregisters the given tracked ID. The request is signed.
 // Does not return an error if the token cannot be found
-func (c *Comms) UnregisterTrackedID(host *connect.Host, message *pb.TrackedIntermediaryIdRequest) (*messages.Ack, error) {
+func (c *Comms) UnregisterTrackedID(host *connect.Host, message *pb.UnregisterTrackedIdRequest) (*messages.Ack, error) {
 	// Create the Send Function
 	f := func(conn connect.Connection) (*any.Any, error) {
 		// Set up the context
