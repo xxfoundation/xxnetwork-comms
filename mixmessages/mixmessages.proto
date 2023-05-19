@@ -662,7 +662,7 @@ message RegisterTrackedIdRequest {
 }
 
 message TrackedIntermediaryIdRequest {
-    bytes TrackedIntermediaryID = 1;
+    repeated bytes TrackedIntermediaryID = 1;
     bytes TransmissionRsaPem = 2;
     int64 RequestTimestamp = 3;
     bytes Signature = 4;
