@@ -628,19 +628,19 @@ service NotificationBot {
     rpc UnregisterToken(UnregisterTokenRequest) returns (messages.Ack) {}
 
     // (V2 notifications) Register a tracked ID to a user
-    rpc RegisterTrackedID(TrackedIntermediaryIDRequest) returns (messages.Ack) {}
+    rpc RegisterTrackedID(RegisterTrackedIdRequest) returns (messages.Ack) {}
 
     // (V2 notifications) Unregister a tracked ID from a user
-    rpc UnregisterTrackedID(TrackedIntermediaryIDRequest) returns (messages.Ack) {}
+    rpc UnregisterTrackedID(UnregisterTrackedIdRequest) returns (messages.Ack) {}
 }
 
 message RegisterTokenRequest {
     string App = 1;
     string Token = 2;
-    bytes TransmissionRSAPem = 3;
+    bytes TransmissionRsaPem = 3;
     bytes TransmissionSalt = 4;
     int64 RegistrationTimestamp = 5;
-    bytes TransmissionRsaRegistarSig = 6;
+    bytes TransmissionRsaRegistrarSig = 6;
     int64 RequestTimestamp = 7;
     bytes TokenSignature = 8;
 }
@@ -648,22 +648,23 @@ message RegisterTokenRequest {
 message UnregisterTokenRequest {
     string App = 1;
     string Token = 2;
-    bytes TransmissionRSAPem = 3;
+    bytes TransmissionRsaPem = 3;
     int64 RequestTimestamp = 4;
     bytes TokenSignature = 5;
 }
 
-message TrackedIntermediaryIDRequest {
-    bytes TrackedIntermediaryID = 1;
-    bytes TransmissionRSAPem = 2;
-    int64 RequestTimestamp = 3;
-    bytes Signature = 4;
+message UnregisterTrackedIdRequest {
+    TrackedIntermediaryIdRequest Request = 1;
 }
 
-message SecureNotificationsRequest {
-    bytes IntermediaryId = 1;
-    bytes TransmissionRsa = 2;
-    uint64 Timestamp = 3;
+message RegisterTrackedIdRequest {
+    TrackedIntermediaryIdRequest Request = 1;
+}
+
+message TrackedIntermediaryIdRequest {
+    repeated bytes TrackedIntermediaryID = 1;
+    bytes TransmissionRsaPem = 2;
+    int64 RequestTimestamp = 3;
     bytes Signature = 4;
 }
 

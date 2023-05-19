@@ -26,8 +26,8 @@ type Handler interface {
 	UnregisterForNotifications(msg *pb.NotificationUnregisterRequest) error
 	// ReceiveNotificationBatch receives the batch of notification data from gateway.
 	ReceiveNotificationBatch(notifBatch *pb.NotificationBatch, auth *connect.Auth) error
-	RegisterTrackedID(msg *pb.TrackedIntermediaryIDRequest) error
-	UnregisterTrackedID(msg *pb.TrackedIntermediaryIDRequest) error
+	RegisterTrackedID(msg *pb.RegisterTrackedIdRequest) error
+	UnregisterTrackedID(msg *pb.UnregisterTrackedIdRequest) error
 	RegisterToken(msg *pb.RegisterTokenRequest) error
 	UnregisterToken(msg *pb.UnregisterTokenRequest) error
 }
@@ -60,7 +60,7 @@ func StartNotificationBot(id *id.ID, localServer string, handler Handler,
 	pb.RegisterNotificationBotServer(notificationBot.GetServer(), &notificationBot)
 	messages.RegisterGenericServer(notificationBot.GetServer(), &notificationBot)
 
-	pc.Serve()
+	pc.ServeWithWeb()
 	return &notificationBot
 }
 
@@ -69,8 +69,8 @@ type implementationFunctions struct {
 	RegisterForNotifications   func(request *pb.NotificationRegisterRequest) error
 	UnregisterForNotifications func(request *pb.NotificationUnregisterRequest) error
 	ReceiveNotificationBatch   func(notifBatch *pb.NotificationBatch, auth *connect.Auth) error
-	RegisterTrackedID          func(msg *pb.TrackedIntermediaryIDRequest) error
-	UnregisterTrackedID        func(msg *pb.TrackedIntermediaryIDRequest) error
+	RegisterTrackedID          func(msg *pb.RegisterTrackedIdRequest) error
+	UnregisterTrackedID        func(msg *pb.UnregisterTrackedIdRequest) error
 	RegisterToken              func(msg *pb.RegisterTokenRequest) error
 	UnregisterToken            func(msg *pb.UnregisterTokenRequest) error
 }
@@ -104,11 +104,11 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return nil
 			},
-			RegisterTrackedID: func(msg *pb.TrackedIntermediaryIDRequest) error {
+			RegisterTrackedID: func(msg *pb.RegisterTrackedIdRequest) error {
 				warn(um)
 				return nil
 			},
-			UnregisterTrackedID: func(msg *pb.TrackedIntermediaryIDRequest) error {
+			UnregisterTrackedID: func(msg *pb.UnregisterTrackedIdRequest) error {
 				warn(um)
 				return nil
 			},
@@ -140,10 +140,10 @@ func (s *Implementation) ReceiveNotificationBatch(notifBatch *pb.NotificationBat
 	return s.Functions.ReceiveNotificationBatch(notifBatch, auth)
 }
 
-func (s *Implementation) RegisterTrackedID(msg *pb.TrackedIntermediaryIDRequest) error {
+func (s *Implementation) RegisterTrackedID(msg *pb.RegisterTrackedIdRequest) error {
 	return s.Functions.RegisterTrackedID(msg)
 }
-func (s *Implementation) UnregisterTrackedID(msg *pb.TrackedIntermediaryIDRequest) error {
+func (s *Implementation) UnregisterTrackedID(msg *pb.UnregisterTrackedIdRequest) error {
 	return s.Functions.UnregisterTrackedID(msg)
 }
 func (s *Implementation) RegisterToken(msg *pb.RegisterTokenRequest) error {
