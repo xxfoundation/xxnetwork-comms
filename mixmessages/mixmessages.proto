@@ -659,6 +659,8 @@ message UnregisterTrackedIdRequest {
 
 message RegisterTrackedIdRequest {
     TrackedIntermediaryIdRequest Request = 1;
+    int64 RegistrationTimestamp = 2;
+    bytes TransmissionRsaRegistrarSig = 3;
 }
 
 message TrackedIntermediaryIdRequest {
