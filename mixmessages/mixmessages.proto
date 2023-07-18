@@ -872,3 +872,51 @@ message AuthorizerAuth{
     int64 TimeStamp = 4;
     bytes signature = 5;
 }
+
+
+service RemoteSync{
+    rpc Login(RsAuthenticationRequest) returns (RsAuthenticationResponse);
+    rpc Read(RsReadRequest) returns (RsReadResponse);
+    rpc Write(RsWriteRequest) returns (messages.Ack);
+    rpc GetLastModified(RsReadRequest) returns (RsTimestampResponse);
+    rpc GetLastWrite(RsLastWriteRequest) returns (RsTimestampResponse);
+    rpc ReadDir(RsReadRequest) returns (RsReadDirResponse);
+}
+
+message RsAuthenticationRequest{
+    string Username = 1;
+    bytes PasswordHash = 2;
+    bytes Salt = 3;
+}
+
+message RsAuthenticationResponse{
+    bytes Token = 1;
+    int64  ExpiresAt = 2;
+}
+
+message RsReadRequest{
+    string Path = 1;
+    bytes Token = 2;
+}
+
+message RsLastWriteRequest{
+    bytes Token = 1;
+}
+
+message RsReadResponse{
+    bytes Data = 1;
+}
+
+message RsWriteRequest{
+    string Path = 1;
+    bytes Data = 2;
+    bytes Token = 3;
+}
+
+message RsReadDirResponse {
+    repeated string Data = 1;
+}
+
+message RsTimestampResponse{
+    int64 Timestamp = 1;
+}
