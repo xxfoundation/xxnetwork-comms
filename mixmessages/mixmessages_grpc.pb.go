@@ -2085,6 +2085,9 @@ type UDBClient interface {
 	// RequestChannelAuthentication requests a signature from UD on a user's ed25519 public key
 	// Returning a lease and a signature from UD
 	RequestChannelLease(ctx context.Context, in *ChannelLeaseRequest, opts ...grpc.CallOption) (*ChannelLeaseResponse, error)
+	// ValidateUsername sends a UsernameValidationRequest. This is a user side
+	// initiated comm, where UD signs the username.
+	ValidateUsername(ctx context.Context, in *UsernameValidationRequest, opts ...grpc.CallOption) (*UsernameValidation, error)
 }
 
 type uDBClient struct {
@@ -2149,6 +2152,15 @@ func (c *uDBClient) RequestChannelLease(ctx context.Context, in *ChannelLeaseReq
 	return out, nil
 }
 
+func (c *uDBClient) ValidateUsername(ctx context.Context, in *UsernameValidationRequest, opts ...grpc.CallOption) (*UsernameValidation, error) {
+	out := new(UsernameValidation)
+	err := c.cc.Invoke(ctx, "/mixmessages.UDB/ValidateUsername", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UDBServer is the server API for UDB service.
 // All implementations must embed UnimplementedUDBServer
 // for forward compatibility
@@ -2171,6 +2183,9 @@ type UDBServer interface {
 	// RequestChannelAuthentication requests a signature from UD on a user's ed25519 public key
 	// Returning a lease and a signature from UD
 	RequestChannelLease(context.Context, *ChannelLeaseRequest) (*ChannelLeaseResponse, error)
+	// ValidateUsername sends a UsernameValidationRequest. This is a user side
+	// initiated comm, where UD signs the username.
+	ValidateUsername(context.Context, *UsernameValidationRequest) (*UsernameValidation, error)
 	mustEmbedUnimplementedUDBServer()
 }
 
@@ -2195,6 +2210,9 @@ func (UnimplementedUDBServer) RemoveFact(context.Context, *FactRemovalRequest) (
 }
 func (UnimplementedUDBServer) RequestChannelLease(context.Context, *ChannelLeaseRequest) (*ChannelLeaseResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RequestChannelLease not implemented")
+}
+func (UnimplementedUDBServer) ValidateUsername(context.Context, *UsernameValidationRequest) (*UsernameValidation, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ValidateUsername not implemented")
 }
 func (UnimplementedUDBServer) mustEmbedUnimplementedUDBServer() {}
 
@@ -2317,6 +2335,24 @@ func _UDB_RequestChannelLease_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UDB_ValidateUsername_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UsernameValidationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UDBServer).ValidateUsername(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/mixmessages.UDB/ValidateUsername",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UDBServer).ValidateUsername(ctx, req.(*UsernameValidationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UDB_ServiceDesc is the grpc.ServiceDesc for UDB service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -2347,6 +2383,10 @@ var UDB_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RequestChannelLease",
 			Handler:    _UDB_RequestChannelLease_Handler,
+		},
+		{
+			MethodName: "ValidateUsername",
+			Handler:    _UDB_ValidateUsername_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

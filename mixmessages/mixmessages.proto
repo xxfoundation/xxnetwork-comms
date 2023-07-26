@@ -736,8 +736,11 @@ service UDB {
     // RequestChannelAuthentication requests a signature from UD on a user's ed25519 public key
     // Returning a lease and a signature from UD
     rpc RequestChannelLease (ChannelLeaseRequest) returns (ChannelLeaseResponse) {
-
     }
+
+    // ValidateUsername sends a UsernameValidationRequest. This is a user side
+    // initiated comm, where UD signs the username.
+    rpc ValidateUsername(UsernameValidationRequest) returns (UsernameValidation) {}
 }
 
 // Holds information for a user requesting a channel lease from UD
@@ -753,6 +756,21 @@ message ChannelLeaseResponse {
     int64 Lease = 1;
     bytes UserEd25519PubKey = 2;
     bytes UDLeaseEd25519Signature = 3;
+
+}
+
+// UsernameValidationRequest is the message a user sends to UD to
+// for validation that they own their username
+message UsernameValidationRequest {
+    bytes UserId = 3;
+}
+
+// UsernameValidation is the response to a UsernameValidationRequest.
+// This contains a signature from a UD server on the data within the request message.
+message UsernameValidation {
+    bytes Signature = 1;
+    string Username = 2;
+    bytes ReceptionPublicKeyPem = 3;
 
 }
 

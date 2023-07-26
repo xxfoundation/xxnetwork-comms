@@ -71,6 +71,9 @@ type Handler interface {
 	RemoveFact(request *pb.FactRemovalRequest) (*messages.Ack, error)
 	// RequestChannelLease requests a signature & lease on a user's ed25519 public key from user discovery for use in channels
 	RequestChannelLease(request *pb.ChannelLeaseRequest) (*pb.ChannelLeaseResponse, error)
+	// ValidateUsername validates that a user owns a username by signing the contents of the
+	// mixmessages.UsernameValidationRequest.
+	ValidateUsername(request *pb.UsernameValidationRequest) (*pb.UsernameValidation, error)
 }
 
 // implementationFunctions are the actual implementations of
@@ -95,6 +98,9 @@ type implementationFunctions struct {
 	RemoveFact func(request *pb.FactRemovalRequest) (*messages.Ack, error)
 	// RequestChannelLease requests a signature & lease on a user's ed25519 public key from user discovery for use in channels
 	RequestChannelLease func(request *pb.ChannelLeaseRequest) (*pb.ChannelLeaseResponse, error)
+	// ValidateUsername validates that a user owns a username by signing the contents of the
+	// mixmessages.UsernameValidationRequest.
+	ValidateUsername func(request *pb.UsernameValidationRequest) (*pb.UsernameValidation, error)
 }
 
 // Implementation allows users of the client library to set the
@@ -144,6 +150,10 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return &pb.ChannelLeaseResponse{}, nil
 			},
+			ValidateUsername: func(request *pb.UsernameValidationRequest) (*pb.UsernameValidation, error) {
+				warn(um)
+				return &pb.UsernameValidation{}, nil
+			},
 		},
 	}
 }
@@ -176,4 +186,10 @@ func (s *Implementation) RemoveFact(request *pb.FactRemovalRequest) (*messages.A
 // RequestChannelLease is called by the RequestChannelAuthentication in endpoint.go.  It calls the corresponding function in the interface
 func (s *Implementation) RequestChannelLease(request *pb.ChannelLeaseRequest) (*pb.ChannelLeaseResponse, error) {
 	return s.Functions.RequestChannelLease(request)
+}
+
+// ValidateUsername validates that a user owns a username by signing the contents of the
+// mixmessages.UsernameValidationRequest.
+func (s *Implementation) ValidateUsername(request *pb.UsernameValidationRequest) (*pb.UsernameValidation, error) {
+	return s.Functions.ValidateUsername(request)
 }
