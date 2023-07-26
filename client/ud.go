@@ -10,6 +10,7 @@ package client
 import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
+	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/connect"
@@ -236,13 +237,13 @@ func (c *Comms) SendChannelLeaseRequest(host *connect.Host, message *pb.ChannelL
 func (c *Comms) SendUsernameValidation(host *connect.Host,
 	message *pb.UsernameValidationRequest) (*pb.UsernameValidation, error) {
 	// Create the Send Function
-	f := func(conn *grpc.ClientConn) (*any.Any, error) {
+	f := func(conn connect.Connection) (*any.Any, error) {
 		// Set up the context
 		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 
 		// Send the message
-		resultMsg, err := pb.NewUDBClient(conn).ValidateUsername(ctx, message)
+		resultMsg, err := pb.NewUDBClient(conn.GetGrpcConn()).ValidateUsername(ctx, message)
 		if err != nil {
 			err = errors.New(err.Error())
 			return nil, errors.New(err.Error())
