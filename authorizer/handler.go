@@ -12,13 +12,11 @@ package authorizer
 import (
 	"runtime/debug"
 
-	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/primitives/id"
-	"google.golang.org/grpc/reflection"
 )
 
 // Authorizer object used to implement
@@ -26,6 +24,8 @@ import (
 type Comms struct {
 	*connect.ProtoComms
 	handler Handler
+	*pb.UnimplementedAuthorizerServer
+	*messages.UnimplementedGenericServer
 }
 
 // Starts a new server on the address:port specified by localServer
@@ -34,7 +34,7 @@ type Comms struct {
 func StartAuthorizerServer(id *id.ID, localServer string, handler Handler,
 	certPEMblock, keyPEMblock []byte) *Comms {
 
-	pc, lis, err := connect.StartCommServer(id, localServer,
+	pc, err := connect.StartCommServer(id, localServer,
 		certPEMblock, keyPEMblock, nil)
 	if err != nil {
 		jww.FATAL.Panicf("Unable to start comms server: %+v", err)
@@ -44,30 +44,23 @@ func StartAuthorizerServer(id *id.ID, localServer string, handler Handler,
 		ProtoComms: pc,
 		handler:    handler,
 	}
+	pb.RegisterAuthorizerServer(authorizerServer.GetServer(), &authorizerServer)
+	messages.RegisterGenericServer(authorizerServer.GetServer(), &authorizerServer)
 
-	go func() {
-		pb.RegisterAuthorizerServer(authorizerServer.LocalServer, &authorizerServer)
-		messages.RegisterGenericServer(authorizerServer.LocalServer, &authorizerServer)
-
-		// Register reflection service on gRPC server.
-		reflection.Register(authorizerServer.LocalServer)
-		if err := authorizerServer.LocalServer.Serve(lis); err != nil {
-			err = errors.New(err.Error())
-			jww.FATAL.Panicf("Failed to serve: %+v", err)
-		}
-		jww.INFO.Printf("Shutting down authorizer server listener:"+
-			" %s", lis)
-	}()
-
+	pc.Serve()
 	return &authorizerServer
 }
 
 type Handler interface {
 	Authorize(auth *pb.AuthorizerAuth, ipAddr string) (err error)
+	RequestCert(msg *pb.AuthorizerCertRequest) (*messages.Ack, error)
+	RequestEABCredentials(msg *pb.EABCredentialRequest) (*pb.EABCredentialResponse, error)
 }
 
 type implementationFunctions struct {
-	Authorize func(auth *pb.AuthorizerAuth, ipAddr string) (err error)
+	Authorize             func(auth *pb.AuthorizerAuth, ipAddr string) (err error)
+	RequestCert           func(msg *pb.AuthorizerCertRequest) (*messages.Ack, error)
+	RequestEABCredentials func(msg *pb.EABCredentialRequest) (*pb.EABCredentialResponse, error)
 }
 
 // Implementation allows users of the client library to set the
@@ -91,6 +84,14 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return nil
 			},
+			RequestCert: func(msg *pb.AuthorizerCertRequest) (*messages.Ack, error) {
+				warn(um)
+				return &messages.Ack{}, nil
+			},
+			RequestEABCredentials: func(msg *pb.EABCredentialRequest) (*pb.EABCredentialResponse, error) {
+				warn(um)
+				return &pb.EABCredentialResponse{}, nil
+			},
 		},
 	}
 }
@@ -98,4 +99,14 @@ func NewImplementation() *Implementation {
 // Authorizes a node to talk to permissioning
 func (s *Implementation) Authorize(auth *pb.AuthorizerAuth, ipAddr string) (err error) {
 	return s.Functions.Authorize(auth, ipAddr)
+}
+
+// Request a signed certificate for HTTPS
+func (s *Implementation) RequestCert(msg *pb.AuthorizerCertRequest) (*messages.Ack, error) {
+	return s.Functions.RequestCert(msg)
+}
+
+// Request ACME key for HTTPS
+func (s *Implementation) RequestEABCredentials(msg *pb.EABCredentialRequest) (*pb.EABCredentialResponse, error) {
+	return s.Functions.RequestEABCredentials(msg)
 }

@@ -5,77 +5,69 @@
 // LICENSE file.                                                              //
 ////////////////////////////////////////////////////////////////////////////////
 
-// Contains client -> notificationBot functionality
-
-package client
+package gateway
 
 import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
-	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/messages"
 )
 
-// Client -> NotificationBot
-func (c *Comms) RegisterForNotifications(host *connect.Host,
-	message *pb.NotificationRegisterRequest) (*messages.Ack, error) {
-	// Create the Send Function
+// SendAuthorizerCertRequest sends a request for an https certificate to the authorizer
+func (g *Comms) SendAuthorizerCertRequest(host *connect.Host, msg *pb.AuthorizerCertRequest) (*messages.Ack, error) {
+	// Create the send function
 	f := func(conn connect.Connection) (*any.Any, error) {
 		// Set up the context
 		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 
 		// Send the message
-		resultMsg, err := pb.NewNotificationBotClient(conn.GetGrpcConn()).
-			RegisterForNotifications(ctx, message)
+		resp, err := pb.NewAuthorizerClient(conn.GetGrpcConn()).
+			RequestCert(ctx, msg)
 		if err != nil {
-			return nil, errors.New(err.Error())
+			return nil, err
 		}
-		return ptypes.MarshalAny(resultMsg)
+		return ptypes.MarshalAny(resp)
 	}
 
 	// Execute the Send function
-	jww.TRACE.Printf("Sending RegisterForNotification message: %+v", message)
-	resultMsg, err := c.Send(host, f)
+	jww.TRACE.Printf("Sending certificate request to authorizer: %s", msg)
+	resp, err := g.Send(host, f)
 	if err != nil {
 		return nil, err
 	}
 
-	// Marshall the result
 	result := &messages.Ack{}
-	return result, ptypes.UnmarshalAny(resultMsg, result)
-
+	return result, ptypes.UnmarshalAny(resp, result)
 }
 
-// Client -> NotificationBot
-func (c *Comms) UnregisterForNotifications(host *connect.Host, message *pb.NotificationUnregisterRequest) (*messages.Ack, error) {
-	// Create the Send Function
+// SendEABCredentialRequest sends a request for ACME authorization to the authorizer
+func (g *Comms) SendEABCredentialRequest(host *connect.Host, msg *pb.EABCredentialRequest) (*pb.EABCredentialResponse, error) {
+	// Create the send function
 	f := func(conn connect.Connection) (*any.Any, error) {
 		// Set up the context
 		ctx, cancel := host.GetMessagingContext()
 		defer cancel()
 
 		// Send the message
-		resultMsg, err := pb.NewNotificationBotClient(conn.GetGrpcConn()).
-			UnregisterForNotifications(ctx, message)
+		resp, err := pb.NewAuthorizerClient(conn.GetGrpcConn()).
+			RequestEABCredentials(ctx, msg)
 		if err != nil {
-			return nil, errors.New(err.Error())
+			return nil, err
 		}
-		return ptypes.MarshalAny(resultMsg)
+		return ptypes.MarshalAny(resp)
 	}
 
 	// Execute the Send function
-	jww.TRACE.Printf("Sending UnregisterForNotification message: %+v", message)
-	resultMsg, err := c.Send(host, f)
+	jww.TRACE.Printf("Sending certificate request to authorizer: %s", msg)
+	resp, err := g.Send(host, f)
 	if err != nil {
 		return nil, err
 	}
 
-	// Marshall the result
-	result := &messages.Ack{}
-	return result, ptypes.UnmarshalAny(resultMsg, result)
-
+	result := &pb.EABCredentialResponse{}
+	return result, ptypes.UnmarshalAny(resp, result)
 }

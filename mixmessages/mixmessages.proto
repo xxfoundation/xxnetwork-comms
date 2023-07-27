@@ -6,9 +6,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 syntax = "proto3";
-option go_package = "gitlab.com/elixxir/comms/mixmessages";
 
 package mixmessages;
+
+option go_package = "gitlab.com/elixxir/comms/mixmessages";
 
 import "gitlab.com/xx_network/comms/messages/messages.proto";
 import "google/protobuf/any.proto";
@@ -116,6 +117,17 @@ message ClientKeyRequest {
     bytes ClientDHPubKey = 5;
 }
 
+// SignedClientBatchKeyRequest is a message sent from client to a gateway,
+// which will act as a proxy & send the registration request on to the
+// IDs in Targets
+message SignedClientBatchKeyRequest {
+    bytes ClientKeyRequest = 1;
+    messages.RSASignature ClientKeyRequestSignature = 2;
+    repeated bytes Targets = 3;
+    uint64 Timeout = 4;
+    bool UseSHA = 5;
+}
+
 message SignedClientKeyRequest {
     // Wire serialized format of the ClientKeyRequest Object (above)
     bytes ClientKeyRequest = 1;
@@ -123,6 +135,8 @@ message SignedClientKeyRequest {
     messages.RSASignature ClientKeyRequestSignature = 2;
     // Target Gateway/Node - used to proxy through an alternate gateway
     bytes Target = 3;
+    // Use sha rather than blake for faster client-side signing
+    bool UseSHA = 4;
 }
 
 message ClientKeyResponse {
@@ -131,6 +145,13 @@ message ClientKeyResponse {
     bytes NodeDHPubKey = 3;
     bytes KeyID = 4; // Currently unused and empty.
     uint64 ValidUntil = 5; // Timestamp of when the key expires
+}
+
+// SignedBatchKeyResponse contains responses received from target gateways to
+// the gateway which received the original SignedClientKeyRequest, to be
+// returned to the client
+message SignedBatchKeyResponse {
+    repeated SignedKeyResponse SignedKeys = 1;
 }
 
 message SignedKeyResponse {
@@ -236,6 +257,10 @@ service Gateway {
     rpc RequestClientKey (SignedClientKeyRequest) returns (SignedKeyResponse) {
     }
 
+    // BatchNodeRegistration sends a SignedClientBatchKeyRequest to multiple
+    // gateways by proxy (client -> gateway -> target gateway)
+    rpc BatchNodeRegistration (SignedClientBatchKeyRequest) returns (SignedBatchKeyResponse) {}
+
     // PutMessage on the cMix Gateway (client -> gateway)
     rpc PutMessage (GatewaySlot) returns (GatewaySlotResponse) {
     }
@@ -263,6 +288,17 @@ service Gateway {
     rpc RequestMessages(GetMessages) returns (GetMessagesResponse) {
     }
 
+    rpc RequestBatchMessages(GetMessagesBatch) returns (GetMessagesResponseBatch) {}
+
+    rpc RequestTlsCert(RequestGatewayCert) returns (GatewayCertificate) {}
+
+}
+
+message RequestGatewayCert {}
+
+message GatewayCertificate {
+    bytes Certificate = 1;
+    bytes Signature = 2;
 }
 
 // StreamChunk represents a part of a response, to be streamed in chunks
@@ -279,6 +315,16 @@ message HistoricalRounds{
 // Gateway's response to client's request for previous (historical) rounds
 message HistoricalRoundsResponse{
     repeated RoundInfo Rounds = 1;
+}
+
+message GetMessagesBatch{
+    repeated GetMessages Requests = 1;
+    uint64 Timeout = 2;
+}
+
+message GetMessagesResponseBatch{
+    repeated GetMessagesResponse Results = 1;
+    repeated string Errors = 3;
 }
 
 // Client -> Gateway request for available messages
@@ -325,6 +371,8 @@ message Slot {
     bytes PayloadB = 9; // Len(Prime) bit length payload B (contains part of encrypted payload, and associated data)
     bytes Salt = 10; // Salt to identify message key
     repeated bytes KMACs = 11; // Individual Key MAC for each node in network
+    bytes Ed25519 = 12; // Client ephemeral ed25519 key, if applicable
+    repeated bool EphemeralKeys = 13; // true for each node which used ephemeral key generation
 }
 
 // Unified Client->Gateway polling message
@@ -345,6 +393,12 @@ message GatewayPoll {
     // If false, all updates from the network
     bool FastPolling = 7;
     uint64 LastRound = 8;
+
+    // When set to true, the gateway will not get new NDFs and network round
+    // updates. This variable is added as the last field to be backward
+    // compatible. If it is not included, then the field defaults to false and
+    // will return all updates.
+    bool DisableUpdates = 9;
 }
 
 // Unified Client->Gateway polling response
@@ -355,6 +409,10 @@ message GatewayPollResponse {
     ClientBlooms Filters = 4; // Set of ClientBloomFilters requested by Client
     uint64 EarliestRound = 5; // The earliest round the gateway still has info for
     string EarliestRoundErr = 6;
+
+    // The following are used for the homebrew clock offset system in Client
+    int64 ReceivedTs = 7; // Timestamp that Gateway received GatewayPoll
+    int64 GatewayDelay = 8; // Duration of the Gateway Poll() function
 }
 
 // Holds a set of ClientBloom and their associated metadata
@@ -523,6 +581,7 @@ message PermissioningPoll {
     string serverAddress = 8;
     string serverVersion = 9;
     repeated ClientError ClientErrors = 10; // Client error information
+    bytes Ed25519 = 11;
 }
 
 
@@ -561,6 +620,54 @@ service NotificationBot {
     // Gateway -> Notifications notification data
     rpc ReceiveNotificationBatch(messages.AuthenticatedMessage) returns (messages.Ack) {
     }
+
+    // (V2 notifications) register a token for a user
+    rpc RegisterToken(RegisterTokenRequest) returns (messages.Ack) {}
+
+    // (V2 notifications) unregister a token from a user
+    rpc UnregisterToken(UnregisterTokenRequest) returns (messages.Ack) {}
+
+    // (V2 notifications) Register a tracked ID to a user
+    rpc RegisterTrackedID(RegisterTrackedIdRequest) returns (messages.Ack) {}
+
+    // (V2 notifications) Unregister a tracked ID from a user
+    rpc UnregisterTrackedID(UnregisterTrackedIdRequest) returns (messages.Ack) {}
+}
+
+message RegisterTokenRequest {
+    string App = 1;
+    string Token = 2;
+    bytes TransmissionRsaPem = 3;
+    bytes TransmissionSalt = 4;
+    int64 RegistrationTimestamp = 5;
+    bytes TransmissionRsaRegistrarSig = 6;
+    int64 RequestTimestamp = 7;
+    bytes TokenSignature = 8;
+}
+
+message UnregisterTokenRequest {
+    string App = 1;
+    string Token = 2;
+    bytes TransmissionRsaPem = 3;
+    int64 RequestTimestamp = 4;
+    bytes TokenSignature = 5;
+}
+
+message UnregisterTrackedIdRequest {
+    TrackedIntermediaryIdRequest Request = 1;
+}
+
+message RegisterTrackedIdRequest {
+    TrackedIntermediaryIdRequest Request = 1;
+    int64 RegistrationTimestamp = 2;
+    bytes TransmissionRsaRegistrarSig = 3;
+}
+
+message TrackedIntermediaryIdRequest {
+    repeated bytes TrackedIntermediaryID = 1;
+    bytes TransmissionRsaPem = 2;
+    int64 RequestTimestamp = 3;
+    bytes Signature = 4;
 }
 
 // Registration token to be associated with the client
@@ -626,9 +733,30 @@ service UDB {
     rpc RemoveFact (FactRemovalRequest) returns (messages.Ack) {
     }
 
+    // RequestChannelAuthentication requests a signature from UD on a user's ed25519 public key
+    // Returning a lease and a signature from UD
+    rpc RequestChannelLease (ChannelLeaseRequest) returns (ChannelLeaseResponse) {
+    }
+
     // ValidateUsername sends a UsernameValidationRequest. This is a user side
     // initiated comm, where UD signs the username.
     rpc ValidateUsername(UsernameValidationRequest) returns (UsernameValidation) {}
+}
+
+// Holds information for a user requesting a channel lease from UD
+message ChannelLeaseRequest {
+    bytes UserID = 1;
+    bytes UserEd25519PubKey = 2;
+    int64 Timestamp = 3;
+    bytes UserPubKeyRSASignature = 4;
+}
+
+// Contains UD response to a ChannelLeaseRequest, including lease & signature
+message ChannelLeaseResponse {
+    int64 Lease = 1;
+    bytes UserEd25519PubKey = 2;
+    bytes UDLeaseEd25519Signature = 3;
+
 }
 
 // UsernameValidationRequest is the message a user sends to UD to
@@ -734,6 +862,25 @@ message RoundError {
 service Authorizer{
     rpc Authorize(AuthorizerAuth) returns (messages.Ack) {
     }
+
+    rpc RequestCert(AuthorizerCertRequest) returns (messages.Ack) {}
+
+    rpc RequestEABCredentials(EABCredentialRequest) returns (EABCredentialResponse) {}
+}
+
+message EABCredentialRequest {
+}
+
+message EABCredentialResponse {
+    string KeyId = 1;
+    string Key = 2;
+}
+
+message AuthorizerCertRequest {
+    bytes GwID = 1;
+    int64 Timestamp = 2;
+    string ACMEToken = 3;
+    bytes Signature = 4;
 }
 
 message AuthorizerAuth{
@@ -742,4 +889,52 @@ message AuthorizerAuth{
     bytes PubkeyPem = 3;
     int64 TimeStamp = 4;
     bytes signature = 5;
+}
+
+
+service RemoteSync{
+    rpc Login(RsAuthenticationRequest) returns (RsAuthenticationResponse);
+    rpc Read(RsReadRequest) returns (RsReadResponse);
+    rpc Write(RsWriteRequest) returns (messages.Ack);
+    rpc GetLastModified(RsReadRequest) returns (RsTimestampResponse);
+    rpc GetLastWrite(RsLastWriteRequest) returns (RsTimestampResponse);
+    rpc ReadDir(RsReadRequest) returns (RsReadDirResponse);
+}
+
+message RsAuthenticationRequest{
+    string Username = 1;
+    bytes PasswordHash = 2;
+    bytes Salt = 3;
+}
+
+message RsAuthenticationResponse{
+    bytes Token = 1;
+    int64  ExpiresAt = 2;
+}
+
+message RsReadRequest{
+    string Path = 1;
+    bytes Token = 2;
+}
+
+message RsLastWriteRequest{
+    bytes Token = 1;
+}
+
+message RsReadResponse{
+    bytes Data = 1;
+}
+
+message RsWriteRequest{
+    string Path = 1;
+    bytes Data = 2;
+    bytes Token = 3;
+}
+
+message RsReadDirResponse {
+    repeated string Data = 1;
+}
+
+message RsTimestampResponse{
+    int64 Timestamp = 1;
 }

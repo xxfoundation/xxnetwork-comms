@@ -10,13 +10,11 @@
 package notificationBot
 
 import (
-	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/messages"
 	"gitlab.com/xx_network/primitives/id"
-	"google.golang.org/grpc/reflection"
 	"runtime/debug"
 )
 
@@ -28,6 +26,10 @@ type Handler interface {
 	UnregisterForNotifications(msg *pb.NotificationUnregisterRequest) error
 	// ReceiveNotificationBatch receives the batch of notification data from gateway.
 	ReceiveNotificationBatch(notifBatch *pb.NotificationBatch, auth *connect.Auth) error
+	RegisterTrackedID(msg *pb.RegisterTrackedIdRequest) error
+	UnregisterTrackedID(msg *pb.UnregisterTrackedIdRequest) error
+	RegisterToken(msg *pb.RegisterTokenRequest) error
+	UnregisterToken(msg *pb.UnregisterTokenRequest) error
 }
 
 // NotificationBot object used to implement
@@ -35,6 +37,8 @@ type Handler interface {
 type Comms struct {
 	*connect.ProtoComms
 	handler Handler
+	*pb.UnimplementedNotificationBotServer
+	*messages.UnimplementedGenericServer
 }
 
 // Starts a new server on the address:port specified by localServer
@@ -43,7 +47,7 @@ type Comms struct {
 func StartNotificationBot(id *id.ID, localServer string, handler Handler,
 	certPEMblock, keyPEMblock []byte) *Comms {
 
-	pc, lis, err := connect.StartCommServer(id, localServer,
+	pc, err := connect.StartCommServer(id, localServer,
 		certPEMblock, keyPEMblock, nil)
 	if err != nil {
 		jww.FATAL.Panicf("Unable to start comms server: %+v", err)
@@ -53,21 +57,10 @@ func StartNotificationBot(id *id.ID, localServer string, handler Handler,
 		ProtoComms: pc,
 		handler:    handler,
 	}
+	pb.RegisterNotificationBotServer(notificationBot.GetServer(), &notificationBot)
+	messages.RegisterGenericServer(notificationBot.GetServer(), &notificationBot)
 
-	go func() {
-		pb.RegisterNotificationBotServer(notificationBot.LocalServer, &notificationBot)
-		messages.RegisterGenericServer(notificationBot.LocalServer, &notificationBot)
-
-		// Register reflection service on gRPC server.
-		reflection.Register(notificationBot.LocalServer)
-		if err := notificationBot.LocalServer.Serve(lis); err != nil {
-			err = errors.New(err.Error())
-			jww.FATAL.Panicf("Failed to serve: %+v", err)
-		}
-		jww.INFO.Printf("Shutting down registration server listener:"+
-			" %s", lis)
-	}()
-
+	pc.ServeWithWeb()
 	return &notificationBot
 }
 
@@ -76,6 +69,10 @@ type implementationFunctions struct {
 	RegisterForNotifications   func(request *pb.NotificationRegisterRequest) error
 	UnregisterForNotifications func(request *pb.NotificationUnregisterRequest) error
 	ReceiveNotificationBatch   func(notifBatch *pb.NotificationBatch, auth *connect.Auth) error
+	RegisterTrackedID          func(msg *pb.RegisterTrackedIdRequest) error
+	UnregisterTrackedID        func(msg *pb.UnregisterTrackedIdRequest) error
+	RegisterToken              func(msg *pb.RegisterTokenRequest) error
+	UnregisterToken            func(msg *pb.UnregisterTokenRequest) error
 }
 
 // Implementation allows users of the client library to set the
@@ -107,6 +104,22 @@ func NewImplementation() *Implementation {
 				warn(um)
 				return nil
 			},
+			RegisterTrackedID: func(msg *pb.RegisterTrackedIdRequest) error {
+				warn(um)
+				return nil
+			},
+			UnregisterTrackedID: func(msg *pb.UnregisterTrackedIdRequest) error {
+				warn(um)
+				return nil
+			},
+			RegisterToken: func(msg *pb.RegisterTokenRequest) error {
+				warn(um)
+				return nil
+			},
+			UnregisterToken: func(msg *pb.UnregisterTokenRequest) error {
+				warn(um)
+				return nil
+			},
 		},
 	}
 }
@@ -125,4 +138,17 @@ func (s *Implementation) UnregisterForNotifications(request *pb.NotificationUnre
 func (s *Implementation) ReceiveNotificationBatch(notifBatch *pb.NotificationBatch,
 	auth *connect.Auth) error {
 	return s.Functions.ReceiveNotificationBatch(notifBatch, auth)
+}
+
+func (s *Implementation) RegisterTrackedID(msg *pb.RegisterTrackedIdRequest) error {
+	return s.Functions.RegisterTrackedID(msg)
+}
+func (s *Implementation) UnregisterTrackedID(msg *pb.UnregisterTrackedIdRequest) error {
+	return s.Functions.UnregisterTrackedID(msg)
+}
+func (s *Implementation) RegisterToken(msg *pb.RegisterTokenRequest) error {
+	return s.Functions.RegisterToken(msg)
+}
+func (s *Implementation) UnregisterToken(msg *pb.UnregisterTokenRequest) error {
+	return s.Functions.UnregisterToken(msg)
 }

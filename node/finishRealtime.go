@@ -19,7 +19,6 @@ import (
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/connect"
 	"gitlab.com/xx_network/comms/messages"
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 	"io"
 )
@@ -112,13 +111,14 @@ func (s *Comms) getFinishRealtimeStream(host *connect.Host,
 	ctx context.Context) (pb.Node_FinishRealtimeClient, error) {
 
 	// Create the Stream Function
-	f := func(conn *grpc.ClientConn) (interface{}, error) {
+	f := func(conn connect.Connection) (interface{}, error) {
 
 		// Add authentication information to streaming context
 		ctx = s.PackAuthenticatedContext(host, ctx)
 
 		// Get the stream client
-		streamClient, err := pb.NewNodeClient(conn).FinishRealtime(ctx)
+		streamClient, err := pb.NewNodeClient(conn.GetGrpcConn()).
+			FinishRealtime(ctx)
 		if err != nil {
 			return nil, errors.New(err.Error())
 		}
@@ -153,7 +153,7 @@ func (s *Comms) FinishRealtime(stream pb.Node_FinishRealtimeServer) error {
 		return errors.Errorf("Unable handles reception of AuthenticatedMessage: %+v", err)
 	}
 
-	//Unmarshall the any message to the message type needed
+	// Unmarshall the any message to the message type needed
 	info, err := GetFinishRealtimeStreamHeader(stream)
 	if err != nil {
 		return errors.WithMessage(err, "Could not get realtime stream header")

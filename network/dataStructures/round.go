@@ -10,10 +10,12 @@ package dataStructures
 import (
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
+	"gitlab.com/elixxir/primitives/states"
 	"gitlab.com/xx_network/comms/signature"
 	"gitlab.com/xx_network/crypto/signature/ec"
 	"gitlab.com/xx_network/crypto/signature/rsa"
 	"sync/atomic"
+	"time"
 )
 
 // Structure wraps a round info object with the
@@ -24,6 +26,7 @@ type Round struct {
 	needsValidation *uint32
 	rsaPubKey       *rsa.PublicKey
 	ecPubKey        *ec.PublicKey
+	startTime       time.Time
 }
 
 // Constructor of a Round object.
@@ -34,6 +37,7 @@ func NewRound(ri *pb.RoundInfo, rsaPubKey *rsa.PublicKey, ecPubKey *ec.PublicKey
 		needsValidation: &validationDefault,
 		rsaPubKey:       rsaPubKey,
 		ecPubKey:        ecPubKey,
+		startTime:       time.Unix(0, int64(ri.Timestamps[states.QUEUED])),
 	}
 }
 
@@ -46,6 +50,7 @@ func NewVerifiedRound(ri *pb.RoundInfo, pubkey *rsa.PublicKey) *Round {
 		info:            ri,
 		needsValidation: &validationDefault,
 		rsaPubKey:       pubkey,
+		startTime:       time.Unix(0, int64(ri.Timestamps[states.QUEUED])),
 	}
 }
 
@@ -73,4 +78,8 @@ func (r *Round) Get() *pb.RoundInfo {
 		atomic.StoreUint32(r.needsValidation, 1)
 	}
 	return r.info
+}
+
+func (r *Round) StartTime() time.Time {
+	return r.startTime
 }

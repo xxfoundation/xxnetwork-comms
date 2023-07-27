@@ -11,6 +11,7 @@ import (
 	"bytes"
 	"gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/comms/testutils"
+	"gitlab.com/elixxir/primitives/states"
 	"testing"
 )
 
@@ -19,7 +20,7 @@ func TestNewRound(t *testing.T) {
 	pubKey, _ := testutils.LoadPublicKeyTesting(t)
 	ecKey, _ := testutils.LoadEllipticPublicKey(t)
 
-	ri := &mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(1)}
+	ri := &mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(1), Timestamps: make([]uint64, states.NUM_STATES)}
 
 	rnd := NewRound(ri, pubKey, ecKey.GetPublic())
 
@@ -40,7 +41,7 @@ func TestNewRound(t *testing.T) {
 // Smoke test for other constructor
 func TestNewVerifiedRound(t *testing.T) {
 	pubKey, _ := testutils.LoadPublicKeyTesting(t)
-	ri := &mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(1)}
+	ri := &mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(1), Timestamps: make([]uint64, states.NUM_STATES)}
 
 	rnd := NewVerifiedRound(ri, pubKey)
 
@@ -61,7 +62,7 @@ func TestNewVerifiedRound(t *testing.T) {
 // Unit test of Get()
 func TestNewRound_Get(t *testing.T) {
 	pubKey, _ := testutils.LoadPublicKeyTesting(t)
-	ri := &mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(1)}
+	ri := &mixmessages.RoundInfo{ID: uint64(1), UpdateID: uint64(1), Timestamps: make([]uint64, states.NUM_STATES)}
 	// Mock signature of roundInfo as it will be verified in codepath
 	testutils.SignRoundInfoRsa(ri, t)
 	ecPubKey, _ := testutils.LoadEllipticPublicKey(t)

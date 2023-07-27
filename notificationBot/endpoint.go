@@ -70,3 +70,19 @@ func (nb *Comms) ReceiveNotificationBatch(ctx context.Context, msg *messages.Aut
 
 	return &messages.Ack{}, err
 }
+
+func (nb *Comms) RegisterToken(ctx context.Context, msg *pb.RegisterTokenRequest) (*messages.Ack, error) {
+	return &messages.Ack{}, nb.handler.RegisterToken(msg)
+}
+
+func (nb *Comms) UnregisterToken(ctx context.Context, msg *pb.UnregisterTokenRequest) (*messages.Ack, error) {
+	return &messages.Ack{}, nb.handler.UnregisterToken(msg)
+}
+
+func (nb *Comms) RegisterTrackedID(ctx context.Context, msg *pb.RegisterTrackedIdRequest) (*messages.Ack, error) {
+	return &messages.Ack{}, nb.handler.RegisterTrackedID(msg)
+}
+
+func (nb *Comms) UnregisterTrackedID(ctx context.Context, msg *pb.UnregisterTrackedIdRequest) (*messages.Ack, error) {
+	return &messages.Ack{}, nb.handler.UnregisterTrackedID(msg)
+}

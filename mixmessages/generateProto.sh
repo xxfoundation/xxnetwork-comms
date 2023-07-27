@@ -7,4 +7,4 @@
 #/ LICENSE file                                                               //
 #///////////////////////////////////////////////////////////////////////////////
 
-protoc -I. -I../vendor/ mixmessages.proto  --go_opt=paths=source_relative --go_out=plugins=grpc:../mixmessages/
+protoc -I. -I../vendor --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative *.proto

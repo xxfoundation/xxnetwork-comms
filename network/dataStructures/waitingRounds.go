@@ -8,6 +8,8 @@
 package dataStructures
 
 import (
+	"fmt"
+	"sort"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -17,7 +19,7 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/elixxir/primitives/excludedRounds"
-	"gitlab.com/elixxir/primitives/states"
+	"gitlab.com/xx_network/primitives/id"
 	"gitlab.com/xx_network/primitives/netTime"
 )
 
@@ -30,7 +32,7 @@ var timeOutError = errors.New("Timed out getting round furthest in the future.")
 const maxGetClosestTries = 2
 
 // WaitingRounds contains a list of all queued rounds ordered by which occurs
-// furthest in the future with the furthest in the the back.
+// furthest in the future with the furthest in the back.
 type WaitingRounds struct {
 	readRounds  *atomic.Value
 	writeRounds *orderedmap.OrderedMap
@@ -55,9 +57,41 @@ func NewWaitingRounds() *WaitingRounds {
 
 // Len returns the number of rounds in the list.
 func (wr *WaitingRounds) Len() int {
-	wr.mux.Lock()
-	defer wr.mux.Unlock()
-	return wr.writeRounds.Len()
+	return len(wr.readRounds.Load().([]*Round))
+}
+
+// NumValidRounds returns how many rounds are, according to the local timestamp,
+// ready to be sent to.
+// This means they are in the "QUEUED" state and their start time is
+// after the local time
+func (wr *WaitingRounds) NumValidRounds(now time.Time) int {
+	rounds := wr.readRounds.Load().([]*Round)
+
+	numValid := 0
+
+	for _, r := range rounds {
+		if r.StartTime().After(now) {
+			numValid++
+		}
+	}
+
+	return numValid
+}
+
+// HasValidRounds returns true if there is at least one valid round
+// in the queue according to its timestamp.
+// This means they are in the "QUEUED" state and their start time is
+// after the local time
+func (wr *WaitingRounds) HasValidRounds(now time.Time) bool {
+	rounds := wr.readRounds.Load().([]*Round)
+
+	for _, r := range rounds {
+		if r.StartTime().After(now) {
+			return true
+		}
+	}
+
+	return false
 }
 
 // Insert inserts a queued round into the list in order of its timestamp, from
@@ -67,39 +101,40 @@ func (wr *WaitingRounds) Len() int {
 func (wr *WaitingRounds) Insert(added, removed []*Round) {
 	wr.mux.Lock()
 	defer wr.mux.Unlock()
-
-	//add any round which should be added
+	now := netTime.Now()
+	// Add any round which should be added
+	var addedRounds uint
 	for i := range added {
 		toAdd := added[i]
-		if !time.Now().After(time.Unix(0, int64(toAdd.info.Timestamps[states.QUEUED]))) {
+		if toAdd.StartTime().After(now) {
+			addedRounds++
 			wr.writeRounds.Set(toAdd.info.ID, toAdd)
 		}
-
 	}
 
-	//remove any round which should be removed
+	// Remove any round which should be removed
 	for i := range removed {
 		toRemove := removed[i]
 		wr.writeRounds.Delete(toRemove.info.ID)
 	}
 
-	// If changes occured, update the atomic
-	if len(removed) > 0 || len(added) > 0 {
+	// If changes occurred, update the atomic
+	if len(removed) > 0 || addedRounds > 0 {
 		wr.storeReadRounds()
 	}
 
-	// If inserts occured, signal to any waiting threads
-	// only do this on inserts because only inserts will change the
-	// evaluation by callers of GetUpcomingRealtime
-	if len(added) > 0 {
+	// If inserts occurred, then signal to any waiting threads
+	// Only do this on inserts because only inserts will change the evaluation
+	// by callers of GetUpcomingRealtime
+	if addedRounds > 0 {
 		go func() {
-			// this will loop for as many people are waiting on the
-			// channel which is why it is in a seperate function
+			// This will loop for as many people are waiting on the channel,
+			// which is why it is in a separate function
 			for {
 				select {
 				case wr.signal <- struct{}{}:
 				default:
-					//exit when there are no listeners
+					// Exit when there are no listeners
 					return
 				}
 			}
@@ -109,18 +144,34 @@ func (wr *WaitingRounds) Insert(added, removed []*Round) {
 
 func (wr *WaitingRounds) storeReadRounds() {
 	roundsList := make([]*Round, 0, wr.writeRounds.Len())
+	toDelete := make([]*Round, 0, wr.writeRounds.Len())
 
-	toDelete := make([]*Round, 0)
+	now := netTime.Now()
 
+	//filter rounds which should not be included
 	for e := wr.writeRounds.Front(); e != nil; e = e.Next() {
 		rnd := e.Value.(*Round)
-		if time.Since(time.Unix(0, int64(rnd.info.Timestamps[states.QUEUED]))) < time.Hour {
+		if now.Before(rnd.StartTime()) {
 			roundsList = append(roundsList, rnd)
 		} else {
 			toDelete = append(toDelete, rnd)
 		}
-
 	}
+
+	//sort the rounds list, soonest first
+	sort.Slice(roundsList, func(i, j int) bool {
+		return roundsList[i].StartTime().Before(roundsList[j].StartTime())
+	})
+
+	if jww.LogThreshold() == jww.LevelTrace {
+		var rprint string
+		for _, r := range roundsList {
+			rprint += fmt.Sprintf("\n\tround: %d, startTime: %s, time to start: %s",
+				r.info.ID, r.StartTime(), netTime.Until(r.StartTime()))
+		}
+		jww.TRACE.Printf("Rounds Order: %s", rprint)
+	}
+
 	wr.readRounds.Store(roundsList)
 
 	if len(toDelete) > 0 {
@@ -131,16 +182,13 @@ func (wr *WaitingRounds) storeReadRounds() {
 	}
 }
 
-// getTime returns the timestamp for the round's realtime.
-func getTime(round *Round) uint64 {
-	return round.info.Timestamps[states.QUEUED]
-}
-
 // getFurthest returns the round that will occur furthest in the future. If the
 // list is empty, then nil is returned. If the round is on the exclusion list,
-// then the next round is checked.
-// this is assumed to be called on an operation already under the cond's lock
-func (wr *WaitingRounds) getFurthest(exclude excludedRounds.ExcludedRounds, cutoffDelta time.Duration) *Round {
+// then the next round is checked. If it is not on the exclusion list, it is
+// added.
+// This is assumed to be called on an operation already under the cond's lock.
+func (wr *WaitingRounds) getFurthest(exclude excludedRounds.ExcludedRounds,
+	cutoffDelta time.Duration) *Round {
 	earliestStart := netTime.Now().Add(cutoffDelta)
 
 	roundsList, exists := wr.readRounds.Load().([]*Round)
@@ -151,11 +199,21 @@ func (wr *WaitingRounds) getFurthest(exclude excludedRounds.ExcludedRounds, cuto
 	// Return the last non-excluded round in the list
 	for i := len(roundsList) - 1; i >= 0; i-- {
 		r := roundsList[i]
+
 		// Cannot guarantee that the round object's pointers will be exact match
 		// of value in set
-		RoundStartTime := time.Unix(0, int64(r.info.Timestamps[states.QUEUED]))
-		if RoundStartTime.After(earliestStart) && !isExcluded(exclude, r.info) {
-			return r
+		if r.StartTime().After(earliestStart) {
+			// If no excluded list has been passed in, do not check
+			if exclude == nil {
+				return r
+			}
+
+			// If the exclusion list exists, attempt and insert and return true
+			// if it was a new insert, otherwise skip
+			newInsertion := exclude.Insert(id.Round(r.info.ID))
+			if newInsertion {
+				return r
+			}
 		}
 	}
 
@@ -165,9 +223,11 @@ func (wr *WaitingRounds) getFurthest(exclude excludedRounds.ExcludedRounds, cuto
 
 // getClosest returns the round that will occur soonest in the future. If the
 // list is empty, then nil is returned. If the round is on the exclusion list,
-// then the next round is checked.
-// this is assumed to be called on an operation already under the cond's lock
-func (wr *WaitingRounds) getClosest(exclude excludedRounds.ExcludedRounds, minRoundAge time.Duration) *Round {
+// then the next round is checked. If it is not on the exclusion list, it is
+// added.
+// This is assumed to be called on an operation already under the cond's lock.
+func (wr *WaitingRounds) getClosest(exclude excludedRounds.ExcludedRounds,
+	minRoundAge time.Duration) *Round {
 	earliestStart := netTime.Now().Add(minRoundAge)
 
 	roundsList, exists := wr.readRounds.Load().([]*Round)
@@ -178,24 +238,26 @@ func (wr *WaitingRounds) getClosest(exclude excludedRounds.ExcludedRounds, minRo
 	// Return the first non-excluded round in the list
 	for i := 0; i < len(roundsList); i++ {
 		r := roundsList[i]
+
 		// Cannot guarantee that the round object's pointers will be exact match
 		// of value in set
-		RoundStartTime := time.Unix(0, int64(r.info.Timestamps[states.QUEUED]))
-		if RoundStartTime.After(earliestStart) && !isExcluded(exclude, r.info) {
-			return r
+		if r.StartTime().After(earliestStart) {
+			// If no excluded list has been passed in, do not check
+			if exclude == nil {
+				return r
+			}
+
+			// If the exclusion list exists, then attempt an insert and return
+			// if it was a new insert, otherwise skip
+			newInsertion := exclude.Insert(id.Round(r.info.ID))
+			if newInsertion {
+				return r
+			}
 		}
 	}
 
 	// If all the rounds in the list are excluded, then return nil
 	return nil
-}
-
-func isExcluded(exclude excludedRounds.ExcludedRounds, r *pb.RoundInfo) bool {
-	if exclude == nil {
-		return false
-	}
-
-	return exclude.Has(r.GetRoundId())
 }
 
 // GetSlice returns a slice of all round infos in the list that have yet to
@@ -208,9 +270,9 @@ func (wr *WaitingRounds) GetSlice() []*pb.RoundInfo {
 		return roundInfos
 	}
 
-	now := uint64(netTime.Now().Nanosecond())
+	timeNow := netTime.Now()
 	for i := 0; i < len(roundsList); i++ {
-		if getTime(roundsList[i]) > now {
+		if roundsList[i].StartTime().After(timeNow) {
 			roundInfos = append(roundInfos, roundsList[i].info)
 		}
 	}
@@ -220,7 +282,7 @@ func (wr *WaitingRounds) GetSlice() []*pb.RoundInfo {
 }
 
 // GetUpcomingRealtime returns the round that will occur furthest in the future.
-// If the list is empty, then it waits waits for a round to be added for the
+// If the list is empty, then it waits for a round to be added for the
 // specified duration. If no round is added, then an error is returned.
 //
 // The length of the excluded set indicates how many times the client has
@@ -230,15 +292,17 @@ func (wr *WaitingRounds) GetSlice() []*pb.RoundInfo {
 // attempts at pulling the closest round, GetUpcomingRealtime will retrieve
 // the furthest non-excluded round from WaitingRounds.
 func (wr *WaitingRounds) GetUpcomingRealtime(timeout time.Duration,
-	exclude excludedRounds.ExcludedRounds, minRoundAge time.Duration) (*pb.RoundInfo, error) {
+	exclude excludedRounds.ExcludedRounds, numAttempts int, minRoundAge time.Duration) (*pb.RoundInfo, time.Duration, error) {
 
 	// Start timeout timer
 	timer := time.NewTimer(timeout)
 
+	delay := multiply(numAttempts, minRoundAge)
+
 	// Start seeing if an acceptable round exists
-	round := wr.get(exclude, minRoundAge)
+	round := wr.get(exclude, delay)
 	if round != nil {
-		return round, nil
+		return round, delay, nil
 	}
 
 	jww.INFO.Printf("Could not find round to send on, waiting for update")
@@ -246,30 +310,48 @@ func (wr *WaitingRounds) GetUpcomingRealtime(timeout time.Duration,
 	for {
 		select {
 		case <-timer.C:
-			return nil, timeOutError
+			return nil, 0, timeOutError
 		case <-wr.signal:
-			round = wr.get(exclude, minRoundAge)
+			round = wr.get(exclude, 0)
 			if round != nil {
-				return round, nil
+				return round, 0, nil
 			}
 		}
 	}
 }
 
-func (wr *WaitingRounds) get(exclude excludedRounds.ExcludedRounds, minRoundAge time.Duration) *pb.RoundInfo {
-	if exclude.Len() < maxGetClosestTries {
-		// Use getClosest when excluded set's length is small
-		round := wr.getClosest(exclude, minRoundAge)
-		if round != nil {
-			return round.Get()
-		}
-	} else {
-		// Use getFurthest when excluded set's length exceeds maxGetClosestTries
-		round := wr.getFurthest(exclude, minRoundAge)
-		if round != nil {
-			return round.Get()
-		}
-	}
-	return nil
+func (wr *WaitingRounds) get(exclude excludedRounds.ExcludedRounds, delay time.Duration) *pb.RoundInfo {
 
+	round := wr.getClosest(exclude, delay)
+	if round != nil {
+		return round.Get()
+	}
+
+	return nil
+}
+
+type fraction struct {
+	numerator   uint
+	denominator uint
+}
+
+var roundAgeMultiplier = []fraction{
+	fraction{1, 1},
+	fraction{5, 4},
+	fraction{7, 4},
+	fraction{11, 4},
+	fraction{19, 4},
+	fraction{27, 4},
+	fraction{35, 4},
+}
+
+func multiply(n int, duration time.Duration) time.Duration {
+	if n >= len(roundAgeMultiplier) {
+		n = len(roundAgeMultiplier) - 1
+	}
+
+	f := roundAgeMultiplier[n]
+	duration = duration * time.Duration(f.numerator)
+	duration = duration / time.Duration(f.denominator)
+	return duration
 }

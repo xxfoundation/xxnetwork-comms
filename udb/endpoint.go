@@ -57,6 +57,10 @@ func (u *Comms) RemoveFact(ctx context.Context, msg *pb.FactRemovalRequest) (*me
 	return u.handler.RemoveFact(msg)
 }
 
+func (u *Comms) RequestChannelLease(ctx context.Context, msg *pb.ChannelLeaseRequest) (*pb.ChannelLeaseResponse, error) {
+	return u.handler.RequestChannelLease(msg)
+}
+
 // ValidateUsername validates that a user owns a username by signing the contents of the
 // mixmessages.UsernameValidationRequest.
 func (u *Comms) ValidateUsername(
