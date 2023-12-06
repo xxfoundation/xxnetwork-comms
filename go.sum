@@ -402,6 +402,8 @@ github.com/zeebo/pcg v1.0.1/go.mod h1:09F0S9iiKrwn9rlI5yjLkmrug154/YRW6KnnXVDM/l
 gitlab.com/elixxir/bloomfilter v0.0.1/go.mod h1:1X8gRIAPDisS3W6Vtr/ymiUmZMJUIwDV1o5DEOo/pzw=
 gitlab.com/elixxir/crypto v0.0.8 h1:n7Dy4FOc4y48X+9qj7YX/oMJ4F8SiOI50iuchZr07D4=
 gitlab.com/elixxir/crypto v0.0.8/go.mod h1:KV3F+kO0VVusLIKPqSKMk4HZ4yQiS12SaIsOXg9LJb0=
+gitlab.com/elixxir/crypto v0.0.9 h1:vt7+yRvGd/G9VtpQCaXa7EKPmHTgThf2hXbzZ1vlU6I=
+gitlab.com/elixxir/crypto v0.0.9/go.mod h1:KV3F+kO0VVusLIKPqSKMk4HZ4yQiS12SaIsOXg9LJb0=
 gitlab.com/elixxir/primitives v0.0.4 h1:bgvaOv835kBjr7ZqBzhyYq1LEHFSg6KAiKR5OXf3p/o=
 gitlab.com/elixxir/primitives v0.0.4/go.mod h1:/Eue23ILU8q1wONloYa0QSGaaeCBnAW7RfwrAnqfzWo=
 gitlab.com/elixxir/wasm-utils v0.0.1/go.mod h1:wB7Vh/7LWUm8wYRBSd+6lxfpk4CnDaHTkLCIVKfL2TA=
