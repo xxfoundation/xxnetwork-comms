@@ -140,7 +140,7 @@ func (c *Circuit) GetOrdering() []*Circuit {
 	return circuits
 }
 
-//GetHostAtIndex: Gets host at requested index. Panics if index is outside
+// GetHostAtIndex: Gets host at requested index. Panics if index is outside
 // of the range of the list
 func (c *Circuit) GetHostAtIndex(index int) *Host {
 	if index < 0 || index >= len(c.hosts) {
@@ -150,7 +150,7 @@ func (c *Circuit) GetHostAtIndex(index int) *Host {
 	return c.hosts[index]
 }
 
-//SetHosts takes a list of hosts and copies them into the list of hosts in
+// SetHosts takes a list of hosts and copies them into the list of hosts in
 // the circuit object
 func (c *Circuit) AddHost(newHost *Host) {
 	c.hosts = append(c.hosts, newHost)

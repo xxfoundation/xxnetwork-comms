@@ -73,7 +73,7 @@ func (l *Live) GetBytes() []byte {
 	}
 }
 
-//Returns true if a token is present
+// Returns true if a token is present
 func (l *Live) Has() bool {
 	l.mux.RLock()
 	defer l.mux.RUnlock()
