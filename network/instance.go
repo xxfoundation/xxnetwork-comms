@@ -250,7 +250,7 @@ func NewInstanceTesting(c *connect.ProtoComms, partial, full *ndf.NetworkDefinit
 	return instance, nil
 }
 
-//update the partial ndf
+// update the partial ndf
 func (i *Instance) UpdatePartialNdf(m *pb.NDF) error {
 	if i.partial == nil {
 		return errors.New("Cannot update the partial ndf when it is nil")
@@ -314,12 +314,12 @@ func (i *Instance) UpdatePartialNdf(m *pb.NDF) error {
 	return nil
 }
 
-//overrides an IP address for an ID with one from
+// overrides an IP address for an ID with one from
 func (i *Instance) GetIpOverrideList() *ds.IpOverrideList {
 	return i.ipOverride
 }
 
-//Gets the node and gateway with the given ID
+// Gets the node and gateway with the given ID
 func (i *Instance) GetNodeAndGateway(ngid *id.ID) (NodeGateway, error) {
 	index := -1
 
@@ -364,7 +364,7 @@ func (i *Instance) GetNodeAndGateway(ngid *id.ID) (NodeGateway, error) {
 	}, nil
 }
 
-//update the full ndf
+// update the full ndf
 func (i *Instance) UpdateFullNdf(m *pb.NDF) error {
 	if i.full == nil {
 		return errors.New("Cannot update the full ndf when it is nil")

@@ -12,20 +12,20 @@ import (
 	"sync"
 )
 
-//structure which holds a list of IP address to override
+// structure which holds a list of IP address to override
 type IpOverrideList struct {
 	ipOverride map[id.ID]string
 	sync.Mutex
 }
 
-//creates a new list over IP overrides
+// creates a new list over IP overrides
 func NewIpOverrideList() *IpOverrideList {
 	return &IpOverrideList{
 		ipOverride: make(map[id.ID]string),
 	}
 }
 
-//sets an id to be overridden with a specific IP address
+// sets an id to be overridden with a specific IP address
 func (iol *IpOverrideList) Override(oid *id.ID, ip string) {
 	iol.Lock()
 	iol.ipOverride[*oid] = ip

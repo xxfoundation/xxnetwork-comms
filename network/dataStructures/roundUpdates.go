@@ -52,7 +52,7 @@ func (u *Updates) GetUpdate(id int) (*pb.RoundInfo, error) {
 	return val.(*Round).Get(), nil
 }
 
-//gets all updates after a given ID
+// gets all updates after a given ID
 func (u *Updates) GetUpdates(id int) []*pb.RoundInfo {
 	interfaceList, err := u.updates.GetNewerById(id)
 

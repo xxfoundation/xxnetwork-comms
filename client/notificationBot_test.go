@@ -49,7 +49,7 @@ func TestRegisterForNotifications(t *testing.T) {
 
 }
 
-//Smoke test for UnregisterForNotifications
+// Smoke test for UnregisterForNotifications
 func TestUnregisterForNotifications(t *testing.T) {
 	testId := id.NewIdFromString("test", id.Generic, t)
 	clientId := id.NewIdFromString("client", id.Generic, t)

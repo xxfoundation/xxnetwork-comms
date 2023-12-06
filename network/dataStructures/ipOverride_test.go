@@ -12,7 +12,7 @@ import (
 	"testing"
 )
 
-//tests that NewIpOverrideList returns a properly formatted override list
+// tests that NewIpOverrideList returns a properly formatted override list
 func TestNewIpOverrideList(t *testing.T) {
 	nol := NewIpOverrideList()
 

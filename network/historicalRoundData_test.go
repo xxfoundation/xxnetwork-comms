@@ -15,7 +15,7 @@ import (
 	"testing"
 )
 
-//region ERS Memory Map Impl
+// region ERS Memory Map Impl
 // Memory map based ExtendedRoundStorage database
 type ersMemMap struct {
 	rounds map[id.Round]*pb.RoundInfo

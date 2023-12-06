@@ -16,7 +16,7 @@ import (
 	"testing"
 )
 
-//Tests the happy path of NewCircuit
+// Tests the happy path of NewCircuit
 func TestNew(t *testing.T) {
 	nodeIdList := makeTestingNodeIdList(5, t)
 
@@ -60,7 +60,7 @@ func TestNew(t *testing.T) {
 	}
 }
 
-//Tests that New circuit properly errors when a list with duplicate nodes is passed
+// Tests that New circuit properly errors when a list with duplicate nodes is passed
 func TestNew_Duplicate(t *testing.T) {
 	nodeIdList := makeTestingNodeIdList(5, t)
 
@@ -78,7 +78,7 @@ func TestNew_Duplicate(t *testing.T) {
 
 }
 
-//Tests that New circuit properly errors when a list with duplicate nodes is passed
+// Tests that New circuit properly errors when a list with duplicate nodes is passed
 func TestNew_LenZero(t *testing.T) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -175,7 +175,7 @@ func TestCircuit_GetNodeAtIndex_OutOfList_Greater(t *testing.T) {
 
 }
 
-//Tests that GetHostAtIndex panics whn the passed index
+// Tests that GetHostAtIndex panics whn the passed index
 // is len or greater
 func TestCircuit_GetHostAtIndex_OutOfList_Greater(t *testing.T) {
 	nodeIdList := makeTestingNodeIdList(5, t)
@@ -229,7 +229,7 @@ func TestCircuit_GetHostAtIndex(t *testing.T) {
 
 }
 
-//Tests to see if node retrieved is in fact the last node
+// Tests to see if node retrieved is in fact the last node
 func TestCircuit_GetLastNode(t *testing.T) {
 	nodeIdList := makeTestingNodeIdList(23, t)
 	circuit := NewCircuit(nodeIdList)
@@ -239,7 +239,7 @@ func TestCircuit_GetLastNode(t *testing.T) {
 	}
 }
 
-//Tests that len returns the correct length
+// Tests that len returns the correct length
 func TestCircuit_Len(t *testing.T) {
 	for i := 1; i < 100; i++ {
 		circuit := Circuit{nodes: make([]*id.ID, i)}
@@ -251,7 +251,7 @@ func TestCircuit_Len(t *testing.T) {
 	}
 }
 
-//Tests that all nodes in the circuit return the correct next node
+// Tests that all nodes in the circuit return the correct next node
 func TestCircuit_GetNextNode(t *testing.T) {
 	nodeIdList := makeTestingNodeIdList(9, t)
 
@@ -270,7 +270,7 @@ func TestCircuit_GetNextNode(t *testing.T) {
 	}
 }
 
-//Tests GetNextNode panics when the passed node is invalid
+// Tests GetNextNode panics when the passed node is invalid
 func TestCircuit_GetNextNode_Invalid(t *testing.T) {
 	nodeIdList := makeTestingNodeIdList(9, t)
 
@@ -289,7 +289,7 @@ func TestCircuit_GetNextNode_Invalid(t *testing.T) {
 	t.Errorf("Circuit.GetNextNode: did not panic with invalid nodeID")
 }
 
-//Tests that all nodes in the circuit return the correct next node
+// Tests that all nodes in the circuit return the correct next node
 func TestCircuit_GetPrevNode(t *testing.T) {
 	nodeIdList := makeTestingNodeIdList(9, t)
 
@@ -315,7 +315,7 @@ func TestCircuit_GetPrevNode(t *testing.T) {
 	}
 }
 
-//Tests GetPrevNode panics when the passed node is invalid
+// Tests GetPrevNode panics when the passed node is invalid
 func TestCircuit_GetPrevNode_Invalid(t *testing.T) {
 	nodeIdList := makeTestingNodeIdList(9, t)
 
@@ -334,7 +334,7 @@ func TestCircuit_GetPrevNode_Invalid(t *testing.T) {
 	t.Errorf("Circuit.GetPrevNode: did not panic with invalid nodeID")
 }
 
-//Test that IsFirstNode is only true when passed first node
+// Test that IsFirstNode is only true when passed first node
 func TestCircuit_IsFirstNode(t *testing.T) {
 	nodeIdList := makeTestingNodeIdList(23, t)
 
@@ -353,7 +353,7 @@ func TestCircuit_IsFirstNode(t *testing.T) {
 	}
 }
 
-//Tests that IsLastNode is only true when passed last node
+// Tests that IsLastNode is only true when passed last node
 func TestCircuit_IsLastNode(t *testing.T) {
 	nodeIdList := makeTestingNodeIdList(23, t)
 
@@ -454,7 +454,7 @@ func checkShift(t *testing.T, a, b []*id.ID, rotations int) {
 	}
 }
 
-//Utility function
+// Utility function
 func makeTestingNodeIdList(len int, t *testing.T) []*id.ID {
 	var nodeIdList []*id.ID
 

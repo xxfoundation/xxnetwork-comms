@@ -358,8 +358,9 @@ func (s *Implementation) RoundError(err *mixmessages.RoundError, auth *connect.A
 
 // Consensus node -> cMix node NDF request
 // NOTE: For now cMix nodes serve the NDF to the
-//  consensus nodes, but this will be reversed
-//  once consensus generates the NDF
+//
+//	consensus nodes, but this will be reversed
+//	once consensus generates the NDF
 func (s *Implementation) GetNDF() (*interconnect.NDF, error) {
 	return s.Functions.GetNdf()
 }

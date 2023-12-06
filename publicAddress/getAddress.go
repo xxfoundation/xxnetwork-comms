@@ -67,7 +67,8 @@ func getIpFromList(urls []Service, timeout time.Duration) (string, error) {
 
 // getIpMultiCheck returns the caller's public IP address that is provided from
 // multiple Services. Services are tried one by one until the given number of
-//  services return the same valid IPv4 address.
+//
+//	services return the same valid IPv4 address.
 func getIpMultiCheck(urls []Service, timeout time.Duration, checks int) (string, error) {
 	serviceList := shuffleStrings(urls)
 	var ipv6 bool

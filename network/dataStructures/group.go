@@ -46,7 +46,8 @@ func (g *Group) GetString() string {
 // Update sets the group's string and cyclic.Group object
 // If these values have not been set yet, we set these two values
 // If these values are set and the newGroup is different, it errors
-//  as the group should be immutable after being set
+//
+//	as the group should be immutable after being set
 func (g *Group) Update(newGroup string) error {
 	g.Lock()
 	defer g.Unlock()

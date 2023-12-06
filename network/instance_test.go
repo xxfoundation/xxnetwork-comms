@@ -117,7 +117,7 @@ func TestNewInstanceTesting_Error(t *testing.T) {
 
 }
 
-//tests newInstance errors properly when there is no NDF
+// tests newInstance errors properly when there is no NDF
 func TestNewInstance_NilNDFs(t *testing.T) {
 	_, err := NewInstance(&connect.ProtoComms{}, nil, nil, nil, 0, false)
 	if err == nil {
