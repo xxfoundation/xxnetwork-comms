@@ -9,7 +9,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/soheilhy/cmux v0.1.5
 	github.com/spf13/jwalterweatherman v1.1.0
-	gitlab.com/xx_network/crypto v0.0.5
+	gitlab.com/xx_network/crypto v0.0.6
 	gitlab.com/xx_network/primitives v0.0.5
 	golang.org/x/crypto v0.16.0
 	golang.org/x/net v0.10.0
