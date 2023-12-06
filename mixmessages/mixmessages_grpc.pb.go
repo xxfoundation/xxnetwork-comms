@@ -2085,6 +2085,9 @@ type UDBClient interface {
 	// RequestChannelAuthentication requests a signature from UD on a user's ed25519 public key
 	// Returning a lease and a signature from UD
 	RequestChannelLease(ctx context.Context, in *ChannelLeaseRequest, opts ...grpc.CallOption) (*ChannelLeaseResponse, error)
+	// ValidateUsername sends a UsernameValidationRequest. This is a user side
+	// initiated comm, where UD signs the username.
+	ValidateUsername(ctx context.Context, in *UsernameValidationRequest, opts ...grpc.CallOption) (*UsernameValidation, error)
 }
 
 type uDBClient struct {
@@ -2149,6 +2152,15 @@ func (c *uDBClient) RequestChannelLease(ctx context.Context, in *ChannelLeaseReq
 	return out, nil
 }
 
+func (c *uDBClient) ValidateUsername(ctx context.Context, in *UsernameValidationRequest, opts ...grpc.CallOption) (*UsernameValidation, error) {
+	out := new(UsernameValidation)
+	err := c.cc.Invoke(ctx, "/mixmessages.UDB/ValidateUsername", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UDBServer is the server API for UDB service.
 // All implementations must embed UnimplementedUDBServer
 // for forward compatibility
@@ -2171,6 +2183,9 @@ type UDBServer interface {
 	// RequestChannelAuthentication requests a signature from UD on a user's ed25519 public key
 	// Returning a lease and a signature from UD
 	RequestChannelLease(context.Context, *ChannelLeaseRequest) (*ChannelLeaseResponse, error)
+	// ValidateUsername sends a UsernameValidationRequest. This is a user side
+	// initiated comm, where UD signs the username.
+	ValidateUsername(context.Context, *UsernameValidationRequest) (*UsernameValidation, error)
 	mustEmbedUnimplementedUDBServer()
 }
 
@@ -2195,6 +2210,9 @@ func (UnimplementedUDBServer) RemoveFact(context.Context, *FactRemovalRequest) (
 }
 func (UnimplementedUDBServer) RequestChannelLease(context.Context, *ChannelLeaseRequest) (*ChannelLeaseResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RequestChannelLease not implemented")
+}
+func (UnimplementedUDBServer) ValidateUsername(context.Context, *UsernameValidationRequest) (*UsernameValidation, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ValidateUsername not implemented")
 }
 func (UnimplementedUDBServer) mustEmbedUnimplementedUDBServer() {}
 
@@ -2317,6 +2335,24 @@ func _UDB_RequestChannelLease_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UDB_ValidateUsername_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UsernameValidationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UDBServer).ValidateUsername(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/mixmessages.UDB/ValidateUsername",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UDBServer).ValidateUsername(ctx, req.(*UsernameValidationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UDB_ServiceDesc is the grpc.ServiceDesc for UDB service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -2347,6 +2383,10 @@ var UDB_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RequestChannelLease",
 			Handler:    _UDB_RequestChannelLease_Handler,
+		},
+		{
+			MethodName: "ValidateUsername",
+			Handler:    _UDB_ValidateUsername_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -2505,6 +2545,272 @@ var Authorizer_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RequestEABCredentials",
 			Handler:    _Authorizer_RequestEABCredentials_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "mixmessages.proto",
+}
+
+// RemoteSyncClient is the client API for RemoteSync service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type RemoteSyncClient interface {
+	Login(ctx context.Context, in *RsAuthenticationRequest, opts ...grpc.CallOption) (*RsAuthenticationResponse, error)
+	Read(ctx context.Context, in *RsReadRequest, opts ...grpc.CallOption) (*RsReadResponse, error)
+	Write(ctx context.Context, in *RsWriteRequest, opts ...grpc.CallOption) (*messages.Ack, error)
+	GetLastModified(ctx context.Context, in *RsReadRequest, opts ...grpc.CallOption) (*RsTimestampResponse, error)
+	GetLastWrite(ctx context.Context, in *RsLastWriteRequest, opts ...grpc.CallOption) (*RsTimestampResponse, error)
+	ReadDir(ctx context.Context, in *RsReadRequest, opts ...grpc.CallOption) (*RsReadDirResponse, error)
+}
+
+type remoteSyncClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewRemoteSyncClient(cc grpc.ClientConnInterface) RemoteSyncClient {
+	return &remoteSyncClient{cc}
+}
+
+func (c *remoteSyncClient) Login(ctx context.Context, in *RsAuthenticationRequest, opts ...grpc.CallOption) (*RsAuthenticationResponse, error) {
+	out := new(RsAuthenticationResponse)
+	err := c.cc.Invoke(ctx, "/mixmessages.RemoteSync/Login", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *remoteSyncClient) Read(ctx context.Context, in *RsReadRequest, opts ...grpc.CallOption) (*RsReadResponse, error) {
+	out := new(RsReadResponse)
+	err := c.cc.Invoke(ctx, "/mixmessages.RemoteSync/Read", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *remoteSyncClient) Write(ctx context.Context, in *RsWriteRequest, opts ...grpc.CallOption) (*messages.Ack, error) {
+	out := new(messages.Ack)
+	err := c.cc.Invoke(ctx, "/mixmessages.RemoteSync/Write", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *remoteSyncClient) GetLastModified(ctx context.Context, in *RsReadRequest, opts ...grpc.CallOption) (*RsTimestampResponse, error) {
+	out := new(RsTimestampResponse)
+	err := c.cc.Invoke(ctx, "/mixmessages.RemoteSync/GetLastModified", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *remoteSyncClient) GetLastWrite(ctx context.Context, in *RsLastWriteRequest, opts ...grpc.CallOption) (*RsTimestampResponse, error) {
+	out := new(RsTimestampResponse)
+	err := c.cc.Invoke(ctx, "/mixmessages.RemoteSync/GetLastWrite", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *remoteSyncClient) ReadDir(ctx context.Context, in *RsReadRequest, opts ...grpc.CallOption) (*RsReadDirResponse, error) {
+	out := new(RsReadDirResponse)
+	err := c.cc.Invoke(ctx, "/mixmessages.RemoteSync/ReadDir", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// RemoteSyncServer is the server API for RemoteSync service.
+// All implementations must embed UnimplementedRemoteSyncServer
+// for forward compatibility
+type RemoteSyncServer interface {
+	Login(context.Context, *RsAuthenticationRequest) (*RsAuthenticationResponse, error)
+	Read(context.Context, *RsReadRequest) (*RsReadResponse, error)
+	Write(context.Context, *RsWriteRequest) (*messages.Ack, error)
+	GetLastModified(context.Context, *RsReadRequest) (*RsTimestampResponse, error)
+	GetLastWrite(context.Context, *RsLastWriteRequest) (*RsTimestampResponse, error)
+	ReadDir(context.Context, *RsReadRequest) (*RsReadDirResponse, error)
+	mustEmbedUnimplementedRemoteSyncServer()
+}
+
+// UnimplementedRemoteSyncServer must be embedded to have forward compatible implementations.
+type UnimplementedRemoteSyncServer struct {
+}
+
+func (UnimplementedRemoteSyncServer) Login(context.Context, *RsAuthenticationRequest) (*RsAuthenticationResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
+}
+func (UnimplementedRemoteSyncServer) Read(context.Context, *RsReadRequest) (*RsReadResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Read not implemented")
+}
+func (UnimplementedRemoteSyncServer) Write(context.Context, *RsWriteRequest) (*messages.Ack, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Write not implemented")
+}
+func (UnimplementedRemoteSyncServer) GetLastModified(context.Context, *RsReadRequest) (*RsTimestampResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetLastModified not implemented")
+}
+func (UnimplementedRemoteSyncServer) GetLastWrite(context.Context, *RsLastWriteRequest) (*RsTimestampResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetLastWrite not implemented")
+}
+func (UnimplementedRemoteSyncServer) ReadDir(context.Context, *RsReadRequest) (*RsReadDirResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ReadDir not implemented")
+}
+func (UnimplementedRemoteSyncServer) mustEmbedUnimplementedRemoteSyncServer() {}
+
+// UnsafeRemoteSyncServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to RemoteSyncServer will
+// result in compilation errors.
+type UnsafeRemoteSyncServer interface {
+	mustEmbedUnimplementedRemoteSyncServer()
+}
+
+func RegisterRemoteSyncServer(s grpc.ServiceRegistrar, srv RemoteSyncServer) {
+	s.RegisterService(&RemoteSync_ServiceDesc, srv)
+}
+
+func _RemoteSync_Login_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RsAuthenticationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RemoteSyncServer).Login(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/mixmessages.RemoteSync/Login",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RemoteSyncServer).Login(ctx, req.(*RsAuthenticationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RemoteSync_Read_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RsReadRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RemoteSyncServer).Read(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/mixmessages.RemoteSync/Read",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RemoteSyncServer).Read(ctx, req.(*RsReadRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RemoteSync_Write_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RsWriteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RemoteSyncServer).Write(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/mixmessages.RemoteSync/Write",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RemoteSyncServer).Write(ctx, req.(*RsWriteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RemoteSync_GetLastModified_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RsReadRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RemoteSyncServer).GetLastModified(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/mixmessages.RemoteSync/GetLastModified",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RemoteSyncServer).GetLastModified(ctx, req.(*RsReadRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RemoteSync_GetLastWrite_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RsLastWriteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RemoteSyncServer).GetLastWrite(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/mixmessages.RemoteSync/GetLastWrite",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RemoteSyncServer).GetLastWrite(ctx, req.(*RsLastWriteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RemoteSync_ReadDir_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RsReadRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RemoteSyncServer).ReadDir(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/mixmessages.RemoteSync/ReadDir",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RemoteSyncServer).ReadDir(ctx, req.(*RsReadRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// RemoteSync_ServiceDesc is the grpc.ServiceDesc for RemoteSync service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var RemoteSync_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "mixmessages.RemoteSync",
+	HandlerType: (*RemoteSyncServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Login",
+			Handler:    _RemoteSync_Login_Handler,
+		},
+		{
+			MethodName: "Read",
+			Handler:    _RemoteSync_Read_Handler,
+		},
+		{
+			MethodName: "Write",
+			Handler:    _RemoteSync_Write_Handler,
+		},
+		{
+			MethodName: "GetLastModified",
+			Handler:    _RemoteSync_GetLastModified_Handler,
+		},
+		{
+			MethodName: "GetLastWrite",
+			Handler:    _RemoteSync_GetLastWrite_Handler,
+		},
+		{
+			MethodName: "ReadDir",
+			Handler:    _RemoteSync_ReadDir_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

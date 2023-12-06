@@ -659,6 +659,8 @@ message UnregisterTrackedIdRequest {
 
 message RegisterTrackedIdRequest {
     TrackedIntermediaryIdRequest Request = 1;
+    int64 RegistrationTimestamp = 2;
+    bytes TransmissionRsaRegistrarSig = 3;
 }
 
 message TrackedIntermediaryIdRequest {
@@ -734,8 +736,11 @@ service UDB {
     // RequestChannelAuthentication requests a signature from UD on a user's ed25519 public key
     // Returning a lease and a signature from UD
     rpc RequestChannelLease (ChannelLeaseRequest) returns (ChannelLeaseResponse) {
-
     }
+
+    // ValidateUsername sends a UsernameValidationRequest. This is a user side
+    // initiated comm, where UD signs the username.
+    rpc ValidateUsername(UsernameValidationRequest) returns (UsernameValidation) {}
 }
 
 // Holds information for a user requesting a channel lease from UD
@@ -751,6 +756,21 @@ message ChannelLeaseResponse {
     int64 Lease = 1;
     bytes UserEd25519PubKey = 2;
     bytes UDLeaseEd25519Signature = 3;
+
+}
+
+// UsernameValidationRequest is the message a user sends to UD to
+// for validation that they own their username
+message UsernameValidationRequest {
+    bytes UserId = 3;
+}
+
+// UsernameValidation is the response to a UsernameValidationRequest.
+// This contains a signature from a UD server on the data within the request message.
+message UsernameValidation {
+    bytes Signature = 1;
+    string Username = 2;
+    bytes ReceptionPublicKeyPem = 3;
 
 }
 
@@ -869,4 +889,52 @@ message AuthorizerAuth{
     bytes PubkeyPem = 3;
     int64 TimeStamp = 4;
     bytes signature = 5;
+}
+
+
+service RemoteSync{
+    rpc Login(RsAuthenticationRequest) returns (RsAuthenticationResponse);
+    rpc Read(RsReadRequest) returns (RsReadResponse);
+    rpc Write(RsWriteRequest) returns (messages.Ack);
+    rpc GetLastModified(RsReadRequest) returns (RsTimestampResponse);
+    rpc GetLastWrite(RsLastWriteRequest) returns (RsTimestampResponse);
+    rpc ReadDir(RsReadRequest) returns (RsReadDirResponse);
+}
+
+message RsAuthenticationRequest{
+    string Username = 1;
+    bytes PasswordHash = 2;
+    bytes Salt = 3;
+}
+
+message RsAuthenticationResponse{
+    bytes Token = 1;
+    int64  ExpiresAt = 2;
+}
+
+message RsReadRequest{
+    string Path = 1;
+    bytes Token = 2;
+}
+
+message RsLastWriteRequest{
+    bytes Token = 1;
+}
+
+message RsReadResponse{
+    bytes Data = 1;
+}
+
+message RsWriteRequest{
+    string Path = 1;
+    bytes Data = 2;
+    bytes Token = 3;
+}
+
+message RsReadDirResponse {
+    repeated string Data = 1;
+}
+
+message RsTimestampResponse{
+    int64 Timestamp = 1;
 }

@@ -10,6 +10,7 @@ package client
 import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
+	"github.com/pkg/errors"
 	jww "github.com/spf13/jwalterweatherman"
 	pb "gitlab.com/elixxir/comms/mixmessages"
 	"gitlab.com/xx_network/comms/connect"
@@ -228,4 +229,36 @@ func (c *Comms) SendChannelLeaseRequest(host *connect.Host, message *pb.ChannelL
 
 	return result, ptypes.UnmarshalAny(resultMsg, result)
 
+}
+
+// SendUsernameValidation is a client to User Discovery send function. This will send a
+// mixmessages.UsernameValidationRequest to UD, which UD will validate and send back a
+// mixmessages.UsernameValidation.
+func (c *Comms) SendUsernameValidation(host *connect.Host,
+	message *pb.UsernameValidationRequest) (*pb.UsernameValidation, error) {
+	// Create the Send Function
+	f := func(conn connect.Connection) (*any.Any, error) {
+		// Set up the context
+		ctx, cancel := host.GetMessagingContext()
+		defer cancel()
+
+		// Send the message
+		resultMsg, err := pb.NewUDBClient(conn.GetGrpcConn()).ValidateUsername(ctx, message)
+		if err != nil {
+			err = errors.New(err.Error())
+			return nil, errors.New(err.Error())
+
+		}
+		return ptypes.MarshalAny(resultMsg)
+	}
+
+	// Execute the Send function
+	jww.TRACE.Printf("Sending Username Validation Message: %+v", message)
+	responseMessage, err := c.Send(host, f)
+	if err != nil {
+		return nil, err
+	}
+
+	response := &pb.UsernameValidation{}
+	return response, ptypes.UnmarshalAny(responseMessage, response)
 }
