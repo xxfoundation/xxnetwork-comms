@@ -15,7 +15,7 @@ import (
 )
 
 var serverPortLock sync.Mutex
-var serverPort = 5000
+var serverPort = 15000 // Changed from 5000 to avoid conflicts with macOS Control Center (Airplay on port 5000)
 
 func getNextServerAddress() string {
 	serverPortLock.Lock()

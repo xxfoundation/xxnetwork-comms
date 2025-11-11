@@ -21,7 +21,7 @@ import (
 )
 
 var serverPortLock sync.Mutex
-var serverPort = 5900
+var serverPort = 16900 // Changed from 5900 to avoid conflicts
 
 func getNextServerAddress() string {
 	serverPortLock.Lock()
