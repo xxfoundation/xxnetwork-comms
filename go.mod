@@ -1,6 +1,6 @@
 module gitlab.com/elixxir/comms
 
-go 1.17
+go 1.21
 
 require (
 	git.xx.network/elixxir/grpc-web-go-client v0.0.0-20230214175953-5b5a8c33d28a
@@ -8,7 +8,7 @@ require (
 	github.com/golang/protobuf v1.5.2
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/jwalterweatherman v1.1.0
-	gitlab.com/elixxir/crypto v0.0.9
+	gitlab.com/elixxir/crypto v0.0.10
 	gitlab.com/elixxir/primitives v0.0.4
 	gitlab.com/xx_network/comms v0.0.6
 	gitlab.com/xx_network/crypto v0.0.6
